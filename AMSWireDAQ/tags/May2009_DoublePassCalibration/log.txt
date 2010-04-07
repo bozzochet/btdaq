@@ -1,0 +1,1 @@
+/mnt/tkdata/log.txt
