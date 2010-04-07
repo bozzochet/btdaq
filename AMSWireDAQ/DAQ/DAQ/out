@@ -1,0 +1,4224 @@
+./TESTjmdc 2 003f003f 7 
+mode = 2
+addr=003f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x003f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 013f003f 7 
+mode = 2
+addr=013f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x013f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 023f003f 7 
+mode = 2
+addr=023f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x023f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 033f003f 7 
+mode = 2
+addr=033f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x033f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 043f003f 7 
+mode = 2
+addr=043f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x043f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 053f003f 7 
+mode = 2
+addr=053f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x053f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 063f003f 7 
+mode = 2
+addr=063f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x063f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 073f003f 7 
+mode = 2
+addr=073f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x073f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 083f003f 7 
+mode = 2
+addr=083f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x083f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 093f003f 7 
+mode = 2
+addr=093f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x093f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0a3f003f 7 
+mode = 2
+addr=0a3f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x0a3f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0b3f003f 7 
+mode = 2
+addr=0b3f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x0b3f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0c3f003f 7 
+mode = 2
+addr=0c3f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x0c3f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0d3f003f 7 
+mode = 2
+addr=0d3f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x0d3f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0e3f003f 7 
+mode = 2
+addr=0e3f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x0e3f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0f3f003f 7 
+mode = 2
+addr=0f3f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x0f3f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 103f003f 7 
+mode = 2
+addr=103f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x103f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 113f003f 7 
+mode = 2
+addr=113f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x113f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 123f003f 7 
+mode = 2
+addr=123f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x123f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 133f003f 7 
+mode = 2
+addr=133f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x133f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 143f003f 7 
+mode = 2
+addr=143f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x143f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 153f003f 7 
+mode = 2
+addr=153f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x153f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 163f003f 7 
+mode = 2
+addr=163f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x163f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 173f003f 7 
+mode = 2
+addr=173f003f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x173f003f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 003f013f 7 
+mode = 2
+addr=003f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xe53a , DoFCS= 0xe53a
+rxdone = 0000
+Flash Summary of address 0x003f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 013f013f 7 
+mode = 2
+addr=013f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xe53a , DoFCS= 0xe53a
+rxdone = 0000
+Flash Summary of address 0x013f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 023f013f 7 
+mode = 2
+addr=023f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xe53a , DoFCS= 0xe53a
+rxdone = 0000
+Flash Summary of address 0x023f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 033f013f 7 
+mode = 2
+addr=033f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xe53a , DoFCS= 0xe53a
+rxdone = 0000
+Flash Summary of address 0x033f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 043f013f 7 
+mode = 2
+addr=043f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xe53a , DoFCS= 0xe53a
+rxdone = 0000
+Flash Summary of address 0x043f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 053f013f 7 
+mode = 2
+addr=053f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xe53a , DoFCS= 0xe53a
+rxdone = 0000
+Flash Summary of address 0x053f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 063f013f 7 
+mode = 2
+addr=063f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x063f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 073f013f 7 
+mode = 2
+addr=073f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x073f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 083f013f 7 
+mode = 2
+addr=083f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x083f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 093f013f 7 
+mode = 2
+addr=093f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x093f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0a3f013f 7 
+mode = 2
+addr=0a3f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x0a3f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0b3f013f 7 
+mode = 2
+addr=0b3f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x0b3f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0c3f013f 7 
+mode = 2
+addr=0c3f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x0c3f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0d3f013f 7 
+mode = 2
+addr=0d3f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x0d3f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0e3f013f 7 
+mode = 2
+addr=0e3f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x0e3f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0f3f013f 7 
+mode = 2
+addr=0f3f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x0f3f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 103f013f 7 
+mode = 2
+addr=103f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x103f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 113f013f 7 
+mode = 2
+addr=113f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x113f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 123f013f 7 
+mode = 2
+addr=123f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x123f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 133f013f 7 
+mode = 2
+addr=133f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x133f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 143f013f 7 
+mode = 2
+addr=143f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x143f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 153f013f 7 
+mode = 2
+addr=153f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x153f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 163f013f 7 
+mode = 2
+addr=163f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xfabc , DoFCS= 0xfabc
+rxdone = 0000
+Flash Summary of address 0x163f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 173f013f 7 
+mode = 2
+addr=173f013f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xe53a , DoFCS= 0xe53a
+rxdone = 0000
+Flash Summary of address 0x173f013f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   7e16  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 003f033f 7 
+mode = 2
+addr=003f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xcc6b , DoFCS= 0xcc6b
+rxdone = 0000
+Flash Summary of address 0x003f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   ffff  |  1400 |  0000  | 0000 |
+|   6    |   7e26  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 013f033f 7 
+mode = 2
+addr=013f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x013f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 023f033f 7 
+mode = 2
+addr=023f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x023f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 033f033f 7 
+mode = 2
+addr=033f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x033f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 043f033f 7 
+mode = 2
+addr=043f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x043f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 053f033f 7 
+mode = 2
+addr=053f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x053f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 063f033f 7 
+mode = 2
+addr=063f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x063f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 073f033f 7 
+mode = 2
+addr=073f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x073f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 083f033f 7 
+mode = 2
+addr=083f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x083f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 093f033f 7 
+mode = 2
+addr=093f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x093f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0a3f033f 7 
+mode = 2
+addr=0a3f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0a3f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0b3f033f 7 
+mode = 2
+addr=0b3f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0b3f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0c3f033f 7 
+mode = 2
+addr=0c3f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0c3f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0d3f033f 7 
+mode = 2
+addr=0d3f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0d3f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0e3f033f 7 
+mode = 2
+addr=0e3f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0e3f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0f3f033f 7 
+mode = 2
+addr=0f3f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0f3f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 103f033f 7 
+mode = 2
+addr=103f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x103f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 113f033f 7 
+mode = 2
+addr=113f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x113f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 123f033f 7 
+mode = 2
+addr=123f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x123f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 133f033f 7 
+mode = 2
+addr=133f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x133f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 143f033f 7 
+mode = 2
+addr=143f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x143f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 153f033f 7 
+mode = 2
+addr=153f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x153f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 163f033f 7 
+mode = 2
+addr=163f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x163f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 173f033f 7 
+mode = 2
+addr=173f033f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x173f033f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 003f093f 7 
+mode = 2
+addr=003f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x003f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 013f093f 7 
+mode = 2
+addr=013f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x013f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 023f093f 7 
+mode = 2
+addr=023f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x023f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 033f093f 7 
+mode = 2
+addr=033f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x033f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 043f093f 7 
+mode = 2
+addr=043f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x043f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 053f093f 7 
+mode = 2
+addr=053f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x053f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 063f093f 7 
+mode = 2
+addr=063f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x063f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 073f093f 7 
+mode = 2
+addr=073f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x073f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 083f093f 7 
+mode = 2
+addr=083f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x083f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 093f093f 7 
+mode = 2
+addr=093f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x093f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0a3f093f 7 
+mode = 2
+addr=0a3f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x0a3f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0b3f093f 7 
+mode = 2
+addr=0b3f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x0b3f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0c3f093f 7 
+mode = 2
+addr=0c3f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x0c3f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0d3f093f 7 
+mode = 2
+addr=0d3f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x0d3f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0e3f093f 7 
+mode = 2
+addr=0e3f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x0e3f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0f3f093f 7 
+mode = 2
+addr=0f3f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x0f3f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 103f093f 7 
+mode = 2
+addr=103f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x103f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 113f093f 7 
+mode = 2
+addr=113f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x113f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 123f093f 7 
+mode = 2
+addr=123f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x123f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 133f093f 7 
+mode = 2
+addr=133f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x133f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 143f093f 7 
+mode = 2
+addr=143f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x143f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 153f093f 7 
+mode = 2
+addr=153f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x153f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 163f093f 7 
+mode = 2
+addr=163f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x163f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 173f093f 7 
+mode = 2
+addr=173f093f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x173f093f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 003f103f 7 
+mode = 2
+addr=003f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x003f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 013f103f 7 
+mode = 2
+addr=013f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x013f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 023f103f 7 
+mode = 2
+addr=023f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x023f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 033f103f 7 
+mode = 2
+addr=033f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x033f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 043f103f 7 
+mode = 2
+addr=043f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x043f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 053f103f 7 
+mode = 2
+addr=053f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x053f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 063f103f 7 
+mode = 2
+addr=063f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x063f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 073f103f 7 
+mode = 2
+addr=073f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x073f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 083f103f 7 
+mode = 2
+addr=083f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x083f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 093f103f 7 
+mode = 2
+addr=093f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x093f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0a3f103f 7 
+mode = 2
+addr=0a3f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x0a3f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0b3f103f 7 
+mode = 2
+addr=0b3f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x0b3f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0c3f103f 7 
+mode = 2
+addr=0c3f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x0c3f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0d3f103f 7 
+mode = 2
+addr=0d3f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0d3f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0e3f103f 7 
+mode = 2
+addr=0e3f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x0e3f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0f3f103f 7 
+mode = 2
+addr=0f3f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x1fe4 , DoFCS= 0x1fe4
+rxdone = 0000
+Flash Summary of address 0x0f3f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   7e26  |  1000 |  0000  | 0000 |
+|   5    |   3f43  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 103f103f 7 
+mode = 2
+addr=103f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x103f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 113f103f 7 
+mode = 2
+addr=113f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x113f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 123f103f 7 
+mode = 2
+addr=123f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x123f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 133f103f 7 
+mode = 2
+addr=133f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x133f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 143f103f 7 
+mode = 2
+addr=143f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x143f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 153f103f 7 
+mode = 2
+addr=153f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x153f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 163f103f 7 
+mode = 2
+addr=163f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x163f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 173f103f 7 
+mode = 2
+addr=173f103f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x173f103f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 003f113f 7 
+mode = 2
+addr=003f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x003f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 013f113f 7 
+mode = 2
+addr=013f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x013f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 023f113f 7 
+mode = 2
+addr=023f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x023f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 033f113f 7 
+mode = 2
+addr=033f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x033f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 043f113f 7 
+mode = 2
+addr=043f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x043f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 053f113f 7 
+mode = 2
+addr=053f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x9eca , DoFCS= 0x9eca
+rxdone = 0000
+Flash Summary of address 0x053f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   6001  |  0200 |  0000  | 0000 |
+|   1    |   29f3  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 063f113f 7 
+mode = 2
+addr=063f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x063f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 073f113f 7 
+mode = 2
+addr=073f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x073f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 083f113f 7 
+mode = 2
+addr=083f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x083f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 093f113f 7 
+mode = 2
+addr=093f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x093f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0a3f113f 7 
+mode = 2
+addr=0a3f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0a3f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0b3f113f 7 
+mode = 2
+addr=0b3f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0b3f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0c3f113f 7 
+mode = 2
+addr=0c3f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0c3f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0d3f113f 7 
+mode = 2
+addr=0d3f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0d3f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0e3f113f 7 
+mode = 2
+addr=0e3f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0e3f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0f3f113f 7 
+mode = 2
+addr=0f3f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0f3f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 103f113f 7 
+mode = 2
+addr=103f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x103f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 113f113f 7 
+mode = 2
+addr=113f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x113f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 123f113f 7 
+mode = 2
+addr=123f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x123f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 133f113f 7 
+mode = 2
+addr=133f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x133f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 143f113f 7 
+mode = 2
+addr=143f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x143f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 153f113f 7 
+mode = 2
+addr=153f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x153f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 163f113f 7 
+mode = 2
+addr=163f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x163f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 173f113f 7 
+mode = 2
+addr=173f113f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x173f113f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 003f163f 7 
+mode = 2
+addr=003f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x003f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 013f163f 7 
+mode = 2
+addr=013f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x013f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 023f163f 7 
+mode = 2
+addr=023f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x023f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 033f163f 7 
+mode = 2
+addr=033f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x033f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 043f163f 7 
+mode = 2
+addr=043f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x043f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 053f163f 7 
+mode = 2
+addr=053f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x053f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 063f163f 7 
+mode = 2
+addr=063f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x063f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 073f163f 7 
+mode = 2
+addr=073f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x073f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 083f163f 7 
+mode = 2
+addr=083f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x083f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 093f163f 7 
+mode = 2
+addr=093f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xa48e , DoFCS= 0xa48e
+rxdone = 0000
+Flash Summary of address 0x093f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f23  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0a3f163f 7 
+mode = 2
+addr=0a3f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbd88 , DoFCS= 0xbd88
+rxdone = 0000
+Flash Summary of address 0x0a3f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f53  |  0800 |  0000  | 0000 |
+|   3    |   7f25  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   0000  |  1400 |  8000  | 0000 |
+|   6    |   7e26  |  1800 |  0000  | 0000 |
+|   7    |   ffff  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0b3f163f 7 
+mode = 2
+addr=0b3f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0b3f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0c3f163f 7 
+mode = 2
+addr=0c3f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0c3f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0d3f163f 7 
+mode = 2
+addr=0d3f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0d3f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0e3f163f 7 
+mode = 2
+addr=0e3f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0e3f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0f3f163f 7 
+mode = 2
+addr=0f3f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x0f3f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 103f163f 7 
+mode = 2
+addr=103f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x103f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 113f163f 7 
+mode = 2
+addr=113f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x113f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 123f163f 7 
+mode = 2
+addr=123f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x123f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 133f163f 7 
+mode = 2
+addr=133f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x133f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 143f163f 7 
+mode = 2
+addr=143f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x143f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 153f163f 7 
+mode = 2
+addr=153f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x153f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 163f163f 7 
+mode = 2
+addr=163f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x163f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 173f163f 7 
+mode = 2
+addr=173f163f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xbb08 , DoFCS= 0xbb08
+rxdone = 0000
+Flash Summary of address 0x173f163f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f23  |  0c00 |  0000  | 0000 |
+|   4    |   3f43  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 003f173f 7 
+mode = 2
+addr=003f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x003f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 013f173f 7 
+mode = 2
+addr=013f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x013f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 023f173f 7 
+mode = 2
+addr=023f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xe2e3 , DoFCS= 0xe2e3
+rxdone = 0000
+Flash Summary of address 0x023f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f43  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 033f173f 7 
+mode = 2
+addr=033f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xe2e3 , DoFCS= 0xe2e3
+rxdone = 0000
+Flash Summary of address 0x033f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f43  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 043f173f 7 
+mode = 2
+addr=043f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x043f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 053f173f 7 
+mode = 2
+addr=053f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x053f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 063f173f 7 
+mode = 2
+addr=063f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x063f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 073f173f 7 
+mode = 2
+addr=073f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xe2e3 , DoFCS= 0xe2e3
+rxdone = 0000
+Flash Summary of address 0x073f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f43  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 083f173f 7 
+mode = 2
+addr=083f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x083f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 093f173f 7 
+mode = 2
+addr=093f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x093f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0a3f173f 7 
+mode = 2
+addr=0a3f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x0a3f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0b3f173f 7 
+mode = 2
+addr=0b3f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x0b3f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0c3f173f 7 
+mode = 2
+addr=0c3f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x0c3f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0d3f173f 7 
+mode = 2
+addr=0d3f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x0d3f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0e3f173f 7 
+mode = 2
+addr=0e3f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x0e3f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 0f3f173f 7 
+mode = 2
+addr=0f3f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x0f3f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 103f173f 7 
+mode = 2
+addr=103f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x103f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 113f173f 7 
+mode = 2
+addr=113f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x113f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 123f173f 7 
+mode = 2
+addr=123f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x123f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 133f173f 7 
+mode = 2
+addr=133f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x133f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 143f173f 7 
+mode = 2
+addr=143f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x143f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 153f173f 7 
+mode = 2
+addr=153f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x153f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 163f173f 7 
+mode = 2
+addr=163f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0xe2e3 , DoFCS= 0xe2e3
+rxdone = 0000
+Flash Summary of address 0x163f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3ef3  |  0800 |  0000  | 0000 |
+|   3    |   3f43  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events
+./TESTjmdc 2 173f173f 7 
+mode = 2
+addr=173f173f   cmd=0007
+
+PAD: Sending command...
+CommandJMDC: RX_DONE=0
+JMDC: crc= 0x3cc4 , DoFCS= 0x3cc4
+rxdone = 0000
+Flash Summary of address 0x173f173f:
+--------------------------------------------
+| Sector | File Id | AddrH | EraseS | Stat |
+--------------------------------------------
+|   0    |   29f3  |  0200 |  0000  | 0000 |
+|   1    |   6001  |  0400 |  0000  | 0000 |
+|   2    |   3f43  |  0800 |  0000  | 0000 |
+|   3    |   3ef3  |  0c00 |  0000  | 0000 |
+|   4    |   3f23  |  1000 |  0000  | 0000 |
+|   5    |   7e26  |  1400 |  0000  | 0000 |
+|   6    |   ffff  |  1800 |  0000  | 0000 |
+|   7    |   3f53  |  1c00 |  0000  | 0000 |
+--------------------------------------------
+Slave ID 0: CDP node is building CMP events

@@ -1,0 +1,11 @@
+#!/bin/sh 
+
+comm=$*
+
+for jinf in `cat jinflist`; do
+  for tdr in `cat tdrlist`; do
+    ./TESTjmdc 2 ${tdr}3f${jinf}3f $comm 
+    usleep 200000
+  done
+done 
+
