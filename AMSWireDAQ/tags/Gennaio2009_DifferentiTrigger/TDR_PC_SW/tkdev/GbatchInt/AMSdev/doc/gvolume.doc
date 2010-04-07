@@ -1,0 +1,83 @@
+#  $Id: gvolume.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+a) Add geant volume to mother volume:
+
+AMSgvolume mother; 
+AMSNode * gvolume = mother.add( new AMSgvolume_constructor);
+
+
+b) Constructors:
+
+
+  AMSgvolume (char matter[],integer rotmno,const char name[],
+           const char shape[] ,   geant par[] , integer npar,
+           geant coo[] ,  number nrm[][3] , const char gonly[] ,
+           integer posp,integer gid, integer rel)       // constructor
+
+//  where 
+//  integer matter        ! geant tracking media index
+//  char matter[]         ! geant tracking media name
+//  integer rotmno        ! donot use rotmatrix(0) use it(!0)
+//  char name[]           ! geant volume name ( as in GSVOLUM)
+//  char shape[]          ! geant volume shape
+//  geant par[]           ! geant volume paramerters
+//  integer npar          ! parameters number
+//  geant   coo[3]        ! geant volume ABSOLUTE coordinates if rel==0
+//  geant   coo[3]        ! geant volume RELATIVE  coordinates if rel!=0
+//  number nrm[3][3]     ! ABSOLUTE rotation matrix (1st index 1st) if rel==0
+//  number nrm[3][3]      ! RELATIVE rotation matrix (1st index 1st) if rel!=0
+//  char gonly[]          ! 'ONLY' or 'MANY'(g3) or 'BOOx'(g4 see also d))
+//  integer posp          ! Position by gsposp(1,-1) or by gspos(0)
+                          ! call gsvolume(1,0)  
+//  integer gid           ! geant volume id
+//  integer rel           ! See above for coo & nrm
+
+// Important restriction I:
+// The combination of name[] and gid should be unique thru all AMS.
+
+// Important restriction II (geant3 only):
+// All volumes which have daughters must have different name(1:4) [Geant3 recursion
+feauture]
+
+
+c) member functions:
+
+  AMSPoint gl2loc(AMSPoint);  // conversion global->local
+  AMSPoint loc2gl(AMSPoint);  // conversion local->global
+  number getnrm(integer i ,integer j)
+  number getcoo(integer i)
+  number getpar(integer i)
+
+
+d) G4 Boolean operations 
+   The following interface is provided:
+   1st Boolean volume:
+   AMSgvolume* pbool=(AMSgvolume*)mother->add(new AMSgvolume(.... gonly='BOOL'.....))
+   Subs volumes:
+   pbool->addboolean(char shape[],geant par[], int npar, geant coo[3],
+number nrm[3][3],char ops='x')
+   where x 
+   +    add
+   -    sub
+   /    intersect
+   all displacements/rotations for subs volumes are always with 
+   respect to the 1st one
+
+e) G4 Replicas   
+   Same as ordinary volumes, except
+ i)
+   gonly="REPx", where x
+   X  replicate along x axis
+   Y  -------------   y
+   Z  -------------   z    // Doesn't support at themoment
+   R  cylindrical sym      //   --
+   P  azymathal sym       //    --
+   see also  $G4INSTALL/source/geometry/management/include/G4PVReplica.hh
+ ii) npar=npar+3;
+     par[npar-3]=nReplicas;
+     par[npar-2]=Width (Space)
+     par[npar-1]=Offset (not used for xyz case)
+
+
+ iii)  Doesn;t really work in geant4, though can be drawn.
+
+

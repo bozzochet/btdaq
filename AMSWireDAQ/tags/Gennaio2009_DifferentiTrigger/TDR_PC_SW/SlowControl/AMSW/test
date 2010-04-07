@@ -1,0 +1,16 @@
+// this is a file to test basili-6 program
+
+
+0100   // Control Command
+
+0101   // enable_pattern
+
+1      // global_reset
+
+1111 0000 1111 0000 1111 0000 1111 0000 // enable_channels
+
+1      // DLL reset
+
+1      // PLL reset
+
+0      // control parity

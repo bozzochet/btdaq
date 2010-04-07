@@ -1,0 +1,317 @@
+#define Optimize NO
+
+DEMOSRCS= \
+	  arrowbutton.c \
+	  borderwidth.c \
+	  boxtype.c \
+	  browserall.c \
+	  browserop.c \
+	  buttonall.c \
+	  butttypes.c \
+	  canvas.c \
+	  chartall.c \
+	  chartstrip.c \
+	  choice.c \
+	  colbrowser.c \
+	  colsel.c \
+	  colsel1.c \
+	  counter.c \
+	  cursor.c \
+	  demo.c \
+	  demo05.c \
+	  demo06.c \
+	  demo27.c \
+	  demo33.c \
+	  demotest.c \
+	  demotest2.c \
+	  demotest3.c \
+	  dirlist.c \
+	  fbrowse.c \
+	  fbrowse1.c \
+	  fdial.c \
+	  flclock.c \
+	  folder.c \
+	  fonts.c \
+	  formbrowser.c \
+	  free1.c \
+	  freedraw.c \
+	  freedraw_leak.c \
+	  goodies.c \
+	  group.c \
+	  ibrowser.c \
+	  iconify.c \
+	  iconvert.c \
+	  inputall.c \
+	  invslider.c \
+	  itest.c \
+	  lalign.c \
+	  ldial.c \
+	  ll.c \
+	  longlabel.c \
+	  menu.c \
+	  /* menubar.c not working yet */ \
+	  minput.c \
+	  minput2.c \
+	  multilabel.c \
+	  ndial.c \
+	  newbutton.c \
+	  objinactive.c \
+	  objpos.c \
+	  objreturn.c \
+	  pmbrowse.c \
+	  popup.c \
+	  positioner.c \
+	  positionerXOR.c \
+	  preemptive.c \
+	  pup.c \
+	  pushbutton.c \
+	  pushme.c \
+	  rescale.c \
+	  scrollbar.c \
+	  secretinput.c \
+	  sld_radio.c \
+	  sldinactive.c \
+	  sldsize.c \
+	  sliderall.c \
+	  strsize.c \
+	  symbols.c \
+	  thumbwheel.c \
+	  timer.c \
+	  timerprec.c \
+	  touchbutton.c \
+	  xyplotactive.c \
+	  xyplotall.c \
+	  xyplotover.c \
+	  yesno.c \
+	  yesno_cb.c \
+	  wwwl.c
+
+DEPSRCS = \
+	  crossbut.c
+
+SRCS	= $(DEMOSRCS) $(DEPSRCS)
+
+#	Abandon all hope, ye who enter here.
+
+OBJS		= $(SRCS:.c=.o)
+DEPOBJS		= $(DEPSRCS:.c=.o)
+PROGRAMS	= $(DEMOSRCS:.c=)
+
+#if Solaris64Bit
+LDPRELIB	= -L/usr/openwin/lib/sparcv9 -L/usr/local/lib/sparcv9
+CCENVSETUP	= LD_RUN_PATH=/usr/openwin/lib/sparcv9
+#endif
+
+#if StaticLink
+STATIC		= -Xlinker -Bstatic
+UNSTATIC	= -Xlinker -Bdynamic
+#endif
+
+FORMSLIBDIR     = $(TOP)/lib
+FORMSINCDIR     = $(FORMSLIBDIR)       
+FORMSLIB        = -L$(FORMSLIBDIR) -lforms
+DEPFORMSLIB     = $(FORMSLIBDIR)/libforms.a
+
+IMAGELIBDIR     = $(TOP)/image
+IMAGEINCDIR     = $(IMAGELIBDIR)       
+IMAGELIB        = -L$(IMAGELIBDIR) -lflimage
+DEPIMAGELIB     = $(IMAGELIBDIR)/libflimage.a
+
+#if !HaveSnprintf
+SNPLIBDIR	= $(TOP)/snp
+SNPINCDIR	= $(SNPLIBDIR)       
+SNPINC		= -I$(SNPINCDIR)
+SNPLIB		= -L$(SNPLIBDIR) -lformssnp
+DEPSNPLIB	= $(SNPLIBDIR)/libformssnp.a
+#endif
+
+#if StaticLink
+#if NonstandardXpm
+XPMLIBLOC	= XpmLibLoc
+XPMLIBLIBDIR	= -L$(XPMLIBLOC)
+#endif
+
+XPMLIB		= $(XPMLIBLIBDIR) -lXpm
+
+#if NonstandardJpeg
+JPEGINCLOC	= JpegIncLoc
+JPEGINCDIR	= -I$(JPEGINCLOC)
+JPEGLIBLOC	= JpegLibLoc	
+JPEGLIBDIR	= -L$(JPEGLIBLOC)
+#endif
+
+JPEG		= $(JPEGLIBDIR) -ljpeg
+
+#endif
+
+
+EXTRA_INCLUDES  = \
+		  $(SNPINC) \
+		  -I$(BUILDINCDIR) \
+		  -I$(FORMSINCDIR) \
+		  -I$(IMAGEINCDIR) \
+		  -Ifd \
+		  -I.
+
+DEPEND_DEFINES	= \
+		  -I/usr/local/include
+
+EXTRA_LIBRARIES	= \
+		  $(STATIC) \
+		  $(IMAGELIB) \
+		  $(FORMSLIB) \
+		  $(XPMLIB) \
+		  $(SNPLIB) \
+		  $(UNSTATIC) \
+		  $(JPEG) \
+		  -lm
+
+EXTRA_DEFINES	= 
+
+
+PSRCS	= $(SPLSRCS) \
+	  $(FDCSRCS)
+
+CDEBUGFLAGS	= -g $(OPTIMIZER)
+
+#if Optimize
+IMAKE_OPTIMIZE  = -DDoOptimize=1
+OPTIMIZER	= -O4
+#else
+OPTIMIZER	=
+#endif
+
+DEPLIBS		= \
+		  $(DEPSNPLIB) \
+		  $(DEPFORMSLIB) \
+		  $(DEPIMAGELIB)
+
+SYS_LIBRARIES	= \
+		  $(XLIB)
+
+#ifndef XFormsDemoTargetHelper
+#define	XFormsDemoTargetHelper(program,srcs,obj,deplib,locallib,syslib)@@\
+ProgramTargetName(program): obj $(deplib)				@@\
+	RemoveTargetProgram($@)						@@\
+	LinkRule($@,$(LDOPTIONS),obj,locallib $(LDLIBS) syslib)		@@\
+									@@\
+CenterProgramTarget(program,$(srcs),obj,locallib,syslib)		@@\
+SentinelProgramTarget(program,obj $(deplib),obj locallib $(LDLIBS) syslib) @@\
+PurifyProgramTarget(program,obj $(deplib),obj locallib $(LDLIBS) syslib) @@\
+ProofProgramTarget(program,obj $(deplib),obj locallib $(LDLIBS) syslib) @@\
+									@@\
+
+#endif /* ProgramTargetHelper */
+
+#ifndef XFormsDemoProgramTarget
+#define	XFormsDemoProgramTarget(program)				@@\
+									@@\
+AllTarget(program)							@@\
+									@@\
+XFormsDemoTargetHelper(program,SRCS,Concat(program,.o),DEPLIBS,$(LOCAL_LIBRARIES),NullParameter) @@\
+									@@\
+clean::									@@\
+	RemoveFile(ProgramTargetName(program))				@@\
+
+#endif /* XFormsDemoProgramTarget */
+
+AllTarget($(PROGRAMS))
+
+XFormsDemoProgramTarget(arrowbutton)
+XFormsDemoProgramTarget(borderwidth)
+XFormsDemoProgramTarget(boxtype)
+XFormsDemoProgramTarget(browserall)
+XFormsDemoProgramTarget(browserop)
+XFormsDemoProgramTarget(buttonall)
+XFormsDemoProgramTarget(butttypes)
+XFormsDemoProgramTarget(canvas)
+XFormsDemoProgramTarget(chartall)
+XFormsDemoProgramTarget(chartstrip)
+XFormsDemoProgramTarget(choice)
+XFormsDemoProgramTarget(colbrowser)
+XFormsDemoProgramTarget(colsel)
+XFormsDemoProgramTarget(colsel1)
+XFormsDemoProgramTarget(counter)
+XFormsDemoProgramTarget(cursor)
+XFormsDemoProgramTarget(demo)
+XFormsDemoProgramTarget(demo05)
+XFormsDemoProgramTarget(demo06)
+XFormsDemoProgramTarget(demo27)
+XFormsDemoProgramTarget(demo33)
+XFormsDemoProgramTarget(demotest)
+XFormsDemoProgramTarget(demotest2)
+XFormsDemoProgramTarget(demotest3)
+XFormsDemoProgramTarget(dirlist)
+XFormsDemoProgramTarget(fbrowse)
+XFormsDemoProgramTarget(fbrowse1)
+XFormsDemoProgramTarget(fdial)
+XFormsDemoProgramTarget(flclock)
+XFormsDemoProgramTarget(folder)
+XFormsDemoProgramTarget(fonts)
+XFormsDemoProgramTarget(formbrowser)
+XFormsDemoProgramTarget(free1)
+XFormsDemoProgramTarget(freedraw)
+XFormsDemoProgramTarget(freedraw_leak)
+XFormsDemoProgramTarget(goodies)
+XFormsDemoProgramTarget(group)
+XFormsDemoProgramTarget(ibrowser)
+XFormsDemoProgramTarget(iconify)
+XFormsDemoProgramTarget(iconvert)
+XFormsDemoProgramTarget(inputall)
+XFormsDemoProgramTarget(invslider)
+XFormsDemoProgramTarget(itest)
+XFormsDemoProgramTarget(lalign)
+XFormsDemoProgramTarget(ldial)
+XFormsDemoProgramTarget(ll)
+XFormsDemoProgramTarget(longlabel)
+XFormsDemoProgramTarget(menu)
+/* XFormsDemoProgramTarget(menubar) */
+XFormsDemoProgramTarget(minput)
+XFormsDemoProgramTarget(minput2)
+XFormsDemoProgramTarget(multilabel)
+XFormsDemoProgramTarget(ndial)
+XFormsDemoProgramTarget(objinactive)
+XFormsDemoProgramTarget(objpos)
+XFormsDemoProgramTarget(objreturn)
+XFormsDemoProgramTarget(pmbrowse)
+XFormsDemoProgramTarget(popup)
+XFormsDemoProgramTarget(positioner)
+XFormsDemoProgramTarget(positionerXOR)
+XFormsDemoProgramTarget(preemptive)
+XFormsDemoProgramTarget(pup)
+XFormsDemoProgramTarget(pushbutton)
+XFormsDemoProgramTarget(pushme)
+XFormsDemoProgramTarget(rescale)
+XFormsDemoProgramTarget(scrollbar)
+XFormsDemoProgramTarget(secretinput)
+XFormsDemoProgramTarget(sld_radio)
+XFormsDemoProgramTarget(sldinactive)
+XFormsDemoProgramTarget(sldsize)
+XFormsDemoProgramTarget(sliderall)
+XFormsDemoProgramTarget(strsize)
+XFormsDemoProgramTarget(symbols)
+XFormsDemoProgramTarget(thumbwheel)
+XFormsDemoProgramTarget(timer)
+XFormsDemoProgramTarget(timerprec)
+XFormsDemoProgramTarget(touchbutton)
+XFormsDemoProgramTarget(xyplotactive)
+XFormsDemoProgramTarget(xyplotall)
+XFormsDemoProgramTarget(xyplotover)
+XFormsDemoProgramTarget(yesno)
+XFormsDemoProgramTarget(yesno_cb)
+XFormsDemoProgramTarget(wwwl)
+
+all:: newbutton
+
+newbutton: newbutton.o $(DEPOBJS) $(DEPLIBS)
+	$(RM) $@
+	$(CCLINK) -o $@ $(LDOPTIONS) newbutton.o $(DEPOBJS) $(LOCAL_LIBRARIES) $(LDLIBS)  $(EXTRA_LOAD_FLAGS)
+
+clean::
+	$(RM) newbutton
+
+DependTarget()
+
+distclean::
+	make clean
+	$(RM) Makefile

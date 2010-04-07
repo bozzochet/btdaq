@@ -1,0 +1,55 @@
+If you're reading this, I assume that you don't have snprintf().  The
+code in this directory attempts to provide that function.
+
+I've replaced the `Makefile' with an `Imakefile', as is my wont.  Only
+snprintf() and strtod() are built.  It has been slightly hacked to
+make it work under SunOS 4.1.4.  It may not work elsewhere.  
+
+The text following came from the SpamAssassin distribution, whence
+this code was filched.  I'm not sure how helpful it might be but here
+it is.
+
+							spl
+							June 1, 2002
+
+				- - -
+
+X-Mailer: exmh version 1.6.4 10/10/95
+X-Face: x7OynEM*dB$e.2'7pigelLk>5:Nu:%r*iV96{F2XIT.apbrc-vOFSi{yI$3=nJ-Qi)allj4
+ =)4cWlX@IQ1Dsmk}T4qX~{XI5Z01>PV^cYR'~cL]&ma<{rYg~Ao-:~:sM%z}^M65`;1TZ}Tze"4/=F
+ ~o&8;"SKHwB?%"xpP/=pkhdZVP$rQQ{"{QT`#kcx7!\/y+crQa4^nLEms6_k4O*o#fo[WBs~~&.%jf
+ |;W@E2K#{U~%vhvth^uDLWD`<OLQ;48T].laq_}3abY7nO5
+X-Uri: http://www.milkyway.com/People/Michael_Richardson/Bio.html
+To: Paul A Vixie <paul@vix.com>
+Subject: Re: bind's compat/lib 
+References: <9601170026.AA01573@wisdom.home.vix.com> 
+In-reply-to: Your message of "Tue, 16 Jan 1996 16:26:04 PST."
+             <9601170026.AA01573@wisdom.home.vix.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 17 Jan 1996 09:35:39 -0500
+From: Michael Richardson <mcr@metis.milkyway.com>
+
+In a galaxy far, far away, : Tue, 16 Jan 1996 16:26:04 PST
+> yes please
+
+  Okay, details. It is based on BSD44-lite's vfprintf() call. I didn't
+  replace the vfprintf()/fprintf()/etc.
+
+  It needs internal routines from the 4.4 strtod (included).
+  And I threw strtoul in as well. 
+  (You already include that in your compat/lib). 
+  The 4.4 syslog(3) client code is there, using the snprintf().
+  The problem is that it supports %q. This requires long long support,
+  so this has to compiled with gcc. You then need libgcc.a to link. I
+  considered removing the long long support, but since libgcc.a is
+  explicitely non-encumbered, I didn't worry about it.
+
+  I've linked this in with sendmail 8.6.12. I sent it to Eric Allman, but I
+don't know if he included it in 8.7.
+  Do what you like with this code, but leave my name somewhere.
+
+  The code is at ftp://ftp.milkyway.com/pub/mcr/snp.tar.gz
+
+
+

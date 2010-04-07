@@ -1,0 +1,6 @@
+#  $Id: 00index.txt,v 1.1.1.1 2007/11/13 09:56:10 zuccon Exp $
+get.f  // Example of paw analysis function for "dumb" ntuple
+convert.f //Standalone  for converting "dumb" ntuple into more clever one
+          // use ../install/Mconvert to create an exe
+ntuple.f // Example of paw analysis function for converted ntuple
+

@@ -1,0 +1,9 @@
+#! /bin/sh
+
+setenv ROOTSYS $1
+setenv PATH "${PATH}:$ROOTSYS/bin"
+setenv LIBPATH "$ROOTSYS/lib:"
+setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:$ROOTSYS/lib:/opt/intel/compiler60/ia32/lib"
+
+
+

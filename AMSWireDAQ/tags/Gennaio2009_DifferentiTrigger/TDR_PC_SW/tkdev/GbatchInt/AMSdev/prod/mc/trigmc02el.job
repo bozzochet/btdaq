@@ -1,0 +1,49 @@
+[ -z "$UNAME" ]      && UNAME=`(uname) 2>/dev/null`
+[ -z "$UNAME" -a -d /sys/node_data ] && UNAME="DomainOS"
+[ -z "$UNAME" ]      && (echo could not determine hosttype ; exit)
+
+if [ "$UNAME" = "AIX" ] ; then
+   MACHINE="aix"
+elif [ "$UNAME" = "OSF1" ] ; then
+    MACHINE="osf1"
+elif [ "$UNAME" = "Linux" ] ; then
+    MACHINE="linux"
+else
+echo $UNAME is not supported yet
+
+fi
+
+
+PART=$1
+PMIN=$2
+PMAX=$3
+RUN=$4
+TRIG=$5
+#cpulim is max(100sec,Gev*1sec)  for p2 450 mhz     
+CPULIM=$6
+RNDM1=$7
+RNDM2=$8
+mkdir -p $NtupleDir/real/ecal/$PART
+$ExeDir/gbatch.exe <<!
+LIST
+KINE $PART 
+LOSS 1
+HADR 1 
+MULS 1
+CUTS 1=0.0005 2=0.0005 3=0.001 4=0.001 5=0.001
+TRIG $TRIG
+DEBUG -1 10 1000
+MCGEN  12=0.25 13=$PMIN 14=$PMAX 19=$RUN  20=5 21=0 34=1 
+IOPA 1=3 2='$NtupleDir/real/ecal/$PART'
+43=101 45='TriggerLVL1&AMSEcalHit' 126=30000 168=100000000
+RNDM $RNDM1 $RNDM2
+C      Simul Debug    CpuLim  Read Write Jobname
+AMSJOB 1=10000   2=0      3=$CPULIM   4=0  5=0 46='AMS02' 
+C Special HP-UX
+TIME 3=10000000
+TERM 1234567890
+L3REC 11=0
+ECRE 12=5000.
+ECCA 1=3
+END
+!

@@ -1,0 +1,26 @@
+V0.57
+o. modified copyright
+o. added shift+tab to select prev selection (05/10/00)
+o. fixed a potential bad fp in get_xpm_stuff(). (10/18/99) 
+o. enlarged xpm filename length etc.
+V0.56
+o. fixed a File->Save bug that causes the confirmation popup.
+o. fixed a strangeness with type change that forgets the object attributes
+o. fixed a radio button confusion problem that turned out to be in the lib
+o. added scheme filter
+V0.55
+o. added helper/tooltip handling. Fixed a bug with bitmapbutton
+o. added SECRETX_INPUT
+o. fixed a form load problem: fscanf() eats newline
+o. fixed a how_return problem for counter and dial.
+o. fixed a focus_data for pixmap problem (10/25/98)
+o. fixed a positioner ystep not written problem.
+o. fixed a segfault problem when failed to connetct
+o. fixed a group handling problem: not in class struct (9/29/98)
+V0.54
+o. re-organized fd_objects.c a little
+o. Added thumbwheel
+o. Fixed a fd_pallete problem where a misplaced button screws up the
+re-scaling
+o. Added gridstyle support
+o. aded label button

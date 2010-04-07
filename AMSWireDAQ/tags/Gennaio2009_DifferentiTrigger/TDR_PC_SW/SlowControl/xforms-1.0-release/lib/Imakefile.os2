@@ -1,0 +1,20 @@
+XCOMM Imakefile for INCLUDE
+XCOMM (c)1996 Holger.Veit@gmd.de for xforms
+
+      ULIBDIR = ../ulib
+
+      HEADERS = AAA.h Basic.h XBasic.h bitmap.h box.h browser.h button.h \
+		canvas.h chart.h choice.h clock.h counter.h cursor.h \
+		dial.h filesys.h frame.h free.h goodies.h input.h menu.h \
+		pattern.h popup.h positioner.h slider.h text.h textbox.h \
+		timer.h xyplot.h zzz.h $(ULIBDIR)/ulib.h
+
+includes::
+	cat $(HEADERS) > forms.h
+	LinkFile(../forms.h,forms.h)
+
+clean::
+	RemoveFiles(forms.h ../forms.h)
+
+depend::
+

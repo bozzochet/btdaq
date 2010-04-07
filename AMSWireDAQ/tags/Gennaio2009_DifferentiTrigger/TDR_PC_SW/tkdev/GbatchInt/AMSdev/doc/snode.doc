@@ -1,0 +1,31 @@
+#  $Id: snode.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+A map to AMSNode structure
+
+
+// Constructor
+
+AMSSNode(); 
+
+
+// member functions
+
+void map ( AMSNode  &  mother) // creates map of AMSNode mother
+void remap()   //remaps mother (e.g. after AMSNode::remove)
+integer add( AMSNode& elem) //  includes elem into map
+                           // returns -1 if same AMSID elem already in the map
+
+void print(); // Prints content of the map
+AMSNode * getp  (  const AMSID& id, char hint='\0' ) const 
+// returns pointer to AMSNode with   AMSID=id; 0 otherwise
+// hint is used for fast incr/decr access for objects with same
+// name e.g.:
+//   AMSNode *p =getp(AMSID("name",i));
+//   for (int j=i;j<n;++j)p=getp(AMSID("name",j),'+');
+//   for (int j=i;j>0;--j)p=getp(AMSID("name",j),'-');
+
+
+
+
+
+
+

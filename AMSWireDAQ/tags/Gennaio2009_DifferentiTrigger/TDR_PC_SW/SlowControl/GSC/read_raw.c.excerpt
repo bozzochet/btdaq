@@ -1,0 +1,184 @@
+#include <stdio.h>
+
+#define JMDC_BLOCK 0x07  /* JMDC block type */
+#define SDDG_BLOCK 0x01  /* Subdetector Data Group block type */
+#define CAL1_BLOCK 0x13  /* Calibration Block JINx level */
+#define CAL2_BLOCK 0x14  /* Calibration Block xDR level */
+
+
+main(int argc, char *argv[]){
+
+  char fname[200];
+
+  char *mfname="/home/jorge/ams/ACOP/0032/075"; // BUILD ERRORS @ 250 Hz
+//  char *mfname="/home/jorge/ams/ACOP/0031/865"; // R1 RAW DATA @ 1kHz
+//  char *mfname="/home/jorge/ams/ACOP/0031/885"; // R0 RAW DATA @ 1kHz
+//  char *mfname="/home/jorge/ams/ACOP/0031/720"; // CALIBRATION TABLES
+
+  if (argc>1) sprintf(fname,argv[1]);
+  else        sprintf(fname,mfname);
+
+  printf("Opening file %s\n",fname);
+  FILE *pfile=fopen(fname,"r");
+  if (pfile==NULL){
+    printf("Error Opening File %s\n",fname);
+    return -1;
+  }
+
+  u32 events_read=0,events_good=0,event_ok=0;
+
+  u32 event_size,event_length,time;
+  u16 size,size_ext,node,type,type_ext=0,status,tag,time_msb,time_lsb;
+  char rr,rw;
+
+  // Initialize counters
+  RunClear();
+
+  // Init FCS Table
+  PrepareFCSTable();
+
+  // main loop
+  while (fread(&size,2,1,pfile)==1){
+
+    if (event_ok)
+      memcpy(&EventPrev,&EventLast,sizeof(struct Event));
+
+    EventInit(&EventLast);
+
+    event_size=size&0x7fff;
+    if (size&0x8000){
+      fread(&size_ext,2,1,pfile);
+      event_size&~0x8000;
+      event_size=(event_size<<16)|size_ext;
+    }
+    if (DEBUG) printf("\n>>> NEW EVENT <<<\nEvent Size %d (%x) (Bytes)\n",event_size,event_size);
+    /*
+    if (event_size%2){
+      printf("Odd event_size %d\n",event_size);
+      return -2;
+    }
+    */
+    event_length=event_size/2;
+    u16 *event=calloc(event_length,2);
+    if (fread(event,2,event_length,pfile)==event_length){
+
+      /* Event Primary Header */
+      int pos=0;
+      rr=(event[pos]>>15)&0x1;
+      rw=(event[pos]>>14)&0x1;
+      node=(event[pos]>>5)&0x1ff;
+      type=event[pos]&0x1f;
+      if (type==0x1f){
+	pos++;
+	type_ext=event[pos];
+      }
+
+      EventLast.PrimaryHeader.Length=event_length;
+      EventLast.PrimaryHeader.Size=event_size;
+      EventLast.PrimaryHeader.RR=rr;
+      EventLast.PrimaryHeader.RW=rw;
+      EventLast.PrimaryHeader.Node=node;
+      EventLast.PrimaryHeader.Type=type;
+      EventLast.PrimaryHeader.TypeExt=type_ext;
+
+      /* Event Secondary Header */
+      pos++;
+      status=(event[pos]>>12)&0xf;
+      tag=event[pos]&0xfff;
+      pos++;
+      time_msb=event[pos];
+      pos++;
+      time_lsb=event[pos];
+      time=time_msb<<16|time_lsb;
+      if (DEBUG) printf(" Unix time %d (0x%x)\n",time,time);
+
+      EventLast.SecondaryHeader.Status=status;
+      EventLast.SecondaryHeader.Tag=tag;
+      EventLast.SecondaryHeader.Time=time;
+
+      if (!status) {
+
+	/* Data Blocks */
+	pos++;
+	u32 block_size,block_length;
+	while(pos<event_length){
+	  block_size=event[pos];
+	  if (block_size&0x8000){
+	    pos++;
+	    block_size=block_size&~0x8000;
+	    block_size=(block_size<<16)|event[pos];
+	  }
+	  block_length=block_size/2;
+	  pos++;
+	  decode_block(&event[pos],block_size,block_length);
+	  pos+=block_length;
+	}
+
+      }
+      else {
+	printf("Wrong status found : 0x%0x\n",status);
+	EventPrint(&EventLast);
+      }
+
+    }
+    else{
+      printf("Error Reading File %s\n",fname);
+      return -3;
+    }
+
+    events_read++;
+    event_ok = EventCheck(events_read);
+    if (event_ok) events_good++;
+
+    if(DEBUG || !(events_read%10000)){
+      printf("\nEvents Read %d, Last Run 0x%x, Last Event %d\n",
+	     events_read, EventLast.JMDC.Run, EventLast.JMDC.Event);
+      EventPrint(&EventLast);
+    }
+
+    free(event);
+  }
+
+  RunReport();
+
+  printf("Total Events Read %d\n",events_read);
+  printf("Good  Events Read %d\n",events_good);
+
+  fclose(pfile);
+}
+
+int decode_block(u16 *event, u32 size, u32 length){
+
+  int pos=0;
+  u16 rr,rw,node,type,type_ext=0;
+  rr=(event[pos]>>15)&0x1;
+  rw=(event[pos]>>14)&0x1;
+  node=(event[pos]>>5)&0x1ff;
+  type=event[pos]&0x1f;
+  if (type==0x1f){
+    pos++;
+    type_ext=event[pos];
+  }
+
+  if (DEBUG)
+    printf(">>> decode_block: rr %d , rw %d, node 0x%x, type 0x%x, type_ext 0x%x\n",rr,rw,node,type,type_ext);
+
+  pos++;
+  switch (type)
+    {
+    case JMDC_BLOCK:
+      decode_jmdc(rr,rw,node,&event[pos],size,length);
+      break;
+    case SDDG_BLOCK:
+      decode_sddg(rr,rw,node,&event[pos],size,length);
+      break;
+    case CAL1_BLOCK:
+      decode_cal1(rr,rw,node,&event[pos],size,length);
+      break;
+    case CAL2_BLOCK:
+      decode_cal2(rr,rw,node,&event[pos],size,length);
+    }
+
+  return 1;
+
+}

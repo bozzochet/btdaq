@@ -1,0 +1,128 @@
+
+   *************** ECAL  RE(sponce)UN(iformity) calibration.   ***************
+
+ 1.02.2001; v.1.00 E.Choumilov.
+ 
+    ************ RLGA(relat.gains)/FIAT(fiber attenuation) part **************
+
+ Algorithm:
+ 
+1.    Track preselection (good chi2, track hits ECAL(with some safety gap),
+   Z>=2(or Z=1 if MIP mode was activated)
+
+2. Punch-through event selection:
+
+   Event is removed (non PunchThrough) if contains more than N (0)
+     bad SubCell(pixel) planes. Plane is bad if:
+       a) more than 2 fired (ADC >ADCmin(3.)) pixels/plane;
+       b) OR two fired pixels are not neigbouring;
+       c) OR there is at least one pixel with Edep>ADCmax(1000.)
+     
+     For accepted event: N(1) ScPlanes with Highest Edep are marked as bad.
+   In further analysis any SuperLayer containing such bad plane is ignored.
+   Truncated(by above procedure) Edep shoud correspond Z=2(1).
+   
+   Note: All above cuts on ECAL-signals are applied to EcalHits(converted 
+   back to ADC counts). It means we use parameters from previous calibration 
+   (EcalRawEvent-hits were converted to EcalHits using this calibration). 
+   This is done to improve preselection efficiency(gains variations are 
+   already corrected in first approximation).
+   
+    The next procedures are applied already to EcalRawEvent hits !!! (any kind of 
+    calibration is not applied !!!)
+   
+   
+3. Loop over ECAL SuperLayers doing :
+   
+    a) crossing of track with superlayer:
+    b) finding the PM which is crossed by track (with big safety gap 
+       to compensate track impact point accuracy)
+    c) finding the SubCells(pixels) which are crossed by Track(again with 
+       some safety gap (SL/Rigidity-dependent due to multiple scattering ?);
+       all crossed cells are counted.
+    d) finding (among the crossed cells) fired ones (with threshold ADCmin).
+       PM is considered as crossed/fired if it contains at least one 
+       crossed/fired pixel.
+       
+       The signals of fired cells are summed. PM signals are summed separately
+       for different positions (along the fiber) of track impact point.
+       
+       
+4. After event loop:
+
+    a) PM and SubCell(pixel) signal-sums are normalized by corresponding 
+       crossings(!!!) counters (to have efficiency involved); 
+    
+    b) PM relative gains(with respect to RefPM) are calculated using only
+       central area of fiber length. The PM-signal dependence on the impact 
+       point position is used to calculate light attenuation parameters (only
+       for left/center/right PM's in each SL). It is implied to use this  
+       info for study of long time effects in fiber behavior.
+	 
+    c) 4-SubCell relative gains are calculated for each PM (with respect 
+       to total PM-responce calculated as sum of 4 indiv. pixels).
+       
+       
+5.   During the event loop for each pixel the LowGainChannel ADC-signals are 
+   summed as function of HighGainChannel ADC-signal value. At the end of run
+   the straight line fit is performed to extract High-to-Low-gain ratio for 
+   each channel (pixel).
+   
+      The program creates 2 files: ecalrlgaNNNmc.cof and ecalfiatNNNmc.cof(if 
+   was requested ECRE 5=2) where NNN is calibration(previous) version used
+   for above analysis. The files(if OK) have to copied to official directory
+   /offline/AMSDataDir/v3.00 with NNN=NNN+1 and extention .dat. 
+      
+        ************ ANOR(abs.normalization) part **************
+
+ Algorithm:
+ 
+      The absolute calibration of ECAL is done in separate procedure 
+   using information from above RLGA/FIAT-calibration(its *.cof files was copied 
+   to official directory as *.dat and NNN=NNN+1). This procedure must include
+   real clustering algorith (used at the reconstruction stage) to include the
+   possible leakage effects (to be done).
+      The calibration is done with preselected electrons in momentum range
+   3-15gev/c and calculate abs.norm.parameter requiring Mom/Ecal ratio to
+   be 1.
+   
+   1.   Check that Anti-counter has not more than 1 fired sector;
+   
+   2.   Track preselection (good chi2, small half track rigidities assimetry,
+      correct sign of curvature, track hits ECAL, ...);
+      
+   3.   Hits pattern in SubCells(pixel) layers is analysed to suppress early 
+      showering events or event with abnormal activity (spikes or too high 
+      multiplicity)in any plane;
+     
+   4.   Suppression of events with big Side/Back energy leakage;
+   
+   5.   "Electromagneticity" check by analysing Efront/Epeak/Etail ratious;
+   
+   6.   Check Ebackground/Esignal ratio in first 6 planes (Esignal is total
+      energy of SubCells around track crossing point(closer than some distance),
+      Ebackgr - the energy of the rest in plane);
+        This check is not activated by default now but may be used as addition
+      or replacement to item 3 cut using flag ECRE 6=0/1/2(see datacards.doc); 
+      
+   7.   For first 6 planes check that COG is close to track crossing point;
+   
+   8.   For selected events accumulate Mom/Ecal ratious and fit this distribution
+       by goussian. Calculate new abs.norm.factor using previous(old) one and 
+       deviation most prob. ratio from 1.
+       
+        Sistematic error of sach calibration is about 1% (dependence of ratio on
+     energy in the range 3-15 gev/c). Result of abs. calibration is saved in
+     file ecalanorNNNmc.cof (ecalanorNNNrl.cof for real data). This file in
+     official directory must have extention .dat.
+     
+     
+        All *.dat files contain self explaination at the end.
+	Related Data cards (ECCA) are explained in datacards.doc file.
+   
+     
+   
+   
+   
+   
+   

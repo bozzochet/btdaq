@@ -1,0 +1,44 @@
+int HVB::toVoltageLR(int aCode){
+  if (aCode<0)    aCode=0;
+  if (aCode>1023) aCode=1023;
+  float Q=3.0;                     // CAEN dice Q=2 y Jesus Q=3
+  float K=0.950;
+  float fVoltage= Q+K*(aCode+1.0);
+  int iVoltage = (int) floor(fVoltage+0.5);
+  //printf("toVoltageLR(%d) = %d\n",aCode,iVoltage);
+  return iVoltage;
+}
+
+int HVB::toVoltageDC(int aCode){
+  if (aCode<0)    aCode=0;
+  if (aCode>1023) aCode=1023;
+  float Q=3.0;
+  float K=0.975;
+  float fVoltage= Q+K*(aCode+1.0);
+  int iVoltage = (int) floor(fVoltage+0.5);
+  //printf("toVoltageDC(%d) = %d\n",aCode,iVoltage);
+  return iVoltage;
+}
+
+
+int HVB::toCodeLR(int aVoltage){
+  float Q=3.0;
+  float K=0.950;
+  float fCode=(aVoltage-Q)/K-1.0;
+  int iCode = (int) floor(fCode+0.5);
+  if (iCode < 0)    iCode=0;
+  if (iCode > 1023) iCode=1023;
+  //printf("toCodeLR(%d) = %d\n",aVoltage,iCode);
+  return iCode;
+}
+
+int HVB::toCodeDC(int aVoltage){
+  float Q=3.0;
+  float K=0.975;
+  float fCode=(aVoltage-Q)/K-1.0;
+  int iCode = (int) floor(fCode+0.5);
+  if (iCode < 0)    iCode=0;
+  if (iCode > 1023) iCode=1023;
+  //printf("toCodeDC(%d) = %d\n",aVoltage,iCode);
+  return iCode;
+}

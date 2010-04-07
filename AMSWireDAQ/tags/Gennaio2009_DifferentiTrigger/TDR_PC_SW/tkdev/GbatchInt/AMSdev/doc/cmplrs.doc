@@ -1,0 +1,94 @@
+                                                            July 10, 2002
+
+ The default compilers are gcc and g77. Non-commercial, not-supported version of 
+Intel native Fortran and C++ (icc and ifc) compilers V6.0/V7.0 are installed on pcamsf2 and pcamsf1.
+
+
+1.  Intel(R) C++ Compiler for 32-bit applications, Version 6.0 Build 020312Z
+2.  Linux Application Debugger for 32-bit applications, Version 6.0, Build 20020325.
+
+
+1.  Intel(R) Fortran Compiler for 32-bit applications, Version 6.0 Build 020312Z
+2.  Linux Application Debugger for 32-bit applications, Version 6.0, Build 20020325
+
+Path to man pages :
+/opt/intel/compiler'NN'/man"
+Path to libraries :
+/opt/intel/compiler'NN'/ia32/lib
+
+
+Path to Compilers :
+
+C/C++   : /opt/intel/compiler60/ia32/bin/icc
+Fortran : /opt/intel/compiler60/ia32/bin/ifc
+
+
+where 'NN' is a version like '60' or '70'.
+CERN Libraries :
+
+/f2dat1/CERN/2002/icc
+
+NagLib :
+
+/f2dat1/NagLib
+
+AMS utilities :
+
+/afs/cern.ch/exp/ams/Offline/lib/linux/icc/libamsut.a
+
+
+How to compile AMS code by icc/ifc :
+
+setenv AMSICC 1
+gmake -f Mopt
+
+known problems :
+
+(1)
+libamsut.a library compiled with "-mp1" option caused the following error 
+during gbatch.exe linking.
+
+../lib/linux/icc/libamsut.a(rqmd.o): In function `cohere_':
+rqmd.o(.text+0x64626): undefined reference to `c_abs'
+
+(2)
+ version of NagLib compiled with ifc doesn't contain f02eaf function
+
+
+
+ AMS code performance vs compiler
+
+legend :
+         "geant" - standard Geant3  simulation
+         "ams"   - AMS specific code for events simulation and
+                   reconstruction
+
+ The results are the following 
+
+pcamsf2, dual-CPU PIV Xeon 2GHz, 1GB RAM
+gcc version 2.95.3 20010315
+5 hours of running, approx 40K (65K for "icc") events
+simulated/reconstructed
+ 
+            geant           ams
+            sec/event       sec/event
+icc      0.201118       0.0923816
+gcc      0.356322       0.144994
+
+
+gcc/icc     1.77          1.57
+
+
+we run on "AMD" computer "exe" file built on Xeon machine
+pcamsf4, dual-CPU AMD 1800MP+, 1.53GHz, 1GB RAM
+3 hours of running
+            geant           ams
+            sec/event       sec/event
+icc          0.1755        0.0543853
+gcc          0.3108        0.0903407
+
+
+icc/gcc       1.77          1.66
+
+
+comments, questions to vitali.choutko@cern.ch, alexei.klimentov@cern.ch

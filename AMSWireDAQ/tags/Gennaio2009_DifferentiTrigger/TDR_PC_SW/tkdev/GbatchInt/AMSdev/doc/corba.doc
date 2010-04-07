@@ -1,0 +1,215 @@
+#  $Id: corba.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+Files:
+
+
+../include/server.h
+../include/server.idl
+../CC/server.C
+../CC/producer.C
+../perl/monitor.perl,monitor.cgi
+../perl/lib/*.pm
+
+Make:
+gmake server -f ../install/Mopt
+gmake producer -f ../install/Mopt
+
+
+Start:
+../prod/start
+
+AuxFiles (eventually in DB):
+
+../prod
+NominalProducer
+NominalServer
+NominalHost
+NominalNtuple
+NominalKiller
+RunTable
+
+
+I DB aware routines
+
+
+1.long getTDVTable(in DPS::Client::CID cid,inout TDVName tdvname, in unsigned long Run, out TDVTable table);     
+
+Purpose:
+
+Provide TDVTable of insert/begin/end values for given tdv & given run.
+
+2.long getTDV(in DPS::Client::CID cid,inout TDVName tdvname, out TDVbody body);
+
+Purpose:
+
+Provide TDVBody (array of int values) for given tdv and given ins/beg/end values
+
+3.void sendTDV(in DPS::Client::CID cid,in TDVbody tdv, inout TDVName tdvname );
+
+Purpose:
+
+Opposite to 2 {i.e. accept tdvbody and update db}
+
+4. sendTDVUpdate(in DPS::Client::CID cid, in TDVName tdvname );
+ 
+Purpose:
+
+add tdv with given ins/beg/end to local server db copy (may be dummy for oracle)
+
+ 
+5. AMSServer::UpdateDB
+
+Purpose:
+
+steering program for db read/write { e.g. update run table etc} 
+
+
+II Server flowchart  
+----------
+
+
+Legenda:
+NH{L,F} Nominal Host  {List, File}
+NI Nominal Interface
+AH Active Host
+NP NominalProducer
+NS NominalClient
+AS Nominal Server
+AC ActiveClient
+RL Run List
+RF Run Table
+NN Nominal Ntuple
+NK Nominal Killer
+Very first server activates manually
+
+Init:
+  
+
+       getpidhost 
+       openlogfile
+       read NIF 
+       Activate POA
+      if (-IOR in argv == 0)   //very first one
+       read NHF
+       read NSF
+       read NPF
+       read RF
+       read NNF 
+       read NKF       
+      }
+      else{
+       send back to Parent CID 
+       getNHL
+       getAHL
+       getASL 
+       getRL
+       getNKL
+       getNNL
+       (...)
+      }
+       init self
+       add self in every known ASL
+
+Main Loop:
+  
+       UpdateDB
+       SystemCheck
+       Listening(1)
+
+End Main Loop      
+
+
+UpdateDB:
+
+TBD
+
+End UpdateDB
+
+Listening(i):
+        sleep(i);
+        SocketListening (NonBlocking)
+EndListening
+
+SystemCheck:
+
+ Listening(0);
+ StartClients();
+ Listening(0);
+ CheckClients();
+ Listening(0);
+ KillClients();
+
+EndSystemCheck
+
+
+StartClient:
+    if(Master && !InactiveclientsExists){
+       start client
+       propagate AC to ACL
+    }
+EndStartClient
+
+CheckClient:
+   if(Master && Last_client_comm_time+timeout<curr_time){
+    {ping or signal client}
+      set client status=timeout
+      propagate AC to ACL
+   }   
+  }    
+EndCheckClient
+
+
+Killclient:
+
+if(Master && clientstatus== timeout){
+   kill client
+   propagate ac to acl
+}
+EndKillClient
+
+
+Master:
+
+true if  itself has minimal uid from pingable server set 
+
+End Master
+
+
+
+III Producer(client) flowchart
+---------------------
+
+//init
+
+sendCID;
+getASL;
+
+
+newrun:
+
+getRunEvInfo() ; 
+if(Mode==Local)getRun();
+getTDVTable();
+
+
+//event loop
+{
+
+if(NewTDVNeed){  
+ getTDV();
+}
+
+if(noofrecevents%updatefreq==0 || EventError|| RunEnd)sendCurrentInfo();  
+if(dtstbegin || dstend)SendDSTEnd();
+
+}
+
+//endrun
+
+sendEndrun();
+
+
+goto newrun: 
+
+
+
+

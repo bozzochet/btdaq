@@ -1,0 +1,4 @@
+   1:SEND COMMAND                  :CAN-02, CE8, CSP_ARM_DISARM_PULSED_VALVE_NOM_V165B_ARM.CMM, 0
+   2:SEND COMMAND                  :CAN-02, CC5, CSP_GET_GENERAL_STATUS_NOM.CMM, 0
+   3:SEND COMMAND                  :CAN-02, CEB, CSP_OPERATE_PULSED_VALVE_NOM.CMM, 0
+   4:REQUEST MESSAGE               :GEP-05, This is a request message example, NONE

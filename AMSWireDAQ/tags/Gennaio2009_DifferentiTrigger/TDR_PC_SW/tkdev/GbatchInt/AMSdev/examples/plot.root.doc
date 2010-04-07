@@ -1,0 +1,8 @@
+/*! \example plot.root.doc
+ *  This is an example of how see ams variables interactively in root session
+ *  (to run: root;  .x plot.root.C)   
+ *  
+ *  For a complete listing of var functions see /offline/vdev/include/root_methods.h
+ *  
+ *  \include plot.root.C
+ */

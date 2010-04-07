@@ -1,0 +1,5 @@
+   1:E/D PS OUTPUT                 :PWS-05, 120V_POWER_BUS, DISABLE
+   2:SET PS OUTPUT VOLTAGE         :PWS-02, 120V_POWER_BUS, 4000
+   3:E/D PS OUTPUT                 :PWS-05, 120V_POWER_BUS, ENABLE
+   4:ACQUIRE PS OUTPUT VOLTAGE     :PWS-06, 120V_POWER_BUS
+   5:REQUEST MESSAGE               :GEP-05, This is a request message example, NONE

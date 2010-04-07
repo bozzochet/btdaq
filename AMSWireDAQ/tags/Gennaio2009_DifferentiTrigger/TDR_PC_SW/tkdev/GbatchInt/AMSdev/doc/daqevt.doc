@@ -1,0 +1,510 @@
+#  $Id: daqevt.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+
+I. Daq Event format  (based on lebedev&capell 15/7/97)
+                                & updated 12/02/1998
+All 16 bit unsigned integers. 32 & more bits are now in BIG(!) endian,i.e.
+ unsigned short int ui16[2];
+ integer r;
+ ui16[1]=((unsigned integer)r)&65535;
+ ui16[0]=(((unsigned integer)r)>>16)&65535;
+
+ 
+
+   
+-----------------------------------------------------------------------------
+|EL|EID|HL|HID|Run(2)|AuxR(2)|Event(2)|Time(4)|LSubDBl|IDSubDBl|..dataSubDBl.|
+-----------------------------------------------------------------------------
+
+Legend:
+
+EL      - low 16bits of total event length -1
+EID     - upper 6 bit of total event length, then 0x0 if event data
+HL      - header ==general run length - 1
+HID     - header id = 1 << 9;
+Run(1:2)     - run number 32bit
+AuxR(1:2)    - run type   32bit   // 1F0100  (Normal)
+                                 //  1F0100 | 1<<23 (Low TOF Voltage)  
+Evt(1:2)     - event number 32bit
+Time(1:2) - time 32bit unix format (number of sec from epoch==1970)
+Time(3:4) - number of  usec
+LSubDBl - length of subdet block (LVL1,LVL3,TOF,Anti,Tracker,CTC)-1
+IDSubDBl- id sub det block see below
+
+(!) Header is not necessary follow the EID and should be find by id only.
+
+
+II. Subdet event formats
+
+a.Trig1 Event format
+
+ID= 1 << 6 | 2<<9 
+Word01   
+         bits08-09  Number of AC hits for x<0 z<0
+         bits10-11  Number of AC hits for x<0 z>0
+         bits12-13  Number of AC hits for x>0 z<0
+         bits14-15  Number of AC hits for x>0 z>0
+                 
+           
+
+Word02   bit01 Cluster Trigger
+         bit04 Z>1 Trigger    
+         bit15 Veto Trigger
+Word03   bit 0-13     Layer4 P13-0  Left    Z=1
+Word04   bit 0-13     Layer3 P13-0  Left    Z=1
+Word05   bit 0-13     Layer2 P13-0  Left    Z=1
+Word06   bit 0-13     Layer1 P13-0  Left    Z=1
+Word07   bit 0-13     Layer4 N13-0  Right   Z=1
+Word08   bit 0-13     Layer3 N13-0  Right   Z=1
+Word09   bit 0-13     Layer2 N13-0  Right   Z=1
+Word10   bit 0-13     Layer1 N13-0  Right   Z=1
+Word11   bit 0-13     Layer4 P13-0  Left    Z>1
+Word12   bit 0-13     Layer3 P13-0  Left    Z>1
+Word13   bit 0-13     Layer2 P13-0  Left    Z>1
+Word14   bit 0-13     Layer1 P13-0  Left    Z>1
+Word15   bit 0-13     Layer4 N13-0  Right   Z>1
+Word16   bit 0-13     Layer3 N13-0  Right   Z>1
+Word17   bit 0-13     Layer2 N13-0  Right   Z>1
+Word18   bit 0-13     Layer1 N13-0  Right   Z>1
+
+
+b.Trig3 Event Format 
+
+ID= 9 << 9
+Word1  tracker  output 
+Word2  8 bit tof output  +8 bit anti output
+Word3  16 bit(signed) residual(0) in mkm
+Word4  16 bit(signed) residual(1) in mkm
+Wird5  n_of_hits << 4 | _npatfound
+Word6  _pattern[0] | _pattern[1] <<6 
+Word7   Eloss
+
+
+c.TOF Event Format
+
+ ----> Reduced format :
+    one block consists of :
+    
+    Block_Length
+    Block_id: 000 1010 nnn 000000   // nnn=0-7 is block(node) number
+    TOF_data_SFET-1
+    TOF_data_SFET-2
+    TOF_data_SFET-3
+    TOF_data_SFET-4
+    
+  where any TOF_data_SFET-n block has the following structure:
+  
+    hit_mask //16bits, always present, each bit means non-empty TDC channel 
+    hit_counters // one 16bits word : 4x4bits hit-counters for first <=4 nonempty TDC channel
+    TDC_value    // tdc-hits for first four non empty TDC channels
+       .
+       . 
+    hit_counters // 4x4bits hit-counters for second <=4 nonempty TDC channel (if needed)
+    TDC_value    // tdc-hits for second four non empty TDC channels
+       .
+       . 
+
+
+  Each TDC_value is 16 bits word: bits (0-13)-> edge time, (14)->edge phase, (15)->reserved
+  
+ ----> Raw format: 
+    one block consists of :
+
+    Block_Length
+    Block_id: 000 1010 nnn 000001   // nnn=0-7 is block(node) number
+    header_word // Not final !!! : bits(12-15)->SFET_number(0-7); (8-11)->tdc_ch(0-15)
+                                     bit(0)->phase_bit 
+    TDC_value    
+    
+       .         // next pair of (header_word + TDC_value)
+       .
+    
+    
+d.Anti Event Format
+
+
+See TOF Event Format
+
+
+
+e.CTC(Aerogel) Event Format
+
+
+See TOF Event Format
+
+
+
+
+
+f. Reduced Tracker Event Format
+
+ID =  2<<6 | 11 <<9 (x<0)   or     5<<6 | 11<<9 (x>0)
+
+Then blocks
+
+One block:
+
+word1 6bit cluster length - 3 | ({S/N*8}_max << 6) |  4_service_bits<<12 
+word2 leftmost hit address
+word 3 to length+3
+amplitudes*8
+.............
+
+
+g. Old Raw Tracker Event Format
+ID = 1 |  2<<6 | 11 <<9 (x<0)   or   1 |  5<<6 | 11<<9 (x>0)
+
+then 12 subblocks of 3084 length each
+
+  SubBlock Format
+Word1              Subblock Length 3084
+Word2 & 7         Number of TDR      2
+Word3              TDR Number         0,2,4,6,8,10,12,14,16,18,20,22     
+Word4                              1540
+Word5         
+Word6 to 1541      Data
+Word1542           CRC      
+Word1543           CRC      
+Word1544           TDR Number         1,3,5,7,9,11,13,15,17,19,21,23
+Word1545                           1540
+Word1546         
+Word1547 to 3082   Data
+Word3083          CRC      
+Word3084          CRC      
+
+h. New Raw Tracker Event Format
+ID = 1 |  2<<6 | 11 <<9 (x<0)   or   1 |  5<<6 | 11<<9 (x>0)
+
+then 12 subblocks 
+
+  SubBlock Format
+Word1              Subblock Length (SL)
+Word2 & 31         Number of TDR      (2)
+Word3              TDR Number         0,2,4,6,8,10,12,14,16,18,20,22     
+Word4              SubSubBlock Length (SSL) (1538 for K; 1282 S) 
+Word5         
+Word6 to SSL+3     Data
+WordSSL+4          TDR Number         1,3,5,7,9,11,13,15,17,19,21,23
+WordSSL+5          SubSubBlock Length (SSL2) (1538 for K; 1282 S) 
+WordSSL+6         
+Word1SSL+7 to SSL+SSL2+4   Data
+
+then three words 
+WordSL-2 CRC1
+WordSL-1 CRC2
+WordSL   Junk
+
+i. Calibration Event Format  Status
+ID = 2 |  2<<6 | 11 <<9 (x<0)   or   2 |  5<<6 | 11<<9 (x>0)
+
+
+
+
+Word1              Subblock Length (SL) 
+Word2 & 31         Number of TDR      (24)
+
+Then 24 subblocks
+
+Subblock format 
+
+Word3              TDR Number         0-23
+Word4              SubSubBlock Length (SSL) (98 K; 82 S) 
+Word5 >> 8         Program version              
+Word6 to SSL+3     Data
+
+Data Word:    Bit on = good strip
+              MSB= strip  1
+              LSB= strip 16
+
+then two words 
+
+WordSL-2 CRC1
+WordSL-1 CRC2
+WordSL   Junk
+
+
+
+
+j. Calibration Event Format  Ped
+ID = 4 |  2<<6 | 11 <<9 (x<0)   or   4 |  5<<6 | 11<<9 (x>0)
+
+See h.
+data Word=  Ped*8
+
+k. Calibration Event Format  Sigma
+ID = 3 |  2<<6 | 11 <<9 (x<0)   or   3 |  5<<6 | 11<<9 (x>0)
+
+See h.
+
+data Word=  Sigma*8
+
+
+l. Calibration Event Format  Parameters Table
+ID = 5 |  2<<6 | 11 <<9 (x<0)   or   5 |  5<<6 | 11<<9 (x>0)
+
+
+Word1              Subblock Length (SL) 
+Word2 & 31         Number of TDR      (24)
+
+Then 24 subblocks
+
+Subblock format 
+Word3              TDR Number         0-23
+Word4              Subsubblock Length (SSL=42)
+Word5       
+Word6 to 46     Data
+
+Data format:
+
+ 1 128     Number of events to throw out before beginning calibration
+ 2 2048    Number of events for pedestal calculation
+ 3 512     Number of events for sigma raw calculation
+ 4 1024    Number of events for sigma Pass1 calculation
+ 5 0       Number of events for sigma Pass2 calculation
+ 6 2048    Number of events for non gaussien pass
+ 7 1       Step in histo to seek peak value (in 1/8)
+ 8 64      Number of bin for histo (max 128)
+ 9 14      f1 Cut for histo (in 1/8)
+10 10      f2 Cut for histo pass 2 (in 1/8)
+11 24      g Cut for non gaussien behaviour (in 1/8)
+12 50      out_g Number of event out of bound for non gaussien
+13 24      Seed cut (in 1/8)
+14 8       Neigbour cut (in 1/8)
+15 48      ADC min
+16 0       Number of events between 2 dynamical pedestal (0 means never)
+17 0       spare
+18 0       spare
+19 0       spare
+20 0       spare
+21 0       spare
+22 0       spare
+23 0       spare
+24 0       spare
+25 0       spare
+26 0       spare
+27 0       spare
+28 0       spare
+29 0       spare
+30 0       spare
+31 0       Number of strip for laser in intensity 1
+32 0       First strip of region u1,1 
+33 0       First strip of region o1,1
+34 0       First strip of region u1,2
+35 0       First strip of region o1,2
+36 0       Number of strip for laser in intensity 2
+37 0       First strip of region u2,1
+38 0       First strip of region o2,1
+39 0       First strip of region u2,2
+40 0       First strip of region o2,2
+
+    
+
+then 2 to 3 words 
+
+WordSL-2 CRC1
+WordSL-1 CRC2
+WordSL   Junk (if any)
+
+m. Tracker Mixed Mode Format
+ID = 12 |  2<<6 | 11 <<9 (x<0)   or   12 |  5<<6 | 11<<9 (x>0)
+
+then 12 subblocks 
+
+  SubBlock Format
+Word1              Subblock Length (SL)
+Word2 & 31         Number of TDR      (2)
+Word3              TDR Number         0,2,4,6,8,10,12,14,16,18,20,22     
+Word4              SubSubBlock Length (SSL)   
+Word5         
+Word6              SubSubBlock Length Raw (SSLR)   
+Word7         
+Word8 to SSLR+5     Data Raw
+WordSSLR+6         SubSubBlock Length Compressed (SSLC)
+WordSSLR+7
+WordSSLR+8 to SSLR+SSLC+5     Data compressed
+
+WordSSL+4          TDR Number         1,3,5,7,9,11,13,15,17,19,21,23
+WordSSL+5          SubSubBlock Length (SSL2) 
+WordSSL+6         
+WordSSL+7 to SSL+SSL2+4   Data (see above)
+
+then two or three words 
+WordSL-2 CRC1
+WordSL-1 CRC2
+WordSL   Junk
+
+n. Yet Another Tracker Reduced Mode Format
+ID = 14 |  2<<6 | 11 <<9 (x<0)   or   14 |  5<<6 | 11<<9 (x>0)
+
+
+Word1              Subblock Length (SL)
+Word2 & 31         Number of TDR      (24)
+
+then 24 subblocks:
+
+Word3              TDR Number         0-23
+Word4              SubSubBlock Length (SSL) 
+Word5         
+Word6 to SSL+3     Data (see f. for description) 
+
+then 
+
+WordSL-2 CRC1
+WordSL-1 CRC2
+WordSL   Junk (if any)
+
+o. Calibration Event Format  CmnNoise
+ID = 6 |  2<<6 | 11 <<9 (x<0)   or   6 |  5<<6 | 11<<9 (x>0)
+
+
+
+
+Word1              Subblock Length (SL) 
+Word2 & 31         Number of TDR      (24?)
+
+Then (word2 &31) subblocks
+
+Subblock format 
+
+Word3              TDR Number         0-23
+Word4              SubSubBlock Length (SSL) (26 K; 22 S) 
+Word5 
+Word6 to SSL+3     Data
+
+Data Word:    CmnNoise Sigma * 8
+              
+              
+
+then 2 to 3 words 
+
+WordSL-2 CRC1
+WordSL-1 CRC2
+WordSL   Junk
+
+p. MC Particle
+
+ID =  14 <<9 
+
+
+
+Word1     Particle id
+Word2-3   Momentum (MeV/c)
+Word4     Direction_x (+1 *1000)
+Word5     Direction_y  
+Word6     Direction_z
+Word7-8   Coo_x (+1 0000 0000 mkm)  
+Word9-10  Coo_y  
+Word11-12 Coo_z
+
+q. Shuttle Paramaters
+
+ID =  14 <<9   |     1 
+
+
+Word1-2    Altitude (cm)
+Word3-4    Lattitude
+Word5-6    Longitude
+Word7-8    Yaw
+Word9-10   Pitch
+Word11-12  Roll
+Word13-14  Speed(rad/sec)
+Word15-16  Speed_Theta
+Word17-18  Speed_Phi
+Word19-20  NorthPole_Phi
+
+
+AMS02
+----------
+
+ecal data format (purely fictitious)
+
+raw mode 
+
+id = 14<<9 | 2  
+
+
+
+
+III. Interface with DAQEvent class
+
+a. Daq->Raw conversion
+
+Each subdetector or trigger class
+should have at least two  functions 
+(one pair for one specifiq daq format)
+of the following form (names are not relevant)
+
+ static integer checkdaqid(int16u id){return 1 if id is relevant else 0 }
+  
+
+
+ static void buildraw(integer length, int16u *p);  // builds raw from daq from p
+                                                   //  p points to idsubdbl    
+                                                   // length==LSubDBl      
+
+
+b. Raw->Daq conversion
+
+Each block type (block type = header, trig-1,3, tracker, scrate etc)
+should have 3 functions
+ 
+ static integer getmaxblocks();      // returns maxblocks
+ static integer calcdaqlength(int i);    // i =0 to max blocks-1
+                                     // return data length ==LSubDBl
+
+ static void builddaq(integer i, integer length, int16u *p);
+                                                 // builds daq from raw into p,
+                                                 // i =0 to max blocks-1  
+                                                 // p points to idsubdbl
+                                                 // length==LSubDBl
+
+
+
+The corresponding functions should be registered in AMSJob::_redaqinitjob()
+as in example:
+
+
+ //tracker
+
+    DAQEvent::addsubdetector(&AMSTrRawCluster::checkdaqid,
+                             &AMSTrRawCluster::buildraw, uinteger btype);
+
+    DAQEvent::addblocktype(&AMSTrRawCluster::getmaxblocks,
+                           &AMSTrRawCluster::calcdaqlength,
+                           &AMSTrRawCluster::builddaq, uinteger btype);
+
+
+
+
+
+
+
+
+
+
+
+
+IV. Relevant datacards 
+
+    AMSJOB 1
+
+    DAQC 
+
+    (see datacards.doc)
+
+
+
+
+    
+
+
+
+V. Built in access to event header
+
+
+runno()
+eventno()
+runtype()
+time()
+
+(Active only after _HeaderOK())
+

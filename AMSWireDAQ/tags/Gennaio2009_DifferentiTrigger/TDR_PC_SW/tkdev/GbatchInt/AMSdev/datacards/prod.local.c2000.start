@@ -1,0 +1,2 @@
+//  $Id: prod.local.c2000.start,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+nice -10 prod.local.c2000 $1 $2 $3 1>/Offline/logs.local/$1.c2000.log 2>/Offline/logs.local/$1.c2000.e.log &

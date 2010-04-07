@@ -1,0 +1,15 @@
+0A 93 10
+// subchain 2R
+22
+// TRDS1 duration 005A to 012C min
+01 20
+// TRDS2 duration 0001 to 0FA0 sec
+01 70
+// TRDS3 duration 003C to 012C sec
+01 20
+// TRDS7 duration 003C to 0258 sec
+01 70
+// TRDS10 duration 0002 to 007F sec
+00 70
+// TRDS11 duration 0002 to 00FF millisec
+00 70

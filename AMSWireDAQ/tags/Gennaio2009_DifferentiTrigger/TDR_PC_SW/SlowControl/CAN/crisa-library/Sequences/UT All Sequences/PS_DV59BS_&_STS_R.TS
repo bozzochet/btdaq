@@ -1,0 +1,16 @@
+   2:REQUEST MESSAGE               :GEP-05, Group Switch Test, NONE
+   2:REQUEST MESSAGE               :GEP-05, Configure Scope to measure 2s pulse, NONE
+   1:SEND COMMAND                  :CAN-02, C05, CAB_GET_DIGITAL_STATUS_RED.CMM, 0
+   2:REQUEST MESSAGE               :GEP-05, This is a request message example, NONE
+   3:SEND COMMAND                  :CAN-02, C77, PS_OPERATE_PULSED_PILOT_VALVE_RED_V59BS_02S.CMM, 0
+   4:SEND COMMAND                  :CAN-02, C05, CAB_GET_DIGITAL_STATUS_RED.CMM, 0
+
+   5:REQUEST MESSAGE               :GEP-05, This is a request message example, NONE
+   6:SEND COMMAND                  :CAN-02, C74, PS_ENA_DIS_PULSED_PILOT_VALVES_RED_ENA_OFF.CMM, 0
+   7:SEND COMMAND                  :CAN-02, C05, CAB_GET_DIGITAL_STATUS_RED.CMM, 0
+   8:REQUEST MESSAGE               :GEP-05, Verify status, NONE
+   9:REQUEST MESSAGE               :GEP-05, Launch DMM acquisition, NONE
+  10:SEND COMMAND                  :CAN-02, C77, PS_OPERATE_PULSED_PILOT_VALVE_RED_V59BS_02S.CMM, 0
+  19:WAIT N SECONDS/MILLI-SECONDS  :GEP-04, 3, SEC
+  20:SEND COMMAND                  :CAN-02, C05, CAB_GET_DIGITAL_STATUS_RED.CMM, 0
+   2:REQUEST MESSAGE               :GEP-05, verify status, NONE

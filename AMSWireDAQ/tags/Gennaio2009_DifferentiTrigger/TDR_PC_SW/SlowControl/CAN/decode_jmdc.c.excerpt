@@ -1,0 +1,114 @@
+typedef unsigned short u16;
+typedef unsigned int u32;
+
+int DEBUG=0;
+
+// Event Blocks                                                                                                                        
+struct PrimaryHeader{
+  u32 Length;
+  u32 Size;
+  char RR;
+  char RW;
+  u16 Node;
+  u16 Type;
+  u16 TypeExt;
+};
+
+struct SecondaryHeader{
+  u16 Status;
+  u16 Tag;
+  u32 Time;
+};
+
+struct JMDCblock{
+  u32 Length;
+  u32 Size;
+  char RR;
+  char RW;
+  u16 Node;
+  u16 Type;
+  u32 Tag;
+  u32 Run;
+  u32 Event;
+  u32 Time;
+  u32 Usec;
+  char G;
+  u16 Groups;
+  u16 GPSWeek;
+};
+
+struct Event{
+  u16 DataBlocks;
+  u16 JMDCBlocks;
+  struct PrimaryHeader PrimaryHeader;
+  struct SecondaryHeader SecondaryHeader;
+  struct JMDCblock JMDC;
+};
+
+struct Event EventLast, EventPrev;
+
+
+
+int decode_jmdc(char rr, char rw, u16 node, u16 *event, u32 size, u32 length){
+
+  u32 run_number, run_tag, event_number, event_time, event_usec;
+  u16 g, groups, gps_week=0;
+
+  // check block size                                                                                                                  
+  if (size!=24 && size!=34){
+    printf("decode_jmdc-ERROR-UnexpectedBlockSize: %d\n",size);
+    return -1;
+  }
+
+  int pos=0;
+  run_tag=(event[pos]<<16)|event[pos+1];
+
+  pos+=2;
+  run_number=(event[pos]<<16)|event[pos+1];
+
+  pos+=2;
+  event_number=(event[pos]<<16)|event[pos+1];
+
+  pos+=2;
+  event_time=(event[pos]<<16)|event[pos+1];
+
+  pos+=2;
+  event_usec=(event[pos]<<16)|event[pos+1];
+
+  pos+=2;
+  g=event[pos]>>15;
+  groups=event[pos]&0xf;
+
+
+  if ( (size==24 && g) || (size==34 && !g) ) {
+    printf("decode_jmdc-ERROR-IncompatibleBlockSizeAndGPS: %d %d\n",size,g);
+    return -2;
+  }
+
+  if (g) {
+    pos++;
+    gps_week=event[pos];
+  }
+
+  EventLast.JMDCBlocks++;
+
+  EventLast.JMDC.Length=length;
+  EventLast.JMDC.Size=size;
+  EventLast.JMDC.RR=rr;
+  EventLast.JMDC.RW=rw;
+  EventLast.JMDC.Node=node;
+  EventLast.JMDC.Type=JMDC_BLOCK;
+  EventLast.JMDC.Tag=run_tag;
+  EventLast.JMDC.Run=run_number;
+  EventLast.JMDC.Event=event_number;
+  EventLast.JMDC.Time=event_time;
+  EventLast.JMDC.Usec=event_usec;
+  EventLast.JMDC.G=g;
+  EventLast.JMDC.Groups=groups;
+  EventLast.JMDC.GPSWeek=gps_week;
+
+  if (DEBUG)
+    printf("decode_jmdc: Node %s, run_number 0x%x, run_tag 0x%x, event_number %d, event_time %d, event_usec %d\n",JMDC[node-JMDC0],run\
+_number, run_tag, event_number, event_time, event_usec);
+
+}

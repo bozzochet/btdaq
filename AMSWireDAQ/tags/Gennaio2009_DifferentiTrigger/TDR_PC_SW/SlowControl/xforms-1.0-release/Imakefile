@@ -1,0 +1,134 @@
+/* Configuration -- see 00README for details */
+
+/* Fairly important stuff */
+
+#define OptimizationLevel -O4
+#define DoWall NO
+
+#define BuildShared YES
+#define StaticLink YES
+
+#define BuildGL YES
+
+
+/* Less Important or System Specific */
+
+#define HaveStrerror YES
+#define HaveSnprintf YES
+#define HaveFloatH YES
+#define DoOptimize YES
+#define BuildDemos NO
+
+#define DebugSymbols YES
+
+
+/*  
+ * You should only define this if you're running a 64 bit compile
+ * environment on Solaris.
+ */
+
+#define Solaris64Bit NO
+
+
+/* Out in the Tall Weeds */
+
+#define InstallNonstandard NO
+#define XFormsNonstandardInstallDir /usr/local
+
+#define NonstandardXpm NO
+
+#define XpmIncLoc /usr/local/include
+#define XpmLibLoc /usr/local/lib
+
+#define NonstandardTiff NO
+
+#define TiffIncLoc /usr/local/include
+#define TiffLibLoc /usr/local/lib
+
+#define NonstandardJpeg NO
+
+#define JpegIncLoc /usr/local/include
+#define JpegLibLoc /usr/local/lib
+
+######################################################################
+#                                                                    #
+#	Move along.  Nothing to see now.  Move along.                #
+#                                                                    #
+######################################################################
+
+#define XFormsLibRev 1.0
+
+#if Solaris64Bit && HasGcc2
+BITS		= -m64
+#endif
+
+#if DoWall
+WALL		= -Wall
+#endif
+
+#if DebugSymbols
+DEBUG_FLAG	= -g
+#endif
+
+#if DoOptimize
+OPTIMIZER	= OptimizationLevel
+#else
+OPTIMIZER	=
+#endif
+
+CDEBUGFLAGS	= $(DEBUG_FLAG) $(OPTIMIZER) $(WALL) $(BITS)
+
+#define IHaveSubdirs
+#define PassCDebugFlags 'CDEBUGFLAGS=$(CDEBUGFLAGS)'
+
+#if BuildGL
+GL	= gl
+#endif
+
+#if !HaveSnprintf
+SNPRINTF= snp
+#endif
+
+#if BuildDemos
+DEMOS	= demos
+#endif
+
+SUBDIRS = \
+	  $(SNPRINTF) \
+	  lib/include \
+	  lib \
+	  image \
+	  $(GL) \
+	  fdesign \
+ 	  fd2ps \
+	  $(DEMOS)
+	  	
+IMAKE_DEFINES	= \
+		  -DOptimizationLevel=OptimizationLevel \
+		  -DHaveStrerror=HaveStrerror \
+		  -DHaveSnprintf=HaveSnprintf \
+		  -DHaveFloatH=HaveFloatH \
+		  -DStaticLink=StaticLink \
+		  -DBuildGL=BuildGL \
+		  -DBuildShared=BuildShared \
+		  -DSolaris64Bit=Solaris64Bit \
+		  -DDoWall=DoWall \
+		  -DXFormsNonstandardInstallDir=XFormsNonstandardInstallDir \
+		  -DInstallNonstandard=InstallNonstandard \
+		  -DNonstandardXpm=NonstandardXpm \
+		  -DXpmIncLoc=XpmIncLoc \
+		  -DXpmLibLoc=XpmLibLoc \
+		  -DNonstandardTiff=NonstandardTiff \
+		  -DTiffIncLoc=TiffIncLoc \
+		  -DTiffLibLoc=TiffLibLoc \
+		  -DNonstandardJpeg=NonstandardJpeg \
+		  -DJpegIncLoc=JpegIncLoc \
+		  -DJpegLibLoc=JpegLibLoc \
+		  -DXFormsLibRev=XFormsLibRev
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))
+
+distclean::
+	make clean
+	$(RM) Makefile

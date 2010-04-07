@@ -1,0 +1,19 @@
+CFLAGS=-I/usr/local/include  -I. -I../../include -g 
+
+LDFLAGS= -g -lUfor   -lfor -lFutil -lots  -L/usr/local/lib  -lm  -L/cern/pro/lib  -lgeant321 -lmathlib -lpacklib_noshift -lkernlib_noshift 
+
+LOADLIBES=
+
+CC=cxx
+
+
+BeamPar: BeamPar.o 
+	$(CC) $(CFLAGS)  -o BeamPar BeamPar.o  ../../bin/osf1/sgif.o $(LDFLAGS) 
+
+BeamPar.o: BeamPar.C
+	$(CC)  $(CFLAGS)  -c BeamPar.C  
+
+
+
+
+

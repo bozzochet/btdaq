@@ -1,0 +1,25 @@
+#  $Id: Makelib,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+#
+SHELL=/bin/sh
+#
+ifeq  "$(shell uname)"  "AIX"
+BIN=/bin/aix
+LIB=/lib/aix
+endif
+ifeq  "$(shell uname)"  "OSF1"
+BIN=/bin/osf1
+LIB=/lib/osf1
+endif
+ifeq  "$(shell uname)"  "HP-UX"
+BIN=/bin/hpux
+LIB=/lib/hpux
+endif
+#
+OBJECTS=  ..$(BIN)/*.o
+
+
+
+crlib:	$(OBJECTS)
+	ar vr ..$(LIB)/libams.a $(OBJECTS)
+
+

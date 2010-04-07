@@ -1,0 +1,37 @@
+Notes on using and recompiling xforms-0.88 on OS/2
+--------------------------------------------------
+Holger.Veit@gmd.de 14 Dec 97
+
+1. XForms is only supported for XFree86/OS2 3.2 or later, not for
+   PMX or eXceed.
+2. You must have XPM installed. This package is available from the 
+   XFree86/OS2 ported software page http://set.gmd.de/~veit/os2/xf86ported.html
+3. You must have a complete EMX 0.9C fix2 development environment installed,
+   including X331prog.zip or later
+3a. If you get the access to these sources for compiling to OS/2, the
+   distribution might contain a UNIX-style 'os2move.cmd' file. Use an
+   appropriate unix2os2 conversion program to make it usable (since it
+   is unlikely that you will ever get access to the sources, this is just
+   a reminder for me :-)
+4. Since Dr. Zhao has moved and renamed a few things in a non-standard way,
+   e.g. Imakefile to Imakefile.os2 which won't work, run the script
+   os2move.cmd from this top directory; this should move the things back
+   to the places where they were meant to be.
+5. The config mechanism to compile XForms is not supported; instead
+   use the Imakefiles:
+	xmkmf -a
+	make all
+	make install
+	make install.man
+6. Note the imake process will overwrite provided Makefiles in the 
+   subdirectories. This is no problem unless you want to use special
+   targets. The Imakefiles will build everything which you can get, so
+   there is no selection among library only, forms design tool and demos.
+   See the Imakefile in the FORMS directory for selecting shared vs. static
+   libs. By default, this Imakefile is setup to build both shared and
+   static libraries.
+7. Demo executables are installed in \XFree86\bin\xforms_demo, the source
+   for these demos is in \XFree86\src\xforms. The code there is not the
+   source code of Xforms!
+8. Currently, only the pmbrowse demo does not work, the others should function
+   as expected.

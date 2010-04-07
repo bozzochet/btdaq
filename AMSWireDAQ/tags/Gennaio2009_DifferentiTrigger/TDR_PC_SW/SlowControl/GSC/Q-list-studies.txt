@@ -1,0 +1,45 @@
+Start Q-List:
+W NA=13 DT=1F0700 DC=2 D = 0001
+
+Stop Q-List:
+W NA=13 DT=1F0700 DC=2 D = 0000
+
+List Q-List:
+W NA=13 DT=1F0701 DC=0 prints on JMDC TTY only, no reply data
+R NA=13 DT=1F0701 DC=0
+
+Add to Q-List
+W NA=13 DT=1F0702 DC=6 (no data in Q-List command)
+
+R D = 001E 001F 0245 - adr=000 T=30
+R D = 001E 3FFF 0245 - adr=1FF T=30
+R D = 000A 001F 0245 - adr=000 T=10
+
+
+this comes to JMDC TTY when list Q-list:
+
+J3:[08-05-20 15:07:52] QLIST_PROC> Total 16 items:                                                                                            
+J3:[08-05-20 15:07:52] QLIST_PROC>     0: RUNNING Rep=300 READ  Node=0x82  Type=0x1f0381 Size=4 Data: 4004 2E03 0000 0000                     
+J3:[08-05-20 15:07:52] QLIST_PROC>     1: RUNNING Rep=300 READ  Node=0x82  Type=0x1f0381 Size=6 Data: 4004 4000 2E03 0000                     
+J3:[08-05-20 15:07:52] QLIST_PROC>     2: RUNNING Rep=600 READ  Node=0x82  Type=0x1f0381 Size=4 Data: 4004 2E1C 0000 0000                     
+J3:[08-05-20 15:07:52] QLIST_PROC>     3: RUNNING Rep=60  READ  Node=0x88  Type=0x11     Size=4 Data: 4060 2000 0000 0000                     
+J3:[08-05-20 15:07:52] QLIST_PROC>     4: RUNNING Rep=300 READ  Node=0x28  Type=0x11     Size=0 Data: 0000 0000 0000 0000                     
+J3:[08-05-20 15:07:52] QLIST_PROC>     5: RUNNING Rep=600 READ  Node=0x28  Type=0x19     Size=1 Data: 0100 0001 0000 0009                     
+J3:[08-05-20 15:07:52] QLIST_PROC>     6: RUNNING Rep=600 READ  Node=0x28  Type=0x19     Size=1 Data: 0200 0001 0000 0009                     
+J3:[08-05-20 15:07:52] QLIST_PROC>     7: RUNNING Rep=600 READ  Node=0x28  Type=0x19     Size=1 Data: 0400 0001 0000 0009                     
+J3:[08-05-20 15:07:52] QLIST_PROC>     8: RUNNING Rep=600 READ  Node=0x28  Type=0x19     Size=1 Data: 0700 0001 0000 0009                     
+J3:[08-05-20 15:07:52] QLIST_PROC>     9: RUNNING Rep=600 READ  Node=0x28  Type=0x19     Size=1 Data: 0800 0000 0000 0008                     
+J3:[08-05-20 15:07:52] QLIST_PROC>    10: RUNNING Rep=300 READ  Node=0x29  Type=0x11     Size=0 Data: 0000 0000 0000 0000                     
+J3:[08-05-20 15:07:52] QLIST_PROC>    11: RUNNING Rep=600 READ  Node=0x29  Type=0x19     Size=1 Data: 0100 0001 0000 0009                     
+J3:[08-05-20 15:07:52] QLIST_PROC>    12: RUNNING Rep=600 READ  Node=0x29  Type=0x19     Size=1 Data: 0200 0001 0000 0009                     
+J3:[08-05-20 15:07:52] QLIST_PROC>    13: RUNNING Rep=600 READ  Node=0x29  Type=0x19     Size=1 Data: 0400 0001 0000 0009                     
+J3:[08-05-20 15:07:52] QLIST_PROC>    14: RUNNING Rep=600 READ  Node=0x29  Type=0x19     Size=1 Data: 0800 0000 0004 CA06                     
+J3:[08-05-20 15:07:52] QLIST_PROC>    15: RUNNING Rep=300 READ  Node=0x28  Type=0x19     Size=1 Data: 0663 282E 7CA8 02A6                     
+
+Cai explained the structure of reply to R DT=1F0701 command:
+
+	The read command of 1f0701 is not very useful at the moment. 
+	It returns the Q-list table which is a structure of one 16-bit word (status)
+	and one 32-bit address of the block. The table has 256 items like that.
+	I have to think about for the future. 
+	Currently the write command of 1f0701 will print detail information about Q-list.

@@ -1,0 +1,70 @@
+I. LSF 
+
+a. Submit a Job
+
+/usr/local/lsf/bin/bsub -q QUEUE_NAME  /offline/vdev/datacards/example.job P1...P9
+
+QUEUE_NAME  ams_1nh  1hour, ans_4nh 4hours, ams_1nd 1 day, ams_night  nocpulimit
+
+P1...P9  see II
+
+b. Check Job status
+
+/usr/local/lsf/bin/bjobs
+
+/usr/local/lsf/bin/bpeek jobid
+
+c. Kill Job
+
+/usr/local/lsf/bin/bkill  jobid
+
+
+II. PARAMETERS
+
+P1  (integer)  geant3 particle id, e.g.:
+               14  (proton)
+               2   (e+)
+               3   (e-)
+               5   (mu+)
+               15  (antiproton)
+               47  (He)
+
+P2  (integer)  number of triggers, e.g.:
+               1000000
+
+P3  (real)     max cos(theta) angle, e.g.:
+               -0.5
+
+P4  (real)     min particle momentum in GeV/c, e.g.
+               10.
+
+P5  (real)     max particle momentum in GeV/c, e.g.
+               100.
+
+P6  (integer)  run number, e.g.
+               1001
+
+P7  (integer)  spectrum number,e.g.
+               0  (Cosmic spectrum)
+               1  (UnderCutoff spectrum)
+               2  (Sea Level Muons Spectrum)
+               3  (Mev Range Electron Spectrum)
+               4  (Uniform in momentum Spectrum)
+               5  (Uninform in log(momentum) Spectrum)
+
+P8 (char)      output dir path, e.g.
+               /scratchA/groupA/galaktio
+               NB: ntuple name will be P8/P6.hbk
+
+P9 (real)      cpulimit per event in sec, e.g.
+               10.
+
+
+III Example of Example A
+
+/usr/local/lsf/bin/bsub -q ams_1nh -m ams /offline/vdev/datacards/example.job 14 1000000 -0.5 10. 100. 1001 0 /scratchA/groupA/galaktio 10.
+
+IV  Example of Example B 
+
+     /offline/vdev/perl/sbsub queue=ams_1nh host=ams particle=proton spectrum=cosmic outputdirpath=/scratchA/gr
+oupA/galaktio      

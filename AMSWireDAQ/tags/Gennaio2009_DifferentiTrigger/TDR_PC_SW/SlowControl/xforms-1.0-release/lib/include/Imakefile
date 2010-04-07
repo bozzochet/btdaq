@@ -1,0 +1,48 @@
+HDRSRC		= AAA.h \
+		  Basic.h \
+		  XBasic.h \
+		  bitmap.h \
+		  box.h \
+		  browser.h \
+		  button.h \
+		  canvas.h \
+		  chart.h \
+		  choice.h \
+		  clipbd.h \
+		  clock.h \
+		  counter.h \
+		  cursor.h \
+		  dial.h \
+		  filesys.h \
+		  flps.h \
+		  formbrowser.h \
+		  frame.h \
+		  free.h \
+		  goodies.h \
+		  input.h \
+		  menu.h \
+		  menubar.h \
+		  popup.h \
+		  positioner.h \
+		  scrollbar.h \
+		  slider.h \
+		  tabfolder.h \
+		  text.h \
+		  thumbwheel.h \
+		  timer.h \
+		  xyplot.h \
+		  zzz.h
+
+#	Professional driver.  Closed course.  Do not attempt.
+
+forms.h: $(HDRSRC) ../ulib.h
+	@/bin/rm -f $@
+	@for i in $(HDRSRC); do \
+		sed "1,/crop here for forms/d" $$i >> $@; \
+	done
+	cp forms.h ../forms.h
+	@echo created new forms.h
+
+includes::	forms.h
+
+AllTarget(forms.h)

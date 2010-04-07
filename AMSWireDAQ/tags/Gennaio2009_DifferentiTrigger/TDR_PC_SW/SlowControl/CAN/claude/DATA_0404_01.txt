@@ -1,0 +1,1066 @@
+serial port 0 setup: mode = 0x03, rate = 19200
+serial port 1 setup: mode = 0x00, rate = 19200
+
+*** SRECEIVST  *** Status of the receiver
+Validity                       FF
+Local time                     26630
+Health status of PEGASE 1      0000
+Health status of PEGASE 2      0000
+Health status of signal proc   0012
+Config status of hardware      F403
+Health status of proc & mem    0030
+Config for localisation        03
+Config for attitude            00
+Reserved ALCATEL               00
+Config for cold start          01
+Config for PPS                 01
+Y2015 extension                00
+Configuration of Antenna 1     0129
+Configuration of Antenna 2     0228
+Configuration of Antenna 3     0228
+Configuration of Antenna 4     0228
+Masking angle of Antenna 1     1820
+Masking angle of Antenna 2     1820
+Masking angle of Antenna 3     1820
+Masking angle of Antenna 4     1820
+Snapshot resolution            00
+N2G resolution                 00
+Almanac status                 00
+Satellite selection status     01
+Status of visibility           20
+Snapshot status                00
+N2G status                     00
+Automatic Gain Control 1       57894
+Automatic Gain Control 2       32768
+Automatic Gain Control 3       32768
+Automatic Gain Control 4       32768
+Number of valid TC received    26
+Number of TC N2G in stand-by   0
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     26640
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+
+*** SNAVI      *** Position and velocity of SNAPSHOT
+Validity                       00
+Local Time                     26660
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   16000
+Velocity FOM                   65536000
+Local clock drift FOM          65536000
+Time FOM                       1677721600
+
+*** SNAVN      *** Position and velocity of the Navigator
+Validity                       00
+Local Time                     0
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   0
+Velocity FOM                   0
+Local clock drift FOM          0
+Time FOM                       0
+
+*** SRECEIVST  *** Status of the receiver
+Validity                       FF
+Local time                     26730
+Health status of PEGASE 1      0000
+Health status of PEGASE 2      0000
+Health status of signal proc   0012
+Config status of hardware      F403
+Health status of proc & mem    0030
+Config for localisation        03
+Config for attitude            00
+Reserved ALCATEL               00
+Config for cold start          01
+Config for PPS                 01
+Y2015 extension                00
+Configuration of Antenna 1     0129
+Configuration of Antenna 2     0228
+Configuration of Antenna 3     0228
+Configuration of Antenna 4     0228
+Masking angle of Antenna 1     1820
+Masking angle of Antenna 2     1820
+Masking angle of Antenna 3     1820
+Masking angle of Antenna 4     1820
+Snapshot resolution            00
+N2G resolution                 00
+Almanac status                 00
+Satellite selection status     01
+Status of visibility           20
+Snapshot status                00
+N2G status                     00
+Automatic Gain Control 1       57835
+Automatic Gain Control 2       32768
+Automatic Gain Control 3       32768
+Automatic Gain Control 4       32768
+Number of valid TC received    27
+Number of TC N2G in stand-by   0
+
+*** S1RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     26730
+Status of measurement 1        54
+Signal PRN 1                   18
+Status of measurement 2        54
+Signal PRN 2                   26
+Status of measurement 3        54
+Signal PRN 3                   21
+Status of measurement 4        54
+Signal PRN 4                   17
+Milliseconds sub-frame 1       0
+Fractions milliseconds  1      00000000
+1-second Doppler 1             052E4E70
+Carrier phase 1                433A
+Milliseconds sub-frame 2       0
+Fractions milliseconds  2      00000000
+1-second Doppler 2             FF750B8E
+Carrier phase 2                4607
+Milliseconds sub-frame 3       0
+Fractions milliseconds  3      00000000
+1-second Doppler 3             04F90630
+Carrier phase 3                64D9
+Milliseconds sub-frame 4       0
+Fractions milliseconds  4      00000000
+1-second Doppler 4             05B38310
+Carrier phase 4                67C3
+
+*** S2RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     26730
+Status of measurement 5        54
+Signal PRN 5                   25
+Status of measurement 6        54
+Signal PRN 6                   27
+Status of measurement 7        54
+Signal PRN 7                   24
+Status of measurement 8        54
+Signal PRN 8                   23
+Milliseconds sub-frame 5       0
+Fractions milliseconds  5      00000000
+1-second Doppler 5             FFDF9C0E
+Carrier phase 5                DBA2
+Milliseconds sub-frame 6       0
+Fractions milliseconds  6      00000000
+1-second Doppler 6             FC8B180C
+Carrier phase 6                BB63
+Milliseconds sub-frame 7       0
+Fractions milliseconds  7      00000000
+1-second Doppler 7             03AC029F
+Carrier phase 7                008E
+Milliseconds sub-frame 8       0
+Fractions milliseconds  8      00000000
+1-second Doppler 8             0423E52F
+Carrier phase 8                0C80
+
+*** S3RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     26730
+Status of measurement 9        54
+Signal PRN 5                   16
+Status of measurement 10       54
+Signal PRN 6                   19
+Status of measurement 11       54
+Signal PRN 7                   22
+Status of measurement 12       54
+Signal PRN 12                  20
+Milliseconds sub-frame 9       0
+Fractions milliseconds  9      00000000
+1-second Doppler 9             05DB7940
+Carrier phase 9                08CC
+Milliseconds sub-frame 10      0
+Fractions milliseconds 10      00000000
+1-second Doppler 10            052E4E70
+Carrier phase 10               073B
+Milliseconds sub-frame 11      0
+Fractions milliseconds  11     00000000
+1-second Doppler 11            04A919D0
+Carrier phase 11               B8EF
+Milliseconds sub-frame 12      0
+Fractions milliseconds 12      00000000
+1-second Doppler 12            052E4E70
+Carrier phase 12               E32C
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     26740
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+
+*** S1CHANST   *** Status of the channels
+Validity                       FF
+Local Time                     26740
+Status of channel 1            01
+Status of channel 2            01
+Status of channel 3            01
+Status of channel 4            01
+Status of channel 5            01
+Status of channel 6            01
+Status of channel 7            01
+Status of channel 8            01
+Status of channel 9            01
+Status of channel 10           01
+Status of channel 11           01
+Status of channel 12           01
+Signal/Noise C/N 1             99
+Signal/Noise C/N 2             96
+Signal/Noise C/N 3             90
+Signal/Noise C/N 4             91
+Signal/Noise C/N 5             91
+Signal/Noise C/N 6             94
+Signal/Noise C/N 7             95
+Signal/Noise C/N 8             99
+Signal/Noise C/N 9             97
+Signal/Noise C/N 10            97
+Signal/Noise C/N 11            95
+Signal/Noise C/N 12            91
+Signal-antenna-Ephemeris 1     41
+Signal-antenna-Ephemeris 2     41
+Signal-antenna-Ephemeris 3     41
+Signal-antenna-Ephemeris 4     41
+Signal-antenna-Ephemeris 5     41
+Signal-antenna-Ephemeris 6     41
+Signal-antenna-Ephemeris 7     41
+Signal-antenna-Ephemeris 8     41
+Signal-antenna-Ephemeris 9     41
+Signal-antenna-Ephemeris 10    41
+Signal-antenna-Ephemeris 11    41
+Signal-antenna-Ephemeris 12    41
+PRN of signal source 1         12
+PRN of signal source 2         1A
+PRN of signal source 3         15
+PRN of signal source 4         11
+PRN of signal source 5         19
+PRN of signal source 6         1B
+PRN of signal source 7         18
+PRN of signal source 8         17
+PRN of signal source 9         10
+PRN of signal source 10        13
+PRN of signal source 11        16
+PRN of signal source 12        14
+
+*** SNAVI      *** Position and velocity of SNAPSHOT
+Validity                       00
+Local Time                     26760
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   16000
+Velocity FOM                   65536000
+Local clock drift FOM          65536000
+Time FOM                       1677721600
+
+*** SNAVN      *** Position and velocity of the Navigator
+Validity                       00
+Local Time                     0
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   0
+Velocity FOM                   0
+Local clock drift FOM          0
+Time FOM                       0
+
+*** SRECEIVST  *** Status of the receiver
+Validity                       FF
+Local time                     26830
+Health status of PEGASE 1      0000
+Health status of PEGASE 2      0000
+Health status of signal proc   0012
+Config status of hardware      F403
+Health status of proc & mem    0030
+Config for localisation        03
+Config for attitude            00
+Reserved ALCATEL               00
+Config for cold start          01
+Config for PPS                 01
+Y2015 extension                00
+Configuration of Antenna 1     0129
+Configuration of Antenna 2     0228
+Configuration of Antenna 3     0228
+Configuration of Antenna 4     0228
+Masking angle of Antenna 1     1820
+Masking angle of Antenna 2     1820
+Masking angle of Antenna 3     1820
+Masking angle of Antenna 4     1820
+Snapshot resolution            00
+N2G resolution                 00
+Almanac status                 00
+Satellite selection status     01
+Status of visibility           20
+Snapshot status                00
+N2G status                     00
+Automatic Gain Control 1       58040
+Automatic Gain Control 2       32768
+Automatic Gain Control 3       32768
+Automatic Gain Control 4       32768
+Number of valid TC received    27
+Number of TC N2G in stand-by   0
+
+*** S1RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     26830
+Status of measurement 1        54
+Signal PRN 1                   18
+Status of measurement 2        54
+Signal PRN 2                   26
+Status of measurement 3        54
+Signal PRN 3                   21
+Status of measurement 4        54
+Signal PRN 4                   17
+Milliseconds sub-frame 1       0
+Fractions milliseconds  1      00000000
+1-second Doppler 1             06BDEC51
+Carrier phase 1                8A28
+Milliseconds sub-frame 2       0
+Fractions milliseconds  2      00000000
+1-second Doppler 2             007F74CD
+Carrier phase 2                A9C1
+Milliseconds sub-frame 3       0
+Fractions milliseconds  3      00000000
+1-second Doppler 3             0638B7B1
+Carrier phase 3                F3AA
+Milliseconds sub-frame 4       0
+Fractions milliseconds  4      00000000
+1-second Doppler 4             070DD8B1
+Carrier phase 4                774A
+
+*** S2RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     26830
+Status of measurement 5        54
+Signal PRN 5                   25
+Status of measurement 6        54
+Signal PRN 6                   27
+Status of measurement 7        54
+Signal PRN 7                   24
+Status of measurement 8        54
+Signal PRN 8                   23
+Milliseconds sub-frame 5       0
+Fractions milliseconds  5      00000000
+1-second Doppler 5             0104A96E
+Carrier phase 5                B428
+Milliseconds sub-frame 6       0
+Fractions milliseconds  6      00000000
+1-second Doppler 6             FDE56DAD
+Carrier phase 6                5CC1
+Milliseconds sub-frame 7       0
+Fractions milliseconds  7      00000000
+1-second Doppler 7             052E4E70
+Carrier phase 7                6B99
+Milliseconds sub-frame 8       0
+Fractions milliseconds  8      00000000
+1-second Doppler 8             05B38310
+Carrier phase 8                9D5D
+
+*** S3RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     26830
+Status of measurement 9        54
+Signal PRN 5                   16
+Status of measurement 10       54
+Signal PRN 6                   19
+Status of measurement 11       54
+Signal PRN 7                   22
+Status of measurement 12       55
+Signal PRN 12                  20
+Milliseconds sub-frame 9       0
+Fractions milliseconds  9      00000000
+1-second Doppler 9             074320F1
+Carrier phase 9                D1AD
+Milliseconds sub-frame 10      0
+Fractions milliseconds 10      00000000
+1-second Doppler 10            0638B7B1
+Carrier phase 10               97A0
+Milliseconds sub-frame 11      0
+Fractions milliseconds  11     00000000
+1-second Doppler 11            0638B7B1
+Carrier phase 11               2FA9
+Milliseconds sub-frame 12      1
+Fractions milliseconds 12      1925CB9D
+1-second Doppler 12            05B3DC2C
+Carrier phase 12               1F2C
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     26840
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+
+*** SNAVI      *** Position and velocity of SNAPSHOT
+Validity                       00
+Local Time                     26860
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   16000
+Velocity FOM                   65536000
+Local clock drift FOM          65536000
+Time FOM                       1677721600
+
+*** S1CHANST   *** Status of the channels
+Validity                       FF
+Local Time                     26890
+Status of channel 1            01
+Status of channel 2            01
+Status of channel 3            01
+Status of channel 4            01
+Status of channel 5            01
+Status of channel 6            01
+Status of channel 7            01
+Status of channel 8            01
+Status of channel 9            01
+Status of channel 10           01
+Status of channel 11           01
+Status of channel 12           02
+Signal/Noise C/N 1             99
+Signal/Noise C/N 2             96
+Signal/Noise C/N 3             90
+Signal/Noise C/N 4             91
+Signal/Noise C/N 5             91
+Signal/Noise C/N 6             94
+Signal/Noise C/N 7             95
+Signal/Noise C/N 8             99
+Signal/Noise C/N 9             97
+Signal/Noise C/N 10            97
+Signal/Noise C/N 11            95
+Signal/Noise C/N 12            AF
+Signal-antenna-Ephemeris 1     41
+Signal-antenna-Ephemeris 2     41
+Signal-antenna-Ephemeris 3     41
+Signal-antenna-Ephemeris 4     41
+Signal-antenna-Ephemeris 5     41
+Signal-antenna-Ephemeris 6     41
+Signal-antenna-Ephemeris 7     41
+Signal-antenna-Ephemeris 8     41
+Signal-antenna-Ephemeris 9     41
+Signal-antenna-Ephemeris 10    41
+Signal-antenna-Ephemeris 11    41
+Signal-antenna-Ephemeris 12    41
+PRN of signal source 1         12
+PRN of signal source 2         1A
+PRN of signal source 3         15
+PRN of signal source 4         11
+PRN of signal source 5         19
+PRN of signal source 6         1B
+PRN of signal source 7         18
+PRN of signal source 8         17
+PRN of signal source 9         10
+PRN of signal source 10        13
+PRN of signal source 11        16
+PRN of signal source 12        14
+
+*** SNAVN      *** Position and velocity of the Navigator
+Validity                       00
+Local Time                     0
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   0
+Velocity FOM                   0
+Local clock drift FOM          0
+Time FOM                       0
+
+*** SRECEIVST  *** Status of the receiver
+Validity                       FF
+Local time                     26930
+Health status of PEGASE 1      0000
+Health status of PEGASE 2      0000
+Health status of signal proc   0012
+Config status of hardware      F403
+Health status of proc & mem    0030
+Config for localisation        03
+Config for attitude            00
+Reserved ALCATEL               00
+Config for cold start          01
+Config for PPS                 01
+Y2015 extension                00
+Configuration of Antenna 1     0129
+Configuration of Antenna 2     0228
+Configuration of Antenna 3     0228
+Configuration of Antenna 4     0228
+Masking angle of Antenna 1     1820
+Masking angle of Antenna 2     1820
+Masking angle of Antenna 3     1820
+Masking angle of Antenna 4     1820
+Snapshot resolution            00
+N2G resolution                 00
+Almanac status                 00
+Satellite selection status     01
+Status of visibility           20
+Snapshot status                00
+N2G status                     00
+Automatic Gain Control 1       57725
+Automatic Gain Control 2       32768
+Automatic Gain Control 3       32768
+Automatic Gain Control 4       32768
+Number of valid TC received    27
+Number of TC N2G in stand-by   0
+
+*** S1RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     26930
+Status of measurement 1        54
+Signal PRN 1                   18
+Status of measurement 2        54
+Signal PRN 2                   26
+Status of measurement 3        54
+Signal PRN 3                   21
+Status of measurement 4        54
+Signal PRN 4                   25
+Milliseconds sub-frame 1       0
+Fractions milliseconds  1      00000000
+1-second Doppler 1             07C85591
+Carrier phase 1                E9B7
+Milliseconds sub-frame 2       0
+Fractions milliseconds  2      00000000
+1-second Doppler 2             01A4822E
+Carrier phase 2                4939
+Milliseconds sub-frame 3       0
+Fractions milliseconds  3      00000000
+1-second Doppler 3             074320F1
+Carrier phase 3                B025
+Milliseconds sub-frame 4       0
+Fractions milliseconds  4      00000000
+1-second Doppler 4             020F12AE
+Carrier phase 4                AD21
+
+*** S2RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     26930
+Status of measurement 5        54
+Signal PRN 5                   27
+Status of measurement 6        54
+Signal PRN 6                   24
+Status of measurement 7        54
+Signal PRN 7                   23
+Status of measurement 8        54
+Signal PRN 8                   19
+Milliseconds sub-frame 5       0
+Fractions milliseconds  5      00000000
+1-second Doppler 5             FEEFD6ED
+Carrier phase 5                16CB
+Milliseconds sub-frame 6       0
+Fractions milliseconds  6      00000000
+1-second Doppler 6             0638B7B1
+Carrier phase 6                01F2
+Milliseconds sub-frame 7       0
+Fractions milliseconds  7      00000000
+1-second Doppler 7             06BDEC51
+Carrier phase 7                D4D8
+Milliseconds sub-frame 8       0
+Fractions milliseconds  8      00000000
+1-second Doppler 8             07C85591
+Carrier phase 8                961F
+
+*** S3RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     26930
+Status of measurement 9        54
+Signal PRN 5                   22
+Status of measurement 10       55
+Signal PRN 6                   20
+Status of measurement 11       00
+Signal PRN 7                   0
+Status of measurement 12       00
+Signal PRN 12                  0
+Milliseconds sub-frame 9       0
+Fractions milliseconds  9      00000000
+1-second Doppler 9             074320F1
+Carrier phase 9                015F
+Milliseconds sub-frame 10      1
+Fractions milliseconds 10      15D2C510
+1-second Doppler 10            06AF6A0E
+Carrier phase 10               B011
+Milliseconds sub-frame 11      0
+Fractions milliseconds  11     00000000
+1-second Doppler 11            00000000
+Carrier phase 11               0000
+Milliseconds sub-frame 12      0
+Fractions milliseconds 12      00000000
+1-second Doppler 12            00000000
+Carrier phase 12               0000
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     26940
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+
+*** SNAVI      *** Position and velocity of SNAPSHOT
+Validity                       00
+Local Time                     26960
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   16000
+Velocity FOM                   65536000
+Local clock drift FOM          65536000
+Time FOM                       1677721600
+
+*** SNAVN      *** Position and velocity of the Navigator
+Validity                       00
+Local Time                     0
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   0
+Velocity FOM                   0
+Local clock drift FOM          0
+Time FOM                       0
+
+*** SRECEIVST  *** Status of the receiver
+Validity                       FF
+Local time                     27030
+Health status of PEGASE 1      0000
+Health status of PEGASE 2      0000
+Health status of signal proc   0012
+Config status of hardware      F403
+Health status of proc & mem    0030
+Config for localisation        03
+Config for attitude            00
+Reserved ALCATEL               00
+Config for cold start          01
+Config for PPS                 01
+Y2015 extension                00
+Configuration of Antenna 1     0129
+Configuration of Antenna 2     0228
+Configuration of Antenna 3     0228
+Configuration of Antenna 4     0228
+Masking angle of Antenna 1     1820
+Masking angle of Antenna 2     1820
+Masking angle of Antenna 3     1820
+Masking angle of Antenna 4     1820
+Snapshot resolution            00
+N2G resolution                 00
+Almanac status                 00
+Satellite selection status     01
+Status of visibility           20
+Snapshot status                00
+N2G status                     00
+Automatic Gain Control 1       57834
+Automatic Gain Control 2       32768
+Automatic Gain Control 3       32768
+Automatic Gain Control 4       32768
+Number of valid TC received    27
+Number of TC N2G in stand-by   0
+
+*** S1RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     27030
+Status of measurement 1        54
+Signal PRN 1                   30
+Status of measurement 2        54
+Signal PRN 2                   26
+Status of measurement 3        54
+Signal PRN 3                   29
+Status of measurement 4        54
+Signal PRN 4                   25
+Milliseconds sub-frame 1       0
+Fractions milliseconds  1      00000000
+1-second Doppler 1             E8900001
+Carrier phase 1                C3F2
+Milliseconds sub-frame 2       0
+Fractions milliseconds  2      00000000
+1-second Doppler 2             03197BEF
+Carrier phase 2                7C6B
+Milliseconds sub-frame 3       0
+Fractions milliseconds  3      00000000
+1-second Doppler 3             E8900001
+Carrier phase 3                9E26
+Milliseconds sub-frame 4       0
+Fractions milliseconds  4      00000000
+1-second Doppler 4             039EB08F
+Carrier phase 4                B08C
+
+*** S2RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     27030
+Status of measurement 5        54
+Signal PRN 5                   27
+Status of measurement 6        54
+Signal PRN 6                   24
+Status of measurement 7        54
+Signal PRN 7                   28
+Status of measurement 8        54
+Signal PRN 8                   31
+Milliseconds sub-frame 5       0
+Fractions milliseconds  5      00000000
+1-second Doppler 5             007222BD
+Carrier phase 5                309C
+Milliseconds sub-frame 6       0
+Fractions milliseconds  6      00000000
+1-second Doppler 6             07930D51
+Carrier phase 6                08F8
+Milliseconds sub-frame 7       0
+Fractions milliseconds  7      00000000
+1-second Doppler 7             E8900001
+Carrier phase 7                D3FF
+Milliseconds sub-frame 8       0
+Fractions milliseconds  8      00000000
+1-second Doppler 8             E8900001
+Carrier phase 8                8D89
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     27040
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+
+*** S1CHANST   *** Status of the channels
+Validity                       FF
+Local Time                     27040
+Status of channel 1            01
+Status of channel 2            01
+Status of channel 3            01
+Status of channel 4            01
+Status of channel 5            01
+Status of channel 6            01
+Status of channel 7            01
+Status of channel 8            00
+Status of channel 9            01
+Status of channel 10           01
+Status of channel 11           00
+Status of channel 12           00
+Signal/Noise C/N 1             97
+Signal/Noise C/N 2             96
+Signal/Noise C/N 3             93
+Signal/Noise C/N 4             9A
+Signal/Noise C/N 5             91
+Signal/Noise C/N 6             94
+Signal/Noise C/N 7             95
+Signal/Noise C/N 8             00
+Signal/Noise C/N 9             94
+Signal/Noise C/N 10            95
+Signal/Noise C/N 11            00
+Signal/Noise C/N 12            00
+Signal-antenna-Ephemeris 1     41
+Signal-antenna-Ephemeris 2     41
+Signal-antenna-Ephemeris 3     41
+Signal-antenna-Ephemeris 4     41
+Signal-antenna-Ephemeris 5     41
+Signal-antenna-Ephemeris 6     41
+Signal-antenna-Ephemeris 7     41
+Signal-antenna-Ephemeris 8     00
+Signal-antenna-Ephemeris 9     41
+Signal-antenna-Ephemeris 10    41
+Signal-antenna-Ephemeris 11    00
+Signal-antenna-Ephemeris 12    00
+PRN of signal source 1         1E
+PRN of signal source 2         1A
+PRN of signal source 3         20
+PRN of signal source 4         1D
+PRN of signal source 5         19
+PRN of signal source 6         1B
+PRN of signal source 7         18
+PRN of signal source 8         00
+PRN of signal source 9         1C
+PRN of signal source 10        1F
+PRN of signal source 11        00
+PRN of signal source 12        00
+
+*** SNAVI      *** Position and velocity of SNAPSHOT
+Validity                       00
+Local Time                     27060
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   16000
+Velocity FOM                   65536000
+Local clock drift FOM          65536000
+Time FOM                       1677721600
+
+*** SNAVN      *** Position and velocity of the Navigator
+Validity                       00
+Local Time                     0
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   0
+Velocity FOM                   0
+Local clock drift FOM          0
+Time FOM                       0
+
+*** SRECEIVST  *** Status of the receiver
+Validity                       FF
+Local time                     27130
+Health status of PEGASE 1      0000
+Health status of PEGASE 2      0000
+Health status of signal proc   0012
+Config status of hardware      F403
+Health status of proc & mem    0030
+Config for localisation        03
+Config for attitude            00
+Reserved ALCATEL               00
+Config for cold start          01
+Config for PPS                 01
+Y2015 extension                00
+Configuration of Antenna 1     0129
+Configuration of Antenna 2     0228
+Configuration of Antenna 3     0228
+Configuration of Antenna 4     0228
+Masking angle of Antenna 1     1820
+Masking angle of Antenna 2     1820
+Masking angle of Antenna 3     1820
+Masking angle of Antenna 4     1820
+Snapshot resolution            00
+N2G resolution                 00
+Almanac status                 00
+Satellite selection status     01
+Status of visibility           20
+Snapshot status                00
+N2G status                     00
+Automatic Gain Control 1       57981
+Automatic Gain Control 2       32768
+Automatic Gain Control 3       32768
+Automatic Gain Control 4       32768
+Number of valid TC received    27
+Number of TC N2G in stand-by   0
+
+*** S1RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     27130
+Status of measurement 1        54
+Signal PRN 1                   30
+Status of measurement 2        54
+Signal PRN 2                   26
+Status of measurement 3        54
+Signal PRN 3                   32
+Status of measurement 4        54
+Signal PRN 4                   29
+Milliseconds sub-frame 1       0
+Fractions milliseconds  1      00000000
+1-second Doppler 1             E99A6941
+Carrier phase 1                DBA0
+Milliseconds sub-frame 2       0
+Fractions milliseconds  2      00000000
+1-second Doppler 2             0423E52F
+Carrier phase 2                D4A0
+Milliseconds sub-frame 3       0
+Fractions milliseconds  3      00000000
+1-second Doppler 3             E8900001
+Carrier phase 3                40D0
+Milliseconds sub-frame 4       0
+Fractions milliseconds  4      00000000
+1-second Doppler 4             EABF76A2
+Carrier phase 4                EC13
+
+*** S2RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     27130
+Status of measurement 5        54
+Signal PRN 5                   25
+Status of measurement 6        54
+Signal PRN 6                   27
+Status of measurement 7        54
+Signal PRN 7                   3
+Status of measurement 8        54
+Signal PRN 8                   28
+Milliseconds sub-frame 5       0
+Fractions milliseconds  5      00000000
+1-second Doppler 5             04A919D0
+Carrier phase 5                8308
+Milliseconds sub-frame 6       0
+Fractions milliseconds  6      00000000
+1-second Doppler 6             0189DE0E
+Carrier phase 6                B1A7
+Milliseconds sub-frame 7       0
+Fractions milliseconds  7      00000000
+1-second Doppler 7             E8900001
+Carrier phase 7                30C4
+Milliseconds sub-frame 8       0
+Fractions milliseconds  8      00000000
+1-second Doppler 8             E99A6941
+Carrier phase 8                3C19
+
+*** S3RAWD     *** Code and carrier raw measurements
+Validity                       FF
+Local Time                     27130
+Status of measurement 9        54
+Signal PRN 5                   31
+Status of measurement 10       54
+Signal PRN 6                   1
+Status of measurement 11       54
+Signal PRN 7                   2
+Status of measurement 12       00
+Signal PRN 12                  0
+Milliseconds sub-frame 9       0
+Fractions milliseconds  9      00000000
+1-second Doppler 9             E91534A1
+Carrier phase 9                B124
+Milliseconds sub-frame 10      0
+Fractions milliseconds 10      00000000
+1-second Doppler 10            E8900001
+Carrier phase 10               0A67
+Milliseconds sub-frame 11      0
+Fractions milliseconds  11     00000000
+1-second Doppler 11            E8900001
+Carrier phase 11               672D
+Milliseconds sub-frame 12      0
+Fractions milliseconds 12      00000000
+1-second Doppler 12            00000000
+Carrier phase 12               0000
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     27140
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+
+*** SNAVI      *** Position and velocity of SNAPSHOT
+Validity                       00
+Local Time                     27160
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   16000
+Velocity FOM                   65536000
+Local clock drift FOM          65536000
+Time FOM                       1677721600

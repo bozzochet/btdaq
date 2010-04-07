@@ -1,0 +1,119 @@
+#  $Id: cont.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+// How to manipulate with containers
+
+A) User class format ;
+
+//Suppose XXX is a user class name ;
+// XXX =  AMS{SubDetName}{MC/Raw/}{Name}
+
+class XXX : public AMSlink {
+private:
+...
+...
+...
+protected:
+ void _printEl(){....}   // to print class instance
+ void _writeEl(){....}   // to add class instance into ntuple
+ void _copyEl(){}        // to copy to db, dummy now
+ AMSID crgid(){...]      // To make geant volume id corr given element
+ integer operator < (AMSlink & o)const {// "<" relationship between instances
+  // No RTTI - take a "risk"here        // Needed only for "sorted" containers
+  XXX * p =(XXX*)(&o);                  // 
+  ... ;
+ } 
+...
+public:
+XXX(...):AMSlink(0),...{...}  // constructor
+~XXX(){...}                   // destructor (if any)
+...
+XXX *  next(){return (XXX*)_next;}
+static void build();   // build the container 
+};
+//examples for functions etc in e.g. trrec.h, trrec.C
+
+
+B) Initialization of containers
+
+//in corresponding _si{re}(detectorname)initevent() routine in event.C
+
+i)  AMSEvent::gethead()->add (new AMSContainer(AMSID("AMSContainer:XXX",k),0));
+
+OR
+
+ii) AMSEvent::gethead()->add (new AMSContainer(AMSID("AMSContainer:XXX",k),
+&XXX::builder_function_for_that_container,0));
+
+static integer XXX::builder_function_for_that_container(integer parameter=0);
+
+
+
+// There can be several containers for one class which differs in "k"
+// e.g. for AMSTrRechit class there are 6 containers, each containing 
+// 3dim point with particular(=k+1) layer
+
+C) Building of containers (general case; not all containers are actually
+                           building thru this mechanism);
+    i) Set (if necessary) builder by 
+       AMSEvent::gethead()->setbuilderC
+       ("XXX",&XXX::builder_function_for_that_container);
+       { Normally this step is not needed if B-ii) initialization was used}
+   ii) Build it
+       AMSEvent::gethead()->buildC("XXX",{parameter}) or
+       AMSEvent::gethead()->rebuildC("XXX",{parameter}) // Erase container first
+        
+
+D) Adding element in container "k"
+
+
+    AMSEvent::gethead()->addnext(AMSID("XXX",k),new XXX(...));
+
+
+E) Getting elements from container "k"
+
+// NonSorted one
+
+XXX *ptr=(XXX*)AMSEvent::gethead()->
+ getheadC("XXX",k); // ptr points to 1st element now
+XXX * ptrN;
+ptrN=ptr->next(); // ptrN points to next element now (=0 if no more)
+
+// sorted  one
+
+
+XXX *ptr=(XXX*)AMSEvent::gethead()->
+ getheadC("XXX",k,1 (2) ); // last 1 to sort; ptr points to 1st element now
+                    ^^^ force sort
+integer last;
+XXX * ptrN;
+ptrN=ptr->next(); // ptrN points to next element now 
+if(ptrN)last=ptrN->testlast(); // last==1 if *ptrN->next() != *ptrN; else ==0
+// NB
+// once sorted container cannot be "unsorted"
+// its the user responsibility to provide proper operator < for class XXX
+// default operator < does not sort at all (always returns 1)
+
+
+
+
+F)  Number of elements in container
+    char cont_name="blabla";
+    int cont_id=xxxx;
+    AMSContainer * pcon=AMSEvent::gethead()->getC(cont_name, cont_id);
+    int nelem=0;    
+    if(pcon)nelem=pcon->getnelem();
+    else cerr<<" no such container "<<AMSID(cont_name,cont_id)<<endl;
+
+G)  Status  word
+    void setstatus(bit)
+    bool checkstatus(bit)
+    void clearstatus(bit)
+
+    status bits are generally subdetector dependent,
+    (see e.g. ../CC/amsdbc.C for some of them)
+    There is however one exception:
+    AMSDBc::USED  (32)   bit is used exclusively to mark an object
+    on thich there is a reference from another object.
+    Normally it happens when given (USED) object is used to build another
+    (derived) object.   
+
+  

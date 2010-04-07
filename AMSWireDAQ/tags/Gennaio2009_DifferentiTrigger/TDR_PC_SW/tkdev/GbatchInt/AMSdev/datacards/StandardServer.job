@@ -1,0 +1,23 @@
+[ -z "$UNAME" ]      && UNAME=`(uname) 2>/dev/null`
+[ -z "$UNAME" -a -d /sys/node_data ] && UNAME="DomainOS"
+[ -z "$UNAME" ]      && (echo could not determine hosttype ; exit)
+
+if [ "$UNAME" = "AIX" ] ; then
+   MACHINE="aix"
+elif [ "$UNAME" = "OSF1" ] ; then
+    MACHINE="osf1"
+elif [ "$UNAME" = "HP-UX" ] ; then
+    MACHINE="hpux"
+elif [ "$UNAME" = "IRIX" ] ; then
+    MACHINE="irix"
+elif [ "$UNAME" = "Linux" ] ; then
+    MACHINE="linux"
+else
+echo $UNAME is not supported yet
+
+fi
+source $Offline/vdev/install/AMSProduction
+cd $AMSProdDir/prod
+cp $AMSProdDir/exe/$MACHINE/$AMSServerExec $Offline/logs.local/$AMSServerExec
+$Offline/logs.local/$AMSServerExec $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} 
+

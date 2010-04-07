@@ -1,0 +1,1 @@
+nice -10 prod.local.e $1 $2 1>/Offline/logs.local/$1.e.log 2>/Offline/logs.local/$1.e.e.log &

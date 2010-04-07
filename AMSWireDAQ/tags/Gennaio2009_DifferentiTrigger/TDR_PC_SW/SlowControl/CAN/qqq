@@ -1,0 +1,90 @@
+gcc -c -o mylib.o mylib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o gsclib.o gsclib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o xformslib.o xformslib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o template.o template.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o epplib.o epplib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o canlib.o canlib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o uscmlib.o uscmlib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o gcanlib.o gcanlib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o tcplib.o tcplib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o easslib.o easslib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o ugbslib.o ugbslib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o mcalib.o mcalib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o cceblib.o cceblib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o ccebtasklib.o ccebtasklib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o gpslib.o gpslib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o cablib.o cablib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+gcc -c -o crisalib.o crisalib.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN
+ar cru CAN.a mylib.o gsclib.o xformslib.o template.o epplib.o canlib.o uscmlib.o gcanlib.o tcplib.o easslib.o ugbslib.o mcalib.o cceblib.o ccebtasklib.o gpslib.o cablib.o crisalib.o
+gcc -o vers vers.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o t t.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o s s.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o l l.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o e e.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o c c.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o serial serial.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o serial-2 serial-2.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o serial-3 serial-3.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o g g.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o gg gg.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o mca mca.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o fill_gas fill_gas.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o m m.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o mem-1 mem-1.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o ttce-1 ttce-1.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o ttce-2 ttce-2.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o ds1 ds1.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o ds2 ds2.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o ds3 ds3.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o ds4 ds4.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o ds5 ds5.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o ds6 ds6.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o dallas-model dallas-model.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o dallas-4 dallas-4.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o CGS CGS.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o pds30 pds30.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o pds31 pds31.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o pds-2 pds-2.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o pds-3 pds-3.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o pds-4 pds-4.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o PDS PDS.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o aste-1 aste-1.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o aste-1a aste-1a.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o aste-1b aste-1b.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o aste-2 aste-2.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o aste-3 aste-3.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o aste-4 aste-4.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o cab-slave cab-slave.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o cab-slave-2 cab-slave-2.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o cab-master cab-master.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o aps aps.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o lvds lvds.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o lvds-2 lvds-2.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o lecroy lecroy.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o lecroy-2 lecroy-2.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o lecroy-3 lecroy-3.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o lecroy-4 lecroy-4.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o uscm-2 uscm-2.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o uscm-3 uscm-3.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o uscm-killer uscm-killer.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o uscm-killer-2 uscm-killer-2.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o uscm-killer-3 uscm-killer-3.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o otp otp.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o ccbt-1 ccbt-1.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o ccbt-2 ccbt-2.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o ccbt-3 ccbt-3.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o ccbt-4 ccbt-4.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o 16 16.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o m-crate-1 m-crate-1.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o 6 6.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o 66 66.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o load load.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o wla wla.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o scan scan.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o config config.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o wdsid wdsid.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o debug debug.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o LeCroy LeCroy.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o LVDS LVDS.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o USCM USCM.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic
+gcc -o U U.c -DOS_LINUX -Wall -O1 -fno-strict-aliasing -I/usr/X11R6/include/ -I/usr/X11R6/include/X11 -DUSE_CAN -L/usr/X11R6/lib CAN.a -lm -lX11 -lXpm -lpthread -Xlinker -Bstatic -lforms -Xlinker -Bdynamic

@@ -1,0 +1,1559 @@
+***************************************************
+***  Error in file : no valid SALEPH TM 
+***  if almanac empty in GPS receiver memory 
+***  => value "0000" in output file name
+***
+***  Expected message :
+***
+***  TM SALEPH checksum error : 0
+***  Duplicate Signal Source error : 0
+***  Week number error : 0
+***  TC RALEPH number : 32
+***  Output File = almanac-0000.tc
+****************************************************
+
+will use LPT port 0x378
+serial port 0 setup: mode = 0x03, rate = 19200
+serial port 1 setup: mode = 0x00, rate = 19200
+Length = 360 bytes
+9C 3E 23 00 03 F0 48 F8 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 48 F8 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 00 03 F0 49 5C 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 49 5C 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 00 03 F0 49 C0 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 49 C0 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 00 03 F0 4A 24 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 4A 24 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 00 03 F0 4A 88 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 4A 88 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=18680
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     18680
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=18780
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     18780
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=18880
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     18880
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=18980
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     18980
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=19080
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     19080
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+Length = 72 bytes
+9C 3E 23 00 03 F0 4A EC 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 4A EC 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=19180
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     19180
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+Length = 72 bytes
+9C 3E 23 00 03 F0 4B 50 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 4B 50 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=19280
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     19280
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+Length = 72 bytes
+9C 3E 23 00 03 F0 4B B4 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 4B B4 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=19380
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     19380
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+Length = 80 bytes
+9C 3E 26 06 73 27 52 86 0D FF 4B FA 00 00 00 00 00 10 F4 03 00 30 00 00 00 03 00 00 00 00 00 01 00 01 00 00 01 29 02 28 02 28 02 28 07 1C 07 1C 07 1C 07 1C 00 00 00 00 01 20 00 00 D2 28 80 00 80 00 80 00 00 11 00 00 55 55 55 55 55 55 55 55 
+SRECEIVST: VALIDITY: FF: LOCTIME: 19450 LOCALISATION: 3 PPS: 1 SNAPSHOT: 0 N2G: 0 ALMANAC: 0 VISIBILITY 32
+4B:FA:0:0:0:0:0:10:F4:3:0:30:0:0:0:3:0:0:0:0:0:1:0:1:0:0:1:29:2:28:2:28:2:28:7:1C:7:1C:7:1C:7:1C:0:0:0:0:1:20:0:0:D2:28:80:0:80:0:80:0:0:
+
+*** SRECEIVST  *** Status of the receiver
+Validity                       FF
+Local time                     19450
+Health status of PEGASE 1      0000
+Health status of PEGASE 2      0000
+Health status of signal proc   0010
+Config status of hardware      F403
+Health status of proc & mem    0030
+Config for localisation        03
+Config for attitude            00
+Reserved ALCATEL               00
+Config for cold start          01
+Config for PPS                 01
+Y2015 extension                00
+Configuration of Antenna 1     0129
+Configuration of Antenna 2     0228
+Configuration of Antenna 3     0228
+Configuration of Antenna 4     0228
+Masking angle of Antenna 1     1820
+Masking angle of Antenna 2     1820
+Masking angle of Antenna 3     1820
+Masking angle of Antenna 4     1820
+Snapshot resolution            00
+N2G resolution                 00
+Almanac status                 00
+Satellite selection status     01
+Status of visibility           20
+Snapshot status                00
+N2G status                     00
+Automatic Gain Control 1       53800
+Automatic Gain Control 2       32768
+Automatic Gain Control 3       32768
+Automatic Gain Control 4       32768
+Number of valid TC received    17
+Number of TC N2G in stand-by   0
+Length = 72 bytes
+9C 3E 23 00 03 F0 4C 18 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 4C 18 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=19480
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     19480
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+Length = 80 bytes
+9C 3E 26 06 73 19 52 EA 0D FF 4C 5E 00 00 00 00 00 10 F4 03 00 30 00 00 00 03 00 00 00 00 00 01 00 01 00 00 01 29 02 28 02 28 02 28 07 1C 07 1C 07 1C 07 1C 00 00 00 00 01 20 00 00 D2 19 80 00 80 00 80 00 00 12 00 00 55 55 55 55 55 55 55 55 
+SRECEIVST: VALIDITY: FF: LOCTIME: 19550 LOCALISATION: 3 PPS: 1 SNAPSHOT: 0 N2G: 0 ALMANAC: 0 VISIBILITY 32
+4C:5E:0:0:0:0:0:10:F4:3:0:30:0:0:0:3:0:0:0:0:0:1:0:1:0:0:1:29:2:28:2:28:2:28:7:1C:7:1C:7:1C:7:1C:0:0:0:0:1:20:0:0:D2:19:80:0:80:0:80:0:0:
+
+*** SRECEIVST  *** Status of the receiver
+Validity                       FF
+Local time                     19550
+Health status of PEGASE 1      0000
+Health status of PEGASE 2      0000
+Health status of signal proc   0010
+Config status of hardware      F403
+Health status of proc & mem    0030
+Config for localisation        03
+Config for attitude            00
+Reserved ALCATEL               00
+Config for cold start          01
+Config for PPS                 01
+Y2015 extension                00
+Configuration of Antenna 1     0129
+Configuration of Antenna 2     0228
+Configuration of Antenna 3     0228
+Configuration of Antenna 4     0228
+Masking angle of Antenna 1     1820
+Masking angle of Antenna 2     1820
+Masking angle of Antenna 3     1820
+Masking angle of Antenna 4     1820
+Snapshot resolution            00
+N2G resolution                 00
+Almanac status                 00
+Satellite selection status     01
+Status of visibility           20
+Snapshot status                00
+N2G status                     00
+Automatic Gain Control 1       53785
+Automatic Gain Control 2       32768
+Automatic Gain Control 3       32768
+Automatic Gain Control 4       32768
+Number of valid TC received    18
+Number of TC N2G in stand-by   0
+Length = 72 bytes
+9C 3E 23 00 03 F0 4C 7C 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 4C 7C 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=19580
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     19580
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+Length = 80 bytes
+9C 3E 23 72 6A 00 4C 7C 06 00 4C 7C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 64 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+SNAVS
+
+*** SNAVS      *** Position and velocity
+Validity                       00
+Local time                     19580
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   0
+Velocity FOM                   0
+Local clock drift FOM          0
+Time FOM                       1677721600
+Length = 960 bytes
+9C 3E 23 9A 2D E6 A7 E5 07 00 41 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 A8 E5 07 00 42 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 A9 E5 07 00 43 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 AA E5 07 00 44 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 AB E5 07 00 45 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 AC E5 07 00 46 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 AD E5 07 00 47 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 AE E5 07 00 48 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 AF E5 07 00 49 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 B0 E5 07 00 4A 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 B1 E5 07 00 4B 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 B2 E5 07 00 4C 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               41
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               42
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               43
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               44
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               45
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               46
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               47
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               48
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               49
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               4A
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               4B
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               4C
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+Length = 960 bytes
+9C 3E 23 9A 2D E6 B3 E5 07 00 4D 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 B4 E5 07 00 4E 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 B5 E5 07 00 4F 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 B6 E5 07 00 50 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 B7 E5 07 00 51 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 B8 E5 07 00 52 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 B9 E5 07 00 53 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 BA E5 07 00 54 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 BB E5 07 00 55 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 BC E5 07 00 56 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 BD E5 07 00 57 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 BE E5 07 00 58 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               4D
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               4E
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               4F
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               50
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               51
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               52
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               53
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               54
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               55
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               56
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               57
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               58
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+Length = 640 bytes
+9C 3E 23 9A 2D E6 BF E5 07 00 59 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 C0 E5 07 00 5A 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 C1 E5 07 00 5B 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 C2 E5 07 00 5C 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 C3 E5 07 00 5D 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 C4 E5 07 00 5E 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 C5 E5 07 00 5F 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 9C 3E 23 9A 2D E6 C6 E5 07 00 60 7F 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26 66 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               59
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               5A
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               5B
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               5C
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               5D
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               5E
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               5F
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+SALEPH
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               60
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+Length = 80 bytes
+9C 3E 26 06 72 F4 53 4E 0D FF 4C C2 00 00 00 00 00 10 F4 03 00 30 00 00 00 03 00 00 00 00 00 01 00 01 00 00 01 29 02 28 02 28 02 28 07 1C 07 1C 07 1C 07 1C 00 00 00 00 01 20 00 00 D1 F3 80 00 80 00 80 00 00 13 00 00 55 55 55 55 55 55 55 55 
+SRECEIVST: VALIDITY: FF: LOCTIME: 19650 LOCALISATION: 3 PPS: 1 SNAPSHOT: 0 N2G: 0 ALMANAC: 0 VISIBILITY 32
+4C:C2:0:0:0:0:0:10:F4:3:0:30:0:0:0:3:0:0:0:0:0:1:0:1:0:0:1:29:2:28:2:28:2:28:7:1C:7:1C:7:1C:7:1C:0:0:0:0:1:20:0:0:D1:F3:80:0:80:0:80:0:0:
+
+*** SRECEIVST  *** Status of the receiver
+Validity                       FF
+Local time                     19650
+Health status of PEGASE 1      0000
+Health status of PEGASE 2      0000
+Health status of signal proc   0010
+Config status of hardware      F403
+Health status of proc & mem    0030
+Config for localisation        03
+Config for attitude            00
+Reserved ALCATEL               00
+Config for cold start          01
+Config for PPS                 01
+Y2015 extension                00
+Configuration of Antenna 1     0129
+Configuration of Antenna 2     0228
+Configuration of Antenna 3     0228
+Configuration of Antenna 4     0228
+Masking angle of Antenna 1     1820
+Masking angle of Antenna 2     1820
+Masking angle of Antenna 3     1820
+Masking angle of Antenna 4     1820
+Snapshot resolution            00
+N2G resolution                 00
+Almanac status                 00
+Satellite selection status     01
+Status of visibility           20
+Snapshot status                00
+N2G status                     00
+Automatic Gain Control 1       53747
+Automatic Gain Control 2       32768
+Automatic Gain Control 3       32768
+Automatic Gain Control 4       32768
+Number of valid TC received    19
+Number of TC N2G in stand-by   0
+Length = 72 bytes
+9C 3E 23 00 03 F0 4C E0 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 4C E0 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=19680
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     19680
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+Length = 80 bytes
+9C 3E 23 72 6A 00 4C E0 06 00 4C E0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 64 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+SNAVS
+
+*** SNAVS      *** Position and velocity
+Validity                       00
+Local time                     19680
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   0
+Velocity FOM                   0
+Local clock drift FOM          0
+Time FOM                       1677721600
+Length = 80 bytes
+9C 3E 26 06 73 56 53 B2 0D FF 4D 26 00 00 00 00 00 10 F4 03 00 30 00 00 00 03 00 00 00 00 00 01 00 01 00 00 01 29 02 28 02 28 02 28 07 1C 07 1C 07 1C 07 1C 00 00 00 00 01 20 00 00 D2 55 80 00 80 00 80 00 00 13 00 00 55 55 55 55 55 55 55 55 
+SRECEIVST: VALIDITY: FF: LOCTIME: 19750 LOCALISATION: 3 PPS: 1 SNAPSHOT: 0 N2G: 0 ALMANAC: 0 VISIBILITY 32
+4D:26:0:0:0:0:0:10:F4:3:0:30:0:0:0:3:0:0:0:0:0:1:0:1:0:0:1:29:2:28:2:28:2:28:7:1C:7:1C:7:1C:7:1C:0:0:0:0:1:20:0:0:D2:55:80:0:80:0:80:0:0:
+
+*** SRECEIVST  *** Status of the receiver
+Validity                       FF
+Local time                     19750
+Health status of PEGASE 1      0000
+Health status of PEGASE 2      0000
+Health status of signal proc   0010
+Config status of hardware      F403
+Health status of proc & mem    0030
+Config for localisation        03
+Config for attitude            00
+Reserved ALCATEL               00
+Config for cold start          01
+Config for PPS                 01
+Y2015 extension                00
+Configuration of Antenna 1     0129
+Configuration of Antenna 2     0228
+Configuration of Antenna 3     0228
+Configuration of Antenna 4     0228
+Masking angle of Antenna 1     1820
+Masking angle of Antenna 2     1820
+Masking angle of Antenna 3     1820
+Masking angle of Antenna 4     1820
+Snapshot resolution            00
+N2G resolution                 00
+Almanac status                 00
+Satellite selection status     01
+Status of visibility           20
+Snapshot status                00
+N2G status                     00
+Automatic Gain Control 1       53845
+Automatic Gain Control 2       32768
+Automatic Gain Control 3       32768
+Automatic Gain Control 4       32768
+Number of valid TC received    19
+Number of TC N2G in stand-by   0
+Length = 72 bytes
+9C 3E 23 00 03 F0 4D 44 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 4D 44 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=19780
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     19780
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+Length = 80 bytes
+9C 3E 23 72 6A 00 4D 44 06 00 4D 44 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 64 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+SNAVS
+
+*** SNAVS      *** Position and velocity
+Validity                       00
+Local time                     19780
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+Position WGS84 ECEF: X         0
+Position WGS84 ECEF: Y         0
+Position WGS84 ECEF: Z         0
+Velocity WGS84 ECEF: X         0
+Velocity WGS84 ECEF: Y         0
+Velocity WGS84 ECEF: Z         0
+Local clock drift              0
+Position FOM                   0
+Velocity FOM                   0
+Local clock drift FOM          0
+Time FOM                       1677721600
+Length = 80 bytes
+9C 3E 26 06 73 17 54 16 0D FF 4D 8A 00 00 00 00 00 10 F4 03 00 30 00 00 00 03 00 00 00 00 00 01 00 01 00 00 01 29 02 28 02 28 02 28 07 1C 07 1C 07 1C 07 1C 00 00 00 00 01 20 00 00 D2 15 80 00 80 00 80 00 00 14 00 00 55 55 55 55 55 55 55 55 
+SRECEIVST: VALIDITY: FF: LOCTIME: 19850 LOCALISATION: 3 PPS: 1 SNAPSHOT: 0 N2G: 0 ALMANAC: 0 VISIBILITY 32
+4D:8A:0:0:0:0:0:10:F4:3:0:30:0:0:0:3:0:0:0:0:0:1:0:1:0:0:1:29:2:28:2:28:2:28:7:1C:7:1C:7:1C:7:1C:0:0:0:0:1:20:0:0:D2:15:80:0:80:0:80:0:0:
+
+*** SRECEIVST  *** Status of the receiver
+Validity                       FF
+Local time                     19850
+Health status of PEGASE 1      0000
+Health status of PEGASE 2      0000
+Health status of signal proc   0010
+Config status of hardware      F403
+Health status of proc & mem    0030
+Config for localisation        03
+Config for attitude            00
+Reserved ALCATEL               00
+Config for cold start          01
+Config for PPS                 01
+Y2015 extension                00
+Configuration of Antenna 1     0129
+Configuration of Antenna 2     0228
+Configuration of Antenna 3     0228
+Configuration of Antenna 4     0228
+Masking angle of Antenna 1     1820
+Masking angle of Antenna 2     1820
+Masking angle of Antenna 3     1820
+Masking angle of Antenna 4     1820
+Snapshot resolution            00
+N2G resolution                 00
+Almanac status                 00
+Satellite selection status     01
+Status of visibility           20
+Snapshot status                00
+N2G status                     00
+Automatic Gain Control 1       53781
+Automatic Gain Control 2       32768
+Automatic Gain Control 3       32768
+Automatic Gain Control 4       32768
+Number of valid TC received    20
+Number of TC N2G in stand-by   0
+Length = 72 bytes
+9C 3E 23 00 03 F0 4D A8 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 4D A8 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=19880
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     19880
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+Length = 72 bytes
+9C 3E 23 00 03 F0 4E 0C 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 4E 0C 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=19980
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     19980
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+Length = 72 bytes
+9C 3E 23 00 03 F0 4E 70 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 4E 70 00 F0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+STIME: GPS: 0 06/01/1980 01:00:00.000000000  UTC: 0 06/01/1980 01:00:00.000000000  Local=20080
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     20080
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+Length = 80 bytes
+9C 3E 29 44 1E 02 5B 64 11 FF 4E B6 00 00 00 00 01 00 41 09 01 00 41 0A 01 00 41 0B 01 00 41 0C 01 00 41 0D 01 00 41 0E 01 00 41 0F 01 00 41 10 01 00 41 11 01 00 41 12 01 00 41 13 01 00 41 14 00 00 00 00 00 00 00 00 55 55 55 55 55 55 55 55 
+S1CHANST: Validity = FF, Local time = 2015.0
+ 1:01:00.00:101:09  2:01:00.00:101:10  3:01:00.00:101:11  4:01:00.00:101:12  5:01:00.00:101:13  6:01:00.00:101:14  7:01:00.00:101:15 
+ 8:01:00.00:101:16  9:01:00.00:101:17 10:01:00.00:101:18 11:01:00.00:101:19 12:01:00.00:101:20 13:00:00.00:000:00 14:00:00.00:000:00 
+
+*** S1CHANST   *** Status of the channels
+Validity                       FF
+Local Time                     20150
+Status of channel 1            01
+Status of channel 2            01
+Status of channel 3            01
+Status of channel 4            01
+Status of channel 5            01
+Status of channel 6            01
+Status of channel 7            01
+Status of channel 8            01
+Status of channel 9            01
+Status of channel 10           01
+Status of channel 11           01
+Status of channel 12           01
+Signal/Noise C/N 1             0
+Signal/Noise C/N 2             0
+Signal/Noise C/N 3             0
+Signal/Noise C/N 4             0
+Signal/Noise C/N 5             0
+Signal/Noise C/N 6             0
+Signal/Noise C/N 7             0
+Signal/Noise C/N 8             0
+Signal/Noise C/N 9             0
+Signal/Noise C/N 10            0
+Signal/Noise C/N 11            0
+Signal/Noise C/N 12            0
+Signal-antenna-Ephemeris 1     41
+Signal-antenna-Ephemeris 2     41
+Signal-antenna-Ephemeris 3     41
+Signal-antenna-Ephemeris 4     41
+Signal-antenna-Ephemeris 5     41
+Signal-antenna-Ephemeris 6     41
+Signal-antenna-Ephemeris 7     41
+Signal-antenna-Ephemeris 8     41
+Signal-antenna-Ephemeris 9     41
+Signal-antenna-Ephemeris 10    41
+Signal-antenna-Ephemeris 11    41
+Signal-antenna-Ephemeris 12    41
+PRN of signal source 1         09
+PRN of signal source 2         0A
+PRN of signal source 3         0B
+PRN of signal source 4         0C
+PRN of signal source 5         0D
+PRN of signal source 6         0E
+PRN of signal source 7         0F
+PRN of signal source 8        

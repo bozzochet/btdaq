@@ -1,0 +1,87 @@
+Magic: 12322
+
+Internal Form Definition File
+    (do not change)
+
+Number of forms: 1
+
+=============== FORM ===============
+Name: ttt
+Width: 330
+Height: 320
+Number of Objects: 4
+
+--------------------
+class: FL_BOX
+type: 1
+box: 0 0 330 320
+boxtype: FL_UP_BOX
+colors: FL_COL1 FL_COL1
+alignment: FL_ALIGN_CENTER
+style: FL_NORMAL_STYLE
+size: FL_NORMAL_FONT1
+lcol: FL_BLACK
+label: 
+shortcut: 
+resize: FL_RESIZE_ALL
+gravity: ForgetGravity ForgetGravity
+name: 
+callback: 
+argument: 
+
+--------------------
+class: FL_BITMAP
+type: 0
+box: 30 60 270 240
+boxtype: FL_NO_BOX
+colors: FL_BLACK FL_COL1
+alignment: FL_ALIGN_BOTTOM
+style: FL_NORMAL_STYLE
+size: FL_NORMAL_FONT1
+lcol: FL_BLACK
+label: 
+shortcut: 
+resize: FL_RESIZE_ALL
+gravity: ForgetGravity ForgetGravity
+name: 
+callback: 
+argument: 
+
+--------------------
+class: FL_BUTTON
+type: 0
+box: 220 10 90 30
+boxtype: FL_UP_BOX
+colors: FL_COL1 FL_COL1
+alignment: FL_ALIGN_CENTER
+style: FL_NORMAL_STYLE
+size: FL_NORMAL_FONT1
+lcol: FL_BLACK
+label: Done
+shortcut: 
+resize: FL_RESIZE_ALL
+gravity: ForgetGravity ForgetGravity
+name: done
+callback: 
+argument: 
+
+--------------------
+class: FL_BUTTON
+type: 0
+box: 20 10 90 30
+boxtype: FL_UP_BOX
+colors: FL_COL1 FL_COL1
+alignment: FL_ALIGN_CENTER
+style: FL_NORMAL_STYLE
+size: FL_NORMAL_FONT1
+lcol: FL_BLACK
+label: L\010oad
+shortcut: L
+resize: FL_RESIZE_ALL
+gravity: ForgetGravity ForgetGravity
+name: load
+callback: 
+argument: 
+
+==============================
+create_the_forms

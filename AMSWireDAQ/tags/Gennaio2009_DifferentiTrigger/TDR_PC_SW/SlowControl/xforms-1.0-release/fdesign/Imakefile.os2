@@ -1,0 +1,58 @@
+XCOMM Imakefile in DESIGN directory 
+XCOMM (c)1996 by Holger.Veit@gmd.de for XForms
+
+       SRCS1 = fd_rubber.c fd_select.c fd_names.c fd_objects.c fd_attribs.c \
+        fd_forms.c fd_groups.c fd_file.c fd_printC.c \
+        fd_help.c fd_main.c fd_control.c fd_initforms.c\
+        fd_spec.c sp_slider.c  sp_counter.c\
+        sp_button.c sp_dial.c sp_positioner.c \
+        sp_scrollbar.c fd_fake.c fd_pallette.c \
+        sp_browser.c fd_super.c sp_xyplot.c sp_choice.c sp_menu.c
+
+       OBJS1 = $(SRCS1:.c=.o)
+       SRCS2 = testfd_main.c 
+       OBJS2 = testfd1.o testfd_main.o
+       SRCS2 = testfd_main.c
+       OBJS3 = testfd2.o testfd_main.o
+
+       SRCS = $(SRCS1) $(SRCS2) $(SRCS3)
+       OBJS = $(OBJS1) $(OBJS2) $(OBJS3)
+
+     DEFINES = -DMAKING_FORMS
+   XFORMSDIR = ../FORMS
+    INCLUDES = -I$(XFORMSDIR) -I$(XFORMSDIR)/private -Ispec
+   XFORMSLIB = -L$(XFORMSDIR) -lforms
+     FDESIGN = ProgramTargetName(fdesign)
+    PROGRAMS = $(FDESIGN) \
+               ProgramTargetName(testfd) \
+               ProgramTargetName(testfdalt)
+
+AllTarget($(PROGRAMS))
+
+SpecialObjectRule(testfd1.o,testfd1.c testfd.fd $(FDESIGN),NullParameter)
+SpecialObjectRule(testfd2.o,testfd2.c testfd.fd $(FDESIGN),NullParameter)
+
+#ifdef OS2Architecture
+testfd1.c::
+	@$(CP) ../FORMS/forms.dll .
+
+clean::
+	RemoveFile(forms.dll)
+#endif
+
+testfd1.c::	testfd.fd $(FDESIGN)
+	$(FDESIGN) -convert -main testfd.fd
+	$(MV) testfd.c testfd1.c
+
+testfd2.c::	testfd.fd $(FDESIGN)
+	$(FDESIGN) -convert -main -alt testfd.fd
+	$(MV) testfd.c testfd2.c
+
+NormalProgramTarget(fdesign,$(OBJS1),NullParameter,XawClientLibs,$(XFORMSLIB))
+NormalProgramTarget(testfd,$(OBJS2),NullParameter,XawClientLibs,$(XFORMSLIB))
+NormalProgramTarget(testfdalt,$(OBJS3),NullParameter,XawClientLibs,$(XFORMSLIB))
+
+InstallProgramWithFlags(fdesign,$(BINDIR),NullParameter)
+InstallManPage(fdesign,$(MANDIR))
+
+DependTarget()

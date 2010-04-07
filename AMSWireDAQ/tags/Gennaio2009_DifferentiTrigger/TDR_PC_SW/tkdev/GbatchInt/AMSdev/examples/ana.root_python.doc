@@ -1,0 +1,57 @@
+/*! \example ana.root_python.doc
+ *
+ *    - You can find a simple tutorial introduction to Python in:
+ *       - http://hetland.org/python/instant-python/
+ *
+ *    - Here below you can find an example of AMS analysis with Python (only
+ *      on Linux for the moment). To run it:
+ *                 - setenv ROOTSYS /afs/cern.ch/exp/ams/Offline/root/Linux/pro
+ *                 - if ( $?LD_LIBRARY_PATH ) then
+ *                      - setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH:$ROOTSYS/lib
+ *                 - else
+ *                      - setenv LD_LIBRARY_PATH .:$ROOTSYS/lib
+ *                 - endif
+ *                 - setenv AMSDir [your AMSDir CVS directory]
+ *                 - cd $AMSDir/python; gmake
+ *                 - cd $AMSDir/examples; ana.root.py
+ *
+ *    - Installation of the AMS Python library for all users in the computer:
+ *       - "cd $AMSDir/python; gmake; gmake install"
+ *
+ *    - You can find few other examples in $AMSDir/python
+ *
+ *    - Keep in mind that not all the ROOT methods are available in the Python
+ *      implementation. In particular, dealing with some pointers requires 
+ *      further thinking.
+ *
+ *    - If you want to see graphics, you have to start an application, 
+ *      using "TApplication(...)" or even "TRint(...)", and then run it at the end
+ *      with "app.Run()". Example:
+ *            - app = TApplication("My Application",0,[])
+ *            - ...
+ *            - app.Run()
+ *
+ *    - Global variables like gROOT are accessed as "cvar.gROOT". Examples:
+ *            - cvar.gROOT.Reset()
+ *            - cvar.gStyle.SetOptLogy(1)
+ *
+ *    - When a method returns a TObject object, you must convert its type into 
+ *      a useful one with the "to_<class>" method. A typical case involves 
+ *      the "TFile::Get" method. Example:
+ *            - input_file = TFile("test.root")
+ *            - hist = input_file.Get("Test").to_TH1F()
+ *
+ *    - You can use Python lists whenever ROOT expects a C-Float array as input. 
+ *      Example:
+ *            - a = [0.0, 1.0, 2.0]
+ *            - b = [-1.0, 0.0, 1.0]
+ *            - my_graph = TGraph(3, a, b)
+ *
+ *    - Whenever an Int_t, Float_t or Double_t argument is passed by reference, it 
+ *      is assumed to be INPUT/OUTPUT. From the practical point of view:
+ *            - gr = cvar.gRandom
+ *            - xin, yin = 0.0, 0.0
+ *            - xout, yout = gr.Rannor(xin,yin)
+ *      
+ *  \include ana.root.py
+ */ 

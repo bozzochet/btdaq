@@ -1,0 +1,4 @@
+0A 06 0F
+// DATA RAM, len 6, offset F000h
+AD 06 F0 00
+00 01 02 03 04 05

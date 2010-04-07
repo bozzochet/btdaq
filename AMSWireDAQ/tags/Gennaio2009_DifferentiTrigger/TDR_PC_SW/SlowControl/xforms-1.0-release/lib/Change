@@ -1,0 +1,196 @@
+V1.0RC3
+o. Fixed condition in forms.c preventing use of cursor keys.
+V0.9999
+o. fixed a fl_refresh_fselector() bug where obj is null
+o. fixed potential buffer overrun problem with sprintf(). (01/20/01)
+o. fixed a clientMessage got eaten problem with canvas. (12/01/00)
+   It can happen if the form the canvas is on is disabled.
+o. fixed a browser arrow key affecting xoffset problem (10/23/00)
+o. put back some removed undocumented variables (fl_fheight) etc (10/22/00)
+o. fixed a fill_slider label centering problem. (10/21/00)
+o. fixed a multi-image write problem(gif): fpout was duplicated but never
+   reset. (10/21/00). Also better handling of image close in error
+   conditions.
+o. fixed a tablfolder() problem where when tabs are more than
+    that can be show, it cores sometime. (10/15/00)
+o. fl_add_timer() now adds a disabled timer, and is enabled only
+   if fl_set_timer() is called. Fixed interferance to other
+   timers. (10/15/00)
+o. Modified the porters_readme a bit. Added new unixware.flag  (10/14/00)
+   linker with unresolved symbols (convert_type).
+o. fixed most double->float, float->int conversion warnings from
+   VC++ under NT 4.0 (8/12/00)
+o. fixed all demos so they can be compiled by C++ compilers.
+o. corrected a rgb2gray weighting problem.
+o. corrected an orphan object problem that can happen with
+   fdesign (need to check obj->form before dispatching)
+o. initialize flx even if ther is no connection. This avoids
+   fdesign -convert problems as reported by spl.
+V0.89.6
+o. purified the code and fixed misc. tiny leaks, including
+   file descriptor leaks if image_open() ok but image_read() failed.
+V0.89.5
+o. fixed an input field problem where slen and maxchar check
+   was wrong (delete_piece() happened after slen calculation).
+o. fixed a shadow box drawing problem (clipping was set to (0,0)(0,0)!)
+o. added fl_show_alert() for fselect. Also fixed a minor bug where
+   a bad directory may be returned.
+o. added fl_set_browser_[hv]scroll_callback() to facilitate the implementation
+   of synchronized browsers (5/19/2000)
+o. added fl_iconify() and tested.
+o. fixed a fl_set_pixmap_file() from spl: fdesign -convert may leave
+   flx uninitialized.
+o. added get_formbrowser_[x|y]offset functions. (5/12/00)
+o. changed image io_filter tmpfile generation for better security
+o. added shift+tab to navigate input field backwards
+o. added input method support for latin-x. may still have
+   problem with focus window. (5/7/00)
+o. fixed a potential image_dup() problem: win not reset (4/25/00)
+o. improved xpm file reading robustness a bit (better comments handling)
+o. fixed a navigaton problem using cursor key in fselector.
+o. added annotation field in image capability field
+o. fixed a problem with event handling delay for canvas:
+     watch_io() may timeout if the XEvent has already being queued.
+     (forms.c). (04/21/00)
+o. fixed fl_get_folder_area() for empty folders.
+o. fixed a fl_popen/fl_pclose problem where fl_pclose() does not
+   properly terminate (04/04/00)
+o. exported flimage_[to|from]_pixmap(), flimage_dup(). (04/11/00)
+o. fixed a boxtype problem for formbrowser: need FL_ATTRIB event
+    in set_object_boxtype (04/03/00)
+o. changed default col2 of formbrowser to black (the decoration color
+   of the canvas)
+o. removed "bad window" message. Can show up while hiding a form
+   containing canvas (04/03/00)
+o. added fl_set_dirlist_filterdir() function so the filter can
+   filter  directory names.
+o. fixed a hold browser keyboard selection bug (@N) (2-8-00)
+o. fixed an empty choice problem  (1-28-00)
+o. fixed a tiff problem for small files   (12/20/99)
+o. fixed a bmp write problem with 8bit grayscale. (12/20/99)
+o. chnaged fselector so multiple fselector() can be active simultaneously(11/14)
+o. patched in the fixes from lyx team (mostly input focus problem)
+o. fixed some normalization problem with xwd support when rgb_bits != 8
+o. seperated out annotation stuff from image proper.(10/18/1999)
+o. misc. multi-page postscript support fixes. (10/17/1999)
+o. fixed a file selector problem where highlight of the default file
+   was wrong (10/17/1999)
+o. added hide_form() in addto_tabfolder() (10/14/99)
+o. changed form->visible to mean visible/invisible/being_hidden to
+   avoid possible recursive hide_forms. (10/13/99)
+o. added postscript read/write    (09/10/99)
+o. fixed tabfolder deletion bugs. (06/10/99)
+o. documented image_convolve better. Fixed a make_matrix() bug
+o. the fix broke 32bpp display. fixed and tested. sept 27
+o. fixed a non-8 bit components 2nd time display problem. sept. 26
+o. fixed an imageload problem where flimage_io can be uninitialized.
+o. added a workaround (untested) for depth=32 servers (which actually
+   was 24bits); sept. 20, 1999
+o. modified file permission for distribution
+o. fixed an fl_mapcolor() on label problem where the label color
+   cache was not refreshed properly.
+o. add permission settings for the distribution so it's world readable
+o. changed ifdef HAVE_JPEG to ifndef NO_JPEG in demos
+o. xpm.c. Expected a space that might not be there in color spec (09/17/99)
+o. fixed fl_lookup_RGBcolor(). It now understands rgb:rr/gg/bb (07/25/99)
+-v0.89
+o. fixed a choice bug: numb==2 can return 3
+o. fixed a fl_check_command() bug (never wait()ed for the child process)
+o. Added windowlevellng lut
+o. changed FTIS gray image from 16 to 15 bits.
+o. changed im->infile from infile[] to *infile
+o. redraw pixmap object only if fl_set_pixmap_file() succeeds
+o. changed draw_pixmap() so only "p" is drawn instead of "pixmap" to avoid
+   overflowing the area.
+o. fixed a clipboard() bug if there is no selection owner
+o. added IsDangerous() check before re-enabling signal().
+o. finally fixed the hide_form and input handling
+o. FL_PUSH now always sends the focus object FL_UNFOCUS
+o. re-worked fl_set_button a bit
+o. added a group_id entry to FL_OBJECT to handle mixed group radio correctly
+o. fixed an input validation scroll problem (xoffset was not restored) 
+o. switched to xpm-3.4k
+--- 88.9
+o. fixed a bug with popups (mcb and enter|leave_cb not reset)
+o. added tooltips and documented it. (05/01/99)
+o. added formbrowser programatic scroll
+o. added fl_set_input_fieldchar()
+o. placed fldatabase on display (XrmSetDatabase).
+o. fixed a typo in image_jpeg.c (amazing it can survive this  long)
+o. fixed a typo in image.c where gray16->jpeg generates coredumps
+o. added tiff reader/writer 04/07/99
+o. some portability changes: casts, and sign and unsigned long stuff
+o. fixed a bug in fl_create_colormap(): asking for too many colors. (03/20/99)
+o. fixed a small bug with fl_set_browser_xoffset(). 
+o. added get_xyplot_data_pointer().
+o. added fl_update_display(1) after one liner.
+o. added XWD image format support.
+o. enabled fl_popen()/fl_pclose().
+o. fixed a #000 color lookup problem (03/07/99)
+o. patched-in cygwin stuff
+o. fixed a fprintf(sterr,..) bug in xpopup.c
+o. multi-image stuff done. (2/7/99)
+o. changed perror() in async_io.c to M_err() so we can shut it up.
+o. added fl_insert_xyplot_data
+o. tested image support on 1bit and 4bit display. (1/16/99)
+o. added force_convert before writing image out
+o. fixed a small memory leak in listdir.c
+o. added FL_CASEALPHASORT, FL_RCASEALPHASORT to fselector.
+o. fixed a closest_color matching bug, at least a three yr-old bug!
+o. correct a typo (substitution)
+o. image text kind of works. (12/21/98)
+o. created display_type to hold temporary image (12/18/98)
+o. some image processing routine is in (12/17/98)
+o. fixed a counter spec problem (ldelta vs lstep )
+o. added fl_get_tabfolder_folder_byxxxx() routines
+o. changed closest color match to linear distance. much better! (12/4/98)
+o. image  support mostly works with spl's quantizer.
+o. more efficient color use (be_nice) for private colormap.
+o. better fl_create_colormap() (flash reduction)
+o. image support kind of works. (12/01/98)
+o. fixed a bug with autoscale via set_bounds() when no data in xyplot(11/28/98)
+o. better placement of key text.
+o. fixed a key plot problem with xyplot->postscript dump. (10/24/98)
+o. tabs in tabfolder now scrolls.
+o. added FL_KEYRELEASE event (10/10/98)
+o. documented the fl_set_font_name() and browser interaction (10/7/98)
+o. the tabs in tabfolder now (kind of) scrolls. (10/7/98)
+o. clamp yscreen coordinates in case y is zoomed.
+o. fixed an input set_cursor_pos bug (by spl)
+o. fixed a coredump problem when choice is empty. New bug. (10/05/98)
+o. added focus_pixmap stuff
+o. Snap 10/4/98 is bad
+o. added fl_set_xyplot_no_active_marking
+o. added fl_set_choice_notitle()   (9/29/98)
+o. removed a couple of positioner redraw tricks that might behave incorrectly
+o. consolidated valuator a bit more.   (27/9/98)
+o. enlarged popup entry to 128 and fixed a too many item coredump prob(24/9/98)
+o. moved fl_malloc initialization to header files (global.h)
+o. Added non-uniform major division via alphaxtics
+o. changed default folder tab corner to 3. Added a function
+   fl_set_default_tabfolder_corner() to configure it.
+o. documentd fl_set_input_cursor_visible()
+o. changed fl_malloc/fl_free etc so they're now function pointers
+o. might've fixed tabfolder scaling problem
+o. made counter buttons slighly larger
+o. fixed a set_pup_entry() problem where mod and shortcut are not
+   set submenus
+o. fixed a popup item shortcut underline problem with separator
+o. documented fl_set_default_browser_maxlinelength()
+o. lifted line length limit for browser (configurable).
+o. fixed a bug with delete_menu_item where cur_val gets confused.
+o. added get_chart_bounds()
+o. changed count precision to double
+o. fixed a visual problem under VNC where single truecolor with 8bit
+o. fixed a valslider problem at 0.5
+o. fixed input scroll/deletion problem (invisible cursor)
+o. hacked in wheel mouse support in browser and input
+o. force parsing labels for goodie question
+o. added fl_set_xyplot_grid_linestyle()
+o. fixed a fl_freepup leaking pupID problem
+o. fl_lines() will automatically break the request into smaller chunks
+   so each chunk is within the maximum protocol size.
+o. Added code to remove menu title for PULLDOWN_MENU (fl_menu_entries)
+o. fixed a missing menu title bug with fl_menu_entries
+o. added slider_precision check
+

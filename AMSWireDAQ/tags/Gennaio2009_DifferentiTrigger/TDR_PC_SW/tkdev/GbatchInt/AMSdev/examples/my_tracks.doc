@@ -1,0 +1,10 @@
+/*! \example my_tracks.doc
+ *  The program below (my_tracks.C) illustrates how to define
+ *  and fit your own tracks directly on the ROOT file, with 
+ *  your own selected hits and optionally without magnetic field
+ * (straight line fit). No multiple scattering is included for 
+ * the moment.
+ *    - To run it: root -b -q my_tracks.C
+ *
+ *  \include my_tracks.C
+ */ 

@@ -1,0 +1,39 @@
+#  $Id: arr.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+// arr.h 
+// template for fortran-like up to 4 dim dynamic array
+
+
+
+//To create
+
+//Either
+
+//AMSArr<T>   arr(i,j,k,l);  //j,k,l can be omitted
+
+//or 
+
+//AMSArr<T> * arr= new AMSArr<T>(i,j,k,l);   //j,k,l can be omitted
+
+
+//To delete
+
+// nothing special.
+
+//Operations +,-,* =
+
+//e.g  
+//AMSArr<T> a(..),b(..),c(..); //(..) are the same;
+
+//c=a+b;
+// T val=a*b;
+
+// Operator () - as in fortran
+
+
+// T val = arr(i,j,k,l);
+
+// arr(i1,j1,k1,l1)=val;
+
+// Operator <<
+
+// a-la fortran write()arr

@@ -1,0 +1,158 @@
+#  $Id: tofsim.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+//=======================================================================
+//              <--- class for distribution manipulation
+class AMSDistr{
+//
+private:
+int nbin; // number of bins in distribution
+geant bnl;   // first bin low edge 
+geant bnw;   // bin width
+geant distr[AMSDISL]; // array of bins contents (integr. distribution !)
+//
+public:
+AMSDistr(){};
+AMSDistr(int _nbin, geant _bnl, geant _bnw, geant arr[])
+ {
+  nbin=_nbin;
+  bnl=_bnl;
+  bnw=_bnw;
+  geant tot(0.);
+  for(int i=0;i<nbin;i++)tot+=arr[i];// calc. integral
+  distr[0]=arr[0]/tot;             // prepare cumul. spectrum
+  for(int j=1;j<nbin;j++)distr[j]=distr[j-1]+arr[j]/tot;
+ }
+//external array "arr" is differential(!!!) distribution. Leading, middle 
+//  or trailing zeroes are accepted.
+//
+geant getrand(const geant &); // to get rand. value according to distribution,
+//              inp.parameter have to be uniform random value in [0,1] range.
+//function to get nbin,bnl,bnw :
+inline void getpar(int &_nbin, geant &_bnl, geant &_bnw)
+  {
+  _nbin=nbin;
+  _bnl=bnl;
+  _bnw=bnw;
+  }
+//
+};
+//=====================================================================
+//             <--- class to deal with MC t-calibration scans
+class AMSTOFScan{
+//
+private:
+geant scanp[SCANPNT]; //array of longit. scan points
+geant eff1[SCANPNT];  //effic. for -X side PMT
+geant eff2[SCANPNT];  //effic. for +X side PMT
+AMSDistr tdist1[SCANPNT];// t-distr. for -X side
+AMSDistr tdist2[SCANPNT];// t-distr. for +X side
+public:
+AMSTOFScan(){};
+AMSTOFScan(const geant _scanp[], const geant _eff1[], const geant _eff2[],
+  const AMSDistr _tdist1[], const AMSDistr _tdist2[])
+  {
+    for(int i=0;i<SCANPNT;i++)scanp[i]=_scanp[i];
+    for(int j=0;j<SCANPNT;j++)eff1[j]=_eff1[j];
+    for(int k=0;k<SCANPNT;k++)eff2[k]=_eff2[k];
+    for(int l=0;l<SCANPNT;l++)tdist1[l]=_tdist1[l];
+    for(int m=0;m<SCANPNT;m++)tdist2[m]=_tdist2[m];
+  };
+void getxbin(const geant , int &, int &, geant &);// define X-position
+//
+void getscp(geant scp[]){
+  for(int i=0;i<SCANPNT;i++)scp[i]=scanp[i];
+}
+//
+void getefarr(geant ef1[], geant ef2[]){
+  int i;
+  for(i=0;i<SCANPNT;i++)ef1[i]=eff1[i];
+  for(i=0;i<SCANPNT;i++)ef2[i]=eff2[i];
+}
+//
+geant getef1(const geant , const int, const int);
+geant getef2(const geant , const int, const int);
+//
+// get phot. time by interpolation between two adjacent (in X) MC t-calibrations
+//    Need getxbin to be called first !!! Input random rnd is uniform in [0,1]
+geant gettm1(const geant rnd, const geant r, const int i1, const int i2)
+  {
+    if(i1==i2){return tdist1[i1].getrand(rnd);}
+    else{
+      geant t1=tdist1[i1].getrand(rnd);
+      geant t2=tdist1[i2].getrand(rnd);
+      return (t1+(t2-t1)*r);
+    }
+  }
+geant gettm2(const geant rnd, const geant r, const int i1, const int i2)
+  {
+    if(i1==i2){return tdist2[i1].getrand(rnd);}
+    else{
+      geant t1=tdist2[i1].getrand(rnd);
+      geant t2=tdist2[i2].getrand(rnd);
+      return (t1+(t2-t1)*r);
+    }
+  }
+};
+//=========================================================================== 
+//         <--- class to store time_over_threshold hits during digitization:
+//
+//
+class AMSTOFTovt: public AMSlink{
+//
+private:
+integer idsoft;  // as in AMSTOFPhel
+integer status; // channel is alive/dead/ ... --> 0/1/...
+number charga;  // total anode charge (pC)
+number tedep;   // total Edep(mev)
+integer ntr1;
+number ttr1[SCTHMX1];   // store up-times of "z>=1" trigger signals 
+integer nftdc;
+number tftdc[SCTHMX2];  // up-time of pulses going to fast(history) TDC
+number tftdcd[SCTHMX2]; // down-time ..., TDC dbl. resol. already taken into account
+integer nstdc;
+number tstdc[SCTHMX3];  // store up-times of pulses going to slow(stretcher) TDC
+integer nadca;
+number tadca[SCTHMX4];  // store up-times of shaper hits from anode
+number tadcad[SCTHMX4]; // store down-times ......................
+integer nadcd;
+number tadcd[SCTHMX4];  // store up-times of shaper hits from dinode
+number tadcdd[SCTHMX4]; // store down-times ........................
+//
+//=========================================================================== 
+//         <--- class for bitstream manipulations :
+//
+class AMSBitstr{
+//
+private:
+  unsigned short int bitstr[SCWORM]; // max. length in 16-bit words
+  int bslen; // real length in 16-bits words (<=def=SCWORM)
+//
+public:
+//
+  void bitset(const int il, const int ih);
+//
+  void bitclr(const int il, const int ih);
+//
+  void testbit(int &i1, int &i2);
+//
+  inline int getbslen() const{return (bslen);}
+  inline void getbsarr(unsigned short int arr[]) const{
+    for(int i=0;i<bslen;i++)arr[i]=bitstr[i];
+  }
+//
+  void display(char arr[]);
+//
+  AMSBitstr(const AMSBitstr & other){ // copy constructor
+    bslen=other.bslen;
+    for(int i=0;i<bslen;i++)bitstr[i]=other.bitstr[i];
+  }
+//
+  AMSBitstr operator =(const AMSBitstr & other){
+    if(this == &other)return (*this);
+    bslen=other.bslen;
+    for(int i=0;i<bslen;i++)bitstr[i]=other.bitstr[i];
+    return (*this);
+  }
+//
+  friend AMSBitstr operator & (const AMSBitstr &, const AMSBitstr &);
+  friend AMSBitstr operator | (const AMSBitstr &, const AMSBitstr &);
+};

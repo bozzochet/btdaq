@@ -1,0 +1,11 @@
+CFLAGS= -g -I../include
+LDFLAGS= -lxlf -lxlf90 -L/cern/pro/lib -lgeant321 -lmathlib -lpacklib -lkernlib
+FILES=   hcdir.C
+OBJECTS= hcdir.o
+HEADERS=  ../include/cern.h
+gv:	$(OBJECTS)
+	xlC -o hcdir.exe $(OBJECTS) $(LDFLAGS)
+
+hcdir.o:	$(HEADERS)    	
+	xlC -c $(CFLAGS) hcdir.C
+

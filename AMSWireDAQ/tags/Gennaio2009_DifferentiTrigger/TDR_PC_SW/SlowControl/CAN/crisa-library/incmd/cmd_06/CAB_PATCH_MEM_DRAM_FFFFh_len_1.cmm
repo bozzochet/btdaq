@@ -1,0 +1,4 @@
+0A 06 08
+// DATA RAM, len 1, offset FFFFh
+AD 01 FFFF
+5F

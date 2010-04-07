@@ -1,0 +1,49 @@
+0A 06 18
+// SRAM len offset = 0
+c1 30 00 00
+
+// TR1 = 0; 
+// C28E     CLR      TR1(0x88.6)
+C2 8E
+
+// TMOD &= ~0xF0; 
+// 53890F   ANL      TMOD(0x89),#0x0F
+53 89 0F
+
+// TMOD |= 0x10; 
+// 438910   ORL      TMOD(0x89),#0x10
+43 89 10
+
+// TH1 = 0xC0; 
+// 758D00   MOV      TH1(0x8D),#0xB0
+758DB0
+
+// TL1 = 0x00; 
+// E4       CLR      A
+E4
+// F58B     MOV      TL1(0x8B),A
+F5 8B
+
+// TR1 = 1; 
+// D28E     SETB     TR1(0x88.6)
+D2 8E
+
+// while (TH1 < 0xFF) { 
+//  E58D     MOV      A,TH1(0x8D)
+//  C3       CLR      C
+//  94FF     SUBB     A,#C1M15C(0xFF)
+//  40F9     JC       C:00342B
+//} 
+
+E58D
+C3
+94FF
+40F9
+
+// TR1 = 0; 
+// C28E     CLR      TR1(0x88.6)
+C28E
+
+// RETURN
+22
+

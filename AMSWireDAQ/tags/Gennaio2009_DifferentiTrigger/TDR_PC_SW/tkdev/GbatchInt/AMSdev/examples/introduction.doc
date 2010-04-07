@@ -1,0 +1,7 @@
+/*! \example introduction.doc
+ *  \htmlinclude documentation_new.html
+ */ 
+
+/*! \mainpage 
+ *  \htmlinclude documentation_new.html
+ */

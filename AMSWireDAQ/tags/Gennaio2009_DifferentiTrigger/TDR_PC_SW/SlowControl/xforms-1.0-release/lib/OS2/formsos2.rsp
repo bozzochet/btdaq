@@ -1,0 +1,15 @@
+align.obj appwin.obj asyn_io.obj be.obj bitmap.obj box.obj browser.obj+
+button.obj canvas.obj chart.obj checkbut.obj choice.obj clock.obj colsel.obj+
+counter.obj cursor.obj dial.obj events.obj flcolor.obj flresource.obj+
+flvisual.obj fonts.obj forms.obj frame.obj free.obj fselect.obj goodies.obj+
+goodie_alert.obj goodie_choice.obj goodie_input.obj goodie_msg.obj+
+goodie_yesno.obj textbox.obj child.obj version.obj interpol.obj round3d.obj+
+input.obj lightbut.obj listdir.obj menu.obj objects.obj oneliner.obj+
+pixmap.obj positioner.obj roundbut.obj signal.obj simu.obj sldraw.obj+
+slider.obj symbols.obj sysdep.obj text.obj timeout.obj timer.obj util.obj+
+win.obj xdraw.obj xpopup.obj xsupport.obj xtext.obj cmd_br.obj+
+xyplot.obj fldraw.obj goodie_sinput.obj lframe.obj scrollbar.obj scrollbut.obj+
+ps_core.obj ps_draw.obj ps_text.obj+
+keyboard.obj clipboard.obj tabfolder.obj postscript.obj /NOI /NOL /NOD /BAT
+forms.dll
+forms.map
