@@ -1,0 +1,1045 @@
+#!/bin/sh
+
+# INSTALL
+# This is the installation script for NI-DAQmx Base for Linux.  It is
+# strictly optional; advanced users may wish to simply install the RPM
+# files themselves.
+#
+#  Copyright 2004-2006
+#  National Instruments Corporation.
+#  All Rights reserved.
+#
+#  originated:  24 June 2004
+#
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin
+export PATH
+
+
+REL=f0
+VER=2.1.0
+BSVER=2.1.0
+COMVER=2.1.0
+LV80VER=2.1.0
+LV82VER=2.1.0
+CIVER=2.1.0
+USBVER=2.1.0
+VISAVER=4.0.0
+
+#
+# numeric constants
+#
+
+kFalse=0
+kTrue=1
+
+#
+# string constants
+#
+
+strDefaultInstallDir="/usr/local"
+strInstallAborted="Installation aborted."
+strInstallComplete="Installation complete."
+strVerUnknown="Version cannot be determined"
+strInvalidSel="Invalid selection."
+strNoDiskSpace="There is insufficient free disk space to"
+
+ARCH=i386
+ALTARCH=i386
+
+LICENSE="LICENSE.txt"
+
+strStandardRpmFlags="-Uvh --oldpackage"
+
+kpkgroot=nidaqmxbase-kernel
+bspkgroot=nidaqmxbase-board-support
+bspkg=$bspkgroot-$BSVER-$REL.$ARCH.rpm
+compkgroot=nidaqmxbase-common
+compkg=$compkgroot-$COMVER-$REL.$ARCH.rpm
+lv70pkgroot=nidaqmxbase-labview70-VIs
+lv71pkgroot=nidaqmxbase-labview71-VIs
+lv80pkgroot=nidaqmxbase-labview80-VIs
+lv80pkg=$lv80pkgroot-$LV80VER-$REL.$ARCH.rpm
+lv82pkgroot=nidaqmxbase-labview82-VIs
+lv82pkg=$lv82pkgroot-$LV82VER-$REL.$ARCH.rpm
+cipkgroot=nidaqmxbase-cinterface
+cipkg=$cipkgroot-$CIVER-$REL.$ARCH.rpm
+usbpkgroot=nidaqmxbase-usb-support
+usbpkg=$usbpkgroot-$USBVER-$REL.$ARCH.rpm
+visapkgroot=nivisa
+visapkg="$visapkgroot-$VISAVER-$VISAREL.$ARCH.rpm"
+visaInstallDir=nivisa
+lv80rtepkg=$visaInstallDir/lvruntime/labview80-rte-8.0.1-1.$ARCH.rpm
+instdir=/usr/local
+
+lv70Label="NI-DAQmx Base for LabVIEW 7.0"
+lv71Label="NI-DAQmx Base for LabVIEW 7.1"
+lv80Label="NI-DAQmx Base for LabVIEW 8.0"
+lv82Label="NI-DAQmx Base for LabVIEW 8.2"
+ciLabel="NI-DAQmx Base for C"
+usbLabel="NI-DAQmx Base USB Device Support"
+bsLabel="NI-DAQmx Base PCI/PXI Support"
+comLabel="NI-DAQmx Base Common Utilities"
+visaLabel="NI-VISA"
+
+#
+# numeric variables
+#
+
+bPromptUserForLicense=$kTrue
+bPromptUser=$kTrue
+ret=0
+
+#
+# string variables
+#
+
+downgradek=f
+installDirbs=$instdir
+installbs=f
+downgradebs=f
+upgradebs=f
+installDircom=$instdir
+installcom=f
+downgradecom=f
+upgradecom=f
+installvisa=f
+
+downgradelv70=f
+downgradelv71=f
+installDirlv80=$instdir
+installlv80=f
+downgradelv80=f
+upgradelv80=f
+installDirlv82=$instdir
+installlv82=f
+downgradelv82=f
+upgradelv82=f
+installDirci=$instdir
+installci=f
+downgradeci=f
+upgradeci=f
+installDirusb=$instdir
+installusb=f
+downgradeusb=f
+upgradeusb=f
+installpkg=""
+RPM=""
+
+#
+# functions
+#
+
+# cleanwoexit performs script cleanup w/o exiting
+# Input: None
+# Output: None
+# Returns: Nothing
+cleanwoexit ()
+{
+   return 0
+}
+
+# cleanexit performs script cleanup and quits
+# Input: $1: exit code
+# Output: None
+# Returns: Nothing
+cleanexit ()
+{
+   # Display an exit message based on exit code
+   if [ $1 -ne 0 ]; then
+      echo " "
+      echo "$strInstallAborted"
+   else
+      echo " "
+      echo "$strInstallComplete"
+   fi
+   exit $1
+}
+
+niDistributionCheck()
+{
+   readmeFile="README"
+
+   echo "National Instruments products support the following Linux distributions:"
+   echo "   Mandriva Linux Official"
+   echo "   SUSE Linux"
+   echo "   Red Hat Enterprise Linux WS"
+   echo "Refer to ${readmeFile} for the latest information at the time of release."
+   echo "Refer to www.ni.com/linux for the most recent information about Linux"
+   echo "support at National Instruments."
+   echo " "
+}
+
+# inputynq get a yes / no / quit response from the user
+# Input: $1: Prompt string associated with input
+#        $2: Default selection
+#        $3: Exit on No : 1 = YES
+# Output: $INPUT: character entered and accepted
+# Returns: Nothing
+strInputynq=""
+bInputynq=""
+inputynq()
+{
+   bInputynqLoop=$kTrue
+   bInputynqExitOnNo=$3
+   while [ $bInputynqLoop -eq $kTrue ]; do
+      echo -n "$1"
+      read strInputynq
+      test -z "$strInputynq" && strInputynq="$2"
+      case "$strInputynq" in
+      [Yy]|[Yy][Ee][Ss])
+         bInputynqLoop=$kFalse
+         bInputynq=$kTrue
+         ;;
+      [Nn]|[Nn][Oo])
+         bInputynqLoop=$kFalse
+         bInputynq=$kFalse
+         if [ $bInputynqExitOnNo -eq 1 ] ; then
+            cleanexit 1
+         fi
+         ;;
+      [Qq]|[Qq][Uu][Ii][Tt])
+         cleanexit 1
+         ;;
+      *)
+         echo -n "$strInvalidSel  "
+         ;;
+      esac
+   done
+}
+
+# versionCompare() - compares two RPM-style version numbers and returns -1, 0, 1
+# to indicate if the first verison is less than, equal to, or greater than
+# the second.  Version numbers can be specified with or without release
+# suffixes.  Alpha, beta, etc. suffixes should always specified be in the
+# release portion.
+#
+# Examples:
+#  versionCompare 1.0  1.0.1
+#  versionCompare 1.0-a1 1.0-a12
+#  versionCompare 1.0.1-b1 1.0-1
+#  versionCompare 2.2.3.4-99  2.2.4
+#  versionCompare 8.0-b129 8.0-rc0
+#  versionCompare 8.0-rc0 8.0-1
+versionCompare()
+{
+    canonicalizeVersion()
+    {
+       canonicalVersion=`echo "$1" |
+          sed -e 's,\([0-9]\)\([A-Za-z]\),\1.000.\2,g' \
+              -e 's,\([A-Za-z]\)\([0-9]\),\1.\2,g' \
+              -e 's,^\([A-Za-z]\),---.\1,' \
+              -e 's,\b\([0-9]\)\b,00\1,g' \
+              -e 's,\b\([0-9][0-9]\)\b,0\1,g'`
+    }
+
+    local arg1 arg2 nResult firstVersion secondVersion resultVersion
+    if [ "$1" = "$2" ]; then
+       return 0;
+    fi
+    arg1=`echo "$1" | sed 's,-.*$,,'`
+    arg2=`echo "$2" | sed 's,-.*$,,'`
+    if [ "$1" != "$arg1" -o "$2" != "$arg2" ]; then
+       versionCompare "$arg1" "$arg2"
+       nResult=$?
+       if [ $nResult -ne 0 ]; then
+          return $nResult
+       fi
+    fi
+    canonicalizeVersion `echo "$1" | sed 's,^.*-,,'`
+    firstVersion="$canonicalVersion"
+    canonicalizeVersion `echo "$2" | sed 's,^.*-,,'`
+    secondVersion="$canonicalVersion"
+    resultVersion=`(echo "$firstVersion"; echo "$secondVersion") |
+       LC_ALL=C sort -t. +0 +1 +2 +3 +4 +5 +6 +7 +8 +9 | head -1`
+    if [ "$firstVersion" = "$resultVersion" ]; then
+       return -1
+    else
+       return 1
+    fi
+}
+
+# getNIShareDir returns the path to the NI Share Dir
+# Input: $1: Install Prefix: (eg /usr/local)
+# Output: strNIShareDir: path to the NI Share dir
+# Returns: 0=success, nonzero=failure
+getNIShareDir()
+{
+    if [ -z "$1" ] ; then
+       strInstallPrefix="/usr/local"
+    else
+       strInstallPrefix="$1"
+    fi
+
+    strNIShareDir=""
+    if [ -e "/etc/natinst/share/share.dir" ] ; then
+       strNIShareDir="`cat /etc/natinst/share/share.dir 2>/dev/null`"
+       if [ -d "$strNIShareDir" ] ; then
+          return $statusSuccess
+       else
+          strNIShareDir=""
+       fi
+    fi
+
+    # Attempt to locate the old style of NI Share Directory.
+    strOldNIShareDir=""
+    if [ -d "$strInstallPrefix/share/natinst" ] ; then
+       strOldNIShareDir="$strInstallPrefix/share/natinst"
+    elif [ -d "/usr/local/share/natinst" ] ; then
+       strOldNIShareDir="/usr/local/share/natinst"
+    elif [ -n "$NI_SHARED_PATH" ] && [ -d "$NI_SHARED_PATH" ] ; then
+       strOldNIShareDir="$NI_SHARED_PATH"
+    elif [ -n "$NISHAREPATH" ] && [ -d "$NISHAREPATH" ] ; then
+       strOldNIShareDir="$NISHAREPATH"
+    fi
+
+    # Attempt to locate the new style of NI Share Directory.
+    strNewNIShareDir=""
+    if [ -d "$strInstallPrefix/natinst/share" ] ; then
+       strNewNIShareDir="$strInstallPrefix/natinst/share"
+    elif [ -d "/usr/local/natinst/share" ] ; then
+       strNewNIShareDir="/usr/local/share/natinst"
+    fi
+
+    # If the new style NI Share Dir was not found, create one.
+    if [ -z "$strNewNIShareDir" ] ; then
+       strNewNIShareDir="$strInstallPrefix/natinst/share"
+       mkdir -p "$strNewNIShareDir"
+    fi
+
+    # If the old style NI Share Dir matches the new style NI Share Dir, disregard it.
+    if [ -n "$strOldNIShareDir" ] && [ "$strOldNIShareDir" = "$strNewNIShareDir" ] ; then
+       strOldNIShareDir=""
+    fi
+
+    # If the strOldNIShareDir variable is still set, we may need to shift
+    # some of the contents from this old style directory to the new style one.
+    if [ -n "$strOldNIShareDir" ] ; then
+       # Preserve the "errors" subdirectory if it exists and is not a link.
+       if [ -d "$strOldNIShareDir/errors" ] && [ ! -L "$strOldNIShareDir/errors" ] ; then
+          cp -rpu "$strOldNIShareDir/errors" "$strNewNIShareDir/errors"
+          # Delete the old "errors" subdirectory.
+          rm -rf "$strOldNIShareDir/errors"
+          # Create the link from the old "errors" subdirectory to the new one.
+          ln -s -f "$strNewNIShareDir/errors" "$strOldNIShareDir/errors"
+       fi
+       # Preserve the "Licenses" subdirectory if it exists and is not a link.
+       if [ -d "$strOldNIShareDir/Licenses" ] && [ ! -L "$strOldNIShareDir/Licenses" ] ; then
+          cp -rpu "$strOldNIShareDir/Licenses" "$strNewNIShareDir/Licenses"
+          # Delete the old "Licenses" subdirectory.
+          rm -rf "$strOldNIShareDir/Licenses"
+          # Create the link from the old "Licenses" subdirectory to the new one.
+          ln -s -f "$strNewNIShareDir/Licenses" "$strOldNIShareDir/Licenses"
+       fi
+    fi
+
+    # Make sure that we create the share.dir file in the etc subdir.
+    if [ ! -d "$strNewNIShareDir/etc" ] ; then
+       mkdir "$strNewNIShareDir/etc"
+    fi
+
+    # Create the share.dir file.
+    if [ -e "$strNewNIShareDir/etc/share.dir" ] ; then
+       rm -f "$strNewNIShareDir/etc/share.dir"
+    fi
+    echo "$strNewNIShareDir" > "$strNewNIShareDir/etc/share.dir"
+
+    if [ ! -d  "/etc/natinst" ] ; then
+       # Create the "/etc/natinst" directory if necessary.
+       mkdir -p "/etc/natinst"
+    elif [ -e "/etc/natinst/share" ] ; then
+       # Remove the share link if it exists.
+       rm -f "/etc/natinst/share"
+    fi
+
+    # Create the "/etc/natinst/share" link.
+    ln -s -f "$strNewNIShareDir/etc" "/etc/natinst/share"
+
+    # We have succeeded.
+    strNIShareDir="$strNewNIShareDir"
+    return $statusSuccess
+}
+
+installlvrte()
+{
+	if rpm -q labview80-rte > /dev/null; then
+		existlvrte=`rpm -q --queryformat "%{VERSION}\n" labview80-rte`
+		case "$existlvrte" in
+		8\.*)
+			case "$existlvrte" in
+			8\.0\.1)
+				#Good version of LabVIEW RTE installed.
+				return 0
+				;;
+			*)
+				return 1
+				;;
+			esac
+			;;
+		*)
+			return 1
+			;;
+		esac
+	else
+		return 1
+	fi
+}
+
+# echoUsage prints usage of this script to the user
+# Input: None
+# Output: None
+# Returns: Nothing
+echoUsage()
+{
+   echo "usage: $1 --no-prompt --accept-license"
+   echo "   --no-prompt      - runs the installer without prompts (except license)"
+   echo "   --accept-license - accepts license agreement without prompting"
+}
+
+
+# parseArguments parses the arguments passed to this script
+# Input: $1, $2, ... arguments to this script
+# Output: None
+# Returns: 0=success, exits on failure
+parseArguments()
+{
+   while [ -n "$1" ]
+   do
+      case "$1" in
+         --no-prompt|--noprompt)
+            bPromptUser=$kFalse
+            ;;
+         --accept-license|--acceptlicense)
+            bPromptUserForLicense=$kFalse
+            ;;
+         *)
+            echo "Unrecognized Option: $1" > /dev/stderr
+            echoUsage
+            exit 1
+            ;;
+      esac
+      shift
+   done
+}
+
+###MAIN###
+# Perform cleanup if a Ctrl+C or kill signal is received
+trap "cleanexit 1" SIGINT SIGTERM
+
+#First check for version 1.1 installation. If it is there,
+#ask for it to be uninstalled first.
+if [ -d /usr/local/natinst/DAQmxBase -a -f /usr/local/etc/mxbase.cfg ]; then
+    echo " "
+    echo "Please uninstall NI-DAQmx Base 1.1 before installing version $VER."
+    echo "This will ensure the best possible performance of version $VER."
+fi
+
+#Get where we located in the file system.
+CDPATH="`dirname $0`"
+case "$CDPATH" in
+    /*) ;;
+     .) CDPATH="`pwd`" ;;
+     *) CDPATH="`pwd`/$CDPATH" ;;
+esac
+
+#Say hi.
+echo " "
+echo "  ***************************************"
+echo "  * NI-DAQmx Base $VER-$REL for Linux/x86 *"
+echo "  ***************************************"
+echo " "
+
+# Check for root permissions
+if [ `id -ur` != 0 ]; then
+  echo "This script needs to be run with superuser permission to install files"
+  echo "on the system.  Please re-run this installer as the 'root' user."
+  echo "Aborting installation."
+  cleanexit 1
+fi
+
+parseArguments "$@"
+
+#Switch to where we are located in the file system so we can use relative paths.
+cd "$CDPATH"
+
+#Check for RPM installation.
+RPM=`which rpm`
+if [ -z $RPM ]; then
+    echo " "
+    echo "I didn't find a version of RPM on your system."
+    echo "This installer uses RPM to install the NI-DAQmx Base $VER packages."
+    echo "Please install rpm and restart this installer."
+    cleanexit 1
+else
+    RPMVERSION=`rpm --version | sed 's,^RPM version ,,'`
+    case "$RPMVERSION" in
+        [123]\.*)
+            echo " "
+            echo "RPM version $RPMVERSION was found on your system."
+            echo "This INSTALL script requires version 4.0 or higher."
+            echo "Please install a newer version of RPM or follow these"
+            echo "instructions to install:"
+            echo " "
+            echo "1. Make sure you are a user with root permissions."
+            echo "2. Issue the following commands:"
+            echo "   %> rpm -e $usbpkgroot"
+            echo "   %> rpm -e $cipkgroot"
+            echo "   %> rpm -e $lv82pkgroot"
+            echo "   %> rpm -e $lv80pkgroot"
+            echo "   %> rpm -e $lv71pkgroot"
+            echo "   %> rpm -e $lv70pkgroot"
+            echo "   %> rpm -e $compkgroot"
+            echo "   %> rpm -e $bspkgroot"
+            echo "   %> rpm -e $kpkgroot"
+            echo " NOTE: $kpkgroot is used only in NI-DAQmx Base 1.4.0 and earlier."
+            echo "3. Install NI-VISA $VISAVER if not already installed."
+            echo "To find out if it needs to be installed, check the top line of"
+            echo "/usr/local/vxipnp/linux/NIvisa/readme.txt for the version number."
+            echo "If the file does not exist or is a previous version, then do:"
+            echo "   %> cd $visaInstallDir"
+            echo "   %> ./INSTALL"
+            echo "   %> cd -"
+            echo "4. Install this installer's RPM packages manually."
+            echo "   %> rpm -ihv $bspkg"
+            echo "   %> rpm -ihv $lv80rtepkg"
+            echo "   %> rpm -ihv $compkg"
+            echo "5. Install the top level packages for the NI-DAQmx Base"
+            echo "   interface that you wish to have."
+            echo "   %> rpm -ihv $cipkg"
+            echo "   %> rpm -ihv --nodeps $lv80pkg"
+            echo "   %> rpm -ihv --nodeps $lv82pkg"
+            echo "   (The --nodeps option is required because LabVIEW may have"
+            echo "    been installed by copying the files instead of through RPM.)"
+            echo "6. If you need NI USB DAQ device support, issue the following commands:"
+            echo "   %> rpm -ihv --nodeps $usbpkg"
+            echo " "
+            cleanexit 1
+            ;;
+        *)
+            ;;
+    esac
+fi
+
+niDistributionCheck
+
+if [ $bPromptUser -eq $kTrue ] ; then
+  inputynq "Continue? [Yn] " "Y" 1
+  echo " "
+fi
+
+#Show LICENSE and ask for agreement.
+if [ $bPromptUserForLicense -eq $kTrue ] ; then
+   licagree=n
+   licloop=y
+   echo "Retrieving license agreement.  Please wait...";
+   ${PAGER:-more} "$LICENSE"
+   licview=y
+
+   while [ "$licloop" = "y" ]; do
+      echo " "
+      echo "By installing this software, you are acknowledging acceptance"
+      echo "of the terms of the included license file ($LICENSE)."
+      echo " "
+      echo -n "Do you accept the license? [ynq] "
+      read ans
+      case "$ans" in
+           [nNqQ]*)
+               licloop=n
+               echo "You must accept the license to install this software."
+               cleanexit 1
+               ;;
+           [yY]*)
+               licagree=y
+               licloop=n
+               ;;
+           [vV]*)
+               echo "Retrieving license agreement.  Please wait...";
+               ${PAGER:-more} "$LICENSE"
+               licview=y
+               ;;
+           "")
+               if [ -z "$licview" ]; then
+                  echo "Retrieving license agreement.  Please wait...";
+                  ${PAGER:-more} "$LICENSE"
+                  licview=y
+               fi
+               ;;
+      esac
+      echo " "
+   done
+else
+   echo "This software is covered by the included license file ($LICENSE)."
+   echo "By installing this software you are acknowledging acceptance of the"
+   echo "terms of the license."
+   echo " "
+fi
+
+#Check if any parts of this driver is already installed.
+#Ask to install major parts of driver.
+
+if rpm -q $lv80pkgroot > /dev/null; then
+    #A version is already installed
+    existlv80=`rpm -q --queryformat "%{VERSION}-%{RELEASE}\n" $lv80pkgroot`
+    versionCompare $existlv80 $LV80VER-$REL
+    ret=$?
+    if [ $ret -eq 1 ]; then
+        installlv80=f
+    elif [ $ret -ne 0 ]; then
+        if [ $bPromptUser -eq $kTrue ]; then
+            echo " "
+            echo "Do you want to upgrade $lv80Label support"
+            echo -n "to version $LV80VER-$REL? [Yn] "
+            read ans
+            test -z "$ans" && ans=y
+            case "$ans" in
+                [yY]*)
+                    installDirlv80=`rpm -q --queryformat "%{INSTALLPREFIX}\n" $lv80pkgroot`
+                    upgradelv80=t
+                    ;;
+                *)
+                    upgradelv80=f
+                    ;;
+            esac
+        else
+            installDirlv80=`rpm -q --queryformat "%{INSTALLPREFIX}\n" $lv80pkgroot`
+            upgradelv80=t
+        fi
+    else
+        installlv80=f
+    fi
+else
+    if rpm -q labview80-core > /dev/null; then
+        if [ $bPromptUser -eq $kTrue ]; then
+            echo " "
+            echo -n "Do you want to install $lv80Label? [Yn] "
+            read ans
+            test -z "$ans" && ans=y
+            case "$ans" in
+                [yY]*)
+                    installDirlv80=`rpm -q --queryformat "%{INSTALLPREFIX}\n" labview80-core`
+                    installlv80=t
+                    ;;
+                *)
+                    installlv80=f
+                    ;;
+            esac
+        else
+            installDirlv80=`rpm -q --queryformat "%{INSTALLPREFIX}\n" labview80-core`
+            installlv80=t
+        fi
+    fi
+fi
+if rpm -q $lv82pkgroot > /dev/null; then
+    #A version is already installed
+    existlv82=`rpm -q --queryformat "%{VERSION}-%{RELEASE}\n" $lv82pkgroot`
+    versionCompare $existlv82 $LV82VER-$REL
+    ret=$?
+    if [ $ret -eq 1 ]; then
+        installlv82=f
+    elif [ $ret -ne 0 ]; then
+        if [ $bPromptUser -eq $kTrue ]; then
+            echo " "
+            echo "Do you want to upgrade $lv82Label support"
+            echo -n "to version $LV82VER-$REL? [Yn] "
+            read ans
+            test -z "$ans" && ans=y
+            case "$ans" in
+                [yY]*)
+                    installDirlv82=`rpm -q --queryformat "%{INSTALLPREFIX}\n" $lv82pkgroot`
+                    upgradelv82=t
+                    ;;
+                *)
+                    upgradelv82=f
+                    ;;
+            esac
+        else
+            installDirlv82=`rpm -q --queryformat "%{INSTALLPREFIX}\n" $lv82pkgroot`
+            upgradelv82=t
+        fi            
+    else
+        installlv82=f
+    fi
+else
+    if rpm -q labview82-core > /dev/null; then
+        if [ $bPromptUser -eq $kTrue ]; then
+            echo " "
+            echo -n "Do you want to install $lv82Label? [Yn] "
+            read ans
+            test -z "$ans" && ans=y
+            case "$ans" in
+                [yY]*)
+                    installDirlv82=`rpm -q --queryformat "%{INSTALLPREFIX}\n" labview82-core`
+                    installlv82=t
+                    ;;
+                *)
+                    installlv82=f
+                    ;;
+            esac
+        else
+            installDirlv82=`rpm -q --queryformat "%{INSTALLPREFIX}\n" labview82-core`
+            installlv82=t
+        fi
+    fi
+fi
+if rpm -q $cipkgroot > /dev/null; then
+    #A version is already installed
+    existci=`rpm -q --queryformat "%{VERSION}-%{RELEASE}\n" $cipkgroot`
+    versionCompare $existci $VER-$REL
+    ret=$?
+    if [ $ret -eq 1 ]; then
+        installci=f
+    elif [ $ret -ne 0 ]; then
+        if [ $bPromptUser -eq $kTrue ]; then
+            echo " "
+            echo "Do you want to upgrade $ciLabel support"
+            echo -n "to version $CIVER-$REL? [Yn] "
+            read ans
+            test -z "$ans" && ans=y
+            case "$ans" in
+                [yY]*)
+                    installDirci=`rpm -q --queryformat "%{INSTALLPREFIX}\n" $cipkgroot`
+                    upgradeci=t
+                    ;;
+                *)
+                    upgradeci=f
+                    ;;
+            esac
+        else
+            installDirci=`rpm -q --queryformat "%{INSTALLPREFIX}\n" $cipkgroot`
+            upgradeci=t
+        fi
+    else
+        installci=f
+    fi
+else
+    if [ $bPromptUser -eq $kTrue ]; then
+        echo " "
+        echo -n "Do you want to install $ciLabel? [Yn] "
+        read ans
+        test -z "$ans" && ans=y
+        case "$ans" in
+            [yY]*)
+                installci=t
+                ;;
+            *)
+                installci=f
+                ;;
+        esac
+    else
+        installci=t
+    fi
+fi
+if rpm -q $usbpkgroot > /dev/null; then
+    #A version is already installed
+    existusb=`rpm -q --queryformat "%{VERSION}-%{RELEASE}\n" $usbpkgroot`
+    versionCompare $existusb $VER-$REL
+    ret=$?
+    if [ $ret -eq 1 ]; then
+        installusb=f
+    elif [ $ret -ne 0 ]; then
+        if [ $bPromptUser -eq $kTrue ]; then
+            echo " "
+            echo "Do you want to upgrade $usbLabel"
+            echo -n "to version $USBVER-$REL? [Yn] "
+            read ans
+            test -z "$ans" && ans=y
+            case "$ans" in
+                [yY]*)
+                    installDirusb=`rpm -q --queryformat "%{INSTALLPREFIX}\n" $usbpkgroot`
+                    upgradeusb=t
+                    ;;
+                *)
+                    upgradeusb=f
+                    ;;
+            esac
+        else
+            installDirusb=`rpm -q --queryformat "%{INSTALLPREFIX}\n" $usbpkgroot`
+            upgradeusb=t
+        fi
+    else
+        installusb=f
+    fi
+else
+    if [ "`rpm -q hotplug`" -o "`rpm -q udev`" ]; then 
+        if [ $bPromptUser -eq $kTrue ]; then
+            echo " "
+            echo -n "Do you want to install $usbLabel? [Yn] "
+            read ans
+            test -z "$ans" && ans=y
+            case "$ans" in
+                    [yY]*)
+                        installusb=t
+                        ;;
+                    *)
+                        installusb=f
+                        ;;
+            esac
+        else
+            installusb=t
+        fi
+    fi
+fi
+
+
+if [ "$installlv80" = "t" -o "$installlv82" = "t" -o "$installci" = "t" -o "$installusb" = "t" -o "$upgradelv80" = "t" -o "$upgradelv82" = "t" -o "$upgradeci" = "t" -o "$upgradeusb" = "t" ]; then
+    if rpm -q $kpkgroot > /dev/null; then
+        #A version is already installed
+        existk=`rpm -q --queryformat "%{VERSION}-%{RELEASE}\n" $kpkgroot`
+        echo " "
+        echo "NI-DAQmx Base $VER-$REL no longer requires its own kernel module."
+        echo "The rpm $kpkgroot will be removed."
+        echo " "
+        downgradek=t
+    fi
+    if rpm -q $lv70pkgroot > /dev/null; then
+    	#LabVIEW 7.0 support has been removed from NI-DAQmx Base as of version 2.1
+        existlv70=`rpm -q --queryformat "%{VERSION}-%{RELEASE}\n" $lv70pkgroot`
+        echo " "
+        echo "NI-DAQmx Base $VER-$REL no longer provides support for LabVIEW 7.0."
+        echo "The rpm $lv70pkgroot will be removed."
+        echo " "
+        downgradelv70=t
+    fi
+    if rpm -q $lv71pkgroot > /dev/null; then
+    	#LabVIEW 7.1 support has been removed from NI-DAQmx Base as of version 2.1
+        existlv70=`rpm -q --queryformat "%{VERSION}-%{RELEASE}\n" $lv71pkgroot`
+        echo " "
+        echo "NI-DAQmx Base $VER-$REL no longer provides support for LabVIEW 7.1."
+        echo "The rpm $lv71pkgroot will be removed."
+        echo " "
+        downgradelv71=t
+    fi
+    if rpm -q $bspkgroot > /dev/null; then
+        #A version is already installed
+        existbs=`rpm -q --queryformat "%{VERSION}-%{RELEASE}\n" $bspkgroot`
+        versionCompare $existbs $BSVER-$REL
+        ret=$?
+        if [ $ret -eq 1 ]; then
+            installbs=f
+        elif [ $ret -ne 0 ]; then
+            installDirbs=`rpm -q --queryformat "%{INSTALLPREFIX}\n" $bspkgroot`
+            upgradebs=t
+        else
+            installbs=f
+        fi
+    else
+        installbs=t
+    fi
+    if rpm -q $compkgroot > /dev/null; then
+        #A version is already installed
+        existcom=`rpm -q --queryformat "%{VERSION}-%{RELEASE}\n" $compkgroot`
+        versionCompare $existcom $COMVER-$REL
+        ret=$?
+        if [ $ret -eq 1 ]; then
+            installcom=f
+        elif [ $ret -ne 0 ]; then
+            installDircom=`rpm -q --queryformat "%{INSTALLPREFIX}\n" $compkgroot`
+            upgradecom=t
+        else
+            installcom=f
+        fi
+    else
+        installcom=t
+    fi
+    #If we are installing Board Support, then NI-VISA is needed.
+    #Check if it is installed or not.
+    if [ "$installbs" = "t" -o "$upgradebs" = "t" ]; then
+        if rpm -q $visapkgroot > /dev/null; then
+            existvisa=`rpm -q --queryformat "%{VERSION}\n" $visapkgroot`
+            case "$existvisa" in
+                [123]\.*)
+                    installvisa=t
+                    ;;
+                [456789]\.*)
+                    case "$existvisa" in
+                        [456789]\.*)
+                            #Good version of VISA installed.
+                            installvisa=f
+                            ;;
+                        *)
+                            installvisa=t
+                            ;;
+                    esac
+                    ;;
+            esac
+        else
+            installvisa=t
+        fi
+    fi
+fi
+
+#List the packages requested to be installed
+if [ "$installlv80" = "t" -o "$installlv82" = "t" -o "$installci" = "t" -o "$installusb" = "t" -o "$upgradelv80" = "t" -o "$upgradelv82" = "t" -o "$upgradeci" = "t" -o "$upgradeusb" = "t" ]; then
+    echo " "
+    echo "The following NI-DAQmx Base components will be installed:"
+    if [ "$installlv80" = "t" -o "$upgradelv80" = "t" ]; then
+        echo "$lv80Label"
+    fi
+    if [ "$installlv82" = "t" -o "$upgradelv82" = "t" ]; then
+        echo "$lv82Label"
+    fi
+    if [ "$installci" = "t" -o "$upgradeci" = "t" ]; then
+        echo "$ciLabel"
+    fi
+    if [ "$installusb" = "t" -o "$upgradeusb" = "t" ]; then
+        echo "$usbLabel"
+    fi
+    if [ "$installbs" = "t" -o "$upgradebs" = "t" ]; then
+        echo " "
+        echo "NI-DAQmx Base $VER-$REL requires $bsLabel $BSVER-$REL."
+        echo "This component has been selected automatically."
+    fi
+    if [ "$installcom" = "t" -o "$upgradecom" = "t" ]; then
+        echo " "
+        echo "NI-DAQmx Base $VER-$REL requires $comLabel $COMVER-$REL."
+        echo "This component has been selected automatically."
+    fi
+    if [ "$installvisa" = "t" ]; then
+        echo " "
+        echo "NI-DAQmx Base $VER-$REL requires $visaLabel $VISAVER."
+        echo "This component has been selected automatically."
+    fi
+    if [ $bPromptUser -eq $kTrue ]; then
+        echo " "
+        echo -n "Continue install? [Yn] "
+        read ans
+        test -z "$ans" && ans=y
+        case "$ans" in
+            [yY]*)
+                ;;
+            *)
+                cleanexit 1
+                ;;
+        esac
+    fi
+fi
+
+
+#Now actually do the installing...
+getNIShareDir
+visaretval=0
+if [ "$installlv80" = "t" -o "$installlv82" = "t" -o "$installci" = "t" -o "$installusb" = "t" -o "$upgradelv80" = "t" -o "$upgradelv82" = "t" -o "$upgradeci" = "t" -o "$upgradeusb" = "t" ]; then
+    echo " "
+    if [ "$downgradek" = "t" ]; then
+        INSTPREFIX=`rpm -q --queryformat "%{INSTALLPREFIX}\n" $kpkgroot`
+        rm -f $INSTPREFIX/natinst/nidaqmxbase/src/objects/nirlpdrvk.o
+        $INSTPREFIX/natinst/nidaqmxbase/src/kuninstall.sh
+
+        rm -f /etc/natinst/nidaqmxbase/ni_lspci
+
+        if [ -x /sbin/insserv ]; then
+            if [ -e /etc/init.d/nidaqmxbase ]; then
+                /sbin/insserv -r /etc/init.d/nidaqmxbase
+            fi
+            rm -f /usr/sbin/rcnidaqmxbase
+        elif [ -x /sbin/chkconfig ]; then
+            /sbin/chkconfig nidaqmxbase --del
+        else
+            if [ -d /etc/rc0.d ]; then
+                for i in 0 1 6; do
+                    rm -f /etc/rc$i.d/K61nidaqmxbase
+                done
+                for (( i = 2 ; i <= 5; i++ )); do
+                    rm -f /etc/rc$i.d/S61nidaqmxbase
+                done
+            elif [ -d /etc/init.d/rc0.d ]; then
+                for i in 0 1 6; do
+                    rm -f /etc/init.d/rc$i.d/K61nidaqmxbase
+                done
+                for (( i = 2 ; i <= 5; i++ )); do
+                    rm -f /etc/init.d/rc$i.d/S61nidaqmxbase
+                done
+            fi
+        fi
+        rm -f /etc/init.d/nidaqmxbase
+        rpm -e --nodeps --noscripts $kpkgroot >/dev/null 2>&1
+    fi
+    if [ "$installvisa" = "t" ]; then
+        echo " "
+        echo "Running the NI-VISA installer..."
+        echo " "
+        cd $CDPATH/$visaInstallDir
+        ${SHELL:-sh} INSTALL --no-prompt --accept-license
+        visaretval=$?
+        cd $CDPATH
+        if [ "$visaretval" != "0" ]; then
+            echo " "
+            echo "NI-VISA $VISAVER could not be installed."
+            echo "Please run the NI-VISA installer in the $visaInstallDir subdirectory"
+            echo "and then re-run this installer."
+            echo "NI-VISA $VISAVER (or later) is required for"
+            echo "NI-DAQmx Base $VER-$REL"
+            echo " "
+            cleanexit 1
+        fi
+    fi
+    if [ "$downgradebs" = "t" -o "$upgradebs" = "t" ]; then
+        rpm -e --nodeps $bspkgroot
+    fi
+    if [ "$installbs" = "t" -o "$upgradebs" = "t" ]; then
+        rpm -Uhv --prefix "$installDirbs" $bspkg
+    fi
+    if [ "$downgradecom" = "t" -o "$upgradecom" = "t" ]; then
+        rpm -e --nodeps $compkgroot
+    fi
+    if [ "$installcom" = "t" -o "$upgradecom" = "t" ]; then
+        installlvrte
+        ret=$?
+        if [ $ret -eq 1 ]; then
+            rpm -Uhv $lv80rtepkg
+        fi
+        rpm -Uhv --prefix "$installDircom" $compkg
+    fi
+    if [ "$downgradelv70" = "t" ]; then
+        rpm -e --nodeps $lv70pkgroot
+    fi
+    if [ "$downgradelv71" = "t" ]; then
+        rpm -e --nodeps $lv71pkgroot
+    fi
+    if [ "$downgradelv80" = "t" -o "$upgradelv80" = "t" ]; then
+        rpm -e --nodeps $lv80pkgroot
+    fi
+    if [ "$installlv80" = "t" -o "$upgradelv80" = "t" ]; then
+        rpm -Uhv --prefix "$installDirlv80" $lv80pkg
+    fi
+    if [ "$downgradelv82" = "t" -o "$upgradelv82" = "t" ]; then
+        rpm -e --nodeps $lv82pkgroot
+    fi
+    if [ "$installlv82" = "t" -o "$upgradelv82" = "t" ]; then
+        rpm -Uhv --prefix "$installDirlv82" $lv82pkg
+    fi
+    if [ "$downgradeci" = "t" -o "$upgradeci" = "t" ]; then
+        rpm -e --nodeps $cipkgroot
+    fi
+    if [ "$installci" = "t" -o "$upgradeci" = "t" ]; then
+        installlvrte
+        ret=$?
+        if [ $ret -eq 1 ]; then
+            rpm -Uhv $lv80rtepkg
+        fi
+        rpm -Uhv --prefix "$installDirci" $cipkg
+    fi
+    if [ "$downgradeusb" = "t" -o "$upgradeusb" = "t" ]; then
+        rpm -e --nodeps $usbpkgroot
+    fi
+    if [ "$installusb" = "t" -o "$upgradeusb" = "t" ]; then
+        installlvrte
+        ret=$?
+        if [ $ret -eq 1 ]; then
+            rpm -Uhv $lv80rtepkg
+        fi
+        rpm -Uhv --prefix "$installDirusb" $usbpkg
+    fi
+
+    echo " "
+    echo "Finished installing NI-DAQmx Base $VER-$REL."
+    if [ "$installvisa" = "t" -o "$installusb" = "t" -o "$upgradeusb" = "t" ]; then
+        echo " "
+        echo "Please reboot manually before attempting to use your NI drivers and products."
+    fi
+    echo " "
+else
+    echo " "
+    echo "Nothing installed."
+    echo " "
+fi

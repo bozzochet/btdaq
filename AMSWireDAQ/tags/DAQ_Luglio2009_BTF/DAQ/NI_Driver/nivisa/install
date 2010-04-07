@@ -1,0 +1,2115 @@
+#!/bin/bash
+
+#  This is the installation script for NI-VISA for Linux (x86).
+#  This will install NI-VISA on your system and perform required post
+#  installation steps.
+#
+#  (c) Copyright 2006,
+#  National Instruments Corporation.
+#  All Rights reserved.
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin
+export PATH
+
+#
+# numeric constants
+#
+
+kFalse=0
+kTrue=1
+statusSuccess=0
+statusFail=1
+
+kRpmNone=0
+kRpmRejected=1
+kRpmLimited=2
+kRpmNormal=3
+kRpmDetermine=4
+
+#
+# string constants
+#
+
+strDefaultInstallDir="/usr/local"
+strInstallAborted="Installation aborted."
+strInstallComplete="Installation complete."
+strVerUnknown="Version cannot be determined"
+strInvalidSel="Invalid selection."
+strNoDiskSpace="There is insufficient free disk space to"
+strCpioOpts="--quiet --no-preserve-owner -i -d -u"
+
+ARCH=i386
+ALTARCH=i386
+
+listOfComponentsInDetermineOrder="nivisa nivisadevelopment nivisaconfig nivisaserver nipxirm nispy nicvirte niorb nidim nirpc nipal nikal lvruntime"
+listOfComponentsInShowOrder="nivisa nivisadevelopment nivisaconfig nivisaserver nipxirm nispy nicvirte lvruntime niorb nidim nirpc nipal nikal"
+listOfComponentsInInstallOrder="nikal nipal nirpc niorb nidim nipxirm nicvirte lvruntime nivisa nivisadevelopment nivisaconfig nivisaserver nispy"
+
+strVersion_installer=4.0.0
+strRelease_installer=f0
+
+# Per Componant Constants
+# NI-VISA
+strDesc_nivisa="NI-VISA Runtime"
+strRpmPkgName_nivisa="nivisa"
+strInstallSubdir_nivisa="vxipnp"
+bAutoUpgradeIfExists_nivisa=$kFalse
+bHasNonRpmInstallDetection_nivisa=$kTrue
+bRequiresPalUnload_nivisa=$kTrue
+listOptionalBy_nivisa=""
+listRequiredBy_nivisa=""
+# To be Determined
+strVersion_nivisa=""
+strRelease_nivisa=""
+bDisable_nivisa=$kFalse
+bInstall_nivisa=$kFalse
+bCorrectVersionAlreadyInstalled_nivisa=$kFalse
+nSizeKB_nivisa=0
+strRpm_nivisa=""
+strInstallDir_nivisa=""
+strAdditionalRpmFlags_nivisa=""
+
+# NI-VISA Development
+strDesc_nivisadevelopment="NI-VISA Development"
+strRpmPkgName_nivisadevelopment="nivisa-devel"
+strInstallSubdir_nivisadevelopment="vxipnp"
+bAutoUpgradeIfExists_nivisadevelopment=$kTrue
+bHasNonRpmInstallDetection_nivisadevelopment=$kTrue
+bRequiresPalUnload_nivisadevelopment=$kFalse
+listOptionalBy_nivisadevelopment="nivisa"
+listRequiredBy_nivisadevelopment=""
+# To be Determined
+strVersion_nivisadevelopment=""
+strRelease_nivisadevelopment=""
+bDisable_nivisadevelopment=$kFalse
+bInstall_nivisadevelopment=$kFalse
+bCorrectVersionAlreadyInstalled_nivisadevelopment=$kFalse
+nSizeKB_nivisadevelopment=0
+strRpm_nivisadevelopment=""
+strInstallDir_nivisadevelopment=""
+strAdditionalRpmFlags_nivisadevelopment=""
+
+# NI-VISA Configuration
+strDesc_nivisaconfig="NI-VISA Configuration"
+strRpmPkgName_nivisaconfig="nivisa-config"
+strInstallSubdir_nivisaconfig="vxipnp"
+bAutoUpgradeIfExists_nivisaconfig=$kTrue
+bHasNonRpmInstallDetection_nivisaconfig=$kTrue
+bRequiresPalUnload_nivisaconfig=$kFalse
+listOptionalBy_nivisaconfig="nivisa"
+listRequiredBy_nivisaconfig=""
+# To be Determined
+strVersion_nivisaconfig=""
+strRelease_nivisaconfig=""
+bDisable_nivisaconfig=$kFalse
+bInstall_nivisaconfig=$kFalse
+bCorrectVersionAlreadyInstalled_nivisaconfig=$kFalse
+nSizeKB_nivisaconfig=0
+strRpm_nivisaconfig=""
+strInstallDir_nivisaconfig=""
+strAdditionalRpmFlags_nivisaconfig=""
+
+# NI-VISA Server
+strDesc_nivisaserver="NI-VISA Server"
+strRpmPkgName_nivisaserver="nivisaserver"
+strInstallSubdir_nivisaserver="vxipnp"
+bAutoUpgradeIfExists_nivisaserver=$kTrue
+bHasNonRpmInstallDetection_nivisaserver=$kTrue
+bRequiresPalUnload_nivisaserver=$kFalse
+listOptionalBy_nivisaserver="nivisa"
+listRequiredBy_nivisaserver=""
+# To be Determined
+strVersion_nivisaserver=""
+strRelease_nivisaserver=""
+bDisable_nivisaserver=$kFalse
+bInstall_nivisaserver=$kFalse
+bCorrectVersionAlreadyInstalled_nivisaserver=$kFalse
+nSizeKB_nivisaserver=0
+strRpm_nivisaserver=""
+strInstallDir_nivisaserver=""
+strAdditionalRpmFlags_nivisaserver=""
+
+# NI-CVI RTE
+strDesc_nicvirte="CVI Runtime"
+strRpmPkgName_nicvirte="nicvirte"
+strInstallSubdir_nicvirte="natinst/cvirte"
+listOptionalBy_nicvirte=""
+listRequiredBy_nicvirte="nivisadevelopment nivisaconfig"
+bAutoUpgradeIfExists_nicvirte=$kTrue
+bHasNonRpmInstallDetection_nicvirte=$kTrue
+bRequiresPalUnload_nicvirte=$kFalse
+# To be Determined
+strVersion_nicvirte=""
+strRelease_nicvirte=""
+bDisable_nicvirte=$kFalse
+bInstall_nicvirte=$kFalse
+bCorrectVersionAlreadyInstalled_nicvirte=$kFalse
+nSizeKB_nicvirte=0
+strRpm_nicvirte=""
+strInstallDir_nicvirte=""
+strAdditionalRpmFlags_nicvirte=""
+
+# NI-PAL
+strDesc_nipal="NI-PAL"
+strRpmPkgName_nipal="nipali"
+strInstallSubdir_nipal="natinst/nipal"
+bAutoUpgradeIfExists_nipal=$kTrue
+bHasNonRpmInstallDetection_nipal=$kFalse
+bRequiresPalUnload_nipal=$kTrue
+listOptionalBy_nipal=""
+listRequiredBy_nipal="nivisa nipxirm nidim niorb"
+# To be Determined
+strVersion_nipal=""
+strRelease_nipal=""
+bDisable_nipal=$kFalse
+bInstall_nipal=$kFalse
+bCorrectVersionAlreadyInstalled_nipal=$kFalse
+nSizeKB_nipal=0
+strRpm_nipal=""
+strInstallDir_nipal=""
+strAdditionalRpmFlags_nipal=""
+
+# NI-KAL
+strDesc_nikal="NI-KAL"
+strRpmPkgName_nikal="nikali"
+strInstallSubdir_nikal="natinst/nikal"
+bAutoUpgradeIfExists_nikal=$kTrue
+bHasNonRpmInstallDetection_nikal=$kFalse
+bRequiresPalUnload_nikal=$kTrue
+listOptionalBy_nikal=""
+listRequiredBy_nikal="nipal"
+# To be Determined
+strVersion_nikal=""
+strRelease_nikal=""
+bDisable_nikal=$kFalse
+bInstall_nikal=$kFalse
+bCorrectVersionAlreadyInstalled_nikal=$kFalse
+nSizeKB_nikal=0
+strRpm_nikal=""
+strInstallDir_nikal=""
+strAdditionalRpmFlags_nikal=""
+# NI-KAL specific
+strInstallerUtility_nikal=""
+
+# NI-ORB
+strDesc_niorb="NI-ORB"
+strRpmPkgName_niorb="niorbi"
+strInstallSubdir_niorb="natinst/.nicore"
+bAutoUpgradeIfExists_niorb=$kTrue
+bHasNonRpmInstallDetection_niorb=$kFalse
+bRequiresPalUnload_niorb=$kTrue
+listOptionalBy_niorb=""
+listRequiredBy_niorb="nivisa nipxirm nidim"
+# To be Determined
+strVersion_niorb=""
+strRelease_niorb=""
+bDisable_niorb=$kFalse
+bInstall_niorb=$kFalse
+bCorrectVersionAlreadyInstalled_niorb=$kFalse
+nSizeKB_niorb=0
+strRpm_niorb=""
+strInstallDir_niorb=""
+strAdditionalRpmFlags_niorb=""
+
+# NI-DIM
+strDesc_nidim="NI-DIM"
+strRpmPkgName_nidim="nidimi"
+strInstallSubdir_nidim="natinst/.nicore"
+bAutoUpgradeIfExists_nidim=$kTrue
+bHasNonRpmInstallDetection_nidim=$kFalse
+bRequiresPalUnload_nidim=$kTrue
+listOptionalBy_nidim=""
+listRequiredBy_nidim="nipxirm"
+# To be Determined
+strVersion_nidim=""
+strRelease_nidim=""
+bDisable_nidim=$kFalse
+bInstall_nidim=$kFalse
+bCorrectVersionAlreadyInstalled_nidim=$kFalse
+nSizeKB_nidim=0
+strRpm_nidim=""
+strInstallDir_nidim=""
+strAdditionalRpmFlags_nidim=""
+
+# NI-RPC
+strDesc_nirpc="NI-RPC"
+strRpmPkgName_nirpc="nirpci"
+strInstallSubdir_nirpc="natinst/.nicore"
+bAutoUpgradeIfExists_nirpc=$kTrue
+bHasNonRpmInstallDetection_nirpc=$kFalse
+bRequiresPalUnload_nirpc=$kFalse
+listOptionalBy_nirpc=""
+listRequiredBy_nirpc="niorb"
+# To be Determined
+strVersion_nirpc=""
+strRelease_nirpc=""
+bDisable_nirpc=$kFalse
+bInstall_nirpc=$kFalse
+bCorrectVersionAlreadyInstalled_nirpc=$kFalse
+nSizeKB_nirpc=0
+strRpm_nirpc=""
+strInstallDir_nirpc=""
+strAdditionalRpmFlags_nirpc=""
+
+# NI-PXI Resource Manager
+strDesc_nipxirm="PXI Services"
+strRpmPkgName_nipxirm="nipxirmi"
+strInstallSubdir_nipxirm="natinst/nipxi"
+bAutoUpgradeIfExists_nipxirm=$kTrue
+bHasNonRpmInstallDetection_nipxirm=$kFalse
+bRequiresPalUnload_nipxirm=$kTrue
+listOptionalBy_nipxirm=""
+listRequiredBy_nipxirm=""
+# To be Determined
+strVersion_nipxirm=""
+strRelease_nipxirm=""
+bDisable_nipxirm=$kFalse
+bInstall_nipxirm=$kFalse
+bCorrectVersionAlreadyInstalled_nipxirm=$kFalse
+nSizeKB_nipxirm=0
+strRpm_nipxirm=""
+strInstallDir_nipxirm=""
+strAdditionalRpmFlags_nipxirm=""
+
+# NI Spy
+strDesc_nispy="NI Spy"
+strRpmPkgName_nispy="nispyi"
+strInstallSubdir_nispy="natinst/nispy"
+bAutoUpgradeIfExists_nispy=$kFalse
+bHasNonRpmInstallDetection_nispy=$kTrue
+bRequiresPalUnload_nispy=$kFalse
+listOptionalBy_nispy="nivisadevelopment"
+listRequiredBy_nispy=""
+# To be Determined
+strVersion_nispy=""
+strRelease_nispy=""
+bDisable_nispy=$kFalse
+bInstall_nispy=$kFalse
+bCorrectVersionAlreadyInstalled_nispy=$kFalse
+nSizeKB_nispy=0
+strRpm_nispy=""
+strInstallDir_nispy=""
+strAdditionalRpmFlags_nispy=""
+
+# LabVIEW Runtime Engine
+strDesc_lvruntime="LabVIEW Runtime"
+strRpmPkgName_lvruntime="labview80-rte"
+strInstallSubdir_lvruntime="lib/LabVIEW-8.0"
+bAutoUpgradeIfExists_lvruntime=$kTrue
+bHasNonRpmInstallDetection_lvruntime=$kFalse
+bRequiresPalUnload_lvruntime=$kFalse
+listOptionalBy_lvruntime=""
+listRequiredBy_lvruntime="nivisadevelopment nispy"
+# To be Determined
+strVersion_lvruntime=""
+strRelease_lvruntime=""
+bDisable_lvruntime=$kFalse
+bInstall_lvruntime=$kFalse
+bCorrectVersionAlreadyInstalled_lvruntime=$kFalse
+nSizeKB_lvruntime=0
+strRpm_lvruntime=""
+strInstallDir_lvruntime=""
+strAdditionalRpmFlags_lvruntime=""
+
+LICENSE="LICENSE.txt"
+
+REAL_PACKAGE="NICVISA_.TZ"
+TMP_INSTALLSRCPATH="/tmp/nivisa.install"
+
+strStandardRpmFlags="-Uvh"
+strGlobalAdditionalRpmFlags=""
+TAR="tar"
+
+#
+# numeric variables
+#
+
+nRpmType=$kRpmDetermine
+bForceInstall=$kFalse
+bPromptUserForReboot=$kTrue
+bLicenseAccepted=$kFalse
+bPromptUserForDir=$kTrue
+bPromptUser=$kTrue
+
+
+nTotalSizeKB=0
+bRebootRequired=$kFalse
+bSomethingToInstall=$kFalse
+bSomethingRequiresPalUnload=$kFalse
+
+#
+# string variables
+#
+
+RPM=""
+strInstallDir="$strDefaultInstallDir"
+strRpmFileList=""
+
+strBinDir=""
+
+#
+# functions
+#
+
+# cleanwoexit performs script cleanup w/o exiting
+# Input: None 
+# Output: None
+# Returns: Nothing
+cleanwoexit ()
+{
+   # Clean up temporary directories
+   rm -rf "$TMP_INSTALLSRCPATH"
+
+   return 0
+}
+
+# cleanexit performs script cleanup and quits
+# Input: $1: exit code
+# Output: None
+# Returns: Nothing
+cleanexit ()
+{
+   # Clean up temporary directories
+   rm -rf "$TMP_INSTALLSRCPATH"
+
+   # Display an exit message based on exit code
+   if [ $1 -ne 0 ]; then
+      echo ""
+      echo "$strInstallAborted"
+   else
+      echo ""
+      echo "$strInstallComplete"
+   fi
+   exit $1
+}
+
+# niDistributionCheck prints supported distribution information
+# Input: None
+# Output: None
+# Returns: Nothing
+niDistributionCheck()
+{
+   readmeFile="readme.txt"
+
+   echo "National Instruments products support the following Linux distributions:"
+   echo "   Mandriva Linux"
+   echo "   SUSE Linux"
+   echo "   Red Hat Enterprise Linux WS"
+   echo "Refer to ${readmeFile} for the latest information at the time of release."
+   echo "Refer to www.ni.com/linux for the most recent information about Linux"
+   echo "support at National Instruments."
+   echo ""
+}
+
+# inputynq get a yes / no / quit response from the user
+# Input: $1: Prompt string associated with input
+#        $2: Default selection
+#        $3: Exit on No : 1 = YES
+# Output: $INPUT: character entered and accepted
+# Returns: Nothing
+strInputynq=""
+bInputynq=""
+inputynq()
+{
+   bInputynqLoop=$kTrue
+   bInputynqExitOnNo=$3
+   while [ $bInputynqLoop -eq $kTrue ]; do
+      echo -n "$1"
+      read strInputynq
+      test -z "$strInputynq" && strInputynq="$2"
+      case "$strInputynq" in
+      [Yy]|[Yy][Ee][Ss])
+         bInputynqLoop=$kFalse
+         bInputynq=$kTrue
+         ;;
+      [Nn]|[Nn][Oo])
+         bInputynqLoop=$kFalse
+         bInputynq=$kFalse
+         if [ $bInputynqExitOnNo -eq 1 ] ; then
+            cleanexit 1
+         fi
+         ;;
+      [Qq]|[Qq][Uu][Ii][Tt])
+         cleanexit 1
+         ;;
+      *)
+         echo -n "$strInvalidSel  "
+         ;;
+      esac
+   done
+}
+
+# findutil gets the path to a utility
+# Input: $1: name of utility to find
+# Output: $FINDUTIL: path of found utility or empty string
+# Returns: 0=success, nonzero=failure
+FINDUTIL=""
+findutil()
+{
+  # Validate inputs
+  if [ -z "$1" ]; then
+    FINDUTIL=""
+    return 1
+  fi
+
+  # Use which to locate the executable
+  FINDUTIL=`which $1 --skip-alias 2>/dev/null`
+  # If not found, display an error
+  if [ -n "$FINDUTIL" ] && [ -x "$FINDUTIL" ]; then
+    return 0
+  fi
+
+  # Not in path. Find using well-known locations.
+  if [ -x "/sbin/$1" ]; then
+    FINDUTIL="/sbin/$1"
+    return 0;
+  elif [ -x "/usr/sbin/$1" ]; then
+    FINDUTIL="/usr/sbin/$1"
+    return 0;
+  elif [ -x "/usr/local/sbin/$1" ]; then
+    FINDUTIL="/usr/local/sbin/$1"
+    return 0;
+  elif [ -x "/bin/$1" ]; then
+    FINDUTIL="/bin/$1"
+    return 0;
+  elif [ -x "/usr/bin/$1" ]; then
+    FINDUTIL="/usr/bin/$1"
+    return 0;
+  elif [ -x "/usr/local/bin/$1" ]; then
+    FINDUTIL="/usr/local/bin/$1"
+    return 0;
+  else
+    FINDUTIL=""
+    return 1
+  fi
+}
+
+CDPATH="`dirname $0`"
+case "$CDPATH" in
+    /*) ;;
+     .) CDPATH="`pwd`" ;;
+     *) CDPATH="`pwd`/$CDPATH" ;;
+esac
+
+
+#
+# vercmp() - compares two RPM-style version numbers and returns -1, 0, 1 
+# to indicate if the first verison is less than, equal to, or greater than
+# the second.  Version numbers can be specified with or without release
+# suffixes.  Alpha, beta, etc. suffixes should always specified be in the
+# release portion.
+#
+# Examples:
+#  vercmp 1.0  1.0.1
+#  vercmp 1.0-a1 1.0-a12
+#  vercmp 1.0.1-b1 1.0-1
+#  vercmp 2.2.3.4-99  2.2.4
+#  vercmp 8.0-d120 8.0-0b129
+#  vercmp 8.0-0b129 8.0-0rc0
+#  vercmp 8.0-0rc0 8.0-1
+vercmp() {
+    canonicalizeVersion() {
+        canonicalVersion=`echo "$1" |
+		     sed -e 's,\([0-9]\)\([A-Za-z]\),\1.000.\2,g' \
+		 		 -e 's,\([A-Za-z]\)\([0-9]\),\1.\2,g' \
+		 		 -e 's,^\([A-Za-z]\),---.\1,' \
+		 		 -e 's,\b\([0-9]\)\b,00\1,g' \
+		 		 -e 's,\b\([0-9][0-9]\)\b,0\1,g'`
+    }
+
+    local arg1 arg2 nResult firstVers secondVers resultVers
+    if [ "$1" = "$2" ]; then
+		 return 0;
+    fi
+    arg1=`echo "$1" | sed 's,-.*$,,'`
+    arg2=`echo "$2" | sed 's,-.*$,,'`
+    if [ "$1" != "$arg1" -o "$2" != "$arg2" ]; then
+        vercmp "$arg1" "$arg2"
+        nResult=$?
+        if [ $nResult -ne 0 ]; then
+            return $nResult
+        fi
+    fi
+    canonicalizeVersion `echo "$1" | sed 's,^.*-,,'`
+    firstVers="$canonicalVersion"
+    canonicalizeVersion `echo "$2" | sed 's,^.*-,,'`
+    secondVers="$canonicalVersion"
+    resultVers=`(echo "$firstVers"; echo "$secondVers") |
+		      LC_ALL=C sort -t. +0 +1 +2 +3 +4 +5 +6 +7 +8 +9 | head -1`
+    if [ "$firstVers" = "$resultVers" ]; then
+        return -1
+    else
+        return 1
+    fi
+}
+
+# loadKalInstallerUtilityIfNecessary loads nikaliInstallerUtility.sh
+# if not already loaded and NI-KAL exists
+# Input: None
+# Output: None
+# Returns: 0=success, exits on failure
+loadKalInstallerUtilityIfNecessary ()
+{
+   if [ -z "${nikalDir}" ] ; then
+      strTmpKalDir="`cat /etc/natinst/nikal/nikal.dir 2>/dev/null`"
+      if [ -d "${strTmpKalDir}" ] && [ -x "${strTmpKalDir}/bin/nikaliInstallerUtility.sh" ] ; then
+         . "${strTmpKalDir}/bin/nikaliInstallerUtility.sh"
+      fi
+   fi
+
+   return 0
+}
+
+# loadPalInstallerUtilityIfNecessary loads nipaliInstallerUtility.sh
+# if not already loaded and NI-PAL exists
+# Input: None
+# Output: None
+# Returns: 0=success, exits on failure
+loadPalInstallerUtilityIfNecessary ()
+{
+   if [ -z "${nipalDir}" ] ; then
+      strTmpPalDir="`cat /etc/natinst/nipal/nipal.dir 2>/dev/null`"
+      if [ -d "${strTmpPalDir}" ] && [ -x "${strTmpPalDir}/bin/nipaliInstallerUtility.sh" ] ; then
+         . "${strTmpPalDir}/bin/nipaliInstallerUtility.sh"
+      fi
+   fi
+
+   return 0
+}
+
+# componentAlreadyInstalled deals with the case when
+# a component is already installed on the system
+# Input: $1: name of component to install
+#        $2: version of component to install
+#        $3: release of component to install
+#        $4: version of installed component
+#        $5: release of installed component
+#        $6: install prefix (path) of installed component
+#        $7: bool: $kTrue if required, $kFalse if optional
+# Output: $bInstall_component: bool to install the component
+#         $strInstallDir_component: path to install to
+# Returns: 0=success, nonzero=failure
+componentAlreadyInstalled()
+{
+   strComponentName="$1"
+   strComponentVersion="$2"
+   strComponentRelease="$3"
+   strInstalledVersion="$4"
+   strInstalledRelease="$5"
+   strInstalledPrefix="$6"
+   bComponentRequired=$7
+
+   vercmp "${strComponentVersion}-${strComponentRelease}" "${strInstalledVersion}-${strInstalledRelease}"
+   nRetVal=$?
+   if [ $nRetVal -eq 1 ] ; then
+      echo "$strComponentName ${strComponentVersion} (${strComponentRelease}) is newer than installed version ${strInstalledVersion} (${strInstalledRelease})."
+      bCorrectVersionAlreadyInstalled_component=$kFalse
+
+      if [ $bComponentRequired -eq $kFalse ] ; then
+         if [ $bPromptUser -eq $kTrue ] ; then
+            inputynq "Do you want to install version ${strComponentVersion} over the existing version? [Yn] " "Y" 0
+            if [ $bInputynq -eq $kTrue ] ; then
+               bInstall_component=$kTrue
+            else
+               bInstall_component=$kFalse
+               strInstallDir_component="nevermind"
+            fi
+         else
+            bInstall_component=$kTrue
+            echo "${strComponentName} ${strComponentVersion} will be installed over the existing version."
+         fi
+      else
+         bInstall_component=$kTrue
+         echo "${strComponentName} ${strComponentVersion} will be installed over the existing version."
+      fi
+   else
+      echo "${strComponentName} ${strInstalledVersion} (${strInstalledRelease}) already installed."
+      bInstall_component=$kFalse
+      bCorrectVersionAlreadyInstalled_component=$kTrue
+      strInstallDir_component="nevermind"
+   fi
+ 
+   if [ $bInstall_component -eq $kTrue ] ; then
+      strInstallDir_component="$strInstalledPrefix"
+      if [ "$strInstallDir_component" = "(none)" ]; then
+        strInstallDir_component=$strDefaultInstallDir
+      fi
+   fi
+   echo ""
+   return 0
+}
+
+# echoUsage prints usage of this script to the user
+# Input: None
+# Output: None
+# Returns: Nothing
+echoUsage()
+{
+   echo "usage: $1 --force --no-prompt --accept-license --no-rpm --install-path <path>"
+   echo "   --force          - forces install of this version of NI-VISA"
+   echo "   --no-prompt      - runs the installer without prompts (except license)"
+   echo "   --accept-license - accepts license agreement without prompting"
+   echo "   --no-rpm         - never use RPM even if present"
+   echo "   --install-path   - change the path to install under"
+   echo "      installer creates a vxipnp directory in the install-path"
+   echo "      The default install-path is /usr/local"
+}
+
+# parseArguments parses the arguments passed to this script
+# Input: $1, $2, ... arguments to this script
+# Output: None
+# Returns: 0=success, exits on failure
+parseArguments()
+{
+   while [ -n "$1" ]
+   do
+      case "$1" in
+         --force)
+            bForceInstall=$kTrue
+            ;;
+         --no-prompt|--noprompt)
+            bPromptUser=$kFalse
+            bPromptUserForReboot=$kFalse
+            bPromptUserForDir=$kFalse
+            ;;
+         --no-prompt-dir|--nopromptdir)
+            bPromptUserForDir=$kFalse
+            ;;
+         --accept-license|--acceptlicense)
+            bLicenseAccepted=$kTrue
+            ;;
+         --no-prompt-reboot|--nopromptreboot)
+            bPromptUserForReboot=$kFalse
+            ;;
+         --no-rpm|--norpm)
+            nRpmType=$kRpmNone
+            ;;
+         --install-path|--installpath)
+               shift
+               strInstallDir="$1"
+            ;;
+         # The rest of these options are unsupported.
+         # Use at your own risk!
+         --no-visa|--novisa)
+            bDisable_nivisa=$kTrue
+            ;;
+         --no-visaserver|--novisaserver)
+            bDisable_nivisaserver=$kTrue
+            ;;
+         --no-pxirm|--nopxirm)
+            bDisable_nipxirm=$kTrue
+            ;;
+         --no-spy|--nospy)
+            bDisable_nispy=$kTrue
+            ;;
+         --no-pal|--nopal)
+            bDisable_nipal=$kTrue
+            strAdditionalRpmFlags_nivisa="--nodeps"
+            strGlobalAdditionalRpmFlags="--nodeps"
+            ;;
+         --no-kal|--nokal)
+            bDisable_nikal=$kTrue
+            strAdditionalRpmFlags_nipal="--nodeps"
+            strGlobalAdditionalRpmFlags="--nodeps"
+            ;;
+         --no-orb|--noorb)
+            bDisable_niorb=$kTrue
+            strAdditionalRpmFlags_nivisa="--nodeps"
+            strAdditionalRpmFlags_nipxirm="--nodeps"
+            strGlobalAdditionalRpmFlags="--nodeps"
+            ;;
+         --no-dim|--nodim)
+            bDisable_nidim=$kTrue
+            strAdditionalRpmFlags_nipxirm="--nodeps"
+            strGlobalAdditionalRpmFlags="--nodeps"
+            ;;
+         --no-rpc|--norpc)
+            bDisable_nirpc=$kTrue
+            strAdditionalRpmFlags_niorb="--nodeps"
+            strGlobalAdditionalRpmFlags="--nodeps"
+            ;;
+         --no-lvruntime|--nolvruntime)
+            bDisable_lvruntime=$kTrue
+            strAdditionalRpmFlags_nivisa="--nodeps"
+            strAdditionalRpmFlags_nipxirm="--nodeps"
+            strGlobalAdditionalRpmFlags="--nodeps"
+            ;;
+         --no-cvirte|--nocvirte)
+            bDisable_nicvirte=$kTrue
+            strAdditionalRpmFlags_nivisa="--nodeps"
+            strGlobalAdditionalRpmFlags="--nodeps"
+            ;;
+         *)
+            echo "Unrecognized Option: $1" > /dev/stderr
+            echoUsage
+            exit 1
+            ;;
+      esac
+      shift
+   done
+}
+
+# getGlobalInstallDir retries the installation directory
+# Input: $1: Component name
+#        $2: Additional component path
+# Output: $strInstallDir: the global installation directory
+# Returns: 0=success, exits on failure
+getGlobalInstallDir ()
+{
+   GETINSTALLPATH=$kTrue
+
+   echo "Specify the installation path for $1; a $2"
+   echo "subdirectory will be created at the specified location."
+   while [ $GETINSTALLPATH -eq $kTrue ]; do
+      INSTALLSELPATH="$strInstallDir"
+      echo -n "[Default $INSTALLSELPATH, or q to quit] "
+      read TEMPINSTALLSELPATH
+      case "$TEMPINSTALLSELPATH" in
+      "")
+         GETINSTALLPATH=$kFalse
+         ;;
+      [Qq])
+         cleanexit 1
+         ;;
+      *[[:space:]]*)
+         echo "Path cannot contain spaces"
+         ;;
+      */..*)
+         echo "Path cannot contain relative (\"/..\") components"
+         ;;
+      \/*)
+         INSTALLSELPATH="$TEMPINSTALLSELPATH"
+         GETINSTALLPATH=$kFalse
+         ;;
+      *)
+         echo "Path must begin with a '/'"
+         ;;
+      esac
+      echo ""
+      if [ $GETINSTALLPATH -eq $kFalse ]; then
+         # Trim trailing '/' characters from path
+         INSTALLSELPATH="`echo "$INSTALLSELPATH" | sed -e 's/\/*$//'`"
+         # Verify input
+         echo "Files will be installed to $INSTALLSELPATH/$2"
+         inputynq "Is $INSTALLSELPATH/$2 correct? [Ynq] " "Y" 0
+	 if [ $bInputynq -eq $kFalse ] ; then
+            GETINSTALLPATH=$kTrue
+            echo ""
+         fi
+      fi
+      if [ $GETINSTALLPATH -eq $kFalse ]; then
+         if [ -f "$INSTALLSELPATH" ]; then
+            echo "$INSTALLSELPATH is a regular file."
+            echo "Please enter another install path."
+            GETINSTALLPATH=$kTrue
+            echo ""
+         elif [ -e "$INSTALLSELPATH" ] && [ ! -w "$INSTALLSELPATH" ]; then
+            echo "$INSTALLSELPATH is not writable."
+            echo "Please enter another install path."
+            GETINSTALLPATH=$kTrue
+            echo ""
+         elif [ ! -e "$INSTALLSELPATH" ]; then
+            # Create the installation directory
+            mkdir -p "$INSTALLSELPATH"
+         fi
+      fi
+   done
+   echo ""
+   strInstallDir="$INSTALLSELPATH"
+   bPromptUserForDir=$kFalse
+}
+
+# get_file_base returns the path to a file.
+# If the file currently exists, returns that path.
+# If a file does not exist, extracts it from
+# the distribution archive into a temporary location,
+# and returns that path.
+# If the file does not exist locally nor is in the
+# distribution archive, exits.
+# Input: $1: file name
+# Output: $FILE_BASE: path to the file name
+#                     (not including actual file name)
+# Returns: 0=success, exits on failure
+get_file_base()
+{
+if [ -s "$CDPATH/$1" ] ; then
+  # installing from CD, or already expanded the packages in the current dir
+  FILE_BASE="$CDPATH"
+elif [ -s "$TMP_INSTALLSRCPATH/$1" ] ; then
+  # already exists due to previous call to this function
+  FILE_BASE="$TMP_INSTALLSRCPATH"
+elif [ -s "$CDPATH/$REAL_PACKAGE" ] ; then
+  # installing from other directory (net or local copy from web or ftp)
+  FILE_BASE="$TMP_INSTALLSRCPATH"
+  $TAR -zx -C "$FILE_BASE" -f "$CDPATH/$REAL_PACKAGE" "$1" 1>/dev/null 2>&1
+else
+  echo "You need to place $REAL_PACKAGE in this directory."
+  cleanexit 1
+fi
+}
+
+# get_dir_base returns the path to a directory.
+# If the directory currently exists, returns that path.
+# If a directory does not exist, extracts it (with contents)
+# from the distribution archive into a temporary location,
+# and returns that path.
+# If the directory does not exist locally nor is in the
+# distribution archive, exits.
+# Input: $1: directory name
+# Output: $FILE_BASE: path to the directory name
+#                     (not including actual directory name)
+# Returns: 0=success, exits on failure
+get_dir_base()
+{
+if [ -d "$CDPATH/$1" ] ; then
+  # installing from CD, or already expanded the packages in the current dir
+  FILE_BASE="$CDPATH"
+elif [ -d "$TMP_INSTALLSRCPATH/$1" ] ; then
+  # already exists due to previous call to this function
+  FILE_BASE="$TMP_INSTALLSRCPATH"
+elif [ -s "$CDPATH/$REAL_PACKAGE" ] ; then
+  # installing from other directory (net or local copy from web or ftp)
+  FILE_BASE="$TMP_INSTALLSRCPATH"
+  $TAR -zx -C "$FILE_BASE" -f "$CDPATH/$REAL_PACKAGE" "$1/*" 1>/dev/null 2>&1
+else
+  echo "You need to place $REAL_PACKAGE in this directory."
+  cleanexit 1
+fi
+}
+
+# getBinDir returns path to bin directory
+# Input: None
+# Output: $strBinDir: path to bin directory
+# Returns: 0=success, exits on failure
+getBinDir ()
+{
+   if [ -n "$strBinDir" ] ; then
+      return 0
+   fi
+
+   get_dir_base "bin"
+   strBinDir="$FILE_BASE/bin"
+}
+
+# getRpm_nivisa returns path to NI-VISA rpm.
+# Input: None
+# Output: $strRpm_nivisa: path to NI-VISA rpm.
+# Returns: 0=success, exits on failure
+getRpm_nivisa ()
+{
+   if [ -n "$strRpm_nivisa" ] ; then
+      return 0
+   fi
+
+   get_dir_base "nivisa"
+   strRpm_nivisa="`find \"$FILE_BASE/nivisa\" -regex \".*nivisa-[0-9].*\.rpm\" -print | head -1`"
+}
+
+# getRpm_nivisadevelopment returns path to NI-VISA Development rpm.
+# Input: None
+# Output: $strRpm_nivisadevelopment: path to NI-VISA Development rpm.
+# Returns: 0=success, exits on failure
+getRpm_nivisadevelopment ()
+{
+   if [ -n "$strRpm_nivisadevelopment" ] ; then
+      return 0
+   fi
+
+   get_dir_base "nivisa"
+   strRpm_nivisadevelopment="`find \"$FILE_BASE/nivisa\" -name \"nivisa-devel-*.rpm\" -print | head -1`"
+}
+
+# getRpm_nivisaconfig returns path to NI-VISA Configuration rpm.
+# Input: None
+# Output: $strRpm_nivisaconfig: path to NI-VISA Configuration rpm.
+# Returns: 0=success, exits on failure
+getRpm_nivisaconfig ()
+{
+   if [ -n "$strRpm_nivisaconfig" ] ; then
+      return 0
+   fi
+
+   get_dir_base "nivisa"
+   strRpm_nivisaconfig="`find \"$FILE_BASE/nivisa\" -name \"nivisa-config-*.rpm\" -print | head -1`"
+}
+
+# getRpm_nivisaserver returns path to NI-VISA Server rpm.
+# Input: None
+# Output: $strRpm_nivisaserver: path to NI-VISA Server rpm.
+# Returns: 0=success, exits on failure
+getRpm_nivisaserver ()
+{
+   if [ -n "$strRpm_nivisaserver" ] ; then
+      return 0
+   fi
+
+   get_dir_base "nivisa"
+   strRpm_nivisaserver="`find \"$FILE_BASE/nivisa\" -name \"nivisaserver-*.rpm\" -print | head -1`"
+}
+
+# getRpm_nicvirte returns path to NI-CVI Runtime Engine rpm.
+# Input: None
+# Output: $getRpm_nicvirte: path to NI-CVI Runtime Engine rpm.
+# Returns: 0=success, exits on failure
+getRpm_nicvirte ()
+{
+   if [ -n "$strRpm_nicvirte" ] ; then
+      return 0
+   fi
+
+   get_dir_base "nicvirte"
+   strRpm_nicvirte="`find \"$FILE_BASE/nicvirte\" -name \"nicvirte-*.rpm\" -print | head -1`"
+}
+
+# getRpm_nikal returns path to NI-KAL rpm.
+# Input: None
+# Output: $strRpm_nikal: path to NI-KAL rpm.
+# Returns: 0=success, exits on failure
+getRpm_nikal ()
+{
+   if [ -n "$strRpm_nikal" ] ; then
+      return 0
+   fi
+
+   get_dir_base "nikal"
+   strRpm_nikal="`find \"$FILE_BASE/nikal\" -name \"nikali-*.rpm\" -print | tail -1`"
+}
+
+# getInstallerUtility_nikal returns path to NI-KAL Installer Utility.
+# Input: None
+# Output: $strInstallerUtility_nikal: path to NI-KAL Installer Utility.
+# Returns: 0=success, exits on failure
+getInstallerUtility_nikal ()
+{
+   if [ -n "$strInstallerUtility_nikal" ] ; then
+      return 0
+   fi
+
+   get_dir_base "nikal"
+   if [ ! -x "${FILE_BASE}/nikal/installerUtility.sh" ] ; then
+      echo "Unable to find the NI-KAL Installation Check script"
+      cleanexit 1
+   fi
+
+   strInstallerUtility_nikal="${FILE_BASE}/nikal/installerUtility.sh"
+}
+
+# getRpm_nipal returns path to NI-PAL rpm.
+# Input: None
+# Output: $strRpm_nipal: path to NI-PAL rpm.
+# Returns: 0=success, exits on failure
+getRpm_nipal ()
+{
+   if [ -n "$strRpm_nipal" ] ; then
+      return 0
+   fi
+
+   get_dir_base "nipal"
+   strRpm_nipal="`find \"$FILE_BASE/nipal\" -name \"nipali-*.rpm\" -print | tail -1`"
+}
+
+# getRpm_niorb returns path to NI-ORB rpm.
+# Input: None
+# Output: $strRpm_niorb: path to NI-ORB rpm.
+# Returns: 0=success, exits on failure
+getRpm_niorb ()
+{
+   if [ -n "$strRpm_niorb" ] ; then
+      return 0
+   fi
+
+   get_dir_base "niorb"
+   strRpm_niorb="`find \"$FILE_BASE/niorb\" -name \"niorbi-*.rpm\" -print | tail -1`"
+}
+
+# getRpm_nidim returns path to NI-DIM rpm.
+# Input: None
+# Output: $strRpm_nidim: path to NI-DIM rpm.
+# Returns: 0=success, exits on failure
+getRpm_nidim ()
+{
+   if [ -n "$strRpm_nidim" ] ; then
+      return 0
+   fi
+
+   get_dir_base "nidim"
+   strRpm_nidim="`find \"$FILE_BASE/nidim\" -name \"nidimi-*.rpm\" -print | tail -1`"
+}
+
+# getRpm_nirpc returns path to NI-RPC rpm.
+# Input: None
+# Output: $strRpm_nirpc: path to NI-RPC rpm.
+# Returns: 0=success, exits on failure
+getRpm_nirpc ()
+{
+   if [ -n "$strRpm_nirpc" ] ; then
+      return 0
+   fi
+
+   get_dir_base "nirpc"
+   strRpm_nirpc="`find \"$FILE_BASE/nirpc\" -name \"nirpci-*.rpm\" -print | tail -1`"
+}
+
+# getRpm_nipxirm returns path to NI-PXI Resource Manager rpm.
+# Input: None
+# Output: $strRpm_nipxirm: path to NI-PXI Resource Manager rpm.
+# Returns: 0=success, exits on failure
+getRpm_nipxirm ()
+{
+   if [ -n "$strRpm_nipxirm" ] ; then
+      return 0
+   fi
+
+   get_dir_base "nipxirm"
+   strRpm_nipxirm="`find \"$FILE_BASE/nipxirm\" -name \"nipxirmi-*.rpm\" -print | tail -1`"
+}
+
+# getRpm_nispy returns path to NI Spy rpm.
+# Input: None
+# Output: $strRpm_nispy: path to NI Spy rpm.
+# Returns: 0=success, exits on failure
+getRpm_nispy ()
+{
+   if [ -n "$strRpm_nispy" ] ; then
+      return 0
+   fi
+
+   get_dir_base "nispy"
+   strRpm_nispy="`find \"$FILE_BASE/nispy\" -name \"nispyi-*.rpm\" -print | tail -1`"
+}
+
+# getRpm_lvruntime returns path to LabVIEW Runtime rpm.
+# Input: None
+# Output: $strRpm_lvruntime: path to LabVIEW Runtime rpm.
+# Returns: 0=success, exits on failure
+getRpm_lvruntime ()
+{
+   if [ -n "$strRpm_lvruntime" ] ; then
+      return 0
+   fi
+
+   get_dir_base "lvruntime"
+   strRpm_lvruntime="`find \"$FILE_BASE/lvruntime\" -name \"labview80-rte-*.rpm\" -print | tail -1`"
+}
+
+unloadNIDrivers ()
+{
+   # unload nonpal init scripts that pal knows about, these should be all userDaemons
+   if [ -e "/etc/natinst/nipal/init.d/nipal" ]; then
+      for strInitdModule in `find "/etc/natinst/nipal/init.d/" -xtype f -perm -100 -print` ; do
+         if [ "$strInitdModule" != "/etc/natinst/nipal/init.d/nipal" ]; then
+            "$strInitdModule" stop &> /dev/null
+            nReturnValue=$?
+            if [ $nReturnValue -ne 0 ]; then
+               return $nReturnValue
+            fi
+         fi
+      done
+   fi
+
+   # unload mxs server
+   _nimaxDir=`cat /etc/natinst/max/max.dir 2> /dev/null`
+   if [ -e "$_nimaxDir/sbin/mxsStopServer.sh" ]; then
+      $_nimaxDir/sbin/mxsStopServer.sh &> /dev/null
+      nReturnValue=$?
+      if [ $nReturnValue -ne 0 ]; then
+         return $nReturnValue
+      fi
+   else
+      mxssvcService=/etc/init.d/mxssvr
+      if [ -e "$mxssvcService" ]; then
+         "/etc/init.d/mxssvr" stop &> /dev/null
+         nReturnValue=$?
+         if [ $nReturnValue -ne 0 ]; then
+            return $nReturnValue
+         fi
+      fi
+   fi
+
+   if [ -e "/etc/init.d/nipal" ]; then
+      "/etc/init.d/nipal" stop
+      return $?
+   fi
+
+   return $statusSuccess
+}
+
+isBootDaemon()
+{
+   daemonName=${1##*\/}
+   if [ -d /etc/rc0.d ]; then
+      rcDir=/etc/rc
+   elif [ -d /etc/init.d/rc0.d ]; then
+      rcDir=/etc/init.d/rc
+   fi
+
+   if [ "`ls $rcDir*.d/*$daemonName | grep -c $daemonName`" != "0" ]; then
+      return $statusSuccess
+   else
+      return $statusFail
+   fi
+}
+
+loadNIDrivers ()
+{
+   if [ -e "/etc/init.d/nipal" ]; then
+      "/etc/init.d/nipal" status
+      if [ $? -ne 0 ]; then
+         "/etc/init.d/nipal" start
+         nReturnValue=$?
+         if [ $nReturnValue -ne 0 ]; then
+            return $nReturnValue
+         fi
+      fi
+   fi
+      
+   # load mxs server
+   _nimaxDir=`cat /etc/natinst/max/max.dir 2> /dev/null`
+   if [ -e "$_nimaxDir/sbin/mxsStartServer.sh" ]; then
+      $_nimaxDir/sbin/mxsStartServer.sh &> /dev/null
+      nReturnValue=$?
+      if [ $nReturnValue -ne 0 ]; then
+         return $nReturnValue
+      fi
+   else
+      mxssvcService=/etc/init.d/mxssvr
+      if [ -e "$mxssvcService" ]; then
+         "$mxssvcService" status
+         if [ $? -ne 0 ]; then
+            "/etc/init.d/mxssvr" start &> /dev/null
+            nReturnValue=$?
+            if [ $nReturnValue -ne 0 ]; then
+               return $nReturnValue
+            fi
+         fi
+      fi
+   fi
+         
+   # load nonpal init scripts that pal knows about, these should be all userDaemons
+   if [ -e "/etc/init.d/nipal" ]; then
+      for strInitdModule in `find "/etc/natinst/nipal/init.d/" -xtype f -perm -100 -print` ; do
+         if [ "$strInitdModule" != "/etc/natinst/nipal/init.d/nipal" ]; then
+            "$strInitdModule" status
+            if [ $? -ne 0 ]; then
+               if isBootDaemon "$strInitdModule"; then
+                  "$strInitdModule" start &> /dev/null
+                  nReturnValue=$?
+                  if [ $nReturnValue -ne 0 ]; then
+                     return $nReturnValue
+                  fi
+               fi
+            fi
+         fi
+      done
+
+      return $statusSuccess
+   fi
+
+   return $statusFail
+}
+
+# runPostInstall_internal
+# Input: $1: Path to script file
+#        $2: Component name (eg nikali)
+#        $3: Component description
+# Returns: 0=success, nonzero=failure
+runPostInstall_internal ()
+{
+   strInstallScript="$1"
+   strComponentName="$2"
+   strComponentDesc="$3"
+
+   # If the file does not exist, then
+   # we have successfully done all the post install steps 
+   if [ ! -x "$strInstallScript" ] ; then
+      return 0
+   fi
+
+   # Some components rely on "${nikalDir}", "${nipalDir}" and "${palModuleMgr} being defined
+   # Also, some components use other functions in the NI-KAL or NI-PAL Installer Utility.
+   # Make sure that they are loaded if available and not already loaded.
+   if [ "${strComponentName}" != "nipali" ] && [ "${strComponentName}" != "nikali" ] ; then
+      loadKalInstallerUtilityIfNecessary
+      loadPalInstallerUtilityIfNecessary
+   fi
+
+   echo "Running ${strComponentDesc} Post Installation Script ..."
+   echo ""
+
+   . "$strInstallScript"
+
+   nRetVal=$?
+   if [ $nRetVal != 0 ] ; then
+      return $nRetVal
+   fi
+
+   "${strComponentName}PostInstall" > "$TMP_INSTALLSRCPATH/${strComponentName}PostInstall.log" 2>&1
+
+   nRetVal=$?
+   if [ $nRetVal -ne 0 ] ; then
+      if [ $nRetVal -eq 1 ] ; then 
+         bRebootRequired=$kTrue
+         nRetVal=0
+      else
+         cat "$TMP_INSTALLSRCPATH/${strComponentName}PostInstall.log"
+      fi
+   fi
+
+   rm -f "$TMP_INSTALLSRCPATH/${strComponentName}PostInstall.log"
+   return $nRetVal
+}
+
+# freespaceKB determines free disk space in K of a volume
+# Input: $1: valid path on the volume to check
+# Output: $FREESPACE: free space of volume (in K)
+#                   : 0 if failure
+# Returns: 0=success. nonzero=failure
+freespaceKB ()
+{
+   # DF, TAIL, and AWK are needed
+   FREESPACE=`df -k "$1" | tail -1`
+   if [ $? -ne 0 ] ; then
+      FREESPACE=0
+      return 1
+   fi
+   case "$FREESPACE" in
+      [[:space:]]*)
+         FREESPACE=`echo $FREESPACE | awk '{print $3}'`
+	 ;;
+      *)
+         FREESPACE=`echo $FREESPACE | awk '{print $4}'`
+	 ;;
+   esac
+   return 0
+}
+
+# getInstallSizeRpm determines the rpm file install size
+# Input: $1: rpm file path
+# Output: $nComponentSizeKB: install size in kilobytes
+#                                    : 0 if failure
+# Returns: 0=success. nonzero=failure
+getInstallSizeKBRpm ()
+{
+   if [ $bUseRpm -eq $kTrue ]; then
+      nComponentSizeKB=`$RPM -qp --queryformat '%{SIZE}' "$1"`
+   else
+      getBinDir
+      nComponentSizeKB=`$strBinDir/rpmq -qp --queryformat '%{SIZE}' "$1"`
+   fi
+   if [ $? -ne 0 ] ; then
+      nComponentSizeKB=0
+      echo "Unable to find installation size for $1"
+      return 1
+   fi
+   nComponentSizeKB=`expr $nComponentSizeKB / 1024`
+   nComponentSizeKB=`expr $nComponentSizeKB + 1`
+   nTotalSizeKB=`expr $nTotalSizeKB + $nComponentSizeKB`
+   return 0
+}
+
+# getRpmFileInfo gets the version of a package from the RPM database
+# Input: $1: package name to query
+#        $RPM: path of RPM executable
+# Output: $strRpmFileVersion: version string of package
+#         $strRpmFileRelease: release string of the package
+# Returns: 0=success, nonzero=failure
+getRpmFileInfo ()
+{
+   if [ $bUseRpm -eq $kTrue ]; then
+      strRpmFileInfo="`$RPM -qp --queryformat "%{VERSION}:%{RELEASE}" "$1" 2>/dev/null`"
+   else
+      getBinDir
+      strRpmFileInfo="`$strBinDir/rpmq -qp --queryformat "%{VERSION}:%{RELEASE}" "$1" 2>/dev/null`"
+   fi
+   if [ $? -ne 0 ] ; then
+      strRpmFileVersion=""
+      strRpmFileRelease=""
+      return 1
+   fi
+   strRpmFileVersion="`echo "$strRpmFileInfo" | sed -e 's/^\([^:]*\):\([^:]*\)$/\1/'`"
+   strRpmFileRelease="`echo "$strRpmFileInfo" | sed -e 's/^\([^:]*\):\([^:]*\)$/\2/'`"
+   return 0
+}
+
+# getRpmInfo gets the version of a package from the RPM database
+# Input: $1: package name to query
+#        $RPM: path of RPM executable
+# Output: $strRpmVersion: version string of package
+#         $strRpmRelease: release string of the package
+#         $strRpmInstallPrefix: installation prefix of the package
+# Returns: 0=success, nonzero=failure
+getRpmInfo ()
+{
+   strRpmInfo="`$RPM -q --queryformat "%{VERSION}:%{RELEASE}:%{INSTALLPREFIX}" "$1" 2>/dev/null`"
+   if [ $? -ne 0 ] ; then
+      strRpmVersion=""
+      strRpmRelease=""
+      strRpmInstallPrefix=""
+      return 1
+   fi
+   strRpmVersion="`echo "$strRpmInfo" | sed -e 's/^\([^:]*\):\([^:]*\):\([^:]*\)$/\1/'`"
+   strRpmRelease="`echo "$strRpmInfo" | sed -e 's/^\([^:]*\):\([^:]*\):\([^:]*\)$/\2/'`"
+   strRpmInstallPrefix="`echo "$strRpmInfo" | sed -e 's/^\([^:]*\):\([^:]*\):\([^:]*\)$/\3/'`"
+   return 0
+}
+
+# installRpmInternal installs an RPM file to the local system
+# Input: $1: RPM file path
+#        $2: install prefix
+#        $RPM: path of RPM executable
+# Output: None
+# Returns: 0=success, nonzero=failure
+installRpmInternal ()
+{
+  "$strBinDir/rpm2cpio" "$1" | "$strBinDir/cpio" $strCpioOpts
+  nRetVal=$?
+  if [ $nRetVal -ne 0 ] ; then
+    return $nRetVal
+  fi
+
+  # Run RPM post-install script
+  "$strBinDir/rpmq" --rcfile=/dev/null -qp --qf "RPM_INSTALL_PREFIX=\"$2\"\n%|POSTIN?{%{POSTIN}}|" "$1" > "$TMP_INSTALLSRCPATH/rpmpostun.$$"
+  nRetVal=$?
+  if [ $nRetVal -ne 0 ] ; then
+    return $nRetVal
+  fi
+  /bin/sh "$TMP_INSTALLSRCPATH/rpmpostun.$$"
+  nRetVal=$?
+  rm -f "$TMP_INSTALLSRCPATH/rpmpostun.$$"
+  return $nRetVal
+}
+
+# installRpm installs an RPM file to the local system
+# Input: $1: RPM file path
+#        $2: install prefix
+#        $3: additional RPM flags
+#        $RPM: path of RPM executable
+# Output: None
+# Returns: 0=success, nonzero=failure
+installRpm ()
+{
+   strRpmFilePath="$1"
+   strRpmInstallPrefix="$2"
+   strAdditionalRpmFlags="$3"
+
+   if [ $bUseRpm -eq $kTrue ]; then
+      if [ $bForceInstall -eq $kTrue ] ; then
+         strAdditionalRpmFlags="${strAdditionalRpmFlags} --oldpackage"
+      fi
+      if [ -n "$strRpmInstallPrefix" ] && [ "$strRpmInstallPrefix" != "$strDefaultInstallDir" ]; then
+         strAdditionalRpmFlags="${strAdditionalRpmFlags} --prefix=\"$strRpmInstallPrefix\""
+      fi
+      $RPM $strStandardRpmFlags $strAdditionalRpmFlags "$strRpmFilePath"
+      nRetVal=$?
+   else
+      getBinDir
+      mkdir -p "$strRpmInstallPrefix" 2>/dev/null
+      cd "$strRpmInstallPrefix"
+      if [ -d "usr/local" ]; then
+         # Attempts to install in / will go to /usr/local anyway
+         installRpmInternal "$strRpmFilePath" "$strRpmInstallPrefix"
+         nRetVal=$?
+      elif  [ -d "usr" ]; then
+         ln -s .. "usr/local"
+         installRpmInternal "$strRpmFilePath" "$strRpmInstallPrefix"
+         nRetVal=$?
+         rm -f "usr/local"
+      else
+         mkdir "usr"
+         ln -s .. "usr/local"
+         installRpmInternal "$strRpmFilePath" "$strRpmInstallPrefix"
+         nRetVal=$?
+         rm -f "usr/local"
+         rmdir "usr" 2>/dev/null
+      fi
+      cd -
+   fi
+   return $nRetVal
+}
+
+# detectNonRpmInstall_nivisa determines if a non rpm install took place
+# Input: none 
+# Output:  $bNonRpmInstallDetected: ($kTrue or $kFalse)
+# Returns: 0=success, nonzero=failure
+detectNonRpmInstall_nivisa ()
+{
+   bNonRpmInstallDetected=$kFalse
+
+   if [ -f "/usr/lib/libvisa.so" ] || [ -f "/usr/local/lib/libvisa.so" ]; then
+      echo ""
+      echo "Found existing libvisa.so in /usr/lib or /usr/local/lib, but nivisa RPM"
+      echo "package is not installed.  Please manually remove your existing VISA installation"
+      echo "and re-run this installer if you wish to overwite your existing VISA."
+      echo ""
+      bNonRpmInstallDetected=$kTrue
+   elif [ ! -z "$VXIPNPPATH"] && [ -f "$VXIPNPPATH/linux/NIvisa/visaconf.ini" ]; then
+      echo ""
+      echo "Found valid VXIPNPPATH in environment, moving on..."
+      echo ""
+      bNonRpmInstallDetected=$kTrue
+   fi
+   
+   return 0
+}
+
+# detectNonRpmInstall_nivisadevelopment determines if a non rpm install took place
+# Input: none 
+# Output:  $bNonRpmInstallDetected: ($kTrue or $kFalse)
+# Returns: 0=success, nonzero=failure
+detectNonRpmInstall_nivisadevelopment ()
+{
+   bNonRpmInstallDetected=$kFalse
+   if [ -f "/usr/local/bin/NIvisaic" ]; then
+      echo ""
+      echo "Found existing NIvisaic. Skipping NI-VISA Development Support installation."
+      echo ""
+      bNonRpmInstallDetected=$kTrue
+   fi
+   
+   return 0
+}
+
+# detectNonRpmInstall_nivisaconfig determines if a non rpm install took place
+# Input: none 
+# Output:  $bNonRpmInstallDetected: ($kTrue or $kFalse)
+# Returns: 0=success, nonzero=failure
+detectNonRpmInstall_nivisaconfig ()
+{
+   bNonRpmInstallDetected=$kFalse
+   if [ -f "/usr/local/bin/visaconf" ]; then
+      echo ""
+      echo "Found existing visaconf. Skipping NI-VISA Configuration installation."
+      echo ""
+      bNonRpmInstallDetected=$kTrue
+   fi
+   
+   return 0
+}
+
+# detectNonRpmInstall_nivisaserver determines if a non rpm install took place
+# Input: none 
+# Output:  $bNonRpmInstallDetected: ($kTrue or $kFalse)
+# Returns: 0=success, nonzero=failure
+detectNonRpmInstall_nivisaserver ()
+{
+   bNonRpmInstallDetected=$kFalse
+   if [ -f "/usr/local/bin/nivisaserver" ]; then
+      echo ""
+      echo "Found existing nivisaserver. Skipping NI-VISA Server installation."
+      echo ""
+      bNonRpmInstallDetected=$kTrue
+   fi
+   
+   return 0
+}
+
+# detectNonRpmInstall_nicvirte determines if a non rpm install took place
+# Input: none 
+# Output:  $bNonRpmInstallDetected: ($kTrue or $kFalse)
+# Returns: 0=success, nonzero=failure
+detectNonRpmInstall_nicvirte ()
+{
+   bNonRpmInstallDetected=$kFalse
+   if [ -f "/usr/lib/libcvi.so" -o -f "/usr/local/lib/libcvi.so" ]; then
+      echo ""
+      echo "Found existing libcvi.so. Skipping CVI Run-Time Engine installation."
+      echo ""
+      bNonRpmInstallDetected=$kTrue
+   fi
+   
+   return 0
+}
+
+# detectNonRpmInstall_nispy determines if a non rpm install took place
+# Input: none 
+# Output:  $bNonRpmInstallDetected: ($kTrue or $kFalse)
+# Returns: 0=success, nonzero=failure
+detectNonRpmInstall_nispy ()
+{
+   bNonRpmInstallDetected=$kFalse
+   if [ -f "/usr/local/bin/nispy" ]; then
+      echo ""
+      echo "Found existing nispy. Skipping NI Spy installation."
+      echo ""
+      bNonRpmInstallDetected=$kTrue
+   fi
+   
+   return 0
+}
+
+# addRpmFileToList adds an rpm file to the list
+# Input: $1: RPM File Path
+# Output: None
+# Returns: 0=success, nonzero=failure
+addRpmFileToList ()
+{
+   if [ -z "${strRpmFileList}" ] ; then
+      strRpmFileList="\"$1\"" 
+   else
+      strRpmFileList="${strRpmFileList} \"$1\"" 
+   fi
+
+   return 0
+}
+
+# determineComponent determines if and where the install will take place
+# Input: $1: component postfix (ie nidim)
+# Output: None
+# Returns: 0=success, nonzero=failure
+determineComponent ()
+{
+   strComponentPostfix="$1"
+
+   eval bDisable_component=\$bDisable_${strComponentPostfix}
+   if [ $bDisable_component -eq $kTrue ] ; then
+      # The component was explicitly disabled
+      # Nothing to do
+      return 0
+   fi
+
+   eval listOptionalBy_component=\"\$listOptionalBy_${strComponentPostfix}\"
+   eval listRequiredBy_component=\"\$listRequiredBy_${strComponentPostfix}\"
+   bUsedBySomething_component=$kFalse
+
+   if [ -n "${listOptionalBy_component}" ] || [ -n "${listRequiredBy_component}" ] ; then
+      if [ -n "${listOptionalBy_component}" ] ; then
+         for listItem in ${listOptionalBy_component} ; do
+            eval bInstall_dependency=\$bInstall_${listItem}
+            eval bCorrectVersionAlreadyInstalled_dependency=\$bCorrectVersionAlreadyInstalled_${listItem}
+            if [ $bInstall_dependency -eq $kTrue ] || [ $bCorrectVersionAlreadyInstalled_dependency -eq $kTrue ] ; then
+               bUsedBySomething_component=$kTrue
+            fi
+         done
+      fi
+      if [ $bUsedBySomething_component -eq $kFalse ] && [ -n "${listRequiredBy_component}" ] ; then
+         for listItem in ${listRequiredBy_component} ; do
+            eval bInstall_dependency=\$bInstall_${listItem}
+            eval bCorrectVersionAlreadyInstalled_dependency=\$bCorrectVersionAlreadyInstalled_${listItem}
+            if [ $bInstall_dependency -eq $kTrue ] || [ $bCorrectVersionAlreadyInstalled_dependency -eq $kTrue ] ; then
+               bUsedBySomething_component=$kTrue
+            fi
+         done
+      fi
+   else
+      # This is a top-level component, hence it is used by the installer itself
+      bUsedBySomething_component=$kTrue
+   fi
+
+   if [ $bUsedBySomething_component -eq $kFalse ] ; then
+      # This component depends on another component that will no be installed
+      # Nothing to do
+      return 0
+   fi
+
+   eval bHasNonRpmInstallDetection_component=\$bHasNonRpmInstallDetection_${strComponentPostfix}
+   eval bAutoUpgradeIfExists_component=\$bAutoUpgradeIfExists_${strComponentPostfix}
+   eval bCorrectVersionAlreadyInstalled_component=\$bCorrectVersionAlreadyInstalled_${strComponentPostfix}
+   eval bRequiresPalUnload_component=\$bRequiresPalUnload_${strComponentPostfix}
+   eval strDesc_component=\"\$strDesc_${strComponentPostfix}\"
+   eval strVersion_component=\"\$strVersion_${strComponentPostfix}\"
+   eval strRelease_component=\"\$strRelease_${strComponentPostfix}\"
+   eval strRpm_component=\"\$strRpm_${strComponentPostfix}\"
+   eval strRpmPkgName_component=\"\$strRpmPkgName_${strComponentPostfix}\"
+   eval strInstallSubdir_component=\"\$strInstallSubdir_${strComponentPostfix}\"
+
+   bRequired_component=$kFalse
+   bInstall_component=$kFalse
+   strInstallDir_component=""
+
+   if [ -z "${strRpm_component}" ] ; then
+      eval getRpm_${strComponentPostfix}
+      eval strRpm_component=\"\$strRpm_${strComponentPostfix}\"
+   fi
+
+   if [ -z "${strVersion_component}" ] ; then
+      eval getRpmFileInfo \"\$strRpm_${strComponentPostfix}\"
+      strVersion_component="$strRpmFileVersion"
+      strRelease_component="$strRpmFileRelease"
+      eval export strVersion_\${strComponentPostfix}=\"\$strRpmFileVersion\"
+      eval export strRelease_\${strComponentPostfix}=\"\$strRpmFileRelease\"
+   fi 
+
+   if [ -n "${listRequiredBy_component}" ] ; then
+      for listItem in ${listRequiredBy_component} ; do
+         eval bInstall_dependency=\$bInstall_${listItem}
+         eval bCorrectVersionAlreadyInstalled_dependency=\$bCorrectVersionAlreadyInstalled_${listItem}
+         if [ $bInstall_dependency -eq $kTrue ] || [ $bCorrectVersionAlreadyInstalled_dependency -eq $kTrue ] ; then
+            eval strDesc_dependency=\"\$strDesc_${listItem}\"
+            eval strVersion_dependency=\"\$strVersion_${listItem}\"
+            echo "${strDesc_dependency} ${strVersion_dependency} requires ${strDesc_component} ${strVersion_component}."
+            bRequired_component=$kTrue
+         fi
+      done
+   fi
+   strRpmVersion=""
+   if [ $bForceInstall -eq $kFalse ] && [ $bUseRpm -eq $kTrue ] ; then
+      getRpmInfo "${strRpmPkgName_component}"
+   fi
+   if [ -n "$strRpmVersion" ] ; then
+      componentAlreadyInstalled "${strDesc_component}" "${strVersion_component}" "${strRelease_component}" "$strRpmVersion" "$strRpmRelease" "$strRpmInstallPrefix" ${bAutoUpgradeIfExists_component}
+      # $bInstall_component, bCorrectVersionAlreadyInstalled_component, and $strInstallDir_component are set in componentAlreadyInstalled
+   else
+      bNonRpmInstallDetected=$kFalse
+      if [  $bUseRpm -eq $kFalse ] && [ $bHasNonRpmInstallDetection_component -eq $kTrue ] ; then
+         eval detectNonRpmInstall_${strComponentPostfix}
+	 # This will set bNonRpmInstallDetected
+      fi
+      if [ $bNonRpmInstallDetected -eq $kFalse ] ; then
+         if [ $bPromptUser -eq $kTrue ] && [ $bRequired_component -eq $kFalse ] ; then
+            inputynq "Do you wish to install ${strDesc_component} ${strVersion_component}? [Ynq] " "Y" 0
+            echo ""
+         else
+            bInputynq=$kTrue
+         fi
+         if [ $bInputynq -eq $kTrue ] ; then
+            if [ $bPromptUserForDir -eq $kTrue ] ; then
+               getGlobalInstallDir "${strDesc_component}" "${strInstallSubdir_component}"
+            fi
+	    strInstallDir_component="$strInstallDir"
+            bInstall_component=$kTrue
+            if [ $bRequired_component -eq $kTrue ] ; then
+               echo "This component has been selected automatically."
+               echo ""
+            fi
+         else
+            strInstallDir_component="nevermind"
+         fi
+      fi
+   fi
+
+   eval export bInstall_\${strComponentPostfix}=\$bInstall_component
+   eval export bCorrectVersionAlreadyInstalled_\${strComponentPostfix}=\$bCorrectVersionAlreadyInstalled_component
+   eval export strInstallDir_\${strComponentPostfix}=\"\$strInstallDir_component\"
+
+   if [ $bInstall_component -eq $kTrue ] ; then
+      bSomethingToInstall=$kTrue
+      eval getInstallSizeKBRpm \"\$strRpm_${strComponentPostfix}\"
+      eval export nSizeKB_${strComponentPostfix}=$nComponentSizeKB
+      if [ $bRequiresPalUnload_component -eq $kTrue ] ; then
+         bSomethingRequiresPalUnload=$kTrue
+      fi
+   fi
+   return 0
+}
+
+# showComponent shows information about a component
+# Input: $1: component postfix (ie nidim)
+# Output: None
+# Returns: 0=success, nonzero=failure
+showComponent ()
+{
+   strComponentPostfix="$1"
+
+   eval bInstall_component=\$bInstall_${strComponentPostfix}
+
+   if [ $bInstall_component -eq $kFalse ] ; then
+      # Not installing the component so do nothing
+      return 0
+   fi
+
+   eval strDesc_component=\"\$strDesc_${strComponentPostfix}\"
+   eval strVersion_component=\"\$strVersion_${strComponentPostfix}\"
+   eval strRelease_component=\"\$strRelease_${strComponentPostfix}\"
+   eval strInstallDir_component=\"\$strInstallDir_${strComponentPostfix}\"
+   eval strInstallSubdir_component=\"\$strInstallSubdir_${strComponentPostfix}\"
+   eval nSizeKB_component=\$nSizeKB_${strComponentPostfix}
+
+   nLengthDesc_component=`expr length "${strDesc_component} ${strVersion_component}"`
+   nNumSpacesRequired=`expr 30 - ${nLengthDesc_component}`
+   strSpacesForDesc=" "
+
+   while [ $nNumSpacesRequired -gt 0 ] ; do
+      strSpacesForDesc="${strSpacesForDesc} "
+      nNumSpacesRequired=`expr ${nNumSpacesRequired} - 1`
+   done
+
+   nLengthSizeKB_component=`expr length "${nSizeKB_component}"`
+   nNumSpacesRequired=`expr 7 - ${nLengthSizeKB_component}`
+   strSpacesForSizeKB=" "
+
+   while [ $nNumSpacesRequired -gt 0 ] ; do
+      strSpacesForSizeKB="${strSpacesForSizeKB} "
+      nNumSpacesRequired=`expr ${nNumSpacesRequired} - 1`
+   done
+
+   echo "  ${strDesc_component} ${strVersion_component}${strSpacesForDesc}${strSpacesForSizeKB}${nSizeKB_component} KB  (in ${strInstallDir_component}/${strInstallSubdir_component})"
+
+   return 0
+}
+
+# installComponent installs a component
+# Input: $1: component postfix (ie nidim)
+# Output: None
+# Returns: 0=success, nonzero=failure
+installComponent ()
+{
+   strComponentPostfix="$1"
+
+   eval bInstall_component=\$bInstall_${strComponentPostfix}
+
+   if [ $bInstall_component -eq $kFalse ] ; then
+      # Not installing the component so do nothing
+      return 0
+   fi
+
+   if [ $bUseRpm -eq $kTrue ]; then
+      eval strRpm_component=\"\$strRpm_${strComponentPostfix}\"
+
+      addRpmFileToList "${strRpm_component}"
+   else
+      eval strDesc_component=\"\$strDesc_${strComponentPostfix}\"
+      eval strRpm_component=\"\$strRpm_${strComponentPostfix}\"
+      eval strRpmPkgName_component=\"\$strRpmPkgName_${strComponentPostfix}\"
+      eval strVersion_component=\"\$strVersion_${strComponentPostfix}\"
+      eval strRelease_component=\"\$strRelease_${strComponentPostfix}\"
+      eval strInstallDir_component=\"\$strInstallDir_${strComponentPostfix}\"
+      eval strInstallSubdir_component=\"\$strInstallSubdir_${strComponentPostfix}\"
+      eval strAdditionalRpmFlags_component=\"\$strAdditionalRpmFlags_${strComponentPostfix}\"
+
+      echo "Installing ${strDesc_component} ${strVersion_component} (${strRelease_component}) ..."
+
+      installRpm "${strRpm_component}" "${strInstallDir_component}" "${strAdditionalRpmFlags_component}"
+      nRetVal=$?
+      if [ $nRetVal -ne 0 ]; then
+         cleanexit $nRetVal
+      fi
+      echo ""
+   fi
+
+   return 0
+}
+
+# runPostInstallScriptComponent runs the Post Install Script for a component
+# Input: $1: component postfix (ie nidim)
+# Output: None
+# Returns: 0=success, nonzero=failure
+runPostInstallScriptComponent ()
+{
+   strComponentPostfix="$1"
+
+   eval bInstall_component=\$bInstall_${strComponentPostfix}
+
+   if [ $bInstall_component -eq $kFalse ] ; then
+      # Not installing the component so do nothing
+      return 0
+   fi
+
+   eval strRpmPkgName_component=\"\$strRpmPkgName_${strComponentPostfix}\"
+   eval strInstallDir_component=\"\$strInstallDir_${strComponentPostfix}\"
+   eval strInstallSubdir_component=\"\$strInstallSubdir_${strComponentPostfix}\"
+   eval strDesc_component=\"\$strDesc_${strComponentPostfix}\"
+
+   # Post Install - RPM and CPIO versions
+   strInstallerUtility_component="${strInstallDir_component}/${strInstallSubdir_component}/bin/${strRpmPkgName_component}InstallerUtility.sh"
+
+   # If the Installer Utility Exists, run the post install script
+   runPostInstall_internal "${strInstallerUtility_component}" "${strRpmPkgName_component}" "${strDesc_component}"
+
+   nRetVal=$?
+   if [ $nRetVal -ne 0 ]; then
+      cleanexit $nRetVal
+   fi
+
+   return 0
+}
+
+# ************************************
+# *** Script Execution starts here ***
+# ************************************
+
+# Perform cleanup if a Ctrl+C or kill signal is received
+trap "cleanexit 1" SIGINT SIGTERM
+
+echo ""
+echo "  **********************************"
+echo "  * NI-VISA ${strVersion_installer} for Linux/x86"
+echo "  **********************************"
+echo ""
+
+currentdir="`pwd`"
+
+parseArguments "$@"
+
+# Check for root permissions
+if [ "`id -ur`" != "0" ]; then
+  echo "This script needs to be run with superuser permission to install files"
+  echo "on the system.  Please re-run this installer as the 'root' user."
+  echo "Aborting installation."
+  cleanexit 1
+fi
+
+if [ "$NORPM" != "true" ] && [ $nRpmType -ne $kRpmNone ] ; then
+  findutil "rpm"
+  if [ -z "$FINDUTIL" ]; then
+    nRpmType=$kRpmNone
+  else
+    RPM=$FINDUTIL
+  fi
+else
+   nRpmType=$kRpmNone
+fi
+
+if [ $nRpmType -eq $kRpmDetermine ] && [ -d /var/lib/rpm ] && [ -x "$RPM" ]; then
+  RPMVER=`$RPM --version | sed -e 's/^[^0-9]*\([0-9]\)/\1/'`
+  RPMVERMESSAGE=""
+  case "$RPMVER" in
+    [0123]\.*)
+      nRpmType=$kRpmRejected
+      RPMVERMESSAGE="is less than version 4.0 and will not be used"
+      ;;
+    [[:digit:]]*)
+      nRpmType=$kRpmLimited
+      RPMVERMESSAGE="will be used with a default installation path"
+      strInstallDir="$strDefaultInstallDir"
+      bPromptUserForDir=$kFalse
+      ;;
+    *)
+      nRpmType=$kRpmRejected
+      RPMVER="$strVerUnknown"
+      RPMVERMESSAGE="and will not be used"
+      ;;
+  esac
+  echo "rpm $RPMVER $RPMVERMESSAGE"
+  echo ""
+else
+  if [ $nRpmType -eq $kRpmNone ] || [ $nRpmType -eq $kRpmRejected ] ; then
+    echo "rpm declined: using cpio"
+  else
+    echo "rpm not found: using cpio"
+  fi
+  echo ""
+  nRpmType=$kRpmNone
+fi
+
+if [ $nRpmType -eq $kRpmNone ] || [ $nRpmType -eq $kRpmRejected ] || [ $nRpmType -eq $kRpmDetermine ] ; then
+   bUseRpm=$kFalse
+else
+   bUseRpm=$kTrue
+fi
+
+niDistributionCheck
+
+if [ $bPromptUser -eq $kTrue ] ; then
+  inputynq "Continue? [Yn] " "Y" 1
+  echo ""
+fi
+
+# Clean up any stale contents
+if [ -d "$TMP_INSTALLSRCPATH" ] ; then
+  rm -rf "$TMP_INSTALLSRCPATH"
+fi
+mkdir -p "$TMP_INSTALLSRCPATH"
+
+if [ $bLicenseAccepted -eq $kFalse ] ; then
+   licagree=n
+   licloop=y
+   if [ -z "$PAGER" ] ; then
+      PAGER="more"
+   fi
+
+   echo "Retrieving license agreement.  Please wait...";
+   get_file_base "$LICENSE"
+   $PAGER "$FILE_BASE/$LICENSE"
+   licview=y
+
+   while [ "$licloop" = "y" ]; do
+      echo ""
+      echo "By installing this software, you are acknowledging acceptance"
+      echo "of the terms of the included license file ($LICENSE)."
+      echo ""
+      echo -n "Do you accept the license? [ynq] "
+      read ans
+      case "$ans" in
+           [nNqQ]*)
+               licloop=n
+               echo "You must accept the license to install this software."
+               cleanexit 1
+               ;;
+           [yY]*)
+               licagree=y
+               licloop=n
+               ;;
+           [vV]*)
+               echo "Retrieving license agreement.  Please wait...";
+               get_file_base "$LICENSE"
+               $PAGER "$FILE_BASE/$LICENSE"
+               licview=y
+               ;;
+           "")
+               if [ -z "$licview" ]; then
+                  echo "Retrieving license agreement.  Please wait...";
+                  get_file_base "$LICENSE"
+                  $PAGER "$FILE_BASE/$LICENSE"
+                  licview=y
+               fi
+               ;;
+      esac
+      echo ""
+   done
+else
+   echo "This software is covered by the included license file ($LICENSE)."
+   echo "By installing this software you are acknowledging acceptance of the"
+   echo "terms of the license."
+   echo ""
+fi
+
+echo "Searching for installed components ..."
+echo ""
+
+for strComponent in ${listOfComponentsInDetermineOrder} ; do
+   determineComponent "${strComponent}"
+done
+
+if [ $bSomethingToInstall -eq $kFalse ] ; then
+   echo ""
+   echo "Nothing to install."
+   cleanexit 0
+fi
+
+#
+# Show selected components, locations, and disk space requirements.
+#
+if [ $bUseRpm -eq $kTrue ]; then
+  echo "The following components will be installed using rpm:"
+else
+  echo "The following components will be installed using cpio:"
+fi
+
+for strComponent in ${listOfComponentsInShowOrder} ; do
+   showComponent "${strComponent}"
+done
+
+nLengthTotalSizeKB=`expr length "${nTotalSizeKB}"`
+nNumSpacesRequired=`expr 17 - ${nLengthTotalSizeKB}`
+strSpacesForSizeKB=" "
+
+while [ $nNumSpacesRequired -gt 0 ] ; do
+   strSpacesForSizeKB="${strSpacesForSizeKB} "
+   nNumSpacesRequired=`expr ${nNumSpacesRequired} - 1`
+done
+
+echo "Total space required:  ${strSpacesForSizeKB}${nTotalSizeKB} KB"
+freespaceKB "$strInstallDir"
+
+nLengthFreeSpaceKB=`expr length "${FREESPACE}"`
+nNumSpacesRequired=`expr 17 - ${nLengthFreeSpaceKB}`
+strSpacesForSizeKB=" "
+
+while [ $nNumSpacesRequired -gt 0 ] ; do
+   strSpacesForSizeKB="${strSpacesForSizeKB} "
+   nNumSpacesRequired=`expr ${nNumSpacesRequired} - 1`
+done
+
+echo "Space available:       ${strSpacesForSizeKB}${FREESPACE} KB"
+echo ""
+
+if [ $FREESPACE -lt $nTotalSizeKB ]; then
+   echo "$strNoDiskSpace install selected components."
+   cleanexit 1
+fi
+
+if [ $bPromptUser -eq $kTrue ] ; then
+   inputynq "Continue? [Yn] " "Y" 1
+   echo ""
+fi
+
+#
+# If NI-KAL is being installed, make sure that the system requirements are met
+#
+if [ $bInstall_nikal -eq $kTrue ] ; then
+   getInstallerUtility_nikal
+   . "$strInstallerUtility_nikal"
+   nikalInstallationCheck
+   if [ $? -ne 0 ] ; then
+      cleanexit 1
+   fi
+fi
+
+#
+# Install the components
+#
+
+# Unload NI-PAL if it exists and is required
+if [ $bSomethingRequiresPalUnload -eq $kTrue ] ; then
+   unloadNIDrivers
+   if [ $? -ne $statusSuccess ] ; then
+      bRebootRequired=$kTrue
+   fi
+fi
+
+for strComponent in ${listOfComponentsInInstallOrder} ; do
+   installComponent "${strComponent}"
+done
+
+if [ $bUseRpm -eq $kTrue ]; then
+   # One call to RPM to install all components
+   echo "Installing selected components ..."
+   echo ""
+   installRpm "${strRpmFileList}" "${strInstallDir}" "${strGlobalAdditionalRpmFlags}"
+   echo ""
+fi
+
+for strComponent in ${listOfComponentsInInstallOrder} ; do
+   runPostInstallScriptComponent "${strComponent}"
+done
+
+# If we unloaded NI-PAL, reload it
+if [ $bSomethingRequiresPalUnload -eq $kTrue ] ; then
+   loadNIDrivers
+   if [ $? -ne $statusSuccess ] ; then
+      bRebootRequired=$kTrue
+   fi
+fi
+
+# Clean up but don't exit yet
+cleanwoexit
+
+if [ $bRebootRequired -eq $kTrue ]; then
+   echo ""
+   echo "***********************************************************************"
+   echo "* A reboot is required before attempting to use the NI-VISA software. *"
+   echo "***********************************************************************"
+
+   bPerformReboot=$kFalse
+   bInputValid=$kFalse
+   if [ $bPromptUserForReboot -eq $kTrue ] ; then
+      echo ""
+      while [ $bInputValid -eq $kFalse ] ; do
+         echo -n "Would you like to reboot now? [yes|no] "
+         read rebootConfirm 
+         case "$rebootConfirm" in
+            [Yy][Ee][Ss])
+               bPerformReboot=$kTrue
+               bInputValid=$kTrue
+               ;;
+            [Nn][Oo])
+               bPerformReboot=$kFalse
+               bInputValid=$kTrue
+               ;;
+            *)
+               echo "Please input yes or no."
+               ;;
+         esac
+      done
+   fi
+   if [ $bPerformReboot -eq $kTrue ]; then
+      echo ""
+      echo "Installation completed successfully."
+      echo ""
+      echo "Rebooting...."
+      reboot
+      exit 0
+   else
+      echo ""
+      echo "Installation completed successfully."
+      echo ""
+      echo "Please reboot manually before attempting to use NI-VISA software."
+      echo ""
+   fi
+else
+   echo ""
+   echo "Installation completed successfully."
+   echo ""
+fi
+
+exit 0
