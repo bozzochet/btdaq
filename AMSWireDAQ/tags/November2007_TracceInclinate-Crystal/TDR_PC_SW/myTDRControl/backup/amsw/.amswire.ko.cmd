@@ -1,0 +1,1 @@
+cmd_/home/testsys/duranti_work/TDR_PC_SW/myTDRControl/amsw/amswire.ko := ld -m elf_i386 -r -o /home/testsys/duranti_work/TDR_PC_SW/myTDRControl/amsw/amswire.ko /home/testsys/duranti_work/TDR_PC_SW/myTDRControl/amsw/amswire.o /home/testsys/duranti_work/TDR_PC_SW/myTDRControl/amsw/amswire.mod.o
