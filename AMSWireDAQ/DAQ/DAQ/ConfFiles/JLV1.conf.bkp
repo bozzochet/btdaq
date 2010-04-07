@@ -1,0 +1,4 @@
+DataPath: ./Data/
+CalPath: ./Calibrations/
+JLV1flash: 2983
+Delay:  105
