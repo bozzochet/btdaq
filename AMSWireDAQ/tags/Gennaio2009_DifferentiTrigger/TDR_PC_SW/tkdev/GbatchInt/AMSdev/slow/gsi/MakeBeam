@@ -1,0 +1,20 @@
+#  $Id: MakeBeam,v 1.1.1.1 2007/11/13 09:56:12 zuccon Exp $
+CFLAGS=-I/usr/local/include  -I. -I../../include -g -define_templates    
+
+LDFLAGS= -g -lUfor   -lfor -lFutil -lots  -L/usr/local/lib  -lm -lamstcp -L/cern/pro/lib  -lgeant321 -lmathlib -lpacklib -lkernlib  
+
+LOADLIBES=
+
+CC=cxx
+
+
+BeamPar: BeamPar.o 
+	$(CC) $(CFLAGS)  -o BeamPar BeamPar.o  ../../bin/osf1/sgif.o $(LDFLAGS) 
+
+BeamPar.o: BeamPar.C
+	$(CC)  $(CFLAGS)  -c BeamPar.C  
+
+
+
+
+

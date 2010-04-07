@@ -1,0 +1,15 @@
+#/bin/csh
+
+setenv AMSDataDir /f0dat0/local/AMSDataDir
+setenv AMSTDVDir  $AMSDataDir/DataBase
+setenv Offline /offline
+
+source /usr/local/lib/hepix/oracle_env.csh
+
+#setenv AMSDEBUG  1
+setenv AMSORACLE 1
+setenv AMSProdDir        /f0dah0/users/alexei/AMS/
+setenv AMSServerJob      $AMSProdDir/exe/linux/amsprodserver.exe.oracle
+setenv AMSProducerJob    $AMSProdDir/datacards/StandardNtupleTag.job
+setenv AMSProdLogDir     /dat0/local/logs
+setenv AMSDBDir          /amsdat0/oracle/data

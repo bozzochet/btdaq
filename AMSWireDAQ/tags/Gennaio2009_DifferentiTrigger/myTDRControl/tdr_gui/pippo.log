@@ -1,0 +1,2153 @@
+Thu Oct 25 00:57:07 2007:-------------------------------NEW LOG FILE-----------------------------------
+Thu Oct 25 00:57:07 2007: READY
+Thu Oct 25 00:57:27 2007: JINJ program: 0x2081
+Thu Oct 25 00:57:27 2007: TDR program: 0x3b53
+Thu Oct 25 00:57:27 2007: JINF program: 0x24a1
+Thu Oct 25 00:57:28 2007: booting JINJ at address 0xFFFF  
+Thu Oct 25 00:57:33 2007: PCI rxdone = 0
+Thu Oct 25 00:57:33 2007: Loaded program 0x2081 on Jinj
+Thu Oct 25 00:57:34 2007: PCI rxdone = 0
+Thu Oct 25 00:57:34 2007: Searching for Slaves ... 
+Thu Oct 25 00:57:35 2007: Reading slave mask for address 0xffff
+Thu Oct 25 00:57:36 2007: PCI rxdone = 0
+Thu Oct 25 00:57:36 2007: Summary:
+Thu Oct 25 00:57:36 2007: Mask ID=00 : 0x000200
+Thu Oct 25 00:57:36 2007:    0:[ ]   4:[ ]   8:[ ]  12:[ ]  16:[ ]  20:[ ]  22:[ ]  18:[ ]  14:[ ]  10:[ ]   6:[ ]   2:[ ]
+Thu Oct 25 00:57:36 2007:    1:[ ]   5:[ ]   9:[X]  13:[ ]  17:[ ]  21:[ ]  23:[ ]  19:[ ]  15:[ ]  11:[ ]   7:[ ]   3:[ ]
+Thu Oct 25 00:57:36 2007: OK: all and only the expectes JINFs  are connected to main node
+Thu Oct 25 00:57:36 2007: Main: setting mode 0...
+Thu Oct 25 00:57:36 2007: Setting JINJ 0xFFFF to mode 0...
+Thu Oct 25 00:57:36 2007: PCI rxdone = 0
+Thu Oct 25 00:57:36 2007: PCI rxdone = 0
+Thu Oct 25 00:57:36 2007: Setting JINJ 0xFFFF to mode 1...
+Thu Oct 25 00:57:36 2007: PCI rxdone = 0
+Thu Oct 25 00:57:36 2007: Setting JINJ 0xFFFF to mode 0...
+Thu Oct 25 00:57:36 2007: PCI rxdone = 0
+Thu Oct 25 00:57:36 2007: booting JINF at address 0x093F  
+Thu Oct 25 00:57:41 2007: PCI rxdone = 0
+Thu Oct 25 00:57:41 2007: Loaded program 0x24a1 on Jinf
+Thu Oct 25 00:57:42 2007: PCI rxdone = 0
+Thu Oct 25 00:57:42 2007: Searching for Slaves ... 
+Thu Oct 25 00:57:43 2007: Reading slave mask for address 0x093f
+Thu Oct 25 00:57:44 2007: PCI rxdone = 0
+Thu Oct 25 00:57:44 2007: Summary:
+Thu Oct 25 00:57:44 2007: Mask ID=00 : 0x000cc0
+Thu Oct 25 00:57:44 2007:    0:[ ]   4:[ ]   8:[ ]  12:[ ]  16:[ ]  20:[ ]  22:[ ]  18:[ ]  14:[ ]  10:[X]   6:[X]   2:[ ]
+Thu Oct 25 00:57:44 2007:    1:[ ]   5:[ ]   9:[ ]  13:[ ]  17:[ ]  21:[ ]  23:[ ]  19:[ ]  15:[ ]  11:[X]   7:[X]   3:[ ]
+Thu Oct 25 00:57:44 2007: OK: all and only the expectes TDRs  are connected to main node
+Thu Oct 25 00:57:44 2007: Main: setting mode 0...
+Thu Oct 25 00:57:44 2007: Setting JINF 0x093F to mode 0...
+Thu Oct 25 00:57:44 2007: PCI rxdone = 0
+Thu Oct 25 00:57:44 2007: PCI rxdone = 0
+Thu Oct 25 00:57:44 2007: Main: setting delay to 3000 ns ...
+Thu Oct 25 00:57:44 2007: PCI rxdone = 0
+Thu Oct 25 00:57:44 2007: All TDRs: boot and load version...
+Thu Oct 25 00:57:45 2007: PCI rxdone = 0
+Thu Oct 25 00:57:45 2007: Loaded program 0x2b53 on TDR 6
+Thu Oct 25 00:57:46 2007: PCI rxdone = 0
+Thu Oct 25 00:57:46 2007: Loaded program 0x2b53 on TDR 7
+Thu Oct 25 00:57:47 2007: PCI rxdone = 0
+Thu Oct 25 00:57:47 2007: Loaded program 0x2b53 on TDR 10
+Thu Oct 25 00:57:48 2007: PCI rxdone = 0
+Thu Oct 25 00:57:48 2007: Loaded program 0x2b53 on TDR 11
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: TDRs: setting mode 0...
+Thu Oct 25 00:57:49 2007: Setting mode 0 to TDR 6...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 0 to TDR 7...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 0 to TDR 10...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 0 to TDR 11...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Done... time needed: 0.4 ms
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Resetting tdrs counters...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Resetting Jinf 0x093F node counter...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: The whole system is ready and clean, now we can turn on the DAQ mode...
+Thu Oct 25 00:57:49 2007: Setting mode 2 to TDR 6...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 2 to TDR 7...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 2 to TDR 10...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 2 to TDR 11...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Done... time needed: 0.4 ms
+Thu Oct 25 00:57:49 2007: Setting JINF 0x093F to mode 1...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting JINF 0x093F to mode 0...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 0 to TDR 6...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 0 to TDR 7...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 0 to TDR 10...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 0 to TDR 11...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Done... time needed: 0.5 ms
+Thu Oct 25 00:57:49 2007: Resetting tdrs counters...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Resetting Jinf 0x093F node counter...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Resetting Jinj 0xFFFF node counter...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting JINF 0x093F to mode 1...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 2 to TDR 6...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 2 to TDR 7...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 2 to TDR 10...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Setting mode 2 to TDR 11...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: Done... time needed: 0.4 ms
+Thu Oct 25 00:57:49 2007: Setting JINJ 0xFFFF to mode 1...
+Thu Oct 25 00:57:49 2007: PCI rxdone = 0
+Thu Oct 25 00:57:49 2007: READY
+Thu Oct 25 00:58:33 2007: JINJ program: 0x2081
+Thu Oct 25 00:58:33 2007: TDR program: 0x3b53
+Thu Oct 25 00:58:33 2007: JINF program: 0x24a1
+Thu Oct 25 00:58:34 2007: booting JINJ at address 0xFFFF  
+Thu Oct 25 00:58:39 2007: PCI rxdone = 0
+Thu Oct 25 00:58:39 2007: Loaded program 0x2081 on Jinj
+Thu Oct 25 00:58:40 2007: PCI rxdone = 0
+Thu Oct 25 00:58:40 2007: Searching for Slaves ... 
+Thu Oct 25 00:58:41 2007: Reading slave mask for address 0xffff
+Thu Oct 25 00:58:42 2007: PCI rxdone = 0
+Thu Oct 25 00:58:42 2007: Summary:
+Thu Oct 25 00:58:42 2007: Mask ID=00 : 0x000200
+Thu Oct 25 00:58:42 2007:    0:[ ]   4:[ ]   8:[ ]  12:[ ]  16:[ ]  20:[ ]  22:[ ]  18:[ ]  14:[ ]  10:[ ]   6:[ ]   2:[ ]
+Thu Oct 25 00:58:42 2007:    1:[ ]   5:[ ]   9:[X]  13:[ ]  17:[ ]  21:[ ]  23:[ ]  19:[ ]  15:[ ]  11:[ ]   7:[ ]   3:[ ]
+Thu Oct 25 00:58:42 2007: OK: all and only the expectes JINFs  are connected to main node
+Thu Oct 25 00:58:42 2007: Main: setting mode 0...
+Thu Oct 25 00:58:42 2007: Setting JINJ 0xFFFF to mode 0...
+Thu Oct 25 00:58:42 2007: PCI rxdone = 0
+Thu Oct 25 00:58:42 2007: PCI rxdone = 0
+Thu Oct 25 00:58:42 2007: Setting JINJ 0xFFFF to mode 1...
+Thu Oct 25 00:58:42 2007: PCI rxdone = 0
+Thu Oct 25 00:58:42 2007: Setting JINJ 0xFFFF to mode 0...
+Thu Oct 25 00:58:42 2007: PCI rxdone = 0
+Thu Oct 25 00:58:42 2007: booting JINF at address 0x093F  
+Thu Oct 25 00:58:47 2007: PCI rxdone = 0
+Thu Oct 25 00:58:47 2007: Loaded program 0x24a1 on Jinf
+Thu Oct 25 00:58:48 2007: PCI rxdone = 0
+Thu Oct 25 00:58:48 2007: Searching for Slaves ... 
+Thu Oct 25 00:58:49 2007: Reading slave mask for address 0x093f
+Thu Oct 25 00:58:50 2007: PCI rxdone = 0
+Thu Oct 25 00:58:50 2007: Summary:
+Thu Oct 25 00:58:50 2007: Mask ID=00 : 0x000cc0
+Thu Oct 25 00:58:50 2007:    0:[ ]   4:[ ]   8:[ ]  12:[ ]  16:[ ]  20:[ ]  22:[ ]  18:[ ]  14:[ ]  10:[X]   6:[X]   2:[ ]
+Thu Oct 25 00:58:50 2007:    1:[ ]   5:[ ]   9:[ ]  13:[ ]  17:[ ]  21:[ ]  23:[ ]  19:[ ]  15:[ ]  11:[X]   7:[X]   3:[ ]
+Thu Oct 25 00:58:50 2007: OK: all and only the expectes TDRs  are connected to main node
+Thu Oct 25 00:58:50 2007: Main: setting mode 0...
+Thu Oct 25 00:58:50 2007: Setting JINF 0x093F to mode 0...
+Thu Oct 25 00:58:50 2007: PCI rxdone = 0
+Thu Oct 25 00:58:50 2007: PCI rxdone = 0
+Thu Oct 25 00:58:50 2007: Main: setting delay to 3000 ns ...
+Thu Oct 25 00:58:50 2007: PCI rxdone = 0
+Thu Oct 25 00:58:50 2007: All TDRs: boot and load version...
+Thu Oct 25 00:58:51 2007: PCI rxdone = 0
+Thu Oct 25 00:58:51 2007: Loaded program 0x2b53 on TDR 6
+Thu Oct 25 00:58:52 2007: PCI rxdone = 0
+Thu Oct 25 00:58:52 2007: Loaded program 0x2b53 on TDR 7
+Thu Oct 25 00:58:53 2007: PCI rxdone = 0
+Thu Oct 25 00:58:53 2007: Loaded program 0x2b53 on TDR 10
+Thu Oct 25 00:58:54 2007: PCI rxdone = 0
+Thu Oct 25 00:58:54 2007: Loaded program 0x2b53 on TDR 11
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: TDRs: setting mode 0...
+Thu Oct 25 00:58:55 2007: Setting mode 0 to TDR 6...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 0 to TDR 7...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 0 to TDR 10...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 0 to TDR 11...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Done... time needed: 0.4 ms
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Resetting tdrs counters...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Resetting Jinf 0x093F node counter...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: The whole system is ready and clean, now we can turn on the DAQ mode...
+Thu Oct 25 00:58:55 2007: Setting mode 2 to TDR 6...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 2 to TDR 7...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 2 to TDR 10...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 2 to TDR 11...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Done... time needed: 0.4 ms
+Thu Oct 25 00:58:55 2007: Setting JINF 0x093F to mode 1...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting JINF 0x093F to mode 0...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 0 to TDR 6...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 0 to TDR 7...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 0 to TDR 10...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 0 to TDR 11...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Done... time needed: 0.4 ms
+Thu Oct 25 00:58:55 2007: Resetting tdrs counters...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Resetting Jinf 0x093F node counter...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Resetting Jinj 0xFFFF node counter...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting JINF 0x093F to mode 1...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 2 to TDR 6...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 2 to TDR 7...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 2 to TDR 10...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Setting mode 2 to TDR 11...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: Done... time needed: 0.4 ms
+Thu Oct 25 00:58:55 2007: Setting JINJ 0xFFFF to mode 1...
+Thu Oct 25 00:58:55 2007: PCI rxdone = 0
+Thu Oct 25 00:58:55 2007: READY
+Thu Oct 25 01:00:38 2007: JINJ program: 0x2081
+Thu Oct 25 01:00:38 2007: TDR program: 0x3b53
+Thu Oct 25 01:00:38 2007: JINF program: 0x24a1
+Thu Oct 25 01:00:40 2007: Setting JINJ 0xFFFF to mode 0...
+Thu Oct 25 01:00:40 2007: PCI rxdone = 0
+Thu Oct 25 01:00:40 2007: Setting JINF 0x093F to mode 0...
+Thu Oct 25 01:00:40 2007: PCI rxdone = 0
+Thu Oct 25 01:00:40 2007: Setting mode 0 to TDR 6...
+Thu Oct 25 01:00:40 2007: PCI rxdone = 0
+Thu Oct 25 01:00:40 2007: Setting mode 0 to TDR 7...
+Thu Oct 25 01:00:40 2007: PCI rxdone = 0
+Thu Oct 25 01:00:40 2007: Setting mode 0 to TDR 10...
+Thu Oct 25 01:00:40 2007: PCI rxdone = 0
+Thu Oct 25 01:00:40 2007: Setting mode 0 to TDR 11...
+Thu Oct 25 01:00:40 2007: PCI rxdone = 0
+Thu Oct 25 01:00:40 2007: Done... time needed: 0.5 ms
+Thu Oct 25 01:00:40 2007: Resetting tdrs counters...
+Thu Oct 25 01:00:40 2007: PCI rxdone = 0
+Thu Oct 25 01:00:40 2007: Resetting Jinf 0x093F node counter...
+Thu Oct 25 01:00:40 2007: PCI rxdone = 0
+Thu Oct 25 01:00:40 2007: Resetting Jinj 0xFFFF node counter...
+Thu Oct 25 01:00:40 2007: PCI rxdone = 0
+Thu Oct 25 01:00:40 2007: Calibrating all connected TDRs...
+Thu Oct 25 01:00:40 2007: PCI rxdone = 0
+Thu Oct 25 01:00:40 2007: Collecting and saving calibration data for TDR 6
+Thu Oct 25 01:00:50 2007: PCI rxdone = 0
+Thu Oct 25 01:00:50 2007: Error: file ./Calibrations//000000_0906.cal could not be created, perhaps the calibrations dir ./Calibrations/ doesn't exist ?
+Thu Oct 25 01:00:50 2007: Save Calibration Failed ...
+ I give Up
+Thu Oct 25 01:01:18 2007: JINJ program: 0x2081
+Thu Oct 25 01:01:18 2007: TDR program: 0x3b53
+Thu Oct 25 01:01:18 2007: JINF program: 0x24a1
+Thu Oct 25 01:01:19 2007: Setting JINJ 0xFFFF to mode 0...
+Thu Oct 25 01:01:19 2007: PCI rxdone = 0
+Thu Oct 25 01:01:19 2007: Setting JINF 0x093F to mode 0...
+Thu Oct 25 01:01:19 2007: PCI rxdone = 0
+Thu Oct 25 01:01:19 2007: Setting mode 0 to TDR 6...
+Thu Oct 25 01:01:19 2007: PCI rxdone = 0
+Thu Oct 25 01:01:19 2007: Setting mode 0 to TDR 7...
+Thu Oct 25 01:01:19 2007: PCI rxdone = 0
+Thu Oct 25 01:01:19 2007: Setting mode 0 to TDR 10...
+Thu Oct 25 01:01:19 2007: PCI rxdone = 0
+Thu Oct 25 01:01:19 2007: Setting mode 0 to TDR 11...
+Thu Oct 25 01:01:19 2007: PCI rxdone = 0
+Thu Oct 25 01:01:19 2007: Done... time needed: 0.4 ms
+Thu Oct 25 01:01:19 2007: Resetting tdrs counters...
+Thu Oct 25 01:01:19 2007: PCI rxdone = 0
+Thu Oct 25 01:01:19 2007: Resetting Jinf 0x093F node counter...
+Thu Oct 25 01:01:19 2007: PCI rxdone = 0
+Thu Oct 25 01:01:19 2007: Resetting Jinj 0xFFFF node counter...
+Thu Oct 25 01:01:19 2007: PCI rxdone = 0
+Thu Oct 25 01:01:19 2007: Calibrating all connected TDRs...
+Thu Oct 25 01:01:19 2007: PCI rxdone = 0
+Thu Oct 25 01:01:20 2007: Collecting and saving calibration data for TDR 6
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: Calibration file ./Calibrations//000000_0906.cal saved
+Thu Oct 25 01:01:30 2007: Collecting and saving calibration data for TDR 7
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: Calibration file ./Calibrations//000000_0907.cal saved
+Thu Oct 25 01:01:30 2007: Collecting and saving calibration data for TDR 10
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: Calibration file ./Calibrations//000000_0910.cal saved
+Thu Oct 25 01:01:30 2007: Collecting and saving calibration data for TDR 11
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: Calibration file ./Calibrations//000000_0911.cal saved
+Thu Oct 25 01:01:30 2007: Resetting tdrs counters...
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: Resetting Jinf 0x093F node counter...
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: Resetting Jinj 0xFFFF node counter...
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: Turning on the DAQ mode...
+Thu Oct 25 01:01:30 2007: Setting JINF 0x093F to mode 1...
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: Setting mode 2 to TDR 6...
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: Setting mode 2 to TDR 7...
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: Setting mode 2 to TDR 10...
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: Setting mode 2 to TDR 11...
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: Done... time needed: 0.4 ms
+Thu Oct 25 01:01:30 2007: Setting JINJ 0xFFFF to mode 1...
+Thu Oct 25 01:01:30 2007: PCI rxdone = 0
+Thu Oct 25 01:01:30 2007: READY
+Thu Oct 25 01:01:54 2007: JINJ program: 0x2081
+Thu Oct 25 01:01:54 2007: TDR program: 0x3b53
+Thu Oct 25 01:01:54 2007: JINF program: 0x24a1
+Thu Oct 25 01:01:55 2007: Starting run 100
+Thu Oct 25 01:01:55 2007: Resetting main node counter...
+Thu Oct 25 01:01:55 2007: PCI rxdone = 0
+Thu Oct 25 01:01:55 2007: Resetting tdrs counters...
+Thu Oct 25 01:01:55 2007: PCI rxdone = 0
+Thu Oct 25 01:01:55 2007: Resetting Jinf 0x093F node counter...
+Thu Oct 25 01:01:55 2007: PCI rxdone = 0
+Thu Oct 25 01:01:55 2007: Resetting Jinj 0xFFFF node counter...
+Thu Oct 25 01:01:55 2007: PCI rxdone = 0
+Thu Oct 25 01:01:55 2007: PCI rxdone = 0
+Thu Oct 25 01:01:56 2007: Entering into the Data Acquisition loop...
+Thu Oct 25 01:01:56 2007: Getting last event numbers...
+Thu Oct 25 01:01:56 2007: PCI rxdone = 0
+Thu Oct 25 01:01:56 2007: JINJ      :      4
+Thu Oct 25 01:01:56 2007: Getting last event numbers...
+Thu Oct 25 01:01:56 2007: PCI rxdone = 0
+Thu Oct 25 01:01:56 2007: Main       :      8
+Thu Oct 25 01:01:56 2007: PCI rxdone = 0
+Thu Oct 25 01:01:56 2007: TDR 06     :     12
+Thu Oct 25 01:01:56 2007: PCI rxdone = 0
+Thu Oct 25 01:01:56 2007: TDR 07     :     12
+Thu Oct 25 01:01:56 2007: PCI rxdone = 0
+Thu Oct 25 01:01:56 2007: TDR 10     :     12
+Thu Oct 25 01:01:56 2007: PCI rxdone = 0
+Thu Oct 25 01:01:56 2007: TDR 11     :     12
+Thu Oct 25 01:01:56 2007: Thu Oct 25 01:01:56 2007: Printing all last event numbers...
+     0 ||     4  |      8 |06     12 |07     12 |10     12 |11     12
+Thu Oct 25 01:01:57 2007: Printing all last event numbers...
+Thu Oct 25 01:01:57 2007: Getting last event numbers...
+Thu Oct 25 01:01:57 2007: PCI rxdone = 0
+Thu Oct 25 01:01:57 2007: JINJ      :      5
+Thu Oct 25 01:01:57 2007: Getting last event numbers...
+Thu Oct 25 01:01:57 2007: PCI rxdone = 0
+Thu Oct 25 01:01:57 2007: Main       :      9
+Thu Oct 25 01:01:57 2007: PCI rxdone = 0
+Thu Oct 25 01:01:57 2007: TDR 06     :     13
+Thu Oct 25 01:01:57 2007: PCI rxdone = 0
+Thu Oct 25 01:01:57 2007: TDR 07     :     13
+Thu Oct 25 01:01:57 2007: PCI rxdone = 0
+Thu Oct 25 01:01:57 2007: TDR 10     :     13
+Thu Oct 25 01:01:57 2007: PCI rxdone = 0
+Thu Oct 25 01:01:57 2007: TDR 11     :     13
+Thu Oct 25 01:01:57 2007: Thu Oct 25 01:01:57 2007: Printing all last event numbers...
+     0 ||     5  |      9 |06     13 |07     13 |10     13 |11     13
+Thu Oct 25 01:01:57 2007: Printing all last event numbers...
+Thu Oct 25 01:01:58 2007: Getting last event numbers...
+Thu Oct 25 01:01:58 2007: PCI rxdone = 0
+Thu Oct 25 01:01:58 2007: JINJ      :      6
+Thu Oct 25 01:01:58 2007: Getting last event numbers...
+Thu Oct 25 01:01:58 2007: PCI rxdone = 0
+Thu Oct 25 01:01:58 2007: Main       :     10
+Thu Oct 25 01:01:58 2007: PCI rxdone = 0
+Thu Oct 25 01:01:58 2007: TDR 06     :     14
+Thu Oct 25 01:01:58 2007: PCI rxdone = 0
+Thu Oct 25 01:01:58 2007: TDR 07     :     14
+Thu Oct 25 01:01:58 2007: PCI rxdone = 0
+Thu Oct 25 01:01:58 2007: TDR 10     :     14
+Thu Oct 25 01:01:58 2007: PCI rxdone = 0
+Thu Oct 25 01:01:58 2007: TDR 11     :     14
+Thu Oct 25 01:01:58 2007: Thu Oct 25 01:01:58 2007: Printing all last event numbers...
+     0 ||     6  |     10 |06     14 |07     14 |10     14 |11     14
+Thu Oct 25 01:01:58 2007: Printing all last event numbers...
+Thu Oct 25 01:01:58 2007: Getting last event numbers...
+Thu Oct 25 01:01:58 2007: PCI rxdone = 0
+Thu Oct 25 01:01:58 2007: JINJ      :      7
+Thu Oct 25 01:01:58 2007: Getting last event numbers...
+Thu Oct 25 01:01:58 2007: PCI rxdone = 0
+Thu Oct 25 01:01:58 2007: Main       :     11
+Thu Oct 25 01:01:58 2007: PCI rxdone = 0
+Thu Oct 25 01:01:58 2007: TDR 06     :     15
+Thu Oct 25 01:01:58 2007: PCI rxdone = 0
+Thu Oct 25 01:01:58 2007: TDR 07     :     15
+Thu Oct 25 01:01:58 2007: PCI rxdone = 0
+Thu Oct 25 01:01:58 2007: TDR 10     :     15
+Thu Oct 25 01:01:58 2007: PCI rxdone = 0
+Thu Oct 25 01:01:58 2007: TDR 11     :     15
+Thu Oct 25 01:01:58 2007: Thu Oct 25 01:01:58 2007: Printing all last event numbers...
+     0 ||     7  |     11 |06     15 |07     15 |10     15 |11     15
+Thu Oct 25 01:01:59 2007: Printing all last event numbers...
+Thu Oct 25 01:01:59 2007: Getting last event numbers...
+Thu Oct 25 01:01:59 2007: PCI rxdone = 0
+Thu Oct 25 01:01:59 2007: JINJ      :      8
+Thu Oct 25 01:01:59 2007: Getting last event numbers...
+Thu Oct 25 01:01:59 2007: PCI rxdone = 0
+Thu Oct 25 01:01:59 2007: Main       :     12
+Thu Oct 25 01:01:59 2007: PCI rxdone = 0
+Thu Oct 25 01:01:59 2007: TDR 06     :     16
+Thu Oct 25 01:01:59 2007: PCI rxdone = 0
+Thu Oct 25 01:01:59 2007: TDR 07     :     16
+Thu Oct 25 01:01:59 2007: PCI rxdone = 0
+Thu Oct 25 01:01:59 2007: TDR 10     :     16
+Thu Oct 25 01:01:59 2007: PCI rxdone = 0
+Thu Oct 25 01:01:59 2007: TDR 11     :     16
+Thu Oct 25 01:01:59 2007: Thu Oct 25 01:01:59 2007: Printing all last event numbers...
+     0 ||     8  |     12 |06     16 |07     16 |10     16 |11     16
+Thu Oct 25 01:01:59 2007: Printing all last event numbers...
+Thu Oct 25 01:02:00 2007: Getting last event numbers...
+Thu Oct 25 01:02:00 2007: PCI rxdone = 0
+Thu Oct 25 01:02:00 2007: JINJ      :      9
+Thu Oct 25 01:02:00 2007: Getting last event numbers...
+Thu Oct 25 01:02:00 2007: PCI rxdone = 0
+Thu Oct 25 01:02:00 2007: Main       :     13
+Thu Oct 25 01:02:00 2007: PCI rxdone = 0
+Thu Oct 25 01:02:00 2007: TDR 06     :     17
+Thu Oct 25 01:02:00 2007: PCI rxdone = 0
+Thu Oct 25 01:02:00 2007: TDR 07     :     17
+Thu Oct 25 01:02:00 2007: PCI rxdone = 0
+Thu Oct 25 01:02:00 2007: TDR 10     :     17
+Thu Oct 25 01:02:00 2007: PCI rxdone = 0
+Thu Oct 25 01:02:00 2007: TDR 11     :     17
+Thu Oct 25 01:02:00 2007: Thu Oct 25 01:02:00 2007: Printing all last event numbers...
+     0 ||     9  |     13 |06     17 |07     17 |10     17 |11     17
+Thu Oct 25 01:02:00 2007: Printing all last event numbers...
+Thu Oct 25 01:02:00 2007: Getting last event numbers...
+Thu Oct 25 01:02:00 2007: PCI rxdone = 0
+Thu Oct 25 01:02:00 2007: JINJ      :     10
+Thu Oct 25 01:02:00 2007: Getting last event numbers...
+Thu Oct 25 01:02:00 2007: PCI rxdone = 0
+Thu Oct 25 01:02:00 2007: Main       :     14
+Thu Oct 25 01:02:00 2007: PCI rxdone = 0
+Thu Oct 25 01:02:00 2007: TDR 06     :     18
+Thu Oct 25 01:02:00 2007: PCI rxdone = 0
+Thu Oct 25 01:02:00 2007: TDR 07     :     18
+Thu Oct 25 01:02:00 2007: PCI rxdone = 0
+Thu Oct 25 01:02:00 2007: TDR 10     :     18
+Thu Oct 25 01:02:00 2007: PCI rxdone = 0
+Thu Oct 25 01:02:00 2007: TDR 11     :     18
+Thu Oct 25 01:02:00 2007: Thu Oct 25 01:02:00 2007: Printing all last event numbers...
+     0 ||    10  |     14 |06     18 |07     18 |10     18 |11     18
+Thu Oct 25 01:02:01 2007: Printing all last event numbers...
+Thu Oct 25 01:02:01 2007: Getting last event numbers...
+Thu Oct 25 01:02:01 2007: PCI rxdone = 0
+Thu Oct 25 01:02:01 2007: JINJ      :     11
+Thu Oct 25 01:02:01 2007: Getting last event numbers...
+Thu Oct 25 01:02:01 2007: PCI rxdone = 0
+Thu Oct 25 01:02:01 2007: Main       :     15
+Thu Oct 25 01:02:01 2007: PCI rxdone = 0
+Thu Oct 25 01:02:01 2007: TDR 06     :     19
+Thu Oct 25 01:02:01 2007: PCI rxdone = 0
+Thu Oct 25 01:02:01 2007: TDR 07     :     19
+Thu Oct 25 01:02:01 2007: PCI rxdone = 0
+Thu Oct 25 01:02:01 2007: TDR 10     :     19
+Thu Oct 25 01:02:01 2007: PCI rxdone = 0
+Thu Oct 25 01:02:01 2007: TDR 11     :     19
+Thu Oct 25 01:02:01 2007: Thu Oct 25 01:02:01 2007: Printing all last event numbers...
+     0 ||    11  |     15 |06     19 |07     19 |10     19 |11     19
+Thu Oct 25 01:02:01 2007: Printing all last event numbers...
+Thu Oct 25 01:02:02 2007: Getting last event numbers...
+Thu Oct 25 01:02:02 2007: PCI rxdone = 0
+Thu Oct 25 01:02:02 2007: JINJ      :     12
+Thu Oct 25 01:02:02 2007: Getting last event numbers...
+Thu Oct 25 01:02:02 2007: PCI rxdone = 0
+Thu Oct 25 01:02:02 2007: Main       :     16
+Thu Oct 25 01:02:02 2007: PCI rxdone = 0
+Thu Oct 25 01:02:02 2007: TDR 06     :     20
+Thu Oct 25 01:02:02 2007: PCI rxdone = 0
+Thu Oct 25 01:02:02 2007: TDR 07     :     20
+Thu Oct 25 01:02:02 2007: PCI rxdone = 0
+Thu Oct 25 01:02:02 2007: TDR 10     :     20
+Thu Oct 25 01:02:02 2007: PCI rxdone = 0
+Thu Oct 25 01:02:02 2007: TDR 11     :     20
+Thu Oct 25 01:02:02 2007: Thu Oct 25 01:02:02 2007: Printing all last event numbers...
+     0 ||    12  |     16 |06     20 |07     20 |10     20 |11     20
+Thu Oct 25 01:02:02 2007: Printing all last event numbers...
+Thu Oct 25 01:02:02 2007: Getting last event numbers...
+Thu Oct 25 01:02:02 2007: PCI rxdone = 0
+Thu Oct 25 01:02:02 2007: JINJ      :     13
+Thu Oct 25 01:02:02 2007: Getting last event numbers...
+Thu Oct 25 01:02:02 2007: PCI rxdone = 0
+Thu Oct 25 01:02:02 2007: Main       :     17
+Thu Oct 25 01:02:02 2007: PCI rxdone = 0
+Thu Oct 25 01:02:02 2007: TDR 06     :     21
+Thu Oct 25 01:02:02 2007: PCI rxdone = 0
+Thu Oct 25 01:02:02 2007: TDR 07     :     21
+Thu Oct 25 01:02:02 2007: PCI rxdone = 0
+Thu Oct 25 01:02:02 2007: TDR 10     :     21
+Thu Oct 25 01:02:02 2007: PCI rxdone = 0
+Thu Oct 25 01:02:02 2007: TDR 11     :     21
+Thu Oct 25 01:02:02 2007: Thu Oct 25 01:02:02 2007: Printing all last event numbers...
+     0 ||    13  |     17 |06     21 |07     21 |10     21 |11     21
+Thu Oct 25 01:02:03 2007: Printing all last event numbers...
+Thu Oct 25 01:02:03 2007: Getting last event numbers...
+Thu Oct 25 01:02:03 2007: PCI rxdone = 0
+Thu Oct 25 01:02:03 2007: JINJ      :     14
+Thu Oct 25 01:02:03 2007: Getting last event numbers...
+Thu Oct 25 01:02:03 2007: PCI rxdone = 0
+Thu Oct 25 01:02:03 2007: Main       :     18
+Thu Oct 25 01:02:03 2007: PCI rxdone = 0
+Thu Oct 25 01:02:03 2007: TDR 06     :     22
+Thu Oct 25 01:02:03 2007: PCI rxdone = 0
+Thu Oct 25 01:02:03 2007: TDR 07     :     22
+Thu Oct 25 01:02:03 2007: PCI rxdone = 0
+Thu Oct 25 01:02:03 2007: TDR 10     :     22
+Thu Oct 25 01:02:03 2007: PCI rxdone = 0
+Thu Oct 25 01:02:03 2007: TDR 11     :     22
+Thu Oct 25 01:02:03 2007: Thu Oct 25 01:02:03 2007: Printing all last event numbers...
+     0 ||    14  |     18 |06     22 |07     22 |10     22 |11     22
+Thu Oct 25 01:02:03 2007: Printing all last event numbers...
+Thu Oct 25 01:02:04 2007: Getting last event numbers...
+Thu Oct 25 01:02:04 2007: PCI rxdone = 0
+Thu Oct 25 01:02:04 2007: JINJ      :     15
+Thu Oct 25 01:02:04 2007: Getting last event numbers...
+Thu Oct 25 01:02:04 2007: PCI rxdone = 0
+Thu Oct 25 01:02:04 2007: Main       :     19
+Thu Oct 25 01:02:04 2007: PCI rxdone = 0
+Thu Oct 25 01:02:04 2007: TDR 06     :     23
+Thu Oct 25 01:02:04 2007: PCI rxdone = 0
+Thu Oct 25 01:02:04 2007: TDR 07     :     23
+Thu Oct 25 01:02:04 2007: PCI rxdone = 0
+Thu Oct 25 01:02:04 2007: TDR 10     :     23
+Thu Oct 25 01:02:04 2007: PCI rxdone = 0
+Thu Oct 25 01:02:04 2007: TDR 11     :     23
+Thu Oct 25 01:02:04 2007: Thu Oct 25 01:02:04 2007: Printing all last event numbers...
+     0 ||    15  |     19 |06     23 |07     23 |10     23 |11     23
+Thu Oct 25 01:02:04 2007: Printing all last event numbers...
+Thu Oct 25 01:02:04 2007: Getting last event numbers...
+Thu Oct 25 01:02:04 2007: PCI rxdone = 0
+Thu Oct 25 01:02:04 2007: JINJ      :     16
+Thu Oct 25 01:02:04 2007: Getting last event numbers...
+Thu Oct 25 01:02:04 2007: PCI rxdone = 0
+Thu Oct 25 01:02:04 2007: Main       :     20
+Thu Oct 25 01:02:04 2007: PCI rxdone = 0
+Thu Oct 25 01:02:04 2007: TDR 06     :     24
+Thu Oct 25 01:02:04 2007: PCI rxdone = 0
+Thu Oct 25 01:02:04 2007: TDR 07     :     24
+Thu Oct 25 01:02:04 2007: PCI rxdone = 0
+Thu Oct 25 01:02:04 2007: TDR 10     :     24
+Thu Oct 25 01:02:04 2007: PCI rxdone = 0
+Thu Oct 25 01:02:04 2007: TDR 11     :     24
+Thu Oct 25 01:02:04 2007: Thu Oct 25 01:02:04 2007: Printing all last event numbers...
+     0 ||    16  |     20 |06     24 |07     24 |10     24 |11     24
+Thu Oct 25 01:02:05 2007: Printing all last event numbers...
+Thu Oct 25 01:02:05 2007: Getting last event numbers...
+Thu Oct 25 01:02:05 2007: PCI rxdone = 0
+Thu Oct 25 01:02:05 2007: JINJ      :     17
+Thu Oct 25 01:02:05 2007: Getting last event numbers...
+Thu Oct 25 01:02:05 2007: PCI rxdone = 0
+Thu Oct 25 01:02:05 2007: Main       :     21
+Thu Oct 25 01:02:05 2007: PCI rxdone = 0
+Thu Oct 25 01:02:05 2007: TDR 06     :     25
+Thu Oct 25 01:02:05 2007: PCI rxdone = 0
+Thu Oct 25 01:02:05 2007: TDR 07     :     25
+Thu Oct 25 01:02:05 2007: PCI rxdone = 0
+Thu Oct 25 01:02:05 2007: TDR 10     :     25
+Thu Oct 25 01:02:05 2007: PCI rxdone = 0
+Thu Oct 25 01:02:05 2007: TDR 11     :     25
+Thu Oct 25 01:02:05 2007: Thu Oct 25 01:02:05 2007: Printing all last event numbers...
+     0 ||    17  |     21 |06     25 |07     25 |10     25 |11     25
+Thu Oct 25 01:02:05 2007: Printing all last event numbers...
+Thu Oct 25 01:02:06 2007: Getting last event numbers...
+Thu Oct 25 01:02:06 2007: PCI rxdone = 0
+Thu Oct 25 01:02:06 2007: JINJ      :     18
+Thu Oct 25 01:02:06 2007: Getting last event numbers...
+Thu Oct 25 01:02:06 2007: PCI rxdone = 0
+Thu Oct 25 01:02:06 2007: Main       :     22
+Thu Oct 25 01:02:06 2007: PCI rxdone = 0
+Thu Oct 25 01:02:06 2007: TDR 06     :     26
+Thu Oct 25 01:02:06 2007: PCI rxdone = 0
+Thu Oct 25 01:02:06 2007: TDR 07     :     26
+Thu Oct 25 01:02:06 2007: PCI rxdone = 0
+Thu Oct 25 01:02:06 2007: TDR 10     :     26
+Thu Oct 25 01:02:06 2007: PCI rxdone = 0
+Thu Oct 25 01:02:06 2007: TDR 11     :     26
+Thu Oct 25 01:02:06 2007: Thu Oct 25 01:02:06 2007: Printing all last event numbers...
+     0 ||    18  |     22 |06     26 |07     26 |10     26 |11     26
+Thu Oct 25 01:02:06 2007: Printing all last event numbers...
+Thu Oct 25 01:02:06 2007: Getting last event numbers...
+Thu Oct 25 01:02:06 2007: PCI rxdone = 0
+Thu Oct 25 01:02:06 2007: JINJ      :     19
+Thu Oct 25 01:02:06 2007: Getting last event numbers...
+Thu Oct 25 01:02:06 2007: PCI rxdone = 0
+Thu Oct 25 01:02:06 2007: Main       :     23
+Thu Oct 25 01:02:06 2007: PCI rxdone = 0
+Thu Oct 25 01:02:06 2007: TDR 06     :     27
+Thu Oct 25 01:02:06 2007: PCI rxdone = 0
+Thu Oct 25 01:02:06 2007: TDR 07     :     27
+Thu Oct 25 01:02:06 2007: PCI rxdone = 0
+Thu Oct 25 01:02:06 2007: TDR 10     :     27
+Thu Oct 25 01:02:06 2007: PCI rxdone = 0
+Thu Oct 25 01:02:06 2007: TDR 11     :     27
+Thu Oct 25 01:02:06 2007: Thu Oct 25 01:02:06 2007: Printing all last event numbers...
+     0 ||    19  |     23 |06     27 |07     27 |10     27 |11     27
+Thu Oct 25 01:02:06 2007: Printing all last event numbers...
+Thu Oct 25 01:02:07 2007: Getting last event numbers...
+Thu Oct 25 01:02:07 2007: PCI rxdone = 0
+Thu Oct 25 01:02:07 2007: JINJ      :     20
+Thu Oct 25 01:02:07 2007: Getting last event numbers...
+Thu Oct 25 01:02:07 2007: PCI rxdone = 0
+Thu Oct 25 01:02:07 2007: Main       :     24
+Thu Oct 25 01:02:07 2007: PCI rxdone = 0
+Thu Oct 25 01:02:07 2007: TDR 06     :     28
+Thu Oct 25 01:02:07 2007: PCI rxdone = 0
+Thu Oct 25 01:02:07 2007: TDR 07     :     28
+Thu Oct 25 01:02:07 2007: PCI rxdone = 0
+Thu Oct 25 01:02:07 2007: TDR 10     :     28
+Thu Oct 25 01:02:07 2007: PCI rxdone = 0
+Thu Oct 25 01:02:07 2007: TDR 11     :     28
+Thu Oct 25 01:02:07 2007: Thu Oct 25 01:02:07 2007: Printing all last event numbers...
+     0 ||    20  |     24 |06     28 |07     28 |10     28 |11     28
+Thu Oct 25 01:02:07 2007: Printing all last event numbers...
+Thu Oct 25 01:02:07 2007: Getting last event numbers...
+Thu Oct 25 01:02:07 2007: PCI rxdone = 0
+Thu Oct 25 01:02:07 2007: JINJ      :     21
+Thu Oct 25 01:02:07 2007: Getting last event numbers...
+Thu Oct 25 01:02:07 2007: PCI rxdone = 0
+Thu Oct 25 01:02:07 2007: Main       :     25
+Thu Oct 25 01:02:07 2007: PCI rxdone = 0
+Thu Oct 25 01:02:07 2007: TDR 06     :     29
+Thu Oct 25 01:02:07 2007: PCI rxdone = 0
+Thu Oct 25 01:02:07 2007: TDR 07     :     29
+Thu Oct 25 01:02:07 2007: PCI rxdone = 0
+Thu Oct 25 01:02:07 2007: TDR 10     :     29
+Thu Oct 25 01:02:07 2007: PCI rxdone = 0
+Thu Oct 25 01:02:07 2007: TDR 11     :     29
+Thu Oct 25 01:02:07 2007: Thu Oct 25 01:02:07 2007: Printing all last event numbers...
+     0 ||    21  |     25 |06     29 |07     29 |10     29 |11     29
+Thu Oct 25 01:02:08 2007: Printing all last event numbers...
+Thu Oct 25 01:02:08 2007: Getting last event numbers...
+Thu Oct 25 01:02:08 2007: PCI rxdone = 0
+Thu Oct 25 01:02:08 2007: JINJ      :     22
+Thu Oct 25 01:02:08 2007: Getting last event numbers...
+Thu Oct 25 01:02:08 2007: PCI rxdone = 0
+Thu Oct 25 01:02:08 2007: Main       :     26
+Thu Oct 25 01:02:08 2007: PCI rxdone = 0
+Thu Oct 25 01:02:08 2007: TDR 06     :     30
+Thu Oct 25 01:02:08 2007: PCI rxdone = 0
+Thu Oct 25 01:02:08 2007: TDR 07     :     30
+Thu Oct 25 01:02:08 2007: PCI rxdone = 0
+Thu Oct 25 01:02:08 2007: TDR 10     :     30
+Thu Oct 25 01:02:08 2007: PCI rxdone = 0
+Thu Oct 25 01:02:08 2007: TDR 11     :     30
+Thu Oct 25 01:02:08 2007: Thu Oct 25 01:02:08 2007: Printing all last event numbers...
+     0 ||    22  |     26 |06     30 |07     30 |10     30 |11     30
+Thu Oct 25 01:02:08 2007: Printing all last event numbers...
+Thu Oct 25 01:02:09 2007: Getting last event numbers...
+Thu Oct 25 01:02:09 2007: PCI rxdone = 0
+Thu Oct 25 01:02:09 2007: JINJ      :     23
+Thu Oct 25 01:02:09 2007: Getting last event numbers...
+Thu Oct 25 01:02:09 2007: PCI rxdone = 0
+Thu Oct 25 01:02:09 2007: Main       :     27
+Thu Oct 25 01:02:09 2007: PCI rxdone = 0
+Thu Oct 25 01:02:09 2007: TDR 06     :     31
+Thu Oct 25 01:02:09 2007: PCI rxdone = 0
+Thu Oct 25 01:02:09 2007: TDR 07     :     31
+Thu Oct 25 01:02:09 2007: PCI rxdone = 0
+Thu Oct 25 01:02:09 2007: TDR 10     :     31
+Thu Oct 25 01:02:09 2007: PCI rxdone = 0
+Thu Oct 25 01:02:09 2007: TDR 11     :     31
+Thu Oct 25 01:02:09 2007: Thu Oct 25 01:02:09 2007: Printing all last event numbers...
+     0 ||    23  |     27 |06     31 |07     31 |10     31 |11     31
+Thu Oct 25 01:02:09 2007: Printing all last event numbers...
+Thu Oct 25 01:02:09 2007: Getting last event numbers...
+Thu Oct 25 01:02:09 2007: PCI rxdone = 0
+Thu Oct 25 01:02:09 2007: JINJ      :     24
+Thu Oct 25 01:02:09 2007: Getting last event numbers...
+Thu Oct 25 01:02:09 2007: PCI rxdone = 0
+Thu Oct 25 01:02:09 2007: Main       :     28
+Thu Oct 25 01:02:09 2007: PCI rxdone = 0
+Thu Oct 25 01:02:09 2007: TDR 06     :     32
+Thu Oct 25 01:02:09 2007: PCI rxdone = 0
+Thu Oct 25 01:02:09 2007: TDR 07     :     32
+Thu Oct 25 01:02:09 2007: PCI rxdone = 0
+Thu Oct 25 01:02:09 2007: TDR 10     :     32
+Thu Oct 25 01:02:09 2007: PCI rxdone = 0
+Thu Oct 25 01:02:09 2007: TDR 11     :     32
+Thu Oct 25 01:02:09 2007: Thu Oct 25 01:02:09 2007: Printing all last event numbers...
+     0 ||    24  |     28 |06     32 |07     32 |10     32 |11     32
+Thu Oct 25 01:02:10 2007: Printing all last event numbers...
+Thu Oct 25 01:02:10 2007: Getting last event numbers...
+Thu Oct 25 01:02:10 2007: PCI rxdone = 0
+Thu Oct 25 01:02:10 2007: JINJ      :     25
+Thu Oct 25 01:02:10 2007: Getting last event numbers...
+Thu Oct 25 01:02:10 2007: PCI rxdone = 0
+Thu Oct 25 01:02:10 2007: Main       :     29
+Thu Oct 25 01:02:10 2007: PCI rxdone = 0
+Thu Oct 25 01:02:10 2007: TDR 06     :     33
+Thu Oct 25 01:02:10 2007: PCI rxdone = 0
+Thu Oct 25 01:02:10 2007: TDR 07     :     33
+Thu Oct 25 01:02:10 2007: PCI rxdone = 0
+Thu Oct 25 01:02:10 2007: TDR 10     :     33
+Thu Oct 25 01:02:10 2007: PCI rxdone = 0
+Thu Oct 25 01:02:10 2007: TDR 11     :     33
+Thu Oct 25 01:02:10 2007: Thu Oct 25 01:02:10 2007: Printing all last event numbers...
+     0 ||    25  |     29 |06     33 |07     33 |10     33 |11     33
+Thu Oct 25 01:02:10 2007: Printing all last event numbers...
+Thu Oct 25 01:02:11 2007: Getting last event numbers...
+Thu Oct 25 01:02:11 2007: PCI rxdone = 0
+Thu Oct 25 01:02:11 2007: JINJ      :     26
+Thu Oct 25 01:02:11 2007: Getting last event numbers...
+Thu Oct 25 01:02:11 2007: PCI rxdone = 0
+Thu Oct 25 01:02:11 2007: Main       :     30
+Thu Oct 25 01:02:11 2007: PCI rxdone = 0
+Thu Oct 25 01:02:11 2007: TDR 06     :     34
+Thu Oct 25 01:02:11 2007: PCI rxdone = 0
+Thu Oct 25 01:02:11 2007: TDR 07     :     34
+Thu Oct 25 01:02:11 2007: PCI rxdone = 0
+Thu Oct 25 01:02:11 2007: TDR 10     :     34
+Thu Oct 25 01:02:11 2007: PCI rxdone = 0
+Thu Oct 25 01:02:11 2007: TDR 11     :     34
+Thu Oct 25 01:02:11 2007: Thu Oct 25 01:02:11 2007: Printing all last event numbers...
+     0 ||    26  |     30 |06     34 |07     34 |10     34 |11     34
+Thu Oct 25 01:02:11 2007: Printing all last event numbers...
+Thu Oct 25 01:02:11 2007: Getting last event numbers...
+Thu Oct 25 01:02:11 2007: PCI rxdone = 0
+Thu Oct 25 01:02:11 2007: JINJ      :     27
+Thu Oct 25 01:02:11 2007: Getting last event numbers...
+Thu Oct 25 01:02:11 2007: PCI rxdone = 0
+Thu Oct 25 01:02:11 2007: Main       :     31
+Thu Oct 25 01:02:11 2007: PCI rxdone = 0
+Thu Oct 25 01:02:11 2007: TDR 06     :     35
+Thu Oct 25 01:02:11 2007: PCI rxdone = 0
+Thu Oct 25 01:02:11 2007: TDR 07     :     35
+Thu Oct 25 01:02:11 2007: PCI rxdone = 0
+Thu Oct 25 01:02:11 2007: TDR 10     :     35
+Thu Oct 25 01:02:11 2007: PCI rxdone = 0
+Thu Oct 25 01:02:11 2007: TDR 11     :     35
+Thu Oct 25 01:02:11 2007: Thu Oct 25 01:02:11 2007: Printing all last event numbers...
+     0 ||    27  |     31 |06     35 |07     35 |10     35 |11     35
+Thu Oct 25 01:02:12 2007: Printing all last event numbers...
+Thu Oct 25 01:02:12 2007: Getting last event numbers...
+Thu Oct 25 01:02:12 2007: PCI rxdone = 0
+Thu Oct 25 01:02:12 2007: JINJ      :     28
+Thu Oct 25 01:02:12 2007: Getting last event numbers...
+Thu Oct 25 01:02:12 2007: PCI rxdone = 0
+Thu Oct 25 01:02:12 2007: Main       :     32
+Thu Oct 25 01:02:12 2007: PCI rxdone = 0
+Thu Oct 25 01:02:12 2007: TDR 06     :     36
+Thu Oct 25 01:02:12 2007: PCI rxdone = 0
+Thu Oct 25 01:02:12 2007: TDR 07     :     36
+Thu Oct 25 01:02:12 2007: PCI rxdone = 0
+Thu Oct 25 01:02:12 2007: TDR 10     :     36
+Thu Oct 25 01:02:12 2007: PCI rxdone = 0
+Thu Oct 25 01:02:12 2007: TDR 11     :     36
+Thu Oct 25 01:02:12 2007: Thu Oct 25 01:02:12 2007: Printing all last event numbers...
+     0 ||    28  |     32 |06     36 |07     36 |10     36 |11     36
+Thu Oct 25 01:02:12 2007: Printing all last event numbers...
+Thu Oct 25 01:02:13 2007: Getting last event numbers...
+Thu Oct 25 01:02:13 2007: PCI rxdone = 0
+Thu Oct 25 01:02:13 2007: JINJ      :     29
+Thu Oct 25 01:02:13 2007: Getting last event numbers...
+Thu Oct 25 01:02:13 2007: PCI rxdone = 0
+Thu Oct 25 01:02:13 2007: Main       :     33
+Thu Oct 25 01:02:13 2007: PCI rxdone = 0
+Thu Oct 25 01:02:13 2007: TDR 06     :     37
+Thu Oct 25 01:02:13 2007: PCI rxdone = 0
+Thu Oct 25 01:02:13 2007: TDR 07     :     37
+Thu Oct 25 01:02:13 2007: PCI rxdone = 0
+Thu Oct 25 01:02:13 2007: TDR 10     :     37
+Thu Oct 25 01:02:13 2007: PCI rxdone = 0
+Thu Oct 25 01:02:13 2007: TDR 11     :     37
+Thu Oct 25 01:02:13 2007: Thu Oct 25 01:02:13 2007: Printing all last event numbers...
+     0 ||    29  |     33 |06     37 |07     37 |10     37 |11     37
+Thu Oct 25 01:02:13 2007: Printing all last event numbers...
+Thu Oct 25 01:02:13 2007: Getting last event numbers...
+Thu Oct 25 01:02:13 2007: PCI rxdone = 0
+Thu Oct 25 01:02:13 2007: JINJ      :     30
+Thu Oct 25 01:02:13 2007: Getting last event numbers...
+Thu Oct 25 01:02:13 2007: PCI rxdone = 0
+Thu Oct 25 01:02:13 2007: Main       :     34
+Thu Oct 25 01:02:13 2007: PCI rxdone = 0
+Thu Oct 25 01:02:13 2007: TDR 06     :     38
+Thu Oct 25 01:02:13 2007: PCI rxdone = 0
+Thu Oct 25 01:02:13 2007: TDR 07     :     38
+Thu Oct 25 01:02:13 2007: PCI rxdone = 0
+Thu Oct 25 01:02:13 2007: TDR 10     :     38
+Thu Oct 25 01:02:13 2007: PCI rxdone = 0
+Thu Oct 25 01:02:13 2007: TDR 11     :     38
+Thu Oct 25 01:02:13 2007: Thu Oct 25 01:02:13 2007: Printing all last event numbers...
+     0 ||    30  |     34 |06     38 |07     38 |10     38 |11     38
+Thu Oct 25 01:02:14 2007: Printing all last event numbers...
+Thu Oct 25 01:02:14 2007: Getting last event numbers...
+Thu Oct 25 01:02:14 2007: PCI rxdone = 0
+Thu Oct 25 01:02:14 2007: JINJ      :     31
+Thu Oct 25 01:02:14 2007: Getting last event numbers...
+Thu Oct 25 01:02:14 2007: PCI rxdone = 0
+Thu Oct 25 01:02:14 2007: Main       :     35
+Thu Oct 25 01:02:14 2007: PCI rxdone = 0
+Thu Oct 25 01:02:14 2007: TDR 06     :     39
+Thu Oct 25 01:02:14 2007: PCI rxdone = 0
+Thu Oct 25 01:02:14 2007: TDR 07     :     39
+Thu Oct 25 01:02:14 2007: PCI rxdone = 0
+Thu Oct 25 01:02:14 2007: TDR 10     :     39
+Thu Oct 25 01:02:14 2007: PCI rxdone = 0
+Thu Oct 25 01:02:14 2007: TDR 11     :     39
+Thu Oct 25 01:02:14 2007: Thu Oct 25 01:02:14 2007: Printing all last event numbers...
+     0 ||    31  |     35 |06     39 |07     39 |10     39 |11     39
+Thu Oct 25 01:02:14 2007: Printing all last event numbers...
+Thu Oct 25 01:02:15 2007: Getting last event numbers...
+Thu Oct 25 01:02:15 2007: PCI rxdone = 0
+Thu Oct 25 01:02:15 2007: JINJ      :     32
+Thu Oct 25 01:02:15 2007: Getting last event numbers...
+Thu Oct 25 01:02:15 2007: PCI rxdone = 0
+Thu Oct 25 01:02:15 2007: Main       :     36
+Thu Oct 25 01:02:15 2007: PCI rxdone = 0
+Thu Oct 25 01:02:15 2007: TDR 06     :     40
+Thu Oct 25 01:02:15 2007: PCI rxdone = 0
+Thu Oct 25 01:02:15 2007: TDR 07     :     40
+Thu Oct 25 01:02:15 2007: PCI rxdone = 0
+Thu Oct 25 01:02:15 2007: TDR 10     :     40
+Thu Oct 25 01:02:15 2007: PCI rxdone = 0
+Thu Oct 25 01:02:15 2007: TDR 11     :     40
+Thu Oct 25 01:02:15 2007: Thu Oct 25 01:02:15 2007: Printing all last event numbers...
+     0 ||    32  |     36 |06     40 |07     40 |10     40 |11     40
+Thu Oct 25 01:02:15 2007: Printing all last event numbers...
+Thu Oct 25 01:02:15 2007: Getting last event numbers...
+Thu Oct 25 01:02:15 2007: PCI rxdone = 0
+Thu Oct 25 01:02:15 2007: JINJ      :     33
+Thu Oct 25 01:02:15 2007: Getting last event numbers...
+Thu Oct 25 01:02:15 2007: PCI rxdone = 0
+Thu Oct 25 01:02:15 2007: Main       :     37
+Thu Oct 25 01:02:15 2007: PCI rxdone = 0
+Thu Oct 25 01:02:15 2007: TDR 06     :     41
+Thu Oct 25 01:02:15 2007: PCI rxdone = 0
+Thu Oct 25 01:02:15 2007: TDR 07     :     41
+Thu Oct 25 01:02:15 2007: PCI rxdone = 0
+Thu Oct 25 01:02:15 2007: TDR 10     :     41
+Thu Oct 25 01:02:15 2007: PCI rxdone = 0
+Thu Oct 25 01:02:15 2007: TDR 11     :     41
+Thu Oct 25 01:02:15 2007: Thu Oct 25 01:02:15 2007: Printing all last event numbers...
+     0 ||    33  |     37 |06     41 |07     41 |10     41 |11     41
+Thu Oct 25 01:02:16 2007: Printing all last event numbers...
+Thu Oct 25 01:02:16 2007: Getting last event numbers...
+Thu Oct 25 01:02:16 2007: PCI rxdone = 0
+Thu Oct 25 01:02:16 2007: JINJ      :     34
+Thu Oct 25 01:02:16 2007: Getting last event numbers...
+Thu Oct 25 01:02:16 2007: PCI rxdone = 0
+Thu Oct 25 01:02:16 2007: Main       :     38
+Thu Oct 25 01:02:16 2007: PCI rxdone = 0
+Thu Oct 25 01:02:16 2007: TDR 06     :     42
+Thu Oct 25 01:02:16 2007: PCI rxdone = 0
+Thu Oct 25 01:02:16 2007: TDR 07     :     42
+Thu Oct 25 01:02:16 2007: PCI rxdone = 0
+Thu Oct 25 01:02:16 2007: TDR 10     :     42
+Thu Oct 25 01:02:16 2007: PCI rxdone = 0
+Thu Oct 25 01:02:16 2007: TDR 11     :     42
+Thu Oct 25 01:02:16 2007: Thu Oct 25 01:02:16 2007: Printing all last event numbers...
+     1 ||    34  |     38 |06     42 |07     42 |10     42 |11     42
+Thu Oct 25 01:02:16 2007: Printing all last event numbers...
+Thu Oct 25 01:02:17 2007: Getting last event numbers...
+Thu Oct 25 01:02:17 2007: PCI rxdone = 0
+Thu Oct 25 01:02:17 2007: JINJ      :     35
+Thu Oct 25 01:02:17 2007: Getting last event numbers...
+Thu Oct 25 01:02:17 2007: PCI rxdone = 0
+Thu Oct 25 01:02:17 2007: Main       :     39
+Thu Oct 25 01:02:17 2007: PCI rxdone = 0
+Thu Oct 25 01:02:17 2007: TDR 06     :     43
+Thu Oct 25 01:02:17 2007: PCI rxdone = 0
+Thu Oct 25 01:02:17 2007: TDR 07     :     43
+Thu Oct 25 01:02:17 2007: PCI rxdone = 0
+Thu Oct 25 01:02:17 2007: TDR 10     :     43
+Thu Oct 25 01:02:17 2007: PCI rxdone = 0
+Thu Oct 25 01:02:17 2007: TDR 11     :     43
+Thu Oct 25 01:02:17 2007: Thu Oct 25 01:02:17 2007: Printing all last event numbers...
+     5 ||    35  |     39 |06     43 |07     43 |10     43 |11     43
+Thu Oct 25 01:02:17 2007: Printing all last event numbers...
+Thu Oct 25 01:02:17 2007: Getting last event numbers...
+Thu Oct 25 01:02:17 2007: PCI rxdone = 0
+Thu Oct 25 01:02:17 2007: JINJ      :     36
+Thu Oct 25 01:02:17 2007: Getting last event numbers...
+Thu Oct 25 01:02:17 2007: PCI rxdone = 0
+Thu Oct 25 01:02:17 2007: Main       :     40
+Thu Oct 25 01:02:17 2007: PCI rxdone = 0
+Thu Oct 25 01:02:17 2007: TDR 06     :     44
+Thu Oct 25 01:02:17 2007: PCI rxdone = 0
+Thu Oct 25 01:02:17 2007: TDR 07     :     44
+Thu Oct 25 01:02:17 2007: PCI rxdone = 0
+Thu Oct 25 01:02:17 2007: TDR 10     :     44
+Thu Oct 25 01:02:17 2007: PCI rxdone = 0
+Thu Oct 25 01:02:17 2007: TDR 11     :     44
+Thu Oct 25 01:02:17 2007: Thu Oct 25 01:02:17 2007: Printing all last event numbers...
+     7 ||    36  |     40 |06     44 |07     44 |10     44 |11     44
+Thu Oct 25 01:02:18 2007: Printing all last event numbers...
+Thu Oct 25 01:02:18 2007: Getting last event numbers...
+Thu Oct 25 01:02:18 2007: PCI rxdone = 0
+Thu Oct 25 01:02:18 2007: JINJ      :     37
+Thu Oct 25 01:02:18 2007: Getting last event numbers...
+Thu Oct 25 01:02:18 2007: PCI rxdone = 0
+Thu Oct 25 01:02:18 2007: Main       :     41
+Thu Oct 25 01:02:18 2007: PCI rxdone = 0
+Thu Oct 25 01:02:18 2007: TDR 06     :     45
+Thu Oct 25 01:02:18 2007: PCI rxdone = 0
+Thu Oct 25 01:02:18 2007: TDR 07     :     45
+Thu Oct 25 01:02:18 2007: PCI rxdone = 0
+Thu Oct 25 01:02:18 2007: TDR 10     :     45
+Thu Oct 25 01:02:18 2007: PCI rxdone = 0
+Thu Oct 25 01:02:18 2007: TDR 11     :     45
+Thu Oct 25 01:02:18 2007: Thu Oct 25 01:02:18 2007: Printing all last event numbers...
+    11 ||    37  |     41 |06     45 |07     45 |10     45 |11     45
+Thu Oct 25 01:02:18 2007: Printing all last event numbers...
+Thu Oct 25 01:02:19 2007: Getting last event numbers...
+Thu Oct 25 01:02:19 2007: PCI rxdone = 0
+Thu Oct 25 01:02:19 2007: JINJ      :     38
+Thu Oct 25 01:02:19 2007: Getting last event numbers...
+Thu Oct 25 01:02:19 2007: PCI rxdone = 0
+Thu Oct 25 01:02:19 2007: Main       :     42
+Thu Oct 25 01:02:19 2007: PCI rxdone = 0
+Thu Oct 25 01:02:19 2007: TDR 06     :     46
+Thu Oct 25 01:02:19 2007: PCI rxdone = 0
+Thu Oct 25 01:02:19 2007: TDR 07     :     46
+Thu Oct 25 01:02:19 2007: PCI rxdone = 0
+Thu Oct 25 01:02:19 2007: TDR 10     :     46
+Thu Oct 25 01:02:19 2007: PCI rxdone = 0
+Thu Oct 25 01:02:19 2007: TDR 11     :     46
+Thu Oct 25 01:02:19 2007: Thu Oct 25 01:02:19 2007: Printing all last event numbers...
+    15 ||    38  |     42 |06     46 |07     46 |10     46 |11     46
+Thu Oct 25 01:02:19 2007: Printing all last event numbers...
+Thu Oct 25 01:02:19 2007: Getting last event numbers...
+Thu Oct 25 01:02:19 2007: PCI rxdone = 0
+Thu Oct 25 01:02:19 2007: JINJ      :     39
+Thu Oct 25 01:02:19 2007: Getting last event numbers...
+Thu Oct 25 01:02:19 2007: PCI rxdone = 0
+Thu Oct 25 01:02:19 2007: Main       :     43
+Thu Oct 25 01:02:19 2007: PCI rxdone = 0
+Thu Oct 25 01:02:19 2007: TDR 06     :     47
+Thu Oct 25 01:02:19 2007: PCI rxdone = 0
+Thu Oct 25 01:02:19 2007: TDR 07     :     47
+Thu Oct 25 01:02:19 2007: PCI rxdone = 0
+Thu Oct 25 01:02:19 2007: TDR 10     :     47
+Thu Oct 25 01:02:19 2007: PCI rxdone = 0
+Thu Oct 25 01:02:19 2007: TDR 11     :     47
+Thu Oct 25 01:02:19 2007: Thu Oct 25 01:02:19 2007: Printing all last event numbers...
+    18 ||    39  |     43 |06     47 |07     47 |10     47 |11     47
+Thu Oct 25 01:02:20 2007: Printing all last event numbers...
+Thu Oct 25 01:02:20 2007: Getting last event numbers...
+Thu Oct 25 01:02:20 2007: PCI rxdone = 0
+Thu Oct 25 01:02:20 2007: JINJ      :     40
+Thu Oct 25 01:02:20 2007: Getting last event numbers...
+Thu Oct 25 01:02:20 2007: PCI rxdone = 0
+Thu Oct 25 01:02:20 2007: Main       :     44
+Thu Oct 25 01:02:20 2007: PCI rxdone = 0
+Thu Oct 25 01:02:20 2007: TDR 06     :     48
+Thu Oct 25 01:02:20 2007: PCI rxdone = 0
+Thu Oct 25 01:02:20 2007: TDR 07     :     48
+Thu Oct 25 01:02:20 2007: PCI rxdone = 0
+Thu Oct 25 01:02:20 2007: TDR 10     :     48
+Thu Oct 25 01:02:20 2007: PCI rxdone = 0
+Thu Oct 25 01:02:20 2007: TDR 11     :     48
+Thu Oct 25 01:02:20 2007: Thu Oct 25 01:02:20 2007: Printing all last event numbers...
+    18 ||    40  |     44 |06     48 |07     48 |10     48 |11     48
+Thu Oct 25 01:02:20 2007: Printing all last event numbers...
+Thu Oct 25 01:02:21 2007: Getting last event numbers...
+Thu Oct 25 01:02:21 2007: PCI rxdone = 0
+Thu Oct 25 01:02:21 2007: JINJ      :     41
+Thu Oct 25 01:02:21 2007: Getting last event numbers...
+Thu Oct 25 01:02:21 2007: PCI rxdone = 0
+Thu Oct 25 01:02:21 2007: Main       :     45
+Thu Oct 25 01:02:21 2007: PCI rxdone = 0
+Thu Oct 25 01:02:21 2007: TDR 06     :     49
+Thu Oct 25 01:02:21 2007: PCI rxdone = 0
+Thu Oct 25 01:02:21 2007: TDR 07     :     49
+Thu Oct 25 01:02:21 2007: PCI rxdone = 0
+Thu Oct 25 01:02:21 2007: TDR 10     :     49
+Thu Oct 25 01:02:21 2007: PCI rxdone = 0
+Thu Oct 25 01:02:21 2007: TDR 11     :     49
+Thu Oct 25 01:02:21 2007: Thu Oct 25 01:02:21 2007: Printing all last event numbers...
+    18 ||    41  |     45 |06     49 |07     49 |10     49 |11     49
+Thu Oct 25 01:02:21 2007: Printing all last event numbers...
+Thu Oct 25 01:02:21 2007: Getting last event numbers...
+Thu Oct 25 01:02:21 2007: PCI rxdone = 0
+Thu Oct 25 01:02:21 2007: JINJ      :     42
+Thu Oct 25 01:02:21 2007: Getting last event numbers...
+Thu Oct 25 01:02:21 2007: PCI rxdone = 0
+Thu Oct 25 01:02:21 2007: Main       :     46
+Thu Oct 25 01:02:21 2007: PCI rxdone = 0
+Thu Oct 25 01:02:21 2007: TDR 06     :     50
+Thu Oct 25 01:02:21 2007: PCI rxdone = 0
+Thu Oct 25 01:02:21 2007: TDR 07     :     50
+Thu Oct 25 01:02:21 2007: PCI rxdone = 0
+Thu Oct 25 01:02:21 2007: TDR 10     :     50
+Thu Oct 25 01:02:21 2007: PCI rxdone = 0
+Thu Oct 25 01:02:21 2007: TDR 11     :     50
+Thu Oct 25 01:02:21 2007: Thu Oct 25 01:02:21 2007: Printing all last event numbers...
+    18 ||    42  |     46 |06     50 |07     50 |10     50 |11     50
+Thu Oct 25 01:02:22 2007: Printing all last event numbers...
+Thu Oct 25 01:02:22 2007: Getting last event numbers...
+Thu Oct 25 01:02:22 2007: PCI rxdone = 0
+Thu Oct 25 01:02:22 2007: JINJ      :     43
+Thu Oct 25 01:02:22 2007: Getting last event numbers...
+Thu Oct 25 01:02:22 2007: PCI rxdone = 0
+Thu Oct 25 01:02:22 2007: Main       :     47
+Thu Oct 25 01:02:22 2007: PCI rxdone = 0
+Thu Oct 25 01:02:22 2007: TDR 06     :     51
+Thu Oct 25 01:02:22 2007: PCI rxdone = 0
+Thu Oct 25 01:02:22 2007: TDR 07     :     51
+Thu Oct 25 01:02:22 2007: PCI rxdone = 0
+Thu Oct 25 01:02:22 2007: TDR 10     :     51
+Thu Oct 25 01:02:22 2007: PCI rxdone = 0
+Thu Oct 25 01:02:22 2007: TDR 11     :     51
+Thu Oct 25 01:02:22 2007: Thu Oct 25 01:02:22 2007: Printing all last event numbers...
+    18 ||    43  |     47 |06     51 |07     51 |10     51 |11     51
+Thu Oct 25 01:02:22 2007: Printing all last event numbers...
+Thu Oct 25 01:02:23 2007: Getting last event numbers...
+Thu Oct 25 01:02:23 2007: PCI rxdone = 0
+Thu Oct 25 01:02:23 2007: JINJ      :     44
+Thu Oct 25 01:02:23 2007: Getting last event numbers...
+Thu Oct 25 01:02:23 2007: PCI rxdone = 0
+Thu Oct 25 01:02:23 2007: Main       :     48
+Thu Oct 25 01:02:23 2007: PCI rxdone = 0
+Thu Oct 25 01:02:23 2007: TDR 06     :     52
+Thu Oct 25 01:02:23 2007: PCI rxdone = 0
+Thu Oct 25 01:02:23 2007: TDR 07     :     52
+Thu Oct 25 01:02:23 2007: PCI rxdone = 0
+Thu Oct 25 01:02:23 2007: TDR 10     :     52
+Thu Oct 25 01:02:23 2007: PCI rxdone = 0
+Thu Oct 25 01:02:23 2007: TDR 11     :     52
+Thu Oct 25 01:02:23 2007: Thu Oct 25 01:02:23 2007: Printing all last event numbers...
+    18 ||    44  |     48 |06     52 |07     52 |10     52 |11     52
+Thu Oct 25 01:02:23 2007: Printing all last event numbers...
+Thu Oct 25 01:02:23 2007: Getting last event numbers...
+Thu Oct 25 01:02:23 2007: PCI rxdone = 0
+Thu Oct 25 01:02:23 2007: JINJ      :     45
+Thu Oct 25 01:02:23 2007: Getting last event numbers...
+Thu Oct 25 01:02:23 2007: PCI rxdone = 0
+Thu Oct 25 01:02:23 2007: Main       :     49
+Thu Oct 25 01:02:23 2007: PCI rxdone = 0
+Thu Oct 25 01:02:23 2007: TDR 06     :     53
+Thu Oct 25 01:02:23 2007: PCI rxdone = 0
+Thu Oct 25 01:02:23 2007: TDR 07     :     53
+Thu Oct 25 01:02:23 2007: PCI rxdone = 0
+Thu Oct 25 01:02:23 2007: TDR 10     :     53
+Thu Oct 25 01:02:23 2007: PCI rxdone = 0
+Thu Oct 25 01:02:23 2007: TDR 11     :     53
+Thu Oct 25 01:02:23 2007: Thu Oct 25 01:02:23 2007: Printing all last event numbers...
+    18 ||    45  |     49 |06     53 |07     53 |10     53 |11     53
+Thu Oct 25 01:02:23 2007: Printing all last event numbers...
+Thu Oct 25 01:02:24 2007: Getting last event numbers...
+Thu Oct 25 01:02:24 2007: PCI rxdone = 0
+Thu Oct 25 01:02:24 2007: JINJ      :     46
+Thu Oct 25 01:02:24 2007: Getting last event numbers...
+Thu Oct 25 01:02:24 2007: PCI rxdone = 0
+Thu Oct 25 01:02:24 2007: Main       :     50
+Thu Oct 25 01:02:24 2007: PCI rxdone = 0
+Thu Oct 25 01:02:24 2007: TDR 06     :     54
+Thu Oct 25 01:02:24 2007: PCI rxdone = 0
+Thu Oct 25 01:02:24 2007: TDR 07     :     54
+Thu Oct 25 01:02:24 2007: PCI rxdone = 0
+Thu Oct 25 01:02:24 2007: TDR 10     :     54
+Thu Oct 25 01:02:24 2007: PCI rxdone = 0
+Thu Oct 25 01:02:24 2007: TDR 11     :     54
+Thu Oct 25 01:02:24 2007: Thu Oct 25 01:02:24 2007: Printing all last event numbers...
+    18 ||    46  |     50 |06     54 |07     54 |10     54 |11     54
+Thu Oct 25 01:02:24 2007: Printing all last event numbers...
+Thu Oct 25 01:02:24 2007: Getting last event numbers...
+Thu Oct 25 01:02:24 2007: PCI rxdone = 0
+Thu Oct 25 01:02:24 2007: JINJ      :     47
+Thu Oct 25 01:02:24 2007: Getting last event numbers...
+Thu Oct 25 01:02:24 2007: PCI rxdone = 0
+Thu Oct 25 01:02:24 2007: Main       :     51
+Thu Oct 25 01:02:24 2007: PCI rxdone = 0
+Thu Oct 25 01:02:24 2007: TDR 06     :     55
+Thu Oct 25 01:02:24 2007: PCI rxdone = 0
+Thu Oct 25 01:02:24 2007: TDR 07     :     55
+Thu Oct 25 01:02:24 2007: PCI rxdone = 0
+Thu Oct 25 01:02:24 2007: TDR 10     :     55
+Thu Oct 25 01:02:24 2007: PCI rxdone = 0
+Thu Oct 25 01:02:24 2007: TDR 11     :     55
+Thu Oct 25 01:02:24 2007: Thu Oct 25 01:02:24 2007: Printing all last event numbers...
+    18 ||    47  |     51 |06     55 |07     55 |10     55 |11     55
+Thu Oct 25 01:02:25 2007: Printing all last event numbers...
+Thu Oct 25 01:02:25 2007: Getting last event numbers...
+Thu Oct 25 01:02:25 2007: PCI rxdone = 0
+Thu Oct 25 01:02:25 2007: JINJ      :     48
+Thu Oct 25 01:02:25 2007: Getting last event numbers...
+Thu Oct 25 01:02:25 2007: PCI rxdone = 0
+Thu Oct 25 01:02:25 2007: Main       :     52
+Thu Oct 25 01:02:25 2007: PCI rxdone = 0
+Thu Oct 25 01:02:25 2007: TDR 06     :     56
+Thu Oct 25 01:02:25 2007: PCI rxdone = 0
+Thu Oct 25 01:02:25 2007: TDR 07     :     56
+Thu Oct 25 01:02:25 2007: PCI rxdone = 0
+Thu Oct 25 01:02:25 2007: TDR 10     :     56
+Thu Oct 25 01:02:25 2007: PCI rxdone = 0
+Thu Oct 25 01:02:25 2007: TDR 11     :     56
+Thu Oct 25 01:02:25 2007: Thu Oct 25 01:02:25 2007: Printing all last event numbers...
+    18 ||    48  |     52 |06     56 |07     56 |10     56 |11     56
+Thu Oct 25 01:02:25 2007: Printing all last event numbers...
+Thu Oct 25 01:02:26 2007: Getting last event numbers...
+Thu Oct 25 01:02:26 2007: PCI rxdone = 0
+Thu Oct 25 01:02:26 2007: JINJ      :     49
+Thu Oct 25 01:02:26 2007: Getting last event numbers...
+Thu Oct 25 01:02:26 2007: PCI rxdone = 0
+Thu Oct 25 01:02:26 2007: Main       :     53
+Thu Oct 25 01:02:26 2007: PCI rxdone = 0
+Thu Oct 25 01:02:26 2007: TDR 06     :     57
+Thu Oct 25 01:02:26 2007: PCI rxdone = 0
+Thu Oct 25 01:02:26 2007: TDR 07     :     57
+Thu Oct 25 01:02:26 2007: PCI rxdone = 0
+Thu Oct 25 01:02:26 2007: TDR 10     :     57
+Thu Oct 25 01:02:26 2007: PCI rxdone = 0
+Thu Oct 25 01:02:26 2007: TDR 11     :     57
+Thu Oct 25 01:02:26 2007: Thu Oct 25 01:02:26 2007: Printing all last event numbers...
+    18 ||    49  |     53 |06     57 |07     57 |10     57 |11     57
+Thu Oct 25 01:02:26 2007: Printing all last event numbers...
+Thu Oct 25 01:02:26 2007: Getting last event numbers...
+Thu Oct 25 01:02:26 2007: PCI rxdone = 0
+Thu Oct 25 01:02:26 2007: JINJ      :     50
+Thu Oct 25 01:02:26 2007: Getting last event numbers...
+Thu Oct 25 01:02:26 2007: PCI rxdone = 0
+Thu Oct 25 01:02:26 2007: Main       :     54
+Thu Oct 25 01:02:26 2007: PCI rxdone = 0
+Thu Oct 25 01:02:26 2007: TDR 06     :     58
+Thu Oct 25 01:02:26 2007: PCI rxdone = 0
+Thu Oct 25 01:02:26 2007: TDR 07     :     58
+Thu Oct 25 01:02:26 2007: PCI rxdone = 0
+Thu Oct 25 01:02:26 2007: TDR 10     :     58
+Thu Oct 25 01:02:26 2007: PCI rxdone = 0
+Thu Oct 25 01:02:26 2007: TDR 11     :     58
+Thu Oct 25 01:02:26 2007: Thu Oct 25 01:02:26 2007: Printing all last event numbers...
+    18 ||    50  |     54 |06     58 |07     58 |10     58 |11     58
+Thu Oct 25 01:02:27 2007: Printing all last event numbers...
+Thu Oct 25 01:02:27 2007: Getting last event numbers...
+Thu Oct 25 01:02:27 2007: PCI rxdone = 0
+Thu Oct 25 01:02:27 2007: JINJ      :     51
+Thu Oct 25 01:02:27 2007: Getting last event numbers...
+Thu Oct 25 01:02:27 2007: PCI rxdone = 0
+Thu Oct 25 01:02:27 2007: Main       :     55
+Thu Oct 25 01:02:27 2007: PCI rxdone = 0
+Thu Oct 25 01:02:27 2007: TDR 06     :     59
+Thu Oct 25 01:02:27 2007: PCI rxdone = 0
+Thu Oct 25 01:02:27 2007: TDR 07     :     59
+Thu Oct 25 01:02:27 2007: PCI rxdone = 0
+Thu Oct 25 01:02:27 2007: TDR 10     :     59
+Thu Oct 25 01:02:27 2007: PCI rxdone = 0
+Thu Oct 25 01:02:27 2007: TDR 11     :     59
+Thu Oct 25 01:02:27 2007: Thu Oct 25 01:02:27 2007: Printing all last event numbers...
+    18 ||    51  |     55 |06     59 |07     59 |10     59 |11     59
+Thu Oct 25 01:02:27 2007: Printing all last event numbers...
+Thu Oct 25 01:02:28 2007: Getting last event numbers...
+Thu Oct 25 01:02:28 2007: PCI rxdone = 0
+Thu Oct 25 01:02:28 2007: JINJ      :     52
+Thu Oct 25 01:02:28 2007: Getting last event numbers...
+Thu Oct 25 01:02:28 2007: PCI rxdone = 0
+Thu Oct 25 01:02:28 2007: Main       :     56
+Thu Oct 25 01:02:28 2007: PCI rxdone = 0
+Thu Oct 25 01:02:28 2007: TDR 06     :     60
+Thu Oct 25 01:02:28 2007: PCI rxdone = 0
+Thu Oct 25 01:02:28 2007: TDR 07     :     60
+Thu Oct 25 01:02:28 2007: PCI rxdone = 0
+Thu Oct 25 01:02:28 2007: TDR 10     :     60
+Thu Oct 25 01:02:28 2007: PCI rxdone = 0
+Thu Oct 25 01:02:28 2007: TDR 11     :     60
+Thu Oct 25 01:02:28 2007: Thu Oct 25 01:02:28 2007: Printing all last event numbers...
+    18 ||    52  |     56 |06     60 |07     60 |10     60 |11     60
+Thu Oct 25 01:02:28 2007: Printing all last event numbers...
+Thu Oct 25 01:02:28 2007: Getting last event numbers...
+Thu Oct 25 01:02:28 2007: PCI rxdone = 0
+Thu Oct 25 01:02:28 2007: JINJ      :     53
+Thu Oct 25 01:02:28 2007: Getting last event numbers...
+Thu Oct 25 01:02:28 2007: PCI rxdone = 0
+Thu Oct 25 01:02:28 2007: Main       :     57
+Thu Oct 25 01:02:28 2007: PCI rxdone = 0
+Thu Oct 25 01:02:28 2007: TDR 06     :     61
+Thu Oct 25 01:02:28 2007: PCI rxdone = 0
+Thu Oct 25 01:02:28 2007: TDR 07     :     61
+Thu Oct 25 01:02:28 2007: PCI rxdone = 0
+Thu Oct 25 01:02:28 2007: TDR 10     :     61
+Thu Oct 25 01:02:28 2007: PCI rxdone = 0
+Thu Oct 25 01:02:28 2007: TDR 11     :     61
+Thu Oct 25 01:02:28 2007: Thu Oct 25 01:02:28 2007: Printing all last event numbers...
+    18 ||    53  |     57 |06     61 |07     61 |10     61 |11     61
+Thu Oct 25 01:02:29 2007: Printing all last event numbers...
+Thu Oct 25 01:02:29 2007: Getting last event numbers...
+Thu Oct 25 01:02:29 2007: PCI rxdone = 0
+Thu Oct 25 01:02:29 2007: JINJ      :     54
+Thu Oct 25 01:02:29 2007: Getting last event numbers...
+Thu Oct 25 01:02:29 2007: PCI rxdone = 0
+Thu Oct 25 01:02:29 2007: Main       :     58
+Thu Oct 25 01:02:29 2007: PCI rxdone = 0
+Thu Oct 25 01:02:29 2007: TDR 06     :     62
+Thu Oct 25 01:02:29 2007: PCI rxdone = 0
+Thu Oct 25 01:02:29 2007: TDR 07     :     62
+Thu Oct 25 01:02:29 2007: PCI rxdone = 0
+Thu Oct 25 01:02:29 2007: TDR 10     :     62
+Thu Oct 25 01:02:29 2007: PCI rxdone = 0
+Thu Oct 25 01:02:29 2007: TDR 11     :     62
+Thu Oct 25 01:02:29 2007: Thu Oct 25 01:02:29 2007: Printing all last event numbers...
+    18 ||    54  |     58 |06     62 |07     62 |10     62 |11     62
+Thu Oct 25 01:02:29 2007: Printing all last event numbers...
+Thu Oct 25 01:02:30 2007: Getting last event numbers...
+Thu Oct 25 01:02:30 2007: PCI rxdone = 0
+Thu Oct 25 01:02:30 2007: JINJ      :     55
+Thu Oct 25 01:02:30 2007: Getting last event numbers...
+Thu Oct 25 01:02:30 2007: PCI rxdone = 0
+Thu Oct 25 01:02:30 2007: Main       :     59
+Thu Oct 25 01:02:30 2007: PCI rxdone = 0
+Thu Oct 25 01:02:30 2007: TDR 06     :     63
+Thu Oct 25 01:02:30 2007: PCI rxdone = 0
+Thu Oct 25 01:02:30 2007: TDR 07     :     63
+Thu Oct 25 01:02:30 2007: PCI rxdone = 0
+Thu Oct 25 01:02:30 2007: TDR 10     :     63
+Thu Oct 25 01:02:30 2007: PCI rxdone = 0
+Thu Oct 25 01:02:30 2007: TDR 11     :     63
+Thu Oct 25 01:02:30 2007: Thu Oct 25 01:02:30 2007: Printing all last event numbers...
+    18 ||    55  |     59 |06     63 |07     63 |10     63 |11     63
+Thu Oct 25 01:02:30 2007: Printing all last event numbers...
+Thu Oct 25 01:02:30 2007: Getting last event numbers...
+Thu Oct 25 01:02:30 2007: PCI rxdone = 0
+Thu Oct 25 01:02:30 2007: JINJ      :     56
+Thu Oct 25 01:02:30 2007: Getting last event numbers...
+Thu Oct 25 01:02:30 2007: PCI rxdone = 0
+Thu Oct 25 01:02:30 2007: Main       :     60
+Thu Oct 25 01:02:30 2007: PCI rxdone = 0
+Thu Oct 25 01:02:30 2007: TDR 06     :     64
+Thu Oct 25 01:02:30 2007: PCI rxdone = 0
+Thu Oct 25 01:02:30 2007: TDR 07     :     64
+Thu Oct 25 01:02:30 2007: PCI rxdone = 0
+Thu Oct 25 01:02:30 2007: TDR 10     :     64
+Thu Oct 25 01:02:30 2007: PCI rxdone = 0
+Thu Oct 25 01:02:30 2007: TDR 11     :     64
+Thu Oct 25 01:02:30 2007: Thu Oct 25 01:02:30 2007: Printing all last event numbers...
+    18 ||    56  |     60 |06     64 |07     64 |10     64 |11     64
+Thu Oct 25 01:02:31 2007: Printing all last event numbers...
+Thu Oct 25 01:02:31 2007: Getting last event numbers...
+Thu Oct 25 01:02:31 2007: PCI rxdone = 0
+Thu Oct 25 01:02:31 2007: JINJ      :     57
+Thu Oct 25 01:02:31 2007: Getting last event numbers...
+Thu Oct 25 01:02:31 2007: PCI rxdone = 0
+Thu Oct 25 01:02:31 2007: Main       :     61
+Thu Oct 25 01:02:31 2007: PCI rxdone = 0
+Thu Oct 25 01:02:31 2007: TDR 06     :     65
+Thu Oct 25 01:02:31 2007: PCI rxdone = 0
+Thu Oct 25 01:02:31 2007: TDR 07     :     65
+Thu Oct 25 01:02:31 2007: PCI rxdone = 0
+Thu Oct 25 01:02:31 2007: TDR 10     :     65
+Thu Oct 25 01:02:31 2007: PCI rxdone = 0
+Thu Oct 25 01:02:31 2007: TDR 11     :     65
+Thu Oct 25 01:02:31 2007: Thu Oct 25 01:02:31 2007: Printing all last event numbers...
+    18 ||    57  |     61 |06     65 |07     65 |10     65 |11     65
+Thu Oct 25 01:02:31 2007: Printing all last event numbers...
+Thu Oct 25 01:02:32 2007: Getting last event numbers...
+Thu Oct 25 01:02:32 2007: PCI rxdone = 0
+Thu Oct 25 01:02:32 2007: JINJ      :     58
+Thu Oct 25 01:02:32 2007: Getting last event numbers...
+Thu Oct 25 01:02:32 2007: PCI rxdone = 0
+Thu Oct 25 01:02:32 2007: Main       :     62
+Thu Oct 25 01:02:32 2007: PCI rxdone = 0
+Thu Oct 25 01:02:32 2007: TDR 06     :     66
+Thu Oct 25 01:02:32 2007: PCI rxdone = 0
+Thu Oct 25 01:02:32 2007: TDR 07     :     66
+Thu Oct 25 01:02:32 2007: PCI rxdone = 0
+Thu Oct 25 01:02:32 2007: TDR 10     :     66
+Thu Oct 25 01:02:32 2007: PCI rxdone = 0
+Thu Oct 25 01:02:32 2007: TDR 11     :     66
+Thu Oct 25 01:02:32 2007: Thu Oct 25 01:02:32 2007: Printing all last event numbers...
+    18 ||    58  |     62 |06     66 |07     66 |10     66 |11     66
+Thu Oct 25 01:02:32 2007: Printing all last event numbers...
+Thu Oct 25 01:02:32 2007: Getting last event numbers...
+Thu Oct 25 01:02:32 2007: PCI rxdone = 0
+Thu Oct 25 01:02:32 2007: JINJ      :     59
+Thu Oct 25 01:02:32 2007: Getting last event numbers...
+Thu Oct 25 01:02:32 2007: PCI rxdone = 0
+Thu Oct 25 01:02:32 2007: Main       :     63
+Thu Oct 25 01:02:32 2007: PCI rxdone = 0
+Thu Oct 25 01:02:32 2007: TDR 06     :     67
+Thu Oct 25 01:02:32 2007: PCI rxdone = 0
+Thu Oct 25 01:02:32 2007: TDR 07     :     67
+Thu Oct 25 01:02:32 2007: PCI rxdone = 0
+Thu Oct 25 01:02:32 2007: TDR 10     :     67
+Thu Oct 25 01:02:32 2007: PCI rxdone = 0
+Thu Oct 25 01:02:32 2007: TDR 11     :     67
+Thu Oct 25 01:02:32 2007: Thu Oct 25 01:02:32 2007: Printing all last event numbers...
+    18 ||    59  |     63 |06     67 |07     67 |10     67 |11     67
+Thu Oct 25 01:02:33 2007: Printing all last event numbers...
+Thu Oct 25 01:02:33 2007: Getting last event numbers...
+Thu Oct 25 01:02:33 2007: PCI rxdone = 0
+Thu Oct 25 01:02:33 2007: JINJ      :     60
+Thu Oct 25 01:02:33 2007: Getting last event numbers...
+Thu Oct 25 01:02:33 2007: PCI rxdone = 0
+Thu Oct 25 01:02:33 2007: Main       :     64
+Thu Oct 25 01:02:33 2007: PCI rxdone = 0
+Thu Oct 25 01:02:33 2007: TDR 06     :     68
+Thu Oct 25 01:02:33 2007: PCI rxdone = 0
+Thu Oct 25 01:02:33 2007: TDR 07     :     68
+Thu Oct 25 01:02:33 2007: PCI rxdone = 0
+Thu Oct 25 01:02:33 2007: TDR 10     :     68
+Thu Oct 25 01:02:33 2007: PCI rxdone = 0
+Thu Oct 25 01:02:33 2007: TDR 11     :     68
+Thu Oct 25 01:02:33 2007: Thu Oct 25 01:02:33 2007: Printing all last event numbers...
+    18 ||    60  |     64 |06     68 |07     68 |10     68 |11     68
+Thu Oct 25 01:02:33 2007: Printing all last event numbers...
+Thu Oct 25 01:02:34 2007: Getting last event numbers...
+Thu Oct 25 01:02:34 2007: PCI rxdone = 0
+Thu Oct 25 01:02:34 2007: JINJ      :     61
+Thu Oct 25 01:02:34 2007: Getting last event numbers...
+Thu Oct 25 01:02:34 2007: PCI rxdone = 0
+Thu Oct 25 01:02:34 2007: Main       :     65
+Thu Oct 25 01:02:34 2007: PCI rxdone = 0
+Thu Oct 25 01:02:34 2007: TDR 06     :     69
+Thu Oct 25 01:02:34 2007: PCI rxdone = 0
+Thu Oct 25 01:02:34 2007: TDR 07     :     69
+Thu Oct 25 01:02:34 2007: PCI rxdone = 0
+Thu Oct 25 01:02:34 2007: TDR 10     :     69
+Thu Oct 25 01:02:34 2007: PCI rxdone = 0
+Thu Oct 25 01:02:34 2007: TDR 11     :     69
+Thu Oct 25 01:02:34 2007: Thu Oct 25 01:02:34 2007: Printing all last event numbers...
+    18 ||    61  |     65 |06     69 |07     69 |10     69 |11     69
+Thu Oct 25 01:02:34 2007: Printing all last event numbers...
+Thu Oct 25 01:02:34 2007: Getting last event numbers...
+Thu Oct 25 01:02:34 2007: PCI rxdone = 0
+Thu Oct 25 01:02:34 2007: JINJ      :     62
+Thu Oct 25 01:02:34 2007: Getting last event numbers...
+Thu Oct 25 01:02:34 2007: PCI rxdone = 0
+Thu Oct 25 01:02:34 2007: Main       :     66
+Thu Oct 25 01:02:34 2007: PCI rxdone = 0
+Thu Oct 25 01:02:34 2007: TDR 06     :     70
+Thu Oct 25 01:02:34 2007: PCI rxdone = 0
+Thu Oct 25 01:02:34 2007: TDR 07     :     70
+Thu Oct 25 01:02:34 2007: PCI rxdone = 0
+Thu Oct 25 01:02:34 2007: TDR 10     :     70
+Thu Oct 25 01:02:34 2007: PCI rxdone = 0
+Thu Oct 25 01:02:34 2007: TDR 11     :     70
+Thu Oct 25 01:02:34 2007: Thu Oct 25 01:02:34 2007: Printing all last event numbers...
+    18 ||    62  |     66 |06     70 |07     70 |10     70 |11     70
+Thu Oct 25 01:02:35 2007: Printing all last event numbers...
+Thu Oct 25 01:02:35 2007: Getting last event numbers...
+Thu Oct 25 01:02:35 2007: PCI rxdone = 0
+Thu Oct 25 01:02:35 2007: JINJ      :     63
+Thu Oct 25 01:02:35 2007: Getting last event numbers...
+Thu Oct 25 01:02:35 2007: PCI rxdone = 0
+Thu Oct 25 01:02:35 2007: Main       :     67
+Thu Oct 25 01:02:35 2007: PCI rxdone = 0
+Thu Oct 25 01:02:35 2007: TDR 06     :     71
+Thu Oct 25 01:02:35 2007: PCI rxdone = 0
+Thu Oct 25 01:02:35 2007: TDR 07     :     71
+Thu Oct 25 01:02:35 2007: PCI rxdone = 0
+Thu Oct 25 01:02:35 2007: TDR 10     :     71
+Thu Oct 25 01:02:35 2007: PCI rxdone = 0
+Thu Oct 25 01:02:35 2007: TDR 11     :     71
+Thu Oct 25 01:02:35 2007: Thu Oct 25 01:02:35 2007: Printing all last event numbers...
+    18 ||    63  |     67 |06     71 |07     71 |10     71 |11     71
+Thu Oct 25 01:02:35 2007: Printing all last event numbers...
+Thu Oct 25 01:02:36 2007: Getting last event numbers...
+Thu Oct 25 01:02:36 2007: PCI rxdone = 0
+Thu Oct 25 01:02:36 2007: JINJ      :     64
+Thu Oct 25 01:02:36 2007: Getting last event numbers...
+Thu Oct 25 01:02:36 2007: PCI rxdone = 0
+Thu Oct 25 01:02:36 2007: Main       :     68
+Thu Oct 25 01:02:36 2007: PCI rxdone = 0
+Thu Oct 25 01:02:36 2007: TDR 06     :     72
+Thu Oct 25 01:02:36 2007: PCI rxdone = 0
+Thu Oct 25 01:02:36 2007: TDR 07     :     72
+Thu Oct 25 01:02:36 2007: PCI rxdone = 0
+Thu Oct 25 01:02:36 2007: TDR 10     :     72
+Thu Oct 25 01:02:36 2007: PCI rxdone = 0
+Thu Oct 25 01:02:36 2007: TDR 11     :     72
+Thu Oct 25 01:02:36 2007: Thu Oct 25 01:02:36 2007: Printing all last event numbers...
+    18 ||    64  |     68 |06     72 |07     72 |10     72 |11     72
+Thu Oct 25 01:02:36 2007: Printing all last event numbers...
+Thu Oct 25 01:02:36 2007: Getting last event numbers...
+Thu Oct 25 01:02:36 2007: PCI rxdone = 0
+Thu Oct 25 01:02:36 2007: JINJ      :     65
+Thu Oct 25 01:02:36 2007: Getting last event numbers...
+Thu Oct 25 01:02:36 2007: PCI rxdone = 0
+Thu Oct 25 01:02:36 2007: Main       :     69
+Thu Oct 25 01:02:36 2007: PCI rxdone = 0
+Thu Oct 25 01:02:36 2007: TDR 06     :     73
+Thu Oct 25 01:02:36 2007: PCI rxdone = 0
+Thu Oct 25 01:02:36 2007: TDR 07     :     73
+Thu Oct 25 01:02:36 2007: PCI rxdone = 0
+Thu Oct 25 01:02:36 2007: TDR 10     :     73
+Thu Oct 25 01:02:36 2007: PCI rxdone = 0
+Thu Oct 25 01:02:36 2007: TDR 11     :     73
+Thu Oct 25 01:02:36 2007: Thu Oct 25 01:02:36 2007: Printing all last event numbers...
+    18 ||    65  |     69 |06     73 |07     73 |10     73 |11     73
+Thu Oct 25 01:02:37 2007: Printing all last event numbers...
+Thu Oct 25 01:02:37 2007: Getting last event numbers...
+Thu Oct 25 01:02:37 2007: PCI rxdone = 0
+Thu Oct 25 01:02:37 2007: JINJ      :     66
+Thu Oct 25 01:02:37 2007: Getting last event numbers...
+Thu Oct 25 01:02:37 2007: PCI rxdone = 0
+Thu Oct 25 01:02:37 2007: Main       :     70
+Thu Oct 25 01:02:37 2007: PCI rxdone = 0
+Thu Oct 25 01:02:37 2007: TDR 06     :     74
+Thu Oct 25 01:02:37 2007: PCI rxdone = 0
+Thu Oct 25 01:02:37 2007: TDR 07     :     74
+Thu Oct 25 01:02:37 2007: PCI rxdone = 0
+Thu Oct 25 01:02:37 2007: TDR 10     :     74
+Thu Oct 25 01:02:37 2007: PCI rxdone = 0
+Thu Oct 25 01:02:37 2007: TDR 11     :     74
+Thu Oct 25 01:02:37 2007: Thu Oct 25 01:02:37 2007: Printing all last event numbers...
+    18 ||    66  |     70 |06     74 |07     74 |10     74 |11     74
+Thu Oct 25 01:02:37 2007: Printing all last event numbers...
+Thu Oct 25 01:02:38 2007: Getting last event numbers...
+Thu Oct 25 01:02:38 2007: PCI rxdone = 0
+Thu Oct 25 01:02:38 2007: JINJ      :     67
+Thu Oct 25 01:02:38 2007: Getting last event numbers...
+Thu Oct 25 01:02:38 2007: PCI rxdone = 0
+Thu Oct 25 01:02:38 2007: Main       :     71
+Thu Oct 25 01:02:38 2007: PCI rxdone = 0
+Thu Oct 25 01:02:38 2007: TDR 06     :     75
+Thu Oct 25 01:02:38 2007: PCI rxdone = 0
+Thu Oct 25 01:02:38 2007: TDR 07     :     75
+Thu Oct 25 01:02:38 2007: PCI rxdone = 0
+Thu Oct 25 01:02:38 2007: TDR 10     :     75
+Thu Oct 25 01:02:38 2007: PCI rxdone = 0
+Thu Oct 25 01:02:38 2007: TDR 11     :     75
+Thu Oct 25 01:02:38 2007: Thu Oct 25 01:02:38 2007: Printing all last event numbers...
+    18 ||    67  |     71 |06     75 |07     75 |10     75 |11     75
+Thu Oct 25 01:02:38 2007: Printing all last event numbers...
+Thu Oct 25 01:02:38 2007: Getting last event numbers...
+Thu Oct 25 01:02:38 2007: PCI rxdone = 0
+Thu Oct 25 01:02:38 2007: JINJ      :     68
+Thu Oct 25 01:02:38 2007: Getting last event numbers...
+Thu Oct 25 01:02:38 2007: PCI rxdone = 0
+Thu Oct 25 01:02:38 2007: Main       :     72
+Thu Oct 25 01:02:38 2007: PCI rxdone = 0
+Thu Oct 25 01:02:38 2007: TDR 06     :     76
+Thu Oct 25 01:02:38 2007: PCI rxdone = 0
+Thu Oct 25 01:02:38 2007: TDR 07     :     76
+Thu Oct 25 01:02:38 2007: PCI rxdone = 0
+Thu Oct 25 01:02:38 2007: TDR 10     :     76
+Thu Oct 25 01:02:38 2007: PCI rxdone = 0
+Thu Oct 25 01:02:38 2007: TDR 11     :     76
+Thu Oct 25 01:02:38 2007: Thu Oct 25 01:02:38 2007: Printing all last event numbers...
+    18 ||    68  |     72 |06     76 |07     76 |10     76 |11     76
+Thu Oct 25 01:02:39 2007: Printing all last event numbers...
+Thu Oct 25 01:02:39 2007: Getting last event numbers...
+Thu Oct 25 01:02:39 2007: PCI rxdone = 0
+Thu Oct 25 01:02:39 2007: JINJ      :     69
+Thu Oct 25 01:02:39 2007: Getting last event numbers...
+Thu Oct 25 01:02:39 2007: PCI rxdone = 0
+Thu Oct 25 01:02:39 2007: Main       :     73
+Thu Oct 25 01:02:39 2007: PCI rxdone = 0
+Thu Oct 25 01:02:39 2007: TDR 06     :     77
+Thu Oct 25 01:02:39 2007: PCI rxdone = 0
+Thu Oct 25 01:02:39 2007: TDR 07     :     77
+Thu Oct 25 01:02:39 2007: PCI rxdone = 0
+Thu Oct 25 01:02:39 2007: TDR 10     :     77
+Thu Oct 25 01:02:39 2007: PCI rxdone = 0
+Thu Oct 25 01:02:39 2007: TDR 11     :     77
+Thu Oct 25 01:02:39 2007: Thu Oct 25 01:02:39 2007: Printing all last event numbers...
+    18 ||    69  |     73 |06     77 |07     77 |10     77 |11     77
+Thu Oct 25 01:02:39 2007: Printing all last event numbers...
+Thu Oct 25 01:02:39 2007: Getting last event numbers...
+Thu Oct 25 01:02:39 2007: PCI rxdone = 0
+Thu Oct 25 01:02:39 2007: JINJ      :     70
+Thu Oct 25 01:02:39 2007: Getting last event numbers...
+Thu Oct 25 01:02:39 2007: PCI rxdone = 0
+Thu Oct 25 01:02:39 2007: Main       :     74
+Thu Oct 25 01:02:39 2007: PCI rxdone = 0
+Thu Oct 25 01:02:39 2007: TDR 06     :     78
+Thu Oct 25 01:02:39 2007: PCI rxdone = 0
+Thu Oct 25 01:02:39 2007: TDR 07     :     78
+Thu Oct 25 01:02:39 2007: PCI rxdone = 0
+Thu Oct 25 01:02:39 2007: TDR 10     :     78
+Thu Oct 25 01:02:39 2007: PCI rxdone = 0
+Thu Oct 25 01:02:39 2007: TDR 11     :     78
+Thu Oct 25 01:02:39 2007: Thu Oct 25 01:02:39 2007: Printing all last event numbers...
+    18 ||    70  |     74 |06     78 |07     78 |10     78 |11     78
+Thu Oct 25 01:02:40 2007: Printing all last event numbers...
+Thu Oct 25 01:02:40 2007: Getting last event numbers...
+Thu Oct 25 01:02:40 2007: PCI rxdone = 0
+Thu Oct 25 01:02:40 2007: JINJ      :     71
+Thu Oct 25 01:02:40 2007: Getting last event numbers...
+Thu Oct 25 01:02:40 2007: PCI rxdone = 0
+Thu Oct 25 01:02:40 2007: Main       :     75
+Thu Oct 25 01:02:40 2007: PCI rxdone = 0
+Thu Oct 25 01:02:40 2007: TDR 06     :     79
+Thu Oct 25 01:02:40 2007: PCI rxdone = 0
+Thu Oct 25 01:02:40 2007: TDR 07     :     79
+Thu Oct 25 01:02:40 2007: PCI rxdone = 0
+Thu Oct 25 01:02:40 2007: TDR 10     :     79
+Thu Oct 25 01:02:40 2007: PCI rxdone = 0
+Thu Oct 25 01:02:40 2007: TDR 11     :     79
+Thu Oct 25 01:02:40 2007: Thu Oct 25 01:02:40 2007: Printing all last event numbers...
+    18 ||    71  |     75 |06     79 |07     79 |10     79 |11     79
+Thu Oct 25 01:02:40 2007: Printing all last event numbers...
+Thu Oct 25 01:02:41 2007: Getting last event numbers...
+Thu Oct 25 01:02:41 2007: PCI rxdone = 0
+Thu Oct 25 01:02:41 2007: JINJ      :     72
+Thu Oct 25 01:02:41 2007: Getting last event numbers...
+Thu Oct 25 01:02:41 2007: PCI rxdone = 0
+Thu Oct 25 01:02:41 2007: Main       :     76
+Thu Oct 25 01:02:41 2007: PCI rxdone = 0
+Thu Oct 25 01:02:41 2007: TDR 06     :     80
+Thu Oct 25 01:02:41 2007: PCI rxdone = 0
+Thu Oct 25 01:02:41 2007: TDR 07     :     80
+Thu Oct 25 01:02:41 2007: PCI rxdone = 0
+Thu Oct 25 01:02:41 2007: TDR 10     :     80
+Thu Oct 25 01:02:41 2007: PCI rxdone = 0
+Thu Oct 25 01:02:41 2007: TDR 11     :     80
+Thu Oct 25 01:02:41 2007: Thu Oct 25 01:02:41 2007: Printing all last event numbers...
+    18 ||    72  |     76 |06     80 |07     80 |10     80 |11     80
+Thu Oct 25 01:02:41 2007: Printing all last event numbers...
+Thu Oct 25 01:02:41 2007: Getting last event numbers...
+Thu Oct 25 01:02:41 2007: PCI rxdone = 0
+Thu Oct 25 01:02:41 2007: JINJ      :     73
+Thu Oct 25 01:02:41 2007: Getting last event numbers...
+Thu Oct 25 01:02:41 2007: PCI rxdone = 0
+Thu Oct 25 01:02:41 2007: Main       :     77
+Thu Oct 25 01:02:41 2007: PCI rxdone = 0
+Thu Oct 25 01:02:41 2007: TDR 06     :     81
+Thu Oct 25 01:02:41 2007: PCI rxdone = 0
+Thu Oct 25 01:02:41 2007: TDR 07     :     81
+Thu Oct 25 01:02:41 2007: PCI rxdone = 0
+Thu Oct 25 01:02:41 2007: TDR 10     :     81
+Thu Oct 25 01:02:41 2007: PCI rxdone = 0
+Thu Oct 25 01:02:41 2007: TDR 11     :     81
+Thu Oct 25 01:02:41 2007: Thu Oct 25 01:02:41 2007: Printing all last event numbers...
+    18 ||    73  |     77 |06     81 |07     81 |10     81 |11     81
+Thu Oct 25 01:02:42 2007: Printing all last event numbers...
+Thu Oct 25 01:02:42 2007: Getting last event numbers...
+Thu Oct 25 01:02:42 2007: PCI rxdone = 0
+Thu Oct 25 01:02:42 2007: JINJ      :     74
+Thu Oct 25 01:02:42 2007: Getting last event numbers...
+Thu Oct 25 01:02:42 2007: PCI rxdone = 0
+Thu Oct 25 01:02:42 2007: Main       :     78
+Thu Oct 25 01:02:42 2007: PCI rxdone = 0
+Thu Oct 25 01:02:42 2007: TDR 06     :     82
+Thu Oct 25 01:02:42 2007: PCI rxdone = 0
+Thu Oct 25 01:02:42 2007: TDR 07     :     82
+Thu Oct 25 01:02:42 2007: PCI rxdone = 0
+Thu Oct 25 01:02:42 2007: TDR 10     :     82
+Thu Oct 25 01:02:42 2007: PCI rxdone = 0
+Thu Oct 25 01:02:42 2007: TDR 11     :     82
+Thu Oct 25 01:02:42 2007: Thu Oct 25 01:02:42 2007: Printing all last event numbers...
+    18 ||    74  |     78 |06     82 |07     82 |10     82 |11     82
+Thu Oct 25 01:02:42 2007: Printing all last event numbers...
+Thu Oct 25 01:02:43 2007: Getting last event numbers...
+Thu Oct 25 01:02:43 2007: PCI rxdone = 0
+Thu Oct 25 01:02:43 2007: JINJ      :     75
+Thu Oct 25 01:02:43 2007: Getting last event numbers...
+Thu Oct 25 01:02:43 2007: PCI rxdone = 0
+Thu Oct 25 01:02:43 2007: Main       :     79
+Thu Oct 25 01:02:43 2007: PCI rxdone = 0
+Thu Oct 25 01:02:43 2007: TDR 06     :     83
+Thu Oct 25 01:02:43 2007: PCI rxdone = 0
+Thu Oct 25 01:02:43 2007: TDR 07     :     83
+Thu Oct 25 01:02:43 2007: PCI rxdone = 0
+Thu Oct 25 01:02:43 2007: TDR 10     :     83
+Thu Oct 25 01:02:43 2007: PCI rxdone = 0
+Thu Oct 25 01:02:43 2007: TDR 11     :     83
+Thu Oct 25 01:02:43 2007: Thu Oct 25 01:02:43 2007: Printing all last event numbers...
+    18 ||    75  |     79 |06     83 |07     83 |10     83 |11     83
+Thu Oct 25 01:02:43 2007: Printing all last event numbers...
+Thu Oct 25 01:02:43 2007: Getting last event numbers...
+Thu Oct 25 01:02:43 2007: PCI rxdone = 0
+Thu Oct 25 01:02:43 2007: JINJ      :     76
+Thu Oct 25 01:02:43 2007: Getting last event numbers...
+Thu Oct 25 01:02:43 2007: PCI rxdone = 0
+Thu Oct 25 01:02:43 2007: Main       :     80
+Thu Oct 25 01:02:43 2007: PCI rxdone = 0
+Thu Oct 25 01:02:43 2007: TDR 06     :     84
+Thu Oct 25 01:02:43 2007: PCI rxdone = 0
+Thu Oct 25 01:02:43 2007: TDR 07     :     84
+Thu Oct 25 01:02:43 2007: PCI rxdone = 0
+Thu Oct 25 01:02:43 2007: TDR 10     :     84
+Thu Oct 25 01:02:43 2007: PCI rxdone = 0
+Thu Oct 25 01:02:43 2007: TDR 11     :     84
+Thu Oct 25 01:02:43 2007: Thu Oct 25 01:02:43 2007: Printing all last event numbers...
+    18 ||    76  |     80 |06     84 |07     84 |10     84 |11     84
+Thu Oct 25 01:02:44 2007: Printing all last event numbers...
+Thu Oct 25 01:02:44 2007: Getting last event numbers...
+Thu Oct 25 01:02:44 2007: PCI rxdone = 0
+Thu Oct 25 01:02:44 2007: JINJ      :     77
+Thu Oct 25 01:02:44 2007: Getting last event numbers...
+Thu Oct 25 01:02:44 2007: PCI rxdone = 0
+Thu Oct 25 01:02:44 2007: Main       :     81
+Thu Oct 25 01:02:44 2007: PCI rxdone = 0
+Thu Oct 25 01:02:44 2007: TDR 06     :     85
+Thu Oct 25 01:02:44 2007: PCI rxdone = 0
+Thu Oct 25 01:02:44 2007: TDR 07     :     85
+Thu Oct 25 01:02:44 2007: PCI rxdone = 0
+Thu Oct 25 01:02:44 2007: TDR 10     :     85
+Thu Oct 25 01:02:44 2007: PCI rxdone = 0
+Thu Oct 25 01:02:44 2007: TDR 11     :     85
+Thu Oct 25 01:02:44 2007: Thu Oct 25 01:02:44 2007: Printing all last event numbers...
+    18 ||    77  |     81 |06     85 |07     85 |10     85 |11     85
+Thu Oct 25 01:02:44 2007: Printing all last event numbers...
+Thu Oct 25 01:02:45 2007: Getting last event numbers...
+Thu Oct 25 01:02:45 2007: PCI rxdone = 0
+Thu Oct 25 01:02:45 2007: JINJ      :     78
+Thu Oct 25 01:02:45 2007: Getting last event numbers...
+Thu Oct 25 01:02:45 2007: PCI rxdone = 0
+Thu Oct 25 01:02:45 2007: Main       :     82
+Thu Oct 25 01:02:45 2007: PCI rxdone = 0
+Thu Oct 25 01:02:45 2007: TDR 06     :     86
+Thu Oct 25 01:02:45 2007: PCI rxdone = 0
+Thu Oct 25 01:02:45 2007: TDR 07     :     86
+Thu Oct 25 01:02:45 2007: PCI rxdone = 0
+Thu Oct 25 01:02:45 2007: TDR 10     :     86
+Thu Oct 25 01:02:45 2007: PCI rxdone = 0
+Thu Oct 25 01:02:45 2007: TDR 11     :     86
+Thu Oct 25 01:02:45 2007: Thu Oct 25 01:02:45 2007: Printing all last event numbers...
+    18 ||    78  |     82 |06     86 |07     86 |10     86 |11     86
+Thu Oct 25 01:02:45 2007: Printing all last event numbers...
+Thu Oct 25 01:02:45 2007: Getting last event numbers...
+Thu Oct 25 01:02:45 2007: PCI rxdone = 0
+Thu Oct 25 01:02:45 2007: JINJ      :     79
+Thu Oct 25 01:02:45 2007: Getting last event numbers...
+Thu Oct 25 01:02:45 2007: PCI rxdone = 0
+Thu Oct 25 01:02:45 2007: Main       :     83
+Thu Oct 25 01:02:45 2007: PCI rxdone = 0
+Thu Oct 25 01:02:45 2007: TDR 06     :     87
+Thu Oct 25 01:02:45 2007: PCI rxdone = 0
+Thu Oct 25 01:02:45 2007: TDR 07     :     87
+Thu Oct 25 01:02:45 2007: PCI rxdone = 0
+Thu Oct 25 01:02:45 2007: TDR 10     :     87
+Thu Oct 25 01:02:45 2007: PCI rxdone = 0
+Thu Oct 25 01:02:45 2007: TDR 11     :     87
+Thu Oct 25 01:02:45 2007: Thu Oct 25 01:02:45 2007: Printing all last event numbers...
+    18 ||    79  |     83 |06     87 |07     87 |10     87 |11     87
+Thu Oct 25 01:02:46 2007: Printing all last event numbers...
+Thu Oct 25 01:02:46 2007: Getting last event numbers...
+Thu Oct 25 01:02:46 2007: PCI rxdone = 0
+Thu Oct 25 01:02:46 2007: JINJ      :     80
+Thu Oct 25 01:02:46 2007: Getting last event numbers...
+Thu Oct 25 01:02:46 2007: PCI rxdone = 0
+Thu Oct 25 01:02:46 2007: Main       :     84
+Thu Oct 25 01:02:46 2007: PCI rxdone = 0
+Thu Oct 25 01:02:46 2007: TDR 06     :     88
+Thu Oct 25 01:02:46 2007: PCI rxdone = 0
+Thu Oct 25 01:02:46 2007: TDR 07     :     88
+Thu Oct 25 01:02:46 2007: PCI rxdone = 0
+Thu Oct 25 01:02:46 2007: TDR 10     :     88
+Thu Oct 25 01:02:46 2007: PCI rxdone = 0
+Thu Oct 25 01:02:46 2007: TDR 11     :     88
+Thu Oct 25 01:02:46 2007: Thu Oct 25 01:02:46 2007: Printing all last event numbers...
+    18 ||    80  |     84 |06     88 |07     88 |10     88 |11     88
+Thu Oct 25 01:02:46 2007: Printing all last event numbers...
+Thu Oct 25 01:02:47 2007: Getting last event numbers...
+Thu Oct 25 01:02:47 2007: PCI rxdone = 0
+Thu Oct 25 01:02:47 2007: JINJ      :     81
+Thu Oct 25 01:02:47 2007: Getting last event numbers...
+Thu Oct 25 01:02:47 2007: PCI rxdone = 0
+Thu Oct 25 01:02:47 2007: Main       :     85
+Thu Oct 25 01:02:47 2007: PCI rxdone = 0
+Thu Oct 25 01:02:47 2007: TDR 06     :     89
+Thu Oct 25 01:02:47 2007: PCI rxdone = 0
+Thu Oct 25 01:02:47 2007: TDR 07     :     89
+Thu Oct 25 01:02:47 2007: PCI rxdone = 0
+Thu Oct 25 01:02:47 2007: TDR 10     :     89
+Thu Oct 25 01:02:47 2007: PCI rxdone = 0
+Thu Oct 25 01:02:47 2007: TDR 11     :     89
+Thu Oct 25 01:02:47 2007: Thu Oct 25 01:02:47 2007: Printing all last event numbers...
+    18 ||    81  |     85 |06     89 |07     89 |10     89 |11     89
+Thu Oct 25 01:02:47 2007: Printing all last event numbers...
+Thu Oct 25 01:02:47 2007: Getting last event numbers...
+Thu Oct 25 01:02:47 2007: PCI rxdone = 0
+Thu Oct 25 01:02:47 2007: JINJ      :     82
+Thu Oct 25 01:02:47 2007: Getting last event numbers...
+Thu Oct 25 01:02:47 2007: PCI rxdone = 0
+Thu Oct 25 01:02:47 2007: Main       :     86
+Thu Oct 25 01:02:47 2007: PCI rxdone = 0
+Thu Oct 25 01:02:47 2007: TDR 06     :     90
+Thu Oct 25 01:02:47 2007: PCI rxdone = 0
+Thu Oct 25 01:02:47 2007: TDR 07     :     90
+Thu Oct 25 01:02:47 2007: PCI rxdone = 0
+Thu Oct 25 01:02:47 2007: TDR 10     :     90
+Thu Oct 25 01:02:47 2007: PCI rxdone = 0
+Thu Oct 25 01:02:47 2007: TDR 11     :     90
+Thu Oct 25 01:02:47 2007: Thu Oct 25 01:02:47 2007: Printing all last event numbers...
+    18 ||    82  |     86 |06     90 |07     90 |10     90 |11     90
+Thu Oct 25 01:02:48 2007: Printing all last event numbers...
+Thu Oct 25 01:02:48 2007: Getting last event numbers...
+Thu Oct 25 01:02:48 2007: PCI rxdone = 0
+Thu Oct 25 01:02:48 2007: JINJ      :     83
+Thu Oct 25 01:02:48 2007: Getting last event numbers...
+Thu Oct 25 01:02:48 2007: PCI rxdone = 0
+Thu Oct 25 01:02:48 2007: Main       :     87
+Thu Oct 25 01:02:48 2007: PCI rxdone = 0
+Thu Oct 25 01:02:48 2007: TDR 06     :     91
+Thu Oct 25 01:02:48 2007: PCI rxdone = 0
+Thu Oct 25 01:02:48 2007: TDR 07     :     91
+Thu Oct 25 01:02:48 2007: PCI rxdone = 0
+Thu Oct 25 01:02:48 2007: TDR 10     :     91
+Thu Oct 25 01:02:48 2007: PCI rxdone = 0
+Thu Oct 25 01:02:48 2007: TDR 11     :     91
+Thu Oct 25 01:02:48 2007: Thu Oct 25 01:02:48 2007: Printing all last event numbers...
+    18 ||    83  |     87 |06     91 |07     91 |10     91 |11     91
+Thu Oct 25 01:02:48 2007: Printing all last event numbers...
+Thu Oct 25 01:02:49 2007: Getting last event numbers...
+Thu Oct 25 01:02:49 2007: PCI rxdone = 0
+Thu Oct 25 01:02:49 2007: JINJ      :     84
+Thu Oct 25 01:02:49 2007: Getting last event numbers...
+Thu Oct 25 01:02:49 2007: PCI rxdone = 0
+Thu Oct 25 01:02:49 2007: Main       :     88
+Thu Oct 25 01:02:49 2007: PCI rxdone = 0
+Thu Oct 25 01:02:49 2007: TDR 06     :     92
+Thu Oct 25 01:02:49 2007: PCI rxdone = 0
+Thu Oct 25 01:02:49 2007: TDR 07     :     92
+Thu Oct 25 01:02:49 2007: PCI rxdone = 0
+Thu Oct 25 01:02:49 2007: TDR 10     :     92
+Thu Oct 25 01:02:49 2007: PCI rxdone = 0
+Thu Oct 25 01:02:49 2007: TDR 11     :     92
+Thu Oct 25 01:02:49 2007: Thu Oct 25 01:02:49 2007: Printing all last event numbers...
+    18 ||    84  |     88 |06     92 |07     92 |10     92 |11     92
+Thu Oct 25 01:02:49 2007: Printing all last event numbers...
+Thu Oct 25 01:02:49 2007: Getting last event numbers...
+Thu Oct 25 01:02:49 2007: PCI rxdone = 0
+Thu Oct 25 01:02:49 2007: JINJ      :     85
+Thu Oct 25 01:02:49 2007: Getting last event numbers...
+Thu Oct 25 01:02:49 2007: PCI rxdone = 0
+Thu Oct 25 01:02:49 2007: Main       :     89
+Thu Oct 25 01:02:49 2007: PCI rxdone = 0
+Thu Oct 25 01:02:49 2007: TDR 06     :     93
+Thu Oct 25 01:02:49 2007: PCI rxdone = 0
+Thu Oct 25 01:02:49 2007: TDR 07     :     93
+Thu Oct 25 01:02:49 2007: PCI rxdone = 0
+Thu Oct 25 01:02:49 2007: TDR 10     :     93
+Thu Oct 25 01:02:49 2007: PCI rxdone = 0
+Thu Oct 25 01:02:49 2007: TDR 11     :     93
+Thu Oct 25 01:02:49 2007: Thu Oct 25 01:02:49 2007: Printing all last event numbers...
+    18 ||    85  |     89 |06     93 |07     93 |10     93 |11     93
+Thu Oct 25 01:02:50 2007: Printing all last event numbers...
+Thu Oct 25 01:02:50 2007: Getting last event numbers...
+Thu Oct 25 01:02:50 2007: PCI rxdone = 0
+Thu Oct 25 01:02:50 2007: JINJ      :     86
+Thu Oct 25 01:02:50 2007: Getting last event numbers...
+Thu Oct 25 01:02:50 2007: PCI rxdone = 0
+Thu Oct 25 01:02:50 2007: Main       :     90
+Thu Oct 25 01:02:50 2007: PCI rxdone = 0
+Thu Oct 25 01:02:50 2007: TDR 06     :     94
+Thu Oct 25 01:02:50 2007: PCI rxdone = 0
+Thu Oct 25 01:02:50 2007: TDR 07     :     94
+Thu Oct 25 01:02:50 2007: PCI rxdone = 0
+Thu Oct 25 01:02:50 2007: TDR 10     :     94
+Thu Oct 25 01:02:50 2007: PCI rxdone = 0
+Thu Oct 25 01:02:50 2007: TDR 11     :     94
+Thu Oct 25 01:02:50 2007: Thu Oct 25 01:02:50 2007: Printing all last event numbers...
+    18 ||    86  |     90 |06     94 |07     94 |10     94 |11     94
+Thu Oct 25 01:02:50 2007: Printing all last event numbers...
+Thu Oct 25 01:02:51 2007: Getting last event numbers...
+Thu Oct 25 01:02:51 2007: PCI rxdone = 0
+Thu Oct 25 01:02:51 2007: JINJ      :     87
+Thu Oct 25 01:02:51 2007: Getting last event numbers...
+Thu Oct 25 01:02:51 2007: PCI rxdone = 0
+Thu Oct 25 01:02:51 2007: Main       :     91
+Thu Oct 25 01:02:51 2007: PCI rxdone = 0
+Thu Oct 25 01:02:51 2007: TDR 06     :     95
+Thu Oct 25 01:02:51 2007: PCI rxdone = 0
+Thu Oct 25 01:02:51 2007: TDR 07     :     95
+Thu Oct 25 01:02:51 2007: PCI rxdone = 0
+Thu Oct 25 01:02:51 2007: TDR 10     :     95
+Thu Oct 25 01:02:51 2007: PCI rxdone = 0
+Thu Oct 25 01:02:51 2007: TDR 11     :     95
+Thu Oct 25 01:02:51 2007: Thu Oct 25 01:02:51 2007: Printing all last event numbers...
+    18 ||    87  |     91 |06     95 |07     95 |10     95 |11     95
+Thu Oct 25 01:02:51 2007: Printing all last event numbers...
+Thu Oct 25 01:02:51 2007: Getting last event numbers...
+Thu Oct 25 01:02:51 2007: PCI rxdone = 0
+Thu Oct 25 01:02:51 2007: JINJ      :     88
+Thu Oct 25 01:02:51 2007: Getting last event numbers...
+Thu Oct 25 01:02:51 2007: PCI rxdone = 0
+Thu Oct 25 01:02:51 2007: Main       :     92
+Thu Oct 25 01:02:51 2007: PCI rxdone = 0
+Thu Oct 25 01:02:51 2007: TDR 06     :     96
+Thu Oct 25 01:02:51 2007: PCI rxdone = 0
+Thu Oct 25 01:02:51 2007: TDR 07     :     96
+Thu Oct 25 01:02:51 2007: PCI rxdone = 0
+Thu Oct 25 01:02:51 2007: TDR 10     :     96
+Thu Oct 25 01:02:51 2007: PCI rxdone = 0
+Thu Oct 25 01:02:51 2007: TDR 11     :     96
+Thu Oct 25 01:02:51 2007: Thu Oct 25 01:02:51 2007: Printing all last event numbers...
+    18 ||    88  |     92 |06     96 |07     96 |10     96 |11     96
+Thu Oct 25 01:02:52 2007: Printing all last event numbers...
+Thu Oct 25 01:02:52 2007: Getting last event numbers...
+Thu Oct 25 01:02:52 2007: PCI rxdone = 0
+Thu Oct 25 01:02:52 2007: JINJ      :     89
+Thu Oct 25 01:02:52 2007: Getting last event numbers...
+Thu Oct 25 01:02:52 2007: PCI rxdone = 0
+Thu Oct 25 01:02:52 2007: Main       :     93
+Thu Oct 25 01:02:52 2007: PCI rxdone = 0
+Thu Oct 25 01:02:52 2007: TDR 06     :     97
+Thu Oct 25 01:02:52 2007: PCI rxdone = 0
+Thu Oct 25 01:02:52 2007: TDR 07     :     97
+Thu Oct 25 01:02:52 2007: PCI rxdone = 0
+Thu Oct 25 01:02:52 2007: TDR 10     :     97
+Thu Oct 25 01:02:52 2007: PCI rxdone = 0
+Thu Oct 25 01:02:52 2007: TDR 11     :     97
+Thu Oct 25 01:02:52 2007: Thu Oct 25 01:02:52 2007: Printing all last event numbers...
+    18 ||    89  |     93 |06     97 |07     97 |10     97 |11     97
+Thu Oct 25 01:02:52 2007: Printing all last event numbers...
+Thu Oct 25 01:02:53 2007: Getting last event numbers...
+Thu Oct 25 01:02:53 2007: PCI rxdone = 0
+Thu Oct 25 01:02:53 2007: JINJ      :     90
+Thu Oct 25 01:02:53 2007: Getting last event numbers...
+Thu Oct 25 01:02:53 2007: PCI rxdone = 0
+Thu Oct 25 01:02:53 2007: Main       :     94
+Thu Oct 25 01:02:53 2007: PCI rxdone = 0
+Thu Oct 25 01:02:53 2007: TDR 06     :     98
+Thu Oct 25 01:02:53 2007: PCI rxdone = 0
+Thu Oct 25 01:02:53 2007: TDR 07     :     98
+Thu Oct 25 01:02:53 2007: PCI rxdone = 0
+Thu Oct 25 01:02:53 2007: TDR 10     :     98
+Thu Oct 25 01:02:53 2007: PCI rxdone = 0
+Thu Oct 25 01:02:53 2007: TDR 11     :     98
+Thu Oct 25 01:02:53 2007: Thu Oct 25 01:02:53 2007: Printing all last event numbers...
+    18 ||    90  |     94 |06     98 |07     98 |10     98 |11     98
+Thu Oct 25 01:02:53 2007: Printing all last event numbers...
+Thu Oct 25 01:02:53 2007: Getting last event numbers...
+Thu Oct 25 01:02:53 2007: PCI rxdone = 0
+Thu Oct 25 01:02:53 2007: JINJ      :     91
+Thu Oct 25 01:02:53 2007: Getting last event numbers...
+Thu Oct 25 01:02:53 2007: PCI rxdone = 0
+Thu Oct 25 01:02:53 2007: Main       :     95
+Thu Oct 25 01:02:53 2007: PCI rxdone = 0
+Thu Oct 25 01:02:53 2007: TDR 06     :     99
+Thu Oct 25 01:02:53 2007: PCI rxdone = 0
+Thu Oct 25 01:02:53 2007: TDR 07     :     99
+Thu Oct 25 01:02:53 2007: PCI rxdone = 0
+Thu Oct 25 01:02:53 2007: TDR 10     :     99
+Thu Oct 25 01:02:53 2007: PCI rxdone = 0
+Thu Oct 25 01:02:53 2007: TDR 11     :     99
+Thu Oct 25 01:02:53 2007: Thu Oct 25 01:02:53 2007: Printing all last event numbers...
+    18 ||    91  |     95 |06     99 |07     99 |10     99 |11     99
+Thu Oct 25 01:02:54 2007: Printing all last event numbers...
+Thu Oct 25 01:02:54 2007: Getting last event numbers...
+Thu Oct 25 01:02:54 2007: PCI rxdone = 0
+Thu Oct 25 01:02:54 2007: JINJ      :     92
+Thu Oct 25 01:02:54 2007: Getting last event numbers...
+Thu Oct 25 01:02:54 2007: PCI rxdone = 0
+Thu Oct 25 01:02:54 2007: Main       :     96
+Thu Oct 25 01:02:54 2007: PCI rxdone = 0
+Thu Oct 25 01:02:54 2007: TDR 06     :    100
+Thu Oct 25 01:02:54 2007: PCI rxdone = 0
+Thu Oct 25 01:02:54 2007: TDR 07     :    100
+Thu Oct 25 01:02:54 2007: PCI rxdone = 0
+Thu Oct 25 01:02:54 2007: TDR 10     :    100
+Thu Oct 25 01:02:54 2007: PCI rxdone = 0
+Thu Oct 25 01:02:54 2007: TDR 11     :    100
+Thu Oct 25 01:02:54 2007: Thu Oct 25 01:02:54 2007: Printing all last event numbers...
+    18 ||    92  |     96 |06    100 |07    100 |10    100 |11    100
+Thu Oct 25 01:02:54 2007: Printing all last event numbers...
+Thu Oct 25 01:02:55 2007: Getting last event numbers...
+Thu Oct 25 01:02:55 2007: PCI rxdone = 0
+Thu Oct 25 01:02:55 2007: JINJ      :     93
+Thu Oct 25 01:02:55 2007: Getting last event numbers...
+Thu Oct 25 01:02:55 2007: PCI rxdone = 0
+Thu Oct 25 01:02:55 2007: Main       :     97
+Thu Oct 25 01:02:55 2007: PCI rxdone = 0
+Thu Oct 25 01:02:55 2007: TDR 06     :    101
+Thu Oct 25 01:02:55 2007: PCI rxdone = 0
+Thu Oct 25 01:02:55 2007: TDR 07     :    101
+Thu Oct 25 01:02:55 2007: PCI rxdone = 0
+Thu Oct 25 01:02:55 2007: TDR 10     :    101
+Thu Oct 25 01:02:55 2007: PCI rxdone = 0
+Thu Oct 25 01:02:55 2007: TDR 11     :    101
+Thu Oct 25 01:02:55 2007: Thu Oct 25 01:02:55 2007: Printing all last event numbers...
+    18 ||    93  |     97 |06    101 |07    101 |10    101 |11    101
+Thu Oct 25 01:02:55 2007: Printing all last event numbers...
+Thu Oct 25 01:02:55 2007: Getting last event numbers...
+Thu Oct 25 01:02:55 2007: PCI rxdone = 0
+Thu Oct 25 01:02:55 2007: JINJ      :     94
+Thu Oct 25 01:02:55 2007: Getting last event numbers...
+Thu Oct 25 01:02:55 2007: PCI rxdone = 0
+Thu Oct 25 01:02:55 2007: Main       :     98
+Thu Oct 25 01:02:55 2007: PCI rxdone = 0
+Thu Oct 25 01:02:55 2007: TDR 06     :    102
+Thu Oct 25 01:02:55 2007: PCI rxdone = 0
+Thu Oct 25 01:02:55 2007: TDR 07     :    102
+Thu Oct 25 01:02:55 2007: PCI rxdone = 0
+Thu Oct 25 01:02:55 2007: TDR 10     :    102
+Thu Oct 25 01:02:55 2007: PCI rxdone = 0
+Thu Oct 25 01:02:55 2007: TDR 11     :    102
+Thu Oct 25 01:02:55 2007: Thu Oct 25 01:02:55 2007: Printing all last event numbers...
+    18 ||    94  |     98 |06    102 |07    102 |10    102 |11    102
+Thu Oct 25 01:02:56 2007: Printing all last event numbers...
+Thu Oct 25 01:02:56 2007: Getting last event numbers...
+Thu Oct 25 01:02:56 2007: PCI rxdone = 0
+Thu Oct 25 01:02:56 2007: JINJ      :     95
+Thu Oct 25 01:02:56 2007: Getting last event numbers...
+Thu Oct 25 01:02:56 2007: PCI rxdone = 0
+Thu Oct 25 01:02:56 2007: Main       :     99
+Thu Oct 25 01:02:56 2007: PCI rxdone = 0
+Thu Oct 25 01:02:56 2007: TDR 06     :    103
+Thu Oct 25 01:02:56 2007: PCI rxdone = 0
+Thu Oct 25 01:02:56 2007: TDR 07     :    103
+Thu Oct 25 01:02:56 2007: PCI rxdone = 0
+Thu Oct 25 01:02:56 2007: TDR 10     :    103
+Thu Oct 25 01:02:56 2007: PCI rxdone = 0
+Thu Oct 25 01:02:56 2007: TDR 11     :    103
+Thu Oct 25 01:02:56 2007: Thu Oct 25 01:02:56 2007: Printing all last event numbers...
+    18 ||    95  |     99 |06    103 |07    103 |10    103 |11    103
+Thu Oct 25 01:02:56 2007: Printing all last event numbers...
+Thu Oct 25 01:02:57 2007: Getting last event numbers...
+Thu Oct 25 01:02:57 2007: PCI rxdone = 0
+Thu Oct 25 01:02:57 2007: JINJ      :     96
+Thu Oct 25 01:02:57 2007: Getting last event numbers...
+Thu Oct 25 01:02:57 2007: PCI rxdone = 0
+Thu Oct 25 01:02:57 2007: Main       :    100
+Thu Oct 25 01:02:57 2007: PCI rxdone = 0
+Thu Oct 25 01:02:57 2007: TDR 06     :    104
+Thu Oct 25 01:02:57 2007: PCI rxdone = 0
+Thu Oct 25 01:02:57 2007: TDR 07     :    104
+Thu Oct 25 01:02:57 2007: PCI rxdone = 0
+Thu Oct 25 01:02:57 2007: TDR 10     :    104
+Thu Oct 25 01:02:57 2007: PCI rxdone = 0
+Thu Oct 25 01:02:57 2007: TDR 11     :    104
+Thu Oct 25 01:02:57 2007: Thu Oct 25 01:02:57 2007: Printing all last event numbers...
+    18 ||    96  |    100 |06    104 |07    104 |10    104 |11    104
+Thu Oct 25 01:02:57 2007: Printing all last event numbers...
+Thu Oct 25 01:02:57 2007: Getting last event numbers...
+Thu Oct 25 01:02:57 2007: PCI rxdone = 0
+Thu Oct 25 01:02:57 2007: JINJ      :     97
+Thu Oct 25 01:02:57 2007: Getting last event numbers...
+Thu Oct 25 01:02:57 2007: PCI rxdone = 0
+Thu Oct 25 01:02:57 2007: Main       :    101
+Thu Oct 25 01:02:57 2007: PCI rxdone = 0
+Thu Oct 25 01:02:57 2007: TDR 06     :    105
+Thu Oct 25 01:02:57 2007: PCI rxdone = 0
+Thu Oct 25 01:02:57 2007: TDR 07     :    105
+Thu Oct 25 01:02:57 2007: PCI rxdone = 0
+Thu Oct 25 01:02:57 2007: TDR 10     :    105
+Thu Oct 25 01:02:57 2007: PCI rxdone = 0
+Thu Oct 25 01:02:57 2007: TDR 11     :    105
+Thu Oct 25 01:02:57 2007: Thu Oct 25 01:02:57 2007: Printing all last event numbers...
+    18 ||    97  |    101 |06    105 |07    105 |10    105 |11    105
+Thu Oct 25 01:02:58 2007: Printing all last event numbers...
+Thu Oct 25 01:02:58 2007: Getting last event numbers...
+Thu Oct 25 01:02:58 2007: PCI rxdone = 0
+Thu Oct 25 01:02:58 2007: JINJ      :     98
+Thu Oct 25 01:02:58 2007: Getting last event numbers...
+Thu Oct 25 01:02:58 2007: PCI rxdone = 0
+Thu Oct 25 01:02:58 2007: Main       :    102
+Thu Oct 25 01:02:58 2007: PCI rxdone = 0
+Thu Oct 25 01:02:58 2007: TDR 06     :    106
+Thu Oct 25 01:02:58 2007: PCI rxdone = 0
+Thu Oct 25 01:02:58 2007: TDR 07     :    106
+Thu Oct 25 01:02:58 2007: PCI rxdone = 0
+Thu Oct 25 01:02:58 2007: TDR 10     :    106
+Thu Oct 25 01:02:58 2007: PCI rxdone = 0
+Thu Oct 25 01:02:58 2007: TDR 11     :    106
+Thu Oct 25 01:02:58 2007: Thu Oct 25 01:02:58 2007: Printing all last event numbers...
+    18 ||    98  |    102 |06    106 |07    106 |10    106 |11    106
+Thu Oct 25 01:02:58 2007: Printing all last event numbers...
+Thu Oct 25 01:02:58 2007: Getting last event numbers...
+Thu Oct 25 01:02:58 2007: PCI rxdone = 0
+Thu Oct 25 01:02:58 2007: JINJ      :     99
+Thu Oct 25 01:02:58 2007: Getting last event numbers...
+Thu Oct 25 01:02:58 2007: PCI rxdone = 0
+Thu Oct 25 01:02:58 2007: Main       :    103
+Thu Oct 25 01:02:58 2007: PCI rxdone = 0
+Thu Oct 25 01:02:58 2007: TDR 06     :    107
+Thu Oct 25 01:02:58 2007: PCI rxdone = 0
+Thu Oct 25 01:02:58 2007: TDR 07     :    107
+Thu Oct 25 01:02:58 2007: PCI rxdone = 0
+Thu Oct 25 01:02:58 2007: TDR 10     :    107
+Thu Oct 25 01:02:58 2007: PCI rxdone = 0
+Thu Oct 25 01:02:58 2007: TDR 11     :    107
+Thu Oct 25 01:02:58 2007: Thu Oct 25 01:02:58 2007: Printing all last event numbers...
+    18 ||    99  |    103 |06    107 |07    107 |10    107 |11    107
+Thu Oct 25 01:02:59 2007: Printing all last event numbers...
+Thu Oct 25 01:02:59 2007: Getting last event numbers...
+Thu Oct 25 01:02:59 2007: PCI rxdone = 0
+Thu Oct 25 01:02:59 2007: JINJ      :    100
+Thu Oct 25 01:02:59 2007: Getting last event numbers...
+Thu Oct 25 01:02:59 2007: PCI rxdone = 0
+Thu Oct 25 01:02:59 2007: Main       :    104
+Thu Oct 25 01:02:59 2007: PCI rxdone = 0
+Thu Oct 25 01:02:59 2007: TDR 06     :    108
+Thu Oct 25 01:02:59 2007: PCI rxdone = 0
+Thu Oct 25 01:02:59 2007: TDR 07     :    108
+Thu Oct 25 01:02:59 2007: PCI rxdone = 0
+Thu Oct 25 01:02:59 2007: TDR 10     :    108
+Thu Oct 25 01:02:59 2007: PCI rxdone = 0
+Thu Oct 25 01:02:59 2007: TDR 11     :    108
+Thu Oct 25 01:02:59 2007: Thu Oct 25 01:02:59 2007: Printing all last event numbers...
+    18 ||   100  |    104 |06    108 |07    108 |10    108 |11    108
+Thu Oct 25 01:02:59 2007: Printing all last event numbers...
+Thu Oct 25 01:03:00 2007: Getting last event numbers...
+Thu Oct 25 01:03:00 2007: PCI rxdone = 0
+Thu Oct 25 01:03:00 2007: JINJ      :    101
+Thu Oct 25 01:03:00 2007: Getting last event numbers...
+Thu Oct 25 01:03:00 2007: PCI rxdone = 0
+Thu Oct 25 01:03:00 2007: Main       :    105
+Thu Oct 25 01:03:00 2007: PCI rxdone = 0
+Thu Oct 25 01:03:00 2007: TDR 06     :    109
+Thu Oct 25 01:03:00 2007: PCI rxdone = 0
+Thu Oct 25 01:03:00 2007: TDR 07     :    109
+Thu Oct 25 01:03:00 2007: PCI rxdone = 0
+Thu Oct 25 01:03:00 2007: TDR 10     :    109
+Thu Oct 25 01:03:00 2007: PCI rxdone = 0
+Thu Oct 25 01:03:00 2007: TDR 11     :    109
+Thu Oct 25 01:03:00 2007: Thu Oct 25 01:03:00 2007: Printing all last event numbers...
+    18 ||   101  |    105 |06    109 |07    109 |10    109 |11    109
+Thu Oct 25 01:03:00 2007: Printing all last event numbers...
+Thu Oct 25 01:03:00 2007: Getting last event numbers...
+Thu Oct 25 01:03:00 2007: PCI rxdone = 0
+Thu Oct 25 01:03:00 2007: JINJ      :    102
+Thu Oct 25 01:03:00 2007: Getting last event numbers...
+Thu Oct 25 01:03:00 2007: PCI rxdone = 0
+Thu Oct 25 01:03:00 2007: Main       :    106
+Thu Oct 25 01:03:00 2007: PCI rxdone = 0
+Thu Oct 25 01:03:00 2007: TDR 06     :    110
+Thu Oct 25 01:03:00 2007: PCI rxdone = 0
+Thu Oct 25 01:03:00 2007: TDR 07     :    110
+Thu Oct 25 01:03:00 2007: PCI rxdone = 0
+Thu Oct 25 01:03:00 2007: TDR 10     :    110
+Thu Oct 25 01:03:00 2007: PCI rxdone = 0
+Thu Oct 25 01:03:00 2007: TDR 11     :    110
+Thu Oct 25 01:03:00 2007: Thu Oct 25 01:03:00 2007: Printing all last event numbers...
+    18 ||   102  |    106 |06    110 |07    110 |10    110 |11    110
+Thu Oct 25 01:03:01 2007: Printing all last event numbers...
+Thu Oct 25 01:03:01 2007: Getting last event numbers...
+Thu Oct 25 01:03:01 2007: PCI rxdone = 0
+Thu Oct 25 01:03:01 2007: JINJ      :    103
+Thu Oct 25 01:03:01 2007: Getting last event numbers...
+Thu Oct 25 01:03:01 2007: PCI rxdone = 0
+Thu Oct 25 01:03:01 2007: Main       :    107
+Thu Oct 25 01:03:01 2007: PCI rxdone = 0
+Thu Oct 25 01:03:01 2007: TDR 06     :    111
+Thu Oct 25 01:03:01 2007: PCI rxdone = 0
+Thu Oct 25 01:03:01 2007: TDR 07     :    111
+Thu Oct 25 01:03:01 2007: PCI rxdone = 0
+Thu Oct 25 01:03:01 2007: TDR 10     :    111
+Thu Oct 25 01:03:01 2007: PCI rxdone = 0
+Thu Oct 25 01:03:01 2007: TDR 11     :    111
+Thu Oct 25 01:03:01 2007: Thu Oct 25 01:03:01 2007: Printing all last event numbers...
+    18 ||   103  |    107 |06    111 |07    111 |10    111 |11    111
+Thu Oct 25 01:03:01 2007: Printing all last event numbers...
+Thu Oct 25 01:03:02 2007: Getting last event numbers...
+Thu Oct 25 01:03:02 2007: PCI rxdone = 0
+Thu Oct 25 01:03:02 2007: JINJ      :    104
+Thu Oct 25 01:03:02 2007: Getting last event numbers...
+Thu Oct 25 01:03:02 2007: PCI rxdone = 0
+Thu Oct 25 01:03:02 2007: Main       :    108
+Thu Oct 25 01:03:02 2007: PCI rxdone = 0
+Thu Oct 25 01:03:02 2007: TDR 06     :    112
+Thu Oct 25 01:03:02 2007: PCI rxdone = 0
+Thu Oct 25 01:03:02 2007: TDR 07     :    112
+Thu Oct 25 01:03:02 2007: PCI rxdone = 0
+Thu Oct 25 01:03:02 2007: TDR 10     :    112
+Thu Oct 25 01:03:02 2007: PCI rxdone = 0
+Thu Oct 25 01:03:02 2007: TDR 11     :    112
+Thu Oct 25 01:03:02 2007: Exited from the acquisition, file ./Data//000100_0000.dat saved.
+Thu Oct 25 01:03:02 2007: 100 events acquired
+Thu Oct 25 01:03:02 2007: READY
+Thu Oct 25 01:07:19 2007: JINJ program: 0x2081
+Thu Oct 25 01:07:19 2007: TDR program: 0x3b53
+Thu Oct 25 01:07:19 2007: JINF program: 0x24a1
+Thu Oct 25 01:07:21 2007: booting JINJ at address 0xFFFF
+Thu Oct 25 01:07:26 2007: PCI rxdone = 0
+Thu Oct 25 01:07:26 2007: Loaded program 0x2081 on Jinj
+Thu Oct 25 01:07:27 2007: PCI rxdone = 0
+Thu Oct 25 01:07:27 2007: Searching for Slaves ...
+Thu Oct 25 01:07:28 2007: Reading slave mask for address 0xffff
+Thu Oct 25 01:07:29 2007: PCI rxdone = 0
+Thu Oct 25 01:07:29 2007: Summary:
+Thu Oct 25 01:07:29 2007: Mask ID=00 : 0x000200
+Thu Oct 25 01:07:29 2007:    0:[ ]   4:[ ]   8:[ ]  12:[ ]  16:[ ]  20:[ ]  22:[ ]  18:[ ]  14:[ ]  10:[ ]   6:[ ]   2:[ ]
+Thu Oct 25 01:07:29 2007:    1:[ ]   5:[ ]   9:[X]  13:[ ]  17:[ ]  21:[ ]  23:[ ]  19:[ ]  15:[ ]  11:[ ]   7:[ ]   3:[ ]
+Thu Oct 25 01:07:29 2007: OK: all and only the expectes JINFs  are connected to main node
+Thu Oct 25 01:07:29 2007: Main: setting mode 0...
+Thu Oct 25 01:07:29 2007: Setting JINJ 0xFFFF to mode 0...
+Thu Oct 25 01:07:29 2007: PCI rxdone = 0
+Thu Oct 25 01:07:29 2007: PCI rxdone = 0
+Thu Oct 25 01:07:29 2007: Setting JINJ 0xFFFF to mode 1...
+Thu Oct 25 01:07:29 2007: PCI rxdone = 0
+Thu Oct 25 01:07:29 2007: Setting JINJ 0xFFFF to mode 0...
+Thu Oct 25 01:07:29 2007: PCI rxdone = 0
+Thu Oct 25 01:07:29 2007: booting JINF at address 0x093F
+Thu Oct 25 01:07:34 2007: PCI rxdone = 0
+Thu Oct 25 01:07:34 2007: Loaded program 0x24a1 on Jinf
+Thu Oct 25 01:07:35 2007: PCI rxdone = 0
+Thu Oct 25 01:07:35 2007: Searching for Slaves ...
+Thu Oct 25 01:07:36 2007: Reading slave mask for address 0x093f
+Thu Oct 25 01:07:37 2007: PCI rxdone = 0
+Thu Oct 25 01:07:37 2007: Summary:
+Thu Oct 25 01:07:37 2007: Mask ID=00 : 0x000cc0
+Thu Oct 25 01:07:37 2007:    0:[ ]   4:[ ]   8:[ ]  12:[ ]  16:[ ]  20:[ ]  22:[ ]  18:[ ]  14:[ ]  10:[X]   6:[X]   2:[ ]
+Thu Oct 25 01:07:37 2007:    1:[ ]   5:[ ]   9:[ ]  13:[ ]  17:[ ]  21:[ ]  23:[ ]  19:[ ]  15:[ ]  11:[X]   7:[X]   3:[ ]
+Thu Oct 25 01:07:37 2007: OK: all and only the expectes TDRs  are connected to main node
+Thu Oct 25 01:07:37 2007: Main: setting mode 0...
+Thu Oct 25 01:07:37 2007: Setting JINF 0x093F to mode 0...
+Thu Oct 25 01:07:37 2007: PCI rxdone = 0
+Thu Oct 25 01:07:37 2007: PCI rxdone = 0
+Thu Oct 25 01:07:37 2007: Main: setting delay to 3000 ns ...
+Thu Oct 25 01:07:37 2007: PCI rxdone = 0
+Thu Oct 25 01:07:37 2007: All TDRs: boot and load version...
+Thu Oct 25 01:07:38 2007: PCI rxdone = 0
+Thu Oct 25 01:07:38 2007: Loaded program 0x2b53 on TDR 6
+Thu Oct 25 01:07:39 2007: PCI rxdone = 0
+Thu Oct 25 01:07:39 2007: Loaded program 0x2b53 on TDR 7
+Thu Oct 25 01:07:40 2007: PCI rxdone = 0
+Thu Oct 25 01:07:40 2007: Loaded program 0x2b53 on TDR 10
+Thu Oct 25 01:07:41 2007: PCI rxdone = 0
+Thu Oct 25 01:07:41 2007: Loaded program 0x2b53 on TDR 11
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: TDRs: setting mode 0...
+Thu Oct 25 01:07:42 2007: Setting mode 0 to TDR 6...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 0 to TDR 7...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 0 to TDR 10...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 0 to TDR 11...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Done... time needed: 0.4 ms
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Resetting tdrs counters...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Resetting Jinf 0x093F node counter...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: The whole system is ready and clean, now we can turn on the DAQ mode...
+Thu Oct 25 01:07:42 2007: Setting mode 2 to TDR 6...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 2 to TDR 7...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 2 to TDR 10...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 2 to TDR 11...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Done... time needed: 0.4 ms
+Thu Oct 25 01:07:42 2007: Setting JINF 0x093F to mode 1...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting JINF 0x093F to mode 0...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 0 to TDR 6...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 0 to TDR 7...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 0 to TDR 10...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 0 to TDR 11...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Done... time needed: 0.6 ms
+Thu Oct 25 01:07:42 2007: Resetting tdrs counters...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Resetting Jinf 0x093F node counter...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Resetting Jinj 0xFFFF node counter...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting JINF 0x093F to mode 1...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 2 to TDR 6...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 2 to TDR 7...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 2 to TDR 10...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Setting mode 2 to TDR 11...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: Done... time needed: 0.4 ms
+Thu Oct 25 01:07:42 2007: Setting JINJ 0xFFFF to mode 1...
+Thu Oct 25 01:07:42 2007: PCI rxdone = 0
+Thu Oct 25 01:07:42 2007: READY

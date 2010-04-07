@@ -1,0 +1,163 @@
+// Procedure to collect almanac step by step
+// July 2008 - C. Zurbach
+//
+// GALEPH : almanac or ephemeris
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           1
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           2
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           3
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           4
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           5
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           6
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           7
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           8
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           9
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           10
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           11
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           12
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           13
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           14
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           15
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           16
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           17
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           18
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           19
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           20
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           21
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           22
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           23
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           24
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           25
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           26
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           27
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           28
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           29
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           30
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           31
+//
+delay 2
+GALEPH:
+TYPE_OF_DATA      00000011
+GPS_PRN           32
+//

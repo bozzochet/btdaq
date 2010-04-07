@@ -1,0 +1,88 @@
+[ -z "$UNAME" ]      && UNAME=`(uname) 2>/dev/null`
+[ -z "$UNAME" -a -d /sys/node_data ] && UNAME="DomainOS"
+[ -z "$UNAME" ]      && (echo could not determine hosttype ; exit)
+
+if [ "$UNAME" = "AIX" ] ; then
+   MACHINE="aix"
+elif [ "$UNAME" = "OSF1" ] ; then
+    MACHINE="osf1"
+elif [ "$UNAME" = "HP-UX" ] ; then
+    MACHINE="hpux"
+elif [ "$UNAME" = "IRIX" ] ; then
+    MACHINE="irix"
+elif [ "$UNAME" = "Linux" ] ; then
+    MACHINE="linux/icc"
+else
+echo $UNAME is not supported yet
+
+fi
+
+ 
+if [ "$4" = "" ] ; then
+   echo " Missing  parameter !!!"
+   exit
+else
+   echo "Parameter-1: $1"
+   echo "Parameter-2: $2"
+   echo "Parameter-3: $3"
+   echo "Parameter-4: $4"
+   TDVNAME=$1
+   DBWRBEG=$2
+   DBWREND=$3
+   DBWRFLG=$4
+   if [ "$1" = "Tofpeds" ] ; then
+     CALFLG="211"
+   elif [ "$1" = "Antipeds" ] ; then
+     CALFLG="311"
+   else
+     echo $TDVNAME is not supported yet
+     exit
+   fi
+   
+   echo "calflg: $CALFLG"
+   echo " Start program ..."
+   echo " "
+fi
+
+cd /f2users/tofaccuser/pedcalib
+
+cgbatch.exe <<!
+
+c LIST
+TRIG 1
+c------------------------------------------------------------------------
+MISC 6=$DBWRBEG 7=$DBWREND
+c TFRE 28=1111
+TFCA 29=1
+c ATCA 1=4 2=1
+c------------------------------------------------------------------------
+c ECCA  1=4 2=1  
+IOPA 1=0 43=101 45='TriggerLVL1'    127=0
+C 1->lun # (0-NO_OUTPUT) , 2->out.f.n., 
+c 43->write_obj-flg(1/0->all/used(+100 to write errored events))
+c 127->write(if >0)/not(if=0) root file, value >0 means compress.level
+c 128-> root file name
+C      S/R/C      Debug    CpuLim  Read Write    Jobname
+AMSJOB 1=$CALFLG   2=0     3=100.   4=0  5=0   6='TofAntPedDBWriter'
+       87=$DBWRFLG 88='$TDVNAME'
+C------------------------------------------------------------------------
+DAQC 1=0
+c------------------------------------------------------------------------
+TGL1   1=1
+c  19=11 
+c 1=1:128(8)->Req.branches(pattern) for global OR (1->unbTOF, 16->e, 32->gam,
+c                                           62->Phys, 65=unbTOF+EC, 128->ext)
+L3REC 2=0 
+c 2=1/0-> use/not pattern trig.; 11=(0)-> min.val.of lvl3 trig. to accept
+C------------------------------------------------------------------------
+TIME 3=10000000
+c
+TERM 1=1234567890
+C
+END
+
+!
+#------------------------------------------------------
+ sleep 1
+ echo " "
+ echo " "

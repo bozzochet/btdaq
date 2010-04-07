@@ -1,0 +1,318 @@
+#pragma prefix "ams.cern.ch"
+module DPS{
+
+   typedef unsigned long time;
+    exception DBProblem{
+       string message;
+    };
+  interface Client{
+   enum AccessType{Any,LessThan,Self,AnyButSelf,GreaterThan};
+   enum RecordChange{Delete,Update,Create,ClearCreate};
+   enum ErrorType{Info,Warning,Error,Severe};
+   enum ClientStatus{Lost,Unknown,Submitted,Registered,Active,TimeOut,Killed};
+   enum ClientStatusType{Permanent,OneRunOnly};
+   enum ClientType{Generic,Server,Consumer,Producer,Monitor,Killer,DBServer,ODBServer,Standalone};
+   enum ClientExiting{NOP,CInExit,SInExit,CInAbort,SInAbort,SInKill};
+   enum HostStatus{NoResponse,InActive,LastClientFailed,OK};
+
+    struct CID{
+    string HostName;
+    unsigned long uid;
+    unsigned long pid;
+    unsigned long ppid;
+    ClientType   Type;
+    ClientStatusType StatusType;
+    ClientExiting Status;
+    string Interface;
+    float Mips;
+    };
+
+//    exception DBProblem{
+//     string message;
+//    };
+
+
+
+
+    boolean sendId(inout CID id, in float mips,in time TimeOut);      
+    void getId(out CID id);
+
+   struct NominalClient{
+    unsigned long uid;
+    ClientType Type;
+    short MaxClients;
+    float CPUNeeded; 
+    short MemoryNeeded;
+    string WholeScriptPath;
+    string LogPath;
+    string SubmitCommand;
+    string HostName;
+    short LogInTheEnd;
+   }; 
+
+
+
+    struct ActiveRef{
+      string IOR;
+      string Interface;
+      ClientType Type;
+      unsigned long uid;
+    }; 
+
+    typedef sequence<ActiveRef> ARS;
+    long getARS(in CID cid, out ARS ars, in DPS::Client::AccessType type,in unsigned long id,in long selffirst);
+
+    struct ActiveClient{
+     CID id;
+     ARS ars; 
+     time LastUpdate;
+     time Start;
+     time TimeOut;
+     ClientStatus Status;
+     ClientStatusType StatusType;
+   };
+    typedef sequence<ActiveClient> ACS;
+    typedef sequence<NominalClient> NCS;
+    
+    void Exiting(in CID id, in string Error, in ClientExiting Status);
+
+
+
+   struct NominalHost{
+    string HostName;
+    string Interface;
+    string OS;
+    short   CPUNumber;
+    short   Memory;
+    long    Clock;      
+   };
+
+   typedef sequence<NominalHost> NHS;
+
+
+
+      
+   
+   struct ActiveHost{
+      string HostName;
+      string Interface;
+      HostStatus Status;
+      short ClientsRunning;
+      short ClientsAllowed; 
+      long ClientsProcessed;
+      long ClientsFailed;
+      long ClientsKilled;
+      time LastFailed;
+      time LastUpdate;
+      long    Clock;      
+   };
+
+    typedef sequence<ActiveHost> AHS;
+     
+  };
+ 
+  interface Producer: Client{
+    enum TransferStatus{Begin,Continue,End};
+    enum RunStatus{ToBeRerun, Failed,Processing, Finished, Unknown, Allocated,Foreign,Canceled};
+    enum DSTStatus{Success,InProgress,Failure,Validated};
+    enum RunMode{RILO,LILO,RIRO,LIRO};
+    enum DSTType{Ntuple,EventTag,RootFile};
+    struct TDVTableEntry{
+     unsigned long id;
+     time Insert;
+     time Begin;
+     time End;
+    };
+
+    struct TDVName{
+     string Name;
+     unsigned long Size;
+     unsigned long CRC;
+     TDVTableEntry Entry;
+     long DataMC;
+     boolean Success;
+    };  
+    typedef sequence<TDVName> TDV;
+    typedef sequence<unsigned long> TDVbody;
+    long getTDV(in DPS::Client::CID cid,inout TDVName tdvname, out TDVbody body);
+    long getSplitTDV(in DPS::Client::CID cid, inout unsigned long pos, inout TDVName tdvname, out TDVbody body, inout TransferStatus st);
+    void sendTDV(in DPS::Client::CID cid,in TDVbody tdv, inout TDVName tdvname );
+    void sendTDVUpdate(in DPS::Client::CID cid, in TDVName tdvname );
+
+
+    typedef sequence<TDVTableEntry> TDVTable; 
+    long getTDVTable(in DPS::Client::CID cid,inout TDVName tdvname, in unsigned long Run, out TDVTable table);     
+    
+
+
+    struct CurrentInfo{
+      unsigned long Run;
+      long EventsProcessed;     
+      long LastEventProcessed;
+      long CriticalErrorsFound;
+      long ErrorsFound;
+      float CPUTimeSpent;
+      float TimeSpent;
+      float Mips;
+      float CPUMipsTimeSpent;
+      RunStatus Status;
+      string HostName;
+    }; 
+    void sendCurrentInfo(in CID id,in CurrentInfo ci, in long propagate); 
+
+    struct DSTInfo{
+     DSTType type;
+     unsigned long uid;
+     string HostName;
+     string OutputDirPath;
+     RunMode Mode;
+     long UpdateFreq;
+     long DieHard;
+     long FreeSpace;
+     long TotalSpace;
+    };
+
+     
+     struct RunEvInfo{
+     unsigned long uid;
+     unsigned long Run;
+     long FirstEvent;
+     long LastEvent;
+     time TFEvent;
+     time TLEvent; 
+     long Priority;
+     string FilePath;
+     RunStatus Status;
+     RunStatus History;
+     unsigned long      CounterFail;
+     time SubmitTime;
+     unsigned long cuid;
+     unsigned long rndm1;
+     unsigned long rndm2;
+//     unsigned long pid;
+     CurrentInfo cinfo;     
+    };
+    typedef sequence<DSTInfo> DSTIS;
+    long getDSTInfoS(in CID id, out DSTIS dsti);
+    void sendDSTInfoS(in CID id, in DSTIS dsti);
+    void sendDSTInfo(in DSTInfo info, in RecordChange rc)raises(DBProblem);
+    typedef sequence<RunEvInfo> RES;
+    long getRunEvInfoS(in CID id, out RES res, inout unsigned long maxr)raises(DBProblem); 
+    void sendRunEvInfoS(in CID id, in RES res, in unsigned long maxr); 
+    void getRunEvInfo(in CID id, out RunEvInfo rv, out DSTInfo dv)raises(DBProblem);
+    void sendRunEvInfo(in RunEvInfo ri, in RecordChange rch)raises(DBProblem);
+
+    struct DST{
+     time   Insert;
+     time   Begin;
+     time   End;
+     long   Run;
+     long   FirstEvent;
+     long   LastEvent;
+     long   EventNumber;
+     long   ErrorNumber;
+     DSTStatus Status;
+     DSTType Type;
+     long   size;
+     string Name;
+     string Version;
+     unsigned long crc;
+     unsigned long rndm1;
+     unsigned long rndm2;
+     long FreeSpace;
+     long TotalSpace;
+
+    };    
+
+    void sendDSTEnd(in CID id, in DST ne, in RecordChange re)raises(DBProblem); 
+    typedef sequence<DST> DSTS;
+    long getDSTS(in CID id, out DSTS dsts);     
+    void sendDSTS(in CID id, in DSTS dsts);     
+
+    typedef sequence<octet> RUN;
+    exception FailedOp{
+     string message;
+    };
+    struct FPath{
+     string fname;
+     unsigned long pos;
+    };  
+    long getRun(in CID id, in FPath fpath ,out RUN run,  inout TransferStatus st) raises(FailedOp);      
+    long sendFile(in CID id, inout FPath fpath ,in RUN run,  inout TransferStatus st) raises(FailedOp);      
+    void pingp();
+    
+  };
+
+  interface Server: Client{
+
+    enum OpType{StartClient,KillClient,CheckClient,ClearStartClient,ClearKillClient,ClearCheckClient};
+
+    struct CriticalOps{
+     time TimeOut;
+     OpType Action;
+     time TimeStamp;
+     ClientType Type;
+     unsigned long id; 
+    };
+    typedef sequence<string> SS;
+    long getEnv(in CID id, out SS ss);
+    void setEnv(in CID id, in string env, in string path);
+    void sendCriticalOps(in CID id, in CriticalOps op);
+    oneway void SystemCheck();
+    boolean AdvancedPing();
+    boolean TypeExists(in DPS::Client::ClientType type);
+
+    /*
+    exception DBProblem{
+     string message;
+    };
+    */
+    long getACS(in CID id, out ACS acl, out unsigned long maxc)raises(DBProblem);
+    void sendAC(in CID id, inout ActiveClient ac,in RecordChange rc)raises(DBProblem);
+
+    void ping();
+    long getNC(in CID id, out NCS acl)raises(DBProblem);
+    void sendNC(in CID id, in NominalClient nc,in RecordChange rc);
+    void sendNCS(in CID id, in NCS acl);
+    long getNK(in CID id, out NCS acl)raises(DBProblem);
+    void sendNKS(in CID id, in NCS acl);
+    void sendNK(in CID id, in NominalClient nc,in RecordChange rc);
+
+    long getNHS(in CID id, out NHS nhs)raises(DBProblem);
+    void sendNHS(in CID id, in NHS nhs);
+    void sendNH(in CID id, in NominalHost ah,in RecordChange rc);
+    
+
+    long getAHS(in CID id, out AHS ahl)raises(DBProblem);
+    void sendAHS(in CID id, in AHS ahl);
+    void sendAH(in CID id, in ActiveHost ah,in RecordChange rc)raises(DBProblem);
+    struct DB{
+     string fs;
+     float dbfree;
+     float dbtotal;
+     float bs;
+    };
+    boolean getDBSpace(in CID id, in string path, in string addpath,out DB db);   
+   };
+  interface Monitor: Client{
+    void MonInfo(in CID id, in string message, in ErrorType error, in time timeout);
+    boolean MonDialog(in CID id, in string message, in ErrorType error, in time timeout);    
+    void ping();
+  };
+  
+  interface DBServer: Server, Producer{
+    string getDBFilePath(in CID id)raises(DBProblem);
+    long getRunEvInfoSPerl(in CID id, out RES res, in unsigned long maxr,out unsigned long maxro)raises(DBProblem); 
+    void sendACPerl(in CID id, in ActiveClient ac,in RecordChange rc)raises(DBProblem);
+    long getFreeHost(in CID id, out ActiveHost host)raises(DBProblem);
+    long getFreeHostN(in CID id)raises(DBProblem);
+    void clearACS(in ClientType type)raises(DBProblem);
+    void clearNCS(in ClientType type)raises(DBProblem);
+    void clearAHS(in ClientType type)raises(DBProblem);
+    void clearNHS()raises(DBProblem);
+    void clearDST(in DSTType type)raises(DBProblem);
+    void clearDSTI()raises(DBProblem);
+    void clearRunEvInfo(in RunStatus status)raises(DBProblem);
+
+  };
+};

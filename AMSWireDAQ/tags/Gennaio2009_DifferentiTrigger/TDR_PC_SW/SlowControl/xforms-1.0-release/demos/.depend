@@ -1,0 +1,1101 @@
+arrowbutton.o: arrowbutton.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+borderwidth.o: borderwidth.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+boxtype.o: boxtype.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h srs.xbm
+browserall.o: browserall.c /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/string.h ../lib/forms.h /usr/include/stdarg.h \
+ /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+browserop.o: browserop.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+buttonall.o: buttonall.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h fd/buttons_gui.h \
+ /usr/include/stdlib.h fd/buttons_gui.c
+butttypes.o: butttypes.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h fd/butttypes_gui.h \
+ /usr/include/stdlib.h fd/butttypes_gui.c
+canvas.o: canvas.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+chartall.o: chartall.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+chartstrip.o: chartstrip.c /usr/include/math.h \
+ /usr/include/sys/cdefs.h ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/machine/ansi.h /usr/include/stdarg.h \
+ /usr/include/string.h /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+choice.o: choice.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+colbrowser.o: colbrowser.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+colsel.o: colsel.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+colsel1.o: colsel1.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdarg.h \
+ /usr/include/string.h /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+counter.o: counter.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdarg.h \
+ /usr/include/string.h /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+cursor.o: cursor.c /usr/include/stdlib.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h bm1.xbm bm2.xbm
+demo.o: demo.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h /usr/include/string.h \
+ /usr/include/stdlib.h ../lib/forms.h /usr/include/stdarg.h \
+ /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+demo05.o: demo05.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdarg.h \
+ /usr/include/string.h /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+demo06.o: demo06.c /usr/include/stdlib.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+demo27.o: demo27.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h /usr/include/stdlib.h ../lib/forms.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+demo33.o: demo33.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h srs.xbm
+demotest.o: demotest.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h fd/folder_gui.h \
+ /usr/include/stdlib.h fd/folder_gui.c
+demotest2.o: demotest2.c /usr/include/stdlib.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/string.h ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/stdarg.h /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+demotest3.o: demotest3.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+dirlist.o: dirlist.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/time.h \
+ /usr/include/stdlib.h fd/fbtest_gui.h fd/fbtest_gui.c
+fbrowse.o: fbrowse.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h /usr/include/stdlib.h ../lib/forms.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+fbrowse1.o: fbrowse1.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdarg.h \
+ /usr/include/string.h /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+fdial.o: fdial.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdarg.h \
+ /usr/include/string.h /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+flclock.o: flclock.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+folder.o: folder.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h fd/folder_gui.h \
+ /usr/include/stdlib.h fd/folder_gui.c
+fonts.o: fonts.c /usr/include/stdlib.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+formbrowser.o: formbrowser.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h \
+ fd/formbrowser_gui.h fd/formbrowser_gui.c
+free1.o: free1.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+freedraw.o: freedraw.c /usr/include/stdlib.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+freedraw_leak.o: freedraw_leak.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+goodies.o: goodies.c /usr/include/stdlib.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h /usr/include/string.h ../lib/forms.h \
+ /usr/include/stdio.h /usr/include/stdarg.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+group.o: group.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h porsche.xpm nomail.xbm bm1.xbm \
+ /usr/include/stdlib.h
+ibrowser.o: ibrowser.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../image/flimage.h \
+ fd/ibrowser_gui.h /usr/include/stdlib.h fd/ibrowser_gui.c
+iconify.o: iconify.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h crab.xpm
+iconvert.o: iconvert.c /usr/include/stdlib.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../image/flimage.h
+inputall.o: inputall.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h fd/inputall_gui.h \
+ /usr/include/stdlib.h fd/inputall_gui.c
+invslider.o: invslider.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+itest.o: itest.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../image/flimage.h fd/is_gui.h \
+ /usr/include/math.h /usr/include/stdlib.h fd/is_gui.c
+lalign.o: lalign.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+ldial.o: ldial.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdarg.h \
+ /usr/include/string.h /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+ll.o: ll.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h \
+ /usr/include/math.h
+longlabel.o: longlabel.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+menu.o: menu.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+minput.o: minput.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+minput2.o: minput2.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+multilabel.o: multilabel.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+ndial.o: ndial.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdarg.h \
+ /usr/include/string.h /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+newbutton.o: newbutton.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h crossbut.h /usr/include/stdlib.h
+objinactive.o: objinactive.c /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdlib.h ../lib/forms.h /usr/include/stdarg.h \
+ /usr/include/string.h /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+objpos.o: objpos.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+objreturn.o: objreturn.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+pmbrowse.o: pmbrowse.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+popup.o: popup.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+positioner.o: positioner.c /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h ../lib/forms.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+positionerXOR.o: positionerXOR.c /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h ../lib/forms.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+preemptive.o: preemptive.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+pup.o: pup.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+pushbutton.o: pushbutton.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+pushme.o: pushme.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+rescale.o: rescale.c /usr/include/stdlib.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h /usr/include/stdio.h ../lib/forms.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+scrollbar.o: scrollbar.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h \
+ fd/scrollbar_gui.h fd/scrollbar_gui.c
+secretinput.o: secretinput.c /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h ../lib/forms.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+sld_radio.o: sld_radio.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+sldinactive.o: sldinactive.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+sldsize.o: sldsize.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+sliderall.o: sliderall.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+strsize.o: strsize.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+symbols.o: symbols.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+thumbwheel.o: thumbwheel.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h fd/twheel_gui.h fd/twheel_gui.c \
+ /usr/include/stdlib.h
+timer.o: timer.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+timerprec.o: timerprec.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h \
+ /usr/include/unistd.h /usr/include/sys/unistd.h
+touchbutton.o: touchbutton.c /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h ../lib/forms.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+xyplotactive.o: xyplotactive.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+xyplotall.o: xyplotall.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h \
+ /usr/include/math.h
+xyplotover.o: xyplotover.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h \
+ /usr/include/math.h
+yesno.o: yesno.c /usr/include/stdlib.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+yesno_cb.o: yesno_cb.c /usr/include/stdlib.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h
+wwwl.o: wwwl.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h /usr/include/stdlib.h
+crossbut.o: crossbut.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h crossbut.h

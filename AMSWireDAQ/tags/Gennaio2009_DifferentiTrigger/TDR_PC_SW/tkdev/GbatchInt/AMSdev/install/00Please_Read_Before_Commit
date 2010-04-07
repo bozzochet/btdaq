@@ -1,0 +1,19 @@
+Rules for devloppers:
+
+Before commit please insure that:
+
+i. You have increased by one corr classdef in root.h if you have changed class content
+ii.You have increased by one _buildno in commons.C
+ 
+a. builded gbatch.exe image works with $AMSDir/examples/g3.root.test.job
+BOTH on alpha (ams.cern.ch)  AND linux (pcamsf2.cern.ch)
+
+b. AMS Event Display works on produced root file and shows meaningful pictures.
+cd $AMSDir/display
+gmake
+$AMSWD/display/amsed your_newly_built_root_file
+
+c.  builded gxint.exe (gmake gxint) works again BOTH on alpha and linux
+
+
+

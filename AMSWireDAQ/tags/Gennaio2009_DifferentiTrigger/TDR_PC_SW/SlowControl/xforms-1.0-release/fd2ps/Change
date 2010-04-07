@@ -1,0 +1,17 @@
+v0.36
+o. more alternative is attempted in locating the rgb.txt file
+V0.35
+o. fixed a warning
+o. added timer object
+o. added thumbwheel
+o. added labelbutton
+V0.34
+o. added handler keyboard
+o. added overlay_positioner handler
+o. added global keyword
+o. handles 2byte primary color for xpm files.
+--snap--
+o. direct xpm to ps transation added. Added -rgb flag
+o. recognizes Struct keyword.
+V0.32
+o. added FL_[HOR|VERT]_BASIC_SCROLBAR/slider 

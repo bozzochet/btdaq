@@ -1,0 +1,164 @@
+// file sfet2-read.c
+//
+// Reads Thresholds from all S-Crates
+//
+// A.Lebedev May-2008...
+
+#include "sfet2def.h"
+#include "jinflib.h"
+
+int TX = 1;                 // global variable
+int RX = 1;                 // global variable
+int P = 0;                  // global variable
+
+bool use_CAN  = FALSE;                             // global variable
+bool use_AMSW = FALSE;                              // global variable
+bool use_MEM  = FALSE;                             // global variable
+bool use_UDP  = FALSE;                             // global variable
+bool use_TCP  = FALSE;                             // global variable
+bool use_Peter_TCP = FALSE;                        // global variable
+bool use_PCIAMSW = FALSE;                          // global variable
+int16 AMSW_PATH[5];         // global variable
+int16 JINF_PATH = 0x0000;   // global variable
+
+char CS_address[100] = {"127.0.0.1"};  // global variable
+int  CS_port;                          // global variable
+int16 NODE_ADR;                        // global variable
+
+extern _scrate scrate[8];
+extern float V_ref_int;
+extern float V_ref_ext;
+extern _b thr_msk;
+extern _b ref_msk;
+
+char *brd_nam[5] = {"SFET2-A", "SFET2-B", "SFET2-C", "SFET2-D", "SFEA2"};
+int   brd_adr[5] = { SFET2_A,   SFET2_B,   SFET2_C,   SFET2_D,   SFEA2};
+char *grp_nam[2] = {"GRP-0", "GRP-1"};
+char *thr_nam[3] = {"LT", "HT", "SHT"};
+
+int fmt = 3;
+
+//~ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+static void read_threshold(int crt, int brd, int thr, int16 *cod, int16 *err);
+
+//~----------------------------------------------------------------------------
+
+static void read_threshold(int crt, int brd, int thr, int16 *cod, int16 *err) {
+
+  int dac = thr % 3;
+  int cha = thr / 3;
+  int adr = brd_adr[brd];
+
+  JINF_PATH = scrate[crt].lnk << 8 | 0x003F;
+  NODE_ADR  = scrate[crt].adr;
+
+  *err = 0x0000;
+
+  exec_SDR2_SC_command(READ, adr, dac_adr[dac][cha], 0, cod, NULL, err);
+}
+
+//~----------------------------------------------------------------------------
+
+void user_interface(int argc, char *argv[]) {
+
+  int k;
+
+  setbuf(stdout, NULL);
+  printf("Usage: \n");
+  printf("  %s [format [P]]\n", argv[0]);
+  printf("  %s 1553 Server [format [P]]\n", argv[0]);
+  printf("  %s HRDL Server [format [P]]\n", argv[0]);
+
+  if (argc > 1 && !strcasecmp(argv[1], "1553")) {
+    k = 2;
+    if (argc <= k) PANIC("Too few arguments.\n");
+    strncpy(CS_address, argv[k++], 80);
+    CS_port = 61002;
+    use_APID      = 0x0018;
+    use_TCP       = TRUE;
+    use_Peter_TCP = TRUE;
+    printf("Server = %s\n",   CS_address);
+    printf("Port   = %d\n",   CS_port);
+    printf("Peter's format with TCP packet length %d bytes will be used\n", 
+            PETER_TCP_PACKET_LENGTH);
+  }
+  else if (argc > 1 && !strcasecmp(argv[1], "HRDL")) {
+    k = 2;
+    if (argc <= k) PANIC("Too few arguments.\n");
+    strncpy(CS_address, argv[k++], 80);
+    CS_port = 61001;
+    use_APID      = 0x03D6;
+    use_TCP       = TRUE;
+    use_Peter_TCP = TRUE;
+    printf("Server = %s\n",   CS_address);
+    printf("Port   = %d\n",   CS_port);
+    printf("Peter's format with TCP packet length %d bytes will be used\n", 
+            PETER_TCP_PACKET_LENGTH);
+  }
+  else {
+    k = 1;
+    use_AMSW = TRUE;
+    printf("Direct connection via EPP-CAN box will be used\n");
+  }
+
+  if (argc > k) fmt = atoi(argv[k++]);
+  if (argc > k) P   = atoi(argv[k++]);
+  printf("format = %d\n", fmt);
+  printf("P      = %d\n", P);
+}
+
+//~============================================================================
+
+int main(int argc, char *argv[]) {
+
+  int16 err;
+  int crt, brd, thr;
+  int16 cod, val;
+  float V_ref;
+  
+/*
+  setbuf(stdout, NULL);
+  printf("Usage:\n");
+  printf("%s <filename> [format [P]]\n",argv[0]);
+
+  k = 1;
+  if (argc > k) fmt = atoi(argv[k++]);
+  if (argc > k) P   = atoi(argv[k++]);
+
+  printf("format = %d\n", fmt);
+  printf("P      = %d\n", P);
+*/
+  
+  user_interface(argc, argv);
+  
+  for (crt=0; crt<8; crt+=2) {
+    for (brd=0; brd<5; brd++) {
+      for (thr=0; thr<6; thr++) {
+        read_threshold(crt, brd, thr, &cod, &err);
+        if (err) {
+          printf("err = %04X\n", err);
+          exit(1);
+        }
+        V_ref = (cod & ref_msk.msk) ? V_ref_ext : V_ref_int;
+        cod = cod & 0xFF;
+        val = 2.0 * (float)cod / 256.0 * V_ref;
+        switch (fmt) {
+          case 1:
+            printf("%2d %d %d %3d %4d\n", crt, brd, thr, cod, val);
+          break;
+          case 2:
+            printf("%s %-7s %d %3d %4d\n", scrate[crt].nam, brd_nam[brd], thr, cod, val);
+          break;
+          case 3:
+            printf("%s %-7s %s %-3s %3d %4d\n", 
+                   scrate[crt].nam, brd_nam[brd], grp_nam[thr/3], thr_nam[thr%3], cod, val);
+          break;
+        }
+      }
+    }
+  }
+  return 0;
+}
+
+//~============================================================================

@@ -1,0 +1,128 @@
+#  $Id: Mgxint,v 1.1.1.1 2007/11/13 09:56:12 zuccon Exp $
+#
+SHELL=/bin/sh
+
+CERN_LEVEL = pro
+CERNDIR = /cern/$(CERN_LEVEL)
+CERNSRCDIR = /afs/cern.ch/asis/share/cern/$(CERN_LEVEL)
+
+
+ifndef AMSWD
+AMSWD := ..
+endif
+
+
+
+#
+ifeq  "$(shell uname)"  "AIX" 
+CFLAGS= -D__AMSDEBUG__   -g   -I../include -I../include/stl
+LDFLAGS=  -lxlf90 -lxlf -L/cern/96a/lib  -lgeant321 -lpawlib -lgraflib -lgrafX11  -lmathlib -lpacklib -lkernlib -L/usr/lib -lXm -lXt  -lX11 -lPW -lm -L/afs/cern.ch/asis/packages/licensed/nag-mark16/rs_aix32/nagfl16df -lnag 
+CC=xlC
+FF=xlf
+LD=xlC
+BIN=/bin/aix
+EXE=/exe/aix
+TIMEL=../bin/aix/timel.o
+endif
+ifeq  "$(shell uname)"  "OSF1" 
+CFLAGS= -D__AMSDEBUG__   -D__ALPHA__ -g   -I../include -I../include/stl -tlocal 
+LDFLAGS=  -lUfor -lfor -lFutil -lots -lm -L/cern/pro/lib  -lgeant321  -lpawlib -llapack3 -lgraflib -lgrafX11  -lmathlib -lpacklib_noshift -lkernlib_noshift -L/usr/lib -lXm -lXt -lX11 -lPW -lm -L/afs/cern.ch/asis/packages/licensed/nag-mark16/alpha_osf32c/nagfl16df -lnag  -L/afs/cern.ch/exp/ams/Offline/lib/osf1 -lamsut -lkernlib_noshift -lm
+CC=cxx -D__NAMESPACE__
+ifeq "$(shell cxx -V | grep -c 6.)" "1"
+#CC=cxx -D__NAMESPACE__  -oldcxx
+CC=cxx -D__NAMESPACE__ 
+endif
+FF=f77
+LD=cxx
+BIN=$(AMSWD)/bin/osf1
+EXE=$(AMSWD)/exe/osf1
+TIMEL=
+endif
+ifeq  "$(shell uname)"  "HP-UX" 
+CFLAGS= -D__AMSDEBUG__  -fhandle-exceptions -g   -I../include -I../include/stl 
+FFLAGS= -g -K +ppu 
+LDFLAGS=  -L/cern/96a/lib  -lgeant321 -lpawlib -lgraflib -lgrafX11  -lmathlib -lpacklib -lkernlib -L/usr/lib -L/usr/local/lib -L/usr/lib/Motif1.1 -lXm -lXt -lX11 -lPW -lm -L/afs/cern.ch/asis/packages/licensed/nag-mark16/hp700_ux100/nagfl16df -lnag -L/usr/local/lib -lg++ -lstdc++  -lcl -lisamstub
+CC=g++ -Wno-deprecated -mcpu=i686
+FF=f77
+LD=gcc
+BIN=/bin/hpux
+EXE=/exe/hpux
+TIMEL=
+endif
+ifeq  "$(shell uname)"  "Linux"
+
+CERN_LEVEL=pro
+CERNDIR = /afs/cern.ch/asis/i386_redhat61/cern/$(CERN_LEVEL)
+CERNSRCDIR = /afs/cern.ch/asis/share/cern/$(CERN_LEVEL)
+NAGDIR = /afs/cern.ch/sw/lhcxx/specific/i386_redhat51/Nag_Fortran/mark18/lib
+#NAGDIR = /offline/n
+# Copy lib to private AFS area for remote link, example:
+#NAGDIR = /afs/cern.ch/user/k/kscholbe/private/
+
+CFLAGS=    -D__AMSDEBUG__      -I../include   -I../db 
+CFLAGSTOFSIM=             -I../include   -I../db
+CFLAGSn=           -I../include   -I../db
+FFLAGS=   -fno-automatic -g -I../include  
+CFLAGSDAQ=         -I../include 
+LDFLAGS=    -static  -L$(ROOTSYS)/lib -lRoot -L$(CERNDIR)/lib  -lgeant321  -lpawlib -llapack3 -lpacklib_noshift -lgraflib -lgrafX11  -lmathlib -lpacklib_noshift -lkernlib_noshift -L/usr/local/lib   -L/usr/X11R6/lib  -lXmu -lXt -lXext -lX11 -L$(NAGDIR) -lnag -lnsl -L/usr/local/lib   -lcrypt -ldl   -L/afs/cern.ch/exp/ams/Offline/lib/linux -lamsut -lkernlib -lg2c
+CC=g++ -D__NAMESPACE__ -Wno-deprecated -mcpu=i686
+FF=g77
+LD=g++
+BIN=$(AMSWD)/bin/linuxr
+EXE=$(AMSWD)/exe/linux
+TIMEL=
+ifdef AMSICC1
+  CERNDIR = /afs/cern.ch/exp/ams/Offline/CERN/2003/icc
+  NAGDIR  = /afs/cern.ch/exp/ams/Offline/CERN/NagLib
+CC=g++  -Wno-deprecated -mcpu=i686
+LD=g++
+BIN=$(AMSWD)/bin/linuxr/icc
+EXE=$(AMSWD)/exe/linux/icc
+ifeq "$(shell g++ -v 2>&1 | grep -c 2.95)" "2"
+FF=/opt/intel/compiler60/ia32/bin/ifc
+LDFLAGS=  -static    -L$(ROOTSYS)/lib -lRoot -L/opt/intel/compiler60/ia32/lib  -lBINDF90 -lCEPCF90 -lIEPCF90 -lF90  -limf -lmy2  -lPEPCF90 -lPOSF90 -limf -lirc -L$(CERNDIR)/lib   -lgeant321  -lpacklib -lmathlib -lkernlib -aL$(NAGDIR) -lnag -lnsl -L/usr/local/lib    -lm  -L/afs/cern.ch/exp/ams/Offline/lib/linux/icc -lamsut -lkernlib   $(PFLAGS) -L/opt/intel/compiler60/ia32/lib  -L/opt/intel/compiler60/ia32/lib  -lBINDF90 -lCEPCF90 -lIEPCF90 -lF90 -lPEPCF90 -lPOSF90 -lintrins -limf
+else
+FF=/opt/intel/compiler70/ia32/bin/ifc
+LDFLAGS=  -static   -L$(ROOTSYS)/lib -lRoot  -L/opt/intel/compiler70/ia32/lib  -lBINDF90 -lCEPCF90 -lIEPCF90 -lF90  -limf   -lPEPCF90 -lPOSF90 -limf -lirc -L$(CERNDIR)/lib   -lgeant321  -lpawlib -llapack3 -lpacklib -lgraflib -lgrafX11  -lmathlib -lpacklib -lkernlib -L/usr/local/lib   -L/usr/X11R6/lib  -lXmu -lXt -lXext -lX11 -L$(NAGDIR) -lnag -lnsl -L/usr/local/lib   -lcrypt -ldl -lm  -L/afs/cern.ch/exp/ams/Offline/lib/linux/icc -lamsut -lkernlib   $(PFLAGS) -L/opt/intel/compiler70/ia32/lib   -lBINDF90 -lCEPCF90 -lIEPCF90 -lF90 -lPEPCF90 -lPOSF90 -lintrins -limf
+endif
+endif
+
+endif
+
+#
+OBJECTS= $(BIN)/gxint.o $(BIN)/commons.o $(BIN)/gvolume.o  $(BIN)/id.o $(BIN)/node.o $(BIN)/snode.o $(BIN)/cern.o $(BIN)/amsdbc.o $(BIN)/gsen.o  $(BIN)/mtx.o $(BIN)/point.o $(BIN)/amstkshc++.o  $(BIN)/sgif.o $(BIN)/upool.o $(BIN)/gmat.o $(BIN)/amsgobj.o $(BIN)/amsgeom.o  $(BIN)/geanti.o $(BIN)/geant3i.o $(BIN)/mceventg.o $(BIN)/tkmccl.o $(BIN)/rnormx.o  $(BIN)/trid.o $(BIN)/trdid.o $(BIN)/link.o $(BIN)/trrec.o $(BIN)/vtx.o $(BIN)/trdrec.o $(BIN)/trdsim.o $(BIN)/uzstat.o $(BIN)/tptcir.o $(BIN)/trafit.o $(BIN)/tcircf.o $(BIN)/tszfit.o $(BIN)/txyfit.o  $(BIN)/job.o $(BIN)/event.o $(BIN)/cont.o $(BIN)/trrawcluster.o $(BIN)/mccluster.o   $(BIN)/tofrec02.o $(BIN)/antirec02.o $(BIN)/beta.o $(BIN)/charge.o $(BIN)/particle.o  $(BIN)/gi.o $(BIN)/gi2.o $(BIN)/e04ccf.o $(BIN)/tofdbc02.o $(BIN)/apool.o $(BIN)/tofsim02.o $(BIN)/tofcalib02.o $(BIN)/timeid.o $(BIN)/io.o $(BIN)/trcalib.o $(BIN)/mtx2.o $(BIN)/trigger102.o  $(BIN)/trigger302.o $(BIN)/antidbc02.o $(BIN)/daqevt.o $(BIN)/astring.o $(BIN)/daqs2block.o $(BIN)/mfield.o $(BIN)/egzav.o $(BIN)/tkdbc.o $(BIN)/trddbc.o  $(BIN)/ntuple.o $(BIN)/user.o  $(BIN)/tofid.o $(BIN)/status.o $(BIN)/bcorr.o $(BIN)/tralig.o  $(BIN)/tofuser02.o $(BIN)/geocoor.o $(BIN)/ecaldbc.o $(BIN)/ecid.o $(BIN)/ecalrec.o  $(BIN)/tkfit.o $(BIN)/richdbc.o $(BIN)/richrec.o $(BIN)/richid.o $(BIN)/richgeom.o $(BIN)/gtckov.o $(BIN)/graylc.o $(BIN)/cerenkov.o $(BIN)/grfile.o $(BIN)/ecalcalib.o $(BIN)/fint_my.o $(BIN)/root.o $(BIN)/rootdict.o $(BIN)/astro.o
+
+gxint.exe:	$(OBJECTS)
+	$(LD) -v -o $(EXE)/gxint.exe $(OBJECTS) $(TIMEL) $(LDFLAGS)
+	chmod +x  $(EXE)/gxint.exe
+
+$(BIN)/gxint.o:	../CC/gxint.C
+	$(CC) -c $(CFLAGS) ../CC/gxint.C -o $(BIN)/gxint.o
+
+
+$(BIN)/geanti.o:      ../CC/geant.C
+	$(CC) -c $(CFLAGS) ../CC/geant.C -o $(BIN)/geanti.o
+
+$(BIN)/geant3i.o:      ../CC/geant3.C
+	$(CC) -c $(CFLAGS) ../CC/geant3.C -o $(BIN)/geant3i.o
+
+$(BIN)/gi2.o:      ../CC/gi2.C
+	$(CC) -c $(CFLAGS) ../CC/gi2.C -o $(BIN)/gi2.o
+
+$(BIN)/gi.o:      ../F/gi.F
+	$(FF) -c $(FFLAGS) ../F/gi.F -o $(BIN)/gi.o
+
+../F/grfile.F:      $(CERNSRCDIR)/src/geant321/giopa/grfile.F
+	sed  "s/NQUOT=1000/NQUOT=32000/g"  $(CERNSRCDIR)/src/geant321/giopa/grfile.F > ../F/grfile.F
+
+$(BIN)/grfile.o:      ../F/grfile.F
+	$(FF) -c $(FFLAGS) -I$(CERNDIR)/include ../F/grfile.F -o $(BIN)/grfile.o
+
+
+depend: 	
+	makedepend -f Mgxint -- $(CFLAGS) -- $(FILES) -p$(BIN)/
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+
+

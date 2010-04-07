@@ -1,0 +1,32 @@
+#  $Id: particle.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+class AMSParticle: public AMSlink{    // Particle rec
+protected:
+  AMSBeta * _pbeta;      // pointer to beta
+  AMSCharge * _pcharge;  // pointer to charge
+  AMSTrTrack * _ptrack;  // pointer to track;
+  integer _GPart;   // Geant particle ID
+  number _Mass;      // Particle Mass
+  number _ErrMass;   // Error in Mass
+  number _Momentum;  // Momentum 
+  number _ErrMomentum; // Error in momentum
+  number _Charge;     // Charge
+  number _Theta;      // Theta
+  number _Phi;        // Phi
+  AMSPoint _Coo;      // Init coord 
+  number _SumAnti;    // ANti coincidence total energy deposit (temporary)
+  CTC _Value(_Signal,_Beta,_ErrorBeta); //  CTC output
+  void _copyEl();
+public:
+  AMSParticle(AMSBeta * pbeta, AMSCharge * pcharge, AMSTrTrack * ptrack,
+  number mass, number errmass, number momentum, number errmomentum,
+  number charge, number theta, number phi, AMSPoint coo, number sumanti) copy ctor
+
+  void pid();   // particle identification, returns _GPart == Geant Id
+
+  void refit(); // refit if necessary;
+   
+  void ctcfit(); // fill in _Value  
+ 
+  static void build(); // build elements
+
+  static void print();: // print elements

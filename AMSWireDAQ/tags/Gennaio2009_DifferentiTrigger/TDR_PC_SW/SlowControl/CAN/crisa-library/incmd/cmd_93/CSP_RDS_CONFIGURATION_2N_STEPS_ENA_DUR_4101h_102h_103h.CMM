@@ -1,0 +1,11 @@
+0A 93 0E
+// subchain 2N
+21
+// STEPs 8, 9, 14, 15
+5F 5F 5F 5F
+// step1 duration
+41 01
+// step6 duration
+01 02
+// step7 duration
+01 03

@@ -1,0 +1,68 @@
+#!/bin/tcsh
+#
+# Shell script to make libraries for TRKdev
+#
+#   21/Nov/2007 SH  First test version
+#   26/Nov/2007 SH  First stable version
+#
+# This script is confirmed to work on 
+#  SLC 4.5 with cernlib/2004, root-5.10.00, and Gbatch v4.00/189/2
+#
+
+### Set system variables ###
+set MKFLOCAL = config/Makefile.local
+set MAKEFILE = Makefile
+
+set CERNDIR  = `grep -e '^CERNDIR  =' $MKFLOCAL | awk '{print $3}'`
+set AMSDIR   = `grep -e '^AMSDIR   =' $MKFLOCAL | awk '{print $3}'`
+set ARCH     = `grep -e '^ARCH     =' $MKFLOCAL | awk '{print $3}'`
+set AMSGBLIB = `grep -e '^AMSGBLIB =' $MAKEFILE | awk '{print $3}'`
+set G321LIB  = `grep -e '^G3LIB    =' $MAKEFILE | awk '{print $3}'`
+
+### Set file paths ###
+set g3lib    = "$CERNDIR/$G321LIB"
+set g3new    = "$G321LIB"
+set objdir   = "$AMSDIR/bin/$ARCH"
+
+### Check files ###
+if ( ! -f $g3lib ) then
+    echo "$g3lib does not exist."
+    exit
+endif
+if ( ! -d $objdir ) then
+    echo "$objdir does not exist."
+    exit
+endif
+if ( ! -d lib ) then 
+    echo "Creating   lib/"
+    mkdir lib
+endif
+
+### Make a list of object files to be replaced ###
+echo -n "Generating replace list.. "
+
+set listr = ""
+set listg = `ar t $g3lib`
+set listf = `echo $AMSDIR/F/*.F`
+
+foreach file ( $listf )
+    set ftmp = `echo $file | sed 's/'$AMSDIR'\/F\///g' | sed 's/\.F//'g`
+    set find = `echo $listg | grep " $ftmp.o" > /dev/null; echo $?`
+    if ( $find == 0 ) set listr = "$listr $objdir/$ftmp.o"
+end
+
+echo $listr | wc -w 
+
+### Copy geant3 lib ###
+echo "Creating   $g3new"
+if ( -f $g3new ) rm -f $g3new
+cp -p $g3lib $g3new
+
+### Replace object files with Gbatch ones ###
+ar r $g3new $listr
+
+### Make a Gbatch lib ###
+echo "Creating   $AMSGBLIB"
+if ( -f $AMSGBLIB ) rm -f $AMSGBLIB
+ar r $AMSGBLIB $objdir/*.o >& /dev/null
+ar d $AMSGBLIB geant3.o

@@ -1,0 +1,7 @@
+0A 95 08
+// subchain 1N
+12
+// TAQS1 0001 to 003C in sec
+00 3C
+// TAQS8 0001 to 01E0 in min
+01 E0

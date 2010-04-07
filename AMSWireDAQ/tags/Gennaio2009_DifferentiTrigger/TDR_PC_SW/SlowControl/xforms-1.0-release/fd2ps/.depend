@@ -1,0 +1,265 @@
+align.o: align.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ /usr/include/stdlib.h ../lib/local.h /usr/include/unistd.h \
+ /usr/include/sys/unistd.h ../lib/ulib.h /usr/include/time.h \
+ /usr/include/errno.h ../lib/extern.h ../lib/private/textbox.h \
+ ../lib/private/pvaluator.h fd2ps.h sys.h
+fd2ps.o: fd2ps.c /usr/include/string.h /usr/include/machine/ansi.h \
+ /usr/include/sys/cdefs.h /usr/include/stdlib.h ../lib/forms.h \
+ /usr/include/stdio.h /usr/include/stdarg.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ ../lib/local.h /usr/include/unistd.h /usr/include/sys/unistd.h \
+ ../lib/ulib.h /usr/include/time.h /usr/include/errno.h \
+ ../lib/extern.h ../lib/private/textbox.h ../lib/private/pvaluator.h \
+ fd2ps.h sys.h global.h
+flsupport.o: flsupport.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ /usr/include/stdlib.h ../lib/local.h /usr/include/unistd.h \
+ /usr/include/sys/unistd.h ../lib/ulib.h /usr/include/time.h \
+ /usr/include/errno.h ../lib/extern.h ../lib/private/textbox.h \
+ ../lib/private/pvaluator.h /usr/include/ctype.h \
+ /usr/include/runetype.h fd2ps.h sys.h
+image2ps.o: image2ps.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h /usr/include/stdlib.h fd2ps.h \
+ ../lib/forms.h /usr/include/stdarg.h /usr/include/string.h \
+ /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ ../lib/local.h /usr/include/unistd.h /usr/include/sys/unistd.h \
+ ../lib/ulib.h /usr/include/time.h /usr/include/errno.h \
+ ../lib/extern.h ../lib/private/textbox.h ../lib/private/pvaluator.h \
+ sys.h
+load.o: load.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ /usr/include/stdlib.h ../lib/local.h /usr/include/unistd.h \
+ /usr/include/sys/unistd.h ../lib/ulib.h /usr/include/time.h \
+ /usr/include/errno.h ../lib/extern.h ../lib/private/textbox.h \
+ ../lib/private/pvaluator.h fd2ps.h sys.h /usr/include/ctype.h \
+ /usr/include/runetype.h
+papers.o: papers.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h /usr/include/string.h fd2ps.h \
+ ../lib/forms.h /usr/include/stdarg.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ /usr/include/stdlib.h ../lib/local.h /usr/include/unistd.h \
+ /usr/include/sys/unistd.h ../lib/ulib.h /usr/include/time.h \
+ /usr/include/errno.h ../lib/extern.h ../lib/private/textbox.h \
+ ../lib/private/pvaluator.h sys.h
+pscol.o: pscol.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ /usr/include/stdlib.h ../lib/local.h /usr/include/unistd.h \
+ /usr/include/sys/unistd.h ../lib/ulib.h /usr/include/time.h \
+ /usr/include/errno.h ../lib/extern.h ../lib/private/textbox.h \
+ ../lib/private/pvaluator.h /usr/include/math.h fd2ps.h sys.h
+psdraw.o: psdraw.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ /usr/include/stdlib.h ../lib/local.h /usr/include/unistd.h \
+ /usr/include/sys/unistd.h ../lib/ulib.h /usr/include/time.h \
+ /usr/include/errno.h ../lib/extern.h ../lib/private/textbox.h \
+ ../lib/private/pvaluator.h fd2ps.h sys.h /usr/include/ctype.h \
+ /usr/include/runetype.h
+psobj.o: psobj.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ /usr/include/stdlib.h ../lib/local.h /usr/include/unistd.h \
+ /usr/include/sys/unistd.h ../lib/ulib.h /usr/include/time.h \
+ /usr/include/errno.h ../lib/extern.h ../lib/private/textbox.h \
+ ../lib/private/pvaluator.h fd2ps.h sys.h /usr/include/math.h \
+ /usr/include/ctype.h /usr/include/runetype.h
+pstext.o: pstext.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ /usr/include/stdlib.h ../lib/local.h /usr/include/unistd.h \
+ /usr/include/sys/unistd.h ../lib/ulib.h /usr/include/time.h \
+ /usr/include/errno.h ../lib/extern.h ../lib/private/textbox.h \
+ ../lib/private/pvaluator.h fd2ps.h sys.h
+readxpm.o: readxpm.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h /usr/include/string.h \
+ /usr/include/stdlib.h fd2ps.h ../lib/forms.h /usr/include/stdarg.h \
+ /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ ../lib/local.h /usr/include/unistd.h /usr/include/sys/unistd.h \
+ ../lib/ulib.h /usr/include/time.h /usr/include/errno.h \
+ ../lib/extern.h ../lib/private/textbox.h ../lib/private/pvaluator.h \
+ sys.h
+sys.o: sys.c fd2ps.h ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ /usr/include/stdlib.h ../lib/local.h /usr/include/unistd.h \
+ /usr/include/sys/unistd.h ../lib/ulib.h /usr/include/time.h \
+ /usr/include/errno.h ../lib/extern.h ../lib/private/textbox.h \
+ ../lib/private/pvaluator.h sys.h /usr/include/ctype.h \
+ /usr/include/runetype.h /usr/include/pwd.h
+version.o: version.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/ansi.h /usr/include/stdlib.h \
+ /usr/include/string.h fd2ps.h ../lib/forms.h /usr/include/stdarg.h \
+ /usr/include/limits.h /usr/include/sys/_posix.h \
+ /usr/include/machine/limits.h /usr/include/sys/syslimits.h \
+ /usr/X11R6/include/X11/Xlib.h /usr/include/sys/types.h \
+ /usr/include/sys/inttypes.h /usr/include/machine/types.h \
+ /usr/include/machine/endian.h /usr/X11R6/include/X11/X.h \
+ /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+ /usr/include/stddef.h /usr/X11R6/include/X11/Xutil.h \
+ /usr/X11R6/include/X11/Xatom.h /usr/X11R6/include/X11/keysym.h \
+ /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ ../lib/local.h /usr/include/unistd.h /usr/include/sys/unistd.h \
+ ../lib/ulib.h /usr/include/time.h /usr/include/errno.h \
+ ../lib/extern.h ../lib/private/textbox.h ../lib/private/pvaluator.h \
+ sys.h
+xbmtops.o: xbmtops.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ /usr/include/stdlib.h ../lib/local.h /usr/include/unistd.h \
+ /usr/include/sys/unistd.h ../lib/ulib.h /usr/include/time.h \
+ /usr/include/errno.h ../lib/extern.h ../lib/private/textbox.h \
+ ../lib/private/pvaluator.h fd2ps.h sys.h /usr/include/ctype.h \
+ /usr/include/runetype.h
+xpmtops.o: xpmtops.c ../lib/forms.h /usr/include/stdio.h \
+ /usr/include/sys/cdefs.h /usr/include/machine/ansi.h \
+ /usr/include/stdarg.h /usr/include/string.h /usr/include/limits.h \
+ /usr/include/sys/_posix.h /usr/include/machine/limits.h \
+ /usr/include/sys/syslimits.h /usr/X11R6/include/X11/Xlib.h \
+ /usr/include/sys/types.h /usr/include/sys/inttypes.h \
+ /usr/include/machine/types.h /usr/include/machine/endian.h \
+ /usr/X11R6/include/X11/X.h /usr/X11R6/include/X11/Xfuncproto.h \
+ /usr/X11R6/include/X11/Xosdefs.h /usr/include/stddef.h \
+ /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Xatom.h \
+ /usr/X11R6/include/X11/keysym.h /usr/X11R6/include/X11/keysymdef.h \
+ /usr/X11R6/include/X11/Xresource.h \
+ /usr/X11R6/include/X11/cursorfont.h ../lib/flinternal.h \
+ /usr/include/stdlib.h ../lib/local.h /usr/include/unistd.h \
+ /usr/include/sys/unistd.h ../lib/ulib.h /usr/include/time.h \
+ /usr/include/errno.h ../lib/extern.h ../lib/private/textbox.h \
+ ../lib/private/pvaluator.h fd2ps.h sys.h /usr/include/ctype.h \
+ /usr/include/runetype.h /usr/include/signal.h \
+ /usr/include/sys/signal.h /usr/include/machine/signal.h \
+ /usr/include/machine/trap.h /usr/include/sys/ucontext.h \
+ /usr/include/machine/ucontext.h /usr/include/sys/time.h

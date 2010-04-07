@@ -1,0 +1,7 @@
+#  $Id: 00index.txt,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+rt_all.job    //  STS91 data
+rt_select.job  //same, using ah.sel file for selected events
+rt_beam.job    // GSI data
+g3.test.job   //  AMS02 geant3 simulation example (see ../install/00index.txt how to install)
+g4.test.job   //  AMS02 geant4 simulation example (see ../install/00index.txt how to install)
+g3.root.test.job   //  AMS02 geant3/root simulation example (see ../install/00index.txt how to install)

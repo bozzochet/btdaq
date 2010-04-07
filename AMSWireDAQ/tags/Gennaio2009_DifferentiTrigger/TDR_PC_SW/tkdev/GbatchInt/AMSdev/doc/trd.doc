@@ -1,0 +1,52 @@
+TRD ToDo list (Incomplete)
+
+
+AMSTRDIdSoft:
+
+introduce individual ped,sigma,gain and tgeir db records via timeid
+
+write some daqformat (2 crates) and conversion daq<->raw
+
+By VC
+
+
+AMSTRDRawHit: more realistic noise
+
+By VC
+
+AMSTRDCluster:
+
+AMSTRDSegment:
+
+faster algorithm
+
+By GL
+
+AMSTRDTrack:
+
+By GL
+faster algorithm
+
+add trd related quantities (number of energetic clusters or 
+some likelyhood amalysis)
+
+By KS
+
+AMSParticle: 
+
+in the absence of track add trd to tof to form one strline track
+Refine tracker/trd matching & introduce tof/trd one.
+
+By VC
+
+get Gamma Threshold from trd (1/sqrt(1-beta^2)
+
+By KS
+
+Overall : 
+
+Refine ntuple quantities and add new ones if necessary
+
+By Everybody
+
+ 

@@ -1,0 +1,47 @@
+[ -z "$UNAME" ]      && UNAME=`(uname) 2>/dev/null`
+[ -z "$UNAME" -a -d /sys/node_data ] && UNAME="DomainOS"
+[ -z "$UNAME" ]      && (echo could not determine hosttype ; exit)
+
+if [ "$UNAME" = "AIX" ] ; then
+   MACHINE="aix"
+elif [ "$UNAME" = "OSF1" ] ; then
+    MACHINE="osf1"
+elif [ "$UNAME" = "HP-UX" ] ; then
+    MACHINE="hpux"
+else
+echo $UNAME is not supported yet
+
+fi
+
+
+
+../exe/$MACHINE/gbatch.exe <<!
+LIST
+KINE 14 
+MULS 2 
+C MSEL 1=0
+LOSS 2 
+CUTS 1=0.0005 2=0.0005 3=0.001 4=0.001 5=0.001
+HADR 0 
+TRIG 1
+DEBUG -1 10 100
+C    tmaxf  smax   fieldm  cconv   maxcal  nitm    xtol iver ialg   steps 
+TKFIT 0.2    50.   2.     5.e-4     8  1000     1.e-2   0     1    0.03 
+C npars ims 
+  5     1   
+C          Nparticles 
+MCGEN  1=-150. 2=-150. 4=150. 5=150. 12=-0.75 15=1 18=1 19=102004 
+C 25=01011998 27=30071998
+IOPA 1=3 2='pr.hbk'  85=2 86='proton.dat' 
+45='AMSmceventg'
+C 45='TriggerLVL1&AMSTOFMCCluster  '
+RNDM 191483093 131623257
+C      Simul Debug    CpuLim  Read Write Jobname
+AMSJOB 1=0   2=0      3=50.   4=0  5=0   6='v203 Protons ' 87=1
+88='ShuttlePar'
+C Special HP-UX
+TIME 3=10000000
+TERM 1=1234567890
+END
+
+!

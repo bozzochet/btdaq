@@ -1,0 +1,46 @@
+[ -z "$UNAME" ]      && UNAME=`(uname) 2>/dev/null`
+[ -z "$UNAME" -a -d /sys/node_data ] && UNAME="DomainOS"
+[ -z "$UNAME" ]      && (echo could not determine hosttype ; exit)
+
+if [ "$UNAME" = "AIX" ] ; then
+   MACHINE="aix"
+elif [ "$UNAME" = "OSF1" ] ; then
+    MACHINE="osf1"
+elif [ "$UNAME" = "Linux" ] ; then
+    MACHINE="linux"
+else
+echo $UNAME is not supported yet
+
+fi
+
+
+PART=
+PMIN=
+PMAX=
+RUN=
+TRIG=
+CPULIM=
+RNDM1=
+RNDM2=
+NTUPLESDIR=
+TRIGGER=
+OUPUTMODE=
+SPECTRUM=
+SETUP=
+TIMBEG=
+TIMEND=
+FOCUS=
+COSMAX=
+PLANENO=
+GEOCUTOFF=
+COOCUB1=
+COOCUB2=
+COOCUB3=
+COOCUB4=
+COOCUB5=
+COOCUB6=
+cp $AMSProducerExec /tmp/gbatch-orbit.exe.$RUN
+cd /tmp
+/tmp/gbatch-orbit.exe.$RUN $1 $2 $3 $4 $5 $6 $7<<!
+LIST
+MCGEN 25=$TIMBEG 27=$TIMEND

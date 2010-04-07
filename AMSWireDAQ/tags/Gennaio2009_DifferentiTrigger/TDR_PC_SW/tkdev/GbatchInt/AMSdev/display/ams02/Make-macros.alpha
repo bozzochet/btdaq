@@ -1,0 +1,141 @@
+#  $Id: Make-macros.alpha,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+##### MACROS #####
+
+ROOTLIBS      = -L$(ROOTSYS)/lib -lBase -lCint -lClib -lCont -lFunc -lGraf \
+                -lGraf3d -lHist -lHtml -lMeta -lMinuit -lNet -lPostscript \
+                -lProof -lRint -lTree -lUnix -lZip -lEG -lEGPythia
+ROOTGLIBS     = -lGpad -lGX11 -lMotif -lWidgets -lX3d
+
+ROOTH         = TTree.h TFile.h TH1.h
+
+SRCS          = AMSR_Root.cxx AMSR_Maker.cxx \
+		AMSR_ColorManager.cxx \
+		AMSR_GeometrySetter.cxx \
+		AMSR_3DCluster.cxx \
+		AMSR_ToFCluster.cxx AMSR_ToFClusterReader.cxx \
+		AMSR_Track.cxx AMSR_TrackReader.cxx \
+		AMSR_EcalShower.cxx AMSR_EcalShowerReader.cxx \
+		AMSR_SiHit.cxx AMSR_SiHitReader.cxx \
+		AMSR_CTCCluster.cxx AMSR_CTCClusterReader.cxx \
+		AMSR_AntiCluster.cxx AMSR_AntiClusterReader.cxx \
+		AMSR_Particle.cxx AMSR_ParticleReader.cxx \
+		AMSR_VirtualDisplay.cxx \
+		AMSR_HistBrowser.cxx \
+		AMSR_Canvas.cxx \
+		AMSR_Display.cxx \
+		THelix.cxx TRadioButton.cxx TSwitch.cxx Debugger.cxx
+
+HDRS          = THelix.h TRadioButton.h TSwitch.h \
+		AMSR_ColorManager.h \
+		AMSR_3DCluster.h \
+		AMSR_Maker.h AMSR_HistBrowser.h AMSR_Root.h \
+		AMSR_ToFCluster.h AMSR_ToFClusterReader.h \
+		AMSR_Track.h AMSR_TrackReader.h \
+		AMSR_EcalShower.h AMSR_EcalShowerReader.h \
+		AMSR_SiHit.h AMSR_SiHitReader.h \
+		AMSR_CTCCluster.h AMSR_CTCClusterReader.h \
+		AMSR_AntiCluster.h AMSR_AntiClusterReader.h \
+		AMSR_Particle.h AMSR_ParticleReader.h \
+		AMSR_VirtualDisplay.h \
+		Debugger.h \
+		AMSR_Canvas.h \
+		AMSR_Display.h \
+		AMSR_GeometrySetter.h \
+                LinkDef.h
+
+SRCSG         = # AMSR_Display.cxx 		# AMSR_Fruit.cxx 
+
+HDRSG         = # AMSR_Display.h GLinkDef.h
+
+		# AMSR_Fruit.h
+		# ATLFDisplay.h ATLFParticle.h ATLFFruit.h GLinkDef.h 
+                
+
+DICT          = AMSR_Cint.cxx
+DICTH         = $(DICT:.cxx=.h)
+DICTO         = $(DICT:.cxx=.o)
+
+DICTG         = # AMSR_gCint.cxx
+DICTGH        = # $(DICTG:.cxx=.h)
+DICTGO        = # $(DICTG:.cxx=.o)
+
+MAIN          = # main.cxx
+MAINO         = $(MAIN:.cxx=.o)
+
+OBJS          = $(SRCS:.cxx=.o) $(DICTO)
+
+OBJSG         = # $(SRCSG:.cxx=.o) $(DICTGO)
+
+ALLDICT       = $(DICT) $(DICTH) $(DICTG) $(DICTGH)
+ALLSRCS       = $(SRCS) $(SRCSG) $(HDRS) $(HDRSG) $(ALLDICT) $(MAIN)
+ALLOBJS       = $(OBJS) $(OBJSG) $(MAINO)
+
+
+AMSR_LIB       = libAMS.so
+
+AMSR_GLIB      = libAMSR_g.so
+
+AMSR_PRG       = amsroot
+
+
+##### RULES #####
+
+.SUFFIXES: .cxx
+
+.cxx.o:
+	$(CXX) $(OPT) $(CXXFLAGS) -c $<
+
+
+##### TARGETS #####
+
+$(AMSR_LIB):     $(DICT) $(OBJS) $(AMSR_GLIB)
+		rm -f $(AMSR_LIB)
+# due to a bug in cxx/ld under osf3.xx, one cannot use cxx to generate
+# a shared library. One must use ld instead.
+		cxx   -expect_unresolved \
+ -g0 -O1 -shared /usr/lib/cmplrs/cc/crt0.o  \
+ -o $(AMSR_LIB)  $(ROOTLIBS) $(OBJS)  -lcxxstd -lcxx -lexc -lots -lc -lm $(ROOTLIBS)
+		chmod 555 $(AMSR_LIB)
+		@echo "$(AMSR_LIB) done with $(OBJS) linked in"
+
+$(AMSR_GLIB):    $(DICTG) $(OBJSG)
+		rm -f $(AMSR_GLIB)
+# due to a bug in cxx/ld under osf3.xx, one cannot use cxx to generate
+# a shared library. One must use ld instead.
+		cxx  -L/usr/lib/cmplrs/cxx -rpath /usr/lib/cmplrs/cxx -expect_unresolved \
+ -g0 -O1 -shared /usr/lib/cmplrs/cc/crt0.o  \
+ -o $(AMSR_GLIB)  $(OBJSG) -lcxxstd -lcxx -lexc -lots -lc
+		chmod 555 $(AMSR_GLIB)
+		@echo "$(AMSR_GLIB) done"
+
+$(AMSR_PRG):     $(AMSR_LIB) $(MAINO)
+		$(LD) $(LDFLAGS) $(MAINO) $(AMSR_LIB) $(PYTHIALIB) $(LIBS) \
+		-o $(AMSR_PRG)
+		@echo "$(AMSR_PRG) done"
+
+$(DICT):        $(HDRS)
+		@echo "Generating dictionary ..."
+		rootcint -f $(DICT) -c $(ROOTH) $(HDRS)
+
+$(DICTG):       $(HDRSG)
+		@echo "Generating display dictionary ..."
+		rootcint -f $(DICTG) -c $(HDRSG)
+
+$(DICTO):       $(DICT)
+		$(CXX) $(NOOPT) $(CXXFLAGS) -c $(DICT)
+
+$(DICTGO):      $(DICTG)
+		$(CXX) $(NOOPT) $(CXXFLAGS) -c $(DICTG)
+
+depend:
+		makedepend -fMake-depend -- $(CXXFLAGS) -- $(SRCS) $(SRCSG) \
+		$(MAIN)
+
+dist:
+		rm -f $(AMSR_PRG).tar.gz ; \
+		tar cvf $(AMSR_PRG).tar $(ALLSRCS) *.C Make* \
+		gzip $(AMSR_PRG).tar
+
+clean:
+		@rm -f $(ALLOBJS) $(ALLDICT)
+

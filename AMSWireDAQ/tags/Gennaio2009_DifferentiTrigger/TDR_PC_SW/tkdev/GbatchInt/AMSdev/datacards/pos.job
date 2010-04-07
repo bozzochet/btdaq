@@ -1,0 +1,48 @@
+[ -z "$UNAME" ]      && UNAME=`(uname) 2>/dev/null`
+[ -z "$UNAME" -a -d /sys/node_data ] && UNAME="DomainOS"
+[ -z "$UNAME" ]      && (echo could not determine hosttype ; exit)
+
+if [ "$UNAME" = "AIX" ] ; then
+   MACHINE="aix"
+elif [ "$UNAME" = "OSF1" ] ; then
+    MACHINE="osf1"
+elif [ "$UNAME" = "HP-UX" ] ; then
+    MACHINE="hpux"
+else
+echo $UNAME is not supported yet
+
+fi
+
+
+
+if [ "$UNAME" = "HP-UX" ] ; then
+cd /user/choutko/AMS/datacards
+else
+cd /afs/cern.ch/user/c/choutko/AMS/datacards
+fi
+../exe/$MACHINE/gbatch.exe <<!
+LIST
+KINE 2 
+MULS 1
+C MSEL 1=0
+LOSS 1
+CUTS 1=0.0005 2=0.0005 3=0.001 4=0.001 5=0.001
+HADR 1
+TRIG 10000
+DEBUG -1 10 1000
+C    tmaxf  smax   fieldm  cconv   maxcal  nitm    xtol iver ialg   steps 
+TKFIT 0.2    50.   2.     5.e-4     8  1000     1.e-2   0     1    0.03 
+C npars ims 
+  5     1   
+C          Nparticles 
+MCGEN  1=-150. 2=-50. 4=150. 5=50. 12=-0.7 15=1 18=1 19=100
+IOPA 1=3 2='pos.hbk'
+RNDM 378697991 979972996
+C      Simul Debug    CpuLim  Read Write Jobname
+AMSJOB 1=0   2=0      3=50.   4=0  5=0   6='v201 Positrons'
+46='AMSSTATION CTCAnnecy'
+C Special HP-UX
+TIME 3=10000000
+END
+
+!

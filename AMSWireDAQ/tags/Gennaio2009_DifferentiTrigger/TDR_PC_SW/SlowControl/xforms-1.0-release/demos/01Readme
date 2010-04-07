@@ -1,0 +1,27 @@
+
+Here are a few demos demonstrating the usage and appearance of
+object classes in the XForms Library. Note that these programs
+also serve as testing/QA programs, so if you have a problem with
+a particular object, see if the same object works in the
+demo program.
+
+Simply type demo to start the demo/test suite. 
+
+If shared library is provided, you will have to either move
+the shared library to the standard directory or define
+the environment variable LD_LIBRARY_PATH to include
+the directory where the shared libary resides.
+
+Almost all demos are borderless or transient, thus may "stick"
+to the screen (some *vwm's can't switch them "off"). For real programs, this 
+is a BAD idea. 
+
+OpenGL/Mesa demos are by default not generated. If you have the necessary
+libaries (OpenGL or Mesa2.0) and are using the static library, type make 
+gl glwin to generate the demos. If you're using Mesa version other than
+2.0, you probably should compile ../FORMS/gl.c and replace the
+one in the library.
+
+If you're running the demo on a B&W Xterminal, some of the
+"colors" might be off.
+

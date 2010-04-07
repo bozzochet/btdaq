@@ -1,0 +1,74 @@
+CPAT,SIGMASX  .  PDS = UF09.RQMD9.FORT  DATE = 951006  TIME = 215431562 
+      parameter (itblsz=        100        )                            
+      parameter (tblhig=          5.1038745)                            
+      parameter (tbllow=         1.8964808)                             
+      parameter (tblstp=          0.0100000)                            
+      parameter (kaofs=24)                                              
+      parameter (indmax=(24+kaofs)*itblsz)                              
+      real*4 snntot( 100)                                               
+      real*4 snnel ( 100)                                               
+      real*4 spntot( 100)                                               
+      real*4 spnel ( 100)                                               
+      real*4 spptot( 100)                                               
+      real*4 sppel ( 100)                                               
+      real*4 snnnd ( 100)                                               
+      real*4 snpid ( 100)                                               
+      real*4 sppnn2( 100)                                               
+      real*4 snpnn2( 100)                                               
+      real*4 sppdd ( 100)                                               
+      real*4 s0dd  ( 100)                                               
+      real*4 sppdn2( 100)                                               
+      real*4 spp2n2( 100)                                               
+      real*4 snp2n2( 100)                                               
+      real*4 spimp ( 100)                                               
+      real*4 sppipe( 100)                                               
+      real*4 sppime( 100)                                               
+      real*4 spbrpt( 100)                                               
+      real*4 spbrpe( 100)                                               
+      real*4 sdnel1( 100)                                               
+      real*4 sdnel2( 100)                                               
+      real*4 sdnav( 100)                                                
+      real*4 sdndd( 100)                                                
+      real*4 sks01(100)                                                 
+      real*4 sks11(100)                                                 
+      real*4 sks10(100)                                                 
+      real*4 sks120(100)                                                
+      real*4 sks321(100)                                                
+      real*4 sks121(100)                                                
+      real*4 skncs(100)                                                 
+      real*4 skmne(100)                                                 
+      real*4 skpcs(100)                                                 
+      real*4 skmpe(100)                                                 
+      real*4 skppt(100)                                                 
+      real*4 skppe(100)                                                 
+      real*4 skpnt(100)                                                 
+      real*4 skpnel(100)                                                
+      real*4 skpnce(100)                                                
+      real*4 skmpce(100)                                                
+      real*4 skpd1(100)                                                 
+      real*4 skpd2(100)                                                 
+      real*4 skpd3(100)                                                 
+      real*4 splmt(100)                                                 
+      real*4 splmel(100)                                                
+      common /sigmas/                                                   
+     +snntot,snnel ,spntot,                                             
+     +spnel ,spptot,sppel ,                                             
+     +snnnd ,snpid ,sppnn2,                                             
+     +snpnn2,sppdd ,s0dd  ,                                             
+     +sppdn2,spp2n2,snp2n2,                                             
+     +spimp ,sppipe,sppime,                                             
+     +spbrpt,spbrpe,                                                    
+     +sdnel1,sdnel2,sdnav,                                              
+     +sdndd,                                                            
+     +sks10 ,sks01 ,sks11 ,                                             
+     +sks120,sks121,sks321,                                             
+     +skncs ,skmne , skpcs,                                             
+     +skmpe ,skppt ,skppe ,                                             
+     +skpnt ,skpnel,                                                    
+     +skpnce ,skmpce,                                                   
+     +skpd1 ,skpd2 ,skpd3,                                              
+     +splmt ,splmel                                                     
+      real*4 sigcom(indmax)                                             
+      equivalence (sigcom(1),snntot(1))                                 
+      real*4 dsdm(53,20),dnnnfc(53),wqnnnd(100)                         
+      common /nnndbk/ dsdm,dnnnfc,wqnnnd                                

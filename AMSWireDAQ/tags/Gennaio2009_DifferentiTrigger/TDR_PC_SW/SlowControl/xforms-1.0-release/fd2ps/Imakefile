@@ -1,0 +1,122 @@
+#define TargetName fd2ps
+#define Optimize NO
+
+# $Locker: spl $
+# $Date: 1998/04/20 20:27:49 $
+# $State: Exp $
+
+# $Log: Imakefile,v $
+#
+
+SRCS	= \
+	  align.c \
+	  fd2ps.c \
+	  flsupport.c \
+	  image2ps.c \
+	  load.c \
+	  papers.c \
+	  pscol.c \
+	  psdraw.c \
+	  psobj.c \
+	  pstext.c \
+	  readxpm.c \
+	  sys.c \
+	  version.c \
+	  xbmtops.c \
+	  xpmtops.c
+
+#	Batteries not included.  Some assembly required.
+
+OBJS	= $(SRCS:.c=.o)
+
+#if !defined( PpcDarwinArchitecture )
+FORMSLIBDIR     = $(TOP)/lib
+FORMSINCDIR     = $(FORMSLIBDIR)       
+FORMSLIB        = -L$(FORMSLIBDIR) -lforms
+DEPFORMSLIB     = $(FORMSLIBDIR)/libforms.a
+#endif
+
+IMAGELIBDIR     = $(TOP)/image
+IMAGEINCDIR     = $(IMAGELIBDIR)       
+IMAGELIB        = -L$(IMAGELIBDIR) -lflimage
+DEPIMAGELIB     = $(IMAGELIBDIR)/libflimage.a
+
+#if Solaris64Bit
+LDPRELIB	= -L/usr/openwin/lib/sparcv9
+#endif
+
+#if !HaveSnprintf
+SNPLIBDIR	= $(TOP)/snp
+SNPINCDIR	= $(SNPLIBDIR)       
+SNPINC		= -I$(SNPINCDIR)
+SNPLIB		= -L$(SNPLIBDIR) -lformssnp
+DEPSNPLIB	= $(SNPLIBDIR)/libformssnp.a
+#endif
+
+EXTRA_INCLUDES  = \
+		  $(SNPINC) \
+		  -I$(BUILDINCDIR) \
+		  -I$(FORMSINCDIR) \
+		  -I$(FORMSINCDIR)/private \
+		  -Ifd \
+		  -Ispec \
+		  -Ixpm \
+		  -I.
+
+DEPEND_DEFINES	= \
+		  -I/usr/local/include
+
+EXTRA_LIBRARIES	= \
+		  $(STATIC) \
+		  $(IMAGELIB) \
+		  $(FORMSLIB) \
+		  $(SNPLIB) \
+		  $(UNSTATIC) \
+		  -lm
+
+EXTRA_DEFINES	= \
+		  -DMAKING_FD=1
+
+PSRCS	= $(SPLSRCS) \
+	  $(FDCSRCS)
+
+CDEBUGFLAGS	= -g $(OPTIMIZER)
+#if Optimize
+IMAKE_OPTIMIZE  = -DDoOptimize=1
+OPTIMIZER	= -O4
+#else
+OPTIMIZER	=
+#endif
+
+#if Solaris64Bit
+LDPRELIB	= -L/usr/openwin/lib/sparcv9
+CCENVSETUP	= LD_RUN_PATH=/usr/openwin/lib/sparcv9
+#endif
+
+#if StaticLink
+STATIC		= -Xlinker -Bstatic
+UNSTATIC	= -Xlinker -Bdynamic
+#endif
+
+IMAKE_DEFINES	= \
+		  $(IMAKE_DEBUG_MEM) \
+		  $(IMAKE_OPTIMIZE)
+
+DEPLIBS		= \
+		  $(DEPSNPLIB) \
+		  $(DEPFORMSLIB)
+		  
+
+SYS_LIBRARIES	= \
+		  $(XLIB)
+
+
+ComplexProgramTarget(TargetName)
+
+#if InstallNonstandard
+BINDIR		= XFormsNonstandardInstallDir/bin
+#endif
+
+distclean::
+	make clean
+	$(RM) Makefile

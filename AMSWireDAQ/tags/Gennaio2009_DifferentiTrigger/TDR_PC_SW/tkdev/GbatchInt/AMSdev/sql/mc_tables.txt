@@ -1,0 +1,123 @@
+#
+# AMS ORACLE tables (preliminary), October 1999. A.Klimentov
+#
+#
+# use ORACLE time in the tables. Time is CDT for STS runs
+# and local for MC and 'Ground' runs.
+# 
+# July 2000. V0.1 major modifications
+#
+# September 2000. V1.1 major modifications for m_runs table, new offline 
+#                 tables from V.Choutko
+# December  2000. add 'UNIX' begin, end, insert time into TDV catalogs
+#                 TDV tables are modified, use indices instead of TDV name 
+#                 in tables, keep three tables with partitions for all TDVs
+# August    2001  MC production catalogues
+#
+#                                                 Last Edit : August 6, 2001.
+
+
+
+Table m_datasets :
+------------------------
+#
+# Description of AMS datasets
+#
+dataset          varchar(255)  data set name (STS-91, GSI98, CERN98, MC, ...)
+timef            date          first event time or production date
+timel            date          time of last event
+timei            date          insert or create time
+nruns            number(12,0)  total number of runs in dataset
+cruns            number(12,0)  number of calibration runs
+bruns            number(12,0)  bad runs
+tevents          number(24,0)  total number of events
+events           number(24,0)  number of events in non-calibration runs
+execid           number(24,0)  exec program Id from m_execs
+datacards        number(24,0)  datacards from m_datacards
+comments         varchar2(3000)  short description of dataset content, READ.ME
+
+not NULL    dataset
+primary key dataset
+
+
+Table m_alldset
+----------------------
+# dataset name and dataset number correspondance
+dataset   varchar(255)  data set name (STS-91, GSI98, CERN98, MC, ...)
+ndataset  number(5)
+
+
+
+
+Table m_datasetfiles
+----------------------
+#
+# Datasets from m_datasets have different DST, NTUPLES, preselected NTUPLES,
+# m_datasets_types table shows what is available for each datasets
+# 
+dataset   varchar(255)  data set name (STS-91, GSI98, CERN98, MC, ...)
+rawfiles  integer(2)    raw flat files for the current DST
+taginfo   integer(2)    tag info   " "
+primnt    integer(2)    primary ntuples " "
+mcgen     integer(2)    MC generator events " "
+mc4v      integer(2)    MC 4 vectors
+mchits    integer(2)    MC hits
+rootraw   integer(2)    ROOT raw files
+rootdst   integer(2)    ROOT DST files
+<-->
+tbd9      integer(2)    10 - 19 reserved for the future
+
+
+
+
+Table m_mcntuples_d :
+---------------------
+ndataset       number       dataset id
+run            number       run number
+ntupletype     number      
+filepath       varchar(255) path to ntuples file
+timestamp      date         ntuples production date
+version        number(6,2)  version of the production program
+mask           number(4,0)  tbd
+comments       varchar(255) comments
+
+not NULL : run, filepath
+
+
+
+Table m_exec :
+-----------------------
+
+name      varchar(255)   // exec name
+id        number(20,0)   // id to refer
+tinsert   date    not null   insertion timestamp
+tcreate   date               exec build date
+version   number(6,2)        exec version
+platform  varchar2(20)       platform (DUNIX, LINUX, etc) and OS version
+compiler  varchar2(40)       version of C++, Fortran compilers
+exefile   blob               exe file
+
+Table m_datacards      :
+------------------
+name       varchar2(80)
+idx        number(10,0)
+tinsert   date    not null   insertion timestamp
+
+Table m_datacards_cards :
+-----------------------
+
+idx       number(6)          datacards idx from m_datacard_sets
+datacards varchar2(4000)     datacards
+          
+
+Table m_platforms
+-----------------
+type       varchar(255)   // 
+id          number(10,0)
+
+Table m_compilers
+-----------------
+name       varchar(255)   // 
+n          number(10,0)
+
+

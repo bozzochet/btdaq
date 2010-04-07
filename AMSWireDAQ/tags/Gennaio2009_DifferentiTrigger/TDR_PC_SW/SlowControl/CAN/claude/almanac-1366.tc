@@ -1,0 +1,960 @@
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       41
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  459260928
+ECCENTRICITY                           53964800
+SQUARE_ROOT_SMA                        1350994944
+LONGITUDE_ASCENDANT_NODE               -1686604544
+INCLINATION_ANGLE                      674731622
+ARGUMENT_PERIGEE                       -1166023936
+RATE_RIGHT_ASCENSION                   -5595136
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       42
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  1453241344
+ECCENTRICITY                           78786560
+SQUARE_ROOT_SMA                        1350984320
+LONGITUDE_ASCENDANT_NODE               1150159872
+INCLINATION_ANGLE                      649889382
+ARGUMENT_PERIGEE                       1363844096
+RATE_RIGHT_ASCENSION                   -5791744
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       43
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  867846144
+ECCENTRICITY                           67911680
+SQUARE_ROOT_SMA                        1350988672
+LONGITUDE_ASCENDANT_NODE               373758720
+INCLINATION_ANGLE                      633390694
+ARGUMENT_PERIGEE                       452974592
+RATE_RIGHT_ASCENSION                   -5865472
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       44
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -1280847616
+ECCENTRICITY                           63795200
+SQUARE_ROOT_SMA                        1351023232
+LONGITUDE_ASCENDANT_NODE               1163660544
+INCLINATION_ANGLE                      649590374
+ARGUMENT_PERIGEE                       106987775
+RATE_RIGHT_ASCENSION                   -5808128
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       45
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -1438714624
+ECCENTRICITY                           58646528
+SQUARE_ROOT_SMA                        1350984064
+LONGITUDE_ASCENDANT_NODE               -335779840
+INCLINATION_ANGLE                      641193574
+ARGUMENT_PERIGEE                       709554688
+RATE_RIGHT_ASCENSION                   -5677055
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       46
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -550870272
+ECCENTRICITY                           51826688
+SQUARE_ROOT_SMA                        1350965120
+LONGITUDE_ASCENDANT_NODE               413388800
+INCLINATION_ANGLE                      638494310
+ARGUMENT_PERIGEE                       -1263278336
+RATE_RIGHT_ASCENSION                   -5849088
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       47
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -492294912
+ECCENTRICITY                           101294080
+SQUARE_ROOT_SMA                        1352330240
+LONGITUDE_ASCENDANT_NODE               395440384
+INCLINATION_ANGLE                      639555174
+ARGUMENT_PERIGEE                       -1264578560
+RATE_RIGHT_ASCENSION                   -5783552
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       48
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -548104960
+ECCENTRICITY                           81170432
+SQUARE_ROOT_SMA                        1350986240
+LONGITUDE_ASCENDANT_NODE               -968795136
+INCLINATION_ANGLE                      664266342
+ARGUMENT_PERIGEE                       1807043072
+RATE_RIGHT_ASCENSION                   -5758976
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       49
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -763969536
+ECCENTRICITY                           151351296
+SQUARE_ROOT_SMA                        1350982784
+LONGITUDE_ASCENDANT_NODE               -1022403584
+INCLINATION_ANGLE                      655709798
+ARGUMENT_PERIGEE                       834850816
+RATE_RIGHT_ASCENSION                   -5873664
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       4A
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  1661034240
+ECCENTRICITY                           61181952
+SQUARE_ROOT_SMA                        1350967296
+LONGITUDE_ASCENDANT_NODE               1881549056
+INCLINATION_ANGLE                      666465894
+ARGUMENT_PERIGEE                       275521280
+RATE_RIGHT_ASCENSION                   -5423104
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       4B
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -186563840
+ECCENTRICITY                           45989888
+SQUARE_ROOT_SMA                        1350989952
+LONGITUDE_ASCENDANT_NODE               1053846784
+INCLINATION_ANGLE                      613688934
+ARGUMENT_PERIGEE                       250396416
+RATE_RIGHT_ASCENSION                   -6242304
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       4C
+HEALTH_STATUS_TYPE                     7F
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  00
+WEEK_NUMBER                            0
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          0
+MEAN_ANOMALY_REF_TIME                  0
+ECCENTRICITY                           0
+SQUARE_ROOT_SMA                        0
+LONGITUDE_ASCENDANT_NODE               0
+INCLINATION_ANGLE                      644245094
+ARGUMENT_PERIGEE                       0
+RATE_RIGHT_ASCENSION                   0
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       4D
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  1673651456
+ECCENTRICITY                           23658496
+SQUARE_ROOT_SMA                        1350967296
+LONGITUDE_ASCENDANT_NODE               -1696628736
+INCLINATION_ANGLE                      677602918
+ARGUMENT_PERIGEE                       740844288
+RATE_RIGHT_ASCENSION                   -5578752
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       4E
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  1077863424
+ECCENTRICITY                           20226048
+SQUARE_ROOT_SMA                        1350979840
+LONGITUDE_ASCENDANT_NODE               -1705338367
+INCLINATION_ANGLE                      673637990
+ARGUMENT_PERIGEE                       -1347770880
+RATE_RIGHT_ASCENSION                   -5603328
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       4F
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -480677375
+ECCENTRICITY                           81678336
+SQUARE_ROOT_SMA                        1350998016
+LONGITUDE_ASCENDANT_NODE               1202570496
+INCLINATION_ANGLE                      654423654
+ARGUMENT_PERIGEE                       1751885824
+RATE_RIGHT_ASCENSION                   -5734399
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       50
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -1511401984
+ECCENTRICITY                           28160000
+SQUARE_ROOT_SMA                        1350993920
+LONGITUDE_ASCENDANT_NODE               -274833408
+INCLINATION_ANGLE                      657917542
+ARGUMENT_PERIGEE                       -635796736
+RATE_RIGHT_ASCENSION                   -5496831
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       51
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  2144953856
+ECCENTRICITY                           16240640
+SQUARE_ROOT_SMA                        1350987008
+LONGITUDE_ASCENDANT_NODE               434896128
+INCLINATION_ANGLE                      656553574
+ARGUMENT_PERIGEE                       1927526911
+RATE_RIGHT_ASCENSION                   -5644287
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       52
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -1576704768
+ECCENTRICITY                           58187776
+SQUARE_ROOT_SMA                        1350991744
+LONGITUDE_ASCENDANT_NODE               1897168895
+INCLINATION_ANGLE                      655545958
+ARGUMENT_PERIGEE                       -1841376000
+RATE_RIGHT_ASCENSION                   -5521408
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       53
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  1806841856
+ECCENTRICITY                           27758592
+SQUARE_ROOT_SMA                        1350963968
+LONGITUDE_ASCENDANT_NODE               475693312
+INCLINATION_ANGLE                      655152742
+ARGUMENT_PERIGEE                       -915080960
+RATE_RIGHT_ASCENSION                   -5693440
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       54
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -1648964864
+ECCENTRICITY                           24395776
+SQUARE_ROOT_SMA                        1351028608
+LONGITUDE_ASCENDANT_NODE               1861065728
+INCLINATION_ANGLE                      655251046
+ARGUMENT_PERIGEE                       888971007
+RATE_RIGHT_ASCENSION                   -5537792
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       55
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -670218240
+ECCENTRICITY                           92643328
+SQUARE_ROOT_SMA                        1351002624
+LONGITUDE_ASCENDANT_NODE               1177810176
+INCLINATION_ANGLE                      645203558
+ARGUMENT_PERIGEE                       -2061876480
+RATE_RIGHT_ASCENSION                   -5849088
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       56
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  1535954432
+ECCENTRICITY                           40972288
+SQUARE_ROOT_SMA                        1350996096
+LONGITUDE_ASCENDANT_NODE               1902830848
+INCLINATION_ANGLE                      653850214
+ARGUMENT_PERIGEE                       -1071463168
+RATE_RIGHT_ASCENSION                   -5537792
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       57
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  1131878144
+ECCENTRICITY                           36126720
+SQUARE_ROOT_SMA                        1350968448
+LONGITUDE_ASCENDANT_NODE               -1713730303
+INCLINATION_ANGLE                      661497446
+ARGUMENT_PERIGEE                       1656113408
+RATE_RIGHT_ASCENSION                   -5742592
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       58
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -93082624
+ECCENTRICITY                           76853248
+SQUARE_ROOT_SMA                        1351025024
+LONGITUDE_ASCENDANT_NODE               1186259712
+INCLINATION_ANGLE                      656602726
+ARGUMENT_PERIGEE                       -651147776
+RATE_RIGHT_ASCENSION                   -5734399
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       59
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -299578880
+ECCENTRICITY                           108556288
+SQUARE_ROOT_SMA                        1351000832
+LONGITUDE_ASCENDANT_NODE               -1059382272
+INCLINATION_ANGLE                      651142758
+ARGUMENT_PERIGEE                       -940387328
+RATE_RIGHT_ASCENSION                   -5914623
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       5A
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  508020480
+ECCENTRICITY                           146464768
+SQUARE_ROOT_SMA                        1350990464
+LONGITUDE_ASCENDANT_NODE               -1695947520
+INCLINATION_ANGLE                      676349542
+ARGUMENT_PERIGEE                       517032192
+RATE_RIGHT_ASCENSION                   -5578752
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       5B
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -1371399936
+ECCENTRICITY                           170229760
+SQUARE_ROOT_SMA                        1350992128
+LONGITUDE_ASCENDANT_NODE               -1037847808
+INCLINATION_ANGLE                      654243430
+ARGUMENT_PERIGEE                       -1329321472
+RATE_RIGHT_ASCENSION                   -5873664
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       5C
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  2132882176
+ECCENTRICITY                           95883264
+SQUARE_ROOT_SMA                        1350990720
+LONGITUDE_ASCENDANT_NODE               -268198656
+INCLINATION_ANGLE                      656590438
+ARGUMENT_PERIGEE                       -1555191296
+RATE_RIGHT_ASCENSION                   -5488640
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       5D
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  1803771648
+ECCENTRICITY                           81145856
+SQUARE_ROOT_SMA                        1350999168
+LONGITUDE_ASCENDANT_NODE               -1719453184
+INCLINATION_ANGLE                      674121318
+ARGUMENT_PERIGEE                       -649884160
+RATE_RIGHT_ASCENSION                   -5586943
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       5E
+HEALTH_STATUS_TYPE                     40
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  80
+WEEK_NUMBER                            1366
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          18432
+MEAN_ANOMALY_REF_TIME                  -1924406528
+ECCENTRICITY                           75456512
+SQUARE_ROOT_SMA                        1351021824
+LONGITUDE_ASCENDANT_NODE               -304355328
+INCLINATION_ANGLE                      645744230
+ARGUMENT_PERIGEE                       885083135
+RATE_RIGHT_ASCENSION                   -5619712
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       5F
+HEALTH_STATUS_TYPE                     7F
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  00
+WEEK_NUMBER                            0
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          0
+MEAN_ANOMALY_REF_TIME                  0
+ECCENTRICITY                           0
+SQUARE_ROOT_SMA                        0
+LONGITUDE_ASCENDANT_NODE               0
+INCLINATION_ANGLE                      644245094
+ARGUMENT_PERIGEE                       0
+RATE_RIGHT_ASCENSION                   0
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+
+RALEPH:
+VALIDITY                               01
+ID_SIGNAL_SOURCE                       60
+HEALTH_STATUS_TYPE                     7F
+EPHEMERIS_IODE                         00
+URA_SATELLITE_PRESENT                  00
+WEEK_NUMBER                            0
+EPHEMERIS_TOC                          0
+EPHEMERIS_TOE                          0
+MEAN_ANOMALY_REF_TIME                  0
+ECCENTRICITY                           0
+SQUARE_ROOT_SMA                        0
+LONGITUDE_ASCENDANT_NODE               0
+INCLINATION_ANGLE                      644245094
+ARGUMENT_PERIGEE                       0
+RATE_RIGHT_ASCENSION                   0
+CLOCK_PARAMETER_AF0                    0
+CLOCK_PARAMETER_AF1                    0
+CLOCK_PARAMETER_AF2                    0
+RATE_OF_INCLINATION_ANGLE              0
+MEAN_MOTION_DIFFERENCE                 0
+ORBITAL_PARAMETER_CUC                  0
+ORBITAL_PARAMETER_CUS                  0
+ORBITAL_PARAMETER_CIC                  0
+ORBITAL_PARAMETER_CIS                  0
+ORBITAL_PARAMETER_CRC                  0
+ORBITAL_PARAMETER_CRS                  0
+
+delay 2 
+

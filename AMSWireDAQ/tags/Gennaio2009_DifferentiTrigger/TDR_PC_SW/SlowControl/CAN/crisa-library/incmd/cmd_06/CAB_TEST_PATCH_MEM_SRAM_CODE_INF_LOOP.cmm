@@ -1,0 +1,10 @@
+// Patch command embeded in a test command
+0A 5F 0E 
+19 70
+
+// patch
+0A 06 09
+// SRAM len offset = 0
+c1 20 00 00
+// SJMP $
+80FE

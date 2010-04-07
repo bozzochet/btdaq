@@ -1,0 +1,31 @@
+   1:SEND COMMAND                  :CAN-02, CC5, CSP_GET_GENERAL_STATUS_NOM.CMM, 0
+   2:REQUEST MESSAGE               :GEP-05, This is a request message , NONE 
+   3:SEND COMMAND                  :CAN-02, C93, CSP_RDS_CONFIGURATION_2N_TRDS11_255MS_NOM.CMM, 0
+   4:SEND COMMAND                  :CAN-02, CCC, CSP_GET_RDS_AQS_CONFIGURATION_1N.CMM, 0
+   5:REQUEST MESSAGE               :GEP-05, This is a request message , NONE
+   6:SEND COMMAND                  :CAN-02, CCC, CSP_GET_RDS_AQS_CONFIGURATION_2N.CMM, 0
+   7:REQUEST MESSAGE               :GEP-05, This is a request message , NONE
+   8:SEND COMMAND                  :CAN-02, CED, CSP_ARM_DISARM_MOOG_VALVE_NOM_ARM_CLOSE_V22C.CMM, 0
+   9:SEND COMMAND                  :CAN-02, CC5, CSP_GET_GENERAL_STATUS_NOM.CMM, 0
+  10:REQUEST MESSAGE               :GEP-05, Ready to measure!! , NONE 
+  11:SEND COMMAND                  :CAN-02, CEE, CSP_OPERATE_MOOG_VALVE_NOM.CMM, 0
+  12:SEND COMMAND                  :CAN-02, CC5, CSP_GET_GENERAL_STATUS_NOM.CMM, 0
+  13:REQUEST MESSAGE               :GEP-05, This is a request message , NONE 
+  14:SEND COMMAND                  :CAN-02, C93, CSP_RDS_CONFIGURATION_1N_TRDS11_255MS_NOM.CMM, 0
+  15:SEND COMMAND                  :CAN-02, C93, CSP_RDS_CONFIGURATION_2N_TRDS11_75MS_NOM.CMM, 0
+  16:SEND COMMAND                  :CAN-02, CCC, CSP_GET_RDS_AQS_CONFIGURATION_1N.CMM, 0
+  17:REQUEST MESSAGE               :GEP-05, This is a request message , NONE
+  18:SEND COMMAND                  :CAN-02, CCC, CSP_GET_RDS_AQS_CONFIGURATION_2N.CMM, 0
+  19:REQUEST MESSAGE               :GEP-05, This is a request message , NONE
+  20:SEND COMMAND                  :CAN-02, CED, CSP_ARM_DISARM_MOOG_VALVE_NOM_ARM_CLOSE_V22C.CMM, 0
+  21:SEND COMMAND                  :CAN-02, CC5, CSP_GET_GENERAL_STATUS_NOM.CMM, 0
+  22:REQUEST MESSAGE               :GEP-05, Ready to measure!! , NONE 
+  23:SEND COMMAND                  :CAN-02, CEE, CSP_OPERATE_MOOG_VALVE_NOM.CMM, 0
+  24:SEND COMMAND                  :CAN-02, CC5, CSP_GET_GENERAL_STATUS_NOM.CMM, 0
+  25:REQUEST MESSAGE               :GEP-05, This is a request message , NONE 
+  26:SEND COMMAND                  :CAN-02, C93, CSP_RDS_CONFIGURATION_1N_TRDS11_75MS_NOM.CMM, 0
+  27:SEND COMMAND                  :CAN-02, C93, CSP_RDS_CONFIGURATION_2N_TRDS11_75MS_NOM.CMM, 0
+  28:SEND COMMAND                  :CAN-02, CCC, CSP_GET_RDS_AQS_CONFIGURATION_1N.CMM, 0
+  29:REQUEST MESSAGE               :GEP-05, This is a request message , NONE
+  30:SEND COMMAND                  :CAN-02, CCC, CSP_GET_RDS_AQS_CONFIGURATION_2N.CMM, 0
+  31:REQUEST MESSAGE               :GEP-05, This is a request message , NONE

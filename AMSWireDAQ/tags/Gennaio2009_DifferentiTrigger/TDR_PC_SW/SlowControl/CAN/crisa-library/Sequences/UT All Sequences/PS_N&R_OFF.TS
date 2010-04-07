@@ -1,0 +1,2 @@
+   1:E/D PS OUTPUT                 :PWS-05, 28V_POWER_BUS_N, DISABLE
+   2:E/D PS OUTPUT                 :PWS-05, 28V_POWER_BUS_R, DISABLE

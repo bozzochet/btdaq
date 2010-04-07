@@ -1,0 +1,241 @@
+#  $Id: Readme.AMS02.1st,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $          
+
+
+-I. In the current version only AMS02-setup is supported.
+    Please refer to  Readme.1st for AMS01 related questions.
+
+
+0.  Simulation tools: 
+
+    both geant3 and geant4  are supported. 
+    
+
+I. The following platforms are currently supported:
+ Linux             gcc3.2.2 + icc/ifc v7.0 
+ DEC/OSF1          cxx6.2++                                  (geant3 only)  
+ Sun/SunOS5.7      Sun WorkShop 6 update 1 C++ 5.2     
+
+
+II. Software management:
+    cvs  ( Concurrent Version System)
+    see also in http://wwwcn1.cern.ch/asd/cvs/index.html
+
+III. Programming languagues:
+a) C++  (general framework, data structures, methods, algorithmes, i/o etc)
+b) F77/F90 ( algorithmes only)
+c) Perl 
+
+IV. I/O
+a) RootFiles  (DST default)
+b) Ntuples (DST obsolete) 
+c) Oracle DB  (bookeeping etc)
+
+V. Documentation
+a) AMS Home Page at http://ams.cern.ch/AMS/analysis.html  -> SoftwareManagement
+   and ref therein
+b) AMS02 software  Home Page at  http://ams.cern.ch/AMS/Analysis/hpl3itp1/ams02.html
+c) files in doc subdirectory of AMS directory tree ( see VI. how to access) 
+d) 00index.txt file in each subdirectory
+e) AMS02 Software Status Report in
+    http://ams.cern.ch/AMS/Analysis/hpl3itp1/ams02_ss_2003.pdf
+
+VI. Access to AMS software
+
+ i) Get an account on  some ams computer (see VIII)
+   setenv Offline   as:
+   /afs/ams.cern.ch/Offline                computers at cern cite
+                                           eg ams,pcamsf2,lxplus
+                                           OR  (new)
+                                           all others provided 
+                                      they are using cern vpn, for linux see:
+    http://linux.web.cern.ch/linux/documentation/other/vpn-pptp-pilot.shtml
+
+   /afs/cern.ch/exp/ams/Offline              all others 
+
+   source $Offline/vdev/install/amsvar
+
+
+a) As a user:
+
+                        
+  ii)            ams software is in $Offline/vdev
+  iii)           source $Offline/vdev/install/amsvar 
+                        to setup AMS related variables
+
+b) As a developper :
+
+  ii)           source $Offline/vdev/install/amsvar 
+                 to setup AMS related variables
+        
+  iii) Get a password for cvs server by
+      log in ams.cern.ch
+      cat ~ams/cvsams/.cvsams
+
+   iv) Either see http://ams.cern.ch/cgi-bin/viewcvs.cgi/ 
+      with username amscvs and "access from web" password in iii)  or do
+#      cvs login    (with "interactive access" password)
+      cvs checkout AMS  
+      enter  your afs password if required                   
+          To synchronize your local copy with cvs rep:
+          cvs update -d 
+
+
+
+         To make the changes available to others (update CVS master rep) :
+         You should be a member of amsdev group on ams computers
+         ask Vitaly.Choutko@cern.ch about the procedure                                       
+         cvs commit
+            
+         To add new files/directories:
+         cvs add file
+
+         To remove it:
+         rm file
+         cvs remove file
+
+
+
+
+
+VII.  Standalone version  
+
+       a. Standalone version is NOT supported, 
+           though moderate help for installation process is granted. 
+       b. Some knowledge of unix system commands is apriori assumed.
+
+       c. Hints to install AMS software on remote computer:              
+
+         Case i:  You have an afs installed
+           get an afs cern account   group va
+           klog{.krb} -pr username -cell cern.ch (see man klog for the details,           you may need type pagsh{.krb} before in some cases)
+           setenv Offline /afs/cern.ch/exp/ams/Offline
+           source $Offline/vdev/install/amsvar
+
+ 
+         
+
+         Case ii: You don't have afs installed
+          copy (using tar+gzip+ftp/scp) ams.cern.ch:/afs/ams.cern.ch/Offline/vdev 
+          to somewhere on your computer.
+          login in ams.cern.ch          
+          setenv Offline /afs/ams.cern.ch/Offline
+          source $Offline/vdev/install/amsvar
+          cd $AMSDataDir
+          tar -cvf /tmp/ams.tar v4.00/*.dat 
+          tar -uvf /tmp/ams.tar v4.00/T*
+          tar -uvf /tmp/ams.tar v4.00/t*
+          tar -uvf /tmp/ams.tar DataBase/MagneticFieldMap/9*
+          tar -uvf /tmp/ams.tar DataBase/Tracker*.2*
+          tar -uvf /tmp/ams.tar DataBase/Tracker*2
+          tar -uvf /tmp/ams.tar DataBase/*of*/*/*.0.*
+          tar -uvf /tmp/ams.tar DataBase/.*0
+          tar -uvf /tmp/ams.tar DataBase/.TrA*1
+          tar -uvf /tmp/ams.tar DataBase/Ecal*
+          cp /tmp/ams.tar ~/
+          login in  your computer:
+           mkdir mydir
+           cd mydir
+           tar -xvf ~/ams.tar
+           setenv AMSDataDir mydir
+           rm $AMSDataDir/DataBase/.*.map
+             
+          Third party libraries you may need to install
+          i)   cernlib 
+          ii) nag fortran library  
+          iii) libamsut   (in /afs/cern.ch/exp/ams/Offline/lib)  
+          iv)  in case of linux installation
+               /usr/bin/dirent.h should be replaced by 
+               e.g. pcamsf2:/usr/bin/dirent.h
+
+VIII. Misc
+
+
+
+a. Accounts
+
+   First you should be registered at CERN Human Resource Database.
+   No access to AMS (and CERN public machines can be given to 
+   non-authorised users). 
+   If you are not registered at CERN  HR :
+     - contact AMS secretariat - Laurence Barrin (laurence.barrin@cern.ch)
+     - fill CERN computing center User's registration form (available in  
+       CERN User's Office) and fax the form (41 22 767 7910) or send it 
+       via CERN internal mail to Alexandr  Eline
+   If you already have an account at CERN and your primary group isn't 
+   'VA' (AMS)  or 'XV'(L3) specify explicitly what is you primary 
+   experiment/group.
+   To get local/afs accounts on ams computers  
+   Alexandre Eline  (e-mail : ams-support-computing@cern.ch).
+
+b. Disk space
+    see a.
+
+c. SoftWare/DataAccess
+
+   setenv Offline
+
+  /afs/ams.cern.ch/Offline                computers at cern cite
+                                           eg ams,pcamsf2,lxplus
+   /afs/cern.ch/exp/ams/Offline              all others 
+
+
+
+   source $Offline/vdev/install/amsvar
+
+   vdev version is in $Offline/vdev  (v4.00 build xx)
+
+   vdec/doc contains doc
+
+ 
+
+ 
+
+d.  Misc
+    i)  you may need to override default shell limits to run offline program;
+        recommended settings are (in c-shell) for ams-geant3 (geant4)
+        limit stack 32000
+        limit data 256000 (512000) 
+    ii) To creat Mgxint/dec-cxx cxx6.1 is needed (thanks to 6.2 bug)
+    iii)daqevt.C must be compiled without -O switch with egcs compiler
+
+
+e. AMS02 Data/MC  may be retrieved via
+   http://pcamsf0.cern.ch/cgi-bin/mon/rc.cgi form.
+
+f. Geant4 related stuff in doc/g4.doc
+
+g. Job test examples are examples/*test*.job
+
+IX  AMS Event Display
+
+To run an ams event display
+
+source $Offline/vdev/install/amsvar
+$amsed02  ntuple_file     
+
+$amsedc   root_file
+
+
+
+X   Documentation
+
+    Ntuple doc:   doc/ntuple02.doc
+    Root   doc:   doc/root02.doc
+    
+    To see the latest changes in ams software please do :
+
+    
+  a) Get a password for cvs server by
+      log in ams.cern.ch
+      cat ~ams/cvsams/.cvsams
+
+   b) Open http://pcamsf0.cern.ch/cgi-bin/viewcvs.cgi/
+      with username amscvs and "access from web" password in a)
+   
+   c) Click AMS
+   d) Click Age
+   e) Click all the directories in the list one by one
+
+
+Comments, questions to v.choutko@cern.ch
+

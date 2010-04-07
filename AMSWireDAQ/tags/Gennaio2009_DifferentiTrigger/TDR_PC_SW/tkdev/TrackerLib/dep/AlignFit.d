@@ -1,0 +1,70 @@
+obj/AlignFit.o: CC/AlignFit.C include/AlignFit.h \
+  /cern/root_v5.19.02/root/include/TObject.h \
+  /cern/root_v5.19.02/root/include/Rtypes.h \
+  /cern/root_v5.19.02/root/include/RConfig.h \
+  /cern/root_v5.19.02/root/include/RVersion.h \
+  /cern/root_v5.19.02/root/include/DllImport.h \
+  /cern/root_v5.19.02/root/include/Rtypeinfo.h \
+  /cern/root_v5.19.02/root/include/TGenericClassInfo.h \
+  /cern/root_v5.19.02/root/include/TStorage.h \
+  /cern/root_v5.19.02/root/include/TVersionCheck.h \
+  /cern/root_v5.19.02/root/include/Riosfwd.h \
+  /cern/root_v5.19.02/root/include/TBuffer.h ../AMSbase/include/point.h \
+  ../AMSbase/include/typedefs.h \
+  /cern/root_v5.19.02/root/include/TObject.h \
+  /cern/root_v5.19.02/root/include/TFile.h \
+  /cern/root_v5.19.02/root/include/TDirectoryFile.h \
+  /cern/root_v5.19.02/root/include/TDirectory.h \
+  /cern/root_v5.19.02/root/include/TNamed.h \
+  /cern/root_v5.19.02/root/include/TString.h \
+  /cern/root_v5.19.02/root/include/TRefCnt.h \
+  /cern/root_v5.19.02/root/include/TMathBase.h \
+  /cern/root_v5.19.02/root/include/TList.h \
+  /cern/root_v5.19.02/root/include/TSeqCollection.h \
+  /cern/root_v5.19.02/root/include/TCollection.h \
+  /cern/root_v5.19.02/root/include/TIterator.h \
+  /cern/root_v5.19.02/root/include/TDatime.h \
+  /cern/root_v5.19.02/root/include/TUUID.h \
+  /cern/root_v5.19.02/root/include/TUrl.h \
+  /cern/root_v5.19.02/root/include/TDirectory.h \
+  /cern/root_v5.19.02/root/include/TObjArray.h include/TkDBc.h \
+  ../AMSbase/include/typedefs.h include/TkLadder.h include/TkObject.h \
+  include/TkPlane.h /cern/root_v5.19.02/root/include/TROOT.h \
+  /cern/root_v5.19.02/root/include/TH1.h \
+  /cern/root_v5.19.02/root/include/TAxis.h \
+  /cern/root_v5.19.02/root/include/TAttAxis.h \
+  /cern/root_v5.19.02/root/include/TArrayD.h \
+  /cern/root_v5.19.02/root/include/TArray.h \
+  /cern/root_v5.19.02/root/include/TAttLine.h \
+  /cern/root_v5.19.02/root/include/TAttFill.h \
+  /cern/root_v5.19.02/root/include/TAttMarker.h \
+  /cern/root_v5.19.02/root/include/TArrayC.h \
+  /cern/root_v5.19.02/root/include/TArrayS.h \
+  /cern/root_v5.19.02/root/include/TArrayI.h \
+  /cern/root_v5.19.02/root/include/TArrayF.h \
+  /cern/root_v5.19.02/root/include/Foption.h \
+  /cern/root_v5.19.02/root/include/TVectorFfwd.h \
+  /cern/root_v5.19.02/root/include/TVectorDfwd.h \
+  /cern/root_v5.19.02/root/include/TH2.h \
+  /cern/root_v5.19.02/root/include/TMatrixFBasefwd.h \
+  /cern/root_v5.19.02/root/include/TMatrixDBasefwd.h \
+  /cern/root_v5.19.02/root/include/TH3.h \
+  /cern/root_v5.19.02/root/include/TProfile2D.h \
+  /cern/root_v5.19.02/root/include/TProfile.h \
+  /cern/root_v5.19.02/root/include/TAtt3D.h \
+  /cern/root_v5.19.02/root/include/TF1.h \
+  /cern/root_v5.19.02/root/include/TFormula.h \
+  /cern/root_v5.19.02/root/include/TBits.h \
+  /cern/root_v5.19.02/root/include/TFormulaPrimitive.h \
+  /cern/root_v5.19.02/root/include/Math/ParamFunctor.h \
+  /cern/root_v5.19.02/root/include/TMath.h \
+  /cern/root_v5.19.02/root/include/TError.h \
+  /cern/root_v5.19.02/root/include/TMathImp.h \
+  /cern/root_v5.19.02/root/include/TString.h \
+  /cern/root_v5.19.02/root/include/TStopwatch.h \
+  /cern/root_v5.19.02/root/include/TSystem.h \
+  /cern/root_v5.19.02/root/include/TInetAddress.h \
+  /cern/root_v5.19.02/root/include/TTimer.h \
+  /cern/root_v5.19.02/root/include/TSysEvtHandler.h \
+  /cern/root_v5.19.02/root/include/TQObject.h \
+  /cern/root_v5.19.02/root/include/TTime.h

@@ -1,0 +1,53 @@
+ -+-+- read
+ -+-+-+- readID = P3  P3
+ === is_gp50: P3
+  -+-+-+-  pressMIN = 3500.0 3500.000000
+  -+-+-+-  pressMAX = 4000.0 4000.000000
+ === is_gp50: P3
+ *** invoking convert_read_gp50
+REQUEST: [1] RQ R NA=1A1 DT=000014 DC=5 D = 22 8F A8 80 00
+      0 JMDC TX:0 ID=6101A100 1->A1n R F&L l=6 d = 14 22 8F A8 80 00
+    756 JMDC RX:0 ID=51A10100 1<-A1n R  F  l=8 d = 22 8F A8 80 00 0F A8 80
+      0 JMDC TX:0 ID=0101A100 1->A1n R NXT l=0 
+    180 JMDC RX:0 ID=31A10100 1<-A1n R  L  l=1 d = 00
+REPLY:   [1] RP R NA=1A1 DT=000014 DC=9 D = 22 8F A8 80 00 0F A8 80 00 Err=0000
+REQUEST: [1] RQ R NA=1A1 DT=000014 DC=5 D = 22 8F A8 80 00
+      0 JMDC TX:0 ID=6101A100 1->A1n R F&L l=6 d = 14 22 8F A8 80 00
+    126 JMDC RX:0 ID=51A10100 1<-A1n R  F  l=8 d = 22 8F A8 80 00 0F A8 80
+      0 JMDC TX:0 ID=0101A100 1->A1n R NXT l=0 
+    226 JMDC RX:0 ID=31A10100 1<-A1n R  L  l=1 d = 00
+REPLY:   [1] RP R NA=1A1 DT=000014 DC=9 D = 22 8F A8 80 00 0F A8 80 00 Err=0000
+REQUEST: [1] RQ R NA=1A1 DT=000014 DC=5 D = 22 C8 A0 00 00
+      0 JMDC TX:0 ID=6101A100 1->A1n R F&L l=6 d = 14 22 C8 A0 00 00
+    168 JMDC RX:0 ID=51A10100 1<-A1n R  F  l=8 d = 22 C8 A0 00 00 48 A0 C6
+      0 JMDC TX:0 ID=0101A100 1->A1n R NXT l=0 
+    140 JMDC RX:0 ID=31A10100 1<-A1n R  L  l=1 d = D0
+REPLY:   [1] RP R NA=1A1 DT=000014 DC=9 D = 22 C8 A0 00 00 48 A0 C6 D0 Err=0000
+
+ Reading sensor P3 =  3558.35 V
+    converting adc [code = 1000 1111 1010 1000 1000 0000 0000 0000]
+    reading        [code = 1100 1000 1010 0000 0000 0000 0000 0000]
+    [code in answer = 0x0B63 =  3558.35 V]
+  -*-*-*-  tensionGp50 =  3558.349609
+ -+-+- read
+ -+-+-+- readID = MUX1  MUX1
+ === is_gp50: MUX1
+ === is_kulite: MUX1
+ === is_mux: MUX1
+  -+-+-+-  pressMIN = -0.1 -0.100000
+  -+-+-+-  pressMAX = 0.1 0.100000
+ === is_gp50: MUX1
+ === is_kulite: MUX1
+ === is_mux: MUX1
+ *** invoking read_honeywell
+
+ Reading sensors on mux MUX1 
+    [code = 1100 0000 1100 1000 0000 0000 0000 0000]
+REQUEST: [1] RQ R NA=1A1 DT=000014 DC=5 D = 22 C0 C8 00 00
+      0 JMDC TX:0 ID=6101A100 1->A1n R F&L l=6 d = 14 22 C0 C8 00 00
+    804 JMDC RX:0 ID=51A10100 1<-A1n R  F  l=8 d = 22 C0 C8 00 00 40 C8 00
+      0 JMDC TX:0 ID=0101A100 1->A1n R NXT l=0 
+    142 JMDC RX:0 ID=31A10100 1<-A1n R  L  l=1 d = 00
+REPLY:   [1] RP R NA=1A1 DT=000014 DC=9 D = 22 C0 C8 00 00 40 C8 00 00 Err=0000
+ read_honeywell MUX1  stat 0
+ -+-+- wait

@@ -1,0 +1,63 @@
+# 
+#                                                                         Last Edit : Dec 4, 2003
+# MAILS
+#
+# address                          : name                    : R : CID: RS  : alias
+#-----------------------------------------------------------------------------
+v.choutko@cern.ch                  : Vitali Choutko          : 1 :  1 : 1 : vitali.choutko@cern.ch   :
+vitali@afl3u1.cern.ch              : Vitali Choutko          : 1 :  2 : 1 :                      : 
+a.klimentov@cern.ch                : Alexei Klimentov        : 1 :  1 : 1 : alexei.klimentov@cern.ch :
+biland@particle.phys.ethz.ch       : Adrian Biland           : 1 :  4 : 0 : adrian.biland@cern.ch    :
+diego.casadei@bo.infn.it           : Diego Casadei           : 1 :  3 : 0 : diego.casadei@cern.ch    :
+davide.grandi@mib.infn.it          : Davide Grandi           : 1 :  5 : 0 : davide.grandi@cern.ch    :
+evgueni.choumilov@cern.ch          : Eugeni Choumilov        : 0 :  2 : 0 : e.choumilov@cern.ch      :
+jwshin@hep.knu.ac.kr               : Jungwook Shin           : 1 :  6 : 0 : :
+alexei@mail.cern.ch                : Alexei Klimentov        : 0 :  2 : 0 : :
+jorge.casaus@cern.ch               : Jorge Casaus            : 1 :  7 : 0 : :
+michele.bourgeat@gamum2.in2p3.fr   : Michele Bourgeat        : 0 :  8 : 0 : :
+zhukov@ekp.physik.uni-karlsruhe.de : Valery Zhukov           : 0 :  9 : 0 : :
+barao@lip.pt                       : Fernando Barao          : 1 : 10 : 0 : :
+schol@mit.edu                      : Kate Scholberg          : 1 : 11 : 0 : :
+paolo.zuccon@pg.infn.it            : Paolo Zuccon            : 1 : 12 : 0 : :
+piersimone.marrocchesi@pi.infn.it  : Pier Simone Marrocchesi : 0 : 13 : 0 : :
+zhongliang.ren@cern.ch             : Zhongliang Ren          : 1 : 14 : 0 : :
+corinne.goy@cern.ch                : Corinne Goy             : 1 : 15 : 0 : :
+diego.caraffini@pg.infn.it         : Diego Caraffini         : 0 : 12 : 0 : :
+mariusz.sapinski@gamum2.in2p3.fr   : Mariusz Sapinski        : 1 :  8 : 0 : :
+paolo.maestro@pi.infn.it           : Paolo Maestro           : 1 : 13 : 0 : :
+alexandre.eline@cern.ch            : Alexandre Eline         : 0 :  1 : 0 : :
+alexandre.malinine@cern.ch         : Alexandre Malinine      : 1 : 16 : 0 : :
+chikanian@hepmail.physics.yale.edu : Alexei Chikanian        : 1 : 17 : 0 : : 
+rochelle.lauer@yale.edu            : Rochelle Lauer          : 0 : 17 : 0 : :
+amssoft@ekp.physik.uni-karlsruhe.de: ams ekp                 : 1 :  9 : 0 : :
+alexander.selivanov@cern.ch        : Alexander Selivanov     : 1 : 18 : 0 : :
+#----------------------------------------------------------------------------
+#                                                                         Last Edit : Apr 23, 2003
+# CITES
+#
+# description                          : name     : CID : STAT : STATUS : Journal File Path   : GHz :
+#----------------------------------------------------------------------------------------------------
+CERN                                   : cern     :  1  :  0   : local  : /f2users/scratch/MC : 12 :
+Test                                   : test     :  2  :  0   : remote : /f2users/scratch/MC : 12 :
+INFN Bologna                           : bolo     :  3  :  0   : remote : /f2users/scratch/MC :  6 :
+ETH Zurich                             : ethz     :  4  :  0   : remote : /f2users/scratch/MC : 20 :
+INFN Milano                            : milano   :  5  :  0   : remote : /f2users/scratch/MC : 35 :
+Kyungpook Nat. Univ.                   : knu      :  6  :  0   : remote : /f2users/scratch/MC :  6 :
+CIEMAT Madrid                          : ciemat   :  7  :  0   : remote : /f2users/scratch/MC : 27 :
+Groupe d Astroparticules de Montpellier : gam     :  8  :  0   : remote : /f2users/scratch/MC : 33 :
+Universitaet  Karlsruhe                 : ekp     :  9  :  0   : remote : /f2users/scratch/MC :  2 :
+LIP Lisbon                              : lip     : 10  :  0   : remote : /f2users/scratch/MC : 27 :
+MIT                                     : mit     : 11  :  0   : remote : /f2users/scratch/MC :  0 :
+INFN and Univ. Perugia                  : perugia : 12  :  0   : remote : /f2users/scratch/MC :  7 :
+INFN and Univ. Siena                    : siena   : 13  :  0   : remote : /f2users/scratch/MC : 20 :
+Academia Sinica Taiwan                  : taiwan  : 14  :  0   : remote : /f2users/scratch/MC : 47 :
+IN2P3 Annecy                            : lyon    : 15  :  0   : remote : /f2users/scratch/MC : 17 :
+University of Mariland                  : umd     : 16  :  0   : remote : /f2users/scratch/MC : 10 :
+Yale University                         : yale    : 17  :  0   : remote : /f2users/scratch/MC :  2 :
+ITEP Moscow                             : itep    : 18  :  0   : remote : /f2users/scratch/MC :  2 :
+#----------------------------------------------------------------------------------------------------
+#
+# FILESYSTEMS
+#
+# End of file
+#------------------------------------------------------------------------------

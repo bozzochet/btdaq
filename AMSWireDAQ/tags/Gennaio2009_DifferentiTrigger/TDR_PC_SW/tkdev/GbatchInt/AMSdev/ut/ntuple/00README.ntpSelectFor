@@ -1,0 +1,93 @@
+
+=========================================================================
+
+   A tool for
+
+           AMS ntuple selection
+     and
+           relevant histgram filling
+
+
+                                       Shuwei YE
+                                 ETH-Zurich,Switzerland
+                                    USTC-Hefei,China
+                                      30-Sep 1998
+
+=========================================================================
+
+
+-------------------------------------------------------------------------
+0. Introduction
+---------------
+
+  The main purpose of this program is to provide a fast and efficient way to select
+events from AMS ntuple and write out them also as ntuple of the same structure.
+
+  It can also be used to fill histgrams without writing out any new ntuples. To
+achieve this, just to set the return value of USRCUT to 0 always.
+
+  Procedure to process data:
+  1) Initialization can be done in USRCUT(-1), which is invoked before processing
+any data(ntuples). User can book histgrams, for example.
+  2) For each event, only the specified variables in BLOCK DATA VARDATA would be
+read, and USRCUT(0) will be called afterwards. Anyway, to enable all variables
+in the ntuple, just set NVAR to 0.
+  3) Ending-up can be done in USRCUT(1), which is invoked after processing all
+data and before writing out the histgrams.
+
+  See usrcut.f on how to set user cut and specify the variables to read.
+
+
+-------------------------------------------------------------------------
+1. Where to get the program and update
+--------------------------------------
+
+The program sources can be obtained by doing
+
+       cvs checkout AMS/ut/ntuple (cvs update AMS/ut/ntuple to update)
+
+
+-------------------------------------------------------------------------
+2. How to build
+---------------
+
+Currently, the program is only supported for platforms: Linux, AIX, OSF1, HP-UX.
+
+cd to AMS/ut/ntuple, then
+
+      gmake -f Makefile.ntpSelectFor
+
+
+-------------------------------------------------------------------------
+3. Run the program
+------------------
+
+   $(OS)/bin/usrcut -h
+
+   to get the usage on the current version.
+
+
+-------------------------------------------------------------------------
+4. How to change user's cut
+---------------------------
+
+   The user's cut is specified in file "usrcut.f", where you can also book and fill
+histgrams there. Have a look into the file first.
+
+   You can also change the filename for user's cut to have various user's cut files
+for various purposes, says, cutProton.f, cutAntiHe.f. Then, try to build their
+corresponding executables by doing
+
+    gmake cutProton -f Makefile.ntpSelectFor
+
+    gmake cutAntiHe -f Makefile.ntpSelectFor
+
+(To simplify the command, you can make a symbolic link of Makefile.ntpSelectFor
+to Makefile, so your command becomes "gmake cutProton")
+
+    Since the executable name has also been changed, to run it, you need type
+
+    $(OS)/bin/cutProton
+
+    $(OS)/bin/cutAntiHe
+

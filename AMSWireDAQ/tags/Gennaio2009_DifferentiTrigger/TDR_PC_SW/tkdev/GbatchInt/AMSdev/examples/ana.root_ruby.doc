@@ -1,0 +1,67 @@
+/*! \example ana.root_ruby.doc
+ *
+ *    - You can find a very simple tutorial introduction to Ruby in:
+ *       - http://www.math.umd.edu/~dcarrera/ruby/0.3/
+ *    - And a more complete one in:
+ *       - http://www.rubyist.net/~slagell/ruby/
+ *
+ *    - Here below you can find an example of AMS analysis with Ruby (only
+ *      on Linux for the moment). To run it:
+ *                 - setenv ROOTSYS /afs/cern.ch/exp/ams/Offline/root/Linux/pro
+ *                 - if ( $?LD_LIBRARY_PATH ) then
+ *                      - setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH:$ROOTSYS/lib
+ *                 - else
+ *                      - setenv LD_LIBRARY_PATH .:$ROOTSYS/lib
+ *                 - endif
+ *                 - setenv AMSDir [your AMSDir CVS directory]
+ *                 - cd $AMSDir/ruby; gmake
+ *                 - cd $AMSDir/examples; ana.root.rb
+ *
+ *    - Installation of the AMS Ruby library for all users in the computer:
+ *       - "cd $AMSDir/ruby; gmake; gmake install"
+ *
+ *    - You can find few other examples in $AMSDir/ruby
+ *
+ *    - Keep in mind that not all the ROOT methods are available in the Ruby
+ *      implementation. In particular, dealing with some pointers requires 
+ *      further thinking.
+ *
+ *    - If you want to see graphics, you have to start an application, 
+ *      using "TApplication.new" or even "TRint.new", and then run it at the end
+ *      with "app.Run". Example:
+ *            - app = TApplication.new("My Application",0,[])
+ *            - ...
+ *            - app.Run
+ *
+ *    - Global variables like gROOT are accessed as "ROOT::gROOT". Examples:
+ *            - ROOT::gROOT.Reset
+ *            - ROOT::gStyle.SetOptLogy(1)
+ *
+ *    - Constants in Ruby begin with a capital letter. This means that you must
+ *      use "KRed, KBlue, ...", and not "kRed, kBlue, ...". "kFALSE" and 
+ *      "kTRUE" are not constants. They are wrapped as global methods, so they 
+ *      should be accessed as "ROOT::kFALSE" and "ROOT::kTRUE", respectively. 
+ *      You can also use Ruby "false" and "true", but watch carefully the 
+ *      cases in which ROOT expects and integer, and not a boolean value 
+ *      ("0" is "true" in Ruby).
+ *
+ *    - When a method returns a TObject object, you must convert its type into 
+ *      a useful one with the "to_<class>" method. A typical case involves 
+ *      the "TFile::Get" method. Example:
+ *            - input_file = TFile.new("test.root")
+ *            - hist = input_file.Get("Test").to_TH1F
+ *
+ *    - You can use Ruby arrays whenever ROOT expects a C-int or a C-float array 
+ *      as input. Example:
+ *            - a = [0.0, 1.0, 2.0]
+ *            - b = [-1.0, 0.0, 1.0]
+ *            - my_graph = TGraph.new(3, a, b)
+ *
+ *    - Whenever an Int_t, Float_t or Double_t argument is passed by reference, it 
+ *      is assumed to be INPUT/OUTPUT. From the practical point of view:
+ *            - gr = ROOT::gRandom
+ *            - xin, yin = 0.0, 0.0
+ *            - xout, yout = gr.Rannor(xin,yin)
+ *      
+ *  \include ana.root.rb
+ */ 

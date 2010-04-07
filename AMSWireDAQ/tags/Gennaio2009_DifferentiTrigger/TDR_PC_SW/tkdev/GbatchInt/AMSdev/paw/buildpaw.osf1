@@ -1,0 +1,5 @@
+f77 -c pawmain.f
+cc -c -I/cern/pro/src/pawlib/paw/ntuple  -I/cern/pro/src/pawlib/paw -I/cern/pro/include qp_execute.c
+
+
+f77  -o pawX11 pawmain.o qp_execute.o -D 40000000 -T 20000000 -taso -v   -L/cern/pro/lib  -lpawlib         -lpacklib              -lgraflib   -lgrafX11   -lpacklib     -lmathlib  -lkernlib        -llapack3       -lblas   -lX11 -ldnet_stub

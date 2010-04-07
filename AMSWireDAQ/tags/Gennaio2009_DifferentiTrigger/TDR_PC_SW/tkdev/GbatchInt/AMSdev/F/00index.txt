@@ -1,0 +1,12 @@
+#  $Id: 00index.txt,v 1.1.1.1 2007/11/13 09:56:10 zuccon Exp $
+May 23 19:47 amstkshc++.F //  Fortran debrises + fitting package
+May  8 16:58 mtx.F        //  Aux program for debuggint tracker geometry
+May 23 19:47 rndm.F       // yes it's rndm
+May 15 17:51 tcircf.F     //  aux for circle fittnig
+May 23 19:47 timel.F      // set time limit to inf
+May 23 19:47 tkmccl.F     // tracker cluster shower generation 
+May 15 17:51 tptcir.F     // aux for circle fitting 
+May 20 12:47 trafit.F     // steering for circle fitting
+May 15 17:55 trfitcl.h    // circle fit prototypes & commons
+May 15 17:51 tszfit.F     // sz fit
+May 15 17:51 txyfit.F     // xy fit

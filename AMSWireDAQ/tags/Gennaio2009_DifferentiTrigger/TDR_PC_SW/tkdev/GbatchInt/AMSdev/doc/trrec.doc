@@ -1,0 +1,206 @@
+#  $Id: trrec.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+AMS Tracker Reconstruction
+
+AMSTrCluster -> AMSTrRecHit -> AMSTrTrack
+
+class AMSTrCluster: public AMSlink {
+protected:
+
+AMSTrIdSoft _Id; // Id corresponds to  leftmost strip
+integer _Status; // status
+integer _Nelem;  // number of adj strips
+number _Sum;     // Cluster Amplitude
+number _Sigma;   // Error in Amplitude
+number _Mean;    // Local CofG with respect to 
+                 // leftmost  + TRCLFFKEY.ThrClNEl[side]/2 strip
+number _Rms;     // 2nd moment
+number _ErrorMean; // Error in CofG
+number * _pValues; // Array of individual strip amplitudes
+
+void _ErrorCalc(); // should compute _ErrorMean
+
+static void _addnext(const AMSTrIdSoft& id, integer status, integer nelem, 
+number sum,  number ssum, number pos, number rms, 
+number val[]); //add element to container
+                                                              
+public:
+// Bits
+
+static const integer BAD;
+static const integer WIDE;
+static const integer NEAR;
+static const integer USED;
+
+// Get
+
+integer getstatus(integer checker) const{return _Status & checker;}
+number getVal(){return _Sum;}
+number getcofg(integer side, AMSTrIdGeom * id);
+number getecofg(){return _ErrorMean;}
+AMSTrIdSoft getid()const {return _Id;}
+
+//Set
+
+inline void setstatus(integer status){_Status=_Status | status;}
+
+AMSTrCluster(const AMSTrIdSoft& id, integer status, integer nelem, number sum,
+number ssum, number pos, number rms,  number val[]); // init ctor
+
+static void build();  // makes clusters
+
+static void print();  // print clusters
+
+integer operator < (AMSlink & o) const {   // < operator for sorted container
+// No RTTI - take a "risk" here
+  AMSTrCluster * p= (AMSTrCluster*)(&o);
+  return getid() < p->getid();
+}
+
+
+//
+
+class AMSTrRecHit: public AMSlink{  // 3 dim point
+protected:
+AMSgSen * _pSen;    // pointer to corr Tracker sensor
+AMSTrCluster *_Xcl; // pointer ro X-cluster 
+AMSTrCluster *_Ycl; // pointer to Y-cluster
+integer _Status;    // status
+integer _Layer;     // Layer no
+AMSPoint     _Hit;  // Point 
+AMSPoint     _EHit; // Error to point
+number _Sum;        // Sum of Cluster Amplitudes (A_x+A_y)
+number _DifoSum;    // (A_x-A_y)/(A_z+A_y)
+
+static AMSTrRecHit* _Head[6];  // Cash for corr containers
+
+static void _addnext(AMSgSen * p, integer ,integer ,AMSTrCluster *,
+AMSTrCluster *,  const AMSPoint &, const AMSPoint &); // add element to cont
+
+public:
+ 
+
+static AMSTrRecHit * gethead(integer i=0)  // get 1st element from corr cont
+
+AMSTrRecHit(AMSgSen *p, integer good,integer layer, 
+AMSTrCluster * xcl, AMSTrCluster * ycl,const AMSPoint & hit,
+const AMSPoint & ehit, number sum, number dfs) // init ctor
+
+static void build();  // makes clusters
+
+static void print();  // prints clusters
+
+// Get
+
+number getsum()const{return _Sum;}
+
+AMSgSen * getpsen()const{return _pSen;}
+
+inline  AMSPoint  getHit(){return _Hit;}
+
+inline  AMSPoint  getEHit(){return _EHit;}
+
+inline  integer getstatus(integer checker) const{return _Status & checker;}
+
+//Set 
+
+inline void setstatus(integer status);  
+
+
+
+
+//////
+
+
+
+class AMSTrTrack: public AMSlink{   // track
+protected:
+AMSTrRecHit * _Pthit[6];    // Cash for corr containers
+integer _Pattern;           // Pattern ( see datacards.doc)
+integer _NHits;             // number of 3dim points
+integer _GeaneFitDone;      // Flag if Geane Fit is done
+integer _AdvancedFitDone;   // Flag is Advanced Fit is done
+                            // (i.e. Fit two halves seperately)
+number _Chi2StrLine;        // Chi^2 Straight line fit
+number _Chi2Circle;         // Chi^2  Circle fit
+number _CircleRidgidity;    // Circle fit Ridgidity
+number _Chi2FastFit;        // Chi^2 5x5 fit (see tkfitg in amstkshc++.F)
+number _Ridgidity;          // 5x5 fit ridgidity
+number _ErrRidgidity;       // Err in 1/ridgidity  
+number _Theta;              // 5x5 theta
+number _Phi;                // 5x5 phi
+AMSPoint _P0;               // 5x5 x,y,z
+number _GChi2;              // Geane chi^2 
+number _GRidgidity;         // Geane  Ridgidity or momentum 
+                            // if (geanefitdone != 14)
+number _GErrRidgidity;      // Err of  1/Ridgidity
+number _GTheta;             // Geane theta
+number _GPhi;               // Geane phi
+AMSPoint _GP0;              // Geane x,y,z
+number _HChi2[2];           //
+number _HRidgidity[2];      //
+number _HErrRidgidity[2];   //Two halves fit output
+number _HTheta[2];          // 
+number _HPhi[2];            //
+AMSPoint _HP0[2];           //
+number _Chi2MS;             // 5x5 chi^2 MultScat switched off 
+number _GChi2MS;            // Geane chi^2 MultScat switched off
+number _RidgidityMS;        // 5x5 ridgidity MultScat switched off 
+number _GRidgidityMS;       // Geane ridgidity MultScat switched off 
+
+void SimpleFit(AMSPoint err=0); // circle fit
+
+void   AdvancedFit();          // two halves fit
+
+
+static geant _CheckTime() // timer check
+
+static geant _Time;   // Time
+
+
+static integer _addnext(integer pat, integer nhits, AMSTrRecHit* phit[]);
+
+static number Distance(number par[2], 
+AMSTrRecHit *ptr); // Distance between *ptr and straight line 
+                                                     
+
+static integer patpoints[npat];     // patterns definition
+
+static integer patconf[npat][6];    // patterns definition
+
+number Fit(integer i=0, integer ipart=14);  // 5x5 or Geane Fit
+
+AMSTrTrack (integer pattern, integer nhits, AMSTrRecHit * phit[]) //init ctor
+
+void init( AMSTrRecHit * phit[]);   //Initialization
+
+static const integer USED;
+
+static void build();  // makes tracks
+
+static void print();  // prints tracks
+
+// Get 
+
+AMSTrRecHit * getphit(integer i)
+
+void getParFastFit(number&  Chi2, number& Rid, number&  Err,
+number&  Theta, number & Phi, AMSPoint&  X0)const ;
+
+void getParSimpleFit(number & Chi2xy, number &Chi2sz, number & Rid)const;
+integer AdvancedFitDone()const{return _AdvancedFitDone;}
+
+void getParAdvancedFit(number&   GChi2, number&  GRid, number&  GErr,
+number&  GTheta, number&  GPhi, AMSPoint&  GP0,
+number HChi2[2], number HRid[2], number HErr[2], number HTheta[2],
+number HPhi[2], AMSPoint  HP0[2] ) const;
+
+number getgrid() const {return _GRidgidity;}
+
+//
+
+void interpolate(AMSPoint  pnt, AMSDir  dir,  AMSPoint & P1,
+number & theta, number & phi, number & length); // extrapolates track to 
+                                                // plane (pnt, dir)
+integer TOFOK();// checks if TOF cluster matches track   
+
+

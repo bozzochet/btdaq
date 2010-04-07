@@ -1,0 +1,11 @@
+CFLAGS= -g -I../include
+LDFLAGS= -L/cern/pro/lib -lgeant321 -lmathlib -lpacklib -lkernlib
+FILES=   biel.C
+OBJECTS= biel.o
+HEADERS= ../include/amsstl.h ../include/cern.h
+gv:	$(OBJECTS)
+	xlC -o biel.exe $(OBJECTS) $(LDFLAGS)
+
+biel.o:	$(HEADERS)    	
+	xlC -c $(CFLAGS) biel.C
+

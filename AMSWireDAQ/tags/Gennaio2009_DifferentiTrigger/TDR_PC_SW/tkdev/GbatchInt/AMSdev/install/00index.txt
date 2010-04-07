@@ -1,0 +1,27 @@
+#  $Id: 00index.txt,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+
+Makefile //  General Makefile
+Makefile.Linux // OS dep
+Makefile.OSf1 //  OS dep
+          // setenv AMSDEBUG 1 debug version; unsetenv AMSDEBUG opt version
+          // setenv AMSPROFILE 1  adds gprof
+Moptg4    // makefile to gmake g4 batch ! Only RH7.3 is supported !!!
+          // setenv AMSDEBUG 1 debug version; unsetenv AMSDEBUG opt version
+          // setenv O4 1   super-opt option (alpha only)
+          // setenv AMSWD to some tmp dir is  recommended
+Moptg4i    // makefile to gmake geant interactive  g4
+
+
+
+Overall:
+
+gmake gbatch     // builds g3 gbatch with root
+gmake gxint      // builds g3 gxint !undefine AMSICC first
+gmake shared     // builds root shared library
+gmake producer  // builds gbatch-orbit (Linux rh9 orbit2 only)
+gmake server    // builds server (Linux rh9 orbit2 only)
+
+gmake -f Moptg4   //builds g4 batch (not supported at the moment)
+gmake -f Moptg4i  //builds g4 interactive (not supported at the moment)
+
+

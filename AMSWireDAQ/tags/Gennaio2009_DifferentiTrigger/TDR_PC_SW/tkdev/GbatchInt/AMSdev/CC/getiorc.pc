@@ -1,0 +1,254 @@
+//  $Id: getiorc.pc,v 1.1.1.1 2007/11/13 09:56:10 zuccon Exp $
+//
+// Subroutines to get IORs from AMS ORACLE database
+//
+// to get IORP ../CC/getior.pc should be used
+// this subroutine for debugging purposes only
+//
+// A.Klimentov  March   20, 2002. 
+//
+// Last Edit : Jan 16, 2004
+//
+
+#include <iostream.h>
+#include <fstream.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+#include <sys/times.h>
+#include <strstream.h>
+#include <iomanip.h>
+#include <math.h>
+
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/file.h>
+
+
+
+#include <sqlca.h>
+#include <oraca.h>
+
+
+int  verbose = 0;
+int MINIORPLENGTH=20;
+
+
+EXEC SQL BEGIN DECLARE SECTION;
+//
+
+
+  char     uline[32];
+
+
+  VARCHAR  dynstmt[2048];
+
+  struct ior {
+   char name[2048];
+   unsigned int time;
+  } ior[100];
+
+EXEC SQL END DECLARE SECTION;
+
+void Fmessage(const char *subr, const char *text, const char *errcode)
+{
+//
+// subr -  subroutine name
+// text -  message text
+// errcode - 'I' / 'F' / 'W' etc
+//
+ if (subr && text) {
+  cout<<"AMSOracle::"<<subr<<"-"<<errcode<<"-"<<text<<endl;
+ }
+}
+
+void sql_error(char *msg)
+{
+//    EXEC SQL WHENEVER SQLERROR CONTINUE;
+    Fmessage("sql_error",msg,"E");
+    Fmessage("sql_error",sqlca.sqlerrm.sqlerrmc,"E");
+    EXEC SQL ROLLBACK RELEASE;
+    exit(1);
+}
+
+void sql_nothing(char *msg)
+{
+//    EXEC SQL WHENEVER SQLERROR CONTINUE;
+    Fmessage("sql_error",msg,"W");
+    Fmessage("sql_error",sqlca.sqlerrm.sqlerrmc,"W");
+}
+
+void sql_notfound(char *msg)
+{
+//    EXEC SQL WHENEVER SQLERROR CONTINUE;
+    Fmessage("sql_notfound",msg,"W");
+}
+
+unsigned int getiorp()
+{
+//
+// return host id for given client id
+//
+
+
+// EXEC SQL WHENEVER SQLERROR DO sql_nothing("ORACLE warning: AMSoracle::getIORP");
+
+ EXEC SQL SELECT iorp, createtime INTO :ior FROM amsdes.servers WHERE status='Active' ORDER BY createtime DESC;
+  int niorp  = sqlca.sqlerrd[2];
+  if (verbose) {
+   cout<<"getior -I- found "<<niorp<<" IORP"<<endl;
+   if (niorp > 0) {
+    time_t t = ior[0].time;
+    cout<<"getior -I- the last one dated "<<ctime(&t)<<endl;
+   }
+  }
+  if (niorp == 0)
+    {
+     strcpy(ior[0].name, "-- IORP not found in Servers ---");
+  }
+  if (strlen(ior[0].name) < MINIORPLENGTH) {
+     strcpy(ior[0].name, "-- IORP invalid length ---");
+  }
+  return niorp;
+}
+
+unsigned int getiors()
+{
+//
+// return host id for given client id
+//
+
+
+// EXEC SQL WHENEVER SQLERROR DO sql_nothing("ORACLE warning: AMSoracle::getIORP");
+
+ EXEC SQL SELECT iors, createtime INTO :ior FROM amsdes.servers WHERE status='Active' ORDER BY createtime DESC;
+  int niorp  = sqlca.sqlerrd[2];
+  if (verbose) {
+   cout<<"getior -I- found "<<niorp<<" IORS"<<endl;
+   if (niorp > 0) {
+    time_t t = ior[0].time;
+    cout<<"getior -I- the last one dated "<<ctime(&t)<<endl;
+   }
+  }
+  if (niorp == 0)
+    {
+     strcpy(ior[0].name, "-- IORP not found in Servers ---");
+  }
+  if (strlen(ior[0].name) < MINIORPLENGTH) {
+     strcpy(ior[0].name, "-- IORP invalid length ---");
+  }
+  return niorp;
+}
+
+int oracle_connect()
+{
+  char line[256];
+  char n[4];
+  char db[7];
+
+
+//  EXEC SQL WHENEVER SQLERROR GOTO connect_error;
+//
+  strcpy(uline,"ams");
+  strcpy(n,uline);
+  strcpy(db,uline);
+  strcat(uline,"ro");
+  strcat(uline,"/");
+  strcat(uline,n);
+  strcat(uline,"MC02");
+  strcat(uline,"@");
+  strcat(uline,db);
+  strcat(uline,"db");
+//
+ cout<<uline<<endl;
+//
+  EXEC SQL CONNECT :uline;
+  if (verbose) {
+   strcpy(line,"connected to amsdb");
+   Fmessage("oracle_connect ", line,"I");
+ }
+   return 0;
+
+connect_error :
+   strcpy(line,"failed to connect to amsdb ");
+   Fmessage("oracle_connect", line,"F");
+
+   return -1;
+}
+
+int suppressBlanks(char* string)
+{
+  int rstat = -1;
+  if (string > 0) {
+        for (int j=strlen(string)-1; string[j]==' '; j--) {
+           string[j] = '\0';
+         }
+    rstat = 1;
+   }
+   return rstat;
+}
+
+void print_help()
+{
+      cout<<"getior : reads AMS Oracle Database and returns IORP or/and IORS"<<endl;
+      cout<<"source ~/AMS/install/AMSoracle"<<endl;
+      cout<<"./getior"<<endl;
+      cout<<"-h : print help"<<endl;
+      cout<<"-p : retrieve IORP for server with the latest CREATETIME"<<endl;
+      cout<<"-s : retrieve IORS for server with the latest CREATETIME"<<endl;
+      cout<<"-a : retrieve IORP and IORS for ALL servers with status active"<<endl;
+      cout<<"-v : verbose mode"<<endl;
+      exit(0);
+}
+main(int argc, char* argv[]) 
+{
+ int get_iorp =0;
+ int get_iors =0;
+ int get_all  =0;
+
+  if (argc > 1) {
+   for (int i=0; i<argc; i++) {
+     if (strcmp(argv[i],"-p") == 0) {
+       get_iorp = 1;
+     } 
+     if (strcmp(argv[i],"-s") == 0) {
+       get_iors = 1;
+     } 
+     if (strcmp(argv[i],"-a") == 0) {
+       get_all = 1;
+     } 
+     if (strcmp(argv[i],"-v") == 0) {
+      verbose = 1;
+     }
+     if (strcmp(argv[i],"-h") == 0) {
+      print_help();
+     }
+   }
+  } else {
+     print_help();
+  }
+//   EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error:");
+   if(oracle_connect() != 0) exit(1);
+    if (get_iorp == 1) { getiorp();}
+    if (get_iors == 1) { getiors();}
+    if (get_all == 1)  { 
+       int n = getiors();
+       for (int i=0; i<n; i++) {
+        suppressBlanks(ior[i].name);
+        cout<<"IORS create time "<<ior[i].time<<endl;
+        cout<<ior[i].name<<endl;
+       }
+       n= getiorp();
+       for (int i=0; i<n; i++) {
+        suppressBlanks(ior[i].name);
+        cout<<"IORP create time "<<ior[i].time<<endl;
+        cout<<ior[i].name<<endl;
+       }
+    } else {
+     suppressBlanks(ior[0].name);
+     cout<<ior[0].name<<endl;
+    }   
+   exit(0);
+}

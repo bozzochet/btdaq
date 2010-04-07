@@ -1,0 +1,11 @@
+CFLAGS= -g -I../include
+LDFLAGS= -lUfor -lfor -lFutil -lots -lm -L/cern/pro/lib -lgeant321 -lmathlib -lpacklib -lkernlib
+FILES=   hcdir.C
+OBJECTS= hcdir.o ../bin/osf1/point.o
+HEADERS=  ../include/cern.h
+gv:	$(OBJECTS)
+	cxx -o hcdir.exe $(OBJECTS) $(LDFLAGS)
+
+hcdir.o:	$(HEADERS)    	
+	cxx -c $(CFLAGS) hcdir.C
+

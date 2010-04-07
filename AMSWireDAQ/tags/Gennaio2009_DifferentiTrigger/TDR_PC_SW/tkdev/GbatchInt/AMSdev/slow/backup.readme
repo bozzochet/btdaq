@@ -1,0 +1,10 @@
+Program "backup" makes a backup of file from DirectoryFrom to
+DirectoryTo. 
+
+Before loading the program you should set environmental variables
+	DirFrom and DirTo
+
+Program is loaded as
+	backup nnn
+where nnn is time delay (in minutes) between backups. The default
+value is 120 minuts.

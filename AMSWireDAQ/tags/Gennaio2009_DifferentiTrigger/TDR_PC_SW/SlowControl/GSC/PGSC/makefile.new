@@ -1,0 +1,138 @@
+CC = cc $(CFLAGS) -c
+AR = ar -r /usr0/users/lebedev/AMS/libAL.a
+CFLAGS = -O4 -Dthis_is_ALPHA_computer -I/usr/local/include
+LDFLAGS = -L/usr/lib/X11 -L/usr0/users/lebedev/AMS
+LOADLIBES = -lm -lamstcp -lX11 -lforms -lAL
+
+LIB = p_data.o pgsc.o psb.o htc.o can.o cnt.o mon.o  \
+      mcc.o daq.o main.o mcds.o ehts.o ihts.o tplt.o \
+      dialog.o \
+      graph.o
+
+#---------------------------------------------------------------------------
+
+all:	m b f k
+
+#---------------------------------------------------------------------------
+
+m:		m.o \
+		/usr0/users/lebedev/AMS/libAL.a \
+		$(LIB)
+		cc -o m m.o $(LDFLAGS) $(LOADLIBES)
+
+m.o:		m.c pgsc.h makefile
+		$(CC) m.c
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+b:			b.o bus_550_alpha.o \
+			/usr0/users/lebedev/AMS/libAL.a
+			cc -o b b.o bus_550_alpha.o $(LDFLAGS) $(LOADLIBES)
+
+b.o:			b.c buscon.h makefile
+			$(CC) b.c
+
+bus_550_alpha.o:	bus_550_alpha.c buscon.h makefile
+			$(CC) bus_550_alpha.c
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+f:			b.o bus_550_alpha_fast.o \
+			/usr0/users/lebedev/AMS/libAL.a
+			cc -o f b.o bus_550_alpha_fast.o $(LDFLAGS) $(LOADLIBES)
+
+bus_550_alpha_fast.o:	bus_550_alpha.c buscon.h makefile
+			cc -o bus_550_alpha_fast.o \
+			-c bus_550_alpha.c $(CFLAGS) -Dsend_commands_fast
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+k:		k.o
+		cc -o k k.o $(LDFLAGS) $(LOADLIBES)
+
+k.o:		k.c makefile
+		$(CC) k.c
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+p_data.o:	p_data.c pgsc.h graph.c graph.h makefile
+		$(CC) p_data.c
+		$(AR) p_data.o
+pgsc.o:		pgsc.o pgsc.h graph.c graph.h makefile
+		$(CC) pgsc.c
+		$(AR) pgsc.o
+psb.o:		psb.c pgsc.h graph.c graph.h makefile
+		$(CC) psb.c
+		$(AR) psb.o
+htc.o:		htc.c pgsc.h graph.c graph.h makefile
+		$(CC) htc.c
+		$(AR) htc.o
+can.o:		can.c pgsc.h graph.c graph.h makefile
+		$(CC) can.c
+		$(AR) can.o
+cnt.o:		cnt.c pgsc.h graph.c graph.h makefile
+		$(CC) cnt.c
+		$(AR) cnt.o
+mon.o:		mon.c pgsc.h graph.c graph.h makefile
+		$(CC) mon.c
+		$(AR) mon.o
+mcc.o:		mcc.c pgsc.h graph.c graph.h makefile
+		$(CC) mcc.c
+		$(AR) mcc.o
+daq.o:		daq.c pgsc.h graph.c graph.h makefile
+		$(CC) daq.c
+		$(AR) daq.o
+main.o:		main.o pgsc.h graph.c graph.h makefile
+		$(CC) main.c
+		$(AR) main.o
+mcds.o:		mcds.o pgsc.h graph.c graph.h makefile
+		$(CC) mcds.c
+		$(AR) mcds.o
+ehts.o:		ehts.o pgsc.h graph.c graph.h makefile
+		$(CC) ehts.c
+		$(AR) ehts.o
+ihts.o:		ihts.o pgsc.h graph.c graph.h makefile
+		$(CC) ihts.c
+		$(AR) ihts.o
+tplt.o:		tplt.o pgsc.h graph.c graph.h makefile
+		$(CC) tplt.c
+		$(AR) tplt.o
+dialog.o:	dialog.o pgsc.h graph.c graph.h makefile
+		$(CC) dialog.c
+		$(AR) dialog.o
+
+graph.o:	graph.c graph.h makefile
+		$(CC) graph.c
+		$(AR) graph.o
+
+#---------------------------------------------------------------------------
+
+1:		1.o makefile       
+		$(CC) -o 1 1.o -lm
+
+1.o:		1.c makefile
+
+2:		2.o makefile 
+		$(CC) -o 2 2.o -lm
+
+2.o:		2.c makefile
+
+3:		3.o makefile 
+		$(CC) -o 3 3.o \
+		/usr0/users/lebedev/AMS/Deframing.../SRDL_frames.o \
+		/usr0/users/lebedev/AMS/Deframing.../all_frames.o \
+		/usr0/users/lebedev/AMS/Deframing.../status_files.o \
+		-lm
+
+3.o:		3.c makefile
+
+33:		33.o makefile 
+		$(CC) -o 33 33.o \
+		/usr0/users/lebedev/AMS/Deframing.../HRDL_frames.o \
+		/usr0/users/lebedev/AMS/Deframing.../all_frames.o \
+		/usr0/users/lebedev/AMS/Deframing.../status_files.o \
+		/usr0/users/lebedev/AMS/Deframing.../myftplib.o \
+		-lm
+
+33.o:		33.c makefile
+

@@ -1,0 +1,10 @@
+CFLAGS= -g -I../include
+LDFLAGS= -L/cern/pro/lib -lgeant321 -lmathlib -lpacklib -lkernlib
+FILES=   upool_ex1.C 
+OBJECTS= upool_ex1.o ../bin/upool.o ../bin/link.o
+gv:	$(OBJECTS)
+	xlC -o upool.exe $(OBJECTS) $(LDFLAGS)
+
+upool_ex1.o:	$(HEADERS)    	
+	xlC -c $(CFLAGS) upool_ex1.C
+

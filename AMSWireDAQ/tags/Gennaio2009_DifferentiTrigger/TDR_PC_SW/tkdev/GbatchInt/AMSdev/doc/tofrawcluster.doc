@@ -1,0 +1,31 @@
+#  $Id: tofrawcluster.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+class AMSTOFRawCluster: public AMSlink{   // TOF Raw Cluster
+protected:
+ integer _status;  // status
+ integer _ntof;    // 1- top 4 -bottom
+ integer _plane;  // plane number (10.5 cm width)
+ number _z;        // z coord
+ number _edep;    // energy deposition
+ number _time;   // time;
+ number _timeD;   //difference between left & right times
+public:
+// Get
+ integer getstatus() const{return _status;}
+
+ integer getntof()const {return _ntof;}
+
+ integer getplane()const {return _plane;}
+
+ number gettime()const {return _time;}
+
+ number gettimeD()const {return _timeD;}
+
+ number getedep()const {return _edep;}
+
+ number getz()const {return _z;}
+
+ AMSTOFRawCluster(integer status, integer xy, integer plane,
+ number z, number de, number time, number timed) //init ctor
+
+ static void sitofdigi();   // TOF digitization
+};

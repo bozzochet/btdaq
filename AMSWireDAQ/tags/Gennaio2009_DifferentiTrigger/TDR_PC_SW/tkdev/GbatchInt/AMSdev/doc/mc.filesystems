@@ -1,0 +1,25 @@
+#----------------------------------------------------------------------------
+#                                                                       Last Edit : Apr 2, 2003
+# FILESYSTEMS
+#
+# host  :   disk  : path                                 : total : occupied :  avail : allowed : stat: prior : 
+#       :         :                                      :    GB :  GByte   :  GByte :  GByte  :     :       :
+#-----------------------------------------------------------------------------
+pcamsa0 : /a0dah1 : /AMS02/MC/ntuples                    :   83  :   73     :   6 :  30 : Active : 0 :
+pcamsa0 : /a0dat1 : /AMS02/MC/ntuples                    :   50  :   30     :  18 :  20 : Active : 0 :
+pcamsa0 : /a0dat2 : /AMS02/MC/ntuples                    :   50  :   46     :   2 :  20 : Active : 0 :
+pcamsp0 : /p0dah1 : /AMS02/MC/ntuples                    :   93  :   83     :   5 :  20 : Full   : 0 :
+pcamsp0 : /p0dat1 : /AMS02/MC/ntuples                    :  101  :   93     :   3 :  20 : Full   : 0 :
+pcamsp1 : /p1dah1 : /AMS02/MC/ntuples                    :   62  :   60     :   0 :  20 : Full   : 0 :
+pcamsp1 : /p1dat1 : /AMS02/MC/ntuples                    :   94  :   77     :  12 :  20 : Active : 0 :
+pcamsf0 : /vicepb : /afs/ams.cern.ch/data/data1/AMS02/MC :  240  :  185     :  55 : 224 : Active : 0 :
+pcamsf0 : /f0dah1 : /AMS02/MC/ntuples                    :  210  :  151     :  49 :  60 : Active : 0 :
+pcamsf2 : /f2dat1 : /AMS02/MC/ntuples                    :  992  :  904     :  78 : 600 : Active : 1 :
+pcamsf2 : /f2dah1 : /AMS02/MC/ntuples                    :  770  :  636     : 126 : 600 : Active : 1 :
+pcamsf3 : /f3dah1 : /AMS02/MC/ntuples                    :  211  :  193     :   9 :  50 : Active : 1 :
+pcamsf4 : /vicepa : /afs/ams.cern.ch/data/data2/AMS02/MC :  300  :  149     : 151 : 346 : Active : 1 :
+pcamsf4 : /vicepc : /afs/ams.cern.ch/data/data3          :  518  :   48     : 470 : 480 : Active : 1 :
+pcamsf5 : /f5dah1 : /AMS02/MC/ntuples                    :  275  :  183     :  89 :  40 : Active : 0 :
+pcamst0 : /t0dah1 : /AMS02/MC/ntuples                    :  211  :  171     :  30 :  20 : Active : 0 :
+# End of file
+#------------------------------------------------------------------------------

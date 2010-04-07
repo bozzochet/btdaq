@@ -1,0 +1,19 @@
+Usage: ./dallas-3 [<USCM ID> [<JMDC ID> [<Debug Printout Level>]]]
+USCM ID     = 0x78
+JMDC ID     = 0
+P           = 0
+Reboot started...
+Reboot completed.
+Scan started...
+Scan completed:
+Bus #              9  8  7  6  5  4  3  2  1
+Sensors found:     1  0 30 30 30 22 30 30 30
+Sensors to read:   1  0 30 30 30 22 30 30 30
+Bus 1::   13H:9/9   03H:10/10   10H:11/11 
+Bus 2::   20H:11/11   15H:9/9   05H:10/10 
+Bus 3::   12H:10/10   17H:10/10   02H:10/10 
+Bus 4::   07H:11/11   08H:11/11 
+Bus 5::   11H:10/10   18H:9/9   01H:10/10 
+Bus 6::   19H:11/11   16H:9/9   06H:10/10 
+Bus 7::   14H:9/9   04H:10/10   09H:11/11 
+Bus 8:: 
