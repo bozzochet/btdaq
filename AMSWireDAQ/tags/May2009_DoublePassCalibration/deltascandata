@@ -1,0 +1,23 @@
+#!/bin/sh
+
+
+cont=100
+max=250
+events=100000
+
+
+while [ $cont -le $max ]; do
+
+echo ln -s JINF_01_$cont.conf JINF_01.conf
+ln -s JINF_01_$cont.conf JINF_01.conf
+
+echo ./TakeJEPP  0 COMPLETERUN $events 1 
+./TakeJEPP  0 COMPLETERUN $events 1
+
+echo rm -f JINF_01.conf
+rm -f JINF_01.conf
+sleep 2 
+
+cont=`expr $cont + 5`
+
+done
