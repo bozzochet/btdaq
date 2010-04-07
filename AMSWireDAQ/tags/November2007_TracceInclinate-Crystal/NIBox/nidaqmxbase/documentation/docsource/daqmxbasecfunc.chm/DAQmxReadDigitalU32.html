@@ -1,0 +1,149 @@
+
+<html>
+<head>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+<link rel="STYLESHEET" type="text/css" href="../daqmxbasecfunccommon/styles.css"></link>
+<title>DAQmxBaseReadDigitalU32</title>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+</head>
+<body bgcolor="#ffffff">
+<h1>DAQmxBaseReadDigitalU32</h1>
+<p class="syntax">int32 DAQmxBaseReadDigitalU32 (TaskHandle taskHandle, int32 numSampsPerChan, float64 timeout, bool32 fillMode, uInt32 readArray[ ], uInt32 arraySizeInSamps, int32 *sampsPerChanRead, bool32 *reserved);</p>
+<h2>Purpose</h2>
+<p class="body">Reads multiple 32-bit integer samples from a task that contains one or more 
+digital input channels. Use this return type for devices with up to 32 lines per port. 
+The data is returned in unsigned integer format.</p>
+<h2>Parameters</h2>
+<table class="borderless">
+<tr>
+<td>
+<em>Input</em>
+</td>
+</tr>
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>taskHandle</strong>
+</td>
+<td valign="top">TaskHandle</td>
+<td valign="top">The task to read samples from.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>numSampsPerChan</strong>
+</td>
+<td valign="top">int32</td>
+<td valign="top">The number of samples, per channel, to read.<br></br>
+
+If you set this parameter to <nobr>-1</nobr> (<span id="monospace">DAQmx_Val_Auto</span>), NI-DAQmx Base determines how many samples to read based on whether the task acquires samples continuously or acquires a finite number of samples.<br></br>
+
+If the task acquires a finite number of samples and you set this parameter to 
+<nobr>-1</nobr>, the function waits for the task to acquire all requested samples, and
+then reads those samples.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>timeout</strong>
+</td>
+<td valign="top">float64</td>
+<td valign="top">The amount of time, in seconds, to wait for the function to read the sample(s). 
+ This function returns an error if the timeout elapses.<br></br>
+</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>fillMode</strong>
+</td>
+<td valign="top">bool32</td>
+<td valign="top">Specifies whether or not the samples are 
+interleaved.
+<table class="Borderless">
+<tr>
+<th class="Left-Align">Value</th>
+<th width="20"></th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td>
+<span id="Monospace">DAQmx_Val_GroupByChannel</span>
+</td>
+<td></td>
+<td>Group by channel (non-interleaved)</td>
+</tr>
+<tr>
+<td>
+<span id="Monospace">DAQmx_Val_GroupByScanNumber</span>
+</td>
+<td></td>
+<td>Group by scan number (interleaved)</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>arraySizeInSamps</strong>
+</td>
+<td valign="top">uInt32</td>
+<td valign="top">The size of the array, in samples, into which data is read.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>reserved</strong>
+</td>
+<td valign="top">
+<nobr>bool32 *</nobr>
+</td>
+<td valign="top">Reserved for future use.  Pass NULL to this parameter.</td>
+</tr>
+<tr>
+<td>
+<em>Output</em>
+</td>
+</tr>
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td>
+<strong>readArray</strong>
+</td>
+<td>
+<nobr>uInt32 [ ]</nobr>
+</td>
+<td>The array to read data into, organized according to <strong>fillMode</strong>.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>sampsPerChanRead</strong>
+</td>
+<td valign="top">
+<nobr>int32 *</nobr>
+</td>
+<td valign="top">The actual number of samples read from each channel.</td>
+</tr>
+</table>
+<h2>Return Value</h2>
+<table class="borderless">
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>status</strong>
+</td>
+<td valign="top">int32</td>
+<td valign="top">The error code returned by the function in the event of an error or warning. A value of 0 indicates success. A positive value indicates a warning. A negative value indicates an error.</td>
+</tr>
+</table>
+</body>
+</html>
+

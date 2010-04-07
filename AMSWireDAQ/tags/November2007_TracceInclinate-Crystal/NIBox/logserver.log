@@ -1,0 +1,12 @@
+Error executing server: Operation not permitted
+
+LabVIEW caught fatal signal
+8.0.1 - Received SIGSEGV
+Reason: address not mapped to object
+Attempt to reference address: 0xb7ee26c8
+Interrupted system call: select(2)
+Init Started
+Init done
+Waiting for TCP connection on port 1700 ...
+SIGTERM received
+Server is exiting

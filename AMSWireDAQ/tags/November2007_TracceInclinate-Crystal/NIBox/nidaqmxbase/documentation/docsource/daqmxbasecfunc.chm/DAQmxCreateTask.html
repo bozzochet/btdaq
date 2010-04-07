@@ -1,0 +1,75 @@
+
+<html>
+<head>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+<link rel="STYLESHEET" type="text/css" href="../daqmxbasecfunccommon/styles.css"></link>
+<title>DAQmxBaseCreateTask</title>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+</head>
+<body bgcolor="#ffffff">
+<h1>DAQmxBaseCreateTask</h1>
+<p class="syntax">int32 DAQmxBaseCreateTask (const char taskName[ ], TaskHandle *taskHandle);</p>
+<h2>Purpose</h2>
+<p class="body">Creates a task. If you use this function to create a task, you must use <span id="monospace">DAQmxBaseClearTask</span> to destroy it.</p>
+<p class="body">If you use this function within a loop, NI-DAQmx Base creates a new task in each iteration of the loop. Use the <span id="monospace">DAQmxBaseClearTask</span> function within the loop after you finish with the task to avoid allocating unnecessary memory. <!-- Refer to Task Creation and Destruction for more information on when NI-DAQmx creates tasks and when LabVIEW automatically destroys tasks. -->
+</p>
+<h2>Parameters</h2>
+<table class="borderless">
+<tr>
+<td>
+<em>Input</em>
+</td>
+</tr>
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td>
+<strong>taskName</strong>
+</td>
+<td>
+<nobr>const char [ ]</nobr>
+</td>
+<td>Name assigned to the task.<br></br>
+</td>
+</tr>
+<tr>
+<td>
+<em>Output</em>
+</td>
+</tr>
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td>
+<strong>taskHandle</strong>
+</td>
+<td>
+<nobr>TaskHandle *</nobr>
+</td>
+<td>A reference to the task created in this function.</td>
+</tr>
+</table>
+<h2>Return Value</h2>
+<table class="borderless">
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>status</strong>
+</td>
+<td valign="top">int32</td>
+<td valign="top">The error code returned by the function in the event of an error or warning. A value of 0 indicates success. A positive value indicates a warning. A negative value indicates an error.</td>
+</tr>
+</table>
+</body>
+</html>
+
