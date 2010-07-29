@@ -5,22 +5,15 @@ if [ $# -lt 1 ]; then
     exit
 fi
 
+dspcode=3fa3
+confile=7011
+
 echo STARTING $0
 
 port=$1
 
-./TESTjmdc $port 4000003f 46 3fa3
-sleep 2
-./TESTjmdc $port 4000013f 46 3fa3
-sleep 2
-./TESTjmdc $port 4000033f 46 3fa3
-sleep 2
-./TESTjmdc $port 4000093f 46 3fa3
-sleep 2
-./TESTjmdc $port 4000103f 46 3fa3
-sleep 2
-./TESTjmdc $port 4000113f 46 3fa3
-sleep 2
-./TESTjmdc $port 4000163f 46 3fa3
-sleep 2
-./TESTjmdc $port 4000173f 46 3fa3
+./LoadDSPCode.sh $port $dspcode
+usleep 100000
+./LoadDSPCode.sh $port $confile
+usleep 100000
+./DisableDynamicPedestals.sh $port
