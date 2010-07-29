@@ -574,8 +574,8 @@ int Calibrate(AMSWcom* node, int secondstep) {
       return 1;
     }
     
-        ret=SaveCalibration(node, runnum);
-	//PRINTF("FOR NOW NOT SAVING CALIBRATIONS!!!!!!!!!!!!!!!!!!\n");
+    ret=SaveCalibration(node, runnum);
+    //PRINTF("FOR NOW NOT SAVING CALIBRATIONS!!!!!!!!!!!!!!!!!!\n");
     
     if(ret) {
       PRINTF("Save Calibration Failed ...\n I give Up\n");
@@ -683,7 +683,17 @@ int SaveCalibration(AMSWcom* node, int runnum){
 	    PRINTF("TDRNUM = %d \n",tdrnum);//only for debug					
 	    tdrnum++;
 	    Head.DSPRRRWNODETYPE=DSPNT+((offset+jj)<<5); //come node deve avere il numero del tdr + un offset (cioè tipo da 450 a 473...)
-	    
+
+	    /*
+	    for (int ii=0; ii<usize; ii++){
+	      if (ii%8 == 0) {
+		printf("\n");
+	      }
+	      printf("%hx ", node->Event[ii]);
+	    }
+	    printf("\n");
+	    */
+
 	    fwrite(&(Head.SIZE), sizeof(Head), 1, datafile);
 	    fwrite(node->Event,usize*size_u_short, 1, datafile);
 	    fwrite(&DSPCRC16, sizeof(DSPCRC16), 1, datafile);

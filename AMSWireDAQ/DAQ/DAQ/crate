@@ -19,7 +19,7 @@ done
 
 echo "DataPath: ./Data/" > JINJ.conf
 echo "CalPath: ./Calibrations/" >> JINJ.conf
-echo "JINJflash: 3982"  >> JINJ.conf
+echo "JINJflash: 29f2"  >> JINJ.conf
 echo "#SLAVE:    FLAG:    DAQ_MODE:   CONF_FILE:"  >> JINJ.conf
 
 list=""

@@ -1,7 +1,7 @@
 DataPath: ./Data/
 CalPath: ./Calibrations/
-JINFflash: 2922
-TDRflash: 2e83
+JINFflash: 29f2
+TDRflash: 29f3
 Delay:  2000
 #TDR:     FLAG:    DAQ_MODE:   SLowThresh:   SHighThresh:  KLowThresh:  KHighThresh: SigmaRawThresh:   OccupancyThresh:
 00          1          2          1              4            1              4            30              100
