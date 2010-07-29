@@ -1,0 +1,15 @@
+./TESTjmdc 2 4000003f 49 1006 1 1c 2 8 3 1c 4 8 5 1c 6 8
+usleep 100000
+./TESTjmdc 2 4000013f 49 1006 1 1c 2 8 3 1c 4 8 5 1c 6 8
+usleep 100000
+./TESTjmdc 2 4000033f 49 1006 1 1c 2 8 3 1c 4 8 5 1c 6 8
+usleep 100000
+./TESTjmdc 2 4000093f 49 1006 1 1c 2 8 3 1c 4 8 5 1c 6 8
+usleep 100000
+./TESTjmdc 2 4000103f 49 1006 1 1c 2 8 3 1c 4 8 5 1c 6 8
+usleep 100000
+./TESTjmdc 2 4000113f 49 1006 1 1c 2 8 3 1c 4 8 5 1c 6 8
+usleep 100000
+./TESTjmdc 2 4000163f 49 1006 1 1c 2 8 3 1c 4 8 5 1c 6 8
+usleep 100000
+./TESTjmdc 2 4000173f 49 1006 1 1c 2 8 3 1c 4 8 5 1c 6 8

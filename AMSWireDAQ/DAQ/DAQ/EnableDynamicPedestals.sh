@@ -9,18 +9,26 @@ echo STARTING $0
 
 port=$1
 
+echo "./TESTjmdc $port 4000003f 49 1001 b 1"
 ./TESTjmdc $port 4000003f 49 1001 b 1
-sleep 2
+usleep 100000
+echo "./TESTjmdc $port 4000013f 49 1001 b 1"
 ./TESTjmdc $port 4000013f 49 1001 b 1
-sleep 2
+usleep 100000
+echo "./TESTjmdc $port 4000033f 49 1001 b 1"
 ./TESTjmdc $port 4000033f 49 1001 b 1
-sleep 2
+usleep 100000
+echo "./TESTjmdc $port 4000093f 49 1001 b 1"
 ./TESTjmdc $port 4000093f 49 1001 b 1
-sleep 2
+usleep 100000
+echo "./TESTjmdc $port 4000103f 49 1001 b 1"
 ./TESTjmdc $port 4000103f 49 1001 b 1
-sleep 2
+usleep 100000
+echo "./TESTjmdc $port 4000113f 49 1001 b 1"
 ./TESTjmdc $port 4000113f 49 1001 b 1
-sleep 2
+usleep 100000
+echo "./TESTjmdc $port 4000163f 49 1001 b 1"
 ./TESTjmdc $port 4000163f 49 1001 b 1
-sleep 2
+usleep 100000
+echo "./TESTjmdc $port 4000173f 49 1001 b 1"
 ./TESTjmdc $port 4000173f 49 1001 b 1
