@@ -501,7 +501,8 @@ int Jinf::SaveCalibrationOneTDR(unsigned int tdr_number, char *calfileprefix) {
 
   unsigned short usize=0;
 
-  node->GetCalibration(addr, 0xef); // GetCalibration from TDR 0xXX3f requested as TDR NN
+  //  node->GetCalibration(addr, 0xef); // GetCalibration from TDR 0xXX3f requested as TDR NN //
+  node->GetCalibration(addr, 0x1); // GetCalibration from TDR 0xXX3f requested as TDR NN
   
   //TESTRXDONE(node);
 
