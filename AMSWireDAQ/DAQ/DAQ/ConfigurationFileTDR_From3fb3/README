@@ -1,0 +1,35 @@
+Configuration File:
+___________________________
+
+In this directory you can find all the stuff (except for TESTjmdc of 
+which there's a simbolic link) needed for create and load 
+configuration files for TDRs:
+
+
+- ConfigFile:   	       this is the program to create binary config files for TDRs
+  			       starting from a "human readable" parameters file (as example TDRParamFile.txt)
+			       and to create the script (LoadConfs.sh) usefull to uplaod the binary files  
+
+- LoadConfs.sh:		       the script that load the correct configuration file in each TDR
+
+- TDRParamFile.txt:	       can be used as a template for the "human readable" parameter file for TDR
+
+
+The file of parameters ("human readable file") can be filled using the TDR documentation by Philipp Azzarello
+and taking into account that for "compliantness" a parameter indicated as "N" here has to written as "0 0 N"
+(where the first two numbers are the Group and the SubGroup, here 0).
+
+- The script for loading the configuration file has to be called using 1 parameter
+(the JMDC port to be used, i.e.
+to use JINF-T-B [JMDC ports: 0,3]
+to use JINF-T-A [JMDC ports: 1,2])
+
+Procedure:
+
+The procedure has to be, the 6 thresholds for external HAS TO BE PASSED EXPLICITELY (Thresholds have to be passed in 'standard' way (1, 2, 3.5, ...)):
+
+    1. Create a parameter file or edit the template (TDRParamFile.txt)
+    2. ./ConfigFile TDRParamFile.txt <S1HighThresh> <S1LowThresh> <S2HighThresh> <S2LowThresh> <KHighThresh> <KLowThresh>
+    3. ./LoadConfs.sh #port
+
+ 
