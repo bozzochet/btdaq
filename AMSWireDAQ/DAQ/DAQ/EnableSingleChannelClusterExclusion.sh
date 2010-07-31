@@ -26,6 +26,7 @@ parnumber=1c
 
 echo "I will use, for the parameter 0x$parnumber the value 0x$msb$lsb"
 
+sleep 5
 
 ./TESTjmdc $port 4000003f 49 1001 $parnumber $msb$lsb
 usleep 100000
