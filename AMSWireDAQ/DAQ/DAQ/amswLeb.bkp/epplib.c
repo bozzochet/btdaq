@@ -90,26 +90,26 @@ for (ii=0; ii<2; ii++) {
 
 //~----------------------------------------------------------------------------
 
-bool initialize_EPP(void) {
+bool_L initialize_EPP(void) {
 
   int ntry = 3;
   int try, n[3], nn;
-  static bool first = TRUE, found = FALSE;
-  bool fail;
+  static bool_L first = TRUE, found = FALSE;
+  bool_L fail;
   int16 LPT_ports[3] = {0x0378, 0x0278, 0x03BC};
 
   if (first) {
 #ifdef USE_CAN
-    if (!get_command_timeout(NULL)) set_command_timeout(1.0);
+    if (!get_CAN_timeout(NULL)) set_CAN_timeout(1.0);
     serial_RX_buffer_size = 4096;
 #endif
 #ifdef USE_AMSW
-    if (!get_command_timeout(NULL)) set_command_timeout(9.9);
+    if (!get_AMSW_timeout(NULL)) set_AMSW_timeout(9.9);
 #endif
     if (use_PCIAMSW) {
       return TRUE;
     }
-    else if (use_TCP || use_EAS) {
+    else if (use_TCP) {
       return TRUE;
     }
     else {

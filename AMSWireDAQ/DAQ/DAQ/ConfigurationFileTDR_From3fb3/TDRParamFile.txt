@@ -21,7 +21,7 @@
 # Reduction Mode S/N ratio mode
      0        0      10       1
 # Reduction Mode: Dynamic pedestals max correction (0==off)
-     0        0      11       2
+     0        0      11       0
 # Reduction Mode: CN Output
      0        0      12       0
 # cTDR_AVRG_SEED
@@ -29,7 +29,7 @@
 # cTDR_AVRG_THRE
      0        0      14       1
 # Threshold value for high occupancy channels (calib. step 4)
-     0        0      15       20
+     0        0      15      801
 # Maximum cluster size
      0        0      16       0
 # Threshold for double trigger cal

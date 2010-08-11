@@ -21,7 +21,7 @@
 # Reduction Mode S/N ratio mode
      0        0      10       1
 # Reduction Mode: Dynamic pedestals
-     0        0      11       1
+     0        0      11       0
 # Reduction Mode: CN Output
      0        0      12       0
 #cTDR_AVRG_SEED

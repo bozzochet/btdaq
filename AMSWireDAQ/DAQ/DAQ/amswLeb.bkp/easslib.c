@@ -15,6 +15,25 @@
 #include "mylib.h"
 #endif
 
+static bool_L timeout_set = FALSE;
+static float timeout;
+
+//~----------------------------------------------------------------------------
+
+void set_eAss_timeout(float value) {
+
+  timeout     = value;
+  timeout_set = TRUE;
+}
+
+//~----------------------------------------------------------------------------
+
+bool_L get_eAss_timeout(float *value) {
+
+  if (value) *value = timeout;
+  return timeout_set;
+}
+
 //~ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 //+++ Following section is from AALpro/eAss/easslib.c
@@ -462,8 +481,6 @@ int eAssSend(peAssIntf eAss, int msgtype, peAssTag msg)
 
   len = eAssSize(msg);
 
-//printf("eAssSend: len = %d\n", len);
-
   buff = malloc(4 + 4 + 2 + len);
   if ( ! buff)
     return 0;
@@ -753,14 +770,12 @@ int eAssLogout(peAssIntf eAss)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int eAssRequest(peAssIntf eAss, pAMSBlock pRequest, bool RequestCommandTag)
+int eAssRequest(peAssIntf eAss, pAMSBlock pRequest, bool_L RequestCommandTag)
 {
 int tagval = 0;
 peAssTag  msg, m;
 int msgtype;
 int status;
-
-//printf("eAssRequest: pRequest->DataCount=%d\n", pRequest->DataCount);
 
   msg = eAssTag(NULL, "STRING", "COMMENT", "Command Desc", -1);
   if (RequestCommandTag)
@@ -871,7 +886,6 @@ peAssTag  msg, m, n;
           {
             Reply.Contents = n->value.value;
             Reply.DataCount = n->bytecount;
-//printf("eAssPollReply: Reply.DataCount=%d\n", Reply.DataCount);
           }
         }
 
@@ -893,90 +907,91 @@ peAssTag  msg, m, n;
   return 1;
 }
 
-//~----------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
-int eAssRequestWithReply(pAMSBlock pRequest, pAMSBlock pReply) {
-
-  peAssIntf eAss;
-  int tagval;
-  pAMSBlock pBlock;
-  char port[20];
-  int to;
-  char *local_progname = progname?progname:"NULL";
+int eAssRequestWithReply(pAMSBlock pRequest, pAMSBlock pReply)
+{
+peAssIntf eAss;
+int tagval;
+pAMSBlock pBlock;
+char port[20];
+int to;
+char *local_progname = progname?progname:"NULL";
 
   *pReply = *pRequest;
   pReply->Error = BLOCK_E_COMM;
   pReply->DataCount = 0;
 
-//~   Initialize the eAss system
+  //  Initialize the eAss system
 
   eAssInit();
 
-//~   Open the client services
+  //  Open the client services
 
   eAss = eAssOpen(local_progname); // AALs external
-  if (!eAss) {
+  if ( ! eAss)
+  {
     printf("eAssRequestWithReply: eAssOpen failed\n");
     return 0;
   }
 
   sprintf(port, "%d", CS_port); // AALs external
 
-//~   Make a connection to the server
+  //  Make a connection to the server
 
-  if (!eAssConnect(eAss, CS_address, port)) {
+  if ( ! eAssConnect(eAss, CS_address, port))
+  {
     printf("eAssRequestWithReply: eAssConnect(%s, %s) failed\n", CS_address, port);
     return 0; 
   }
 
-//~   Log on the user
+  //  Log on the user
 
-  if (!eAssLogin(eAss, "pdennett", "pw", local_progname)) {
+  if ( ! eAssLogin(eAss, "pdennett", "pw", local_progname))
+  {
     eAssDisconnect(eAss);
     printf("eAssRequestWithReply: eAssLogin failed\n");
     return 0;
   }
 
-//~   This sends an AMSBlock to the server and requests the return of a CommandTag
-
-  if (P > 3) printf("eAssRequestWithReply: pRequest->DataCount=%d\n", pRequest->DataCount);
+  //  This sends an AMSBlock to the server and requests the return of a CommandTag
 
   tagval = eAssRequest(eAss, pRequest, TRUE);
-  if (tagval <= 0) {
+  if (tagval <= 0)
+  {
     printf("eAssRequestWithReply: eAssRequest failed %d\n", tagval);
     return 0;
   }
 
-//~   This sends a poll to the server to see if an AMSBlock with a matching CommandTag
-//~   can be returned.
+  //  This sends a poll to the server to see if an AMSBlock with a matching CommandTag
+  //  can be returned.
 
 #ifndef ENV_PAD_AAL 
+  to = 0;
 
-  if (P > 3) printf("ENV_PAD_ALL not defined\n");
-
-  if (!get_command_timeout(NULL)) set_command_timeout(20.0);
+  if (!get_eAss_timeout(NULL)) set_eAss_timeout(20.0);
 
   timer(0, START);
-  for (pBlock=NULL, to=0; !timer(0, EXPIRED, command_timeout) && !pBlock; to++) {
-    if (P > 3) printf("eAssRequestWithReply: Polling tag %d to=%d\n", tagval, to);
-    if (!eAssPollReply(eAss, tagval, &pBlock)) ShortSleep(0, 20000);
-  }
 
+  for (pBlock=NULL; !timer(0, EXPIRED, timeout) && !pBlock; )
+  {
+    if ( ! eAssPollReply(eAss, tagval, &pBlock))
+      ShortSleep(0, 20000);
+  }
 #else
-
-  if (P > 3) printf("ENV_PAD_ALL defined\n");
-
-  for (to=0, pBlock=NULL; to < 500 && !pBlock; to++) {
-    if (P > 3) printf("eAssRequestWithReply: Polling tag %d to=%d\n", tagval, to);
-    if (!eAssPollReply(eAss, tagval, &pBlock)) ShortSleep(0, 20000);
+  to = 0;
+  for (to=0, pBlock=NULL; to<500 && ( ! pBlock); to++)
+  {
+    //printf("eAssRequestWithReply: Polling tag %d to %d\n", tagval, to);
+    if ( ! eAssPollReply(eAss, tagval, &pBlock))
+      ShortSleep(0, 20000);
   }
-
 #endif
 
-  if (pBlock) *pReply = *pBlock;
-  else         pReply->Error = BLOCK_E_TIMEOUT;
-
-  if (P > 3) printf("eAssRequestWithReply: pReply->DataCount=%d\n", pReply->DataCount);
+  if (pBlock)
+    *pReply = *pBlock;
+  else
+    pReply->Error = BLOCK_E_TIMEOUT;
 
   eAssDisconnect(eAss);
   eAssClose(eAss);
@@ -984,18 +999,20 @@ int eAssRequestWithReply(pAMSBlock pRequest, pAMSBlock pReply) {
   return 1;
 }
 
-//~----------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
-int eAssLogPrintf(peAssIntf eAss, char *fmt, ...) {
+int eAssLogPrintf(peAssIntf eAss, char *fmt, ...)
+{
+int msgtype;
+peAssTag  msg;
+int16 Action = 0;
+int rtn;
 
-  int msgtype;
-  peAssTag  msg;
-  int16 Action = 0;
-  int rtn;
-  va_list arg_marker;
-  char txtmsg[128];
+va_list arg_marker;
+char txtmsg[128];
 
-  if (!fmt) return 0;
+  if ( ! fmt)
+    return 0;
 
   va_start(arg_marker, fmt);
   vsnprintf(txtmsg, sizeof txtmsg - 2, fmt, arg_marker);
@@ -1003,11 +1020,13 @@ int eAssLogPrintf(peAssIntf eAss, char *fmt, ...) {
 
   rtn = strlen(txtmsg);
   printf("eAssLogPrintf: %s", txtmsg);
-  if (txtmsg[rtn-1] != '\n') printf("\n");
+  if (txtmsg[rtn-1] != '\n')
+    printf("\n");
 
   msg = eAssTag(NULL,  "STRING", "Log", txtmsg, -1);
         eAssTag(msg,   "INT16",  "ACTION", &Action, sizeof (int16));
-  if (!eAssSend(eAss, eAss_MT_LOGBOOK, msg)) {
+  if ( ! eAssSend(eAss, eAss_MT_LOGBOOK,  msg))
+  {
     printf("eAssLogPrintf: eAssSend failed\n");
     eAssRelease(msg);
     return -1;
@@ -1015,23 +1034,26 @@ int eAssLogPrintf(peAssIntf eAss, char *fmt, ...) {
   eAssRelease(msg);
 
   msg = eAssRecv(eAss, 2000, &msgtype);
-  if (msg) eAssRelease(msg);
+  if (msg)
+    eAssRelease(msg);
 
   return rtn;
 }
 
-//~----------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
-int eAssLogPrintfAndAbortServer(peAssIntf eAss, char *fmt, ...) {
+int eAssLogPrintfAndAbortServer(peAssIntf eAss, char *fmt, ...)
+{
+int msgtype;
+peAssTag  msg;
+int16 Action = 86;
+int rtn;
 
-  int msgtype;
-  peAssTag  msg;
-  int16 Action = 86;
-  int rtn;
-  va_list arg_marker;
-  char txtmsg[128];
+va_list arg_marker;
+char txtmsg[128];
 
-  if (!fmt) return 0;
+  if ( ! fmt)
+    return 0;
 
   va_start(arg_marker, fmt);
   vsnprintf(txtmsg, sizeof txtmsg - 2, fmt, arg_marker);
@@ -1044,17 +1066,16 @@ int eAssLogPrintfAndAbortServer(peAssIntf eAss, char *fmt, ...) {
 
   msg = eAssTag(NULL,  "STRING", "LogAndAbort", txtmsg, -1);
         eAssTag(msg,   "INT16",  "ACTION", &Action, sizeof (int16));
-  if (!eAssSend(eAss, eAss_MT_LOGBOOK, msg)) {
+  if ( ! eAssSend(eAss, eAss_MT_LOGBOOK,  msg))
+  {
     eAssRelease(msg);
     return -1;
   }
   eAssRelease(msg);
 
   msg = eAssRecv(eAss, 2000, &msgtype);
-  if (msg) eAssRelease(msg);
+  if (msg)
+    eAssRelease(msg);
 
   return strlen(txtmsg);
 }
-
-//~============================================================================
-

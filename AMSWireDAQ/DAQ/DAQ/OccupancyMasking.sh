@@ -1,4 +1,17 @@
 #!/bin/sh -x
+
+# Mask some VA
+MaskSingleVA.sh 2 0 19 12; usleep 50000
+MaskSingleVA.sh 2 0 19 14; usleep 50000
+MaskSingleVA.sh 2 1 21 11; usleep 50000
+MaskSingleVA.sh 2 3 14 14; usleep 50000
+MaskSingleVA.sh 2 3 14 15; usleep 50000
+MaskSingleVA.sh 2 6 13 11; usleep 50000
+MaskSingleVA.sh 2 6 22 10; usleep 50000
+MaskSingleVA.sh 2 6 22 11; usleep 50000
+MaskSingleVA.sh 2 6 22 15; usleep 50000
+
+# Mask strips
 ./TESTjmdc 2 ffff fffe 163f 0B3f 2e54 1 0000 1; usleep 50000
 ./TESTjmdc 2 ffff fffe 163f 0B3f 2e54 1 00AE 1; usleep 50000
 ./TESTjmdc 2 ffff fffe 163f 0B3f 2e54 1 00E9 1; usleep 50000

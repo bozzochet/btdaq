@@ -7,18 +7,37 @@
 
 #include "amswlib.h"
 
+AMSBlock Request, *pRequest = &Request;
+AMSBlock Reply,   *pReply   = &Reply;
+
 //~============================================================================
 //
 //            COMMON (EPPCAN & PCIAMSW) LIBRARY
 //
 //~============================================================================
 
-void to_AMSW(int R_W,
-             int32 RQ_typ, int32  RQ_cnt, int16 *RQ_dat,
-             int32 RP_siz, int32 *RP_cnt, int16 *RP_dat, int16 *RP_err) {
+static bool_L timeout_set = FALSE;
+static float timeout;
 
-  int k;
-  int32 Block_Primary_Header;
+//~----------------------------------------------------------------------------
+
+void set_AMSW_timeout(float value) {
+
+  timeout     = value;
+  timeout_set = TRUE;
+}
+
+//~----------------------------------------------------------------------------
+
+bool_L get_AMSW_timeout(float *value) {
+
+  if (value) *value = timeout;
+  return timeout_set;
+}
+
+//~----------------------------------------------------------------------------
+
+void to_AMSW(int R_W, int32 RQ_typ, int32  RQ_cnt, int16 *RQ_dat, int32 RP_siz, int32 *RP_cnt, int16 *RP_dat, int16 *RP_err) {
 
   pRequest->BlockType    = R_W == WRITE ? 1 : 0;
   pRequest->NodeAddress  = NODE_ADR;
@@ -27,20 +46,6 @@ void to_AMSW(int R_W,
   pRequest->Data.p8      = NULL;
   pRequest->Data.p16     = RQ_dat;
   pack16(&pRequest->Source, 0xFF00, TX);
-
-  Block_Primary_Header = 0x00000000;
-  pack32(&Block_Primary_Header, 0xC0000000, pRequest->BlockType);
-  pack32(&Block_Primary_Header, 0x3FE00000, pRequest->NodeAddress);
-  if ((pRequest->DataType & 0x001F0000) != 0x001F0000) {
-    pack32(&Block_Primary_Header, 0x001F0000, pRequest->DataType);
-    Block_Primary_Header >>= 16;
-    k = 2;
-  }
-  else {
-    pack32(&Block_Primary_Header, 0x001FFFFF, pRequest->DataType);
-    k = 4;
-  }
-  pRequest->Length = k + 2 + pRequest->DataCount;
 
   pReply->Error       = 0x0000;
   pReply->BufferSize  = RP_siz * 2;
@@ -62,30 +67,6 @@ void to_AMSW(int R_W,
 //~---
 
   else if (use_MEM) {
-  }
-
-//~---
-
-  else if (use_LST) {
-    int i;
-    if (pRequest->Length > 0x7FFF) {
-      *lst_pnt++ = 0x8000 | (int16)(pRequest->Length >> 16);
-      *lst_pnt++ = pRequest->Length;
-    }
-    else {
-      *lst_pnt++ = pRequest->Length;
-    }
-    if (k > 2) {
-      *lst_pnt++ = Block_Primary_Header >> 16;
-      *lst_pnt++ = Block_Primary_Header;
-    }
-    else {
-      *lst_pnt++ = Block_Primary_Header;
-    }
-    *lst_pnt++ = lst_hdr;   // secondary header
-//  *lst_pnt++ = 0x2000;    // secondary header
-//  *lst_pnt++ = 0x0000;    // secondary header
-    for (i=0; i<pRequest->DataCount/2; i++) *lst_pnt++ = pRequest->Data.p16[i];
   }
   
 //~---
@@ -120,22 +101,13 @@ void to_AMSW(int R_W,
       }
       pRequest->Data.p16 = RQ_dat_dat;
     }
-//  if (P > 0) printf("PAD: Sending command...\n");
-//printf("pReply->BlockType = %04X\n", pReply->BlockType);
+    if (P > 0) printf("PAD: Sending command...\n");
     eAssRequestWithReply(pRequest, pReply);
-//printf("pReply->Error     = %04X\n", pReply->Error);
-//printf("pReply->BlockType = %04X\n", pReply->BlockType);
-    if (!pReply->Error) {
-
-      pReply->Data.p16 = RP_dat;
-      if (RP_dat) {
-        if (pReply->DataCount/2 > RP_siz) pReply->Error = 0xDEAD;
-        if (!pReply->Error) {
-          for (i=0; i<pReply->DataCount/2; i++) {
-            RP_dat[i] = (((int16*)pReply->Contents)[i] >> 8) |
-                        (((int16*)pReply->Contents)[i] << 8);
-          }
-        }
+    pReply->Data.p16 = RP_dat;
+    if (RP_dat) {
+      for (i=0; i<pReply->DataCount/2; i++) {
+        RP_dat[i] = (((int16*)pReply->Contents)[i] >> 8) |
+                    (((int16*)pReply->Contents)[i] << 8);
       }
     }
   }
@@ -153,7 +125,7 @@ void to_AMSW(int R_W,
 //
 //~============================================================================
 
-static bool EPP_must_be_initialized = TRUE;
+static bool_L EPP_must_be_initialized = TRUE;
 
 //~-- EPP-CAN Box Trigger & Busy
 
@@ -284,7 +256,7 @@ void stop_AMSW_TX(_AMSW_msg* msg) {
 
 //~----------------------------------------------------------------------------
 
-bool AMSW_TX_done(_AMSW_msg* msg) {
+bool_L AMSW_TX_done(_AMSW_msg* msg) {
 
   int8 offset = 4 * msg->cha;
 
@@ -297,10 +269,10 @@ bool AMSW_TX_done(_AMSW_msg* msg) {
 
 //~----------------------------------------------------------------------------
 
-bool AMSW_RX_done(_AMSW_msg* msg) {
+bool_L AMSW_RX_done(_AMSW_msg* msg) {
 
   int8 offset = 4 * msg->cha;
-  bool error = FALSE;
+  bool_L error = FALSE;
   int16 CRC;
   int i;
 
@@ -394,7 +366,7 @@ void print_AMSW_msg(int c, char *txt1, char *txt2, _AMSW_msg *msg) {
   char* t[2][4] = {{"NXT", "ERR", "ABO", "END"},
                    {" I ", " L ", " F ", "F&L"}};
 
-#if 1
+#if 0
   if (txt2) {
     printf("%7d %s%d %s", c, txt1, msg->cha, txt2);
   }
@@ -409,7 +381,7 @@ void print_AMSW_msg(int c, char *txt1, char *txt2, _AMSW_msg *msg) {
     }
   }
 #endif
-#if 0
+
   if (txt2) printf("%7d %s%d %s\n", c, txt1, msg->cha, txt2);
   BC1 = msg->first ? 1 : 0;
   BC2 = msg->last  ? 1 : 0;
@@ -419,7 +391,6 @@ void print_AMSW_msg(int c, char *txt1, char *txt2, _AMSW_msg *msg) {
     if (i==0) printf("d =");
     printf(" %04X", msg->dat[i]);
   }
-#endif
 
   printf("\n");
 }
@@ -431,7 +402,7 @@ int16 AMSW_SND_RCV(int action, _AMSW_msg *SND, _AMSW_msg *RCV, int16 *error) {
   static int state = DONE;
 //static int old_state = -1;
   static int c = 0;
-  bool Timeout = timer(0, EXPIRED, command_timeout);
+  bool_L Timeout = timer(0, EXPIRED, timeout);
 
   *error = 0;
 
@@ -804,9 +775,9 @@ static int fd[4] = { -1, -1, -1, -1};
 
 //~============================================================================
 
-bool initialize_PCIAMSW(_amsw_cha *cha) {
+bool_L initialize_PCIAMSW(_amsw_cha *cha) {
 
-  bool debug = FALSE;
+  bool_L debug = FALSE;
   char *names[4] = {"/dev/amsw0", "/dev/amsw1", "/dev/amsw2", "/dev/amsw3"};
   int n = cha->card % 4;
   static int32 *reg = NULL, *mem = NULL;
@@ -860,7 +831,7 @@ bool initialize_PCIAMSW(_amsw_cha *cha) {
 
 void start_amsw_RX(_amsw_msg* msg) {
 
-  bool debug = FALSE;
+  bool_L debug = FALSE;
   vint32 ISR;   // must be vint32, not int32 (compiler optimization problems)
 
 //~-- read Interrupt Status Register to clear all 4 RX__DONE bits
@@ -884,7 +855,7 @@ void stop_amsw_RX(_amsw_msg* msg) {
 
 void start_amsw_TX(_amsw_msg* msg) {
 
-  bool debug = FALSE;
+  bool_L debug = FALSE;
   int i, j;
   vint32 TX_CSR;
   int n = msg->cha->card % 4;
@@ -921,19 +892,19 @@ void stop_amsw_TX(_amsw_msg* msg) {
 
 //~----------------------------------------------------------------------------
 
-bool amsw_TX_done(_amsw_msg* msg) {
+bool_L amsw_TX_done(_amsw_msg* msg) {
 
   return TRUE;
 }
 
 //~----------------------------------------------------------------------------
 
-bool amsw_RX_done(_amsw_msg* msg) {
+bool_L amsw_RX_done(_amsw_msg* msg) {
 
-  bool debug = FALSE;
+  bool_L debug = FALSE;
   static int16 CRC = 0xFFFF;
   int16 g = 0x1021;
-  bool error = FALSE;
+  bool_L error = FALSE;
   int i;
 
   msg->err = 0x0000;
@@ -1037,7 +1008,7 @@ int16 amsw_SND_RCV(int action, _amsw_msg *SND, _amsw_msg *RCV, int16 *error) {
   static int state = DONE;
 //static int old_state = -1;
   static int c = 0;
-  bool Timeout = timer(0, EXPIRED, command_timeout);
+  bool_L Timeout = timer(0, EXPIRED, timeout);
 
   if (action != CONTINUE) state = action;
 

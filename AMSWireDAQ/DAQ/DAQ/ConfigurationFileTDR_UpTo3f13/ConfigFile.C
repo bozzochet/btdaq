@@ -349,14 +349,16 @@ int CreateScript(){
 	else tastype=0;
       }
       else if (CrateNum==4){
-	if (TdrNum==4) tastype=1;
+	//	if (TdrNum==4) tastype=1;
+	if (TdrNum==4) tastype=0;
 	else if (TdrNum==5) tastype=3;
 	else if (TdrNum==9) tastype=2;
 	else if (TdrNum==8) tastype=2;
 	else if (TdrNum==17) tastype=2;
 	else if (TdrNum==20) tastype=3;
 	else if (TdrNum==21) tastype=3;
-	else if (TdrNum==22) tastype=4;
+	//	else if (TdrNum==22) tastype=4;
+	else if (TdrNum==22) tastype=0;
 	else tastype=0;
       }
       else if (CrateNum==5){
@@ -366,8 +368,10 @@ int CreateScript(){
 	else tastype=0;
       }
       else if (CrateNum==6){
-	if (TdrNum==1) tastype=4;
-	else if (TdrNum==0) tastype=4;
+	//	if (TdrNum==1) tastype=4;
+	if (TdrNum==1) tastype=0;
+	//	else if (TdrNum==0) tastype=4;
+	else if (TdrNum==0) tastype=0;
 	else if (TdrNum==5) tastype=2;
 	else if (TdrNum==8) tastype=3;
 	else if (TdrNum==9) tastype=3;
@@ -377,7 +381,8 @@ int CreateScript(){
 	if (TdrNum==2) tastype=2;
 	else if (TdrNum==3) tastype=2;
 	else if (TdrNum==7) tastype=3;
-	else if (TdrNum==22) tastype=1;
+	//	else if (TdrNum==22) tastype=1;
+	else if (TdrNum==22) tastype=0;
 	else tastype=0;
       }
       hwid=CrateNum*100+TdrNum;
@@ -389,7 +394,8 @@ int CreateScript(){
       else if (hwid==503) tastypecheck=3;
       else if (hwid==507) tastypecheck=2;
       else if (hwid==502) tastypecheck=3;
-      else if (hwid==600) tastypecheck=4;
+      //      else if (hwid==600) tastypecheck=4;
+      else if (hwid==600) tastypecheck=0;
       //---------------------------------      
       else if (hwid==211) tastypecheck=1;
       else if (hwid==202) tastypecheck=2;
@@ -398,7 +404,8 @@ int CreateScript(){
       else if (hwid==609) tastypecheck=3;
       else if (hwid==605) tastypecheck=2;
       else if (hwid==608) tastypecheck=3;
-      else if (hwid==601) tastypecheck=4;
+      //      else if (hwid==601) tastypecheck=4;
+      else if (hwid==601) tastypecheck=0;
       //---------------------------------      
       else if (hwid== 12) tastypecheck=1;
       else if (hwid== 14) tastypecheck=2;
@@ -407,7 +414,8 @@ int CreateScript(){
       else if (hwid==421) tastypecheck=3;
       else if (hwid==417) tastypecheck=2;
       else if (hwid==420) tastypecheck=3;
-      else if (hwid==422) tastypecheck=4;
+      //      else if (hwid==422) tastypecheck=4;
+      else if (hwid==422) tastypecheck=0;
       //---------------------------------      
       else if (hwid==  6) tastypecheck=4;
       else if (hwid==  2) tastypecheck=3;
@@ -416,7 +424,8 @@ int CreateScript(){
       else if (hwid==409) tastypecheck=2;
       else if (hwid==405) tastypecheck=3;
       else if (hwid==408) tastypecheck=2;
-      else if (hwid==404) tastypecheck=1;
+      //      else if (hwid==404) tastypecheck=1;
+      else if (hwid==404) tastypecheck=0;
       //---------------------------------      
       else if (hwid==312) tastypecheck=4;
       else if (hwid==308) tastypecheck=3;
@@ -425,7 +434,8 @@ int CreateScript(){
       else if (hwid==703) tastypecheck=2;
       else if (hwid==707) tastypecheck=3;
       else if (hwid==702) tastypecheck=2;
-      else if (hwid==722) tastypecheck=1;
+      //      else if (hwid==722) tastypecheck=1;
+      else if (hwid==722) tastypecheck=0;
       //---------------------------------      
       else tastypecheck=0;
 
@@ -533,7 +543,7 @@ int CreateScript(){
   printf("hdw = 503   Swin= 400-560             Kwin= 720-774, 776-830      3\n");
   printf("hdw = 507   Swin=  80-230             Kwin= 720-774, 776-830      2\n");
   printf("hdw = 502   Swin= 400-560             Kwin= 720-830               3\n");
-  printf("hdw = 600   Swin= 400-560             Kwin= ladder problems?      4 (assumed for mantaining the structure of the others...)\n");
+  printf("hdw = 600   Swin= 400-560             Kwin= ladder problems?      4 BUT SET TO 0 (AMS02P)\n");
   printf("-------------------------------------------------------------\n");
   printf("hdw = 211   Swin=  80-220             Kwin= 640-690, 970-1015     1\n");
   printf("hdw = 202   Swin=  80-230             Kwin= 720-830               2\n");
@@ -542,7 +552,7 @@ int CreateScript(){
   printf("hdw = 609   Swin= 400-560             Kwin= 720-774, 776-830      3\n");
   printf("hdw = 605   Swin=  80-230             Kwin= 720-830               2\n");
   printf("hdw = 608   Swin= 400-560             Kwin= 720-830               3\n");
-  printf("hdw = 601   Swin= 400-560             Kwin= 640-700, 960-1023     4\n");
+  printf("hdw = 601   Swin= 400-560             Kwin= 640-700, 960-1023     4 BUT SET TO 0 (AMS02P)\n");
   printf("-------------------------------------------------------------\n");
   printf("hdw = 012   Swin= 100-150, 160-220    Kwin= 640-680, 970-1000     1\n");
   printf("hdw = 014   Swin=  80-230             Kwin= 720-830               2\n");
@@ -551,7 +561,7 @@ int CreateScript(){
   printf("hdw = 421   Swin= 400-560             Kwin= 720-830               3\n");
   printf("hdw = 417   Swin=  80-230             Kwin= 720-772, 774-830      2\n");
   printf("hdw = 420   Swin= 400-560             Kwin= 720-830               3\n");
-  printf("hdw = 422   Swin= 400-560             Kwin= 640-700, 970-1023     4\n");
+  printf("hdw = 422   Swin= 400-560             Kwin= 640-700, 970-1023     4 BUT SET TO 0 (AMS02P)\n");
   printf("-------------------------------------------------------------\n");
   printf("hdw = 006   Swin= 400-560             Kwin= 640-700, 2nd missing  4\n");
   printf("hdw = 002   Swin= 400-560             Kwin= 720-830               3\n");
@@ -560,16 +570,16 @@ int CreateScript(){
   printf("hdw = 409   Swin=  80-230             Kwin= 720-830               2\n");
   printf("hdw = 405   Swin= 400-560             Kwin= 720-830               3\n");
   printf("hdw = 408   Swin=  80-230             Kwin= 720-774, 776-830      2\n");
-  printf("hdw = 404   Swin=  80-200             Kwin= 640-690, 970-1023     1\n");
+  printf("hdw = 404   Swin=  80-200             Kwin= 640-690, 970-1023     1 BUT SET TO 0 (AMS02P)\n");
   printf("-------------------------------------------------------------\n");
   printf("hdw = 312   Swin= 400-560             Kwin= 640-700, 970-1023     4\n");
   printf("hdw = 308   Swin= 400-560             Kwin= 720-830               3\n");
   printf("hdw = 305   Swin=  80-240             Kwin= 720-830               2\n");
-  printf("hdw = 309   Swin= ladder problems?    Kwin= ladder problems?      3 (assumed for mantaining the structure of the others...)\n");
+  printf("hdw = 309   Swin= ladder problems?    Kwin= ladder problems?      3\n");
   printf("hdw = 703   Swin=  80-230             Kwin= 720-830               2\n");
   printf("hdw = 707   Swin= 400-560             Kwin= 720-830               3\n");
   printf("hdw = 702   Swin=  80-230             Kwin= 720-830               2\n");
-  printf("hdw = 722   Swin=  80-230             Kwin= 640-700, 960-1023     1\n");
+  printf("hdw = 722   Swin=  80-230             Kwin= 640-700, 960-1023     1 BUT SET TO 0 (AMS02P)\n");
   printf("-------------------------------------------------------------\n");
   printf("\n");
 

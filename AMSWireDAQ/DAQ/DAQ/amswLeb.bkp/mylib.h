@@ -74,13 +74,6 @@
 #define EXPIRED   11
 
 #define CAN_SERVER_PORT         10224    // advised by AE
-#define EAS_HRDL_SERVER_PORT    61001
-#define EAS_1553_SERVER_PORT    61002
-#define EAS_422_SERVER_PORT     61003
-#define EAS_CAN_SERVER_PORT     61005
-#define EAS_MCC_SERVER_PORT     61006
-#define EAS_ECHO_SERVER_PORT    61009
-#define EAS_HOSC_SERVER_PORT    61010
 
 #define ABS(a) (( (a) < 0 ) ? -(a) : (a))
 
@@ -95,22 +88,11 @@
 
 #define QUIT(msg)  {perror(msg); exit(1);}
 #define PANIC(msg) {printf(msg); exit(1);}
-#define EXIT(msg)  {printf("*** %s%s: err=0x%04X\n", timestamp(0), msg, err); exit(1);}
-
-#undef USE_CAN_OR_AMSW_OR_JMDC
-#ifdef USE_CAN
-#define USE_CAN_OR_AMSW_OR_JMDC
-#endif // USE_CAN
-#ifdef USE_AMSW
-#define USE_CAN_OR_AMSW_OR_JMDC
-#endif // USE_AMSW
-#ifdef USE_JMDC
-#define USE_CAN_OR_AMSW_OR_JMDC
-#endif // USE_JMDC
+#define EXIT(msg)  {printf("*** %s: err=0x%04X\n", msg, err); exit(1);}
 
 //~----------------------------------------------------------------------------
 
-typedef unsigned char        bool;
+typedef unsigned char        bool_L;
 
 typedef unsigned char        int8;
 typedef unsigned short       int16;
@@ -152,7 +134,7 @@ typedef unsigned int   uint32;
 
 int P;                               // global variable
 
-bool use_GUI;                        // global variable
+bool_L use_GUI;                        // global variable
 
 char *title;                         // global variable
 char *date;                          // global variable
@@ -163,19 +145,11 @@ char dat_config_file_name[80];       // global variable
 
 //~ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-int16 *lst_dat;             // global variable
-int16 *lst_pnt;             // global variable
-int16  lst_hdr;             // global variable
-
-bool use_LST;               // global variable
-bool use_MEM;               // global variable
-bool use_CAN;               // global variable
-bool use_AMSW;              // global variable
-bool use_TCP;               // global variable
-bool use_EAS;               // global variable
-
-extern bool  command_timeout_set;
-float command_timeout;
+bool_L use_MEM;               // global variable
+bool_L use_CAN;               // global variable
+bool_L use_AMSW;              // global variable
+bool_L use_TCP;               // global variable
+bool_L use_EAS;               // global variable
 
 int16 LPT_port;             // global variable
 int16 LPT_data;             // global variable
@@ -191,14 +165,13 @@ int USCM_ID;                // global variable
 int BUS_FOR_REQUEST;        // global variable
 int BUS_FOR_REPLY;          // global variable
 
-bool use_PCIAMSW;           // global variable
+bool_L use_PCIAMSW;           // global variable
 int TX;                     // global variable
 int RX;                     // global variable
-int16 JINJ_PATH;            // global variable
 int16 JINF_PATH;            // global variable
 int16 AMSW_PATH[5];         // global variable
 
-bool use_Peter_TCP;         // global variable
+bool_L use_Peter_TCP;         // global variable
 int16 use_APID;             // global variable
 int16 NODE_ADR;             // global variable
 char CS_address[100];       // global variable
@@ -207,7 +180,6 @@ int  CS_port;               // global variable
 int serial_RX_buffer_size;  // global variable
 
 int32 DO_NOT_CREATE;        // global variable
-int32 DO_NOT_CREATE_2;      // global variable
 
 int next_x;                 // global variable
 int next_y;                 // global variable
@@ -291,39 +263,31 @@ void swap16(int16 *dat, int n);
 
 float delta_t(struct timeval *t2, struct timeval *t1);
 void delay(float value);
-bool timer(int16 chan, int func, ...);
+bool_L timer(int16 chan, int func, ...);
 void ShortSleep(int sec, int usec);
-
-int32 TimeGet(void);
-int32 TimeLapse(int32 tstamp);
 
 char *mytime(void);
 char *timestamp(int opt);
 
-bool DOWCRC(int64 ID);
+bool_L DOWCRC(int64 ID);
 int16 calculate_CRC16(int16 *dat, int16 len);
 int16 CRC_CCITT(int8 *p, int32 n);
 
-char *myfgets(char *input, int size, FILE *file);
 void get_tokens(char *input, char delim, int nn, char **token, int *n);
 
 sighandler_t kbhit_ctrl_C_handler(int signum);
 void kbhit_exit_handler(void);
 
-bool kbhit(void);
+bool_L kbhit(void);
 
 void print_AMS_data_block(char *txt, pAMSBlock block);
 
-bool set_command_path(int mode, int argc, char **argv, char *servername);
+void set_command_path(int argc, char **argv, char *servername);
+
 void setup_command_path_direct(void);
 void setup_command_path_from_file(char *filename);
 void setup_command_path(void);
 
-void set_command_timeout(float  value);
-bool get_command_timeout(float *value);
-void setup_command_timeout(void);
-
 //~============================================================================
 
 #endif // _MYLIB_H
-

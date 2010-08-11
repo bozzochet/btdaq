@@ -12,7 +12,7 @@
 
 #include "mylib.h"
 
-bool initialize_EPP(void);
+bool_L initialize_EPP(void);
 
 //~============================================================================
 
