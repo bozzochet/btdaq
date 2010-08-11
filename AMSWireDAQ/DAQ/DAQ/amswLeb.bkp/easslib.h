@@ -79,8 +79,8 @@ struct _eAssIntf {
 };
 
 typedef struct _eAssConnection {
-  bool Accepted;                  // If accepted this socket is active
-  bool WriteReady;                // Socket is ready for write
+  bool_L Accepted;                  // If accepted this socket is active
+  bool_L WriteReady;                // Socket is ready for write
   int  ClntSock;                  // Socket descriptor for client 
   struct sockaddr_in ClntAddr;    // Client address
 } eAssConnection, *peAssConnection;
@@ -111,13 +111,13 @@ typedef struct _eAssServerArg {
 // eassserver.c
 
 int eAssServer(void *arg);
-int eAssPostReply(peAssServerArg this, pAMSBlock pReply);
-int eAssServerStatus(peAssServerArg this);
+//int eAssPostReply(peAssServerArg this, pAMSBlock pReply);
+//int eAssServerStatus(peAssServerArg this);
 
 // Callback:
 
-int eAssQueueRequest(peAssServerArg this, pAMSBlock abi);
-int eAssQueueReply(peAssServerArg this, pAMSBlock abi);
+//int eAssQueueRequest(peAssServerArg this, pAMSBlock abi);
+//int eAssQueueReply(peAssServerArg this, pAMSBlock abi);
 
 // easslib.c
 
@@ -141,9 +141,12 @@ int eAssConnect(peAssIntf eAss, char *host, char *port);
 int eAssDisconnect(peAssIntf eAss);
 int eAssLogin(peAssIntf eAss, char *User, char *Password, char *ApplicationName);
 int eAssLogout(peAssIntf eAss);
-int eAssRequest(peAssIntf eAss, pAMSBlock pRequest, bool RequestCommandTag);
+int eAssRequest(peAssIntf eAss, pAMSBlock pRequest, bool_L RequestCommandTag);
 int eAssRequestWithReply(pAMSBlock pRequest, pAMSBlock pReply);
 int eAssPollReply(peAssIntf eAss, int CommandTag, pAMSBlock *pReply);
+
+void set_eAss_timeout(float value);
+bool_L get_eAss_timeout(float *value);
 
 //~============================================================================
 

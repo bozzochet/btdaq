@@ -365,14 +365,16 @@ int CreateScript(){
 	else { tastype=0; tascolumn=0; }
       }
       else if (CrateNum==4){
-	if (TdrNum==4) { tastype=1; tascolumn=2; }
+	//	if (TdrNum==4) { tastype=1; tascolumn=2; }
+	if (TdrNum==4) { tastype=0; tascolumn=0; }
 	else if (TdrNum==5) { tastype=3; tascolumn=2; }
 	else if (TdrNum==9) { tastype=2; tascolumn=2; }
 	else if (TdrNum==8) { tastype=2; tascolumn=2; }
 	else if (TdrNum==17) { tastype=2; tascolumn=3; }
 	else if (TdrNum==20) { tastype=3; tascolumn=3; }
 	else if (TdrNum==21) { tastype=3; tascolumn=3; }
-	else if (TdrNum==22) { tastype=4; tascolumn=3; }
+	//	else if (TdrNum==22) { tastype=4; tascolumn=3; }
+	else if (TdrNum==22) { tastype=0; tascolumn=0; }
 	else { tastype=0; tascolumn=0; }
       }
       else if (CrateNum==5){
@@ -382,8 +384,10 @@ int CreateScript(){
 	else { tastype=0; tascolumn=0; }
       }
       else if (CrateNum==6){
-	if (TdrNum==1) { tastype=4; tascolumn=5; }
-	else if (TdrNum==0) { tastype=4; tascolumn=4; }
+	//	if (TdrNum==1) { tastype=4; tascolumn=5; }
+	if (TdrNum==1) { tastype=0; tascolumn=0; }
+	//	else if (TdrNum==0) { tastype=4; tascolumn=4; }
+	else if (TdrNum==0) { tastype=0; tascolumn=0; }
 	else if (TdrNum==5) { tastype=2; tascolumn=5; }
 	else if (TdrNum==8) { tastype=3; tascolumn=5; }
 	else if (TdrNum==9) { tastype=3; tascolumn=5; }
@@ -393,7 +397,8 @@ int CreateScript(){
 	if (TdrNum==2) { tastype=2; tascolumn=1; }
 	else if (TdrNum==3) { tastype=2; tascolumn=1; }
 	else if (TdrNum==7) { tastype=3; tascolumn=1; }
-	else if (TdrNum==22) { tastype=1; tascolumn=1; }
+	//	else if (TdrNum==22) { tastype=1; tascolumn=1; }
+	else if (TdrNum==22) { tastype=0; tascolumn=0; }
 	else { tastype=0; tascolumn=0; }
       }
       hwid=CrateNum*100+TdrNum;
@@ -405,7 +410,8 @@ int CreateScript(){
       else if (hwid==503) { tastypecheck=3; tascolumncheck=4; }
       else if (hwid==507) { tastypecheck=2; tascolumncheck=4; }
       else if (hwid==502) { tastypecheck=3; tascolumncheck=4; }
-      else if (hwid==600) { tastypecheck=4; tascolumncheck=4; }
+      //      else if (hwid==600) { tastypecheck=4; tascolumncheck=4; }
+      else if (hwid==600) { tastypecheck=0; tascolumncheck=0; }
       //---------------------------------      
       else if (hwid==211) { tastypecheck=1; tascolumncheck=5; }
       else if (hwid==202) { tastypecheck=2; tascolumncheck=5; }
@@ -414,7 +420,8 @@ int CreateScript(){
       else if (hwid==609) { tastypecheck=3; tascolumncheck=5; }
       else if (hwid==605) { tastypecheck=2; tascolumncheck=5; }
       else if (hwid==608) { tastypecheck=3; tascolumncheck=5; }
-      else if (hwid==601) { tastypecheck=4; tascolumncheck=5; }
+      //      else if (hwid==601) { tastypecheck=4; tascolumncheck=5; }
+      else if (hwid==601) { tastypecheck=0; tascolumncheck=0; }
       //---------------------------------      
       else if (hwid== 12) { tastypecheck=1; tascolumncheck=3; }
       else if (hwid== 14) { tastypecheck=2; tascolumncheck=3; }
@@ -423,7 +430,8 @@ int CreateScript(){
       else if (hwid==421) { tastypecheck=3; tascolumncheck=3; }
       else if (hwid==417) { tastypecheck=2; tascolumncheck=3; }
       else if (hwid==420) { tastypecheck=3; tascolumncheck=3; }
-      else if (hwid==422) { tastypecheck=4; tascolumncheck=3; }
+      //      else if (hwid==422) { tastypecheck=4; tascolumncheck=3; }
+      else if (hwid==422) { tastypecheck=0; tascolumncheck=0; }
       //---------------------------------      
       else if (hwid==  6) { tastypecheck=4; tascolumncheck=2; }
       else if (hwid==  2) { tastypecheck=3; tascolumncheck=2; }
@@ -432,7 +440,8 @@ int CreateScript(){
       else if (hwid==409) { tastypecheck=2; tascolumncheck=2; }
       else if (hwid==405) { tastypecheck=3; tascolumncheck=2; }
       else if (hwid==408) { tastypecheck=2; tascolumncheck=2; }
-      else if (hwid==404) { tastypecheck=1; tascolumncheck=2; }
+      //      else if (hwid==404) { tastypecheck=1; tascolumncheck=2; }
+      else if (hwid==404) { tastypecheck=0; tascolumncheck=0; }
       //---------------------------------      
       else if (hwid==312) { tastypecheck=4; tascolumncheck=1; }
       else if (hwid==308) { tastypecheck=3; tascolumncheck=1; }
@@ -441,7 +450,8 @@ int CreateScript(){
       else if (hwid==703) { tastypecheck=2; tascolumncheck=1; }
       else if (hwid==707) { tastypecheck=3; tascolumncheck=1; }
       else if (hwid==702) { tastypecheck=2; tascolumncheck=1; }
-      else if (hwid==722) { tastypecheck=1; tascolumncheck=1; }
+      //      else if (hwid==722) { tastypecheck=1; tascolumncheck=1; }
+      else if (hwid==722) { tastypecheck=0; tascolumncheck=0; }
       //---------------------------------      
       else { tastypecheck=0; tascolumncheck=0; }
 
@@ -449,13 +459,13 @@ int CreateScript(){
 	printf("\n-------------------------------------------------------------------\n");
 	printf("Ladder %d has not the correct window!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", hwid);
 	printf("-------------------------------------------------------------------\n");
-	sleep(10);
+	sleep(3);
       }
       if (tascolumn!=tascolumncheck) {
 	printf("\n-------------------------------------------------------------------\n");
 	printf("Ladder %d has not the correct column!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", hwid);
 	printf("-------------------------------------------------------------------\n");
-	sleep(10);
+	sleep(3);
       }
 
 
@@ -571,7 +581,7 @@ int CreateScript(){
   printf("i =  4   Ladder  5 (L12AH036)    myTkId =  510     hdw = 703    TDR-7-01-A   TYPE 2  COL 1   PAR8 =  102\n");
   printf("i =  5   Ladder  6 (L12AJ052)    myTkId =  610     hdw = 707    TDR-7-01-B   TYPE 2  COL 1   PAR8 =  102\n");
   printf("i =  6   Ladder  7 (L12AH046)    myTkId =  710     hdw = 702    TDR-7-03-B   TYPE 3  COL 1   PAR8 =  103\n");
-  printf("i =  7   Ladder  8 (L15AN118)    myTkId =  810     hdw = 722    TDR-7-11-A   TYPE 1  COL 1   PAR8 =  101\n");
+  printf("i =  7   Ladder  8 (L15AN118)    myTkId =  810     hdw = 722    TDR-7-11-A   TYPE 1  COL 1   PAR8 =  101 (BUT SET TO NO TAS)\n");
   printf("----------------------------------------------------------------------------------------------------------\n");
   printf("i =  8   Ladder  9 (L15AP109)    myTkId =  108     hdw = 6      TDR-0-01-A   TYPE 3  COL 2   PAR8 =  203\n");
   printf("i =  9   Ladder 10 (L12AJ021)    myTkId =  207     hdw = 2      TDR-0-01-B   TYPE 3  COL 2   PAR8 =  203\n");
@@ -580,7 +590,7 @@ int CreateScript(){
   printf("i = 12   Ladder 13 (L12AH035)    myTkId =  507     hdw = 409    TDR-4-02-A   TYPE 1  COL 2   PAR8 =  201\n"); 
   printf("i = 13   Ladder 14 (L12AJ023)    myTkId =  607     hdw = 405    TDR-4-02-B   TYPE 3  COL 2   PAR8 =  203\n");
   printf("i = 14   Ladder 15 (L12AH045)    myTkId =  707     hdw = 408    TDR-4-04-A   TYPE 2  COL 2   PAR8 =  202\n"); 
-  printf("i = 15   Ladder 16 (L15AN117)    myTkId =  808     hdw = 404    TDR-4-04-B   TYPE 2  COL 2   PAR8 =  202\n");
+  printf("i = 15   Ladder 16 (L15AN117)    myTkId =  808     hdw = 404    TDR-4-04-B   TYPE 2  COL 2   PAR8 =  202 (BUT SET TO NO TAS)\n");
   printf("----------------------------------------------------------------------------------------------------------\n");
   printf("i = 16   Ladder 17 (L15AN113)    myTkId =  106     hdw = 12     TDR-0-06-A   TYPE 1  COL 3   PAR8 =  401\n");
   printf("i = 17   Ladder 18 (L12AH057)    myTkId =  206     hdw = 14     TDR-0-07-A   TYPE 2  COL 3   PAR8 =  402\n");     
@@ -589,7 +599,7 @@ int CreateScript(){
   printf("i = 20   Ladder 21 (L12AJ022)    myTkId =  506     hdw = 421    TDR-4-08-B   TYPE 2  COL 3   PAR8 =  402\n");
   printf("i = 21   Ladder 22 (L12AH037)    myTkId =  606     hdw = 417    TDR-4-10-A   TYPE 3  COL 3   PAR8 =  403\n");
   printf("i = 22   Ladder 23 (L12AJ047)    myTkId =  706     hdw = 420    TDR-4-10-B   TYPE 3  COL 3   PAR8 =  403\n");
-  printf("i = 23   Ladder 24 (L15AP112)    myTkId =  806     hdw = 422    TDR-4-11-A   TYPE 4  COL 3   PAR8 =  404\n");
+  printf("i = 23   Ladder 24 (L15AP112)    myTkId =  806     hdw = 422    TDR-4-11-A   TYPE 4  COL 3   PAR8 =  404 (BUT SET TO NO TAS)\n");
   printf("----------------------------------------------------------------------------------------------------------\n");
   printf("i = 24   Ladder 25 (L15AN101)    myTkId = -107     hdw = 210    TDR-1-02-B   TYPE 3  COL 4   PAR8 =  803\n");
   printf("i = 25   Ladder 26 (L12AH024)    myTkId = -206     hdw = 108    TDR-1-04-A   TYPE 2  COL 4   PAR8 =  802\n");          
@@ -598,7 +608,7 @@ int CreateScript(){
   printf("i = 28   Ladder 29 (L12AJ034)    myTkId = -506     hdw = 503    TDR-5-01-A   TYPE 3  COL 4   PAR8 =  803\n");
   printf("i = 29   Ladder 30 (L12AH030)    myTkId = -606     hdw = 507    TDR-5-01-B   TYPE 3  COL 4   PAR8 =  803\n");
   printf("i = 30   Ladder 31 (L12AJ020)    myTkId = -706     hdw = 502    TDR-5-03-B   TYPE 2  COL 4   PAR8 =  802\n");
-  printf("i = 31   Ladder 32 (L15AP098)    myTkId = -807     hdw = 600    TDR-6-00-A   TYPE 4  COL 4   PAR8 =  804\n");      
+  printf("i = 31   Ladder 32 (L15AP098)    myTkId = -807     hdw = 600    TDR-6-00-A   TYPE 4  COL 4   PAR8 =  804 (BUT SET TO NO TAS)\n");      
   printf("----------------------------------------------------------------------------------------------------------\n");
   printf("i = 32   Ladder 33 (L15AN100)    myTkId = -109     hdw = 211    TDR-2-01-A   TYPE 2  COL 5   PAR8 = 1002\n");
   printf("i = 33   Ladder 34 (L12AH029)    myTkId = -209     hdw = 202    TDR-2-01-B   TYPE 2  COL 5   PAR8 = 1002\n");       
@@ -607,7 +617,7 @@ int CreateScript(){
   printf("i = 36   Ladder 37 (L12AJ053)    myTkId = -509     hdw = 609    TDR-6-00-B   TYPE 4  COL 5   PAR8 = 1004\n");
   printf("i = 37   Ladder 38 (L12AH028)    myTkId = -609     hdw = 605    TDR-6-02-B   TYPE 2  COL 5   PAR8 = 1002\n");
   printf("i = 38   Ladder 39 (L12AJ056)    myTkId = -709     hdw = 608    TDR-6-04-A   TYPE 3  COL 5   PAR8 = 1003\n");
-  printf("i = 39   Ladder 40 (L15AP110)    myTkId = -809     hdw = 601    TDR-6-04-B   TYPE 3  COL 5   PAR8 = 1003\n");
+  printf("i = 39   Ladder 40 (L15AP110)    myTkId = -809     hdw = 601    TDR-6-04-B   TYPE 3  COL 5   PAR8 = 1003 (BUT SET TO NO TAS)\n");
   printf("----------------------------------------------------------------------------------------------------------\n\n");
 
   printf("The script LoadConfs was created...\n");

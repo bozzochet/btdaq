@@ -17,7 +17,7 @@ AMSWIREOBJ:=$(AMSWIRESOURCES:%.cxx=%.o)
 AMSWCOMOBJ:=$(AMSWCOMSOURCES:%.cxx=%.o)
 
 
-CFLAGS= -g
+CFLAGS= -g 
 CPPFLAGS+= $(LIBINCLUDE) 
 
 OBJECTS=$(TOP)/TakeData/takeJinj.o $(TOP)/TakeData/JinjSlave.o $(TOP)/TakeData/JLV1.o $(TOP)/TakeData/CommClass.o $(TOP)/TakeData/TrigClass.o $(TOP)/TakeData/Jinj.o $(TOP)/TakeData/Jinf.o $(TOP)/TakeData/PUtil.o

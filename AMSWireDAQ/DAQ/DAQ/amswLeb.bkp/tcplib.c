@@ -52,7 +52,7 @@ void pack8_AMS_Block(pAMSBlock pBlock, int8 *Packet) {
       }
     }
     else if (pBlock->Data.p16) {
-      for (i=0; i<(pBlock->DataCount+1)/2; i++) {
+      for (i=0; i<pBlock->DataCount/2; i++) {
         unpackbytes(&Packet[10+k+2*i], pBlock->Data.p16[i], 2);
       }
     }
@@ -93,9 +93,7 @@ void unpack8_AMS_Block(int8 *Packet, pAMSBlock pBlock) {
     return;
   }
 
-//printf("pBlock->BufferSize=%d pBlock->DataCount=%d\n", pBlock->BufferSize, pBlock->DataCount);
   if (pBlock->BufferSize < pBlock->DataCount) {
-//printf("ERROR 0x1310\n");
     pBlock->Error = 0x1310;
     return;
   }
@@ -109,7 +107,7 @@ void unpack8_AMS_Block(int8 *Packet, pAMSBlock pBlock) {
       if (P > 1) print_AMS_data_block("BLOCK:  ", pBlock);
     }
     else if (pBlock->Data.p16) {
-      for (i=0; i<(pBlock->DataCount+1)/2; i++) {
+      for (i=0; i<pBlock->DataCount/2; i++) {
         pBlock->Data.p16[i] = (Packet[10+k+2*i] << 8) | Packet[10+k+2*i+1];
       }
       if (P > 1) print_AMS_data_block("BLOCK:  ", pBlock);
@@ -175,7 +173,7 @@ void pack8_AMS_Block_into_Peter_TCP_frame(pAMSBlock pBlock, int8 *Packet) {
       }
     }
     else if (pBlock->Data.p16) {
-      for (i=0; i<(pBlock->DataCount+1)/2; i++) {
+      for (i=0; i<pBlock->DataCount/2; i++) {
         unpackbytes(&Packet[22+k+2*i], pBlock->Data.p16[i], 2);
       }
     }
@@ -244,7 +242,7 @@ void unpack8_AMS_Block_from_Peter_TCP_frame(int8 *Packet, pAMSBlock pBlock) {
       if (P > 1) print_AMS_data_block("BLOCK:  ", pBlock);
     }
     else if (pBlock->Data.p16) {
-      for (i=0; i<(pBlock->DataCount+1)/2; i++) {
+      for (i=0; i<pBlock->DataCount/2; i++) {
         pBlock->Data.p16[i] = (Packet[26+k+2*i] << 8) | Packet[26+k+2*i+1];
       }
       if (P > 1) print_AMS_data_block("BLOCK:  ", pBlock);
@@ -333,8 +331,8 @@ void TCP_SND_RCV(pAMSBlock pRequest, pAMSBlock pReply) {
   if (P > 2) printf("Sent %d bytes to server\n", n_snd);
   if (P > 3) {
     int i;
-    for (i=0; i<n_snd; i++) {
-      printf("%02X ", Request_Packet[i]);
+    for (i=0; i<40; i=i+2) {
+      printf("%02X%02X ", Request_Packet[i], Request_Packet[i+1]);
     }
     printf("\n");
   }
@@ -445,13 +443,6 @@ void TCP_SND_RCV(pAMSBlock pRequest, pAMSBlock pReply) {
       n_rcv = n_rcv + r;
     }
     if (P > 2) printf("Received %d bytes from server\n", n_rcv);
-    if (P > 3) {
-      int i;
-      for (i=0; i<n_rcv; i++) {
-        printf("%02X ", Reply_Packet[i]);
-      }
-      printf("\n");
-    }
     Reply_Packet_Length = n_rcv;
     if (use_Peter_TCP) {
       unpack8_AMS_Block_from_Peter_TCP_frame(Reply_Packet, pReply);
@@ -476,16 +467,13 @@ void TCP_SND_RCV(pAMSBlock pRequest, pAMSBlock pReply) {
 
 //~============================================================================
 
-#if 0
-void open_TCP_connection_old(char *CS_name, int CS_port, int16 *err) {
+void open_TCP_connection(char *CS_name, int CS_port, int16 *err) {
 
   struct sockaddr_in client_adr;
   struct sockaddr_in server_adr;           
   struct hostent *h;
   int one = 1;
-//struct linger lng = {1, 0};
-
-  struct linger lng = {0, 0};
+  struct linger lng = {1, 0};
   int r, len, flags;
 
 //~---
@@ -547,7 +535,7 @@ void open_TCP_connection_old(char *CS_name, int CS_port, int16 *err) {
 
 //~--- connect to the server ---
 
-  h = gethostbyname(CS_name);
+  h = gethostbyname(CS_address);
   if (!h) {
     printf("gethostbyname: %s\n", hstrerror(h_errno));
     exit(1);
@@ -617,7 +605,7 @@ void open_TCP_connection_old(char *CS_name, int CS_port, int16 *err) {
     return;
   }
 
-  if (P > 2) printf("Connected to server %s port %d\n", CS_name, CS_port);
+  if (P > 2) printf("Connected to server %s port %d\n", CS_address, CS_port);
 
   r = fcntl(s, F_SETFL, flags);   // ???
   if (r == -1) {
@@ -626,159 +614,18 @@ void open_TCP_connection_old(char *CS_name, int CS_port, int16 *err) {
     return;
   }
 }
-#endif
 
 //~----------------------------------------------------------------------------
 
-void open_TCP_connection(char *CS_name, int CS_port, int16 *err) {
-
-  struct sockaddr_in server_adr;           
-  struct hostent *h;
-  int one = 1;
-  int r, len, flags;
-
-//~---
-
-  *err = 0x0000;
-
-  FD_ZERO(&rd);
-  FD_ZERO(&wr);
-  FD_ZERO(&er);
-
-//~--- setup the socket ---
-
-  s = socket(AF_INET, SOCK_STREAM, 0);
-  if (s < 0) {
-    *err = 0x1101;
-    printf("*** socket: %s, err = 0x%04X\n", strerror(errno), *err);
-    return;
-  }
-  r = setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (void *)&one, sizeof(one));
-  if (r == -1) {
-    *err = 0x1102;
-    printf("*** setsockopt: %s, err = 0x%04X\n", strerror(errno), *err);
-    return;
-  }
-
-  flags = fcntl(s, F_GETFL, 0);          // ???
-//printf("flags = 0x%08X, O_NONBLOCK = 0x%08X\n", flags, O_NONBLOCK);
-  if (flags == -1) {
-    *err = 0x1105;
-    printf("*** fcntl: %s, err = 0x%04X\n", strerror(errno), *err);
-    return;
-  }
-  r = fcntl(s, F_SETFL, O_NONBLOCK);
-  if (r == -1) {
-    *err = 0x1106;
-    printf("*** fcntl: %s, err = 0x%04X\n", strerror(errno), *err);
-    return;
-  }
-
-//~--- connect to the server ---
-
-  h = gethostbyname(CS_name);
-  if (!h) {
-    printf("gethostbyname: %s\n", hstrerror(h_errno));
-    exit(1);
-  }
-  else {
-    bzero(&server_adr, sizeof(server_adr));
-    server_adr.sin_family = AF_INET;
-    memcpy(&server_adr.sin_addr, h->h_addr_list[0], h->h_length);
-    server_adr.sin_port   = htons(CS_port);
-  }
-
-//printf("%s \n", inet_ntoa(*(struct in_addr*)(h->h_addr_list[0])));
-
-  r = connect(s, (struct sockaddr*)&server_adr, sizeof(server_adr));
-  if ((r == -1) && (errno != EINPROGRESS)) {
-    *err = 0x1107;
-    printf("*** connect %s:%i: %s, err = 0x%04X\n", 
-        CS_name, CS_port, strerror(errno), *err);
-    return;
-  }
-
-  FD_SET(s, &rd);
-  FD_SET(s, &wr);
-  FD_SET(s, &er);
-  tv.tv_sec  = CONNECT_TIME_OUT;
-  tv.tv_usec = 0;
-  r = select(s+1, &rd, &wr, &er, &tv);
-  if (r ==  0) {
-    *err = 0x1108;
-    printf("*** select: Time out, err = 0x%04X\n", *err);
-    return;
-  }
-  if (r == -1) {
-    *err = 0x1109;
-    printf("*** select: %s, err = 0x%04X\n", strerror(errno), *err);
-    return;
-  }
-  if (P > 4) {
-    printf("after connect:\n");
-    printf("FD_ISSET(s, &rd) = %d\n", FD_ISSET(s, &rd));
-    printf("FD_ISSET(s, &wr) = %d\n", FD_ISSET(s, &wr));
-    printf("FD_ISSET(s, &er) = %d\n", FD_ISSET(s, &er));
-  }
-  if ( FD_ISSET(s, &rd)) {
-    *err = 0x110A;
-    printf("*** select: Ready to read(?), err = 0x%04X\n", *err);
-    return;
-  }
-  if (!FD_ISSET(s, &wr)) {
-    *err = 0x110B;
-    printf("*** select: Not ready to write, err = 0x%04X\n", *err);
-    return;
-  }
-  if ( FD_ISSET(s, &er)) {
-    *err = 0x110C;
-    printf("*** select: Exception happened, err = 0x%04X\n", *err);
-    return;
-  }
-
-  len = sizeof(errno);
-  r = getsockopt(s, SOL_SOCKET, SO_ERROR, &errno, (socklen_t *)&len);
-  if (r == -1) {
-    *err = 0x110D;
-    printf("*** getsockopt: %s, err = 0x%04X\n", strerror(errno), *err);
-    return;
-  }
-  if (errno) {
-    *err = 0x110E;
-    printf("*** getsockopt: %s, err = 0x%04X\n", strerror(errno), *err);
-    return;
-  }
-
-  if (P > 2) printf("Connected to server %s port %d\n", CS_name, CS_port);
-
-  r = fcntl(s, F_SETFL, flags);   // ???
-  if (r == -1) {
-    *err = 0x110F;
-    printf("*** fcntl: %s, err = 0x%04X\n", strerror(errno), *err);
-    return;
-  }
+void send_command_via_TCP(pAMSBlock pRequest, pAMSBlock pReply) {
 }
 
 //~----------------------------------------------------------------------------
 
 void close_TCP_connection(void) {
 
-  int r;
-
-  r = shutdown(s, SHUT_RDWR);
-  if (r == -1 && (errno != ENOTCONN)) {
-    printf("*** shutdown: %s\n", strerror(errno));
-  }
   close(s);
   if (P > 2) printf("Disconnected from server\n");
 }
 
 //~============================================================================
-
-int get_TCP_socket(void) {
-
-  return s;
-}
-
-//~============================================================================
-

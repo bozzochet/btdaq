@@ -2,10 +2,10 @@
 
 CPPFLAGS= -DOS_LINUX -DUSE_AMSW
 
-CFLAGS= -Wall -g  -fno-strict-aliasing 
+CFLAGS= -Wall -O2 -fno-strict-aliasing 
 CFLAGS+=$(CPPFLAGS)
 
-SRCS=  uscmlib.c canlib.c amswlib.c easslib.c epplib.c mylib.c tcplib.c pzlib.c
+SRCS= amswlib.c easslib.c epplib.c mylib.c tcplib.c pzlib.c
 
 OBJS=$(patsubst %.c,%.o,$(SRCS))
 

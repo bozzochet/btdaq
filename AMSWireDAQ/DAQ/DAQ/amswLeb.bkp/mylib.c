@@ -7,9 +7,6 @@
 #undef VERBOSE_kbhit
 
 #include "mylib.h"
- bool  command_timeout_set = FALSE;
-AMSBlock Request, *pRequest = &Request;
-AMSBlock Reply,   *pReply   = &Reply;
 
 //~============================================================================
 
@@ -51,7 +48,7 @@ int sprintf_huge(char *b, int64 integer, int d1, int64 fraction, int d2) {
 
   int i;
   char *p = b;
-  bool z = TRUE;
+  bool_L z = TRUE;
 
   for (i=d1-1; i>=0; i--) {
     int d = unpack10(integer, i);
@@ -273,7 +270,7 @@ void delay(float value) {
 
 #define NCHA 16
 
-bool timer(int16 chan, int func, ...) {
+bool_L timer(int16 chan, int func, ...) {
 
   va_list ap;
   static struct timeval now[NCHA], then[NCHA];
@@ -317,28 +314,6 @@ void ShortSleep(int sec, int usec) {
   select(0, NULL, NULL, NULL, &tv);
 }
 
-//~=============================================================================
- 
-int32 TimeGet(void) {
- 
-  struct timeval now;
-                                                                                                                                             
-  gettimeofday(&now, NULL);
-                                                                                                                                             
-  return (1000 * (now.tv_sec & 0x003FFF) + now.tv_usec / 1000);
-}
-                                                                                                                                             
-//~-----------------------------------------------------------------------------
-                                                                                                                                             
-int32 TimeLapse(int32 tstamp) {
-                                                                                                                                             
-  struct timeval now;
-                                                                                                                                             
-  gettimeofday(&now, NULL);
-                                                                                                                                             
-  return (1000 * (now.tv_sec & 0x003FFF) + now.tv_usec / 1000 - tstamp);
-}
-                                                                                                                                             
 //~============================================================================
 
 char *mytime(void) {
@@ -378,7 +353,7 @@ char *timestamp(int opt) {
 // Dallas Semiconductor 1-Wire CRC (DOW CRC) calculation
 //
 
-bool DOWCRC(int64 code) {
+bool_L DOWCRC(int64 code) {
 
   int8 CRC;
   int8 g = 0x8C;
@@ -410,7 +385,7 @@ bool DOWCRC(int64 code) {
 int main(void) {
 
   int i;
-  bool CRC;
+  bool_L CRC;
   int64 ID[10] = {
     0xA7000800AA9D6010LL,
     0x1C0008004C26B010LL,
@@ -470,26 +445,13 @@ int16 CRC_CCITT(int8 *p, int32 n) {
 
 //~============================================================================
 
-char *myfgets(char *input, int size, FILE *file) {
-
-  char *p;
-
-  if (!fgets(input, size, file)) return NULL;
-
-  input[strlen(input)-(feof(file)?0:1)] = '\0';
-  if ((p = index(input, '\n'))) *p = '\0';
-  if ((p = index(input, '\r'))) *p = '\0';
-
-  return input;
-}
-
-//~----------------------------------------------------------------------------
-
 void get_tokens(char *input, char delim, int nn, char **token, int *n) {
 
   int j;
   char b[160], *c, *p, ch;
 
+  if ((p = index(input, '\n'))) *p = '\0';
+  if ((p = index(input, '\r'))) *p = '\0';
   c = b;
   strcpy(c, input);
   if ((p = strstr(c, "//"))) *p = '\0';
@@ -497,7 +459,7 @@ void get_tokens(char *input, char delim, int nn, char **token, int *n) {
   j = 0;
   while (1) {
     int i = 0, ii = 0;
-    bool first = TRUE;
+    bool_L first = TRUE;
     int  last = 0;
     while (1) {
       ch = c[i++];
@@ -556,7 +518,7 @@ void kbhit_exit_handler(void) {
 
 //~----------------------------------------------------------------------------
 
-bool kbhit(void) {
+bool_L kbhit(void) {
 
   fd_set rfds;
   struct timeval tv;
@@ -656,7 +618,210 @@ void print_AMS_data_block(char *txt, pAMSBlock block) {
 
 //~============================================================================
 
-bool set_command_path(int mode, int argc, char **argv, char *servername) {
+void old_set_command_path(int argc, char **argv, char *servername) {
+
+  use_GUI = FALSE;          // should be overwritten if GUI program
+  
+#ifdef USE_AMSW
+  use_MEM     = FALSE;
+  use_CAN     = FALSE;
+  use_AMSW    = TRUE;
+  use_PCIAMSW = FALSE;
+  use_TCP     = FALSE;
+  use_EAS     = FALSE;
+
+  if (argv[0]) {
+    printf("Usage: \n");
+    printf("  %s [{EAS:1553|EAS:HRDL|EAS:ECHO|1553|HRDL|AMSW} <Server>]\n", argv[0]);
+  }
+
+  if (argc > 1) {
+    if (argc < 3) PANIC("Too few arguments.\n");
+    strncpy(CS_address, argv[2], 80);
+    if (FALSE) {
+    }
+    else if (!strcasecmp(argv[1], "AMSW")) {
+      CS_port       = CAN_SERVER_PORT;
+      use_AMSW      = FALSE;
+      use_TCP       = TRUE;
+      use_Peter_TCP = FALSE;
+      printf("  AMSW Server = %s\n", CS_address);
+      printf("  Port        = %d\n", CS_port);
+      printf("  My format will be used\n");
+      if (servername) sprintf(servername, "via AMSW@%s:%d", CS_address, CS_port);
+    }
+    else if (!strcasecmp(argv[1], "1553")) {
+      CS_port       = 61002;
+      use_APID      = 0x0018;
+      use_AMSW      = FALSE;
+      use_TCP       = TRUE;
+      use_Peter_TCP = TRUE;
+      printf("  1553 Server = %s\n", CS_address);
+      printf("  Port        = %d\n", CS_port);
+      printf("  APID        = %d(0x%X)\n", use_APID, use_APID);
+      printf("  Peter's format will be used\n");
+      if (servername) sprintf(servername, "via 1553@%s:%d", CS_address, CS_port);
+    }
+    else if (!strcasecmp(argv[1], "HRDL")) {
+      CS_port       = 61001;
+      use_APID      = 0x03D6;
+      use_AMSW      = FALSE;
+      use_TCP       = TRUE;
+      use_Peter_TCP = TRUE;
+      printf("  HRDL Server = %s\n", CS_address);
+      printf("  Port        = %d\n", CS_port);
+      printf("  APID        = %d(0x%X)\n", use_APID, use_APID);
+      printf("  Peter's format will be used\n");
+      if (servername) sprintf(servername, "via HRDL@%s:%d", CS_address, CS_port);
+    }
+    else if (!strcasecmp(argv[1], "EAS:1553")) {
+      CS_port       = 61002;
+      use_APID      = 0x03D6;
+      use_AMSW      = FALSE;
+      use_Peter_TCP = FALSE;
+      use_EAS       = TRUE;
+      printf("  1553 Server = %s\n", CS_address);
+      printf("  Port        = %d\n", CS_port);
+      printf("  APID        = %d(0x%X)\n", use_APID, use_APID);
+      printf("  New Peter's eassserver will be used\n");
+      if (servername) sprintf(servername, "via EAS:1553@%s:%d", CS_address, CS_port);
+    }
+    else if (!strcasecmp(argv[1], "EAS:HRDL")) {
+      CS_port       = 61001;
+      use_APID      = 0x03D6;
+      use_AMSW      = FALSE;
+      use_Peter_TCP = FALSE;
+      use_EAS       = TRUE;
+      //      printf("HRDL Server = %s\n", CS_address);
+      //      printf("Port        = %d\n", CS_port);
+      //      printf("APID        = %d(0x%X)\n", use_APID, use_APID);
+      //      printf("New Peter's eassserver will be used\n");
+      if (servername) sprintf(servername, "via EAS:HRDL@%s:%d", CS_address, CS_port);
+    }
+    else if (!strcasecmp(argv[1], "EAS:ECHO")) {
+      CS_port       = 61009;
+      use_APID      = 0x03D6;
+      use_AMSW      = FALSE;
+      use_Peter_TCP = FALSE;
+      use_EAS       = TRUE;
+      printf("  ECHO Server = %s\n", CS_address);
+      printf("  Port        = %d\n", CS_port);
+      printf("  APID        = %d(0x%X)\n", use_APID, use_APID);
+      printf("  New Peter's eassserver will be used\n");
+      if (servername) sprintf(servername, "to EAS:ECHO@%s:%d", CS_address, CS_port);
+    }
+    else {
+      PANIC("First argument is invalid.\n");
+    }
+  }
+#endif // USE_AMSW
+
+#ifdef USE_CAN
+  use_MEM     = FALSE;
+  use_CAN     = TRUE;
+  use_AMSW    = FALSE;
+  use_PCIAMSW = FALSE;
+  use_TCP     = FALSE;
+  use_EAS     = FALSE;
+
+  if (argv[0]) {
+    printf("Usage: \n");
+    printf("  %s [{EAS:1553|EAS:HRDL|EAS:CAN|EAS:ECHO|1553|HRDL|CAN} <Server>]\n", argv[0]);
+  }
+
+  if (argc > 1) {
+    if (argc < 3) PANIC("Too few arguments.\n");
+    strncpy(CS_address, argv[2], 80);
+    if (FALSE) {
+    }
+    else if (!strcasecmp(argv[1], "CAN")) {
+      CS_port       = CAN_SERVER_PORT;
+      use_CAN       = FALSE;
+      use_TCP       = TRUE;
+      use_Peter_TCP = FALSE;
+      printf("  CAN Server = %s\n", CS_address);
+      printf("  Port       = %d\n", CS_port);
+      printf("  My format will be used\n");
+      if (servername) sprintf(servername, "via CAN@%s:%d", CS_address, CS_port);
+    }
+    else if (!strcasecmp(argv[1], "1553")) {
+      CS_port       = 61002;
+      use_APID      = 0x0018;
+      use_CAN       = FALSE;
+      use_TCP       = TRUE;
+      use_Peter_TCP = TRUE;
+      printf("1553 Server = %s\n", CS_address);
+      printf("Port        = %d\n", CS_port);
+      printf("APID        = %d(0x%X)\n", use_APID, use_APID);
+      printf("Peter's format will be used\n");
+      if (servername) sprintf(servername, "via 1553@%s:%d", CS_address, CS_port);
+    }
+    else if (!strcasecmp(argv[1], "HRDL")) {
+      CS_port       = 61001;
+      use_APID      = 0x03D6;
+      use_CAN       = FALSE;
+      use_TCP       = TRUE;
+      use_Peter_TCP = TRUE;
+      printf("  HRDL Server = %s\n", CS_address);
+      printf("  Port        = %d\n", CS_port);
+      printf("  APID        = %d(0x%X)\n", use_APID, use_APID);
+      printf("  Peter's format will be used\n");
+      if (servername) sprintf(servername, "via HRDL@%s:%d", CS_address, CS_port);
+    }
+    else if (!strcasecmp(argv[1], "EAS:1553")) {
+      CS_port       = 61002;
+      use_APID      = 0x03D6;
+      use_CAN       = FALSE;
+      use_Peter_TCP = FALSE;
+      use_EAS       = TRUE;
+      printf("  1553 Server = %s\n", CS_address);
+      printf("  Port        = %d\n", CS_port);
+      printf("  New Peter's eassserver will be used\n");
+      if (servername) sprintf(servername, "via EAS:1553@%s:%d", CS_address, CS_port);
+    }
+    else if (!strcasecmp(argv[1], "EAS:HRDL")) {
+      CS_port       = 61001;
+      use_APID      = 0x03D6;
+      use_CAN       = FALSE;
+      use_Peter_TCP = FALSE;
+      use_EAS       = TRUE;
+      //      printf("  HRDL Server = %s\n", CS_address);
+      //      printf("  Port        = %d\n", CS_port);
+      //      printf("  New Peter's eassserver will be used\n");
+      if (servername) sprintf(servername, "via EAS:HRDL@%s:%d", CS_address, CS_port);
+    }
+    else if (!strcasecmp(argv[1], "EAS:CAN")) {
+      CS_port       = 61005;
+      use_APID      = 0x03D6;
+      use_CAN       = FALSE;
+      use_Peter_TCP = FALSE;
+      use_EAS       = TRUE;
+      printf("  CAN Server = %s\n", CS_address);
+      printf("  Port       = %d\n", CS_port);
+      printf("  New Peter's eassserver will be used\n");
+      if (servername) sprintf(servername, "via EAS:CAN@%s:%d", CS_address, CS_port);
+    }
+    else if (!strcasecmp(argv[1], "EAS:ECHO")) {
+      CS_port       = 61009;
+      use_APID      = 0x03D6;
+      use_CAN       = FALSE;
+      use_Peter_TCP = FALSE;
+      use_EAS       = TRUE;
+      printf("  ECHO Server = %s\n", CS_address);
+      printf("  Port        = %d\n", CS_port);
+      printf("  New Peter's eassserver will be used\n");
+      if (servername) sprintf(servername, "to EAS:ECHO@%s:%d", CS_address, CS_port);
+    }
+    else {
+      PANIC("First argument is invalid.\n");
+    }
+  }
+#endif // USE_CAN
+}
+
+//~============================================================================
+
+void set_command_path(int argc, char **argv, char *servername) {
 
   use_GUI = FALSE;          // should be overwritten if GUI program
   
@@ -668,29 +833,25 @@ bool set_command_path(int mode, int argc, char **argv, char *servername) {
   use_AMSW      = FALSE;
   use_PCIAMSW   = FALSE;
 
-#ifdef USE_CAN
-  use_CAN       = TRUE;
-  use_AMSW      = FALSE;
-  use_PCIAMSW   = FALSE;
-#endif // USE_CAN
-
+#undef USE_CAN_OR_AMSW
 #ifdef USE_AMSW
+#define USE_CAN_OR_AMSW
   use_CAN       = FALSE;
   use_AMSW      = TRUE;
   use_PCIAMSW   = FALSE;
 #endif // USE_AMSW
 
-#ifdef USE_JMDC
+#ifdef USE_CAN
+#define USE_CAN_OR_AMSW
   use_CAN       = TRUE;
   use_AMSW      = FALSE;
   use_PCIAMSW   = FALSE;
-#endif // USE_JMDC
+#endif // USE_CAN
 
-#ifdef USE_CAN_OR_AMSW_OR_JMDC
-
+#ifdef USE_CAN_OR_AMSW
   if (argv[0]) {
     printf("Usage: \n");
-    printf("  %s [{CAN|AMSW|1553|HRDL|EAS:ECHO|EAS:CAN|EAS:1553|EAS:422|EAS:RS422|EAS:HRDL|EAS:MCC|EAS:HOSC} <Server>]\n",
+    printf("  %s [{CAN|AMSW|1553|HRDL|EAS:ECHO|EAS:CAN|EAS:1553|EAS:HRDL} <Server>]\n",
         argv[0]);
   }
 
@@ -704,9 +865,9 @@ bool set_command_path(int mode, int argc, char **argv, char *servername) {
       use_CAN       = FALSE;
       use_AMSW      = FALSE;
       use_TCP       = TRUE;
-      if (mode) printf("  CAN Server = %s\n", CS_address);
-      if (mode) printf("  Port       = %d\n", CS_port);
-      if (mode) printf("  My format will be used\n");
+      printf("  CAN Server = %s\n", CS_address);
+      printf("  Port       = %d\n", CS_port);
+      printf("  My format will be used\n");
       if (servername) sprintf(servername, "via CAN@%s:%d", CS_address, CS_port);
     }
     else if (!strcasecmp(argv[1], "AMSW")) {
@@ -714,134 +875,91 @@ bool set_command_path(int mode, int argc, char **argv, char *servername) {
       use_CAN       = FALSE;
       use_AMSW      = FALSE;
       use_TCP       = TRUE;
-      if (mode) printf("  AMSW Server = %s\n", CS_address);
-      if (mode) printf("  Port        = %d\n", CS_port);
-      if (mode) printf("  My format will be used\n");
+      printf("  AMSW Server = %s\n", CS_address);
+      printf("  Port        = %d\n", CS_port);
+      printf("  My format will be used\n");
       if (servername) sprintf(servername, "via AMSW@%s:%d", CS_address, CS_port);
     }
     else if (!strcasecmp(argv[1], "1553")) {
-      CS_port       = EAS_1553_SERVER_PORT;
+      CS_port       = 61002;
       use_APID      = 0x0018;
       use_CAN       = FALSE;
       use_AMSW      = FALSE;
       use_TCP       = TRUE;
       use_Peter_TCP = TRUE;
-      if (mode) printf("  1553 Server = %s\n", CS_address);
-      if (mode) printf("  Port        = %d\n", CS_port);
-      if (mode) printf("  APID        = %d(0x%X)\n", use_APID, use_APID);
-      if (mode) printf("  Peter's format will be used\n");
+      printf("  1553 Server = %s\n", CS_address);
+      printf("  Port        = %d\n", CS_port);
+      printf("  APID        = %d(0x%X)\n", use_APID, use_APID);
+      printf("  Peter's format will be used\n");
       if (servername) sprintf(servername, "via 1553@%s:%d", CS_address, CS_port);
     }
     else if (!strcasecmp(argv[1], "HRDL")) {
-      CS_port       = EAS_HRDL_SERVER_PORT;
-      use_APID      = 0x03D5;
+      CS_port       = 61001;
+      use_APID      = 0x03D6;
       use_CAN       = FALSE;
       use_AMSW      = FALSE;
       use_TCP       = TRUE;
       use_Peter_TCP = TRUE;
-      if (mode) printf("  HRDL Server = %s\n", CS_address);
-      if (mode) printf("  Port        = %d\n", CS_port);
-      if (mode) printf("  APID        = %d(0x%X)\n", use_APID, use_APID);
-      if (mode) printf("  Peter's format will be used\n");
+      printf("  HRDL Server = %s\n", CS_address);
+      printf("  Port        = %d\n", CS_port);
+      printf("  APID        = %d(0x%X)\n", use_APID, use_APID);
+      printf("  Peter's format will be used\n");
       if (servername) sprintf(servername, "via HRDL@%s:%d", CS_address, CS_port);
     }
     else if (!strcasecmp(argv[1], "EAS:ECHO")) {
-      CS_port       = EAS_ECHO_SERVER_PORT;
-      use_APID      = 0x03D5;
+      CS_port       = 61009;
+      use_APID      = 0x03D6;
       use_CAN       = FALSE;
       use_AMSW      = FALSE;
       use_EAS       = TRUE;
-      if (mode) printf("  ECHO Server = %s\n", CS_address);
-      if (mode) printf("  Port        = %d\n", CS_port);
-      if (mode) printf("  New Peter's eassserver will be used\n");
+      printf("  ECHO Server = %s\n", CS_address);
+      printf("  Port        = %d\n", CS_port);
+      printf("  New Peter's eassserver will be used\n");
       if (servername) sprintf(servername, "to EAS:ECHO@%s:%d", CS_address, CS_port);
     }
     else if (!strcasecmp(argv[1], "EAS:CAN")) {
-      CS_port       = EAS_CAN_SERVER_PORT;
-      use_APID      = 0x03D5;
+      CS_port       = 61005;
+      use_APID      = 0x03D6;
       use_CAN       = FALSE;
       use_AMSW      = FALSE;
       use_EAS       = TRUE;
-      if (mode) printf("  CAN Server = %s\n", CS_address);
-      if (mode) printf("  Port       = %d\n", CS_port);
-      if (mode) printf("  New Peter's eassserver will be used\n");
+      printf("  CAN Server = %s\n", CS_address);
+      printf("  Port       = %d\n", CS_port);
+      printf("  New Peter's eassserver will be used\n");
       if (servername) sprintf(servername, "via EAS:CAN@%s:%d", CS_address, CS_port);
     }
     else if (!strcasecmp(argv[1], "EAS:1553")) {
-      CS_port       = EAS_1553_SERVER_PORT;
-      use_APID      = 0x03D5;
+      CS_port       = 61002;
+      use_APID      = 0x03D6;
       use_CAN       = FALSE;
       use_AMSW      = FALSE;
       use_EAS       = TRUE;
-      if (mode) printf("  1553 Server = %s\n", CS_address);
-      if (mode) printf("  Port        = %d\n", CS_port);
-      if (mode) printf("  APID        = %d(0x%X)\n", use_APID, use_APID);
-      if (mode) printf("  New Peter's eassserver will be used\n");
+      printf("  1553 Server = %s\n", CS_address);
+      printf("  Port        = %d\n", CS_port);
+      printf("  APID        = %d(0x%X)\n", use_APID, use_APID);
+      printf("  New Peter's eassserver will be used\n");
       if (servername) sprintf(servername, "via EAS:1553@%s:%d", CS_address, CS_port);
     }
-    else if (!strcasecmp(argv[1], "EAS:422") || !strcasecmp(argv[1], "EAS:RS422")) {
-      CS_port       = EAS_422_SERVER_PORT;
-      use_APID      = 0x03D5;
-      use_CAN       = FALSE;
-      use_AMSW      = FALSE;
-      use_EAS       = TRUE;
-      if (mode) printf("  422 Server = %s\n", CS_address);
-      if (mode) printf("  Port       = %d\n", CS_port);
-      if (mode) printf("  APID       = %d(0x%X)\n", use_APID, use_APID);
-      if (mode) printf("  New Peter's eassserver will be used\n");
-      if (servername) sprintf(servername, "via EAS:422@%s:%d", CS_address, CS_port);
-    }
     else if (!strcasecmp(argv[1], "EAS:HRDL")) {
-      CS_port       = EAS_HRDL_SERVER_PORT;
-      use_APID      = 0x03D5;
+      CS_port       = 61001;
+      use_APID      = 0x03D6;
       use_CAN       = FALSE;
       use_AMSW      = FALSE;
       use_EAS       = TRUE;
-      if (mode) printf("  HRDL Server = %s\n", CS_address);
-      if (mode) printf("  Port        = %d\n", CS_port);
-      if (mode) printf("  APID        = %d(0x%X)\n", use_APID, use_APID);
-      if (mode) printf("  New Peter's eassserver will be used\n");
+      //      printf("HRDL Server = %s\n", CS_address);
+      //      printf("Port        = %d\n", CS_port);
+      //      printf("APID        = %d(0x%X)\n", use_APID, use_APID);
+      //      printf("New Peter's eassserver will be used\n");
       if (servername) sprintf(servername, "via EAS:HRDL@%s:%d", CS_address, CS_port);
     }
-    else if (!strcasecmp(argv[1], "EAS:MCC")) {
-      CS_port       = EAS_MCC_SERVER_PORT;
-      use_APID      = 0x03D5;
-      use_CAN       = FALSE;
-      use_AMSW      = FALSE;
-      use_EAS       = TRUE;
-      if (mode) printf("  MCC Server = %s\n", CS_address);
-      if (mode) printf("  Port       = %d\n", CS_port);
-      if (mode) printf("  APID       = %d(0x%X)\n", use_APID, use_APID);
-      if (mode) printf("  New Peter's eassserver will be used\n");
-      if (servername) sprintf(servername, "via EAS:MCC@%s:%d", CS_address, CS_port);
-    }
-    else if (!strcasecmp(argv[1], "EAS:HOSC")) {
-      CS_port       = EAS_HOSC_SERVER_PORT;
-      use_APID      = 0x03D5;
-      use_CAN       = FALSE;
-      use_AMSW      = FALSE;
-      use_EAS       = TRUE;
-      if (mode) printf("  HOSC Server = %s\n", CS_address);
-      if (mode) printf("  Port        = %d\n", CS_port);
-      if (mode) printf("  APID        = %d(0x%X)\n", use_APID, use_APID);
-      if (mode) printf("  New Peter's eassserver will be used\n");
-      if (servername) sprintf(servername, "via EAS:HOSC@%s:%d", CS_address, CS_port);
-    }
     else {
-      if (mode) printf("First argument is invalid.\n");
-      return FALSE;
+      PANIC("First argument is invalid.\n");
     }
   }
-  else {
-    if (mode) printf("Direct connection to EPP-CAN Box will be used\n");
-  }
-#endif // USE_CAN_OR_AMSW_OR_JMDC
-
-  setup_command_timeout();
-  return TRUE;
+#endif // USE_CAN_OR_AMSW
 }
 
-//~----------------------------------------------------------------------------
+//~============================================================================
 
 void setup_command_path_direct(void) {
 
@@ -853,10 +971,6 @@ void setup_command_path_direct(void) {
   use_CAN     = TRUE;
 #endif
 
-#ifdef USE_JMDC
-  use_CAN     = TRUE;
-#endif
-
 #ifdef USE_AMSW
   use_AMSW    = TRUE;
 #endif
@@ -865,34 +979,34 @@ void setup_command_path_direct(void) {
 
   use_TCP     = FALSE;
   use_EAS     = FALSE;
-
-  setup_command_timeout();
 }
 
 //~----------------------------------------------------------------------------
+
 
 void setup_command_path_from_file(char *filename) {
 
   FILE *file;
   int argc;
-  char *argv[3], argv1[80], argv2[80];
+  char *argv[3];
+
+  setup_command_path_direct();
 
   file = fopen(filename, "r");
   if (!file) {
     errno = 0;
     printf("Failed to open file \"%s\".\n", filename);
     printf("Direct connection to EPP-CAN Box will be used\n");
-    setup_command_path_direct();
     return;
   }
 
   argv[0] = NULL;
-  argv[1] = argv1;
-  argv[2] = argv2;
+  argv[1] = malloc(80);
+  argv[2] = malloc(80);
 
   argc = fscanf(file, "%s %s", argv[1], argv[2]) + 1;
-  printf("Command path from file \"%s\":\n", filename);
-  set_command_path(1, argc, argv, NULL);
+  //  printf("Command path from file \"%s\":\n", filename);
+  set_command_path(argc, argv, NULL);
   fclose(file);
 }
 
@@ -906,44 +1020,3 @@ void setup_command_path(void) {
 }
 
 //~============================================================================
-
-void set_command_timeout(float value) {
-
-  command_timeout     = value;
-  command_timeout_set = TRUE;
-}
-
-//~----------------------------------------------------------------------------
-
-bool get_command_timeout(float *value) {
-
-  if (value) *value = command_timeout;
-  return command_timeout_set;
-}
-
-//~----------------------------------------------------------------------------
-
-void setup_command_timeout(void) {
-
-  if (FALSE) {
-  }
-  else if (use_CAN) {
-    if (!get_command_timeout(NULL)) set_command_timeout(1.0);
-  }
-  else if (use_AMSW) {
-//  if (!get_command_timeout(NULL)) set_command_timeout(9.9);   // initial default value
-//  if (!get_command_timeout(NULL)) set_command_timeout(0.9);   // changed for AB
-    if (!get_command_timeout(NULL)) set_command_timeout(1.5);   // changed for JINJ
-  }
-  else if (use_TCP || use_EAS) {
-    if (!get_command_timeout(NULL)) {
-      set_command_timeout(5.0);
-      if (CS_port == EAS_1553_SERVER_PORT) set_command_timeout(15.0);
-      if (CS_port == EAS_MCC_SERVER_PORT)  set_command_timeout(55.0);
-      if (CS_port == EAS_HOSC_SERVER_PORT) set_command_timeout(55.0);
-    }
-  }
-}
-
-//~============================================================================
-

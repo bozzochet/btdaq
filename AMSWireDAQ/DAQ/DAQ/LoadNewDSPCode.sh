@@ -5,7 +5,7 @@ if [ $# -lt 1 ]; then
     exit
 fi
 
-dspcode=3fc3
+dspcode=3fd3
 confile=7011
 
 echo STARTING $0
@@ -16,8 +16,8 @@ port=$1
 usleep 100000
 ./LoadDSPCode.sh $port $confile
 usleep 100000
-./EnableDynamicPedestalsWithPar.sh $port 0
-usleep 100000
+#./EnableDynamicPedestalsWithPar.sh $port 1
+#usleep 100000
 # ./EnableSingleChannelClusterExclusion.sh $port 12 10
-./EnableSingleChannelClusterExclusion.sh $port 0 0 
-
+#./EnableSingleChannelClusterExclusion.sh $port 0 0 
+#./GaussianStep4.sh $port 2048
