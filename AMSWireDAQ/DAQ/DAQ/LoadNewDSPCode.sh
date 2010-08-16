@@ -5,7 +5,7 @@ if [ $# -lt 1 ]; then
     exit
 fi
 
-dspcode=3fd3
+dspcode=3a33
 confile=7011
 
 echo STARTING $0
