@@ -62,16 +62,16 @@ for jinf in `cat jinflist`; do
 done
 
 
-#for jinf in `cat jinflist`; do
-#    for tdr in `cat tdrlist`; do
-#	address=${tdr}3f${jinf}3f
-#        # Flash file test: is there? 
-#	OUTPUT=`./TESTjmdc $port $address 7 | grep $name`
-#	if [ -z "$OUTPUT" ]
-#	then echo "KO: No DSP Code $name on node $address"
-#	else
-#	    echo "OK: DSP Code $name present on node $address"
-#	fi
-#	usleep 20000
-#   done
-#done
+for jinf in `cat jinflist`; do
+    for tdr in `cat tdrlist`; do
+	address=${tdr}3f${jinf}3f
+        # Flash file test: is there? 
+	OUTPUT=`./TESTjmdc $port $address 7 | grep $name`
+	if [ -z "$OUTPUT" ]
+	then echo "KO: No DSP Code $name on node $address"
+	else
+	    echo "OK: DSP Code $name present on node $address"
+	fi
+	usleep 20000
+    done
+done
