@@ -26,10 +26,12 @@ to use JINF-T-A [JMDC ports: 1,2])
 
 Procedure:
 
-The procedure has to be, the 6 thresholds for external HAS TO BE PASSED EXPLICITELY (Thresholds have to be passed in 'standard' way (1, 2, 3.5, ...)):
+The procedure has to be:
 
-    1. Create a parameter file or edit the template (TDRParamFile.txt)
-    2. ./ConfigFile TDRParamFile.txt <S1HighThresh> <S1LowThresh> <S2HighThresh> <S2LowThresh> <KHighThresh> <KLowThresh>
-    3. ./LoadConfs.sh #port
-
+   1.  Create a parameter file or edit the template (* TDRParamFile.txt)
+   2. ./ConfigFile * TDRParamFile.txt]] <S1HighThresh> <S1LowThresh> <S2HighThresh> <S2LowThresh> <KHighThresh> <KLowThresh> <OldConfFileName> <NewConfFileName>
+      the 6 thresholds for external planes ( up to now, it means layer 1 & 8, in the future has to be probably 1 & 8 & 9) HAS TO BE PASSED EXPLICITELY (Thresholds have to be passed in 'standard' way (1, 2, 3.5, ...))
+      ConfFileName is the name of the configuration files that will be produced
+      OldConfFileName is the name of the "old" configuration file to be erased in order to write the new one 
+   3. ./LoadConfs.sh #port
  
