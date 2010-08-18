@@ -1,8 +1,8 @@
 #!/bin/sh  
 
 if [ $# -lt 2 ]; then
-    echo You must indicate the port of JMDC to be used [i.e. which JINJ and which side of JINF-T]
-    echo You must indicate the parameter to use (which flags to erase)
+    echo "You must indicate the port of JMDC to be used [i.e. which JINJ and which side of JINF-T]"
+    echo "You must indicate the parameter to use (which flags to erase)"
     exit
 fi
 
