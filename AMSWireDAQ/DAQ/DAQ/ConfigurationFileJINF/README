@@ -6,12 +6,11 @@ needed for create and load configuration files for JINF-Ts:
 
 - ConfigFile:            this is the program to create binary config files for JINF-Ts starting from a "human readable" parameters file
                          (as example JINFParamFile_X.txt, with X is the crate number in [0-8])
-			 and to create the script (LoadConfs_X.sh, with X is the crate number in [0-8])
-			 usefull to uplaod the binary files
+			 and to create the script (LoadConfs_X.sh, with X is the crate number in [0-8])	usefull to uplaod the binary files
 
 - LoadConfs_X.sh:        the script that load the correct configuration file in JINF-T number X
 
-- LoadConfs.sh:          the script that load the correct configuration file in each JINF-T
+- CreateAndLoadConfs.sh:          the script that load the correct configuration file in each JINF-T
 
 - JINFParamFile_X.txt:   can be used as a template for the "human readable" parameter file for JINF-T X
 
@@ -22,12 +21,12 @@ The file of parameters ("human readable file") can be filled using the JINF docu
 
 Procedure:
 
-The procedure has to be (to change and load the config file only for the JINF-T X using JINJ NN and JINJ MM to talk with JINF-T A and JINF-T B):
+The procedure has to be (to change and load the config file BBBB, erasing the old conf file AAAA, only for the JINF-T X using JINJ NN and JINJ MM to talk with JINF-T A and JINF-T B):
 
    1. Create a parameter file or edit the template (JINFParamFile_X.txt)
    2. ./ConfigFile JINFParamFile_X.txt X NN MM
    3. ./LoadConfs_X.sh 
 
-The procedure has to be (to change and load the config file on all JINF-Ts using JINJ NN and JINJ MM to talk with JINF-T's A and JINF-T's B): 
-   1. Edit the template parameter files (JINFParamFile_X.txt's)
-   2. ./LoadConfs.sh NN MM
+The procedure has to be (to change and load the config file BBBB, erasing the old conf file AAAA, on all JINF-Ts using JINJ NN and JINJ MM to talk with JINF-T's A and JINF-T's B): 
+   1. Edit the template parameter files (JINFParamFile_X.txt's) (they will be called automatically called by the script below)
+   2. ./LoadConfs.sh NN MM AAAA BBBB

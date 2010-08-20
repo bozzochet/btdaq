@@ -4,24 +4,24 @@ sleep 5
 CMDERRORS=0
 WRTERRORS=0
 ERSERRORS=0
-OUTPUT=`./TESTjmdc 0 173f 7 | grep 7001`
+OUTPUT=`./TESTjmdc 0 173f 7 | grep 7021`
 if [ -n "$OUTPUT" ]
  then
-  OUTPUT=`./TESTjmdc 0 173f 47 7001 | grep rxdone`
+  OUTPUT=`./TESTjmdc 0 173f 47 7021 | grep rxdone`
   usleep 200000
   echo Erase Flash on node 0 173f: $OUTPUT
   if [ "$OUTPUT" != "rxdone = 0000" ]
    then
     let "CMDERRORS=$CMDERRORS+1"
   fi
-  OUTPUT=`./TESTjmdc 0 173f 7 | grep 7001`
+  OUTPUT=`./TESTjmdc 0 173f 7 | grep 7021`
   if [ -n "$OUTPUT" ]
     then
-    echo DSP Code 7001 Not Erased on node 0 173f!!!
+    echo DSP Code 7021 Not Erased on node 0 173f!!!
     let "ERSERRORS=$ERSERRORS+1"
   fi
  else
-  echo DSP Code 7001 not found on node 0 173f, so no erasing is needed
+  echo DSP Code 7021 not found on node 0 173f, so no erasing is needed
 fi
 rm -f ./file.dat
 cp -fv ./dotdats/configfile_7.dat ./file.dat
@@ -32,30 +32,30 @@ if [ "$OUTPUT" != "rxdone = 0000" ]
  then
   let "CMDERRORS=$CMDERRORS+1"
 fi
-OUTPUT=`./TESTjmdc 0 173f 7 | grep 7001`
+OUTPUT=`./TESTjmdc 0 173f 7 | grep 7021`
 if [ -z "$OUTPUT" ]
  then
-  echo DSP Code 7001 Not Loaded on node 0 173f!!!
+  echo DSP Code 7021 Not Loaded on node 0 173f!!!
   let "WRTERRORS=$WRTERRORS+1"
 fi
-OUTPUT=`./TESTjmdc 2 173f 7 | grep 7001`
+OUTPUT=`./TESTjmdc 2 173f 7 | grep 7021`
 if [ -n "$OUTPUT" ]
  then
-  OUTPUT=`./TESTjmdc 2 173f 47 7001 | grep rxdone`
+  OUTPUT=`./TESTjmdc 2 173f 47 7021 | grep rxdone`
   usleep 200000
   echo Erase Flash on node 2 173f: $OUTPUT
   if [ "$OUTPUT" != "rxdone = 0000" ]
    then
     let "CMDERRORS=$CMDERRORS+1"
   fi
-  OUTPUT=`./TESTjmdc 2 173f 7 | grep 7001`
+  OUTPUT=`./TESTjmdc 2 173f 7 | grep 7021`
   if [ -n "$OUTPUT" ]
     then
-    echo DSP Code 7001 Not Erased on node 2 173f!!!
+    echo DSP Code 7021 Not Erased on node 2 173f!!!
     let "ERSERRORS=$ERSERRORS+1"
   fi
  else
-  echo DSP Code 7001 not found on node 2 173f, so no erasing is needed
+  echo DSP Code 7021 not found on node 2 173f, so no erasing is needed
 fi
 rm -f ./file.dat
 cp -fv ./dotdats/configfile_7.dat ./file.dat
@@ -66,10 +66,10 @@ if [ "$OUTPUT" != "rxdone = 0000" ]
  then
   let "CMDERRORS=$CMDERRORS+1"
 fi
-OUTPUT=`./TESTjmdc 2 173f 7 | grep 7001`
+OUTPUT=`./TESTjmdc 2 173f 7 | grep 7021`
 if [ -z "$OUTPUT" ]
  then
-  echo DSP Code 7001 Not Loaded on node 2 173f!!!
+  echo DSP Code 7021 Not Loaded on node 2 173f!!!
   let "WRTERRORS=$WRTERRORS+1"
 fi
 echo There were $CMDERRORS erros in sending command!!!!

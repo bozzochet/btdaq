@@ -2,20 +2,23 @@
 #include <string.h>
 #include <stdlib.h>
 
-int confname=0x7001;//0x because the names of the files on flash are hexadecimal
-
 void PrepareFCSTable();
 unsigned short DoFCS(unsigned short data, unsigned short fcs);
-int CreateScript(int crate, int jinj1, int jinj2);
-void ScriptCore(FILE *outfile, int ConfName, int JinjPort[], int Crate, int Jinj); 
+int CreateScript(int crate, int jinj1, int jinj2, int oldconfname, int newconfname);
+void ScriptCore(FILE *outfile, int OldConfName, int NewConfName, int JinjPort[], int Crate, int Jinj); 
 
 unsigned short FCS_Table[256];
 
 int main(int argc, char ** argv) {
   int pri=0;
 
-  if(argc!=5){
-    printf("Usage: %s <input_txt_file> <cratenum [0-7]> <jinj1> <jinj2>\n",argv[0]);
+  if(argc!=7){
+    printf("Usage: %s <input_txt_file> <cratenum [0-7]> <jinj1> <jinj2> <oldconfname> <newconfname>\n",argv[0]);
+    printf("cratenum is the number of the for which to create the conf file\n");
+    printf("jinj1 is the jinj by which load the conf file into the JINF A (B)\n");
+    printf("jinj2 is the jinj by which load the conf file into the JINF B (A)\n");
+    printf("oldconfname is the name of the configuration file to erase\n");
+    printf("newconfname is the name of the configuration file to upload");
     printf(" It output the file configfile_X.dat in ./dotdats/, x=[0-7]\n");
     return -1;
   }
@@ -41,6 +44,11 @@ int main(int argc, char ** argv) {
   
   int jinj1=atoi(argv[3]);
   int jinj2=atoi(argv[4]);
+
+  int oldconfname=0;
+  sscanf(argv[5],"%hx", &oldconfname);//hexdecimal!!!
+  int newconfname=0;
+  sscanf(argv[6],"%hx", &newconfname);//hexdecimal!!!
 
   int cf=atoi(argv[2]);
   
@@ -94,8 +102,8 @@ int main(int argc, char ** argv) {
   
   fclose(infile);
   
-  if (pri) printf("%04hx\n",confname);
-  fprintf(outfile, "%04hx\n",confname);
+  if (pri) printf("%04hx\n",newconfname);
+  fprintf(outfile, "%04hx\n",newconfname);
   if (pri) printf("%04hx\n",0x4000+cnt+2);
   fprintf(outfile, "%04hx\n",0x4000+cnt+2);
   if (pri) printf("%04hx\n",0x9000);
@@ -127,7 +135,7 @@ int main(int argc, char ** argv) {
     }
   */
   
-  if (CreateScript(cf, jinj1, jinj2)) return -1;
+  if (CreateScript(cf, jinj1, jinj2, oldconfname, newconfname)) return -1;
 
   return 0;
 }
@@ -171,7 +179,7 @@ void PrepareFCSTable() {
   }
 }
 
-int CreateScript(int crate, int jinj1, int jinj2){
+int CreateScript(int crate, int jinj1, int jinj2, int oldconfname, int newconfname){
 
   FILE *outfile=0;
   int JinjPort[8];
@@ -210,8 +218,8 @@ int CreateScript(int crate, int jinj1, int jinj2){
   fprintf(outfile, "WRTERRORS=0\n");
   fprintf(outfile, "ERSERRORS=0\n");
 
-  ScriptCore(outfile, confname, JinjPort, crate, jinj1);
-  ScriptCore(outfile, confname, JinjPort, crate, jinj2);
+  ScriptCore(outfile, oldconfname, newconfname, JinjPort, crate, jinj1);
+  ScriptCore(outfile, oldconfname, newconfname, JinjPort, crate, jinj2);
   
   fprintf(outfile, "echo There were $CMDERRORS erros in sending command!!!!\n");
   fprintf(outfile, "echo There were $ERSERRORS erros in erasing DSP files!!!!\n");
@@ -222,29 +230,30 @@ int CreateScript(int crate, int jinj1, int jinj2){
   return 0;
 }
 
-void ScriptCore(FILE *outfile, int ConfName, int JinjPort[], int Crate, int Jinj){
+void ScriptCore(FILE *outfile, int OldConfName, int NewConfName, int JinjPort[], int Crate, int Jinj){
 
   int CrateNum=Crate;
   int JmdcPort=Jinj;
-  int confname=ConfName;
+  int newconfname=NewConfName;
+  int oldconfname=OldConfName;
   
-  fprintf(outfile, "OUTPUT=`./TESTjmdc %d %02x3f 7 | grep %hx`\n", JmdcPort, JinjPort[CrateNum], confname);
+  fprintf(outfile, "OUTPUT=`./TESTjmdc %d %02x3f 7 | grep %hx`\n", JmdcPort, JinjPort[CrateNum], oldconfname);
   fprintf(outfile, "if [ -n \"$OUTPUT\" ]\n then\n");
-  fprintf(outfile, "  OUTPUT=`./TESTjmdc %d %02x3f 47 %hx | grep rxdone`\n", JmdcPort, JinjPort[CrateNum], confname);
+  fprintf(outfile, "  OUTPUT=`./TESTjmdc %d %02x3f 47 %hx | grep rxdone`\n", JmdcPort, JinjPort[CrateNum], oldconfname);
   fprintf(outfile, "  usleep 200000\n"); 
   fprintf(outfile, "  echo Erase Flash on node %d %02x3f: $OUTPUT\n", JmdcPort, JinjPort[CrateNum]);
   fprintf(outfile, "  if [ \"$OUTPUT\" != \"rxdone = 0000\" ]\n   then\n    let \"CMDERRORS=$CMDERRORS+1\"\n  fi\n");
-  fprintf(outfile, "  OUTPUT=`./TESTjmdc %d %02x3f 7 | grep %hx`\n", JmdcPort, JinjPort[CrateNum], confname);
-  fprintf(outfile, "  if [ -n \"$OUTPUT\" ]\n    then\n    echo DSP Code %hx Not Erased on node %d %02x3f!!!\n    let \"ERSERRORS=$ERSERRORS+1\"\n  fi\n", confname, JmdcPort, JinjPort[CrateNum]);
-  fprintf(outfile, " else\n  echo DSP Code %hx not found on node %d %02x3f, so no erasing is needed\nfi\n", confname, JmdcPort, JinjPort[CrateNum]);
+  fprintf(outfile, "  OUTPUT=`./TESTjmdc %d %02x3f 7 | grep %hx`\n", JmdcPort, JinjPort[CrateNum], oldconfname);
+  fprintf(outfile, "  if [ -n \"$OUTPUT\" ]\n    then\n    echo DSP Code %hx Not Erased on node %d %02x3f!!!\n    let \"ERSERRORS=$ERSERRORS+1\"\n  fi\n", oldconfname, JmdcPort, JinjPort[CrateNum]);
+  fprintf(outfile, " else\n  echo DSP Code %hx not found on node %d %02x3f, so no erasing is needed\nfi\n", oldconfname, JmdcPort, JinjPort[CrateNum]);
   
   fprintf(outfile, "rm -f ./file.dat\ncp -fv ./dotdats/configfile_%d.dat ./file.dat\n", CrateNum);
   fprintf(outfile, "OUTPUT=`./TESTjmdc %d %02x3f 45 | grep rxdone`\n", JmdcPort, JinjPort[CrateNum]);
   fprintf(outfile, "usleep 100000\n");
   fprintf(outfile, "echo Write Flash on node %d %02x3f: $OUTPUT\n", JmdcPort, JinjPort[CrateNum]);
   fprintf(outfile, "if [ \"$OUTPUT\" != \"rxdone = 0000\" ]\n then\n  let \"CMDERRORS=$CMDERRORS+1\"\nfi\n");
-  fprintf(outfile, "OUTPUT=`./TESTjmdc %d %02x3f 7 | grep %hx`\n", JmdcPort, JinjPort[CrateNum], confname);
-  fprintf(outfile, "if [ -z \"$OUTPUT\" ]\n then\n  echo DSP Code %hx Not Loaded on node %d %02x3f!!!\n  let \"WRTERRORS=$WRTERRORS+1\"\nfi\n", confname, JmdcPort, JinjPort[CrateNum]);
+  fprintf(outfile, "OUTPUT=`./TESTjmdc %d %02x3f 7 | grep %hx`\n", JmdcPort, JinjPort[CrateNum], newconfname);
+  fprintf(outfile, "if [ -z \"$OUTPUT\" ]\n then\n  echo DSP Code %hx Not Loaded on node %d %02x3f!!!\n  let \"WRTERRORS=$WRTERRORS+1\"\nfi\n", newconfname, JmdcPort, JinjPort[CrateNum]);
   
   return;
 }
