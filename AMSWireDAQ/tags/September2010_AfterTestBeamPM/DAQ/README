@@ -1,0 +1,38 @@
+Wielkommen,
+
+- ls -l *.sh will give you a list of the scripts available
+  (scripts and scripts of scripts).
+  To be sure of what you are going to do make a less of the
+  script and check. Some of these scripts are:
+  LoadFlashFileOnAllTDRs.sh [code]: send to all nodes the request of loading a flash file   
+  SetPermanentFlagOnAllTDRs_v0.0.sh: mask a set of VA (set the permanent bit 15)
+ 
+- TESTjmdc [JINJnumber=0,1,2,3] [NodeAddress] [Command]
+
+0. slowconf.conf must be setted properly
+   HRDL-A --> eas:hrdl pcgsc00
+   HRDL-B --> eas:hrdl pcgsc02
+1. JINJ-0 and 3 are connected with JINF-T-B
+   JINJ-1 and 2 are connected with JINF-T-A 
+2. Node address examples: 
+   JINJ-itself = ffff
+   JINF-T0 = 033f 
+   TDR-0-00-A (T0 TDR00) = 003f033f 
+   TDR-4-10-B (T4 TDR21) = 153f103f
+   AllTDR-7 = 4000173f  
+
+   OCT CRATE IND (Hex) (Dec)
+   3   3     013f      01
+   4   2     003f      00
+   7   7     173f      23
+   8   6     163f      22
+   1   0     033f      03
+   4   1     093f      09
+   5   4     103f      16
+   6   5     113f      17
+
+3. Command (from Kounine document): 
+   Read Status: C [no pars] 
+   Read Flash: 7 [no pars]
+   Read last Event Number: 2 [no pars]  
+   ... 
