@@ -135,7 +135,7 @@ class AMSWcom
   unsigned short FCS_Table[256];
   unsigned short DataSize;
 
-  OUTFUN  Output;
+  OUTFUN  Outfun;
   unsigned short ReplyStatus;
 
   //  int Init_commandEPP   (unsigned short addr, unsigned short cmd, int args, ... );
