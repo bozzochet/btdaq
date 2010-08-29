@@ -33,7 +33,7 @@
 #include <sstream>
 
 // Definition of AMSWcom class
-#include "amswcom.h"
+#include "amswcomtest.h"
 
 // C/C++ API for the amsw commands through EPP/PCI
 #include "amsw_lib.h"
@@ -68,8 +68,9 @@ AMSWcom::AMSWcom(int portnum, int hardware, int card) {
   hwtype=hardware;
   port=portnum;
   pcicard=card;
+  out=NULL; // no text output.
   sType=kBATCH;
-  
+
   EventSize=0;
   for( int i = 0; i < EVENTSIZE; i++ ) {
     Event[i] = 0;
@@ -163,6 +164,13 @@ bool AMSWcom::Init() {
 }
 
 
+bool AMSWcom::InitJmdc ( )
+{
+  //printf("AMSWcom::InitJmdc -> Now this function is doing nothing!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+  
+  return SUCCESS;
+}
+
 
 // * Static methods to bring up and down the epp connection
 bool AMSWcom::InitEpp ( )
@@ -221,13 +229,6 @@ bool AMSWcom::InitEpp ( )
   return SUCCESS;
 }
 
-
-bool AMSWcom::InitJmdc ( )
-{
-//  printf("AMSWcom::InitJmdc -> Now this function is doing nothing!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-  
-  return SUCCESS;
-}
 
 
 bool AMSWcom::Shut() {
@@ -294,6 +295,130 @@ void AMSWcom::SetCalParMem(CalibMemory *calmem) {
 }
 
 
+int AMSWcom::CommandJMDC(int args, unsigned short *params, int mode24) {
+  // memset(Event,0,sizeof(Event));
+  RX_DONE=send_AMSW_CMD(port, args, params, Event, &EventSize);//this function is the really function sending the command through JMDC and is defined in pzlib.h
+  printf("CommandJMDC: RX_DONE=%d\n", RX_DONE);//only for debug
+  if(RX_DONE!=0) printf("ERROR --> RX_DONE=%x\n",RX_DONE);
+  //  printf("event before stripping:\n" );//only for debug
+  //   printf("Event: "); for (int i=0; i<EventSize; i++) printf("%04x ", Event[i]); printf("\n");//only for debug
+  
+
+printf("send_AMSW_CMD replies %d\n", ret);
+  printf("event before stripping:\n" );
+  for (int i=0; i<EventSize; i++) printf("%04x ", Event[i]); printf("\n");
+
+  //printf("Qui c'è lo striping del comando inviato probabilmente ri-aggiunto alla risposta dalla JMDC, vedere se veramente c'è...\n");
+
+  JMDC_CMD_SendStripping();
+ //   printf("event after stripping:\n");//only for debug
+//    printf("Event: "); for (int i=0; i<EventSize; i++) printf("%04x ", Event[i]); printf("\n");//only for debug
+
+  if (EventSize>0) EventSize--;//to remove CRC from event
+  
+  if (EventSize>0) {
+    BuildStat=Event[EventSize-1];
+    CRC=Event[EventSize]; 
+    //    if (DEBUG)
+//    if (DEBUG) 
+  printf("JMDC: crc= 0x%04x , DoFCS= 0x%04x\n", CRC, DoFCS());
+    if (CRC!=DoFCS()) return (RX_DONE=65530); // return (RX_DONE=-6); changed because RX_DONE is unsigned short so -6 is trasformed to 65530
+  }
+  
+  else { BuildStat=0; CRC=0; }
+  
+  
+  if (mode24 && EventSize>0) { 
+    EventSize=Convert24()+1;
+    Event[EventSize-1]=BuildStat;
+    Event[EventSize]=CRC;
+  }
+
+ return RX_DONE;
+}
+
+
+int AMSWcom::CommandJMDC(unsigned int addrl, unsigned char cmd, int args, ... ) {
+
+  unsigned short addr=addrl & 0xffff;
+  unsigned short addr2=addrl>>16;
+
+  va_list ap;
+  int cnt=0;
+
+  if (args>(CMDSIZE-1)) { printf("too many args\n"); return -12345; }
+
+  if (addr!=0xffff) {
+    CmdArray[cnt++]=addr; // addr can be 0xYY3f or 0x4000 or ...
+    if (addr2) CmdArray[cnt++]=addr2; // secondary address, useful if you use e.g. a Jinj.
+  }
+  
+  // * send the command
+
+  CmdArray[cnt++]=0x2E00+cmd;
+  
+  // * send eventual args
+  va_start(ap,args);
+  for(int i=0; i<args; i++) {
+    unsigned short s =(unsigned short)va_arg(ap,int);
+    CmdArray[cnt++]=s;
+  }
+  va_end( ap );
+
+  return CommandJMDC(cnt,CmdArray,(cmd==cAMSW_READPM));
+}
+
+void AMSWcom::JMDC_CMD_SendStripping() {
+
+  unsigned short word;
+  unsigned short wpref;
+  unsigned short datatype;
+
+  //printf("JMDC reply:\n");
+  //for (int i=0; i<EventSize; i++) { printf("%04x ",Event[i]); if (i%8==7) printf("\n"); }
+  //printf("\n");
+
+
+  for (int cnt=0; cnt<5; cnt++) {
+    word = Event[0];
+    EventSize--;
+    for (int ii=0; ii<EventSize; ii++) Event[ii]=Event[ii+1];
+    wpref = word&0xff00;//select the first 8 bits ...
+    datatype = word&0x001f;//select the last 5 bits...
+    //    printf("stripping: word=%04x, cnt=%d, %04x %04x\n",word,cnt,wpref, datatype);//only for debug
+    if (wpref==0x2e00) {//if the first 8 bits are "2e" this is the command 
+      if (datatype!=0x1f) {//if all the last 5 bits are "up" (1) there's data type extension
+	//printf("Stripping result case 1:\n");
+	//printf("new evensize=%d\n", EventSize);
+	//for (int i=0; i<EventSize; i++) { printf("%04x ",Event[i]); if (i%8==7) printf("\n"); }
+	//printf("\n");
+	return;
+      }
+      else {
+	EventSize--;
+	for (int ii=0; ii<EventSize; ii++) Event[ii]=Event[ii+1];
+	//printf("Stripping result case 2:\n");
+	//printf("new evensize=%d\n", EventSize);
+	//for (int i=0; i<EventSize; i++) { printf("%04x ",Event[i]); if (i%8==7) printf("\n"); }
+	//printf("\n");
+	return;
+      }
+    }
+  }
+
+
+  //for (int ii=0; ii<EventSize; ii++) Event[ii]=Event[ii+1];
+	//printf("Stripping result case 3:\n");
+	//printf("new evensize=%d\n", EventSize);
+	//for (int i=0; i<EventSize; i++) { printf("%04x ",Event[i]); if (i%8==7) printf("\n"); }
+	//printf("\n");
+       
+
+  
+  return;
+}
+
+
 
 void AMSWcom::Command(int args, unsigned short *params, int mode24) {
   switch (hwtype) {
@@ -307,6 +432,43 @@ void AMSWcom::Command(int args, unsigned short *params, int mode24) {
     CommandJMDC(args,params,mode24);
     break;
   }
+
+
+  ReplyStatus = Event[EventSize-1];
+}
+
+
+void AMSWcom::Command(unsigned int addrl, unsigned char cmd, int args, ... ) {
+
+  unsigned short addr=addrl & 0xffff;
+  unsigned short addr2=addrl>>16;
+
+  int cnt=0;
+  int mode24=0;
+
+  if (args>(CMDSIZE-1)) { printf("too many args\n"); return; }
+
+  if (addr!=0xffff) {
+    CmdArray[cnt++]=addr; // addr can be 0xYY3f or 0x4000 or ... 
+    if (addr2) CmdArray[cnt++]=addr2; // secondary address, useful if you use e.g. a Jinj.
+  }
+
+  CmdArray[cnt++]=0x2e00+cmd;
+
+  va_list ap;
+  va_start( ap, args );
+  for( int i = 0; i < args; i++ ) CmdArray[cnt++] = (unsigned short)va_arg( ap, int );
+  va_end( ap );
+
+
+  if (cmd==cAMSW_READPM) {
+    cnt--;
+    mode24=CmdArray[cnt];
+  }
+
+  if (DEBUG) { for (int i=0; i<cnt; i++) printf("%04x ", CmdArray[i]); printf("\n"); }
+
+  Command(cnt, CmdArray,mode24); // if readpm, mode may be set to 24 bits
 }
 
 void AMSWcom::Command2(unsigned int addrl, unsigned char cmd, int args, ushort* params) {
@@ -356,38 +518,6 @@ void AMSWcom::RAWCommand(unsigned int addrl, int args, ushort* params) {
 
 
   Command(cnt, CmdArray, mode24); // if readpm, mode may be set to 24 bits
-}
-
-void AMSWcom::Command(unsigned int addrl, unsigned char cmd, int args, ... ) {
-
-  unsigned short addr=addrl & 0xffff;
-  unsigned short addr2=addrl>>16;
-
-  int cnt=0;
-  int mode24=0;
-
-  if (args>(CMDSIZE-1)) { printf("too many args\n"); return; }
-
-  if (addr!=0xffff) {
-    CmdArray[cnt++]=addr; // addr can be 0xYY3f or 0x4000 or ... 
-    if (addr2) CmdArray[cnt++]=addr2; // secondary address, useful if you use e.g. a Jinj.
-  }
-
-  CmdArray[cnt++]=0x2e00+cmd;
-
-  va_list ap;
-  va_start( ap, args );
-  for( int i = 0; i < args; i++ ) CmdArray[cnt++] = (unsigned short)va_arg( ap, int );
-  va_end( ap );
-
-
-  if (cmd==cAMSW_READPM) {
-    cnt--;
-    mode24=CmdArray[cnt];
-  }
-
-
-  Command(cnt, CmdArray,mode24); // if readpm, mode may be set to 24 bits
 }
 
 
@@ -681,12 +811,23 @@ void AMSWcom :: Build_stat ()
   inw(EPPDATA);
 }
 
+void AMSWcom :: SetOutput( EppOutput * myOut )
+{
+	out = myOut;
+}
 
 void AMSWcom::SetOutput( OUTFUN aa){
 
   Output=aa;
 }
 
+void AMSWcom :: Output( string s )
+{
+	if( out )
+	{
+		out -> EppPrint( s );
+	}
+}
 
 void AMSWcom :: OutputStd( std::string s )
         {
@@ -742,24 +883,6 @@ void AMSWcom :: IOutput ( const char * fmt, ... )
         return;
 }
 
-
-
-void AMSWcom::Boot(unsigned int addr, unsigned short fname) {
-  if (DEBUG) printf("welcome to boot2...\n");
-
-  IOutput("Booting address 0x%08x \n",addr);
-  if(fname!=0){
-    IOutput(" with program 0x%04x\n", fname);
-    Command(addr, cAMSW_BOOT, 1, fname );
-  }
-  else
-  Command(addr, cAMSW_BOOT, 0);
-
-
-  PrintRX_DONE();
-
-}
-
 void AMSWcom::PrintRX_DONE() {
   if (hwtype==kAMSW_EPP)  IOutput("rxdone = %04x\n", GetRX_DONE());
   else if (hwtype==kAMSW_PCI) IOutput("rxdone = %d\n",(short)GetRX_DONE());
@@ -799,6 +922,12 @@ int AMSWcom::PrintRXDONE(char* message) {
   return error;
 }
 
+void AMSWcom::HKRead(unsigned int addr) {
+
+  Command(addr, cAMSW_HKINFO, 0);
+}
+
+
 void AMSWcom::SetSSF(unsigned int addr, unsigned short setting) {
   IOutput("Setting SSF mode to %x for address 0x%08x\n",setting,addr);
 
@@ -824,6 +953,22 @@ void AMSWcom::SlaveTest(unsigned int addr) {
   PrintRX_DONE();
 }
 
+
+void AMSWcom::Boot(unsigned int addr, unsigned short fname) {
+  if (DEBUG) printf("welcome to boot2...\n");
+
+  IOutput("Booting address 0x%08x \n",addr);
+  if(fname!=0){
+    IOutput(" with program 0x%04x\n", fname);
+    Command(addr, cAMSW_BOOT, 1, fname );
+  }
+  else
+  Command(addr, cAMSW_BOOT, 0);
+
+
+  PrintRX_DONE();
+
+}
 
 
 
@@ -924,8 +1069,6 @@ void AMSWcom::GetSummary(unsigned int addr) {
   
 }
 
-
-
 void AMSWcom::CalibrateDac(unsigned int addr, unsigned short dac) {
   IOutput("DAC calibration of address %08x\n",addr);
 
@@ -957,11 +1100,33 @@ void AMSWcom::CalibrateDac(unsigned int addr, unsigned short dac) {
 
 }
 
-void AMSWcom::Calibrate(unsigned int addr, unsigned short par, unsigned short par2) {
-  IOutput("Calibrating address 0x%08x with par1 %d par2 %d\n",addr,par,par2);
-  Command(addr,cAMSW_CALPED,2,par,par2);
-  PrintRX_DONE();
+void AMSWcom::SDProc(unsigned int addr, unsigned short cmd) {
+
+  Command(addr,cAMSW_CALDAC,1,cmd);
+
 }
+
+
+void AMSWcom::SDProc(unsigned int addr, unsigned short cmd, unsigned short par) {
+
+  Command(addr,cAMSW_CALDAC,2,cmd, par);
+
+}
+
+
+void AMSWcom::SDProc(unsigned int addr, unsigned short cmd, unsigned short par, unsigned short par2) {
+
+  Command(addr,cAMSW_CALDAC,3,cmd, par, par2);
+
+}
+
+
+void AMSWcom::Calibrate(unsigned int addr) {
+ 
+  Command(addr,cAMSW_CALPED,0);
+
+}
+
 
 void AMSWcom::Calibrate(unsigned int addr, unsigned short par) {
   IOutput("Calibrating address 0x%08x with par %d\n",addr,par);
@@ -969,16 +1134,88 @@ void AMSWcom::Calibrate(unsigned int addr, unsigned short par) {
   PrintRX_DONE();
 }
 
-int AMSWcom::Check_for_EPPUP(){
-  do {                                                                                                          
-    if( eppUp == false ) {                                                                                    
-      if( Init( ) == ERROR ) {                                                                              
-        FOutput( COL_STRONG "Unable to get control of the EPP: " COL_EVIDENT "%s\n", strerror(errno));    
-        return -1000;                                                                                      
-      }                                                                                                      
-    }                                                                                                          
-  } while ( 0 ); 
-  return 0;
+void AMSWcom::Calibrate(unsigned int addr, unsigned short par, unsigned short par2) {
+  IOutput("Calibrating address 0x%08x with par1 %d par2 %d\n",addr,par,par2);
+  Command(addr,cAMSW_CALPED,2,par,par2);
+  PrintRX_DONE();
+}
+
+
+void AMSWcom::SetParameter(unsigned int addr, unsigned short type, unsigned short name, unsigned short val) {
+
+  type|=1;
+
+  Command(addr, cAMSW_SDCONFIG, 3, type, name, val);
+
+}
+
+void AMSWcom::SetParameter(unsigned int addr, unsigned short type, unsigned short name1, unsigned short val1,  unsigned short name2, unsigned short val2) {
+
+  type|=2;
+
+  Command(addr, cAMSW_SDCONFIG, 5, type, name1, val1, name2, val2);
+
+}
+
+unsigned short AMSWcom::GetParameter(unsigned int addr, unsigned short type, unsigned short name) {
+
+  type|=1;
+
+  Command(addr, cAMSW_RDCONFIG, 2, type, name);
+
+  return Event[1];
+}
+
+
+void AMSWcom::GetCalibration(unsigned int addr, FILE *textfile) {
+  //CHECK_FOR_EPPUP;
+  unsigned short iPed[1024];
+  unsigned short iSig[1024];
+  unsigned short iSigH[1024];
+  unsigned short iSigr[1024];
+  unsigned short iSta[1024];
+  
+  // * read_pm( address, length, *data )
+  ReadMemory(addr,CalParMem.Ped,0x400,CalParMem.MemPed,1);
+  memcpy(iPed,Event,sizeof(iPed));
+
+  ReadMemory(addr,CalParMem.SigL,0x400,CalParMem.MemSigL,1);
+  memcpy(iSig,Event,sizeof(iSig));
+
+  ReadMemory(addr,CalParMem.SigH,0x400,CalParMem.MemSigH,1);
+  memcpy(iSigH,Event,sizeof(iSigH));
+
+  ReadMemory(addr,CalParMem.Stat,0x400,CalParMem.MemStat,1);
+  memcpy(iSta,Event,sizeof(iSta));
+
+  ReadMemory(addr,CalParMem.Sigr,0x400,CalParMem.MemSigr,1);
+  memcpy(iSigr,Event,sizeof(iSigr));
+
+  if (textfile) { 
+    fprintf(textfile,"Pedestals: %s memory, start=0x%04x\n",(CalParMem.MemPed==kDSP_PM)?"PM":"DM",CalParMem.Ped);
+    for (int i=0; i<0x400; i++) { fprintf(textfile,"0x%04x  ",iPed[i]); if (!((i+1)%16)) fprintf(textfile,"\n");}
+
+    fprintf(textfile,"\n\nSigma Low: %s memory, start=0x%04x\n",(CalParMem.MemSigL==kDSP_PM)?"PM":"DM",CalParMem.SigL);
+    for (int i=0; i<0x400; i++) { fprintf(textfile,"0x%04x  ",iSig[i]); if (!((i+1)%16)) fprintf(textfile,"\n");}
+
+    fprintf(textfile,"\n\nSigma High: %s memory, start=0x%04x\n",(CalParMem.MemSigH==kDSP_PM)?"PM":"DM",CalParMem.SigH);
+    for (int i=0; i<0x400; i++) { fprintf(textfile,"0x%04x  ",iSigH[i]); if (!((i+1)%16)) fprintf(textfile,"\n");}
+
+    fprintf(textfile,"\n\nSigma Raw: %s memory, start=0x%04x\n",(CalParMem.MemSigr==kDSP_PM)?"PM":"DM",CalParMem.Sigr);
+    for (int i=0; i<0x400; i++) { fprintf(textfile,"0x%04x  ",iSigr[i]); if (!((i+1)%16)) fprintf(textfile,"\n");}
+
+    fprintf(textfile,"\n\nStatus: %s memory, start=0x%04x\n",(CalParMem.MemStat==kDSP_PM)?"PM":"DM",CalParMem.Stat);
+    for (int i=0; i<0x400; i++) { fprintf(textfile,"0x%04x  ",iSta[i]); if (!((i+1)%16)) fprintf(textfile,"\n");}
+  }
+
+  //  printf("siglfactor=%f\n",  CalParMem.SigLFactor);
+
+  for(int i=0; i<1024; i++) {
+      ped[i]=(double)(iPed[i])/CalParMem.PedFactor;
+      sig[i]=(double)(iSig[i])/CalParMem.SigLFactor;
+      sigr[i]=(double)(iSigr[i])/CalParMem.SigrFactor;
+      sta[i]=(iSta[i]);
+  }
 }
 
 ushort AMSWcom::GetCalibration(unsigned int addr,ushort par) {
@@ -1021,6 +1258,17 @@ ushort AMSWcom::GetCalibration(unsigned int addr,ushort par) {
 }
 
 
+int AMSWcom::Check_for_EPPUP(){
+  do {                                                                                                          
+    if( eppUp == false ) {                                                                                    
+      if( Init( ) == ERROR ) {                                                                              
+        FOutput( COL_STRONG "Unable to get control of the EPP: " COL_EVIDENT "%s\n", strerror(errno));    
+        return -1000;                                                                                      
+      }                                                                                                      
+    }                                                                                                          
+  } while ( 0 ); 
+  return 0;
+}
 
 SlaveMask AMSWcom::ReadSlaveMask(unsigned int addr) {
   IOutput("Reading slave mask for address 0x%08x\n",addr);
@@ -1137,6 +1385,12 @@ void AMSWcom::SDprocRead(unsigned int addr, unsigned short mode) {
 }
 
 
+void AMSWcom::SDprocRead(unsigned int addr, unsigned short mode, unsigned short par) {
+
+  Command(addr,cAMSW_SDPROC_RD,2,mode,par);
+
+}
+
 void AMSWcom::CalibRead(unsigned int addr, unsigned short mode) {
 
   Command(addr,cAMSW_CALPEDRD,1,mode);
@@ -1230,7 +1484,7 @@ int AMSWcom::CommandEPP(int args, unsigned short *params, int mode24) {
 
     RX_DONE=rx_done();
 
-    //    printf("nw=%x length=%x txst=%x rxdone=%x\n",nw,length,txst,RX_DONE);
+    //    printf("nw=0x%04x length=0x%04x txst=%x rxdone=0x%04x\n",nw,length,txst,RX_DONE);
     //if ((RX_DONE & 0xE000) == 0x4000 ) if ((RX_DONE & 0x180) != 0) return RX_DONE;
   }
 
@@ -1318,101 +1572,6 @@ int AMSWcom::CommandEPP(unsigned int addrl, unsigned char cmd, int args, ... ) {
   va_end( ap );
 
   return CommandEPP(cnt,CmdArray,(cmd==cAMSW_READPM));
-}
-
-
-int AMSWcom::CommandJMDC(int args, unsigned short *params, int mode24) {
-  // memset(Event,0,sizeof(Event));
-  RX_DONE=send_AMSW_CMD(port, args, params, Event, &EventSize);//this function is the really function sending the command through JMDC and is defined in pzlib.h
-    printf("CommandJMDC: RX_DONE=%d\n", RX_DONE);//only for debug
-if(RX_DONE!=0) printf("ERROR --> RX_DONE=%x\n",RX_DONE);
-  //  printf("event before stripping:\n" );//only for debug
- //   printf("Event: "); for (int i=0; i<EventSize; i++) printf("%04x ", Event[i]); printf("\n");//only for debug
-  
-  JMDC_CMD_SendStripping();
- //   printf("event after stripping:\n");//only for debug
-//    printf("Event: "); for (int i=0; i<EventSize; i++) printf("%04x ", Event[i]); printf("\n");//only for debug
-
-  if (EventSize>0) EventSize--;//to remove CRC from event
-  
-  if (EventSize>0) {
-    BuildStat=Event[EventSize-1];
-    CRC=Event[EventSize]; 
-    //    if (DEBUG)
-//    if (DEBUG) 
-printf("JMDC: crc= 0x%04x , DoFCS= 0x%04x\n", CRC, DoFCS());
-    if (CRC!=DoFCS()) return (RX_DONE=65530); // return (RX_DONE=-6); changed because RX_DONE is unsigned short so -6 is trasformed to 65530
-  }
-  
-  else { BuildStat=0; CRC=0; }
-  
-  
-  if (mode24) { 
-    EventSize=Convert24()+1;
-    Event[EventSize-1]=BuildStat;
-    Event[EventSize]=CRC;
-  }
-
- return RX_DONE;
-}
-
-
-int AMSWcom::CommandJMDC(unsigned int addrl, unsigned char cmd, int args, ... ) {
-
-  unsigned short addr=addrl & 0xffff;
-  unsigned short addr2=addrl>>16;
-
-  va_list ap;
-  int cnt=0;
-
-  if (args>(CMDSIZE-1)) { printf("too many args\n"); return -12345; }
-
-  if (addr!=0xffff) {
-    CmdArray[cnt++]=addr; // addr can be 0xYY3f or 0x4000 or ...
-    if (addr2) CmdArray[cnt++]=addr2; // secondary address, useful if you use e.g. a Jinj.
-  }
-  
-  // * send the command
-
-  CmdArray[cnt++]=0x2E00+cmd;
-  
-  // * send eventual args
-  va_start(ap,args);
-  for(int i=0; i<args; i++) {
-    unsigned short s =(unsigned short)va_arg(ap,int);
-    CmdArray[cnt++]=s;
-  }
-  va_end( ap );
-
-  return CommandJMDC(cnt,CmdArray,(cmd==cAMSW_READPM));
-}
-
-void AMSWcom::JMDC_CMD_SendStripping() {
-
-  unsigned short word;
-  unsigned short wpref;
-  unsigned short datatype;
-
-  for (int cnt=0; cnt<5; cnt++) {
-    word = Event[0];
-    EventSize--;
-    for (int ii=0; ii<EventSize; ii++) Event[ii]=Event[ii+1];
-    wpref = word&0xff00;//select the first 8 bits ...
-    datatype = word&0x001f;//select the last 5 bits...
-    //    printf("stripping: word=%04x, cnt=%d, %04x %04x\n",word,cnt,wpref, datatype);//only for debug
-    if (wpref==0x2e00) {//if the first 8 bits are "2e" this is the command 
-      if (datatype!=0x1f) {//if all the last 5 bits are "up" (1) there's data type extension
-	return;
-      }
-      else {
-	EventSize--;
-	for (int ii=0; ii<EventSize; ii++) Event[ii]=Event[ii+1];
-	return;
-      }
-    }
-  }
-  
-  return;
 }
 
 void AMSWcom::Command_Lv1( int ntrig) {
@@ -1632,6 +1791,8 @@ void AMSWcom::Ping(ushort addr) {
 
 
 void AMSWcom::FlashWrite(unsigned int addrl, unsigned short length) {
+
+  printf("FlashWrite: length=%d\n",length);
 
   unsigned short addr=addrl & 0xffff;
   unsigned short addr2=addrl>>16;

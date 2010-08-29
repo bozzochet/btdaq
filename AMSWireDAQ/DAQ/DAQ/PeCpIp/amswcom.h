@@ -5,6 +5,7 @@
 #include <string>
 #include <sys/types.h> // needed to add this to compile on Fedora10
 
+using namespace std;
 
 #define    SUCCESS        0
 #define    ERROR          1
@@ -36,6 +37,12 @@ typedef unsigned int uint;
 #define    DATAMEMORY      1
 #define    EVENTSIZE       16384
 #define    CMDSIZE         300
+
+class EppOutput
+{
+	public:
+	virtual void EppPrint( const std::string & s ) = 0;
+};
 
 typedef void (*OUTFUN) (std::string s);
 
@@ -127,7 +134,9 @@ class AMSWcom
   unsigned char cmdch[2*EVENTSIZE+10];
   unsigned short FCS_Table[256];
   unsigned short DataSize;
+
   OUTFUN  Output;
+  unsigned short ReplyStatus;
 
   //  int Init_commandEPP   (unsigned short addr, unsigned short cmd, int args, ... );
 
@@ -174,27 +183,34 @@ class AMSWcom
   void SetOutput( OUTFUN );
   static void OutputStd  ( std::string s );  
   static void OutputFile ( std::string s );
+
+  void SetOutput( EppOutput * myOut );
+  void Output  ( string s );
   void FOutput ( const char * fmt, ... ); // gcc 4.3 : needed to add const
   void IOutput ( const char * fmt, ... ); // gcc 4.3 : needed to add const
 
+  EppOutput * out;
+
   void SetInteractive();
   void SetBatch();
+
   unsigned short DoFCS();
   unsigned short DoFCS(int size);
   unsigned short DoFCS(unsigned char *data, int size);
   unsigned short DoFCS(unsigned short *data, int size);
 
+  unsigned short GetReplyStatus() { return ReplyStatus; }
   void SetDEBUG(int mode);
   int CommandEPP(unsigned int addrl, unsigned char cmd, int args, ... );
-  int CommandEPP(int args, unsigned short* params, int mode24=0);
+  int CommandEPP(int args, unsigned short *params, int mode24=0);
   void CommandPCI(unsigned int addrl, unsigned char cmd, int args, ... );
-  void CommandPCI(int args, unsigned short* params, int mode24=0);
+  void CommandPCI(int args, unsigned short *params, int mode24=0);
+  int CommandJMDC(int args, unsigned short *params, int mode24);
   int CommandJMDC(unsigned int addrl, unsigned char cmd, int args, ... );
-  int CommandJMDC(int args, unsigned short* params, int mode24);
   void Command(unsigned int addrl, unsigned char cmd, int args, ... );
   void Command2(unsigned int addrl, unsigned char cmd, int args, ushort* params );
   void RAWCommand(unsigned int addrl,  int args, ushort* params );
-  void Command(int args, unsigned short* params, int mode24=0);
+  void Command(int args, unsigned short *params, int mode24=0);
   unsigned short SaveJLV1Conf(unsigned int selfaddr);
   unsigned short WriteJLV1Conf(unsigned int selfaddr);
   int WriteJLV1BusyMask(unsigned int addr, ushort busy0x12, ushort busy0x13, ushort busy0x14);
@@ -216,11 +232,11 @@ class AMSWcom
   bool Init();
   bool Shut();
   // * Enable or Disable Epp connection (static)
-  static bool InitEpp( );
-  static bool ShutEpp( );
+  static bool InitEpp ( );
+  static bool ShutEpp ( );
 
-  static bool InitJmdc( );
-  static bool ShutJmdc( );
+  static bool InitJmdc();
+  static bool ShutJmdc();
   
         
   AMSWcom ( int port=0 , int hardware=kAMSW_EPP, int card=0);
@@ -243,8 +259,10 @@ class AMSWcom
   int GetHW() { return hwtype; }
   int GetPort() { return port; }
 
-        // * Let's go with commands
+	// * Let's go with commands
   void Boot(unsigned int addr, unsigned short fname=0);
+  //-------------------------------------------------
+  void HKRead(unsigned int addr);
   //-------------------------------------------------
   //Flash commands
   void FlashLoad(unsigned int addr, unsigned short fname);
@@ -261,6 +279,9 @@ public:
   void WriteDelay(unsigned int addr, unsigned short delay);
   unsigned short ReadDelay(unsigned int addr);
   void GetSummary (unsigned int addr);
+  void SetParameter(unsigned int add, unsigned short type, unsigned short name, unsigned short val);
+  void SetParameter(unsigned int addr, unsigned short type, unsigned short name1, unsigned short val1,  unsigned short name2, unsigned short val2);
+  unsigned short GetParameter(unsigned int add, unsigned short type, unsigned short name);
   //  void Command_ReadMemory          ( unsigned short addr, bool progData, unsigned short address, unsigned short length );
   void ReadDM(unsigned int addr, unsigned short start, unsigned short length);
   void ReadPM(unsigned int addr, unsigned short start, unsigned short length, int mode24);
@@ -280,7 +301,9 @@ public:
   void CalibrateDac(unsigned int addr, unsigned short dac);
   void SaveCalibration(unsigned int addr,char * fname=0);
 
+  void GetCalibration(unsigned int addr, FILE *textfile=0);
   ushort  GetCalibration(unsigned int addr,ushort par);
+
   void SetMode(unsigned int addr, unsigned short mode);
   unsigned short ReadMode(unsigned int addr);
   SlaveMask ReadSlaveMask(unsigned int addr);
@@ -299,6 +322,10 @@ public:
   void SetSSF(unsigned int addr, unsigned short setting);
   unsigned short GetSSF(unsigned int addr);
   void SDprocRead(unsigned int addr, unsigned short mode);
+  void SDprocRead(unsigned int addr, unsigned short mode, unsigned short par);
+  void SDProc(unsigned int addr, unsigned short cmd);
+  void SDProc(unsigned int addr, unsigned short cmd, unsigned short par);
+  void SDProc(unsigned int addr, unsigned short cmd, unsigned short par, unsigned short par2);
   unsigned short GetEvent(unsigned int addr);
   unsigned short GetLastEventN(unsigned int addr);
   void EventReset(unsigned int addr);
@@ -454,6 +481,9 @@ public:
 #define  cAMSW_FLASHERASE   0x0047     // FILE/SECTOR erase
 #define  cAMSW_FLASHDF      0x0048     // change FLASH file attribute
 
+#define  cAMSW_RDCONFIG     0x0009     // read config parameters
+#define  cAMSW_SDCONFIG     0x0049     // SDconfig
+
 #define  cAMSW_GETSTAT      0x000C     // get node status
 #define  cAMSW_PING         0x000D     // ping
 #define  cAMSW_PWRDOWN      0x004E     // Enter POWER DOWN
@@ -519,6 +549,9 @@ public:
 #define  cAMSW_WRITE_CAL_PAR 0xFF83     // write in DM calibration parameters
 #define  cAMSW_GCOMMAND         0xFFFF     // Give a raw command
 #define  cAMSW_RCOMMAND         0xFFFE     // Give a true raw command
+
+#define  cAMSW_WRITE_LASER_PAR 0xFF84     // write in DM calibration parameters
+#define  cAMSW_STOP         0xFFFF     // Stop DAQ
 
 
 #endif
