@@ -82,7 +82,7 @@ AMSWcom::AMSWcom(int portnum, int hardware, int card) {
     }
   }
 
-  Output=AMSWcom::OutputStd;
+  Outfun=AMSWcom::OutputStd;
   TimeOut=5000; // time in ms
   DEBUG=0;
   memset(FlashSummary,0,sizeof(FlashSummary));
@@ -818,7 +818,7 @@ void AMSWcom :: SetOutput( EppOutput * myOut )
 
 void AMSWcom::SetOutput( OUTFUN aa){
 
-  Output=aa;
+  Outfun=aa;
 }
 
 void AMSWcom :: Output( string s )
