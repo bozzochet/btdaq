@@ -304,7 +304,7 @@ int AMSWcom::CommandJMDC(int args, unsigned short *params, int mode24) {
   //   printf("Event: "); for (int i=0; i<EventSize; i++) printf("%04x ", Event[i]); printf("\n");//only for debug
   
 
-printf("send_AMSW_CMD replies %d\n", ret);
+  printf("send_AMSW_CMD replies %d\n", RX_DONE);
   printf("event before stripping:\n" );
   for (int i=0; i<EventSize; i++) printf("%04x ", Event[i]); printf("\n");
 
