@@ -1,26 +1,33 @@
-#include "amswcom.h"
+#include "amswcomtest.h"
 #include "QList.h"
 #include <cstring> // needed to add this for gcc 4.3
 #include <stdio.h>
 #include <iostream>
+#include <sstream>
 #include <string>
+#include <fstream>
+#include <math.h>
 #include "color.h"
 #include <sys/time.h>
 
 #define    SUCCESS        0
 #define    ERROR          1
 
+//secondo me non servono qui ma devo stare in amswcom...
+// #define MAX_STRN 0x100
+
+// #define kPEDS 1
+// #define kSIGL 2
+// #define kSIGH 4
+// #define kSIGR 8
+// #define kSTAT 16
+// #define kALL  0x1f
 
 using namespace std;
 
-void textcolor(int attr, int fg, int bg);
-void InitCalParMem();
 void Reorganize(unsigned short *array);
 
-
-
-CalibMemory Prog_3123, Prog_3ed3, Prog_3f83;
-
+//CalibMemory Prog_3123, Prog_3ed3, Prog_3f83, Prog_3710_07;//dovrebbe stare in amswcom e non servire più qui...
 
 int main(int argv, char **argc) {
 
@@ -35,7 +42,7 @@ int main(int argv, char **argc) {
     return 1;
   }
 
-  InitCalParMem();
+  node->InitCalParMem();
 
   memset(param,0,sizeof(param));
 
@@ -75,115 +82,21 @@ int main(int argv, char **argc) {
 
   if (Jinf->Init()==ERROR) {
     printf("init error\n");
-    return 1;
-  
+    return 1;  
   } 
-  Jinf->SetCalParMem(&Prog_3f83);
 
-
+  //  Jinf->SetCalParMem(&Prog_3f83);//Philipp removed this so it's usefull?! Secondo me sta dentro amswcom quando calibra...
 
   Jinf->ProcessHexCommand(addr,cmd,nparam,param);
-
 
   //  PrintSummary(Jinf,0x003f);
   // PrintNodeStatus(Jinf,0xffff);
   //PrintNodeStatus(Jinf,0x003f);
 
-
-
   Jinf->Shut();
 
   return 0;
 }
-
-
-void InitCalParMem() {
-  //---------------- Program 3123 ---------------------
-  Prog_3123.Ped=0x1300;
-  Prog_3123.MemPed=kDSP_PM;
-
-  Prog_3123.SigH=0x1b04;
-  Prog_3123.MemSigH=kDSP_PM;
-
-  Prog_3123.SigL=0x1b04;
-  Prog_3123.MemSigL=kDSP_PM;
-
-  Prog_3123.Stat=0x1702;
-  Prog_3123.MemStat=kDSP_PM;
-  Prog_3123.Sigr=0x1701;
-  Prog_3123.MemSigr=kDSP_DM;
-
-  Prog_3123.SigHFactor=1.0;
-  Prog_3123.SigLFactor=1.0;
-
-  //-------------------- Program 3ed3 ---------------------
-  Prog_3ed3.Ped=0x1300;
-  Prog_3ed3.MemPed=kDSP_PM;
-  
-  Prog_3ed3.SigH=0x1b04;
-  Prog_3ed3.MemSigH=kDSP_PM;
-  
-  Prog_3ed3.SigL=0x1b04;
-  Prog_3ed3.MemSigL=kDSP_DM;
-
-  Prog_3ed3.Stat=0x1702;
-  Prog_3ed3.MemStat=kDSP_PM;
-
-  Prog_3ed3.Sigr=0x1700;
-  Prog_3ed3.MemSigr=kDSP_DM;
-
-  Prog_3ed3.SigHFactor=3.5;
-  Prog_3ed3.SigLFactor=2.0;
-
-  //-------------------- Program 3f83 ---------------------
-  Prog_3f83.Ped=0x1300;
-  Prog_3f83.MemPed=kDSP_PM;
-
-  Prog_3f83.SigH=0x1b04;
-  Prog_3f83.MemSigH=kDSP_PM;
-  
-  Prog_3f83.SigL=0x1b04;
-  Prog_3f83.MemSigL=kDSP_DM;
-
-  Prog_3f83.Stat=0x1702;
-  Prog_3f83.MemStat=kDSP_PM;
-
-  Prog_3f83.Sigr=0x1702;
-  Prog_3f83.MemSigr=kDSP_DM;
-
-  Prog_3f83.SigHFactor=8*3.5; //3.5; 
-  Prog_3f83.SigLFactor=8*2.0; //2.0;
-
-  Prog_3f83.SigrFactor=8*10.0; // precision*real_factor
-
-  Prog_3f83.PedFactor=8.0; // precision
-
-
-
-};
-
-
-
-void textcolor(int attr, int fg, int bg) {
-  char command[13];
-  
-  /* Command is the control command to the terminal */
-  sprintf(command, "%c[%d;%d;%dm", 0x1B, attr, fg + 30, bg + 40);
-  printf("%s", command);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // void ReadQList(AMSWcom *node, unsigned int addr) {
 
@@ -270,6 +183,3 @@ void textcolor(int attr, int fg, int bg) {
 //   }
 
 // }
-
-
-
