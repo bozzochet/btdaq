@@ -16,7 +16,6 @@ LIBINCLUDE= -I$(ROOTSYS)/include -I$(TOP)SlowControl/ -I$(TOP)amsw/ -I$(TOP)amsw
 AMSWIREOBJ:=$(AMSWIRESOURCES:%.cxx=%.o)
 AMSWCOMOBJ:=$(AMSWCOMSOURCES:%.cxx=%.o)
 
-
 CFLAGS= -g 
 CPPFLAGS+= $(LIBINCLUDE) 
 
@@ -36,7 +35,7 @@ $(TOP)lib/libAMSslow.a:
 $(TOP)lib/libamswcom.a: $(TOP)lib/libamswcom.a($(AMSWCOMOBJ))
 
 
-TESTpci: $(TOP)/Tests/test.o lib
+TESTpci: $(TOP)/Tests/test.o $(TOP)/SlowControl/QList.o lib
 	@echo Linking $@ ...
 	$(CXX) $(CFLAGS) $(CPPFLAGS) -o $@ $< -L$(TOP)lib/ -lamswcom -lAMSslow -lamswire
 	@echo "----------- for using through EPP and JMDC (it depends on the program's name) ---------------"

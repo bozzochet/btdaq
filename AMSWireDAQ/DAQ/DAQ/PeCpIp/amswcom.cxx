@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sstream>
+#include <math.h>
 
 // Definition of AMSWcom class
 #include "amswcomtest.h"
@@ -821,57 +822,46 @@ void AMSWcom :: OutputStd( std::string s )
   return;
         }
 
-void AMSWcom :: OutputFile( std::string s )
-{
-
+void AMSWcom::OutputFile(std::string s){ 
   return;
 }
 
 
-void AMSWcom :: FOutput ( const char * fmt, ... )
-{
-	char msg[1024];
+void AMSWcom::FOutput (const char * fmt, ...){
+  char msg[1024];
+  
+  va_list ap;
+  
+  va_start( ap, fmt );
+  vsnprintf( msg, sizeof(msg), fmt, ap );
+  va_end( ap );
+  
+  string s;
+  for( unsigned int i = 0; i < strlen(msg); i++ )
+    s += msg[i];
+  
+  Output( s );
 
-	va_list ap;
-
-	va_start( ap, fmt );
-	vsnprintf( msg, sizeof(msg), fmt, ap );
-	va_end( ap );
-
-	string s;
-	for( unsigned int i = 0; i < strlen(msg); i++ )
-		s += msg[i];
-	
-	Output( s );
-
-	return;
+  return;
 }
 
-
-void AMSWcom :: IOutput ( const char * fmt, ... )
-{
-        char msg[1024];
-
-        va_list ap;
-
-        if(sType==kBATCH) return;
-        va_start( ap, fmt );
-        vsnprintf( msg, sizeof(msg), fmt, ap );
-        va_end( ap );
-
-        string s;
-        for( unsigned int i = 0; i < strlen(msg); i++ )
-                s += msg[i];
-        
-        Output( s );
-
-        return;
-}
-
-void AMSWcom::PrintRX_DONE() {
-  if (hwtype==kAMSW_EPP)  IOutput("rxdone = %04x\n", GetRX_DONE());
-  else if (hwtype==kAMSW_PCI) IOutput("rxdone = %d\n",(short)GetRX_DONE());
-  else if (hwtype==kAMSW_JMDC) IOutput("rxdone = %04x\n", (short)GetRX_DONE());
+void AMSWcom::IOutput (const char * fmt, ...){
+  char msg[1024];
+  
+  va_list ap;
+  
+  if(sType==kBATCH) return;
+  va_start( ap, fmt );
+  vsnprintf( msg, sizeof(msg), fmt, ap );
+  va_end( ap );
+  
+  string s;
+  for( unsigned int i = 0; i < strlen(msg); i++ )
+    s += msg[i];
+  
+  Output( s );
+  
+  return;
 }
 
 int AMSWcom::GETRXDONE() {
@@ -891,19 +881,23 @@ int AMSWcom::GETRXDONE() {
 
 int AMSWcom::PrintRXDONE(char* message) {
   int error=0;
+
   if (GetHW()==kAMSW_EPP) { 
-    sprintf(message,"EPP rxdone = %04x\n",GetRX_DONE());
+    if (message) sprintf(message,"EPP rxdone = %04x\n",GetRX_DONE());
+    else IOutput("EPP rxdone = %04x\n",GetRX_DONE());
     if (GetRX_DONE()!=0x4180) error=1; 
   }
   else if (GetHW()==kAMSW_PCI) {
-    sprintf(message,"PCI rxdone = %d\n",(short)GetRX_DONE());
+    if (message) sprintf(message,"PCI rxdone = %d\n",(short)GetRX_DONE());
+    else IOutput("PCI rxdone = %d\n",(short)GetRX_DONE());
     if (GetRX_DONE()!=0) error=1; 
   }
   else if (GetHW()==kAMSW_JMDC) {
-    sprintf(message,"JMDC rxdone = %d\n",(short)GetRX_DONE());
+    if (message) sprintf(message,"JMDC rxdone = %d\n",(short)GetRX_DONE());
+    else IOutput("JMDC rxdone = %d\n",(short)GetRX_DONE());
     if (GetRX_DONE()!=0) error=1; 
   }
-  
+
   if (GetEventSize()) {
     IOutput("eventsize = %d\n",GetEventSize()); 
     IOutput("reply status = 0x%04x\n",GetReplyStatus());
@@ -912,7 +906,7 @@ int AMSWcom::PrintRXDONE(char* message) {
     if (GetReplyStatus() & 0x400) IOutput("\033[1;31mFront-end power problems\033[0m\n");
     IOutput("\n");
   }
-
+  
   return error;
 }
 
@@ -959,7 +953,7 @@ void AMSWcom::SetSSF(unsigned int addr, unsigned short setting) {
   IOutput("Setting SSF mode to %x for address 0x%08x\n",setting,addr);
 
   Command(addr, cAMSW_SSFWR, 1, setting);
-  PrintRX_DONE();
+  PrintRXDONE();
   if (GetEventSize()) ShowGroupReplies();
 }
 
@@ -968,7 +962,7 @@ unsigned short AMSWcom::GetSSF(unsigned int addr) {
   Command(addr, cAMSW_SSFRD, 0);
   unsigned short mode=Event[0];
   IOutput("Address 0x%08x has the SSF in mode %x\n",addr, mode);
-  PrintRX_DONE();
+  PrintRXDONE();
 
   return Event[0];
 }
@@ -976,7 +970,7 @@ unsigned short AMSWcom::GetSSF(unsigned int addr) {
 void AMSWcom::SlaveTest(unsigned int addr) {
   IOutput("Testing slaves of address 0x%08x\n",addr);
   Command(addr, cAMSW_SLAVTST, 0);
-  PrintRX_DONE();
+  PrintRXDONE();
   if (GetEventSize()) ShowGroupReplies();
 }
 
@@ -990,11 +984,11 @@ void AMSWcom::Boot(unsigned int addr, unsigned short fname) {
   }
   else Command(addr, cAMSW_BOOT, 0);
 
-  PrintRX_DONE();
+  PrintRXDONE();
   if (GetEventSize()) ShowGroupReplies();
 }
 
-void ReadFlashFile(unsigned int addr, unsigned short file) {
+void AMSWcom::ReadFlashFile(unsigned int addr, unsigned short file) {
 
   int ret=0;
 
@@ -1010,7 +1004,7 @@ void ReadFlashFile(unsigned int addr, unsigned short file) {
 void AMSWcom::FlashLoad(unsigned int addr, unsigned short fname) {
   IOutput("Address 0x%08x will load program id 0x%04x\n",addr,fname);
   Command(addr, cAMSW_FLASHLD, 1, fname );
-  PrintRX_DONE();
+  PrintRXDONE();
   if (GetEventSize()) ShowGroupReplies();
 }
 
@@ -1022,7 +1016,7 @@ void AMSWcom::FlashRead(unsigned int addr, unsigned short fname,char* nameout) {
   else FOutput("Saving file 0x%04x of address 0x%08x in file.dat\n",fname,addr);
 
   Command(addr, cAMSW_FLASHRD, 1, fname );
-  PrintRX_DONE();
+  PrintRXDONE();
   ret=SaveFlashFile(nameout);
   if(ret)FOutput("ERROR\n"); else FOutput("SUCCESS\n");
 
@@ -1031,21 +1025,21 @@ void AMSWcom::FlashRead(unsigned int addr, unsigned short fname,char* nameout) {
 void AMSWcom::FlashErase(unsigned int addr, unsigned short fname) {
   IOutput("Address 0x%08x will erase program id 0x%04x\n",addr,fname);
   Command(addr, cAMSW_FLASHERASE, 1, fname );
-  PrintRX_DONE();
+  PrintRXDONE();
   if (GetEventSize()) ShowGroupReplies();
 }
 
 void AMSWcom::FlashDefault(unsigned int addr, unsigned short fname, unsigned short def) {
   IOutput("Address 0x%08x will set to mode %d program id 0x%04x\n",addr,def,fname);
   Command(addr, cAMSW_FLASHDF, 2, fname, def );
-  PrintRX_DONE();
+  PrintRXDONE();
   if (GetEventSize()) ShowGroupReplies();
 }
 
 void AMSWcom::WriteDelay(unsigned int addr, unsigned short delay) {
   IOutput("Address 0x%08x will have a delay of 0x%04x (%2.2f us)\n",addr,delay,(float)delay*0.02);
   Command(addr,cAMSW_DELAYWR,1,delay);
-  PrintRX_DONE();
+  PrintRXDONE();
   if (GetEventSize()) ShowGroupReplies();
 }
 
@@ -1054,7 +1048,7 @@ unsigned short AMSWcom::ReadDelay(unsigned int addr) {
   Command(addr,cAMSW_DELAYRD,0);
   unsigned short delay=Event[0];
   IOutput("Address 0x%08x has a delay of 0x%04x (%2.2f us)\n",addr,delay,(float)delay*0.02);
-  PrintRX_DONE();
+  PrintRXDONE();
   return Event[0];
 }
 
@@ -1111,7 +1105,7 @@ void AMSWcom::CalibrateDac(unsigned int addr, unsigned short dac) {
 
   IOutput("Elapsed time is %6.2f seconds\n",elapsed/1000.);
 
-  PrintRX_DONE();
+  PrintRXDONE();
   unsigned short daccal[1024];
  
   ReadMemory(addr,0x1702,0x400,kDSP_PM,1);
@@ -1129,7 +1123,7 @@ void AMSWcom::CalibrateDac(unsigned int addr, unsigned short dac) {
 
 }
 
-void SDProcRead(unsigned int addr, unsigned short par) {
+void AMSWcom::SDProcRead(unsigned int addr, unsigned short par) {
   
   SDprocRead(addr,par);
   PrintRXDONE();
@@ -1158,7 +1152,7 @@ void AMSWcom::SDProc(unsigned int addr, unsigned short cmd) {
   Command(addr,cAMSW_CALDAC,1,cmd);
 
   PrintRXDONE();
-  if (GetEventSize()) ShowGroupReplies()
+  if (GetEventSize()) ShowGroupReplies();
 }
 
 void AMSWcom::SDProc(unsigned int addr, unsigned short cmd, unsigned short par) {
@@ -1185,14 +1179,14 @@ void AMSWcom::Calibrate(unsigned int addr) {
 void AMSWcom::Calibrate(unsigned int addr, unsigned short par) {
   IOutput("Calibrating address 0x%08x with mode %d\n",addr,par);
   Command(addr,cAMSW_CALPED,1,par);
-  PrintRX_DONE();
+  PrintRXDONE();
   if (GetEventSize()) ShowGroupReplies();
 }
 
 void AMSWcom::Calibrate(unsigned int addr, unsigned short par, unsigned short par2) {
   IOutput("Calibrating address 0x%08x with mode %d ans parameter %%04x\n",addr,par,par2);
   Command(addr,cAMSW_CALPED,2,par,par2);
-  PrintRX_DONE();
+  PrintRXDONE();
   if (GetEventSize()) ShowGroupReplies();
 }
 
@@ -1222,7 +1216,7 @@ void AMSWcom::GetParameter(unsigned int addr, unsigned short parnam) {
 
   unsigned short parval=GetParameter(addr,0x1000, parnam);
 
-  IOutput("\nParameter 0x%04x of address 0x%04x has a value of 0x%04x\n\n", name, addr, parval);
+  IOutput("\nParameter 0x%04x of address 0x%04x has a value of 0x%04x\n\n", parnam, addr, parval);
   
   PrintRXDONE();
 }
@@ -1291,7 +1285,7 @@ ushort AMSWcom::GetCalibration(unsigned int addr,ushort par) {
 
   IOutput("Getting calibration from address 0x%08x with par %d\n",addr,par);
   Command(addr,cAMSW_CALRED,1,par);
-  PrintRX_DONE();
+  PrintRXDONE();
 
   PrintEvent();
   return EventSize;
@@ -1356,7 +1350,7 @@ SlaveMask AMSWcom::ReadSlaveMask(unsigned int addr) {
   }
 
   //IOutput("there are %d masks\n", mask.Nmask);
-  PrintRX_DONE();
+  PrintRXDONE();
 
   if (EventSize && sType==kINTER) ShowConnect(mask);  
   return mask;
@@ -1379,7 +1373,7 @@ void AMSWcom::WriteSlaveMask(unsigned int addr, unsigned short id, unsigned int 
 void AMSWcom::WriteSlaveMask(unsigned int addr, unsigned short val1, unsigned short val2) {
   IOutput("Writing slave mask for address 0x%08x\n",addr);
   Command(addr,cAMSW_MASKLD,2,val1,val2);
-  PrintRX_DONE();
+  PrintRXDONE();
   if (GetEventSize()) ShowGroupReplies();
 }
 
@@ -1399,7 +1393,7 @@ void AMSWcom::WriteBusyMask(unsigned int addr, unsigned int mask) {
 void AMSWcom::WriteBusyMask(unsigned int addr, unsigned short val1, unsigned short val2) {
   IOutput("Setting busy mask %04x %04x to address %08x\n", val1,val2, addr);
   Command(addr,cAMSW_BUSYLD,2,val1,val2);
-  PrintRX_DONE();
+  PrintRXDONE();
   if (GetEventSize()) ShowGroupReplies();
 }
 
@@ -1410,7 +1404,7 @@ unsigned int AMSWcom::ReadBusyMask(unsigned int addr) {
   IOutput("Busy mask of address %08x is %08x\n", addr, mask);
   ShowTDRs(mask);
 
-  PrintRX_DONE(); 
+  PrintRXDONE(); 
   return (Event[0]<<16)+Event[1];
 }
 
@@ -1423,14 +1417,14 @@ unsigned int AMSWcom::ReadBusyStat(unsigned int addr) {
 
   ShowTDRs(stat);
 
-  PrintRX_DONE(); 
+  PrintRXDONE(); 
   return (Event[0]<<16)+Event[1];
 }
 
 void AMSWcom::SetMode(unsigned int addr, unsigned short mode) {
   IOutput("Setting processing mode to%s%s%s for address 0x%08x\n",(!mode)?" NO":"", (mode&1)?" RAW":"",(mode&2)?" RED":"",addr);
   Command(addr,cAMSW_CHMODE,1,mode);
-  PrintRX_DONE();
+  PrintRXDONE();
   if (GetEventSize()) ShowGroupReplies();
 }
 
@@ -1454,7 +1448,7 @@ unsigned short AMSWcom::ReadMode(unsigned int addr) {
   unsigned short status=0, saddr=0;
 
   //  IOutput("Address 0x%08x is in the%s%s%s processing mode\n",addr,(!mode)?" NO":"",(mode&1)?" RAW":"",(mode&2)?" RED":"");
-  //  PrintRX_DONE();
+  //  PrintRXDONE();
   
   if ((GetReplyStatus() & 0x20) == 0 ) { // we have a group structure
     int cnt=0;
@@ -1491,7 +1485,7 @@ unsigned short AMSWcom::ReadMode(unsigned int addr) {
 void AMSWcom::EventReset(unsigned int addr) {
   IOutput("Clearing Event FIFO and last event number of address 0x%08x\n",addr);
   Command(addr,cAMSW_EVNTRST,0);
-  PrintRX_DONE();
+  PrintRXDONE();
   if (GetEventSize()) ShowGroupReplies();
 }
 
@@ -1499,7 +1493,7 @@ unsigned short AMSWcom::GetLastEventN(unsigned int addr) {
   IOutput("Getting last event number from address 0x%08x\n",addr);
 
   Command(addr,cAMSW_EVNTNUM,0);
-  PrintRX_DONE();
+  PrintRXDONE();
   PrintEvent();
  
   IOutput("Last event number of address 0x%08x is 0x%04x\n",addr,Event[0]);
@@ -1510,7 +1504,7 @@ unsigned short AMSWcom::GetLastEventN(unsigned int addr) {
 unsigned short AMSWcom::GetEvent(unsigned int addr) {
   IOutput("Getting event from address 0x%08x\n", addr);
   Command(addr,cAMSW_EVNTGET,0);
-  PrintRX_DONE();
+  PrintRXDONE();
   PrintEvent();
   return EventSize;
 }
@@ -1523,7 +1517,6 @@ void AMSWcom::GetEvent(unsigned int addr, int trigger) {
   InterpretData();
   PrintRXDONE();
 }
-
 
 void AMSWcom::GetEvent(unsigned int addr, int trigger, int limit) {
   IOutput("Looping GetEvent from address 0x%08x, until event size is > %d\n", addr,limit);
@@ -1556,6 +1549,21 @@ void AMSWcom::PrintEvent() {
   }
   //  IOutput("CRC= 0x%04x\n",GetCRC());  
   IOutput("\n");
+}
+
+void AMSWcom::PrintEvent(int length) {
+  FILE *f=fopen("dump.txt","wt");
+  if (length==-1) length=GetEventSize();
+  for (int i=0; i<length; i++) {
+    if (i%16==0) IOutput("%5d: ",i);
+    IOutput("%04x ",Event[i]);
+    if ((i+1)%16==0) IOutput("\n");
+    if (f) fprintf(f,"%04x\n", Event[i]);
+  }
+  //  IOutput("CRC= 0x%04x\n",GetCRC());  
+  IOutput("\n");
+  IOutput("Event size = %d\n", GetEventSize());
+  if (f) fclose(f);
 }
 
 int AMSWcom::CommandEPP(int args, unsigned short *params, int mode24) {
@@ -1979,7 +1987,7 @@ void AMSWcom::Ping(unsigned int addr, int nval) {
   
   Ping(addr,nval);
 
-  PrintRX_DONE();
+  PrintRXDONE();
   PrintEvent();
 }
 
@@ -2120,7 +2128,7 @@ void AMSWcom::ReadQList(unsigned int addrl) {
 void AMSWcom::ReadDM(unsigned int addr, unsigned short start, unsigned short length) {
   IOutput("Reading Data Memory of address 0x%08x, at 0x%04x and length 0x%04x\n", addr, start, length);
   Command(addr,cAMSW_READDM,2,(0x4000 | length),start);
-  PrintRX_DONE();
+  PrintRXDONE();
   PrintEvent();
 }
 
@@ -2139,7 +2147,7 @@ void AMSWcom::ReadPM(unsigned int addr, unsigned short start, unsigned short len
   IOutput("Reading Program Memory of address 0x%08x, at 0x%04x and length 0x%04x\n", addr, start, length);
 
   Command(addr,cAMSW_READPM,3,length,start, mode24);
-  PrintRX_DONE();
+  PrintRXDONE();
   PrintEvent();
   IOutput("event size=%d\n", EventSize);
 }
@@ -2454,7 +2462,7 @@ void AMSWcom::ShowTDRs(unsigned int mask) {
   }
 }
 
-void ShowReplies(int repl[24]) {
+void AMSWcom::ShowReplies(int repl[24]) {
   const int config[24]={0,4,8,0xc,0x10,0x14,0x16,0x12,0xe,0xa,6,2,  1,5,9,0xd,0x11,0x15,0x17,0x13,0xf,0xb,7,3};  
   const char err[5][55]={"---\0", "\033[1;31mABO\033[0m\0","\033[1;36mERR\033[0m\0","\033[1;35mTIM\033[0m\0","\033[1;32mEND\033[0m\0"};
 
@@ -2467,12 +2475,10 @@ void ShowReplies(int repl[24]) {
   }
 }
 
-
-
 void AMSWcom::PrintSummary( unsigned int address) {
 
   GetSummary(address);
-  PrintRX_DONE();
+  PrintRXDONE();
   if (!(EventSize)) return;
   IOutput("Flash Summary of address 0x%08x:\n", address);
   IOutput("--------------------------------------------\n");
@@ -2540,7 +2546,7 @@ void AMSWcom::PrintNodeStatus( unsigned int addr) {
   double times=0, timem=0, timeh=0, timed=0;
 
   GetStatus(addr);
-  PrintRX_DONE();
+  PrintRXDONE();
 
   ver=GetNodeStatus().Ver;
   sprintf(string,"Program version date %02d.%02d.%04d", (0x00ff & ver), (0x0f00 & ver)>>8, 2000+(ver>>12) );
@@ -2643,8 +2649,8 @@ int AMSWcom::SaveFlashFile(char *name) {
     seglen&=0x3fff;
 
     if (!flag) seglen=3*seglen/2;
-    for (int i=0; i<seglen; i++) {
-      if (i==0) cnt2=0;
+    for (int j=0; j<seglen; j++) {
+      if (j==0) cnt2=0;
       fprintf(out,"%04x\n",Event[cnt]);
       array[cnt2++]=Event[cnt];
       cnt++;
@@ -2670,7 +2676,7 @@ int AMSWcom::CreateFlashFile(unsigned int amswaddr) {
 
   FILE *in, *out;
   char chain[MAX_STRN];
-  unsigned short fname, fn, flag, length, page, addr, nseg, slen, saddr, nw;
+  unsigned short fname, fn, flag, length, page, addr, nseg, slen, saddr, nw, type;
 
   if( (in = fopen(file_par, "r")) == NULL) {
     FOutput("File create: input file %s open error\n", file_par);
@@ -2906,12 +2912,12 @@ int AMSWcom::WriteFlashFile(unsigned int amswaddr, char *name) {
   fclose(in); 
 
   FlashWrite(amswaddr,cnt);
-  PrintRX_DONE();
+  PrintRXDONE();
 
   return 0;
 }
 
-void CalibrationRead(unsigned int addr, unsigned short mode, unsigned short param2) {
+void AMSWcom::CalibrationRead(unsigned int addr, unsigned short mode, unsigned short param2) {
 
  if (mode > 1) return;
 
@@ -3102,7 +3108,7 @@ void CalibrationRead(unsigned int addr, unsigned short mode, unsigned short para
       
       //IOutput("pedestals: ped[1024]=%x   ped[1025]=%x\n",ped[1024],ped[1025]);
 
-      IOUtput("Common noise:\n");
+      IOutput("Common noise:\n");
       for (int va=0; va<16; va++) IOutput("Va %2d: %5.3f  %5.3f\n",va,((short) cnm[va])/8.0, cn[va]/8.0);
       IOutput("\n");
       
@@ -3245,7 +3251,7 @@ void AMSWcom::LoadCalibrationFile(unsigned int addr,char *file, int calflag) {
   
 }
 
-void CommandLV1(int ntrig) {
+void AMSWcom::CommandLV1(int ntrig) {
   int cnt=0;
   while (1) {
     Command_Lv1();
@@ -3258,6 +3264,9 @@ void CommandLV1(int ntrig) {
 }
 
 int AMSWcom::ProcessHexCommand(unsigned int addr,ushort cmd,int nparam, ushort * param){
+  double elapsed=0;
+  struct timeval tv1,tv2;
+
   switch (cmd) {
   case cAMSW_SLAVTST:
     SlaveTest(addr);
@@ -3295,9 +3304,9 @@ int AMSWcom::ProcessHexCommand(unsigned int addr,ushort cmd,int nparam, ushort *
   case cAMSW_CHMODE:
     SetMode(addr,param[0]);
     break;
-  case cAMSW_CALRED:
-    GetCalibration(addr,param[0]);
-    break;
+    //  case cAMSW_CALRED:
+    //    GetCalibration(addr,param[0]);
+    //    break;
   case cAMSW_CALPED:
     if (nparam==1) Calibrate(addr,param[0]);
     else if (nparam==2) Calibrate(addr,param[0], param[1]);
@@ -3376,7 +3385,7 @@ int AMSWcom::ProcessHexCommand(unsigned int addr,ushort cmd,int nparam, ushort *
     ReadBusyStat( addr);
     break;
   case cAMSW_LV1:
-    CommandLVL1(param[0]);
+    CommandLV1(param[0]);
     break;
   case cAMSW_QLISTRD:
     ReadQList( addr);
@@ -3405,44 +3414,41 @@ int AMSWcom::ProcessHexCommand(unsigned int addr,ushort cmd,int nparam, ushort *
   case cAMSW_COMMAND:
     for(int ii=0;ii<nparam;ii++) IOutput("0x%04x",param[ii]);
     IOutput("\n");
-    struct timeval tv1,tv2;
     gettimeofday(&tv1,0);
     Command(nparam,param);
     gettimeofday(&tv2,0);
-    double elapsed=(tv2.tv_sec-tv1.tv_sec)*1000+ (tv2.tv_usec-tv1.tv_usec)/1000;
+    elapsed=(tv2.tv_sec-tv1.tv_sec)*1000+ (tv2.tv_usec-tv1.tv_usec)/1000;
     IOutput("Elapsed time is %6.2f seconds\n",elapsed/1000.);
-    PrintRX_DONE();
+    PrintRXDONE();
     PrintEvent();
-    IOutput("size = %d\n", Jinf->GetEventSize());
+    IOutput("size = %d\n", GetEventSize());
     PrintBuildStat(GetBuildStat());
     break;
   case cAMSW_GCOMMAND:
     for(int ii=0;ii<nparam;ii++) IOutput("0x%04x",param[ii]);
     IOutput("\n");
-    struct timeval tv1,tv2;
     gettimeofday(&tv1,0);
     Command2(addr,param[0],nparam-1,&(param[1]));
     gettimeofday(&tv2,0);
-    double elapsed=(tv2.tv_sec-tv1.tv_sec)*1000+ (tv2.tv_usec-tv1.tv_usec)/1000;
+    elapsed=(tv2.tv_sec-tv1.tv_sec)*1000+ (tv2.tv_usec-tv1.tv_usec)/1000;
     IOutput("Elapsed time is %6.2f seconds\n",elapsed/1000.);
-    PrintRX_DONE();
+    PrintRXDONE();
     PrintEvent();
-    IOutput("size = %d\n", Jinf->GetEventSize());
+    IOutput("size = %d\n", GetEventSize());
     PrintBuildStat(GetBuildStat());
     break;
   case cAMSW_RCOMMAND:
     for(int ii=0;ii<nparam;ii++) IOutput("0x%04x",param[ii]);
     IOutput("\n");
-    struct timeval tv1,tv2;
     gettimeofday(&tv1,0);
     RAWCommand(addr,nparam,&(param[0]));
     gettimeofday(&tv2,0);
-    double elapsed=(tv2.tv_sec-tv1.tv_sec)*1000+ (tv2.tv_usec-tv1.tv_usec)/1000;
+    elapsed=(tv2.tv_sec-tv1.tv_sec)*1000+ (tv2.tv_usec-tv1.tv_usec)/1000;
     IOutput("Elapsed time is %6.2f seconds\n",elapsed/1000.);
-    PrintRX_DONE();
+    PrintRXDONE();
     PrintEvent();
     PrintBuildStat(GetBuildStat());
-    IOutput("size = %d\n", Jinf->GetEventSize());
+    IOutput("size = %d\n", GetEventSize());
     break;
   case cAMSW_TEST:
     SaveJLV1Conf(addr);
@@ -3450,13 +3456,13 @@ int AMSWcom::ProcessHexCommand(unsigned int addr,ushort cmd,int nparam, ushort *
   case cAMSW_TEST2:
     WriteJLV1Conf(addr);
     break;
-  case cAMSW_WRTCONF:
-    Command2(addr, 0x49, nparam, &(param[0]));
-    break;
-  case cAMSW_RDCONF:
-    Command2(addr, 0x09, nparam, &(param[0]));
-    PrintEvent();
-    break;
+//   case cAMSW_WRTCONF:
+//     Command2(addr, 0x49, nparam, &(param[0]));
+//     break;
+//   case cAMSW_RDCONF:
+//     Command2(addr, 0x09, nparam, &(param[0]));
+//     PrintEvent();
+//     break;
   default:
     IOutput("Command not implemented yet, use ff10, ffff or fffe\n");
     IOutput("ff10 for the rawcommand a la Philipp\n");
@@ -3482,7 +3488,7 @@ unsigned short AMSWcom::SaveJLV1Conf(unsigned int selfaddr){
   
   Command2(selfaddr,0x09,37,array);
  
-  PrintRX_DONE();
+  PrintRXDONE();
   PrintEvent();
   
   char filename[200];
@@ -3543,7 +3549,7 @@ unsigned short AMSWcom::WriteJLV1Conf(unsigned int selfaddr){
 //   IOutput(" \n  Sending Conf to JLV1 ... \n");
 //   Command2(selfaddr,0x0F,cnt,array);
 
-//    PrintRX_DONE();
+//    PrintRXDONE();
 //     PrintEvent();
 //   sprintf(filename,"conf_JLV1-1_busy.dat");
   
@@ -3563,7 +3569,7 @@ unsigned short AMSWcom::WriteJLV1Conf(unsigned int selfaddr){
 // //   }
 // IOutput(" \n  Sending Busy mask to JLV1 ... \n");
 //   Command2(selfaddr,0x0F,cnt,array);
-//  PrintRX_DONE();
+//  PrintRXDONE();
 //     PrintEvent();
   return cnt;
 }
@@ -3650,22 +3656,22 @@ void AMSWcom::TranslateState(int crateno, unsigned short var, unsigned short con
   int subg=(var & 0x0F00)>>8;
   int name=var & 0xff;
   
-  PRINTF("Crate %d ",crateno);
+  IOutput("Crate %d ",crateno);
   
   if (group==0) {
-    PRINTF("%s: %s is %x\n",groupn[group],s9011[subg][name],cont);
+    IOutput("%s: %s is %x\n",groupn[group],s9011[subg][name],cont);
   }
   else if (group<5) {
-    PRINTF("%s: %s is %x\n",groupn[group],tpsfe[subg][name],cont);
+    IOutput("%s: %s is %x\n",groupn[group],tpsfe[subg][name],cont);
   }
   else if (group<8) {
-    PRINTF("%s: %s is %x\n",groupn[group],tbs[subg][name],cont);
+    IOutput("%s: %s is %x\n",groupn[group],tbs[subg][name],cont);
   }
   else if (group==8) {
-    PRINTF("%s: %s is %x\n",groupn[group],crate,cont);
+    IOutput("%s: %s is %x\n",groupn[group],crate,cont);
   }
   else {
-    PRINTF("unknown group %d\n", group);
+    IOutput("unknown group %d\n", group);
   }
   
 }
@@ -3990,21 +3996,6 @@ void AMSWcom::PrintCluster(unsigned short length, unsigned short cnt) {
   IOutput("node address 0x%04x\n", nodestat & 0x1f);
   
   IOutput("\n"); 
-}
-
-void AMSWcom::PrintEvent(int length) {
-  FILE *f=fopen("dump.txt","wt");
-  if (length==-1) length=GetEventSize();
-  for (int i=0; i<length; i++) {
-    if (i%16==0) IOutput("%5d: ",i);
-    IOutput("%04x ",Event[i]);
-    if ((i+1)%16==0) IOutput("\n");
-    if (f) fprintf(f,"%04x\n", Event[i]);
-  }
-  //  IOutput("CRC= 0x%04x\n",GetCRC());  
-  IOutput("\n");
-  IOUtput("Event size = %d\n", GetEventSize());
-  if (f) fclose(f);
 }
 
 void AMSWcom::ShowGroupReplies() {

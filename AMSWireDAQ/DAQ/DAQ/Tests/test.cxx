@@ -42,8 +42,7 @@ int main(int argv, char **argc) {
     return 1;
   }
 
-  node->InitCalParMem();
-
+  AMSWcom::InitCalParMem();
   memset(param,0,sizeof(param));
 
   for (int i=0; i<argv; i++) printf("%s ",argc[i]);

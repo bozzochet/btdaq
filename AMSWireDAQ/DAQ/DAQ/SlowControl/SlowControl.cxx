@@ -1,6 +1,6 @@
 #include <string.h>
 #include "SlowControl.h"
-#include "amswcom.h"
+#include "amswcomtest.h"
 
 
 sTPSFEaddr& operator ++(sTPSFEaddr& addr, int) {
@@ -104,6 +104,7 @@ ushort SlowControl::ReadRegister(ushort r) {
   ushort val=(res & 0xffff);
   ErrLecroy=res>>16;
   ErrAmsw=Amswire->GetRX_DONE();
+  if (Debug) printf("return value: 0x%04x\n",val);
   return val;
 }
 

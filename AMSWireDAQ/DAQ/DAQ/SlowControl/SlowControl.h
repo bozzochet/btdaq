@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include "SlowControlTypes.h"
-#include "amswcom.h"
+#include "amswcomtest.h"
 #include "QList.h"
 
 class SlowControl {
