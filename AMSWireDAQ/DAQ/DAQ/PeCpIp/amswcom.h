@@ -245,6 +245,7 @@ class AMSWcom
   //Printout functions
   void PrintEvent();
   void PrintRX_DONE();
+  void PrintRXDONE();
   int PrintRXDONE(char* message);
   void ShowConnect(SlaveMask mask);
   void ShowTDRs(unsigned int mask);
