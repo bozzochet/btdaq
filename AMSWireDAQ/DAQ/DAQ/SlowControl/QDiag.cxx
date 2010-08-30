@@ -1,9 +1,7 @@
-#include <stdio.h>
-#include <iostream>
 #include "QDiag.h"
 
 
-//#define PRINTF(a...) { printf(a); if (fLogFile) fprintf(fLogFile,a); fflush(fLogFile); }
+//#define PRINTF(a...) { printf(a); if (fLogFile) { fprintf(fLogFile,a); fflush(fLogFile);}  }
 
 #define PRINTF(a...) { printf(a); }
 
@@ -306,8 +304,8 @@ void QDiag::DiagS9011AT(QData *qdataref, QData *qdata) {
       int bval=(val>>bit)&1;
       int bref=(valref>>bit)&1;
       
-      if (bit<2)           PRINTF("%s, Local  ctrl S9053 %s - expected %s, but is %s\n",cid, names[bit], cstate[bref],cstate[bval]);
-      if (bit>1 && bit<4)  PRINTF("%s, Local  ctrl S9053 %s - expected %s, but is %s\n",cid, names[bit], cstate[1-bref],cstate[1-bval]);
+      if (bit==0 || bit==2)           PRINTF("%s, Local  ctrl S9053 %s - expected %s, but is %s\n",cid, names[bit], cstate[bref],cstate[bval]);
+      if (bit==1 || bit==3)  PRINTF("%s, Local  ctrl S9053 %s - expected %s, but is %s\n",cid, names[bit], cstate[1-bref],cstate[1-bval]);
       if (bit>3 && bit<8)  PRINTF("%s, Local  ctrl S9055 %s - expected %s, but is %s\n",cid, names[bit-4], cstate[bref],cstate[bval]);
       if (bit>7 && bit<12) PRINTF("%s, Status   S9053 %s - expected %d, but is %d\n",cid, names[bit-8], bref,bval);
       if (bit>11)          PRINTF("%s, Status   S9055 %s - expected %d, but is %d\n",cid, names[bit-12], bref,bval);
@@ -321,8 +319,8 @@ void QDiag::DiagS9011AT(QData *qdataref, QData *qdata) {
       int bref=(valref>>bit)&1;
       
       if (bit<8)            PRINTF("%s, Global ctrl S9051 %s - expected %s, but is %s\n",cid, names[bit], cstate[bref],cstate[bval]);
-      if (bit>7 && bit<10)  PRINTF("%s, Global ctrl S9053 %s - expected %s, but is %s\n",cid, names[bit-8], cstate[bref],cstate[bval]);
-      if (bit>9 && bit<12)  PRINTF("%s, Global ctrl S9053 %s - expected %s, but is %s\n",cid, names[bit-8], cstate[1-bref],cstate[1-bval]);
+      if (bit==8 || bit==10)  PRINTF("%s, Global ctrl S9053 %s - expected %s, but is %s\n",cid, names[bit-8], cstate[bref],cstate[bval]);
+      if (bit==9 || bit==11)  PRINTF("%s, Global ctrl S9053 %s - expected %s, but is %s\n",cid, names[bit-8], cstate[1-bref],cstate[1-bval]);
       if (bit>11 && bit<16) PRINTF("%s, Global ctrl S9055 %s - expected %s, but is %s\n",cid, names[bit-12], cstate[bref],cstate[bval]);
     }
   } else if (reg==4) {

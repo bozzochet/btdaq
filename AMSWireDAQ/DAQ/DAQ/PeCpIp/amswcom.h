@@ -12,6 +12,13 @@ using namespace std;
 
 #define MAX_STRN 0x100
 
+#define kPEDS 1
+#define kSIGL 2
+#define kSIGH 4
+#define kSIGR 8
+#define kSTAT 16
+#define kALL  0x1f
+
 typedef unsigned short ushort;
 typedef unsigned int uint;
 
@@ -199,6 +206,7 @@ class AMSWcom
   unsigned short DoFCS(unsigned char *data, int size);
   unsigned short DoFCS(unsigned short *data, int size);
 
+  void ShowGroupReplies();
   unsigned short GetReplyStatus() { return ReplyStatus; }
   void SetDEBUG(int mode);
   int CommandEPP(unsigned int addrl, unsigned char cmd, int args, ... );
@@ -215,6 +223,8 @@ class AMSWcom
   unsigned short WriteJLV1Conf(unsigned int selfaddr);
   int WriteJLV1BusyMask(unsigned int addr, ushort busy0x12, ushort busy0x13, ushort busy0x14);
   void JMDC_CMD_SendStripping();
+  void WriteCalibParam(unsigned int amswaddr, char *filename);
+  void LoadCalibrationFile(unsigned int addr,char *file, int calflag);
 
   int ProcessHexCommand(unsigned int addr, ushort cmd,int nparam, ushort * param);
   //int CommandPCI(char *command, unsigned short addr, unsigned char cmd, int args, unsigned short *params);
@@ -244,14 +254,20 @@ class AMSWcom
   //-------------------------------------------------
   //Printout functions
   void PrintEvent();
-  void PrintRX_DONE();
-  void PrintRXDONE();
-  int PrintRXDONE(char* message);
+  void PrintEvent(int length);
+  unsigned short GetRX_DONE() { return  RX_DONE; }
+  int GETRXDONE();
+  int PrintRXDONE(char* message=0);
   void ShowConnect(SlaveMask mask);
   void ShowTDRs(unsigned int mask);
   void PrintSummary( unsigned int address);
   void PrintBuildStat(unsigned short e1);
   void PrintNodeStatus( unsigned int addr);
+  void textcolor(int attr, int fg, int bg);
+  void resetcolor();
+  void PrintCluster(unsigned short length, unsigned short cnt);
+  void ShowEvtRepl(unsigned int stat, unsigned short err[24]);
+  void ShowReplies(int repl[24]);
   //-------------------------------------------------
 
   void SetHW(int hardware); // set the hardware type
@@ -273,6 +289,7 @@ class AMSWcom
   int  CreateFlashFile(unsigned int amswaddr);
   int  WriteFlashFile(unsigned int amswaddr, char *name);
   void FlashWrite(unsigned int addrl, unsigned short length);
+  void ReadFlashFile(unsigned int addr, unsigned short file);
 private:
   int  SaveFlashFile( char *name);
   //-------------------------------------------------
@@ -282,12 +299,17 @@ public:
   void GetSummary (unsigned int addr);
   void SetParameter(unsigned int add, unsigned short type, unsigned short name, unsigned short val);
   void SetParameter(unsigned int addr, unsigned short type, unsigned short name1, unsigned short val1,  unsigned short name2, unsigned short val2);
+  void SetParameter(unsigned int addr, unsigned short parnam, unsigned short parcont);
   unsigned short GetParameter(unsigned int add, unsigned short type, unsigned short name);
+  void GetParameter(unsigned int addr, unsigned short parnam);
   //  void Command_ReadMemory          ( unsigned short addr, bool progData, unsigned short address, unsigned short length );
   void ReadDM(unsigned int addr, unsigned short start, unsigned short length);
   void ReadPM(unsigned int addr, unsigned short start, unsigned short length, int mode24);
   void ReadMemory(unsigned int addr, unsigned short start, unsigned short length, int memtype, int mode24);
+  void WritePMCalib(unsigned int amswaddr, unsigned short addr, void *data, unsigned short size, int mode);
+  void WriteDMCalib(unsigned int amswaddr, unsigned short addr, void *data, unsigned short size);
   void WriteDM(unsigned int addr, unsigned short start, unsigned short length);
+  void WriteDM(unsigned int amswaddr, char *datafil);
   void WritePM(unsigned int addr, unsigned short start, unsigned short length);
   void PerformIO(unsigned int addr, unsigned short seglen, unsigned short segaddr);
   void Ping(unsigned int addr, int nval);
@@ -304,6 +326,7 @@ public:
 
   void GetCalibration(unsigned int addr, FILE *textfile=0);
   ushort  GetCalibration(unsigned int addr,ushort par);
+  void CalibrationRead(unsigned int addr, unsigned short mode, unsigned short param2=0);
 
   void SetMode(unsigned int addr, unsigned short mode);
   unsigned short ReadMode(unsigned int addr);
@@ -324,10 +347,13 @@ public:
   unsigned short GetSSF(unsigned int addr);
   void SDprocRead(unsigned int addr, unsigned short mode);
   void SDprocRead(unsigned int addr, unsigned short mode, unsigned short par);
+  void SDProcRead(unsigned int addr, unsigned short par);
   void SDProc(unsigned int addr, unsigned short cmd);
   void SDProc(unsigned int addr, unsigned short cmd, unsigned short par);
   void SDProc(unsigned int addr, unsigned short cmd, unsigned short par, unsigned short par2);
   unsigned short GetEvent(unsigned int addr);
+  void GetEvent(unsigned int addr, int trigger);
+  void GetEvent(unsigned int addr, int trigger, int limit);
   unsigned short GetLastEventN(unsigned int addr);
   void EventReset(unsigned int addr);
   void GetStatus(unsigned int addr);
@@ -338,6 +364,7 @@ public:
   void SetDataSize(unsigned short size) { DataSize=size; }
   void Command_Lv1(int);
   int Command_Lv1();
+  void CommandLV1(int ntrig);
   
   int GetEventSize() { return EventSize; }
   int Convert24();
@@ -345,8 +372,6 @@ public:
   void SetTimeOut(int timems) { TimeOut=timems; }
   int GetTimeOut() { return TimeOut; }  
 
-  unsigned short GetRX_DONE() { return  RX_DONE; }
-  int GETRXDONE();
   FlashList GetSummary(int sector) { return FlashSummary[sector]; }
   unsigned short GetBuildStat() { return BuildStat; }
   unsigned short GetCRC() { return CRC; }
@@ -354,6 +379,11 @@ public:
 
   void SetCalParMem(CalibMemory *calmem);
   //  void Lecroy(unsigned short addr, unsigned short lrcommand, unsigned short parameter);
+
+  void InterpretData();
+  void Reorganize(unsigned short *array);
+  static void InitCalParMem();
+  void TranslateState(int crateno, unsigned short var, unsigned short cont);
 
 };
 

@@ -1,8 +1,14 @@
 #ifndef QLIST_H 
 #define QLIST_H
 
-#include "SlowControlTypes.h"
 #include <stdio.h>
+#include <iostream>
+
+using namespace std;
+#include "SlowControlTypes.h"
+
+//#define PRINTF(a...) { printf(a); if (fLogfil) {fprintf(fLogfil,a); fflush(fLogfil);} }
+//#define PRINTF(a...) { printf(a); }
 
 class QCommand {
 
@@ -116,7 +122,8 @@ class QEvent {
  private:
   int fNdata;
   QData *fQStart;
-  
+  FILE *fLogfil;  
+
  public:
   QEvent();
   ~QEvent();
@@ -128,7 +135,7 @@ class QEvent {
   //  int CompareEventData(QEvent *qevent);
   QData* GetQData(int pos);
   void Clear();
-
+  void SetLogFile(FILE *fil);
   int Read(char *cfile);
   int Write(char *cfile);
   int Read(FILE *file);
