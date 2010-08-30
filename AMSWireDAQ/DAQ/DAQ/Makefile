@@ -72,4 +72,4 @@ SUMMARY: $(TOP)/TakeData/summary.o
 	$(CXX)  $< -c  -o $@ $(CFLAGS)  $(CPPFLAGS)
 
 clean:
-	rm -fv */*.o test lib/lib*.a ./TESTpci ./TESTepp ./TESTjmdc ./TakeJinjPCI ./TakeJinjEPP ./TakeJinjJMDC ./TakePCI ./TakeEPP  ./TakeJMDC ./SUMMARY
+	rm -fv */*.o test lib/lib*.a ./TESTpci ./TESTepp ./TESTjmdc ./TakeJinjPCI ./TakeJinjEPP ./TakeJinjJMDC ./TakePCI ./TakeEPP  ./TakeJMDC ./SUMMARY ./Tests/test.o ./SlowControl/QList.o
