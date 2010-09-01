@@ -1,0 +1,29 @@
+#!/bin/bash
+
+echo "Usage: $0 NN"
+echo "       where NN is the delay in nanoseconds to be used by JINF-T"
+echo "--------------------------------------------------------------------------------------------"
+
+echo ""
+
+echo "DataPath: ./Data/" > ./ConfFiles/JINF_00.conf.bkp
+echo "CalPath: ./Calibrations/" >> ./ConfFiles/JINF_00.conf.bkp
+echo "JINFflash: 2922" >> ./ConfFiles/JINF_00.conf.bkp
+echo "TDRflash: 2e73" >> ./ConfFiles/JINF_00.conf.bkp
+if (( $# >= 1))
+then
+    echo "Delay:  $1" >> ./ConfFiles/JINF_00.conf.bkp
+else
+    echo "No parameter for the dalay to be applied was passed, using the standard one!"
+    echo "Delay:  2500" >> ./ConfFiles/JINF_00.conf.bkp
+fi
+echo "#TDR:     FLAG:    DAQ_MODE:   SLowThresh:   SHighThresh:  KLowThresh:  KHighThresh: SigmaRawThresh:   OccupancyThresh:" >> ./ConfFiles/JINF_00.conf.bkp
+
+for ((crate=0; crate < 24; crate++))
+do
+    printf "%02d          1          2          1              4            1              4            30              100\n" $crate >> ./ConfFiles/JINF_00.conf.bkp
+
+done
+
+echo "the file ./ConfFiles/JINF_00.conf.bkp was created"
+
