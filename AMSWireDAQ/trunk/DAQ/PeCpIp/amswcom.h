@@ -5,8 +5,6 @@
 #include <string>
 #include <sys/types.h> // needed to add this to compile on Fedora10
 
-using namespace std;
-
 #define    SUCCESS        0
 #define    ERROR          1
 
@@ -44,12 +42,6 @@ typedef unsigned int uint;
 #define    DATAMEMORY      1
 #define    EVENTSIZE       16384
 #define    CMDSIZE         300
-
-class EppOutput
-{
-	public:
-	virtual void EppPrint( const std::string & s ) = 0;
-};
 
 typedef void (*OUTFUN) (std::string s);
 
@@ -142,7 +134,7 @@ class AMSWcom
   unsigned short FCS_Table[256];
   unsigned short DataSize;
 
-  OUTFUN  Outfun;
+  OUTFUN  Output;
   unsigned short ReplyStatus;
 
   //  int Init_commandEPP   (unsigned short addr, unsigned short cmd, int args, ... );
@@ -190,17 +182,11 @@ class AMSWcom
   void SetOutput( OUTFUN );
   static void OutputStd  ( std::string s );  
   static void OutputFile ( std::string s );
-
-  void SetOutput( EppOutput * myOut );
-  void Output  ( string s );
   void FOutput ( const char * fmt, ... ); // gcc 4.3 : needed to add const
   void IOutput ( const char * fmt, ... ); // gcc 4.3 : needed to add const
 
-  EppOutput * out;
-
   void SetInteractive();
   void SetBatch();
-
   unsigned short DoFCS();
   unsigned short DoFCS(int size);
   unsigned short DoFCS(unsigned char *data, int size);
@@ -208,7 +194,8 @@ class AMSWcom
 
   void ShowGroupReplies();
   unsigned short GetReplyStatus() { return ReplyStatus; }
-  void SetDEBUG(int mode);
+ 
+ void SetDEBUG(int mode);
   int CommandEPP(unsigned int addrl, unsigned char cmd, int args, ... );
   int CommandEPP(int args, unsigned short *params, int mode24=0);
   void CommandPCI(unsigned int addrl, unsigned char cmd, int args, ... );
@@ -223,6 +210,7 @@ class AMSWcom
   unsigned short WriteJLV1Conf(unsigned int selfaddr);
   int WriteJLV1BusyMask(unsigned int addr, ushort busy0x12, ushort busy0x13, ushort busy0x14);
   void JMDC_CMD_SendStripping();
+
   void WriteCalibParam(unsigned int amswaddr, char *filename);
   void LoadCalibrationFile(unsigned int addr,char *file, int calflag);
 

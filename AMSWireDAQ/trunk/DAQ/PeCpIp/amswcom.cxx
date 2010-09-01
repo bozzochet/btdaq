@@ -67,7 +67,6 @@ AMSWcom::AMSWcom(int portnum, int hardware, int card) {
   hwtype=hardware;
   port=portnum;
   pcicard=card;
-  out=NULL; // no text output.
   sType=kBATCH;
 
   EventSize=0;
@@ -81,7 +80,7 @@ AMSWcom::AMSWcom(int portnum, int hardware, int card) {
     }
   }
 
-  Outfun=AMSWcom::OutputStd;
+  Output=AMSWcom::OutputStd;
   TimeOut=5000; // time in ms
   DEBUG=0;
   memset(FlashSummary,0,sizeof(FlashSummary));
@@ -797,22 +796,9 @@ void AMSWcom :: Build_stat ()
   inw(EPPDATA);
 }
 
-void AMSWcom :: SetOutput( EppOutput * myOut )
-{
-	out = myOut;
-}
-
 void AMSWcom::SetOutput( OUTFUN aa){
 
-  Outfun=aa;
-}
-
-void AMSWcom :: Output( string s )
-{
-	if( out )
-	{
-		out -> EppPrint( s );
-	}
+  Output=aa;
 }
 
 void AMSWcom :: OutputStd( std::string s )
