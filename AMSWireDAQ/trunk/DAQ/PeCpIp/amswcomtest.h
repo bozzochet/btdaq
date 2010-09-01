@@ -72,8 +72,7 @@
 
 #include "amswcom.h"
 
-
-
+/*
 class EppLogger : public EppOutput
 {
   //	private:
@@ -89,9 +88,7 @@ class EppLogger : public EppOutput
 		free(p);
 	};
 };
-
-
-
+*/
 
 #endif
 
