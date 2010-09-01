@@ -1,0 +1,23 @@
+#!/bin/sh
+
+dtime=$1
+
+dtime2=$(($dtime*100/4)) 
+dtime2hex=`printf "%x" $dtime2`
+
+
+#echo ./TakeJEPP 0 CALIB
+#./TakeJEPP 0 CALIB
+#sleep 1
+# param to calibdt must be sent in hexadecimal
+echo /home/testsys/src/TDRv4.91j/calibdt $dtime2hex
+/home/testsys/src/TDRv4.91j/calibdt $dtime2hex
+sleep 3
+pippo=`date +%s`
+echo ./TakeJEPP 0 SAVECALIB $pippo
+./TakeJEPP 0 SAVECALIB $pippo
+let pluto=0x$dtime
+#echo $pluto
+echo `date`: CALIBRATION $pippo: with dt time $dtime us
+echo `date`: CALIBRATION $pippo: with dt time $dtime us >> shortlog.txt
+#printf "\n" >> shortlog.txt #useless cause seems that the command above leaves to new line
