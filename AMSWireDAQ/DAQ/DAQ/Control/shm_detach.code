@@ -1,0 +1,11 @@
+#ifdef S_CONTROL
+  CONTROL->Detach(); 
+#endif      
+
+#ifdef S_DATA
+  DATA->Detach();    
+#endif      
+
+#ifdef S_HISTO
+  HISTO->Detach();   
+#endif      

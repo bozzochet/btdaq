@@ -1,0 +1,12 @@
+Thu 30-Sep-2010 11:36:03: >>LOG: Initalizing processes....
+Thu 30-Sep-2010 11:36:03: >>DSP: Creating a ladder
+Thu 30-Sep-2010 11:36:03: >>DSP: TDR001
+Thu 30-Sep-2010 11:36:05: >>CTL: Reading Run info from Ladder directory - 74 runs found
+Thu 30-Sep-2010 11:36:05: >>CTL: Ladder TDR001 created
+Thu 30-Sep-2010 11:36:05: >>CTL: Control is alive
+Thu 30-Sep-2010 11:36:05: >>CTL: RUN is alive
+Thu 30-Sep-2010 11:36:05: >>DSP: Last calibration loaded
+Thu 30-Sep-2010 11:36:05: >>CTL: DSP is alive
+Thu 30-Sep-2010 11:36:05: >>CTL: LOG is alive
+Thu 30-Sep-2010 11:37:19: >>DSP: Finisihing DSP ... Goodbye
+Thu 30-Sep-2010 11:37:19: >>RUN: Finisihing RUN ... Goodbye
