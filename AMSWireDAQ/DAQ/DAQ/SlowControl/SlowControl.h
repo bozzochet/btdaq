@@ -29,7 +29,7 @@ class SlowControl {
   ushort GetErrAmsw() { return ErrAmsw; }
   void SetAMSWaddr(unsigned int addr) { AMSWaddr=addr; }
   unsigned int GetAMSWaddr() { return AMSWaddr; }
-  void SetCardType(char *name) { sprintf(CardType,"%s", name); }
+  void SetCardType(const char *name) { sprintf(CardType,"%s", name); }
   const char* GetCardType() { return CardType; }
   void SetName(char *name) { sprintf(CardName,"%s", name); }
   const char* GetName() { return CardName; }

@@ -1,0 +1,19 @@
+#ifdef Q_CTL
+Queue *toCTL;
+#endif
+
+#ifdef Q_LOG
+Queue *toLOG;
+#endif
+
+#ifdef Q_GUI
+Queue *toGUI;
+#endif
+
+#ifdef Q_RUN
+Queue *toRUN;
+#endif
+
+#ifdef Q_DSP
+Queue *toDSP;
+#endif

@@ -1,0 +1,76 @@
+#include <math.h> // for exp floor
+#include <stdlib.h>  // for random RAND_MAX and rand
+#include <time.h>
+#include <iostream.h>
+#include <fstream.h>
+#include <iomanip.h>
+
+#include "Mclib.h"
+#include "Ladder.h"
+
+Mclib::Mclib() {
+  srand(time(NULL));
+  ReadLadder();
+}
+
+void Mclib::ReadLadder(){
+  ifstream inFile;
+  inFile.open("l12pi010.cal",ios::in);
+  int kk1,kk2,kk3;
+  inFile >> kk1 >> kk2 >> kk3;
+  cout << max_number_va << channel_per_va << endl;
+  for (int va=0;va<max_number_va;va++)
+    inFile >> fCommonNoise[va];
+
+  for (int va=0;va<max_number_va;va++)
+    for (int ch=0;ch<channel_per_va;ch++)
+      inFile >> kk1 >> fPedestal[va][ch] >> fSigma[va][ch] 
+	            >> fGain[va][ch]     >> fStatus[va][ch]; 
+  inFile.close();
+  
+}
+
+
+void Mclib::GenerateEvent(int *aAdc){
+  float cn[max_number_va];
+  // Generate Common Noise + Pedestal
+  for (int va=0; va<max_number_va; va++){
+    cn[va]=Gaussian(0.0,fCommonNoise[va]);    // Common Noise
+    for (int ch=0; ch<channel_per_va; ch++)
+      aAdc[va*channel_per_va+ch] = 
+  	(int) (fPedestal[va][ch] +
+  	       Gaussian(0.0,fSigma[va][ch])+
+  	       cn[va]);                       // Pedestal
+  }
+
+  // Generate Signal
+
+  int maxch,len,lmin,lmax,ldif;
+  float hit,tot,sum[100],signal;
+
+  maxch = max_number_va*channel_per_va;
+  hit=(float)rand()/RAND_MAX*maxch; 
+  len=Poisson(0.8)+1;
+ 
+  lmin = (int)(hit-(float)len/2.0+0.5);
+  lmax = (int)(hit+(float)len/2.0+0.5);
+  ldif=lmax-lmin+1;
+  tot=0;
+  for (int i=0;i<ldif+1;i++){
+    sum[i]=exp(-pow((float)(lmin+i-hit)/len/3.0,2.0));
+    tot+=sum[i];  
+  }
+  for (int i=0;i<ldif+1;i++) sum[i]/=tot;
+
+  signal=Landau(37.0,5.0);
+  for (int i=lmin;i<lmax+1;i++){
+    aAdc[i]+=(int)(sum[i-lmin]*signal);
+    //    cout << "   " << setw(10) << sum[i-lmin] << setw(6) << aAdc[i] << endl;
+ }
+}
+
+
+
+
+
+

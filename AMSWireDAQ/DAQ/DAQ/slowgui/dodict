@@ -1,0 +1,1 @@
+rootcint -f slowguiDict.cxx -c slowgui.h slowguiLinkDef.h
