@@ -1,0 +1,3 @@
+3902          // file name (version 8c02) for jinft (no subd operations)
+02b8 a000     // page 4
+1734 0000     // segment1: length, address

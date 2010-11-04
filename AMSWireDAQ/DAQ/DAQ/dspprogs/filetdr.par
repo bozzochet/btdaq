@@ -1,0 +1,4 @@
+3ec3		// Test Claude for v550f from Andrei, red4r1, cal4r3 with CN 
+0178 a000	// page 4 contains evbld at 0x2000 
+02c4 e000	// page 5 contains calibration at 0x2000
+0be6 0000	// page 0 contains main program (must come last)
