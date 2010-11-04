@@ -1,0 +1,4 @@
+3a03		// daq a802 and red/cal. version 20100805 TDR R15_phazz
+093c a000	// page 4 contains evbld at 0x2000 
+096c e000	// page 5 contains calibration at 0x2000
+0ce2 0000	// page 0 contains main program (must come last)

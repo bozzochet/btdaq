@@ -1,0 +1,4 @@
+3ac3            // trackertest fast (pedestals, only 1st step)
+01c2 a000       // page 4 contains evbld at 0x2000
+0476 e000       // page 5 contains calibration at 0x2000
+0bf4 0000       // page 0 contains main program (must come last)

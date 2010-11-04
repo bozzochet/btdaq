@@ -1,0 +1,4 @@
+3c73            // cal trig param, dac, 52 2 w/o calib, init w/o cal, daq7608, red 7608_09_phazz2, thresh 3.75, 2.0, gaus: 10% 2sigma
+01dc a000       // page 4 contains evbld at 0x2000
+05ba e000       // page 5 contains calibration at 0x2000
+0c00 0000       // page 0 contains main program (must come last)

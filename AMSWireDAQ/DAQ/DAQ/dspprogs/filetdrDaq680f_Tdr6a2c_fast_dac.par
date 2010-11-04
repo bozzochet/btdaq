@@ -1,0 +1,4 @@
+3693            // calib 6426_04_fast with dac, reduction 6a0c (6426-05 with division bug fix) 
+01b6 a000       // page 4 contains evbld at 0x2000
+048c e000       // page 5 contains calibration at 0x2000
+0bf4 0000       // page 0 contains main program (must come last)

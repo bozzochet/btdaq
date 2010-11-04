@@ -1,12 +1,55 @@
-Thu 30-Sep-2010 11:36:03: >>LOG: Initalizing processes....
-Thu 30-Sep-2010 11:36:03: >>DSP: Creating a ladder
-Thu 30-Sep-2010 11:36:03: >>DSP: TDR001
-Thu 30-Sep-2010 11:36:05: >>CTL: Reading Run info from Ladder directory - 74 runs found
-Thu 30-Sep-2010 11:36:05: >>CTL: Ladder TDR001 created
-Thu 30-Sep-2010 11:36:05: >>CTL: Control is alive
-Thu 30-Sep-2010 11:36:05: >>CTL: RUN is alive
-Thu 30-Sep-2010 11:36:05: >>DSP: Last calibration loaded
-Thu 30-Sep-2010 11:36:05: >>CTL: DSP is alive
-Thu 30-Sep-2010 11:36:05: >>CTL: LOG is alive
-Thu 30-Sep-2010 11:37:19: >>DSP: Finisihing DSP ... Goodbye
-Thu 30-Sep-2010 11:37:19: >>RUN: Finisihing RUN ... Goodbye
+Wed 20-Oct-2010 12:03:03: >>LOG: Initalizing processes....
+Wed 20-Oct-2010 12:03:03: >>DSP: Creating a ladder
+Wed 20-Oct-2010 12:03:03: >>DSP: TDR001
+Wed 20-Oct-2010 12:03:06: >>CTL: Reading Run info from Ladder directory - 74 runs found
+Wed 20-Oct-2010 12:03:06: >>CTL: Ladder TDR001 created
+Wed 20-Oct-2010 12:03:06: >>CTL: Control is alive
+Wed 20-Oct-2010 12:03:06: >>CTL: RUN is alive
+Wed 20-Oct-2010 12:03:06: >>DSP: Last calibration loaded
+Wed 20-Oct-2010 12:03:06: >>CTL: DSP is alive
+Wed 20-Oct-2010 12:03:06: >>CTL: LOG is alive
+Wed 20-Oct-2010 12:03:29: >>CTL: Start Run 00075   Source:    DataMode: Raw Data            
+Wed 20-Oct-2010 12:03:29: >>RUN: creating the AMSW object...
+Wed 20-Oct-2010 12:03:29: >>RUN: Jinf object created
+Wed 20-Oct-2010 12:03:29: >>RUN: Please wait... JINF/TDRs initialization
+Wed 20-Oct-2010 12:03:29: >>RUN: Booting TDR (address 0xffff) with program 0x3a73
+Wed 20-Oct-2010 12:03:38: >>RUN: rxdone=0140
+Wed 20-Oct-2010 12:03:42: >>RUN: JINF/TDRs initialization done
+Wed 20-Oct-2010 12:03:42: >>RUN: Hardware reset sent
+Wed 20-Oct-2010 12:03:46: >>RUN: epp rxdone=0140
+Wed 20-Oct-2010 12:04:04: >>RUN: Please wait... JINF/TDRs initialization
+Wed 20-Oct-2010 12:04:04: >>RUN: Booting TDR (address 0xffff) with program 0x3a73
+Wed 20-Oct-2010 12:04:09: >>RUN: rxdone=4080
+Wed 20-Oct-2010 12:04:09: >>RUN: JINF/TDRs initialization done
+Wed 20-Oct-2010 12:04:09: >>RUN: Hardware reset sent
+Wed 20-Oct-2010 12:04:21: >>RUN: Please wait... JINF/TDRs initialization
+Wed 20-Oct-2010 12:04:21: >>RUN: Booting TDR (address 0xffff) with program 0x3a83
+Wed 20-Oct-2010 12:04:26: >>RUN: rxdone=4180
+Wed 20-Oct-2010 12:04:26: >>RUN: JINF/TDRs initialization done
+Wed 20-Oct-2010 12:04:26: >>RUN: Hardware reset sent
+Wed 20-Oct-2010 12:04:30: >>CTL: Start Run 00076   Source:    DataMode: Raw Data            
+Wed 20-Oct-2010 12:04:52: >>CTL: Start Run 00077   Source:    DataMode: Raw Data            
+Wed 20-Oct-2010 12:04:52: >>DSP: Opened output file: /home/testsys/data/testsys/TDR001/TDR001_00077.ascii
+Wed 20-Oct-2010 12:04:57: >>DSP: Closed output file: /home/testsys/data/testsys/TDR001/TDR001_00077.ascii
+Wed 20-Oct-2010 12:05:02: >>CTL: Start Run 00078   Source:    DataMode: Raw Data            
+Wed 20-Oct-2010 12:05:02: >>DSP: Opened output file: /home/testsys/data/testsys/TDR001/TDR001_00078.binary
+Wed 20-Oct-2010 12:05:25: >>DSP: Closed output file: /home/testsys/data/testsys/TDR001/TDR001_00078.binary
+Wed 20-Oct-2010 12:08:01: >>CTL: Start Run 00079   Source:    DataMode: Raw Data            
+Wed 20-Oct-2010 12:08:01: >>DSP: Opened output file: /home/testsys/data/testsys/TDR001/TDR001_00079.ascii
+Wed 20-Oct-2010 12:08:28: >>DSP: Closed output file: /home/testsys/data/testsys/TDR001/TDR001_00079.ascii
+Wed 20-Oct-2010 12:08:32: >>CTL: Start Run 00080   Source:    DataMode: Raw Data            
+Wed 20-Oct-2010 12:08:32: >>DSP: Opened output file: /home/testsys/data/testsys/TDR001/TDR001_00080.binary
+Wed 20-Oct-2010 12:08:59: >>DSP: Closed output file: /home/testsys/data/testsys/TDR001/TDR001_00080.binary
+Wed 20-Oct-2010 12:09:38: >>CTL: Start Run 00081   Source:    DataMode: Raw Data            
+Wed 20-Oct-2010 12:10:08: >>CTL: Starting Pedestal Calibration
+Wed 20-Oct-2010 12:10:09: >>CTL:    >>> Pass: 0 - Pedestal and Sigma Estimation:  1024 events
+Wed 20-Oct-2010 12:10:09: >>CTL: Start Run 00082   Source:    DataMode: Pedestal Calibration
+Wed 20-Oct-2010 12:10:11: >>CTL:    >>> Pass: 1 - Pedestal computation:  1024 events
+Wed 20-Oct-2010 12:10:14: >>CTL:    >>> Pass: 2 - Sigma Raw computation:  1024 events
+Wed 20-Oct-2010 12:10:16: >>CTL:    >>> Pass: 3 - Sigma computation:  2048 events
+Wed 20-Oct-2010 12:10:21: >>CTL:    >>> Pass: 4 - Common Noise Width computation:  1024 events
+Wed 20-Oct-2010 12:10:23: >>CTL: Pedestal Calibration Finished
+Wed 20-Oct-2010 12:10:23: >>CTL: Run 82 finished after 6144 events
+Wed 20-Oct-2010 12:10:30: >>CTL: Start Run 00083   Source:    DataMode: Raw Data            
+Wed 20-Oct-2010 12:18:05: >>DSP: Finisihing DSP ... Goodbye
+Wed 20-Oct-2010 12:18:05: >>RUN: Finisihing RUN ... Goodbye
