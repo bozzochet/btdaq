@@ -34,7 +34,7 @@ void SlowGui::GetTbsADCBiasVoltage(Int_t Tbs, Int_t update) {
 
   //printf("getting voltage adc for tbs %d, group %d\n",Tbs,group);
 
-  int pos=((Tbs)?18:1);
+  int pos=Offset+((Tbs)?18:1);
   
   TbsVolt[Tbs][0][0]=Node->Event[pos++]; // Hot
   TbsVolt[Tbs][0][1]=Node->Event[pos++]; // Cold
