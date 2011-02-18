@@ -166,10 +166,14 @@ void SlowGui::TestAMSW() {
   int test1=TestJinf(Node, AMSWaddr, JinftAver, JinftAsubver);
   int test2=TestJinf(NodeB, AMSWaddrB, JinftBver, JinftBsubver);
 
+  Offset=0;
+  int test3=(JinftAver!=JinftBver);
+
   UpdateAMSWireStatusBar();
 
-  if ((test1==0) && (test2==0)) {
+  if ((test1==0) && (test2==0) && (test3==0)) {
     // || (Node->GetHW()==kAMSW_EPP && Node->GetRX_DONE()==0x4180 ) || (Node->GetHW()==kAMSW_PCI && Node->GetRX_DONE()==0) || (Node->GetHW()==kAMSW_JMDC && Node->GetRX_DONE()==0)) 
+    if (JinftAver>0xA802) Offset=1;
     RefreshAll();
     EnableS9053();
 
@@ -1292,7 +1296,7 @@ void SlowGui::OpenDataFile(int crate) {
 
 
 ushort SlowGui::FindParameter(int param) {
-  int cnt=2;
+  int cnt=Offset+2;
 
   int len=Node->GetEventSize();
   len-=3;

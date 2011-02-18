@@ -196,6 +196,7 @@ class SlowGui {
 
   int AMSWmode, AMSWportA, AMSWportB;
   int TCrate;
+  int Offset;
 
  public:
   SlowGui(const TGWindow *p, UInt_t w, UInt_t h, int tcrate, unsigned int jinfaddra, unsigned int jinfaddrb, int porta, int portb );
