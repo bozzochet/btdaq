@@ -5,17 +5,11 @@
 #include <string>
 #include <sys/types.h> // needed to add this to compile on Fedora10
 
+
 #define    SUCCESS        0
 #define    ERROR          1
 
 #define MAX_STRN 0x100
-
-#define kPEDS 1
-#define kSIGL 2
-#define kSIGH 4
-#define kSIGR 8
-#define kSTAT 16
-#define kALL  0x1f
 
 typedef unsigned short ushort;
 typedef unsigned int uint;
@@ -133,9 +127,7 @@ class AMSWcom
   unsigned char cmdch[2*EVENTSIZE+10];
   unsigned short FCS_Table[256];
   unsigned short DataSize;
-
   OUTFUN  Output;
-  unsigned short ReplyStatus;
 
   //  int Init_commandEPP   (unsigned short addr, unsigned short cmd, int args, ... );
 
@@ -192,27 +184,21 @@ class AMSWcom
   unsigned short DoFCS(unsigned char *data, int size);
   unsigned short DoFCS(unsigned short *data, int size);
 
-  void ShowGroupReplies();
-  unsigned short GetReplyStatus() { return ReplyStatus; }
- 
- void SetDEBUG(int mode);
+  void SetDEBUG(int mode);
   int CommandEPP(unsigned int addrl, unsigned char cmd, int args, ... );
-  int CommandEPP(int args, unsigned short *params, int mode24=0);
+  int CommandEPP(int args, unsigned short* params, int mode24=0);
   void CommandPCI(unsigned int addrl, unsigned char cmd, int args, ... );
-  void CommandPCI(int args, unsigned short *params, int mode24=0);
-  int CommandJMDC(int args, unsigned short *params, int mode24);
+  void CommandPCI(int args, unsigned short* params, int mode24=0);
   int CommandJMDC(unsigned int addrl, unsigned char cmd, int args, ... );
+  int CommandJMDC(int args, unsigned short* params, int mode24);
   void Command(unsigned int addrl, unsigned char cmd, int args, ... );
   void Command2(unsigned int addrl, unsigned char cmd, int args, ushort* params );
   void RAWCommand(unsigned int addrl,  int args, ushort* params );
-  void Command(int args, unsigned short *params, int mode24=0);
+  void Command(int args, unsigned short* params, int mode24=0);
   unsigned short SaveJLV1Conf(unsigned int selfaddr);
   unsigned short WriteJLV1Conf(unsigned int selfaddr);
   int WriteJLV1BusyMask(unsigned int addr, ushort busy0x12, ushort busy0x13, ushort busy0x14);
   void JMDC_CMD_SendStripping();
-
-  void WriteCalibParam(unsigned int amswaddr, char *filename);
-  void LoadCalibrationFile(unsigned int addr,char *file, int calflag);
 
   int ProcessHexCommand(unsigned int addr, ushort cmd,int nparam, ushort * param);
   //int CommandPCI(char *command, unsigned short addr, unsigned char cmd, int args, unsigned short *params);
@@ -230,11 +216,11 @@ class AMSWcom
   bool Init();
   bool Shut();
   // * Enable or Disable Epp connection (static)
-  static bool InitEpp ( );
-  static bool ShutEpp ( );
+  static bool InitEpp( );
+  static bool ShutEpp( );
 
-  static bool InitJmdc();
-  static bool ShutJmdc();
+  static bool InitJmdc( );
+  static bool ShutJmdc( );
   
         
   AMSWcom ( int port=0 , int hardware=kAMSW_EPP, int card=0);
@@ -242,20 +228,13 @@ class AMSWcom
   //-------------------------------------------------
   //Printout functions
   void PrintEvent();
-  void PrintEvent(int length);
-  unsigned short GetRX_DONE() { return  RX_DONE; }
-  int GETRXDONE();
-  int PrintRXDONE(char* message=0);
+  void PrintRX_DONE();
+  int PrintRXDONE(char* message);
   void ShowConnect(SlaveMask mask);
   void ShowTDRs(unsigned int mask);
   void PrintSummary( unsigned int address);
   void PrintBuildStat(unsigned short e1);
   void PrintNodeStatus( unsigned int addr);
-  void textcolor(int attr, int fg, int bg);
-  void resetcolor();
-  void PrintCluster(unsigned short length, unsigned short cnt);
-  void ShowEvtRepl(unsigned int stat, unsigned short err[24]);
-  void ShowReplies(int repl[24]);
   //-------------------------------------------------
 
   void SetHW(int hardware); // set the hardware type
@@ -264,10 +243,8 @@ class AMSWcom
   int GetHW() { return hwtype; }
   int GetPort() { return port; }
 
-	// * Let's go with commands
+        // * Let's go with commands
   void Boot(unsigned int addr, unsigned short fname=0);
-  //-------------------------------------------------
-  void HKRead(unsigned int addr);
   //-------------------------------------------------
   //Flash commands
   void FlashLoad(unsigned int addr, unsigned short fname);
@@ -277,7 +254,6 @@ class AMSWcom
   int  CreateFlashFile(unsigned int amswaddr);
   int  WriteFlashFile(unsigned int amswaddr, char *name);
   void FlashWrite(unsigned int addrl, unsigned short length);
-  void ReadFlashFile(unsigned int addr, unsigned short file);
 private:
   int  SaveFlashFile( char *name);
   //-------------------------------------------------
@@ -285,19 +261,11 @@ public:
   void WriteDelay(unsigned int addr, unsigned short delay);
   unsigned short ReadDelay(unsigned int addr);
   void GetSummary (unsigned int addr);
-  void SetParameter(unsigned int add, unsigned short type, unsigned short name, unsigned short val);
-  void SetParameter(unsigned int addr, unsigned short type, unsigned short name1, unsigned short val1,  unsigned short name2, unsigned short val2);
-  void SetParameter(unsigned int addr, unsigned short parnam, unsigned short parcont);
-  unsigned short GetParameter(unsigned int add, unsigned short type, unsigned short name);
-  void GetParameter(unsigned int addr, unsigned short parnam);
   //  void Command_ReadMemory          ( unsigned short addr, bool progData, unsigned short address, unsigned short length );
   void ReadDM(unsigned int addr, unsigned short start, unsigned short length);
   void ReadPM(unsigned int addr, unsigned short start, unsigned short length, int mode24);
   void ReadMemory(unsigned int addr, unsigned short start, unsigned short length, int memtype, int mode24);
-  void WritePMCalib(unsigned int amswaddr, unsigned short addr, void *data, unsigned short size, int mode);
-  void WriteDMCalib(unsigned int amswaddr, unsigned short addr, void *data, unsigned short size);
   void WriteDM(unsigned int addr, unsigned short start, unsigned short length);
-  void WriteDM(unsigned int amswaddr, char *datafil);
   void WritePM(unsigned int addr, unsigned short start, unsigned short length);
   void PerformIO(unsigned int addr, unsigned short seglen, unsigned short segaddr);
   void Ping(unsigned int addr, int nval);
@@ -312,10 +280,7 @@ public:
   void CalibrateDac(unsigned int addr, unsigned short dac);
   void SaveCalibration(unsigned int addr,char * fname=0);
 
-  void GetCalibration(unsigned int addr, FILE *textfile=0);
   ushort  GetCalibration(unsigned int addr,ushort par);
-  void CalibrationRead(unsigned int addr, unsigned short mode, unsigned short param2=0);
-
   void SetMode(unsigned int addr, unsigned short mode);
   unsigned short ReadMode(unsigned int addr);
   SlaveMask ReadSlaveMask(unsigned int addr);
@@ -334,14 +299,7 @@ public:
   void SetSSF(unsigned int addr, unsigned short setting);
   unsigned short GetSSF(unsigned int addr);
   void SDprocRead(unsigned int addr, unsigned short mode);
-  void SDprocRead(unsigned int addr, unsigned short mode, unsigned short par);
-  void SDProcRead(unsigned int addr, unsigned short par);
-  void SDProc(unsigned int addr, unsigned short cmd);
-  void SDProc(unsigned int addr, unsigned short cmd, unsigned short par);
-  void SDProc(unsigned int addr, unsigned short cmd, unsigned short par, unsigned short par2);
   unsigned short GetEvent(unsigned int addr);
-  void GetEvent(unsigned int addr, int trigger);
-  void GetEvent(unsigned int addr, int trigger, int limit);
   unsigned short GetLastEventN(unsigned int addr);
   void EventReset(unsigned int addr);
   void GetStatus(unsigned int addr);
@@ -352,7 +310,6 @@ public:
   void SetDataSize(unsigned short size) { DataSize=size; }
   void Command_Lv1(int);
   int Command_Lv1();
-  void CommandLV1(int ntrig);
   
   int GetEventSize() { return EventSize; }
   int Convert24();
@@ -360,6 +317,8 @@ public:
   void SetTimeOut(int timems) { TimeOut=timems; }
   int GetTimeOut() { return TimeOut; }  
 
+  unsigned short GetRX_DONE() { return  RX_DONE; }
+  int GETRXDONE();
   FlashList GetSummary(int sector) { return FlashSummary[sector]; }
   unsigned short GetBuildStat() { return BuildStat; }
   unsigned short GetCRC() { return CRC; }
@@ -367,11 +326,6 @@ public:
 
   void SetCalParMem(CalibMemory *calmem);
   //  void Lecroy(unsigned short addr, unsigned short lrcommand, unsigned short parameter);
-
-  void InterpretData();
-  void Reorganize(unsigned short *array);
-  static void InitCalParMem();
-  void TranslateState(int crateno, unsigned short var, unsigned short cont);
 
 };
 
@@ -500,9 +454,6 @@ public:
 #define  cAMSW_FLASHERASE   0x0047     // FILE/SECTOR erase
 #define  cAMSW_FLASHDF      0x0048     // change FLASH file attribute
 
-#define  cAMSW_RDCONFIG     0x0009     // read config parameters
-#define  cAMSW_SDCONFIG     0x0049     // SDconfig
-
 #define  cAMSW_GETSTAT      0x000C     // get node status
 #define  cAMSW_PING         0x000D     // ping
 #define  cAMSW_PWRDOWN      0x004E     // Enter POWER DOWN
@@ -568,9 +519,6 @@ public:
 #define  cAMSW_WRITE_CAL_PAR 0xFF83     // write in DM calibration parameters
 #define  cAMSW_GCOMMAND         0xFFFF     // Give a raw command
 #define  cAMSW_RCOMMAND         0xFFFE     // Give a true raw command
-
-#define  cAMSW_WRITE_LASER_PAR 0xFF84     // write in DM calibration parameters
-#define  cAMSW_STOP         0xFFFF     // Stop DAQ
 
 
 #endif

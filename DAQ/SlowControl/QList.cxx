@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "QList.h"
 
 
@@ -239,12 +240,6 @@ void QEvent::Clear() {
   
 }
 
-
-void QEvent::SetLogFile(FILE *fil) {
-
-  fLogfil=fil;
-
-}
 
 
 

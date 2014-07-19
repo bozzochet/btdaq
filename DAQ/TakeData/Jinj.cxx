@@ -37,7 +37,7 @@ int ConfParsJ::ReadConfig(const char* conf_file) { // gcc 4.3: added 'const'
     fscanf(file, "%d %d %hd %s", &a, &tmp, &(mode[slave]), SlaveConfFile[slave]);
     //    printf("%d: %d %d %d %s\n", slave, a, tmp, mode[slave], SlaveConfFile[slave]);//only for debug
     if(tmp) {
-      refmask = refmask|((unsigned int)pow(2.,slave));
+      refmask = refmask|((unsigned int)pow(2,slave));
       //      printf("RefMask = %d\n", refmask);//only for debug
     }
   }

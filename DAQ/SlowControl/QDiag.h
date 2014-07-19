@@ -15,9 +15,9 @@ class QDiag {
 
  public:
 
-  QDiag();
-  QDiag(QEvent *qref);
-  ~QDiag();
+  QDiag::QDiag();
+  QDiag::QDiag(QEvent *qref);
+  QDiag::~QDiag();
 
   void SetQRef(QEvent *qref);
   void Clear();

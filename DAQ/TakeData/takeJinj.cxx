@@ -531,7 +531,7 @@ int Calibrate(AMSWcom* node, int secondstep) {
 	      int cnt=0;
 	      while(control==0){
 		cnt++;
-		usize=node->GetCalibration(address,(ushort)0x0);//With the par 0 we're asking for "Current Calibration Status Command" 
+		usize=node->GetCalibration(address,0x0);//With the par 0 we're asking for "Current Calibration Status Command" 
 		PRINTF("We took %d events for calibration\n", (node->Event[4]));
 		if ( (node->Event[4])>=((!secondstep)?5120:2048) ) {
 		  PRINTF("Calibration finished!\n");
