@@ -1,4 +1,0 @@
-3633            // calib 6426_04_slow, reduction V670e_05 (6426-05 with TP activated, and bug fix?) 
-01bc a000       // page 4 contains evbld at 0x2000
-03ce e000       // page 5 contains calibration at 0x2000
-0bee 0000       // page 0 contains main program (must come last)

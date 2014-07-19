@@ -1,0 +1,25 @@
+Thu Mar  5 12:15:35 2009: Using EPP connection
+Thu Mar  5 12:15:35 2009: Starting SlowControl run 1236251735
+Thu Mar  5 12:15:35 2009: Error: file ./slowcontrol//SlowData_1236251735.dat could not be created, perhaps the data dir ./slowcontrol/ doesn't exist?
+Thu Mar  5 12:15:35 2009: ERROR
+Thu Mar  5 12:15:48 2009: Using EPP connection
+Thu Mar  5 12:15:48 2009: Starting SlowControl run 1236251748
+Thu Mar  5 12:16:08 2009: Entering into the SlowControl  Acquisition loop...
+Thu Mar  5 12:16:09 2009: Exited from the SlowControl acquisition, file ./slowcontrol//SlowData_1236251748.dat saved.
+Thu Mar  5 12:16:09 2009: 0 events acquired.
+Thu Mar  5 12:16:09 2009: There were &d errors during run.
+Thu Mar  5 12:16:09 2009: READY
+Thu Mar  5 12:17:37 2009: Using EPP connection
+Thu Mar  5 12:17:37 2009: Starting SlowControl run 1236251857
+Thu Mar  5 12:17:37 2009: Entering into the SlowControl  Acquisition loop...
+Thu Mar  5 12:17:48 2009: Exited from the SlowControl acquisition, file ./slowcontrol//SlowData_1236251857.dat saved.
+Thu Mar  5 12:17:48 2009: 100 events acquired.
+Thu Mar  5 12:17:48 2009: There were &d errors during run.
+Thu Mar  5 12:17:48 2009: READY
+Fri Mar  6 14:35:36 2009: Using EPP connection
+Fri Mar  6 14:35:36 2009: Starting SlowControl run 1236346536
+Fri Mar  6 14:35:36 2009: Entering into the SlowControl  Acquisition loop...
+Fri Mar  6 14:45:42 2009: Exited from the SlowControl acquisition, file ./slowcontrol//SlowData_1236346536.dat saved.
+Fri Mar  6 14:45:42 2009: 600 events acquired.
+Fri Mar  6 14:45:42 2009: There were &d errors during run.
+Fri Mar  6 14:45:42 2009: READY

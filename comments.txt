@@ -1,0 +1,3 @@
+we start a set of runs with:
+- parameters 1 4 1 4 10
+- second calibration on, with DeltaT from 100 to 300 us, step 10 us
