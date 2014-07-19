@@ -1,0 +1,9 @@
+#!/bin/sh
+
+CURDIR=`pwd`
+DIR=/home/testsys/DAQ/
+
+cd $DIR
+./TakeJEPP 0 INIT
+
+cd $CURDIR
