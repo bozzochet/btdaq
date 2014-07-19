@@ -1,0 +1,63 @@
+usage : ./tm_sreceivst file name 
+TM SRECEIVST : 
+0DFFDED00000000000127013000000000003000000010001000100000105020402040204071C071C071C071C000000010D1C0000D3F480008000800000420000
+
+SRECEIVST - Local Time : 0 
+
+ Byte | Description                 | Bit - Value 
+-----------------------------------------------------------------
+ 1-1    Validity                      FF h
+ 2-3    Local time                    57040 d
+ 4-5    Health status of PEGASE 1     0-14  Channel                   0 h
+                                      15    Reserved                  0 h
+ 6-7    Health status of PEGASE 2     0 h
+ 8-9    Health status of signal proc  0     CASTOR                    0 h
+                                      1     PEGASE 1                  1 h
+                                      2     PEGASE 2                  0 h
+                                      3     Time Keeper               0 h
+                                      4     Datation/SP               1 h
+                                      5-8   RFDC 1 to 4               0 h
+                                      3     Time Keeper               0 h
+ 10-11  Config status of hardware     0-1   2 Mo RAM                  3 h
+                                      2-3   RS422 Interface           0 h
+                                      4     10 Mhz proc. clock        1 h
+                                      5     TCXO clock                0 h
+                                      6-8   1 RFDC & 1 PEGASE         0 h
+                                      9     No external amplifier     0 h
+                                      10-11 RS422 9600 baud           0 h
+                                      12    OCXO not warm             1 h
+                                      13-14 Reserved
+                                      15    Start-up without context  0 h
+ 12-13  Health status of proc & mem   0-1   IU                        0 h
+                                      2-3   FPU                       0 h
+                                      4-5   Checksum of code RAM      0 h
+                                      6-7   Reserved                  0 h
+                                      8-9   Checksum of code in FPROM 0 h
+                                      10-15 Reserved                  0 h
+ 17-17  Config for localisation       0-2   Snapshot+navigator        3 h
+ 19-19  Config for attitude           0-1   Without measurements      0 h
+ 21-21  Reserved ALCATEL              1 h
+ 23-23  Config for cold start         0-1   Normal                    1 h
+ 25-25  Config for PPS                0-1   PPS locked                1 h
+ 27-27  Y2015 extension               0-1   Before January 2015       0 h
+ 28-29  Configuration of Antenna 1    0-1   Antenna active            1 h
+                                      2-5   Orientation ext. aiding   1 h
+                                      6-7   GPS Frequency             0 h
+                                      8-11  
+                                      12-15 Associated master antenna 0 h
+ 36-37  Masking angle of Antenna 1    1820 d
+ 44-44  Snapshot resolution           0-7   Not valid                 0 h
+ 45-45  N2G resolution                0-7   Not valid                 0 h
+ 47-47  Almanac status                0-7   Received from RALEPH      1 h
+ 48-48  Satellite selection status    0-1   Received from RALEPH      1 h
+                                      2-7   
+ 49-49  Status of visibility          1C h
+ 50-50  Snapshot status               0-7   Not valid                 0 h
+                                      2-7   
+ 51-51  N2G status                    0-7   No error                  0 h
+ 52-53  Automatic Gain Control 1      54260 d
+ 60-61  Number of valid TC received   66 d
+ 62-62  Number of TC N2G in stand-by  0 d
+
+
+TM SRECEIVST checksum error : 0

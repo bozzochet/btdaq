@@ -1,0 +1,84 @@
+XCOMM Imakefile in FORMS directory 
+XCOMM (c)1996 by Holger.Veit@gmd.de for XForms
+
+XCOMM Uncomment the following, if you want to include OpenGL
+XCOMM #define USE_GL
+
+XCOMM --------------------------------------------------------
+XCOMM No changes needed below here
+XCOMM --------------------------------------------------------
+
+#define DoNormalLib YES
+#define DoSharedLib YES
+#define DoDebugLib NO
+#define DoProfileLib NO
+#define LibName forms
+#define SoRev 6.1
+#define LibHeaders NO
+
+#define IHaveSubdirs
+#define PassCDebugFlags
+SUBDIRS = INCLUDE ulib
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))
+
+#include <Threads.tmpl>
+
+#ifdef USE_GL
+GLSRC = gl.c
+#endif
+
+#ifdef OS2Architecture
+REQUIREDLIBS = ulib\\ ulib ..\\xpm-3.4g\\lib\\ Xpm $(X11ROOT)\\XFree86\\lib\\ X11
+STRDUP =
+#else
+REQUIREDLIBS = -Lulib -lulib -lxpm SharedXtReqs
+STRDUP = strdup.c
+#endif
+
+XCOMM Note: we silently assume that an xpm >= 3.4g is installed at runtime,
+XCOMM therefore we safely use the provided one for compiling.
+       XPMDIR = ../xpm-3.4g
+      HEADERS = forms.h 
+      DEFINES = -DMAKING_FORMS
+     INCLUDES = -Iprivate -I. -Ibitmaps -Ifd -I$(XPMDIR)
+         SRCS = align.c appwin.c asyn_io.c be.c bitmap.c box.c browser.c\
+		button.c canvas.c chart.c checkbut.c child.c choice.c\
+		clock.c cmd_br.c colsel.c counter.c cursor.c dial.c\
+		events.c flcolor.c fldraw.c flresource.c flvisual.c\
+		fonts.c forms.c frame.c free.c fselect.c goodie_alert.c\
+		goodie_choice.c goodie_input.c goodie_msg.c goodie_sinput.c\
+		goodie_yesno.c goodies.c input.c interpol.c keyboard.c\
+		lframe.c lightbut.c listdir.c menu.c objects.c\
+		oneliner.c pixmap.c positioner.c round3d.c roundbut.c\
+		signal.c simu.c sldraw.c slider.c strdup.c symbols.c\
+		sysdep.c test.c text.c textbox.c timeout.c timer.c\
+		util.c version.c win.c xdraw.c xpopup.c xsupport.c\
+		xtext.c xyplot.c \
+                tabfolder.c clipboard.c scrollbar.c scrollbut.c\
+                postscript.c ps_core.c ps_text.c  ps_draw.c\
+		$(STRDUP) $(GLSRC)
+
+         OBJS = $(SRCS:.c=.o)
+       MANDIR = $(FILEMANDIR)
+    MANSUFFIX = $(FILEMANSUFFIX)
+
+LinkSourceFile(ulib.h,ulib)
+
+clean::
+	RemoveFiles(ulib.h forms.h)
+
+#include <Library.tmpl>
+
+#ifdef OS2Architecture
+HDRDIR=/XFree86/include
+#else
+HDRDIR=$(INCDIR)
+#endif
+
+InstallManPageLong(XForms,$(MANDIR),XForms)
+InstallManPageAliases(XForms,$(MANDIR),forms)
+InstallMultipleDestFlags(install,$(HEADERS),$(HDRDIR),$(INSTINCFLAGS))
+
+DependTarget()
+

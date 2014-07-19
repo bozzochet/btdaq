@@ -1,4 +1,0 @@
-3b23            // test with external trigger, all steps, no resets between steps
-01c2 a000       // page 4 contains evbld at 0x2000
-0400 e000       // page 5 contains calibration at 0x2000
-0bf4 0000       // page 0 contains main program (must come last)

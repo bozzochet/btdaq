@@ -1,0 +1,22 @@
+#  $Id: Cgbatch,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+
+CFLAGS="-g -I../include -I../include/stl"
+
+
+
+
+
+cxx -c $CFLAGS $1.C -o $1.o
+
+cxx -o $1.exe  $AMSDataDir/../vdev/bin/osf1/gbatch.o $1.o   -g -lUfor   -lfor -lFutil -lots -lm -L$AMSDataDir/../vdev/lib/osf1 -lams -L/cern/pro/lib  -lgeant321 -lmathlib -lpacklib -lkernlib  -L/afs/cern.ch/asis/packages/licensed/nag-mark16/alpha_osf32c/nagfl16df -lnag
+
+
+chmod +x $1.exe
+
+
+
+
+#
+# AMS batch install prototype
+#
+#

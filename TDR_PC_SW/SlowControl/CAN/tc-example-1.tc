@@ -1,0 +1,12 @@
+// file tc-example-1.tc
+
+// from CZ files:
+
+GALEPH:
+VALIDITY      FF
+TYPE_OF_DATA  11
+GPS_PRN        7
+
+RCFLAG:
+VALIDITY      FF
+COMMAND_WORD   7

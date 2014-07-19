@@ -1,0 +1,50 @@
+Remote Client Related Info
+
+setenv AMSDataDir /f2dat1/AMS01/AMSDataDir
+
+Remote client itself:
+
+~/AMS/perl/rc.cgi
+
+installed on:
+
+pcamsf0.cern.ch:/cgi-bin/mon/rc.cgi
+
+
+Validation:
+
+~/AMS/perl/validate.cgi  
+
+installed as above
+
+
+sqlserver:  realised as CSV
+            at /f2dat1/AMS01/AMSDataDir/DataManagement/CSV
+
+            other (mysql,oracle) may be added via lib/DBSQLServer.pm 
+            (-D) run time switch
+
+
+            Tables ok except
+            Table Environment exists but empty
+
+sql db initialization: ~/AMS/perl/dbsqlserver.perl -Iforce
+
+
+
+Server start:
+
+~/AMS/prod/starttagmtb_db_mc
+
+Three short test runs should start/finished automatically
+NB only 1 producer is allowed from very beginnig, to change see Monitors
+
+
+Monitors:
+
+monitor+control X-windows:   ~/AMS/perl/monitor.perl -m
+monitor only  Web            pcamsf0.cern.ch/cgi-bin/mon/monmcdb.cgi
+
+
+
+

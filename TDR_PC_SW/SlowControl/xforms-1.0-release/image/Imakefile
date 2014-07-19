@@ -1,0 +1,177 @@
+#define DoNormalLib YES
+#define DoSharedLib BuildShared
+
+#define LibName flimage
+
+SRCS		= \
+		  image.c \
+		  image_bmp.c \
+		  image_combine.c \
+		  image_convolve.c \
+		  image_crop.c \
+		  image_disp.c \
+		  image_fits.c \
+		  image_genesis.c \
+		  image_gif.c \
+		  image_gzip.c \
+		  image_io_filter.c \
+		  image_jpeg.c \
+		  image_jquant.c \
+		  image_marker.c \
+		  image_png.c \
+		  image_pnm.c \
+		  image_postscript.c \
+		  image_proc.c \
+		  image_replace.c \
+		  image_rotate.c \
+		  image_scale.c \
+		  image_sgi.c \
+		  image_text.c \
+		  image_tiff.c \
+		  image_type.c \
+		  image_warp.c \
+		  image_xbm.c \
+		  image_xpm.c \
+		  image_xwd.c \
+		  postscript.c \
+		  ps_core.c \
+		  ps_draw.c \
+		  ps_text.c \
+		  rgb_db.c \
+		  matrix.c
+
+HEADERS		= flimage.h
+LIBNAME		= LibName
+XFORMSLIBREV	= XFormsLibRev
+#if InstallNonstandard
+XFORMSLIBDIR	= XFormsNonstandardInstallDir
+#else
+XFORMSLIBDIR	= $(DESTDIR)$(INCDIR)/X11
+#endif
+
+#		Below here be dragons.
+
+OBJS	= $(SRCS:.c=.o)
+
+#if HaveStrerror
+HAVE_STRERROR	= -DHAVE_STRERROR
+#endif
+
+#if NonstandardXpm
+XPMINCLOC	= XpmIncLoc
+XPMINCDIR	= -I$(XPMINCLOC)
+XPMLIBLOC	= XpmLibLoc	
+XPMLIBDIR	= -L$(XPMLIBLOC)
+#endif
+
+#if NonstandardTiff
+TIFFINCLOC	= TiffIncLoc
+TIFFINCDIR	= -I$(TIFFINCLOC)
+TIFFLIBLOC	= TiffLibLoc	
+TIFFLIBDIR	= -L$(TIFFLIBLOC)
+#endif
+
+#if NonstandardJpeg
+JPEGINCLOC	= JpegIncLoc
+JPEGINCDIR	= -I$(JPEGINCLOC)
+JPEGLIBLOC	= JpegLibLoc	
+JPEGLIBDIR	= -L$(JPEGLIBLOC)
+#endif
+
+EXTRA_INCLUDES	= \
+		  $(XPMINCDIR) \
+		  $(TIFFINCDIR) \
+		  $(JPEGINCDIR) \
+		  -I$(BUILDINCDIR) \
+		  -I$(TOP)/lib \
+		  -I$(TOP)/lib/private \
+		  -I.
+
+DEPEND_DEFINES	= \
+		  -I/usr/local/include
+
+EXTRA_DEFINES	= \
+		  $(HAVE_STRERROR )
+
+PICFLAGS	= -fPIC
+
+CCOPTIONS	= -nostdinc
+
+#if (ProjectX < 5)
+    STD_DEFINES = LibraryDefines
+    CDEBUGFLAGS = LibraryCDebugFlags
+#else
+#define SoRev XFORMSLIBREV
+#define IncSubdir X11
+#include <Library.tmpl>
+#endif
+
+#if Solaris64Bit
+LDPRELIB	= -L/usr/openwin/lib/sparcv9 -L/usr/local/lib/sparcv9
+CCENVSETUP	= LD_RUN_PATH=/usr/openwin/lib/sparcv9
+LD		= gcc
+SHLIBLDFLAGS	= -shared
+LGCC		= -lgcc
+#endif
+
+#if defined( PpcDarwinArchitecture )
+SHLIBLDFLAGS	+= -lSystem -lcc_dynamic
+#endif
+
+REQUIREDLIBS	= \
+		  $(LDPRELIB) \
+		  $(XLIB) \
+		  -L/usr/local/lib \
+		  -L../lib -lforms \
+		  $(JPEGLIBDIR) -ljpeg \
+		  $(TIFFLIBDIR) -ltiff \
+		  $(LGCC)
+
+#if InstallNonstandard
+SHLIBDIR	= XFormsNonstandardInstallDir/lib
+USRLIBDIR	= XFormsNonstandardInstallDir/lib
+INCDIR		= XFormsNonstandardInstallDir/include
+#endif
+
+#if (ProjectX < 6)
+   INSTALLFLAGS = $(INSTINCFLAGS)
+
+#if (ProjectX < 5)
+
+#if DoSharedLib
+SharedLibraryObjectRule()
+NormalSharedLibraryTarget($(LIBNAME),$(XFORMSLIBREV),$(OBJS))
+InstallSharedLibrary($(LIBNAME),$(XFORMSLIBREV),$(XFORMSLIBDIR))
+#else
+NormalLibraryObjectRule()
+#endif
+NormalLibraryTarget($(LIBNAME),$(OBJS))
+InstallLibrary($(LIBNAME),$(XFORMSLIBDIR))
+
+#else /* (ProjectX < 5) */
+LibraryObjectRule()
+
+#if DoSharedLib
+#if DoNormalLib
+SharedLibraryTarget($(LIBNAME),$(XFORMSLIBREV),$(OBJS),shared,..)
+#else
+SharedLibraryTarget($(LIBNAME),$(XFORMSLIBREV),$(OBJS),.,.)
+#endif
+InstallSharedLibrary($(LIBNAME),$(XFORMSLIBREV),$(XFORMSLIBDIR))
+#endif
+#if DoNormalLib
+NormalLibraryTarget($(LIBNAME),$(OBJS))
+InstallLibrary($(LIBNAME),$(XFORMSLIBDIR))
+#endif
+
+#endif /* (ProjectX < 5) */
+
+InstallMultiple(flimage.h,$(XFORMSINCDIR))
+
+LintLibraryTarget($(LIBNAME),$(SRCS))
+InstallLintLibrary($(LIBNAME),$(LINTLIBDIR))
+NormalLintTarget($(SRCS))
+
+#endif /* (ProjectX < 6) */
+
+DependTarget()

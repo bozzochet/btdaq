@@ -1,0 +1,11 @@
+CFLAGS= -g -I../include
+LDFLAGS= -lUfor -lfor -lFutil -lots -lm -L/cern/pro/lib -lgeant321 -lmathlib -lpacklib -lkernlib
+FILES=   ucopy.C
+OBJECTS= ucopy.o ../bin/osf1/point.o
+HEADERS=  ../include/cern.h
+gv:	$(OBJECTS)
+	cxx -o ucopy.exe $(OBJECTS) $(LDFLAGS)
+
+ucopy.o:	$(HEADERS)    	
+	cxx -c $(CFLAGS) ucopy.C
+

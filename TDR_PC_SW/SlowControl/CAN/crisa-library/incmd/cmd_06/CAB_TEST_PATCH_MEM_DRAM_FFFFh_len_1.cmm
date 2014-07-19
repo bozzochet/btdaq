@@ -1,0 +1,8 @@
+// Patch command embeded in a test command
+0A 5F 0D  
+19 70
+
+0A 06 08
+// DATA RAM, len 1, offset FFFFh
+AD 01 FFFF
+5F

@@ -1,0 +1,48 @@
+Steps to do before run AMS02 MC Remote Client on intel/amd computers 
+running RH linux.  
+
+
+copy attached file to {somedir}
+download ams02mcdb.tar.gz and  ams02mcdb.addon.tar.gz files from 
+pcamsf0.cern.ch:/cgi-bin/download.cgi to {somedir}
+
+cd {somedir}
+gzip -d  ams02mcdb.tar.gz
+tar -xvf ams02mcdb.tar
+gzip -d  ams02mcdb.addon.tar.gz
+tar -xvf ams02mcdb.addon.tar
+gzip -d  ams02mcscripts.tar.gz
+tar -xvf ams02mcscripts.tar
+
+/bin/sh
+
+export AMSDataDir=`pwd`
+export ExeDir=`pwd`/exe
+export CERN_ROOT=`pwd`
+export NtupleDir={somedirWithAtLeast200MBytesFreeSpace}
+
+nice -20 {script1...n}.job 1>{script1...n.log} 2>&1 &
+
+NB
+
+your host must see pcamsf0.cern.ch via tcp/ip
+to check this use e.g.
+ping pcamsf0.cern.ch
+and ensure everything is ok
+
+NB2
+
+You have only 2 tries to run each run, after that the run will be deleted from 
+the server dbase
+
+NB3
+
+To see the status of the central server please use
+http://pcamsf0.cern.ch/cgi-bin/mon/monmcdb.cgi
+
+NB4
+
+Remote means remote computer with respect to to the server, and
+local for you. Means do not try to run scripts on cern ams cluster.
+Run them on YOUR cite instead.
+

@@ -1,0 +1,3 @@
+cd /f0dah0/users/alexei/AMS/prod
+/f0dah0/users/alexei/AMS/exe/linux/amsprodserver.exe.oracle -OI -R../prod/RunTable -P../prod/NominalProducer -H../prod/NominalHost -S../prod/NominalServer -F/f0dah0/users/alexei/AMS/prod/NominalInterface -N../prod/NominalNtuple -Ihrdl -D1 -K../prod/NominalKiller
+

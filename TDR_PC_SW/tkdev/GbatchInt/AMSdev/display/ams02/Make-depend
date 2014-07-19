@@ -1,0 +1,483 @@
+#  $Id: Make-depend,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+##### DEPENDENCIES #####
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+AMSR_Root.o: Debugger.h /Offline/root/include/TObject.h /usr/include/ctype.h
+AMSR_Root.o: /usr/include/standards.h /usr/include/sys/types.h
+AMSR_Root.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
+AMSR_Root.o: /usr/include/sys/localedef.h /usr/include/sys/lc_core.h
+AMSR_Root.o: /usr/include/locale.h /usr/include/nl_types.h
+AMSR_Root.o: /usr/include/mesg.h /usr/include/stdio.h /usr/include/sys/seek.h
+AMSR_Root.o: /usr/include/va_list.h /usr/include/getopt.h
+AMSR_Root.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+AMSR_Root.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+AMSR_Root.o: /usr/include/sys/rt_limits.h /usr/include/limits.h
+AMSR_Root.o: /Offline/root/include/TROOT.h /Offline/root/include/TTree.h
+AMSR_Root.o: /Offline/root/include/TBrowser.h
+AMSR_Root.o: /Offline/root/include/TClonesArray.h
+AMSR_Root.o: /Offline/root/include/TFile.h AMSR_Root.h AMSR_HistBrowser.h
+AMSR_Root.o: /Offline/root/include/TNamed.h AMSR_Maker.h /usr/include/time.h
+AMSR_Root.o: /usr/include/sys/timers.h /usr/include/sys/sysmisc.h
+AMSR_Root.o: AMSR_ToFClusterReader.h AMSR_TrackReader.h
+AMSR_Root.o: /Offline/root/include/TH1.h AMSR_SiHitReader.h
+AMSR_Root.o: AMSR_CTCClusterReader.h AMSR_AntiClusterReader.h
+AMSR_Root.o: AMSR_TrMCClusterReader.h AMSR_ParticleReader.h
+AMSR_Root.o: AMSR_MCParticleReader.h AMSR_VirtualDisplay.h
+AMSR_Maker.o: Debugger.h /Offline/root/include/TObject.h
+AMSR_Maker.o: /Offline/root/include/TTree.h /Offline/root/include/TList.h
+AMSR_Maker.o: /Offline/root/include/TClonesArray.h
+AMSR_Maker.o: /Offline/root/include/TBrowser.h AMSR_Maker.h AMSR_Root.h
+AMSR_Maker.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_Maker.o: /usr/include/time.h /usr/include/standards.h
+AMSR_Maker.o: /usr/include/sys/machine/machtime.h /usr/include/sys/types.h
+AMSR_Maker.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
+AMSR_Maker.o: /usr/include/sys/timers.h /usr/include/sys/sysmisc.h
+AMSR_Axis.o: AMSR_Axis.h /Offline/root/include/TPolyLine3D.h
+AMSR_Axis.o: /Offline/root/include/TText.h /Offline/root/include/TView.h
+AMSR_Axis.o: /Offline/root/include/TPad.h Debugger.h
+AMSR_Axis.o: /Offline/root/include/TObject.h
+AMSR_GeometrySetter.o: /Offline/root/include/TNode.h
+AMSR_GeometrySetter.o: /Offline/root/include/TDialogCanvas.h Debugger.h
+AMSR_GeometrySetter.o: /Offline/root/include/TObject.h
+AMSR_GeometrySetter.o: /usr/include/cxx/iostream.h
+AMSR_GeometrySetter.o: /usr/include/cxx/iostream.hxx
+AMSR_GeometrySetter.o: /usr/include/cxx/cxxl.hxx
+AMSR_GeometrySetter.o: /usr/include/cxx/cxxl_share.hxx
+AMSR_GeometrySetter.o: /usr/include/cxx/messages.hxx /usr/include/stddef.h
+AMSR_GeometrySetter.o: /usr/include/standards.h /usr/include/stdio.h
+AMSR_GeometrySetter.o: /usr/include/sys/seek.h /usr/include/va_list.h
+AMSR_GeometrySetter.o: /usr/include/sys/types.h
+AMSR_GeometrySetter.o: /usr/include/mach/machine/vm_types.h
+AMSR_GeometrySetter.o: /usr/include/sys/select.h /usr/include/getopt.h
+AMSR_GeometrySetter.o: /usr/include/sys/limits.h
+AMSR_GeometrySetter.o: /usr/include/sys/machine/machlimits.h
+AMSR_GeometrySetter.o: /usr/include/sys/syslimits.h
+AMSR_GeometrySetter.o: /usr/include/sys/machine/machtime.h
+AMSR_GeometrySetter.o: /usr/include/sys/rt_limits.h /usr/include/limits.h
+AMSR_GeometrySetter.o: /usr/include/memory.h /usr/include/string.h
+AMSR_GeometrySetter.o: /usr/include/strings.h TSwitch.h
+AMSR_GeometrySetter.o: /Offline/root/include/TPad.h TRadioButton.h
+AMSR_GeometrySetter.o: /Offline/root/include/TButton.h
+AMSR_GeometrySetter.o: /Offline/root/include/TText.h AMSR_GeometrySetter.h
+AMSR_GeometrySetter.o: /Offline/root/include/TGeometry.h
+AMSR_3DCluster.o: /usr/include/math.h /usr/include/standards.h
+AMSR_3DCluster.o: /usr/include/stdlib.h /usr/include/getopt.h
+AMSR_3DCluster.o: /usr/include/sys/types.h
+AMSR_3DCluster.o: /usr/include/mach/machine/vm_types.h
+AMSR_3DCluster.o: /usr/include/sys/select.h /Offline/root/include/TROOT.h
+AMSR_3DCluster.o: /Offline/root/include/TMath.h /Offline/root/include/TView.h
+AMSR_3DCluster.o: /Offline/root/include/TPad.h AMSR_Display.h
+AMSR_3DCluster.o: /Offline/root/include/TGXW.h
+AMSR_3DCluster.o: /Offline/root/include/TGClient.h
+AMSR_3DCluster.o: /Offline/root/include/TObject.h
+AMSR_3DCluster.o: /Offline/root/include/GuiTypes.h
+AMSR_3DCluster.o: /Offline/root/include/TGFrame.h
+AMSR_3DCluster.o: /Offline/root/include/TGIcon.h
+AMSR_3DCluster.o: /Offline/root/include/TGLabel.h
+AMSR_3DCluster.o: /Offline/root/include/TGButton.h
+AMSR_3DCluster.o: /Offline/root/include/TGTextEntry.h
+AMSR_3DCluster.o: /Offline/root/include/TGMsgBox.h
+AMSR_3DCluster.o: /Offline/root/include/TGMenu.h
+AMSR_3DCluster.o: /Offline/root/include/TGCanvas.h
+AMSR_3DCluster.o: /Offline/root/include/TGComboBox.h
+AMSR_3DCluster.o: /Offline/root/include/TGTab.h
+AMSR_3DCluster.o: /Offline/root/include/TGSlider.h
+AMSR_3DCluster.o: /Offline/root/include/TGFileDialog.h
+AMSR_3DCluster.o: /Offline/root/include/TApplication.h AMSR_VirtualDisplay.h
+AMSR_3DCluster.o: AMSR_GeometrySetter.h /Offline/root/include/TGeometry.h
+AMSR_3DCluster.o: TSwitch.h TRadioButton.h /Offline/root/include/TButton.h
+AMSR_3DCluster.o: /Offline/root/include/TText.h AMSR_Canvas.h
+AMSR_3DCluster.o: /Offline/root/include/TCanvas.h
+AMSR_3DCluster.o: /Offline/root/include/TRootCanvas.h AMSR_3DCluster.h
+AMSR_3DCluster.o: /Offline/root/include/TMarker3DBox.h AMSR_Root.h
+AMSR_3DCluster.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_3DCluster.o: AMSR_Maker.h /usr/include/time.h
+AMSR_3DCluster.o: /usr/include/sys/machine/machtime.h
+AMSR_3DCluster.o: /usr/include/sys/timers.h /usr/include/sys/sysmisc.h
+AMSR_3DCluster.o: Debugger.h
+AMSR_ToFCluster.o: Debugger.h /Offline/root/include/TObject.h
+AMSR_ToFCluster.o: /usr/include/cxx/iostream.h /usr/include/cxx/iostream.hxx
+AMSR_ToFCluster.o: /usr/include/cxx/cxxl.hxx /usr/include/cxx/cxxl_share.hxx
+AMSR_ToFCluster.o: /usr/include/cxx/messages.hxx /usr/include/stddef.h
+AMSR_ToFCluster.o: /usr/include/standards.h /usr/include/stdio.h
+AMSR_ToFCluster.o: /usr/include/sys/seek.h /usr/include/va_list.h
+AMSR_ToFCluster.o: /usr/include/sys/types.h
+AMSR_ToFCluster.o: /usr/include/mach/machine/vm_types.h
+AMSR_ToFCluster.o: /usr/include/sys/select.h /usr/include/getopt.h
+AMSR_ToFCluster.o: /usr/include/sys/limits.h
+AMSR_ToFCluster.o: /usr/include/sys/machine/machlimits.h
+AMSR_ToFCluster.o: /usr/include/sys/syslimits.h
+AMSR_ToFCluster.o: /usr/include/sys/machine/machtime.h
+AMSR_ToFCluster.o: /usr/include/sys/rt_limits.h /usr/include/limits.h
+AMSR_ToFCluster.o: /usr/include/memory.h /usr/include/string.h
+AMSR_ToFCluster.o: /usr/include/strings.h AMSR_ToFCluster.h AMSR_3DCluster.h
+AMSR_ToFCluster.o: /Offline/root/include/TMarker3DBox.h AMSR_Root.h
+AMSR_ToFCluster.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_ToFCluster.o: AMSR_Maker.h /usr/include/time.h /usr/include/sys/timers.h
+AMSR_ToFCluster.o: /usr/include/sys/sysmisc.h AMSR_VirtualDisplay.h
+AMSR_ToFClusterReader.o: Debugger.h /Offline/root/include/TObject.h
+AMSR_ToFClusterReader.o: /usr/include/cxx/iostream.h
+AMSR_ToFClusterReader.o: /usr/include/cxx/iostream.hxx
+AMSR_ToFClusterReader.o: /usr/include/cxx/cxxl.hxx
+AMSR_ToFClusterReader.o: /usr/include/cxx/cxxl_share.hxx
+AMSR_ToFClusterReader.o: /usr/include/cxx/messages.hxx /usr/include/stddef.h
+AMSR_ToFClusterReader.o: /usr/include/standards.h /usr/include/stdio.h
+AMSR_ToFClusterReader.o: /usr/include/sys/seek.h /usr/include/va_list.h
+AMSR_ToFClusterReader.o: /usr/include/sys/types.h
+AMSR_ToFClusterReader.o: /usr/include/mach/machine/vm_types.h
+AMSR_ToFClusterReader.o: /usr/include/sys/select.h /usr/include/getopt.h
+AMSR_ToFClusterReader.o: /usr/include/sys/limits.h
+AMSR_ToFClusterReader.o: /usr/include/sys/machine/machlimits.h
+AMSR_ToFClusterReader.o: /usr/include/sys/syslimits.h
+AMSR_ToFClusterReader.o: /usr/include/sys/machine/machtime.h
+AMSR_ToFClusterReader.o: /usr/include/sys/rt_limits.h /usr/include/limits.h
+AMSR_ToFClusterReader.o: /usr/include/memory.h /usr/include/string.h
+AMSR_ToFClusterReader.o: /usr/include/strings.h
+AMSR_ToFClusterReader.o: /Offline/root/include/TRandom.h
+AMSR_ToFClusterReader.o: /Offline/root/include/TClonesArray.h AMSR_Root.h
+AMSR_ToFClusterReader.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_ToFClusterReader.o: AMSR_Maker.h /usr/include/time.h
+AMSR_ToFClusterReader.o: /usr/include/sys/timers.h /usr/include/sys/sysmisc.h
+AMSR_ToFClusterReader.o: AMSR_ToFCluster.h AMSR_3DCluster.h
+AMSR_ToFClusterReader.o: /Offline/root/include/TMarker3DBox.h
+AMSR_ToFClusterReader.o: AMSR_ToFClusterReader.h
+AMSR_AntiCluster.o: Debugger.h /Offline/root/include/TObject.h
+AMSR_AntiCluster.o: AMSR_AntiCluster.h AMSR_3DCluster.h
+AMSR_AntiCluster.o: /Offline/root/include/TMarker3DBox.h AMSR_Root.h
+AMSR_AntiCluster.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_AntiCluster.o: AMSR_Maker.h /usr/include/time.h /usr/include/standards.h
+AMSR_AntiCluster.o: /usr/include/sys/machine/machtime.h
+AMSR_AntiCluster.o: /usr/include/sys/types.h
+AMSR_AntiCluster.o: /usr/include/mach/machine/vm_types.h
+AMSR_AntiCluster.o: /usr/include/sys/select.h /usr/include/sys/timers.h
+AMSR_AntiCluster.o: /usr/include/sys/sysmisc.h AMSR_VirtualDisplay.h
+AMSR_AntiClusterReader.o: Debugger.h /Offline/root/include/TObject.h
+AMSR_AntiClusterReader.o: /Offline/root/include/TRandom.h
+AMSR_AntiClusterReader.o: /Offline/root/include/TClonesArray.h AMSR_Root.h
+AMSR_AntiClusterReader.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_AntiClusterReader.o: AMSR_Maker.h /usr/include/time.h
+AMSR_AntiClusterReader.o: /usr/include/standards.h
+AMSR_AntiClusterReader.o: /usr/include/sys/machine/machtime.h
+AMSR_AntiClusterReader.o: /usr/include/sys/types.h
+AMSR_AntiClusterReader.o: /usr/include/mach/machine/vm_types.h
+AMSR_AntiClusterReader.o: /usr/include/sys/select.h /usr/include/sys/timers.h
+AMSR_AntiClusterReader.o: /usr/include/sys/sysmisc.h AMSR_AntiCluster.h
+AMSR_AntiClusterReader.o: AMSR_3DCluster.h
+AMSR_AntiClusterReader.o: /Offline/root/include/TMarker3DBox.h
+AMSR_AntiClusterReader.o: AMSR_AntiClusterReader.h
+AMSR_TrMCCluster.o: Debugger.h /Offline/root/include/TObject.h
+AMSR_TrMCCluster.o: AMSR_TrMCCluster.h AMSR_3DCluster.h
+AMSR_TrMCCluster.o: /Offline/root/include/TMarker3DBox.h AMSR_Root.h
+AMSR_TrMCCluster.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_TrMCCluster.o: AMSR_Maker.h /usr/include/time.h /usr/include/standards.h
+AMSR_TrMCCluster.o: /usr/include/sys/machine/machtime.h
+AMSR_TrMCCluster.o: /usr/include/sys/types.h
+AMSR_TrMCCluster.o: /usr/include/mach/machine/vm_types.h
+AMSR_TrMCCluster.o: /usr/include/sys/select.h /usr/include/sys/timers.h
+AMSR_TrMCCluster.o: /usr/include/sys/sysmisc.h AMSR_VirtualDisplay.h
+AMSR_TrMCClusterReader.o: Debugger.h /Offline/root/include/TObject.h
+AMSR_TrMCClusterReader.o: /Offline/root/include/TRandom.h
+AMSR_TrMCClusterReader.o: /usr/include/cxx/iostream.h
+AMSR_TrMCClusterReader.o: /usr/include/cxx/iostream.hxx
+AMSR_TrMCClusterReader.o: /usr/include/cxx/cxxl.hxx
+AMSR_TrMCClusterReader.o: /usr/include/cxx/cxxl_share.hxx
+AMSR_TrMCClusterReader.o: /usr/include/cxx/messages.hxx /usr/include/stddef.h
+AMSR_TrMCClusterReader.o: /usr/include/standards.h /usr/include/stdio.h
+AMSR_TrMCClusterReader.o: /usr/include/sys/seek.h /usr/include/va_list.h
+AMSR_TrMCClusterReader.o: /usr/include/sys/types.h
+AMSR_TrMCClusterReader.o: /usr/include/mach/machine/vm_types.h
+AMSR_TrMCClusterReader.o: /usr/include/sys/select.h /usr/include/getopt.h
+AMSR_TrMCClusterReader.o: /usr/include/sys/limits.h
+AMSR_TrMCClusterReader.o: /usr/include/sys/machine/machlimits.h
+AMSR_TrMCClusterReader.o: /usr/include/sys/syslimits.h
+AMSR_TrMCClusterReader.o: /usr/include/sys/machine/machtime.h
+AMSR_TrMCClusterReader.o: /usr/include/sys/rt_limits.h /usr/include/limits.h
+AMSR_TrMCClusterReader.o: /usr/include/memory.h /usr/include/string.h
+AMSR_TrMCClusterReader.o: /usr/include/strings.h
+AMSR_TrMCClusterReader.o: /Offline/root/include/TClonesArray.h AMSR_Root.h
+AMSR_TrMCClusterReader.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_TrMCClusterReader.o: AMSR_Maker.h /usr/include/time.h
+AMSR_TrMCClusterReader.o: /usr/include/sys/timers.h
+AMSR_TrMCClusterReader.o: /usr/include/sys/sysmisc.h AMSR_TrMCCluster.h
+AMSR_TrMCClusterReader.o: AMSR_3DCluster.h
+AMSR_TrMCClusterReader.o: /Offline/root/include/TMarker3DBox.h
+AMSR_TrMCClusterReader.o: AMSR_TrMCClusterReader.h
+AMSR_Track.o: Debugger.h /Offline/root/include/TObject.h AMSR_Track.h
+AMSR_Track.o: /Offline/root/include/THelix.h
+AMSR_TrackReader.o: Debugger.h /Offline/root/include/TObject.h
+AMSR_TrackReader.o: /Offline/root/include/TClonesArray.h AMSR_Root.h
+AMSR_TrackReader.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_TrackReader.o: AMSR_Maker.h /usr/include/time.h /usr/include/standards.h
+AMSR_TrackReader.o: /usr/include/sys/machine/machtime.h
+AMSR_TrackReader.o: /usr/include/sys/types.h
+AMSR_TrackReader.o: /usr/include/mach/machine/vm_types.h
+AMSR_TrackReader.o: /usr/include/sys/select.h /usr/include/sys/timers.h
+AMSR_TrackReader.o: /usr/include/sys/sysmisc.h AMSR_TrackReader.h
+AMSR_TrackReader.o: /Offline/root/include/TH1.h AMSR_Track.h
+AMSR_TrackReader.o: /Offline/root/include/THelix.h
+AMSR_SiHit.o: AMSR_SiHit.h /Offline/root/include/TObject.h AMSR_3DCluster.h
+AMSR_SiHit.o: /Offline/root/include/TMarker3DBox.h AMSR_Root.h
+AMSR_SiHit.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h AMSR_Maker.h
+AMSR_SiHit.o: /usr/include/time.h /usr/include/standards.h
+AMSR_SiHit.o: /usr/include/sys/machine/machtime.h /usr/include/sys/types.h
+AMSR_SiHit.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
+AMSR_SiHit.o: /usr/include/sys/timers.h /usr/include/sys/sysmisc.h
+AMSR_SiHit.o: AMSR_VirtualDisplay.h Debugger.h
+AMSR_SiHitReader.o: Debugger.h /Offline/root/include/TObject.h
+AMSR_SiHitReader.o: /Offline/root/include/TRandom.h
+AMSR_SiHitReader.o: /Offline/root/include/TClonesArray.h AMSR_Root.h
+AMSR_SiHitReader.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_SiHitReader.o: AMSR_Maker.h /usr/include/time.h /usr/include/standards.h
+AMSR_SiHitReader.o: /usr/include/sys/machine/machtime.h
+AMSR_SiHitReader.o: /usr/include/sys/types.h
+AMSR_SiHitReader.o: /usr/include/mach/machine/vm_types.h
+AMSR_SiHitReader.o: /usr/include/sys/select.h /usr/include/sys/timers.h
+AMSR_SiHitReader.o: /usr/include/sys/sysmisc.h AMSR_SiHit.h AMSR_3DCluster.h
+AMSR_SiHitReader.o: /Offline/root/include/TMarker3DBox.h AMSR_SiHitReader.h
+AMSR_CTCCluster.o: Debugger.h /Offline/root/include/TObject.h
+AMSR_CTCCluster.o: AMSR_CTCCluster.h AMSR_3DCluster.h
+AMSR_CTCCluster.o: /Offline/root/include/TMarker3DBox.h AMSR_Root.h
+AMSR_CTCCluster.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_CTCCluster.o: AMSR_Maker.h /usr/include/time.h /usr/include/standards.h
+AMSR_CTCCluster.o: /usr/include/sys/machine/machtime.h
+AMSR_CTCCluster.o: /usr/include/sys/types.h
+AMSR_CTCCluster.o: /usr/include/mach/machine/vm_types.h
+AMSR_CTCCluster.o: /usr/include/sys/select.h /usr/include/sys/timers.h
+AMSR_CTCCluster.o: /usr/include/sys/sysmisc.h AMSR_VirtualDisplay.h
+AMSR_CTCClusterReader.o: Debugger.h /Offline/root/include/TObject.h
+AMSR_CTCClusterReader.o: /Offline/root/include/TRandom.h
+AMSR_CTCClusterReader.o: /Offline/root/include/TClonesArray.h AMSR_Root.h
+AMSR_CTCClusterReader.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_CTCClusterReader.o: AMSR_Maker.h /usr/include/time.h
+AMSR_CTCClusterReader.o: /usr/include/standards.h
+AMSR_CTCClusterReader.o: /usr/include/sys/machine/machtime.h
+AMSR_CTCClusterReader.o: /usr/include/sys/types.h
+AMSR_CTCClusterReader.o: /usr/include/mach/machine/vm_types.h
+AMSR_CTCClusterReader.o: /usr/include/sys/select.h /usr/include/sys/timers.h
+AMSR_CTCClusterReader.o: /usr/include/sys/sysmisc.h AMSR_CTCCluster.h
+AMSR_CTCClusterReader.o: AMSR_3DCluster.h
+AMSR_CTCClusterReader.o: /Offline/root/include/TMarker3DBox.h
+AMSR_CTCClusterReader.o: AMSR_CTCClusterReader.h
+AMSR_Particle.o: Debugger.h /Offline/root/include/TObject.h AMSR_Root.h
+AMSR_Particle.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_Particle.o: AMSR_Maker.h /usr/include/time.h /usr/include/standards.h
+AMSR_Particle.o: /usr/include/sys/machine/machtime.h /usr/include/sys/types.h
+AMSR_Particle.o: /usr/include/mach/machine/vm_types.h
+AMSR_Particle.o: /usr/include/sys/select.h /usr/include/sys/timers.h
+AMSR_Particle.o: /usr/include/sys/sysmisc.h AMSR_Track.h
+AMSR_Particle.o: /Offline/root/include/THelix.h AMSR_Particle.h
+AMSR_Particle.o: /Offline/root/include/TClonesArray.h
+AMSR_ParticleReader.o: Debugger.h /Offline/root/include/TObject.h
+AMSR_ParticleReader.o: /Offline/root/include/TClonesArray.h AMSR_Root.h
+AMSR_ParticleReader.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_ParticleReader.o: AMSR_Maker.h /usr/include/time.h
+AMSR_ParticleReader.o: /usr/include/standards.h
+AMSR_ParticleReader.o: /usr/include/sys/machine/machtime.h
+AMSR_ParticleReader.o: /usr/include/sys/types.h
+AMSR_ParticleReader.o: /usr/include/mach/machine/vm_types.h
+AMSR_ParticleReader.o: /usr/include/sys/select.h /usr/include/sys/timers.h
+AMSR_ParticleReader.o: /usr/include/sys/sysmisc.h AMSR_ParticleReader.h
+AMSR_ParticleReader.o: AMSR_Particle.h /Offline/root/include/THelix.h
+AMSR_MCParticle.o: /usr/include/cxx/iostream.h /usr/include/cxx/iostream.hxx
+AMSR_MCParticle.o: /usr/include/cxx/cxxl.hxx /usr/include/cxx/cxxl_share.hxx
+AMSR_MCParticle.o: /usr/include/cxx/messages.hxx /usr/include/stddef.h
+AMSR_MCParticle.o: /usr/include/standards.h /usr/include/stdio.h
+AMSR_MCParticle.o: /usr/include/sys/seek.h /usr/include/va_list.h
+AMSR_MCParticle.o: /usr/include/sys/types.h
+AMSR_MCParticle.o: /usr/include/mach/machine/vm_types.h
+AMSR_MCParticle.o: /usr/include/sys/select.h /usr/include/getopt.h
+AMSR_MCParticle.o: /usr/include/sys/limits.h
+AMSR_MCParticle.o: /usr/include/sys/machine/machlimits.h
+AMSR_MCParticle.o: /usr/include/sys/syslimits.h
+AMSR_MCParticle.o: /usr/include/sys/machine/machtime.h
+AMSR_MCParticle.o: /usr/include/sys/rt_limits.h /usr/include/limits.h
+AMSR_MCParticle.o: /usr/include/memory.h /usr/include/string.h
+AMSR_MCParticle.o: /usr/include/strings.h Debugger.h
+AMSR_MCParticle.o: /Offline/root/include/TObject.h AMSR_Root.h
+AMSR_MCParticle.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_MCParticle.o: AMSR_Maker.h /usr/include/time.h /usr/include/sys/timers.h
+AMSR_MCParticle.o: /usr/include/sys/sysmisc.h AMSR_Track.h
+AMSR_MCParticle.o: /Offline/root/include/THelix.h AMSR_MCParticle.h
+AMSR_MCParticle.o: /Offline/root/include/TClonesArray.h
+AMSR_MCParticleReader.o: Debugger.h /Offline/root/include/TObject.h
+AMSR_MCParticleReader.o: /Offline/root/include/TClonesArray.h AMSR_Root.h
+AMSR_MCParticleReader.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_MCParticleReader.o: AMSR_Maker.h /usr/include/time.h
+AMSR_MCParticleReader.o: /usr/include/standards.h
+AMSR_MCParticleReader.o: /usr/include/sys/machine/machtime.h
+AMSR_MCParticleReader.o: /usr/include/sys/types.h
+AMSR_MCParticleReader.o: /usr/include/mach/machine/vm_types.h
+AMSR_MCParticleReader.o: /usr/include/sys/select.h /usr/include/sys/timers.h
+AMSR_MCParticleReader.o: /usr/include/sys/sysmisc.h AMSR_MCParticleReader.h
+AMSR_MCParticleReader.o: AMSR_MCParticle.h /Offline/root/include/THelix.h
+AMSR_VirtualDisplay.o: AMSR_VirtualDisplay.h
+AMSR_HistBrowser.o: /Offline/root/include/TBrowser.h AMSR_Root.h
+AMSR_HistBrowser.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_HistBrowser.o: AMSR_Maker.h /usr/include/time.h /usr/include/standards.h
+AMSR_HistBrowser.o: /usr/include/sys/machine/machtime.h
+AMSR_HistBrowser.o: /usr/include/sys/types.h
+AMSR_HistBrowser.o: /usr/include/mach/machine/vm_types.h
+AMSR_HistBrowser.o: /usr/include/sys/select.h /usr/include/sys/timers.h
+AMSR_HistBrowser.o: /usr/include/sys/sysmisc.h
+AMSR_Canvas.o: /usr/include/unistd.h /usr/include/standards.h
+AMSR_Canvas.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+AMSR_Canvas.o: /usr/include/sys/select.h /usr/include/sys/access.h
+AMSR_Canvas.o: /usr/include/sys/seek.h /usr/include/getopt.h
+AMSR_Canvas.o: /usr/include/cxx/iostream.h /usr/include/cxx/iostream.hxx
+AMSR_Canvas.o: /usr/include/cxx/cxxl.hxx /usr/include/cxx/cxxl_share.hxx
+AMSR_Canvas.o: /usr/include/cxx/messages.hxx /usr/include/stddef.h
+AMSR_Canvas.o: /usr/include/stdio.h /usr/include/va_list.h
+AMSR_Canvas.o: /usr/include/sys/limits.h
+AMSR_Canvas.o: /usr/include/sys/machine/machlimits.h
+AMSR_Canvas.o: /usr/include/sys/syslimits.h
+AMSR_Canvas.o: /usr/include/sys/machine/machtime.h
+AMSR_Canvas.o: /usr/include/sys/rt_limits.h /usr/include/limits.h
+AMSR_Canvas.o: /usr/include/memory.h /usr/include/string.h
+AMSR_Canvas.o: /usr/include/strings.h /usr/include/stdlib.h
+AMSR_Canvas.o: /Offline/root/include/TROOT.h
+AMSR_Canvas.o: /Offline/root/include/TControlBar.h
+AMSR_Canvas.o: /Offline/root/include/TContextMenu.h AMSR_Root.h
+AMSR_Canvas.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h AMSR_Maker.h
+AMSR_Canvas.o: /usr/include/time.h /usr/include/sys/timers.h
+AMSR_Canvas.o: /usr/include/sys/sysmisc.h AMSR_Display.h
+AMSR_Canvas.o: /Offline/root/include/TGXW.h /Offline/root/include/TGClient.h
+AMSR_Canvas.o: /Offline/root/include/TObject.h
+AMSR_Canvas.o: /Offline/root/include/GuiTypes.h
+AMSR_Canvas.o: /Offline/root/include/TGFrame.h /Offline/root/include/TGIcon.h
+AMSR_Canvas.o: /Offline/root/include/TGLabel.h
+AMSR_Canvas.o: /Offline/root/include/TGButton.h
+AMSR_Canvas.o: /Offline/root/include/TGTextEntry.h
+AMSR_Canvas.o: /Offline/root/include/TGMsgBox.h
+AMSR_Canvas.o: /Offline/root/include/TGMenu.h
+AMSR_Canvas.o: /Offline/root/include/TGCanvas.h
+AMSR_Canvas.o: /Offline/root/include/TGComboBox.h
+AMSR_Canvas.o: /Offline/root/include/TGTab.h /Offline/root/include/TGSlider.h
+AMSR_Canvas.o: /Offline/root/include/TGFileDialog.h
+AMSR_Canvas.o: /Offline/root/include/TApplication.h AMSR_VirtualDisplay.h
+AMSR_Canvas.o: AMSR_GeometrySetter.h /Offline/root/include/TGeometry.h
+AMSR_Canvas.o: TSwitch.h /Offline/root/include/TPad.h TRadioButton.h
+AMSR_Canvas.o: /Offline/root/include/TButton.h /Offline/root/include/TText.h
+AMSR_Canvas.o: AMSR_Canvas.h /Offline/root/include/TCanvas.h
+AMSR_Canvas.o: /Offline/root/include/TRootCanvas.h Debugger.h
+AMSR_Display.o: /usr/include/cxx/iostream.h /usr/include/cxx/iostream.hxx
+AMSR_Display.o: /usr/include/cxx/cxxl.hxx /usr/include/cxx/cxxl_share.hxx
+AMSR_Display.o: /usr/include/cxx/messages.hxx /usr/include/stddef.h
+AMSR_Display.o: /usr/include/standards.h /usr/include/stdio.h
+AMSR_Display.o: /usr/include/sys/seek.h /usr/include/va_list.h
+AMSR_Display.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+AMSR_Display.o: /usr/include/sys/select.h /usr/include/getopt.h
+AMSR_Display.o: /usr/include/sys/limits.h
+AMSR_Display.o: /usr/include/sys/machine/machlimits.h
+AMSR_Display.o: /usr/include/sys/syslimits.h
+AMSR_Display.o: /usr/include/sys/machine/machtime.h
+AMSR_Display.o: /usr/include/sys/rt_limits.h /usr/include/limits.h
+AMSR_Display.o: /usr/include/memory.h /usr/include/string.h
+AMSR_Display.o: /usr/include/strings.h /Offline/root/include/TROOT.h
+AMSR_Display.o: /Offline/root/include/TButton.h
+AMSR_Display.o: /Offline/root/include/TCanvas.h /Offline/root/include/TView.h
+AMSR_Display.o: /Offline/root/include/TText.h
+AMSR_Display.o: /Offline/root/include/TPaveLabel.h
+AMSR_Display.o: /Offline/root/include/TPaveText.h
+AMSR_Display.o: /Offline/root/include/TList.h
+AMSR_Display.o: /Offline/root/include/TDiamond.h
+AMSR_Display.o: /Offline/root/include/TNode.h /Offline/root/include/TTUBE.h
+AMSR_Display.o: /Offline/root/include/TMath.h
+AMSR_Display.o: /Offline/root/include/TPolyLine3D.h
+AMSR_Display.o: /Offline/root/include/X3DBuffer.h
+AMSR_Display.o: /Offline/root/include/DllImport.h AMSR_Display.h
+AMSR_Display.o: /Offline/root/include/TGXW.h /Offline/root/include/TGClient.h
+AMSR_Display.o: /Offline/root/include/TObject.h
+AMSR_Display.o: /Offline/root/include/GuiTypes.h
+AMSR_Display.o: /Offline/root/include/TGFrame.h
+AMSR_Display.o: /Offline/root/include/TGIcon.h
+AMSR_Display.o: /Offline/root/include/TGLabel.h
+AMSR_Display.o: /Offline/root/include/TGButton.h
+AMSR_Display.o: /Offline/root/include/TGTextEntry.h
+AMSR_Display.o: /Offline/root/include/TGMsgBox.h
+AMSR_Display.o: /Offline/root/include/TGMenu.h
+AMSR_Display.o: /Offline/root/include/TGCanvas.h
+AMSR_Display.o: /Offline/root/include/TGComboBox.h
+AMSR_Display.o: /Offline/root/include/TGTab.h
+AMSR_Display.o: /Offline/root/include/TGSlider.h
+AMSR_Display.o: /Offline/root/include/TGFileDialog.h
+AMSR_Display.o: /Offline/root/include/TApplication.h AMSR_VirtualDisplay.h
+AMSR_Display.o: AMSR_GeometrySetter.h /Offline/root/include/TGeometry.h
+AMSR_Display.o: TSwitch.h /Offline/root/include/TPad.h TRadioButton.h
+AMSR_Display.o: AMSR_Canvas.h /Offline/root/include/TRootCanvas.h AMSR_Root.h
+AMSR_Display.o: AMSR_HistBrowser.h /Offline/root/include/TNamed.h
+AMSR_Display.o: AMSR_Maker.h /usr/include/time.h /usr/include/sys/timers.h
+AMSR_Display.o: /usr/include/sys/sysmisc.h AMSR_SiHitReader.h AMSR_Axis.h
+AMSR_Display.o: TGRunEventDialog.h Debugger.h
+TGRunEventDialog.o: TGRunEventDialog.h /Offline/root/include/TGTextView.h
+TGRunEventDialog.o: /Offline/root/include/TGLabel.h
+TGRunEventDialog.o: /Offline/root/include/TGTextEntry.h
+TGRunEventDialog.o: /Offline/root/include/TGButton.h /usr/include/stdlib.h
+TGRunEventDialog.o: /usr/include/standards.h /usr/include/getopt.h
+TGRunEventDialog.o: /usr/include/sys/types.h
+TGRunEventDialog.o: /usr/include/mach/machine/vm_types.h
+TGRunEventDialog.o: /usr/include/sys/select.h /usr/include/cxx/iostream.h
+TGRunEventDialog.o: /usr/include/cxx/iostream.hxx /usr/include/cxx/cxxl.hxx
+TGRunEventDialog.o: /usr/include/cxx/cxxl_share.hxx
+TGRunEventDialog.o: /usr/include/cxx/messages.hxx /usr/include/stddef.h
+TGRunEventDialog.o: /usr/include/stdio.h /usr/include/sys/seek.h
+TGRunEventDialog.o: /usr/include/va_list.h /usr/include/sys/limits.h
+TGRunEventDialog.o: /usr/include/sys/machine/machlimits.h
+TGRunEventDialog.o: /usr/include/sys/syslimits.h
+TGRunEventDialog.o: /usr/include/sys/machine/machtime.h
+TGRunEventDialog.o: /usr/include/sys/rt_limits.h /usr/include/limits.h
+TGRunEventDialog.o: /usr/include/memory.h /usr/include/string.h
+TGRunEventDialog.o: /usr/include/strings.h
+TRadioButton.o: /Offline/root/include/TCanvas.h
+TRadioButton.o: /Offline/root/include/TInterpreter.h TRadioButton.h
+TRadioButton.o: /Offline/root/include/TButton.h /Offline/root/include/TText.h
+TRadioButton.o: Debugger.h /Offline/root/include/TObject.h
+TSwitch.o: /Offline/root/include/TCanvas.h /Offline/root/include/TMath.h
+TSwitch.o: TSwitch.h /Offline/root/include/TPad.h TRadioButton.h
+TSwitch.o: /Offline/root/include/TButton.h /Offline/root/include/TText.h
+TSwitch.o: Debugger.h /Offline/root/include/TObject.h
+Debugger.o: /usr/include/stdio.h /usr/include/standards.h
+Debugger.o: /usr/include/sys/seek.h /usr/include/va_list.h
+Debugger.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+Debugger.o: /usr/include/sys/select.h /usr/include/getopt.h
+Debugger.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+Debugger.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+Debugger.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h Debugger.h
+Debugger.o: /Offline/root/include/TObject.h
+main.o: /Offline/root/include/TROOT.h /Offline/root/include/TApplication.h
+main.o: /Offline/root/include/TFile.h /Offline/root/include/TTree.h
+main.o: /Offline/root/include/TGeometry.h AMSR_Root.h AMSR_HistBrowser.h
+main.o: /Offline/root/include/TNamed.h AMSR_Maker.h /usr/include/time.h
+main.o: /usr/include/standards.h /usr/include/sys/machine/machtime.h
+main.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+main.o: /usr/include/sys/select.h /usr/include/sys/timers.h
+main.o: /usr/include/sys/sysmisc.h AMSR_Display.h
+main.o: /Offline/root/include/TGXW.h /Offline/root/include/TGClient.h
+main.o: /Offline/root/include/TObject.h /Offline/root/include/GuiTypes.h
+main.o: /Offline/root/include/TGFrame.h /Offline/root/include/TGIcon.h
+main.o: /Offline/root/include/TGLabel.h /Offline/root/include/TGButton.h
+main.o: /Offline/root/include/TGTextEntry.h /Offline/root/include/TGMsgBox.h
+main.o: /Offline/root/include/TGMenu.h /Offline/root/include/TGCanvas.h
+main.o: /Offline/root/include/TGComboBox.h /Offline/root/include/TGTab.h
+main.o: /Offline/root/include/TGSlider.h /Offline/root/include/TGFileDialog.h
+main.o: AMSR_VirtualDisplay.h AMSR_GeometrySetter.h TSwitch.h
+main.o: /Offline/root/include/TPad.h TRadioButton.h
+main.o: /Offline/root/include/TButton.h /Offline/root/include/TText.h
+main.o: AMSR_Canvas.h /Offline/root/include/TCanvas.h
+main.o: /Offline/root/include/TRootCanvas.h Debugger.h
+main.o: /usr/include/cxx/iostream.h /usr/include/cxx/iostream.hxx
+main.o: /usr/include/cxx/cxxl.hxx /usr/include/cxx/cxxl_share.hxx
+main.o: /usr/include/cxx/messages.hxx /usr/include/stddef.h
+main.o: /usr/include/stdio.h /usr/include/sys/seek.h /usr/include/va_list.h
+main.o: /usr/include/getopt.h /usr/include/sys/limits.h
+main.o: /usr/include/sys/machine/machlimits.h /usr/include/sys/syslimits.h
+main.o: /usr/include/sys/rt_limits.h /usr/include/limits.h
+main.o: /usr/include/memory.h /usr/include/string.h /usr/include/strings.h
+main.o: /usr/include/cxx/fstream.h /usr/include/cxx/fstream.hxx
+main.o: /usr/include/sys/stat.h /usr/include/sys/mode.h
+main.o: /usr/include/sys/file.h /usr/include/sys/param.h
+main.o: /usr/include/sys/machine/machparam.h /usr/include/machine/endian.h
+main.o: /usr/include/sys/signal.h /usr/include/sys/siginfo.h
+main.o: /usr/include/sys/machine/signal.h /usr/include/machine/context.h
+main.o: /usr/include/sys/procset.h /usr/include/sys/access.h
+main.o: /usr/include/sys/fcntl.h /usr/include/stdlib.h

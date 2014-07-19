@@ -1,0 +1,11 @@
+# Host      Interface   OS         CPU Mem Clock
+pcamsp1      cern.ch  Linux-g++        2  384  450
+pcamsf0      cern.ch  Linux-g++        1  512  933
+pcamsp0      cern.ch  Linux-g++        2  384  450
+pcamsa0      cern.ch  Linux-g++        2  384  450
+pcamsf1      cern.ch  Linux-g++        2  512  1533  
+pcamsf2      cern.ch  Linux-g++        2  1024 2000
+pcamsf3      cern.ch  Linux-g++        1  256  1200
+pcamsf4      cern.ch  Linux-g++        2  1024 1534
+pcamsf5      cern.ch  Linux-g++        2  1024 1533
+pcamst0      cern.ch  Linux-g++        2  512  600

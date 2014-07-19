@@ -1,0 +1,16 @@
+OS2/ directory contains os2 specific Imakefile and shared
+     library stuff.
+
+If your system has OpenGL, you must rename GL/ directory
+to something else in order to use the real OpenGL. GL/
+directory here is mesa headers.
+
+OpenGL canvas gl.c by default is compiled into the static library using
+OpenGL on SGI and Mesa on other platforms. Shared library might not
+contain gl.o on some platforms. You can always add it by compiling
+gl.c here or compiling gl.c here and link it with your application. 
+
+If you use the gl.o for Mesa from the pre-built static library, you need
+Mesa 2.0
+
+../DEMOS contains a few demo programs that use OpenGL/Mesa

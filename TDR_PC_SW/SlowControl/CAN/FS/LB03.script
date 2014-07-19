@@ -1,0 +1,51 @@
+addr 0x1A1
+
+L9:
+
+c+   C9        -      - 
+
+option     LB0 - -
+slot H
+read P3   3000.0 4000.0 
+LB0a:
+
+option     - - LB1
+slot FVH
+read MUX1   -0.1    0.1
+LB1a:
+
+option     LB2 - -
+slot C
+read P3   3000.0 4000.0 
+LB2a:
+
+option     - - LB3
+slot FVC
+read MUX1   -0.1    0.1
+
+
+
+goto L9
+
+LB0:
+c+ C0 - - 
+goto LB0a
+
+
+LB1:
+c+ C1
+goto LB1a
+
+
+LB2:
+c+ C2
+goto LB2a
+
+
+LB3:
+c+ C3
+goto L9
+
+
+
+

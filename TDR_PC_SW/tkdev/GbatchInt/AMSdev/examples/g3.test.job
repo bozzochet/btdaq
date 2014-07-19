@@ -1,0 +1,49 @@
+[ -z "$UNAME" ]      && UNAME=`(uname) 2>/dev/null`
+[ -z "$UNAME" -a -d /sys/node_data ] && UNAME="DomainOS"
+[ -z "$UNAME" ]      && (echo could not determine hosttype ; exit)
+
+if [ "$UNAME" = "AIX" ] ; then
+   MACHINE="aix"
+elif [ "$UNAME" = "OSF1" ] ; then
+    MACHINE="osf1"
+elif [ "$UNAME" = "Linux" ] ; then
+    MACHINE="linux"
+else
+echo $UNAME is not supported yet
+
+fi
+
+
+$AMSWD/exe/$MACHINE/gbatch.exe <<!
+LIST
+KINE 14
+LOSS 1
+HADR 1
+MULS 1
+CKOV 1
+RAYL 1
+CUTS 1=0.0005 2=0.0005 3=0.001 4=0.001 5=0.001
+TRIG 1000
+DEBUG -1 10 10
+C          Nparticles 
+MISC 4=1 5=0       
+MCGEN 1=-2. 2=-2. 3=140. 4=2. 5=2. 6=140.
+7=0. 8=0. 9=-1. 10=0. 11=0. 12=-1.
+C 12=-0.95 
+13=5. 14=5. 15=0 16=1. 19=101 20=5 21=0  
+25=01012008 27=01012010
+IOPA 1=2 2='g3v1g3.hbk' 43=2
+45='AMSmceventg   ' 126=10000 
+C RNDM 191483493 13582325
+C RNDM  2010916395 53071516
+RNDM  870274471 1739888007
+C      Simul Debug    CpuLim  Read Write Jobname
+AMSJOB 1=0   2=0     3=50.   4=0  5=0 
+C Special HP-UX
+TIME 3=10000000
+TERM 1234567890
+L3REC 11=0
+C G4FF 4=0
+C TRDMC 1=-2
+END
+!

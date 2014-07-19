@@ -1,0 +1,50 @@
+#  $Id: setup02.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+Geometrical setup is defined thru  AMSJob.Setupname datacard (see datacards.doc)
+
+
+Rules & valid cards:
+
+each (sub) detector entry is prefixed by 3 symbol detector abbreviation.
+
+Valid prefixes:
+
+AMS  - whole detector
+
+TOF  - time of flight counter
+
+ANT  - anti coincidence counter
+
+STR  - silicon trackert
+
+
+TRD  - transition radiation detector
+
+PSH  - plastic shield + AMS support structure
+
+CAL - emc
+
+RIC - RICH
+
+
+
+Valid entries (on  12/03/02)
+
+
+AMS:
+  AMS02       - station 
+
+STR:
+STRPLANES(Default)/STRTUBES          -  planes/tubes   
+
+
+
+CALORIMETER:
+CAL01
+
+TRD:
+TRD01
+
+TOF:
+"AMS02"/"AMS02 TOF:12PAD" --> (AMS02 with TOF:8PAD(default)) / (AMS02 with TOF:12PAD)
+
+ 

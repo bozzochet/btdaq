@@ -1,0 +1,132 @@
+#define TargetName fdesign
+#define Optimize NO
+
+# $Locker: spl $
+# $Date: 1998/04/20 20:27:49 $
+# $State: Exp $
+
+# $Log: Imakefile,v $
+#
+
+SRCS	= \
+	  fd_attribs.c \
+	  fd_control.c \
+	  fd_fake.c \
+	  fd_file.c \
+	  fd_forms.c \
+	  fd_groups.c \
+	  fd_help.c \
+	  fd_initforms.c \
+	  fd_main.c \
+	  fd_names.c \
+	  fd_objects.c \
+	  fd_pallette.c \
+	  fd_printC.c \
+	  fd_rubber.c \
+	  fd_select.c \
+	  fd_spec.c \
+	  fd_super.c \
+	  fd_util.c \
+	  sp_browser.c \
+	  sp_button.c \
+	  sp_choice.c \
+	  sp_counter.c \
+	  sp_dial.c \
+	  sp_freeobj.c \
+	  sp_menu.c \
+	  sp_pixmap.c \
+	  sp_positioner.c \
+	  sp_scrollbar.c \
+	  sp_slider.c \
+	  sp_twheel.c \
+	  sp_xyplot.c \
+	  /* do not delete this line */
+
+#	No user servicable parts below here.
+#	Consult a trained technician.
+
+OBJS	= $(SRCS:.c=.o)
+
+#if Solaris64Bit
+LDPRELIB	= -L/usr/openwin/lib/sparcv9
+CCENVSETUP	= LD_RUN_PATH=/usr/openwin/lib/sparcv9
+#endif
+
+#if StaticLink
+#if HasGcc2
+STATIC		= -Xlinker -Bstatic
+UNSTATIC	= -Xlinker -Bdynamic
+#else
+STATIC		= -static
+UNSTATIC	= -dynamic
+#endif
+
+#if NonstandardXpm
+XPMLIBLOC	= XpmLibLoc
+XPMLIBLIBDIR	= -L$(XPMLIBLOC)
+#endif
+
+XPMLIB		= $(XPMLIBLIBDIR) -lXpm
+#endif
+
+FORMSLIBDIR     = $(TOP)/lib
+FORMSINCDIR     = $(FORMSLIBDIR)       
+FORMSLIB        = -L$(FORMSLIBDIR) -lforms
+DEPFORMSLIB     = $(FORMSLIBDIR)/libforms.a
+
+#if !HaveSnprintf
+SNPLIBDIR	= $(TOP)/snp
+SNPINCDIR	= $(SNPLIBDIR)       
+SNPINC		= -I$(SNPINCDIR)
+SNPLIB		= -L$(SNPLIBDIR) -lformssnp
+DEPSNPLIB	= $(SNPLIBDIR)/libformssnp.a
+#endif
+
+#if InstallNonstandard
+SHLIBDIR	= XFormsNonstandardInstallDir/lib
+USRLIBDIR	= XFormsNonstandardInstallDir/lib
+INCDIR		= XFormsNonstandardInstallDir/include
+#endif
+
+EXTRA_INCLUDES  = \
+		  $(SNPINC) \
+		  -I$(BUILDINCDIR) \
+		  -I$(FORMSINCDIR) \
+		  -I$(FORMSINCDIR)/private \
+		  -Ifd \
+		  -Ispec \
+		  -Ixpm \
+		  -I.
+
+DEPEND_DEFINES	= \
+		  -I/usr/local/include
+
+
+EXTRA_LIBRARIES	= \
+		  $(STATIC) \
+		  $(FORMSLIB) \
+		  $(XPMLIB) \
+		  $(SNPLIB) \
+		  $(UNSTATIC) \
+		  -lm
+
+EXTRA_DEFINES	= \
+		  -DMAKING_FORMS=1
+
+DEPLIBS		= \
+		  $(DEPSNPLIB) \
+		  $(DEPFORMSLIB) \
+		  $(DEPXPMLIB)
+
+SYS_LIBRARIES	= \
+		  $(XLIB)
+
+ComplexProgramTarget(TargetName)
+
+#if InstallNonstandard
+BINDIR		= XFormsNonstandardInstallDir/bin
+#endif
+
+distclean::
+	make clean
+	$(RM) Makefile

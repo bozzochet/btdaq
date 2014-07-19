@@ -1,0 +1,223 @@
+#define DoNormalLib YES
+#define DoSharedLib BuildShared
+
+#define LibName forms
+
+SRCS		= \
+		  align.c \
+		  appwin.c \
+		  asyn_io.c \
+		  be.c \
+		  bitmap.c \
+		  box.c \
+		  browser.c \
+		  button.c \
+		  canvas.c \
+		  chart.c \
+		  checkbut.c \
+		  child.c \
+		  choice.c \
+		  clipboard.c \
+		  clock.c \
+		  cmd_br.c \
+		  colsel.c \
+		  counter.c \
+		  cursor.c \
+		  dial.c \
+		  display.c \
+		  errmsg.c \
+		  events.c \
+		  flcolor.c \
+		  fldraw.c \
+		  flresource.c \
+		  flvisual.c \
+		  fonts.c \
+		  formbrowser.c \
+		  forms.c \
+		  frame.c \
+		  free.c \
+		  fselect.c \
+		  goodie_alert.c \
+		  goodie_choice.c \
+		  goodie_input.c \
+		  goodie_msg.c \
+		  goodie_sinput.c \
+		  goodie_yesno.c \
+		  goodies.c \
+		  input.c \
+		  interpol.c \
+		  keyboard.c \
+		  labelbut.c \
+		  lframe.c \
+		  lightbut.c \
+		  listdir.c \
+		  menu.c \
+		  n2a.c \
+		  objects.c \
+		  oneliner.c \
+		  pixmap.c \
+		  positioner.c \
+		  read2lsbf.c \
+		  read2msbf.c \
+		  read4lsb.c \
+		  read4msb.c \
+		  readint.c \
+		  round3d.c \
+		  roundbut.c \
+		  scrollbar.c \
+		  scrollbut.c \
+		  signal.c \
+		  simu.c \
+		  sldraw.c \
+		  slider.c \
+		  space.c \
+		  spline.c \
+		  strdup.c \
+		  symbols.c \
+		  sysdep.c \
+		  tabfolder.c \
+		  text.c \
+		  textbox.c \
+		  thumbwheel.c \
+		  timeout.c \
+		  timer.c \
+		  tooltip.c \
+		  util.c \
+		  valuator.c \
+		  version.c \
+		  vn_pair.c \
+		  vstrcat.c \
+		  win.c \
+		  xdraw.c \
+		  xpopup.c \
+		  xsupport.c \
+		  xtext.c \
+		  xyplot.c
+
+HEADERS		= forms.h
+LIBNAME		= LibName
+XFORMSLIBREV	= XFormsLibRev
+#if InstallNonstandard
+XFORMSLIBDIR	= XFormsNonstandardInstallDir
+#else
+XFORMSLIBDIR	= $(DESTDIR)$(INCDIR)/X11
+#endif
+
+#		Below here be dragons.
+
+OBJS	= $(SRCS:.c=.o)
+
+#if HaveStrerror
+HAVE_STRERROR	= -DHAVE_STRERROR
+#endif
+
+#if NonstandardXpm
+XPMLIBLOC	= XpmLibLoc
+XPMLIB		= -L$(XPMLIBLOC)
+XPMINCLOC	= XpmIncLoc
+XPMINC		= -I$(XPMINCLOC)
+XPMFLAG		= -DNONSTANDARD_XPM
+#endif
+
+EXTRA_INCLUDES	= \
+		  $(XPMINC) \
+		  -I$(BUILDINCDIR) \
+		  -Iprivate \
+		  -Ibitmaps \
+		  -I. \
+		  -Ifd
+
+DEPEND_DEFINES	= \
+		  -I/usr/local/include
+
+#if !BuildGL
+NO_GL		= -DNO_GL
+#endif
+
+EXTRA_DEFINES	= \
+		  -DMAKING_FORMS \
+		  $(XPMFLAG) \
+		  $(NO_GL) \
+		  $(HAVE_STRERROR)
+
+#if HasGcc2
+PICFLAGS	= -fPIC
+#endif
+
+CCOPTIONS	=
+
+#if (ProjectX < 5)
+    STD_DEFINES = LibraryDefines
+    CDEBUGFLAGS = LibraryCDebugFlags
+#else
+#define SoRev XFORMSLIBREV
+#define IncSubdir X11
+#include <Library.tmpl>
+#endif
+
+#if Solaris64Bit
+LDPRELIB	= -L/usr/openwin/lib/sparcv9 -L/usr/local/lib/sparcv9
+CCENVSETUP	= LD_RUN_PATH=/usr/openwin/lib/sparcv9
+#if HasGcc2
+LD		= gcc
+#endif
+SHLIBLDFLAGS	= -shared
+#endif
+
+#if InstallNonstandard
+SHLIBDIR	= XFormsNonstandardInstallDir/lib
+USRLIBDIR	= XFormsNonstandardInstallDir/lib
+INCDIR		= XFormsNonstandardInstallDir/include
+#endif
+
+#if defined( PpcDarwinArchitecture )
+SHLIBLDFLAGS	+= -flat_namespace
+#endif
+
+REQUIREDLIBS	= \
+		  $(LDPRELIB) \
+		  $(XLIB) \
+		  $(XPMLIB) -lXpm
+
+#if (ProjectX < 6)
+   INSTALLFLAGS = $(INSTINCFLAGS)
+
+#if (ProjectX < 5)
+
+#if DoSharedLib
+SharedLibraryObjectRule()
+NormalSharedLibraryTarget($(LIBNAME),$(XFORMSLIBREV),$(OBJS))
+InstallSharedLibrary($(LIBNAME),$(XFORMSLIBREV),$(XFORMSLIBDIR))
+#else
+NormalLibraryObjectRule()
+#endif
+NormalLibraryTarget($(LIBNAME),$(OBJS))
+InstallLibrary($(LIBNAME),$(XFORMSLIBDIR))
+
+#else /* (ProjectX < 5) */
+LibraryObjectRule()
+
+#if DoSharedLib
+# if DoNormalLib
+SharedLibraryTarget($(LIBNAME),$(XFORMSLIBREV),$(OBJS),shared,..)
+# else
+SharedLibraryTarget($(LIBNAME),$(XFORMSLIBREV),$(OBJS),.,.)
+#endif
+InstallSharedLibrary($(LIBNAME),$(XFORMSLIBREV),$(XFORMSLIBDIR))
+#endif
+#if DoNormalLib
+NormalLibraryTarget($(LIBNAME),$(OBJS))
+InstallLibrary($(LIBNAME),$(XFORMSLIBDIR))
+#endif
+
+#endif /* (ProjectX < 5) */
+
+InstallMultiple(forms.h,$(XFORMSINCDIR))
+
+LintLibraryTarget($(LIBNAME),$(SRCS))
+InstallLintLibrary($(LIBNAME),$(LINTLIBDIR))
+NormalLintTarget($(SRCS))
+
+#endif /* (ProjectX < 6) */
+
+DependTarget()

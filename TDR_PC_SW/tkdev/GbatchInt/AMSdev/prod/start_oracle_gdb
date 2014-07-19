@@ -1,0 +1,2 @@
+-OI -R../prod/RunTable -P../prod/NominalProducer -H../prod/NominalHost -S../prod/NominalServer -F../prod/NominalInterface -N../prod/NominalNtuple -Ihrdl -D1 -K../prod/NominalKiller
+

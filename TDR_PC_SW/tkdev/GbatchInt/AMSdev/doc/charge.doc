@@ -1,0 +1,341 @@
+#  $Id: charge.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+// Modified by E.Choumilov 10.3.2005
+
+General logic:
+
+ There are maxzin=AMSChargConst::MaxZTypes Z-indexes(now =10 and defined in amsdbc.h).
+ 
+ Corresponding particle charges are defined as static arrays of AMSCharge-class:
+   _chargeTracker[maxzin];
+   _chargeTOF[maxzin];
+   _chargeRich[maxzin];
+ and now are the same for all sub-detectors:{1,1,2,3,4,5,6,7,8,9}=>e,p,He,Li,...,N,F
+--------- 
+ Raw dE/dX distributions used by TOF and Tracker to create Prob.Density Functions(PDF)
+ for all Z-indexes are stored in two separate files tof2pdffNNNmc.dat and 
+ trkpdffKKKmc.dat. Here NNN/KKK are file version numbers (now for MC data NNN=002,
+ KKK=001).
+---------
+       New file structure for TOF:
+ 
+ 3 integers: ich/charge/Nbibs/,  4 Floats: Undfl/Ovrfl/Xmin/Step
+ Nbins Floats:  distr(i), i=1,Nbins
+           .
+	   .
+   repeated maxzin times
+---------
+       The file structure for TRK:
+       
+         unchanged for the moment
+---------
+
+  These 2 "raw distribution" files are stored in /Offline/AMSDataDir/v4.00 and
+  can be read directly during the standard simulation/reconstruction run
+  to create(at init.stage)  tof/trk classes TofElosPDF/TrkElosPDF
+  filled with calculated PDF's. The reNormalization of raw distributions
+  is done automatically inside of corresponding constructors. The corresponding
+  build-functions are put into tofdbc02.C and trkdbc.C files.
+  Raw distributions should not contain 0-channels.
+  The classes are described in tofdbc02.h and trkdbc.h.
+  Contrary to raw-files reading mode Reconstruction program can use ready PDF's
+  from DB. One of these two modes is selected in data cards TFRE(tof) and CHARGEFIT(trk).
+  See datacards.doc file for details.
+----------
+
+ Now the structure of charge-reco data looks like:
+  
+const int maxzin=AMSChargConst::MaxZTypes;
+
+class AMSCharge: public AMSlink{
+protected:
+  AMSBeta * _pbeta;      // pointer to beta --> then to track & tof
+  AMSRichRing * _pring;  // pointer to RICH ring
+
+ integer _ChargeTOF;
+ integer _ChargeTracker;
+ integer _ChargeRich;
+ number _TrMeanTracker;
+ number _TrMeanTOF;
+ number _TrMeanTOFD;
+ number  _ProbTOF[maxzin];       //prob  to be e,p,He,...,F
+ number  _LkhdTOF[maxzin];       //loglikhd value for e,p,...
+ integer _IndxTOF[maxzin];       //index 0,...,9 from most to least prob charge
+ integer _iTOF;                   //index of most probable charge
+ number  _ProbTracker[maxzin];   //prob  to be e,p,He,...,F
+ number  _LkhdTracker[maxzin];   //loglikhd value for e,p,...
+ integer _IndxTracker[maxzin];   //index 0,...,9 from most to least prob charge
+ integer _iTracker;               //index of most probable charge
+ number  _ProbAllTracker;         //prob of maximum charge using all tracker clusters
+ number  _ProbRich[maxzin];      //prob  to be e,p,He,...,F
+ number  _LkhdRich[maxzin];      //loglikhd value for e,p,...
+ integer _IndxRich[maxzin];      //index 0,...,9 from most to least prob charge
+ integer _iRich;                  //index of most probable charge
+
+ integer _sortlkhd(integer sort);
+ number _probcalc(int mode, int fit, int nhittyp[],number lkhd[]);
+ number _probrich(number expRich, number useRich, number lkhrich[]);
+   static integer _chargeTracker[maxzin];//store particles charge-list(e,pr,he,...f)
+   static integer _chargeTOF[maxzin];
+   static integer _chargeRich[maxzin];
+public:
+  integer getvotedcharge(int & index);
+  inline number getrmeantrk(){return _TrMeanTracker/2;}
+  inline number getrmeantof(){return _TrMeanTOF;}
+  number getprobcharge(integer charge);
+  integer getchargeTOF()const{return _ChargeTOF;}
+  integer getchargeTracker()const{return _ChargeTracker;}
+  integer getchargeRich()const{return _ChargeRich;}
+  AMSBeta * getpbeta()const{return _pbeta;}
+  AMSRichRing * getpring()const{return _pring;}
+  static void addnext(AMSBeta* pbeta, AMSRichRing* pring, integer nhitTOF, integer nhitTracker, 
+  AMSTOFCluster *pTOFc[], number EdepTOF[TOF2GC::SCLRS], AMSTrCluster  *pTrackerc[trconst::TrkTypes-1][TrackerMaxHits], number EdepTracker[trconst::TrkTypes-1][TrackerMaxHits], number trtr, number trtof, number expRich, number useRich);
+  int FitTOF(int toffit, number beta, int bstatus, int nhitTOF, AMSTOFCluster *pTOFc[], number etof[TOF2GC::SCLRS]);
+  int FitTracker(int trkfit, number beta, int bstatus, int nhitTracker, AMSTrCluster *pTrackerc[trconst::TrkTypes-1][TrackerMaxHits], number etrk[trconst::TrkTypes-1][TrackerMaxHits]);
+  int FitRich(int richfit, number expRich, number useRich);
+  static number resmax(number x[],int ntot,int refit,number rescut,int &imax,number &mean,number &trres,number &trmax);
+  static void lkhcalc(int mode, number beta, int nhit, number ehit[], int typeh[], number lkh[]);
+  static integer build(integer refit=0);
+  static integer ind2charge(int idet, int ind);//convert Z-index to corresponding Z for given subdetector
+  static void print();
+----------
+
+====> Att.for Jorge Casaus(just to have impression):
+
+  The current raw dE/dX(incidence/pass-corrected + beta-corrected) file for TOF is created using root-files
+  generated for e,pr,He,Li,...,O,F particles, crossing AMS from the top hemisphere with "natural" spectra.
+  Now the description of heavy ions interactions in AMS-simulation is very preliminary. Due to this fact
+  and to increase also generation efficiency the simulation of nuclei >=Boron was done with Geant-flag
+  HADR 0 . Comparison shows that after all selection cuts, suppressing hadron interactions in AMS, the final
+  dE/dX distributions look similar to ones got with HADR 0.
+     Current TOF raw-pdf file was created WITHOUT ANY HIT-truncation ALGORITHM !!! (But it can be switched ON
+     in the call to TofPdfSel function).
+  
+  The extraction of root-based TOF-codes is shown below(my whole stlv.C contains too many non-related
+  codes):
+  
+const Int_t kZpdfs[kZindmx]={1,1,2,3,4,5,6,7,8,9};
+const Int_t kZrefInd=7;//current index of Z to select for TOF PDF's
+  .
+  . here pass-corrected values for TOF dE/dX(vs layer) and TOF/TRK TruncatedMeans are extracted
+  . from standard root variables(particle->beta->tofclust->Edep,...; particle->track->mom,EdepTrunc,...)
+  . trkcha <- charge from tracker; trktre <- TRK.trunc.mean Eloss
+  . tofedpn[il] <- TOF-clust pass/norm.Elos vs layer; bltof[il] <- fired tof-paddles in layers 
+  .
+
+//----> TOFChargeCalibration
+//
+  if(TOFTRKnormOK){
+    Float_t edn[4]={0,0,0,0};
+    Float_t edpn[4]={0,0,0,0};
+    Float_t ebcf[4]={0,0,0,0};
+    Int_t zref,ntofh(0),nbcf(0);
+    Float_t betl[kZindmx]={0.92, 0.44, 0.44, 0.48, 0.52,  0.53, 0.56, 0.59, 0.62, 0.64};//low beta lim
+    Float_t beth[kZindmx]={1.08, 1.03, 1.03, 1.02, 1.02,  1.02, 1.02, 1.02, 1.01, 1.01};//high beta lim
+    Float_t etfl[kZindmx]={ 0.5, 1.,     6.,  12.,  19.,  30.,  42.,  50.,  60.,  80.};//low TofEtrunc limit(to suppr.lowZ fragm)
+    Float_t etkl[kZindmx]={ 0.5, 10.,   140., 350., 650., 1000.,1400.,2100.,2600.,3200.};//low TrkEtrunc limit(to suppr.lowZ fragm)
+    Float_t bpow[kZindmx]={1.75, 1.75, 1.75, 1.75, 1.75, 1.77, 1.75, 1.75, 1.75, 1.75};//beta-pow vs Z
+    Float_t bcorr(1),bet0(0.95); 
+//    
+    zref=kZpdfs[kZrefInd-1];//look for Z=zref
+    if(kZrefInd==1)bcorr=1;//beta-corr for electrons
+    else{
+      if(absbet<bet0)bcorr=pow(absbet/bet0,bpow[kZrefInd-1]);//norm.factor to MIP
+      else bcorr=1;
+    }
+    tofcc1->Fill(trktre*bcorr,1);//TRK trunk.mean(-1)
+    tofcc8->Fill(ntofcls,1);
+    if(
+       trkcha==zref && 
+        (trktre*bcorr)>etkl[kZrefInd-1]
+	                               ){//rely on TRK in charge determination
+      RunPar::addsev(51);
+      if(nasthr<1){//<-- select LowAntiActivity
+        RunPar::addsev(52);
+        for(int il=0;il<4;il++){//<---select good hits for PDF's
+          if(tofedpn[il]>0 
+	    && ntofp[il]==1           //sel. only 1-memb.clusters for PDF's  
+	    && bltof[il]>1 && bltof[il]<kNtofb[il] //use only central counters hits
+	                                             ){
+            edn[ntofh]=tofedpn[il]*bcorr;//norm to mip
+            edpn[ntofh]=tofedpn[il];
+	    ntofh+=1;
+          }
+        }
+        for(int il=0;il<4;il++){//<---select good hits for BetaCorrection fit
+          if(tofedpn[il]>0 
+	    && tofmsk[il]>0//use TruncMean to be close to most prob Edep
+	    && ntofp[il]==1           //sel. only 1-memb.clusters for PDF's  
+	    && bltof[il]>1 && bltof[il]<kNtofb[il] //use only central counters hits
+	                                             ){
+            ebcf[nbcf]=tofedpn[il];
+	    nbcf+=1;
+          }
+        }
+        if(ntofh>=2){//<-- PreSel OK
+          RunPar::addsev(53);
+          amsh10->Fill(prtmom,absbet,1);
+          tofcc9->Fill(ntofcls,1);
+          tofcc2->Fill(etrtof*bcorr,1);//TOF trunk.mean(3of4,2of3,1of2 mixt)
+          for(int i=0;i<nbcf;i++)tofcc3->Fill(absbet,ebcf[i]*bcorr,1.);//EdTrunc1(PassBetaNorm) vs Beta profile
+	  for(int i=0;i<ntofh;i++)tofcc5->Fill(absbet,edn[i],1.);
+          if( (etrtof*bcorr) > etfl[kZrefInd-1] ){//softly suppr.low-z fragments events using TruncMean Edep
+            RunPar::addsev(54);
+            if(absbet>betl[kZrefInd-1] && absbet<beth[kZrefInd-1]){//GoodBeta events(SelEvents)
+	      tofcc4->Fill(absbet,etrtof,1.);//for Ed(NormInc)vsBeta fit(beta-lims for fit are in TofPdfOut)
+              RunPar::addsev(55);
+              TofPdfSel(0,kZrefInd,ntofh,edn);//"0(1,2)" are trunc-methode for TOF-eloss PDF's sel.
+	    }
+	  }
+        }//--->endof presel. OK
+      }//--->endof Anti sel.
+    }//--->endof trk-charge selection
+  }
+ 
+//-------------------------------
+void stlv::TofPdfSel(Int_t mode, Int_t zindx, Int_t nht, Float_t edn[]){
+//  Final Select.function for TOF-Eloss PDF's; 
+// mode=0/1/2/->NoTrunc/StandTrunc/SpikeTrunc
+  Int_t imax(-1),imin(-1),mask[4]={0,0,0,0},indx[4];
+  Float_t edmx(0),edmn(999),x[4];
+  Bool_t ordr(kFALSE);//to sort in inreasing order
+  for(int i=0;i<nht;i++){
+    mask[i]=1;
+    x[i]=edn[i];
+  }
+  TMath::Sort(nht,edn,indx,ordr);//sort in inreasing order
+//---
+  if(mode==1){//<--remove highest hit (standard truncation)
+    mask[indx[nht-1]]=0;
+  }
+//---
+  if(mode==2){//<--remove hit with max.deviation from the rest-group
+    Int_t i,j,n,remove;
+    Float_t sigmin(0.1),sigmax(0.3);//relat(to mean) sigma limits
+    Float_t rescut(4.);//cut on max.deviation from the rest-group (in sigmas of rest-group)
+//                       (=-1 if want no removal at al)
+    Float_t rsmx(0),xm,xxm,sig,rs,srl,srh,sigr,sigmx(0);
+    for(i=0; i<nht; i++){
+      if (x[i]>0){
+        xm=0;
+	xxm=0;
+        n=0;
+        for(j=0; j<nht; j++){
+          if(j!=i && x[j]>0){
+            n++;
+            xm+=x[j];
+            xxm+=(x[j]*x[j]);
+          }
+        }
+        if (n>=2){//if >=2hits in the rest group -> calc.its sigma)
+	  sig=TMath::Sqrt(TMath::Max((n*xxm-TMath::Power(xm,2))/n/(n-1),0.));
+	  sigr=sig*n/xm;//sig/mean
+	  srl=sigmin*xm/n;
+	  srh=sigmax*xm/n;
+	  sig=TMath::Max(sig,srl);
+	  sig=TMath::Min(sig,srh);
+          rs=(x[i]-xm/n)/sig;//deviation(in sigmas) from the rest-group
+          if (fabs(rs)>rsmx){
+            rsmx=fabs(rs);
+            imax=i;//store index of hit with max.deviation from the average of the rest
+	    sigmx=sigr;//store the rest rel.sigma for max-deviation(spike) case
+          }
+        }
+      }//-->x>0
+    }//-->endof hits loop
+    tofht1->Fill(sigmx,1.);
+    tofht2->Fill(rsmx,1.);
+    remove=(rsmx>rescut && rescut>=0)?1:0;
+    imax=remove?imax:-1;
+    if(imax>=0)mask[imax]=0;//remove hit with max.deviation from the rest-group
+  }
+//---
+  for(int i=0;i<nht;i++){
+    if(mask[i]>0){
+      tofcc7->Fill(edn[i],1.);//any_layer(-removed, if any) norm-Eded distr.(used for output file !!!)
+    }
+  }
+}
+//-------------------------------
+//===> TOFChargeCalibration functions:
+//
+Double_t edvsbet(Double_t *x,Double_t *par){//to fit beta-dependence
+  Double_t fitval(0),x0(0.95);
+  if(x[0]<x0)fitval=par[0]/pow(x[0]/x0,par[1]);
+  else fitval=par[0];
+  return fitval;
+}
+//---
+void stlv::TofPdfOut(Int_t mode, Int_t zindx){
+//--- prepare to write ElosPDF:
+  Float_t betl[kZindmx]={0.3,0.44,0.44,0.48,0.52,0.53,0.56,0.59,0.62,0.64};//low beta for beta-fit
+  Float_t beth[kZindmx]={1.05,0.8,0.76,0.74,0.74,0.74,0.73,0.72,1.,0.95};//high beta lim
+  Int_t zref=kZpdfs[zindx-1];
+  Int_t nbins;
+  Double_t ninb,nundf,novfl,ntot,eldist[kPDFBnmx];
+  Float_t xmin,binw;
+  ntot=tofcc7->Integral();
+  nbins=tofcc7->GetNbinsX();
+  xmin=tofcc7->GetBinLowEdge(1);
+  binw=tofcc7->GetBinWidth(1);
+  nundf=tofcc7->GetBinContent(0);
+  novfl=tofcc7->GetBinContent(nbins+1);
+  for(int i=0;i<nbins;i++)eldist[i]=tofcc7->GetBinContent(i+1);
+  cout<<"TofPdfOut::Ntot/Ufl/Ofl="<<ntot<<" "<<nundf<<" "<<novfl<<" Nbins="<<nbins<<endl;
+  cout<<"           Xmin/Binw="<<xmin<<" "<<binw<<endl;
+  
+  
+  Double_t par[10];
+  if(zindx!=1){//don't need beta-fit for electrons
+    myc->cd(5);
+    gStyle->SetOptFit(111);
+    TF1 *p2fun=new TF1("betafit",edvsbet,betl[kZrefInd-1],beth[kZrefInd-1],2);//range(l,h),Npar
+    p2fun->SetParNames("Mip","Pow");
+    p2fun->SetParLimits(1,0.5,200.);
+    p2fun->SetParLimits(2,1.,3.);
+//    p2fun->GetParameters(par)
+    tofcc4->Fit("betafit","R");
+  }
+//
+  if(mode>0){//write output file
+    Char_t fname[80];
+    .
+    .
+    .
+    ofstream pdfile(fname,ios::out|ios::trunc);
+    if(!pdfile){
+      cerr<<"error opening file for output"<<fname<<'\n';
+      exit(1);
+    }
+    cout<<"Open file for TofCharge-calibration output, fname:"<<fname<<'\n';
+    pdfile.setf(ios::fixed);
+    pdfile.width(3);
+    pdfile.precision(1);
+    pdfile << zindx<<" ";
+    pdfile << zref<<" ";
+    pdfile << nbins<<" ";
+    pdfile << nundf<<" ";
+    pdfile << novfl<<" ";
+    pdfile.width(6);
+    pdfile.precision(3);
+    pdfile << xmin<<" ";
+    pdfile << binw<<endl;
+    pdfile.width(7);
+    pdfile.precision(1);
+    for(int ib=0;ib<nbins;ib++){
+      if(eldist[ib]==0)eldist[ib]=1;//"0"-protection
+      if((ib+1)%10==0)pdfile << eldist[ib] << endl;
+      else pdfile << eldist[ib] <<" ";
+    }
+    pdfile <<  endl;
+    pdfile.close();
+    cout<<"TofChargeCalib:output file "<<fname<<" created !"<<endl;
+  }
+}
+//-------------------------------
+  
+  
+
+
+
+
+

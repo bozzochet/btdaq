@@ -1,0 +1,15 @@
+CPAT,STORBIG  .  PDS = UF09.RQMD9.FORT  DATE = 951006  TIME = 215431562 
+      parameter (nclmx=1300)                                            
+      parameter (nto2d2=nclmx*(nclmx-1)/2  )                            
+      parameter (ngbrmx=280)                                            
+      real*4     at, dqsq,spsq,dqsp,    dldqsm,dldqpm,                  
+     a          dldpsm,dchidq, dchidp,dhldzm, dhdq,dhdp,bcoef           
+      common/a1/ ngbsum(nclmx),ngbrnr(ntotma),                          
+     a           bcoef(2*ntotma),nghbor(ngbrmx*nclmx)                   
+      common/a2/ at(nclmx,nclmx),                                       
+     a           dqsq(nto2d2),spsq(nto2d2),dqsp(nto2d2),                
+     b          dldqsm(nclmx,nclmx),dldqpm(nclmx,nclmx),                
+     c          dldpsm(nclmx,nclmx),dchidq(0:3,nclmx),                  
+     d          dchidp(0:3,nclmx),dhldzm(nbarym,nbarym),                
+     e          dhdq(0:3,nclmx),dhdp(0:3,nclmx)                         
+      common/maxvbk/  nghbmx, nttomx                                    

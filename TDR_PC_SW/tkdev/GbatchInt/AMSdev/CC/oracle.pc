@@ -1,0 +1,5588 @@
+//  $Id: oracle.pc,v 1.1.1.1 2007/11/13 09:56:10 zuccon Exp $
+//
+// Subroutines to work with AMS ORACLE database
+//
+//
+// A.Klimentov  Dec   6, 2000. 
+//              Dec  22, 2000. three TDV tables to store everything
+//              Jan  15, 2001. use Name and DataMC to identify TDV
+//              Jan  19, 2001. gettdv - return b/e and set insert to 1
+//                             for the default records
+//              Jan  23, 2001. eventtags, prodruns, etc
+//              Feb  15, 2001. nominal/active clients and hosts tables
+//              Mar  15, 2001. NHosts_Cursor, NClients_Cursor, ACLients_Cursor
+//              Mar  29, 2001. add ASCII time to ORACLE tables
+//              Apr   3, 2001. replace VARCHAR by DATE in m_active_hosts,
+//                             m_active_clients, m_dst, m_runtable
+//              June  1, 2001. unsigned int/int clashes in functions call for 
+//                             the new version of ORACLE
+//              June  7, 2001. subroutine gettdvbody, use amsdatadir as a 
+//                             prefix to TDV file
+//              June 13, 2001  m_tdv, m_tdv_def
+//              July  2, 2001  m_tdv_blob
+//              July  3, 2001  warm start subroutines
+//                             lastfailed row in m_active_host
+//                             m_hosts_duty
+//              July 17, 2001  clean start/submit
+//
+// Last Edit : July 18, 2001
+//
+
+#include <iostream.h>
+#include <fstream.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+#include <sys/times.h>
+#include <strstream.h>
+#include <iomanip.h>
+#include <math.h>
+
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/file.h>
+
+
+
+#include <oci.h>
+#include <sqlca.h>
+#include <oraca.h>
+
+
+#include <oracle.h>
+
+const int ACLIENTSARRAYSIZE = 100;
+const int MAXDSTARRAYSIZE   = 100;
+
+EXEC SQL BEGIN DECLARE SECTION;
+//
+
+#define TDVBufferLength 50000000
+
+unsigned char TDVbuffer[TDVBufferLength];
+
+
+OCIBlobLocator *blob;
+
+unsigned int amt;           // number of bytes read/write from TDV BLOB
+unsigned int offset = 1;    // offset read from TDV BLOB
+
+  char     userpass[32];
+
+
+ sql_context ams_context;
+
+  VARCHAR  dynstmt[2048];
+
+  int             tint;
+  unsigned int    tuint;
+  int             tplat;
+
+  
+
+//
+// TDVs
+//
+
+  char tdvname[256];
+  int  tdatamc;
+
+   int  Ntdvs;
+   int  Nrows;            // number of rows inserted at once
+   int  Nids;
+
+   int      tprodstat;
+
+   long     tinsert;              // Unix time
+   long     tlastfailed;          // time of last client, host failure
+   long     tatime;               // host active time in sec
+   long     tdtime;               // host down time in sec
+   long     tdtimestamp;          // last !'OK' status time
+   long     tatimestamp;          // last 'OK' status time
+
+   unsigned int    uinsert;              
+   unsigned int    ubegin;
+   unsigned int    uend;
+
+                                  // ASCII time
+   char    ctimei[32];            // insertion time
+   char    ctimeb[32];            // begin of validity time
+   char    ctimee[32];            // end of validity time
+
+   int          tflag;            // production flag
+   unsigned int trun;
+   unsigned int tidx;
+   unsigned int tids[100];
+   unsigned int tevent;
+   unsigned int tpos;
+   unsigned int ttag1;
+   unsigned int ttag2;
+   unsigned int tstamp;
+   unsigned int tfirst;         // first event
+   unsigned int tlast;          // last event
+   unsigned int tsize;
+
+// Runs
+   int  Nruns;
+
+   unsigned int tevents;           // events
+   unsigned int teventsp;          // processed events
+   unsigned int teventlp;          // last processed event
+            int terrors;           // # errors
+            int tcerrors;          // # critical errors
+            float tcputime;        // cpu     time spent
+            float teltime;         // elapsed 
+
+// Tags
+   unsigned int runnu[2000];
+   unsigned int idxnu[2000];
+   unsigned int eventnu[2000];
+   unsigned int posnu[2000];
+   unsigned int tag1nu[2000];
+   unsigned int tag2nu[2000];
+
+//DST
+  unsigned int trunmode;
+  unsigned int tupdfreq;
+  unsigned int tdiehard;
+  long int tfreespace;
+  long int ttotalspace;
+  char     tdirpath[1024];
+
+// Hosts and Clients
+
+  unsigned int    thostid;
+  unsigned int    tprodid;
+  unsigned int    tdatacardsid;
+  char            thostname[40];
+  char            tinterface[40];
+  char            tplatform[80];
+
+   unsigned int tstatus;
+   unsigned int thistory;
+   unsigned int tcuid;
+            int tpriority;
+   unsigned int tsubmit;
+   unsigned int statusok;
+   unsigned int statuslf;
+
+   unsigned int tid;
+   unsigned int tuid;
+   unsigned int tpid;
+   unsigned int tppid;
+   unsigned int ttype;
+   unsigned int treftype;
+   unsigned int texit;
+   unsigned int tlastupdate;
+   unsigned int tstarttime;
+   char     tior[1024];
+
+
+   short int tmem;
+   short int tcpu;
+         int tclock;
+
+  unsigned short tclactive;
+  unsigned short tclallowed;
+  unsigned int tclprocessed;
+  unsigned int tclfailed;
+  unsigned int tclkilled;
+
+  short int tmaxclients;
+  short int tactiveclients;
+  short int tlogend;
+
+  float     tcpuneeded;
+  char      tscriptpath[1024];
+  char      tlogpath[1024];
+  char      tsubmitcmd[1024];
+
+// datacards
+  char      tname[1024];
+  varchar   datacards[4000];
+//
+// Structures
+//
+   struct tdvt   {               // to get info from m_tdv_names
+    char   name[256];
+    int    datamc;
+    int    idx;
+   } tdvtable[200];
+
+
+  struct tdvut {                 // to get info from m_tdv
+   long insert;
+   long begin;
+   long end;
+  } tdvt[500];
+
+
+  struct prodrun {
+    unsigned int run;
+    unsigned int idx;
+    unsigned int events;
+    unsigned int fevent;
+    unsigned int levent;
+    unsigned int timestamp;
+ } pruns[100];
+
+  struct runT {
+    unsigned int run;
+             int id;
+    unsigned int fevent;
+    unsigned int levent;
+    unsigned int utimef;
+    unsigned int utimel;
+             int priority;
+             char filepath[1024];
+             int  status;
+             int  history;
+    unsigned int  submittime;
+             int  cuid;
+    unsigned int tinsert;
+ } runsT[2000];
+
+  char         filepath[1024];
+  char         filename[255];
+
+  long          mindatetime;
+  long          maxdatetime;
+
+
+   struct NominalProcStruct {
+     unsigned int id;
+     unsigned int type; 
+     int   maxclients;
+     float cpu; 
+     int   memory;
+     char  scriptpath[1024];
+     char  logpath[1024];
+     char  submitcmd[1024];
+     unsigned int  hostid;
+     int   logintheend;
+     unsigned int timestamp;
+   } nominaldesc[50];
+
+   struct ActiveClientStruct {
+     unsigned int id;
+     unsigned int type;
+     unsigned int lastupd;
+     unsigned int starttime;
+     unsigned int  status;
+     unsigned int  timestamp;
+   } activeclient[100];
+
+
+   struct NominalHosts {
+                                   char name[40];
+                                   long int id;
+                                        int interface;
+                                   long int platform;
+                                   long int compiler;
+                                        int    ncpu;
+                                        int    memory;
+                                   int          clock;
+                                   unsigned long int timestamp;
+  } nominalhost[50];
+
+
+
+   struct DST {
+                    unsigned int insert;
+                    unsigned int begin;
+                    unsigned int end;
+                    long int run;
+                    long int firstevent;
+                    long int lastevent;
+                    long int events;
+                    unsigned int status;
+                    unsigned int type;
+                    long int size;
+                    char name[1024];
+                    unsigned int timestamp;
+  } tdst[100];
+
+   struct hostName {
+     char         name[40];
+   } hostNames[50];
+
+  struct clientStatus {
+     char    status[40];
+  } clientstatus[50];
+
+  struct interfaceName {
+     char    name[40];
+  } interfaces[50];
+
+  struct platformType {
+     char    type[80];
+  } platforms[50];
+
+//
+// cursors
+//
+
+    EXEC SQL DECLARE NHosts_Cursor  CURSOR  FOR 
+             SELECT * FROM m_nominal_hosts;
+
+    EXEC SQL DECLARE NClients_Cursor  CURSOR  FOR 
+             SELECT 
+                m_nominal_clients.id, 
+                m_nominal_clients.type,
+                m_nominal_clients.maxclients, 
+                m_nominal_clients.cpu, 
+                m_nominal_clients.memory, 
+                m_nominal_clients.scriptpath, 
+                m_nominal_clients.logpath, 
+                m_nominal_clients.submitcmd, 
+                m_nominal_clients.hostid, 
+                m_nominal_clients.logintheend, 
+                m_nominal_clients.timestamp 
+             FROM m_nominal_clients;
+
+    EXEC SQL DECLARE AClients_Cursor  CURSOR  FOR 
+             SELECT m_active_clients.id,
+                    m_active_clients.type,
+                    m_active_clients.lastupdate,
+                    m_active_clients.starttime,
+                    m_active_clients.status,
+                    m_active_clients.timestamp
+             FROM m_active_clients 
+             WHERE m_active_clients.type = :ttype 
+             ORDER BY m_active_clients.id;
+
+    EXEC SQL DECLARE DSTInfo_Cursor CURSOR FOR
+        SELECT 
+              m_dstinfo.type,
+              m_dstinfo.id,
+              m_dstinfo.dirpath,
+              m_dstinfo.runmode,
+              m_dstinfo.updfreq,
+              m_dstinfo.diehard,
+              m_dstinfo.freespace,
+              m_dstinfo.totalspace,
+              m_nominal_hosts.name 
+
+         FROM m_dstinfo, 
+              m_nominal_hosts
+
+          WHERE
+                m_dstinfo.hostid = m_nominal_hosts.id AND
+                m_nominal_hosts.name = :thostname;
+
+
+  EXEC SQL DECLARE DSTInfoALL_Cursor CURSOR FOR
+        SELECT 
+              m_dstinfo.type,
+              m_dstinfo.id,
+              m_dstinfo.dirpath,
+              m_dstinfo.runmode,
+              m_dstinfo.updfreq,
+              m_dstinfo.diehard,
+              m_dstinfo.freespace,
+              m_dstinfo.totalspace,
+              m_nominal_hosts.name 
+
+         FROM m_dstinfo, 
+              m_nominal_hosts
+
+          WHERE
+                m_dstinfo.hostid = m_nominal_hosts.id;
+
+  EXEC SQL DECLARE DST_Cursor CURSOR FOR
+           SELECT tinsert, tbegin, tend,
+                  run, firstevent, lastevent, events
+                  status, type, filesize, name,
+                  timestamp FROM m_dst;
+
+    EXEC SQL DECLARE AHT_Cursor CURSOR FOR
+        SELECT m_active_hosts.status,
+              m_active_hosts.active,
+              m_active_hosts.allowed,
+              m_active_hosts.processed,
+              m_active_hosts.failed,
+              m_active_hosts.killed,
+              m_active_hosts.lastupdate,
+              m_active_hosts.clock,
+              m_nominal_hosts.name, 
+              m_interfaces.name 
+       FROM m_active_hosts,
+            m_nominal_hosts, 
+            m_interfaces                       
+                    WHERE 
+                      m_active_hosts.interface = m_interfaces.id AND
+                      m_active_hosts.id  = m_nominal_hosts.id    AND
+                      m_active_hosts.type = :ttype;
+    EXEC SQL DECLARE AHH_Cursor CURSOR FOR
+          SELECT m_active_hosts.status,
+                        m_active_hosts.active,
+                        m_active_hosts.allowed,
+                        m_active_hosts.processed,
+                        m_active_hosts.failed,
+                        m_active_hosts.killed,
+                        m_active_hosts.lastupdate,
+                        m_active_hosts.clock,
+                        m_nominal_hosts.name, 
+                        m_interfaces.name 
+       FROM m_active_hosts,
+            m_nominal_hosts, 
+            m_interfaces                       
+                    WHERE 
+                      m_active_hosts.interface = m_interfaces.id AND
+                      m_active_hosts.id  = m_nominal_hosts.id    AND
+                      m_active_hosts.id = :thostid               AND
+                      m_active_hosts.type = :ttype;
+
+
+   EXEC SQL DECLARE ACID_Cursor CURSOR FOR
+       SELECT m_active_clients_id.id,
+              m_active_clients_id.pid,
+              m_active_clients_id.ppid,
+              m_active_clients_id.exitingstatus,
+              m_nominal_hosts.name, 
+              m_interfaces.name 
+       FROM m_active_clients_id, 
+            m_nominal_hosts, 
+            m_interfaces                       
+                    WHERE 
+                      m_active_clients_id.type = :ttype AND
+                      m_active_clients_id.hostid = m_nominal_hosts.id AND
+                      m_active_clients_id.interface = m_interfaces.id
+                    ORDER BY m_active_clients_id.id;
+
+
+  EXEC SQL DECLARE AC_Cursor CURSOR FOR
+           SELECT m_active_clients_ref.ior,
+                  m_active_clients_ref.type,
+                  m_active_clients_ref.reftype,
+                  m_active_clients_ref.uiid,
+                  m_interfaces.name 
+           FROM
+                  m_active_clients_ref,
+                  m_interfaces
+           WHERE
+                      m_active_clients_ref.id = :tid AND
+                      m_active_clients_ref.interface = m_interfaces.id
+           ORDER BY m_active_clients_ref.id;
+
+EXEC SQL END DECLARE SECTION;
+
+void AMSoracle::Fmessage(const char *subr, const char *text, const char *errcode)
+{
+//
+// subr -  subroutine name
+// text -  message text
+// errcode - 'I' / 'F' / 'W' etc
+//
+ if (subr && text) {
+  cout<<"AMSOracle::"<<subr<<"-"<<errcode<<"-"<<text<<endl;
+ }
+}
+
+void AMSoracle::sql_error(char *msg)
+{
+    EXEC SQL CONTEXT USE :ams_context;
+    EXEC SQL WHENEVER SQLERROR CONTINUE;
+    Fmessage("sql_error",msg,"E");
+    Fmessage("sql_error",sqlca.sqlerrm.sqlerrmc,"E");
+    EXEC SQL ROLLBACK RELEASE;
+    exit(1);
+}
+
+void AMSoracle::sql_nothing(char *msg)
+{
+    EXEC SQL CONTEXT USE :ams_context;
+    EXEC SQL WHENEVER SQLERROR CONTINUE;
+    Fmessage("sql_error",msg,"W");
+    Fmessage("sql_error",sqlca.sqlerrm.sqlerrmc,"W");
+}
+
+void AMSoracle::sql_notfound(char *msg)
+{
+  EXEC SQL CONTEXT USE :ams_context;
+  if (debug > 1) {
+    EXEC SQL WHENEVER SQLERROR CONTINUE;
+    Fmessage("sql_notfound",msg,"W");
+  }
+}
+
+int AMSoracle::suppressCR(char* string) 
+{
+  int rstat = -1;
+  if (string > 0) {
+        for (int j=0; j< strlen(string); j++) {
+         if (string[j] == '\n') {
+           string[j] = '\0';
+           break;
+         }
+        }
+    rstat = 1;
+   }
+   return rstat;
+}
+
+
+int AMSoracle::suppressBlanks(char* string) 
+{
+  int rstat = -1;
+  if (string > 0) {
+        for (int j=strlen(string)-1; string[j]==' '; j--) {
+           string[j] = '\0';
+         }
+    rstat = 1;
+   }
+   return rstat;
+}
+
+unsigned int AMSoracle::getHostId(unsigned int cid)
+{
+//
+// return host id for given client id
+//
+ unsigned int hid = -1;
+
+ EXEC SQL CONTEXT USE :ams_context;
+
+ EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getHostId");
+
+ tid = cid;
+ EXEC SQL SELECT hostid INTO :thostid 
+          FROM m_active_clients_id 
+          WHERE
+              id = :tid;
+  hid = thostid;
+
+  return hid;
+}
+
+
+int AMSoracle::readtdv(char *filepath, long filesize, unsigned int *pdata)
+{
+//
+// read TDV from file (filepath) to pdata buffer
+// 
+  int    rstat = -1;
+  
+    enum open_mode{binary=0x80};
+    fstream fbin;
+
+    fbin.open(filepath,ios::in|binary);
+    if(fbin){
+     if(pdata){
+      fbin.read((char*)pdata,filesize);
+      if(fbin.good()){
+       int ns= filesize/sizeof(pdata[0]);
+       cout  <<"AMSoracle::readtdv -I- file "<<filepath<<endl;
+       fbin.close();
+       rstat = 1;
+      }
+      else {
+        cerr<<"AMSoracle::readtdv-E-Problems to Read File "<<filepath<<endl;
+        fbin.close();
+        return rstat;
+      }
+     }
+     else {
+       cerr<<"AMSoracle::readtdv-E-Failed to allocate memory "<<filesize<<endl;
+       return rstat;
+     }
+    }
+    else {
+      cerr<<"AMSoracle::readtdv-E-CouldNot open file "<<filepath<<endl;
+      return rstat;
+    }
+
+    return rstat;
+}
+
+
+int AMSoracle::findrun(unsigned int  crun, long &utimef, long &utimel)
+//
+// find run by its number in m_runs_d ORACLE table
+//
+// return time of first and last event of run == 'crun'
+// return -1 if run not found
+//
+{
+ int rstat = 0;
+
+   trun = crun;
+
+   EXEC SQL CONTEXT USE :ams_context;
+
+   EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::findrun");
+
+   EXEC SQL SELECT run, utimef, utimel
+            INTO :trun,:ubegin,:uend  
+            FROM  m_runs_d 
+            WHERE run = :trun;
+  if (sqlca.sqlcode == NOT_FOUND)
+    {
+      cout<<"findrun() -W- run "<<crun<<" not found"<<endl;
+      utimef = 0;
+      utimel = 0;
+    } else {
+     utimef = ubegin;
+     utimel = uend;
+     rstat = 1;
+     if (debug) cout<<"findrun() -I- run "<<crun<<" first/last event time "
+                    <<utimef<<"/"<<utimel<<endl;
+    }
+ return rstat;
+}
+unsigned int AMSoracle::findrun(unsigned int id)
+//
+// find run by its number in m_runs_d ORACLE table
+//
+// return time of first and last event of run == 'crun'
+// return -1 if run not found
+//
+{
+ unsigned int rstat = 0;
+
+   tid = id;
+
+   EXEC SQL CONTEXT USE :ams_context;
+
+   EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::findrun");
+
+   EXEC SQL SELECT run 
+            INTO :trun 
+            FROM  m_runtable
+            WHERE id = :tid;
+  if (sqlca.sqlcode == NOT_FOUND)
+    {
+      cout<<"findrun() -W- run with id "<<id<<" not found"<<endl;
+    } else {
+      rstat = trun;
+    }
+ return rstat;
+}
+
+
+int AMSoracle::findtdv(const char *name, int datamc, 
+                       long timef, long timel, 
+                       int &ntdvs, 
+                       TDVutime *utime) 
+//
+// Find TDVs with name.datamc AND begin time >= timef && end time <= timel
+// 
+// name          -  TDV name
+// timef         -  begin time (time of the first event)
+// timel         -  end time   (time of the last event)
+// out :
+//        ntdvs     - number of TDVs matched tdvbegin >= timef && tdvend <= timel
+//        utime     - i/b/e
+//
+{
+ int rstatus = -1;
+
+ if (name) {
+  
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::findtdv");
+
+   maxdatetime = timel;
+   mindatetime = timef;
+
+   strcpy(tdvname,name);
+   suppressCR(tdvname);
+   suppressBlanks(tdvname);
+
+   if (datamc != 0) {
+       tdatamc = 1;
+   } else {
+       tdatamc = datamc;  
+   }
+
+     EXEC SQL SELECT  uinsert, ubegin, uend 
+            INTO    tdvt
+            FROM  m_tdv_blob, m_tdv_names 
+            WHERE ubegin <= :maxdatetime AND 
+                  uend   >= :mindatetime AND
+                  m_tdv_blob.idx = m_tdv_names.idx AND
+                  m_tdv_names.name = :tdvname AND 
+                  m_tdv_names.datamc = :tdatamc AND
+                  m_tdv_blob.prodstat = 1
+            ORDER BY uinsert DESC;
+
+     ntdvs  = sqlca.sqlerrd[2];
+     if (debug > 0) {
+      cout<<"findtdv -I- found "<<ntdvs<<" with name "<<name<<"."<<datamc
+          <<", b/e "<<timel<<" / "<<timef<<endl;
+    }
+   if (ntdvs > 0) {
+     for (int i=0; i<ntdvs; i++) {
+      utime[i].fill(tdvt[i].insert, tdvt[i].begin, tdvt[i].end); 
+     }
+     rstatus = 1;
+   } else {
+    cout<<"findtdv -W- no TDVs found with "<<tdvname
+        <<", to b/e "<<maxdatetime<<"/"<<mindatetime<<endl;
+   }
+ }
+   return rstatus;
+}
+int AMSoracle::settdvstat(int id, 
+                          long timei, long timeb, long timee,
+                          int  prodstat)
+{
+ int rstat = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::settdvstat");
+ 
+  if (id) {
+   tid     = id;
+   uinsert = timei;
+   ubegin  = timeb;
+   uend    = timee;
+   tprodstat = prodstat;
+
+   EXEC SQL UPDATE m_tdv_blob
+            SET m_tdv_blob.prodstat = :tprodstat
+            WHERE
+                  m_tdv_blob.uinsert = :uinsert AND
+                  m_tdv_blob.ubegin  = :ubegin AND 
+                  m_tdv_blob.uend    = :uend   AND
+                  m_tdv_blob.idx     = :tid;
+  rstat = 1;
+ }
+ return rstat;
+}
+
+int AMSoracle::findtdvlob(const char *name, int datamc, 
+                          long timef, long timel, 
+                          int &ntdvs, 
+                          TDVutime *utime) 
+//
+// Find TDVs with name.datamc AND begin time >= timef && end time <= timel
+// 
+// name          -  TDV name
+// timef         -  begin time (time of the first event)
+// timel         -  end time   (time of the last event)
+// out :
+//        ntdvs     - number of TDVs matched tdvbegin >= timef && tdvend <= timel
+//        utime     - i/b/e
+//
+{
+ int rstatus = -1;
+
+ if (name) {
+  
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::findtdv");
+
+   maxdatetime = timel;
+   mindatetime = timef;
+
+   strcpy(tdvname,name);
+   suppressCR(tdvname);
+   suppressBlanks(tdvname);
+
+   if (datamc != 0) {
+       tdatamc = 1;
+   } else {
+       tdatamc = datamc;  
+   }
+
+     EXEC SQL SELECT  uinsert, ubegin, uend 
+            INTO    tdvt
+            FROM  m_tdv_blob, m_tdv_names 
+            WHERE ubegin <= :maxdatetime AND 
+                  uend   >= :mindatetime AND
+                  m_tdv_blob.idx = m_tdv_names.idx AND
+                  m_tdv_names.name = :tdvname AND 
+                  m_tdv_names.datamc = :tdatamc AND
+                  m_tdv_blob.prodstat = 1
+            ORDER BY uinsert DESC;
+
+     ntdvs  = sqlca.sqlerrd[2];
+     if (debug > 0) {
+      cout<<"findtdv -I- found "<<ntdvs<<" with name "<<name<<"."<<datamc
+          <<", b/e "<<timel<<" / "<<timef<<endl;
+    }
+   if (ntdvs > 0) {
+     for (int i=0; i<ntdvs; i++) {
+      utime[i].fill(tdvt[i].insert, tdvt[i].begin, tdvt[i].end); 
+     }
+     rstatus = 1;
+   } else {
+    cout<<"findtdv -W- no TDVs found with "<<tdvname
+        <<", to b/e "<<maxdatetime<<"/"<<mindatetime<<endl;
+   }
+ }
+   return rstatus;
+}
+
+
+int AMSoracle::finddeftdv(const char *name, int datamc, TDVutime *utime) 
+//
+// find TDV by name in default (m_tdvdef) table
+// name     -  tdv name
+// return : 
+//           utime - i/b/e
+//
+{
+ int rstatus = -1;
+ int ntdvs = 0;
+
+ if (name > 0) {
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::finddeftdv");
+
+   strcpy(tdvname, name);
+   if (datamc > 1) {
+      datamc = 1;
+   } else { 
+      tdatamc     = datamc;
+   }
+
+    EXEC SQL SELECT  uinsert, ubegin, uend 
+                    INTO    :uinsert, :ubegin, :uend
+                    FROM  m_tdvdef, m_tdv_names 
+                    WHERE 
+                          m_tdvdef.idx = m_tdv_names.idx AND
+                          m_tdv_names.name = :tdvname    AND
+                          m_tdv_names.datamc = :tdatamc  AND
+                          m_tdvdef.prodstat  = 1;
+  
+    ntdvs  = sqlca.sqlerrd[2];
+    if (ntdvs == 1) {
+     utime -> fill(uinsert,ubegin,uend);
+     rstatus = 1;
+    } else if (ntdvs < 1) {
+      cout<<"finddeftdv -E- no default TDV for "<<tdvname<<"."<<datamc<<endl;
+    } else if (ntdvs > 1) {
+      cout<<"finddeftdv -E- more than 1 TDV for "<<tdvname<<"."<<datamc<<endl;
+    }
+   }
+   return rstatus;
+}    
+
+int AMSoracle::finddeftdvlob(const char *name, int datamc, TDVrec *tdvrec) 
+//
+// find TDV by name in default (m_tdvdef) table
+// name     -  tdv name
+// return : 
+//           utime - i/b/e
+//
+{
+ int rstatus = -1;
+ int ntdvs = 0;
+
+ if (name > 0) {
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_nothing("ORACLE error: AMSoracle::finddeftdvlob");
+
+   strcpy(tdvname, name);
+   if (datamc > 1) {
+      datamc = 1;
+   } else { 
+      tdatamc     = datamc;
+   }
+
+    EXEC SQL SELECT  uinsert, ubegin, uend 
+                    INTO    :uinsert, :ubegin, :uend 
+                    FROM  m_tdvdef_blob, m_tdv_names 
+                    WHERE 
+                          m_tdvdef_blob.idx = m_tdv_names.idx AND
+                          m_tdv_names.name = :tdvname    AND
+                          m_tdv_names.datamc = :tdatamc  AND
+                          m_tdvdef_blob.prodstat  = 1;
+  
+    if (sqlca.sqlerrd[2] == 1) {
+     tdvrec -> utime(uinsert,ubegin,uend);
+     rstatus = 1;
+    } else if (sqlca.sqlerrd[2] < 1) {
+      cout<<"finddeftdv -E- no default TDV for "<<tdvname<<"."<<datamc<<endl;
+    } else if (sqlca.sqlerrd[2] > 1) {
+      cout<<"finddeftdv -E- more than 1 TDV for "<<tdvname<<"."<<datamc<<endl;
+    }
+   }
+   return rstatus;
+}    
+
+int  AMSoracle::gettdvbody(TDVrec *tdv, unsigned int *pdata)
+//  
+// get TDV body for the given i/b/e time
+//
+// replace /offline/AMSDataDir/DataBase by amsdatadir
+//
+{
+ 
+ int rstat = -1;
+
+ long tdvsize = 0;
+
+ if (tdv && tdv -> getname()  && tdv -> getfilepath()) {
+ 
+     strcpy(filepath, tdv -> getdirpath());
+     suppressBlanks(filepath);
+     suppressCR(filepath);
+     strcat(filepath, tdv -> getfilepath());
+     suppressBlanks(filepath);
+     suppressCR(filepath);
+
+     tdvsize = tdv -> getsize();
+     if (debug) cout<<"AMSoracle::gettdvbody -I- file "<<filepath
+                    <<", "<<tdvsize<<" bytes"<<endl;
+     if (tdvsize) {
+       rstat = readtdv(filepath, tdvsize, pdata);
+     } else {
+      cout<<"AMSoracle::gettdvbody -E- invalid TDV size"<<endl;
+     }
+ } else {
+  cout<<"AMSoracle::gettdvbody -E- TDV name or/and filepath is invalid"<<endl;
+ }
+
+ return rstat;
+
+}
+
+int  AMSoracle::gettdvLOB(TDVrec *tdv, int deftable, unsigned int *pdata)
+//  
+// get TDV body for the given i/b/e time
+//
+// replace /offline/AMSDataDir/DataBase by amsdatadir
+//
+{
+ 
+ int rstat = 0;
+ 
+   EXEC SQL CONTEXT USE :ams_context;
+ 
+   EXEC SQL WHENEVER SQLERROR DO sql_nothing("ORACLE error: AMSoracle::gettdvLOB");
+
+   strcpy(tdvname,tdv -> getname());
+   suppressCR(tdvname);
+   suppressBlanks(tdvname);
+
+   if (tdv -> datamc != 0) {
+       tdatamc = 1;
+   } else {
+       tdatamc = tdv -> datamc;  
+   }
+
+  tdv -> getutime(uinsert, ubegin, uend);
+
+
+  EXEC SQL VAR TDVbuffer is RAW(TDVBufferLength);
+  EXEC SQL ALLOCATE :blob;
+
+  if (deftable == M_TDVDEF) {
+   EXEC SQL SELECT ubegin, uend
+            INTO    :ubegin, :uend
+            FROM  m_tdvdef_blob, m_tdv_names 
+            WHERE 
+                  m_tdvdef_blob.idx = m_tdv_names.idx AND
+                  m_tdv_names.name = :tdvname AND 
+                  m_tdv_names.datamc = :tdatamc AND
+                  m_tdvdef_blob.prodstat = 1;
+   if (sqlca.sqlerrd[2] == 1) {
+    EXEC SQL SELECT tdv 
+           INTO :blob 
+           FROM m_tdvdef_blob, m_tdv_names 
+           WHERE
+                   m_tdvdef_blob.prodstat = 1       AND
+                   m_tdvdef_blob.idx = m_tdv_names.idx AND
+                   m_tdv_names.name = :tdvname AND 
+                   m_tdv_names.datamc = :tdatamc;
+  }  
+ } else {
+   EXEC SQL SELECT tdv 
+           INTO :blob 
+           FROM m_tdv_blob, m_tdv_names 
+           WHERE
+                   uinsert = :uinsert AND
+                   ubegin  = :ubegin  AND
+                   uend    = :uend    AND
+                   prodstat = 1       AND 
+                   m_tdv_blob.idx = m_tdv_names.idx AND
+                   m_tdv_names.name = :tdvname      AND 
+                   m_tdv_names.datamc = :tdatamc;
+ }
+   if (sqlca.sqlerrd[2] == 1) {
+      EXEC SQL LOB OPEN :blob READ ONLY;
+      amt = TDVBufferLength;
+      EXEC SQL LOB READ :amt FROM :blob AT :offset INTO :TDVbuffer;
+      if (amt < TDVBufferLength) {
+         memcpy(pdata,TDVbuffer,amt);
+         tdv -> nbytes = amt;
+         rstat = 1;
+      } else {
+       cout<<"gettdvLOB -E- invalid BLOB size "<<amt<<endl;
+      }
+      EXEC SQL LOB CLOSE :blob;
+      if(deftable == M_TDVDEF) tdv -> utime(1, ubegin, uend);
+    } else {
+       cout<<"gettdvLOB -E- TDV not found "<<sqlca.sqlerrd[2]<<endl;
+       cout<<"gettdvLOB -E- with i/b/e "
+           <<uinsert<<", "<<ubegin<<", "<<uend<<endl;
+    }
+
+
+   EXEC SQL FREE :blob;
+
+
+ return rstat;
+
+}
+
+
+int AMSoracle::counttdv(const char *name, int datamc, long timef, long timel) 
+//
+// name          -  TDV name
+// timef         -  begin time (time of the first event)
+// timel         -  end time   (time of the last event)
+// return :
+//   counter     - number of TDVs matched tdvbegin >= timef && tdvend <= timel
+//
+{
+ int rstatus = -1;
+
+ if (name) {
+  
+  strcpy(tdvname,name);
+  suppressCR(tdvname);
+  suppressBlanks(tdvname);
+   
+  mindatetime = timef;
+  maxdatetime = timel;
+  if (datamc != 0 ) {
+    tdatamc = 1;
+  } else {
+    tdatamc  = datamc;
+  }
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::counttdv");
+
+   Ntdvs = 0;
+
+   if (debug > 0) cout<<"countTDV -I- looking for TDVs "<<tdvname<<"."<<datamc
+                      <<" from/to "<<mindatetime<<" / "<<maxdatetime<<endl;
+
+    EXEC SQL SELECT COUNT(m_tdv_blob.uinsert) INTO :Ntdvs 
+             FROM m_tdv_blob, m_tdv_names
+             WHERE 
+                   ubegin <= :maxdatetime 
+            AND    uend   >= :mindatetime 
+            AND    m_tdv_names.name = :tdvname 
+            AND    m_tdv_names.datamc = :tdatamc
+            AND    m_tdv_names.idx    = m_tdv_blob.idx 
+            AND    m_tdv_blob.prodstat = 1;
+
+
+   if (debug > 0) cout<<"countTDV -I- tdvcount "<<Ntdvs<<" in m_tdv table"<<endl;
+
+   rstatus =  Ntdvs;
+
+ }    
+ return rstatus;
+
+}
+
+int AMSoracle::counttdvlob(const char *name, int datamc, long timef, long timel) 
+//
+// name          -  TDV name
+// timef         -  begin time (time of the first event)
+// timel         -  end time   (time of the last event)
+// return :
+//   counter     - number of TDVs matched tdvbegin >= timef && tdvend <= timel
+//
+{
+ int rstatus = -1;
+
+ if (name) {
+  
+  strcpy(tdvname,name);
+  suppressCR(tdvname);
+  suppressBlanks(tdvname);
+   
+  mindatetime = timef;
+  maxdatetime = timel;
+  if (datamc != 0 ) {
+    tdatamc = 1;
+  } else {
+    tdatamc  = datamc;
+  }
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::counttdvlob");
+
+   Ntdvs = 0;
+
+   if (debug > 0) cout<<"countTDV -I- looking for TDVs "<<tdvname<<"."<<datamc
+                      <<" from/to "<<mindatetime<<" / "<<maxdatetime<<endl;
+
+    EXEC SQL SELECT COUNT(m_tdv_blob.uinsert) INTO :Ntdvs 
+             FROM m_tdv_blob, m_tdv_names
+             WHERE 
+                   ubegin <= :maxdatetime 
+            AND    uend   >= :mindatetime 
+            AND    m_tdv_names.name = :tdvname 
+            AND    m_tdv_names.datamc = :tdatamc
+            AND    m_tdv_names.idx    = m_tdv_blob.idx 
+            AND    m_tdv_blob.prodstat = 1;
+
+
+   if (debug > 0) cout<<"countTDV -I- tdvcount "<<Ntdvs<<" in m_tdv_blob table"<<endl;
+
+   rstatus =  Ntdvs;
+
+ }    
+ return rstatus;
+
+}
+
+int AMSoracle::trimtdv(int &tablesize, TDVutime *utime) 
+//
+// tablesize -  number of TDVs
+// utime     -  TDVs
+//  
+// TDVs are placed by 'begin' time increasing order
+//
+// exclude TDVs overlapped by b/e 
+//
+{
+ int rstatus  = -1;
+ int   n      = 0;
+ int   N;
+ int   i, j;
+ int   last;
+
+ if (tablesize > 0 && utime) {
+
+  for (i=0; i<tablesize; i++) {
+   if (debug > 1) cout<<"i/b/e "<<utime[i].insert<<"/"
+                                <<utime[i].begin<<"/"
+                                <<utime[i].end<<endl;
+   if (utime[i].insert > 0) {
+    for (j=0; j<tablesize; j++) {
+     if (utime[i].begin > utime[j].begin && utime[i].end < utime[j].end &&
+        utime[i].insert < utime[j].insert) {
+         utime[i].insert = -1;
+         n++;
+//         break;
+     }
+    }
+   }
+  }
+
+  if (debug > 0) 
+     cout<<"AMSoracle::trimtdv -I- "<<n<<" records will be excluded"<<endl;
+
+  if (n > 0) {
+   N = -1;
+   last = 0;
+   for (i=0; i<tablesize; i++) {
+    if (utime[i].insert != -1) {
+     if (last != -1) {
+      if (i != last) 
+         utime[last].fill(utime[i].insert, utime[i].begin, utime[i].end);
+      last = -1;
+      N++;
+     }
+    } else {
+     if (last == -1) last = i;
+    }
+   }
+   if (debug > 0) {
+    cout<<"AMSoracle::tritdv -I- TDV table is shrunk from "<<tablesize
+        <<" to "<<N+1<<endl;
+    cout<<" Modified Table : "<<endl;
+    for (i=0; i<N+1; i++) {utime[i].print();}
+   }
+   tablesize = N + 1;
+  }
+  rstatus = 1;
+ } else {
+  Fmessage("trimtdv","invalid table size or utime ","E");
+ }
+ return rstatus;
+}
+
+
+
+int AMSoracle::inserttdv(AMSoracle::TDVrec *tdv, int deftable)
+{
+// insert TDV into m_tdv or m_tdvdef (deftable flag 0/1)
+//
+  int rstatus = -1;
+
+   tidx = tdv -> idx;
+
+   strcpy(ctimei,tdv -> timei);
+   suppressCR(ctimei);
+
+   strcpy(ctimeb,tdv -> timeb);
+   suppressCR(ctimeb);
+
+   strcpy(ctimee,tdv -> timee);
+   suppressCR(ctimee);
+
+   tdv -> getutime(uinsert, ubegin, uend);
+
+   strcpy(filepath,tdv -> filepath);
+
+
+   EXEC SQL CONTEXT USE :ams_context;
+ 
+   EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::inserttdv");
+
+   tinsert = time((time_t)0);
+
+   if (deftable == M_TDVDEF) {
+    EXEC SQL INSERT INTO m_tdvdef
+     VALUES (
+      :tidx, 
+      TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS'),
+      TO_DATE(:ctimeb,'DD-MON-YYYY HH24:MI:SS'), 
+      TO_DATE(:ctimee,'DD-MON-YYYY HH24:MI:SS'), 
+      :uinsert, 
+      :ubegin, 
+      :uend, 
+      1,
+      :tinsert,
+      :tdirpath,
+      :filepath);
+   } else {
+    EXEC SQL INSERT INTO m_tdv_blob
+     VALUES (
+      :tidx, 
+      TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS'),
+      TO_DATE(:ctimeb,'DD-MON-YYYY HH24:MI:SS'), 
+      TO_DATE(:ctimee,'DD-MON-YYYY HH24:MI:SS'), 
+      :uinsert, 
+      :ubegin, 
+      :uend, 
+      1,
+      :tinsert,
+      :tdirpath,
+      :filepath);
+     }
+     rstatus = 1;
+
+     return rstatus;
+}    
+
+int AMSoracle::inserttdvlob(AMSoracle::TDVrec *tdv, int deftable, int length, 
+                            unsigned int *tdvbody)
+{
+// insert TDV into m_tdv or m_tdvdef (deftable flag 0/1)
+//
+  int rstatus = 0;
+
+   tidx = tdv -> getid();
+   tdv -> getutime(uinsert, ubegin, uend);
+
+   EXEC SQL CONTEXT USE :ams_context;
+
+   EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::inserttdvlob");
+
+   tinsert = time((time_t)0);
+
+   amt = length*sizeof(unsigned int);
+
+   if (amt < TDVBufferLength) {
+
+    memcpy(TDVbuffer, tdvbody, length);
+
+    offset = 1;
+
+    EXEC SQL VAR TDVbuffer is RAW(TDVBufferLength);
+
+ 
+    EXEC SQL ALLOCATE :blob;
+
+   
+    tprodstat = 2;
+
+   if (deftable == M_TDVDEF) {
+    EXEC SQL INSERT INTO m_tdvdef_blob 
+     VALUES (
+      :tidx, 
+      :uinsert, 
+      :ubegin, 
+      :uend, 
+      :tprodstat,
+      :tinsert,
+      EMPTY_BLOB())
+      RETURNING tdv INTO      :blob ;
+   } else {
+    EXEC SQL INSERT INTO m_tdv_blob 
+     VALUES (
+      :tidx, 
+      :uinsert, 
+      :ubegin, 
+      :uend, 
+      :tprodstat,
+      :tinsert,
+      EMPTY_BLOB())
+      RETURNING tdv INTO      :blob ;
+     }
+
+  EXEC SQL WHENEVER NOT FOUND GOTO notfound;
+
+
+  EXEC SQL LOB WRITE ONE :amt FROM :TDVbuffer INTO :blob AT :offset;
+ 
+  rstatus = 1;
+
+  commit();
+
+notfound :
+  EXEC SQL FREE :blob;
+
+ } else {
+  cout<<"AMSoracle::inserttdvlob -E- invalid buffer length "<<length<<endl;
+ }
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER NOT FOUND DO sql_notfound(" ");
+ 
+   rstatus = 1;
+
+   return rstatus;
+}    
+
+int AMSoracle::addtdvname(const char *name, int datamc, int &idx)
+{
+//
+// add TDV with name and datamc in m_tdv_names table 
+// 
+ int rstatus = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+ if (name) {  
+  strcpy(tdvname,name);
+  if (datamc > 1) {
+    tdatamc = 1;
+  } else {
+    tdatamc = datamc;
+  }
+
+namenotfound:
+  if (findtdvname(name,datamc) < 0) {
+   EXEC SQL SELECT MAX(idx) INTO :tidx  FROM m_tdv_names;
+   if (sqlca.sqlcode != 0) tidx = 0;
+   tidx++;
+   EXEC SQL INSERT INTO m_tdv_names VALUES (:tdvname,:tdatamc,:tidx);
+   cout<<"AMSoracle::addTDVname -I- TDV "<<name<<"."<<datamc<<", idx "<<tidx
+       <<" is added to m_tdv_names"<<endl;
+  } else {
+   cout<<"AMSoracle::addTDVname -I- TDV "<<name<<"."<<datamc<<", idx "<<tidx
+       <<" is found"<<endl;
+  }  
+   idx = tidx;
+   rstatus = 1;
+ }
+
+
+ EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::addtdvname");;
+
+ return rstatus;
+
+}
+
+int AMSoracle::gettdv(TDVrec *tdv, int deftable)
+{
+//
+// get filepath and size for TDV matched to i/b/e
+// set i/b/e for TDV default value 1/b/e
+// 
+  long   fileid, filesize, flags;
+  time_t modtime;
+
+  int    rstatus = -1;
+
+  if (tdv -> getname()) {
+  
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error:AMSoracle::gettdv");
+
+
+   tdv -> getutime(uinsert, ubegin, uend);
+
+   strcpy(tdvname,tdv -> getname());
+   suppressCR(tdvname);
+   suppressBlanks(tdvname);
+
+   if (tdv -> datamc != 0) {
+       tdatamc = 1;
+   } else {
+       tdatamc = tdv -> datamc;  
+   }
+
+   if (deftable == M_TDVDEF) {
+// only one default TDV should exist for the given name and datamc
+     EXEC SQL SELECT ubegin, uend, filename
+            INTO    :ubegin, :uend, :filename
+            FROM  m_tdvdef, m_tdv_names 
+            WHERE 
+                  m_tdvdef.idx = m_tdv_names.idx AND
+                  m_tdv_names.name = :tdvname AND 
+                  m_tdv_names.datamc = :tdatamc AND
+                  m_tdvdef.prodstat = 1;
+   } else {
+     EXEC SQL SELECT  filename
+            INTO    :filename
+            FROM  m_tdv_blob, m_tdv_names 
+            WHERE ubegin  = :ubegin AND 
+                  uend    = :uend   AND
+                  uinsert = :uinsert   AND
+                  m_tdv_blob.idx = m_tdv_names.idx AND
+                  m_tdv_names.name = :tdvname AND 
+                  m_tdv_names.datamc = :tdatamc AND 
+                  m_tdv_blob.prodstat = 1;
+   }
+     int ntdvs  = sqlca.sqlerrd[2];
+ 
+    if (debug) {
+      cout<<"AMSoracle::gettdv -I- found "<<ntdvs<<" with name "<<tdvname<<"."
+          <<tdatamc<<", i/b/e "<<uinsert<<"/"<<ubegin<<"/"<<uend<<endl;
+     }
+
+     if (ntdvs == 1 && filepath) {
+
+       if(deftable == M_TDVDEF) tdv -> utime(1, ubegin, uend);
+
+        strcpy(filepath, tdv -> getdirpath());
+        suppressBlanks(filepath);
+        suppressCR(filepath);
+        strcat(filepath, filename);
+        suppressBlanks(filepath);
+        suppressCR(filepath);
+ 
+      if (UnixFilestat(filepath, &fileid, &filesize, &flags, &modtime) !=0) {
+       cout<<"AMSoracle::gettdv -E- "<<filepath<<" cannot be stated."<<endl;
+       rstatus = -1;
+      } else {
+        tdv -> setfilepath(filename);
+        tdv -> nbytes  = filesize;
+        rstatus = 1;
+      }
+     }
+    }
+   return rstatus;
+}
+
+
+
+unsigned int AMSoracle::findtdvname(const char *name, int datamc)
+{
+// find TDV with name and datamc
+//
+// return  id 
+// 
+ int rstatus = 0;
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;;
+ if (name && strlen(name) <MAXTDVNAMELENGTH) {  
+  strcpy(tdvname,name);
+  if (datamc > 1) {
+    tdatamc = 1;
+  } else {
+    tdatamc = datamc;
+  }
+  EXEC SQL SELECT name, datamc, idx INTO :tdvname, :tdatamc, :tidx  FROM m_tdv_names 
+  WHERE name = :tdvname 
+  AND   datamc = :tdatamc;
+  if (sqlca.sqlcode == 0) {
+   rstatus = tidx;
+  }
+
+ }
+ EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::findtdvname");
+
+ return rstatus;
+
+}
+
+
+int AMSoracle::findtdv(char *name, int datamc, long timeb, long timee, int deftable, long &timei) 
+//
+// name          -  TDV name
+// timeb         -  begin time 
+// timee         -  end time   
+// deftable      -  M_TDVDEF or M_TDV 
+// out :
+//        timei     - tdv insert time
+//
+{
+ int rstatus = -1;
+
+ if (name) {
+  
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::findtdv");
+
+   ubegin = timeb;
+   uend   = timee;
+
+   strcpy(tdvname,name);
+   suppressCR(tdvname);
+   suppressBlanks(tdvname);
+
+   if (datamc != 0) {
+       tdatamc = 1;
+   } else {
+       tdatamc = datamc;  
+   }
+   if (deftable == M_TDVDEF) {
+     EXEC SQL SELECT  uinsert 
+            INTO    uinsert
+            FROM  m_tdvdef, m_tdv_names 
+            WHERE 
+                  m_tdv_blob.idx = m_tdv_names.idx AND
+                  m_tdv_names.name = :tdvname AND 
+                  m_tdv_names.datamc = :tdatamc AND 
+                  m_tdvdef.prodstat = 1;
+   } else {
+     EXEC SQL SELECT  uinsert 
+            INTO    uinsert
+            FROM  m_tdv_blob, m_tdv_names 
+            WHERE ubegin = :ubegin AND 
+                  uend   = :uend   AND
+                  m_tdv_blob.idx = m_tdv_names.idx AND
+                  m_tdv_names.name = :tdvname AND 
+                  m_tdv_names.datamc = :tdatamc AND 
+                  m_tdv_blob.prodstat = 1;
+  }
+     if (debug > 0) {
+      cout<<"findtdv -I- found "<<sqlca.sqlerrd[2]<<" with name "
+          <<name<<"."<<datamc
+          <<", i/b/e "<<uinsert<<"/"<<ubegin<<" / "<<uend<<endl;
+     }
+     rstatus = 1;
+   }
+   return rstatus;
+}
+
+int AMSoracle::deletetdv(TDVrec *tdv, int deftable) 
+//
+// deftable      -  M_TDVDEF or M_TDV 
+//
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::deletetdv");
+
+
+   tidx = tdv -> idx;
+   tdv -> getutime(uinsert, ubegin, uend);
+
+    
+   if (deftable == M_TDVDEF) {
+     EXEC SQL DELETE 
+            FROM  m_tdvdef
+            WHERE idx = :tidx;
+   } else {
+     EXEC SQL DELETE
+            FROM  m_tdv_blob
+            WHERE idx = :tidx AND 
+                  uinsert = :uinsert AND
+                  ubegin = :ubegin AND 
+                  uend   = :uend;
+     
+  }
+  rstatus = 1;
+
+   return rstatus;
+}
+
+
+//
+// Production Runs m_prodruns, m_tags tables
+//
+int AMSoracle::getprodrunN(unsigned int run) 
+{
+ EXEC SQL CONTEXT USE :ams_context;
+
+ EXEC SQL WHENEVER SQLERROR DO sql_nothing("ORACLE info: AMSoracle::getprodrunN");
+
+ trun = run;
+ Nruns = 0;
+ EXEC SQL SELECT COUNT(run) INTO :Nruns FROM m_prodruns 
+                 WHERE run = :trun;
+ return Nruns;
+}
+
+int AMSoracle::getprodruns(unsigned int run, ProdRun *runs)
+{
+//
+// return  1 - if run(s) found/not found
+//         0 - in case of error
+//
+ int rstatus = 0;
+
+ EXEC SQL CONTEXT USE :ams_context;
+
+ EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getprodruns");
+ if (runs) {
+   trun = run;
+   EXEC SQL SELECT run, idx, events, fevent, levent, timestamp
+            INTO :pruns
+            FROM  m_prodruns
+            WHERE 
+                run = :trun;
+
+    int nruns  = sqlca.sqlerrd[2];
+    if (nruns) {
+     for (int i=0; i<nruns; i++) {
+       runs[i].set(trun,
+                   pruns[i].events,
+                   pruns[i].fevent,
+                   pruns[i].levent,
+                   pruns[i].timestamp,
+                   pruns[i].idx);
+     }
+    }
+  rstatus = 1;
+ }
+ return rstatus;
+}
+
+int AMSoracle::findProdRun(const unsigned int  crun, 
+                           unsigned int &idx, 
+                           unsigned int &timestamp,
+                           unsigned int &fevent,
+                           unsigned int &levent,
+                           bool &flag)
+//
+{
+ int rstat =  0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+             sql_nothing("ORACLE Info: AMSoracle::findprodrun");
+
+   trun = crun;
+
+   tstamp = 0;
+   flag   = 0;
+   EXEC SQL SELECT MAX(timestamp)
+            INTO  :tstamp  
+            FROM  m_prodruns
+            WHERE 
+                run = :trun;
+   if (tstamp) {
+    EXEC SQL SELECT idx, fevent, levent,
+                    cputime, elapsedtime, errors, criticalerrors 
+             INTO   :tidx, :tfirst, :tlast,
+                    :tcputime, :teltime, :terrors, :tcerrors 
+            FROM  m_prodruns
+            WHERE 
+                run = :trun AND 
+                timestamp = :tstamp;
+     idx = tidx;
+     timestamp = tstamp;
+     fevent = tfirst;
+     levent = tlast;
+     if (tcputime == -1 &&
+         teltime  == -1 &&
+         terrors  == -1 &&
+         tcerrors == -1) flag = 1;
+     rstat = 1;
+    }
+ return rstat;
+}
+
+int AMSoracle::deleteProdRun(unsigned int  crun, unsigned int fevent, 
+                             unsigned int  levent)
+//
+{
+  int rstatus = 1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  if (crun) {
+
+      trun   =  crun;
+      tfirst =  fevent;
+      tlast  =  levent;
+
+      EXEC SQL DELETE
+            FROM  m_prodruns WHERE
+                    run   = :trun    AND
+                    firstevent = :tfirst AND
+                    lastevent  = :tlast;
+      EXEC SQL DELETE
+             FROM m_prodinfo WHERE
+                    run   = :trun;
+
+      rstatus = 1;
+   }
+ return rstatus;
+}
+
+int AMSoracle::getProductionFlag()
+{
+ int flag = 0;
+
+ EXEC SQL SELECT flag INTO :tflag 
+          FROM   m_production 
+          WHERE  flag > 0;
+  if(sqlca.sqlerrd[2])  flag = tflag;
+
+ return flag;
+}
+
+int AMSoracle::insertProdRun(AMSoracle::ProdRun *prun)
+{
+//
+//
+  int rstatus = 0;
+
+  if (prun) {
+   prun -> get(trun, tid, tevent, tfirst, tlast, tstatus);
+   prun -> getInfo(trun, tid, teventsp, teventlp, tcerrors,
+                      terrors, tcputime, teltime, tstatus, thostname);
+
+   thostid = findHost(thostname);
+   if (thostid) {
+    tinsert = time((time_t)0);
+    tid = findmaxprodidx();
+
+   
+    if (debug) prun -> print();
+
+    EXEC SQL CONTEXT USE :ams_context;
+
+    EXEC SQL WHENEVER SQLERROR DO 
+          sql_error("ORACLE error: AMSoracle::insertProdRun");
+
+
+      EXEC SQL INSERT INTO m_prodruns
+       VALUES (
+       :trun, 
+       :tid,
+       :tevent,
+       :tfirst,
+       :tlast,
+       :teventsp,
+       :teventlp,
+       :tcerrors,
+       :terrors,
+       :tcputime,
+       :teltime,
+       :tstatus,
+       :tprodid,
+       :thostid,
+       :tinsert);
+
+       rstatus = 1;
+   } else {
+    cout<<"AMSoracle::insertProdRun -W- unknown host "<<thostname<<endl;
+   }
+  }
+     return rstatus;
+} 
+
+int AMSoracle::updateProdRun(AMSoracle::ProdRun *prun)
+{
+//
+//
+  int rstatus = 0;
+
+  if (prun) {
+   prun -> getInfo(trun, tid, teventsp, teventlp, tcerrors,
+                      terrors, tcputime, teltime, tstatus, thostname);
+
+   tinsert = time((time_t)0);
+   thostid = findHost(thostname);
+
+   EXEC SQL CONTEXT USE :ams_context;
+   
+   EXEC SQL WHENEVER SQLERROR DO 
+          sql_error("ORACLE error: AMSoracle::insertProdRun");
+
+   if (thostid) {
+      EXEC SQL UPDATE m_prodruns
+           SET 
+             eventsp = :teventsp,
+             lpevent =  :teventlp,
+             criticalerrors = :tcerrors,
+             errors         = :terrors,
+             cputime        = :tcputime,
+             elapsedtime    = :teltime,
+             status         = :tstatus,
+             hostid         = :thostid,
+             timestamp       = :tinsert
+           WHERE run = :trun AND idx = :tid;
+       rstatus = 1;
+   } else {
+    cout<<"AMSoracle::insertProdRun -W- unknown host "<<thostname<<endl;
+   }
+  }
+     return rstatus;
+}    
+
+int AMSoracle::findtag(EventTag *tag)
+{
+//  return 1 if one tag corresponding to event number and run idx is found
+//
+  int rstatus = -1;
+  int ntags   =  0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::findtag");
+
+    if (tag) {
+
+     tevent = tag -> getevent();
+     tidx   = tag -> getid();
+
+     EXEC SQL SELECT event, tag1, tag2
+              INTO   :tevent, :ttag1, :ttag2
+              FROM m_runtags
+              WHERE
+                    event = :tevent AND idx =: tidx;
+
+      ntags  = sqlca.sqlerrd[2];
+      rstatus = ntags;
+      if (ntags > 1) {
+        Fmessage("AMSoracle::findtag","more than one tag is found","E");
+        cout<<"idx, event "<<tidx<<", "<<tevent<<endl;
+      } else if (ntags == 1) {
+        tag -> set(ttag1, ttag2);
+      }
+    }
+     return rstatus;
+}    
+
+int AMSoracle::deletetag(EventTag *tag)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  if (tag) {
+   tevent = tag -> getevent();
+   tidx   = tag -> getid();
+      EXEC SQL DELETE
+            FROM  m_tags WHERE
+                    event = :tevent  AND
+                    idx   = :tidx;
+
+       rstatus = 1;
+  }
+  return rstatus;
+}
+
+
+int AMSoracle::deletetags(int idx)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  if (idx > 0) {
+      EXEC SQL DELETE
+            FROM  m_tags WHERE
+                    idx   = :tidx;
+
+       rstatus = 1;
+  }
+  return rstatus;
+}
+
+
+int AMSoracle::inserttag(EventTag *tag, int events)
+{
+//
+// ?? if tag exists with diff tfirst/tlast
+//    bulk insert
+//
+
+  int rstatus = -1;
+
+  if (events) {
+   for (int i=0; i<events; i++) {
+    tag[i].get(trun, tidx, tevent, tpos, ttag1, ttag2);
+
+    EXEC SQL CONTEXT USE :ams_context;
+
+    EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::inserttag");
+
+     uinsert = time((time_t)0);
+     EXEC SQL INSERT INTO m_tags
+      VALUES (
+      :trun,
+      :tidx,
+      :tevent,
+      :tpos,
+      :ttag1,
+      :ttag2);
+   }
+      rstatus = 1;
+
+     if (debug) 
+       cout<<"AMSoracle::inserttag -I- "<<trun<<" "<<tevent<<" with tags : "
+          <<ttag1<<", "<<ttag2<<" inserted"<<endl;
+  }
+     return rstatus;
+}    
+
+unsigned int AMSoracle::findmaxprodidx()
+{
+   EXEC SQL CONTEXT USE :ams_context;
+
+   EXEC SQL WHENEVER SQLERROR DO 
+                     sql_nothing("ORACLE Info : AMSoracle::findmaxprodidx");
+
+
+   tidx = 0;
+
+   EXEC SQL SELECT MAX(idx) INTO :tidx FROM m_prodruns;
+
+   if (tidx < 0) {
+      tidx = 1;
+   } else {
+      tidx++;
+   }
+
+   return tidx;
+
+}
+
+
+int AMSoracle::inserttags(EventTag *tag, int events)
+{
+//
+//    bulk insert
+//
+
+  int rstatus = 0;
+  int inc   = 0;
+  int evtoinsert = 0;
+
+  Nrows = 0;
+  time_t T0 = time((time_t)0);
+
+   EXEC SQL CONTEXT USE :ams_context;
+
+   EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::inserttags");
+
+   evtoinsert = events;
+   if (events) {
+    while (evtoinsert) {
+     if (evtoinsert < NROWSMAX) {
+      Nrows = evtoinsert;
+     } else {
+      Nrows = NROWSMAX;
+     }
+     
+     for (int i=0; i<Nrows; i++) {
+       int ii = i + NROWSMAX*inc;
+       tag[ii].get(runnu[i], idxnu[i], eventnu[i], posnu[i], 
+                   tag1nu[i], tag2nu[i]);
+     }
+      
+     (void) sprintf((char *)dynstmt.arr,"%s %s",
+     " INSERT INTO m_tags",
+     " VALUES (:runnu,:idxnu,:eventnu,:posnu,:tag1nu,:tag2nu)");
+
+     dynstmt.len = (unsigned short)strlen((char *)dynstmt.arr);
+
+     EXEC SQL PREPARE S FROM :dynstmt;
+
+     EXEC SQL FOR :Nrows EXECUTE  S USING 
+       :runnu, :idxnu, :eventnu, :posnu, :tag1nu, :tag2nu; 
+     evtoinsert = evtoinsert - Nrows; 
+      inc++;
+   }
+
+   rstatus = 1;
+
+   time_t T2 = time((time_t)0);
+   cout<<events<<" rows inserted. commit. T2-T0 "<<T2-T0<<" sec"<<endl;
+   }
+
+  return rstatus;
+}
+
+//
+// RunTable m_runtable
+//
+int AMSoracle::findRun(unsigned int run, unsigned int uid)
+{
+// find run in m_runtable by run number first and last event
+// return 1 - found
+//        0 - run/uid are different
+//       -1 - not found
+// 
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_nothing("ORACLE warning: AMSoracle::findRun");
+
+  tint = 0;
+
+  tid  = uid;
+  
+  EXEC SQL SELECT COUNT(run) INTO :tint
+       FROM m_runtable  
+       WHERE
+         id = :tid;
+  return tint;
+}
+
+int AMSoracle::deleteRun(unsigned int run, unsigned int uid)
+{
+
+  int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_nothing("ORACLE warning: AMSoracle::deleteRun");
+
+  trun = run;
+  tid =  uid;
+  EXEC SQL DELETE
+       FROM m_runtable  
+       WHERE
+         run = :trun  AND id = :tid;
+
+  return 1;
+}
+
+int AMSoracle::deleteProdRun(unsigned int run, unsigned int uid)
+{
+
+  int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_nothing("ORACLE warning: AMSoracle::deleteProdRun");
+
+  trun = run;
+  tid =  uid;
+  EXEC SQL DELETE
+       FROM m_prodruns 
+       WHERE
+         run = :trun  AND idx = :tid;
+
+  return 1;
+}
+
+int AMSoracle::deleteProdInfo(unsigned int run, unsigned int uid)
+{
+
+  int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_nothing("ORACLE warning: AMSoracle::deleteProdInfo");
+
+  trun = run;
+  tid =  uid;
+  EXEC SQL DELETE
+       FROM m_prodinfo  
+       WHERE
+         run = :trun  AND idx = :tid;
+
+  return 1;
+}
+
+int AMSoracle::findInRunTable(unsigned int run, unsigned int fevent,
+                              unsigned int levent, RunTable *rtable)
+{
+// find run in m_runtable by run number first and last event
+// return 1 - found
+//        0 - not found
+//       -1 - error
+// 
+
+  int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_nothing("ORACLE warning: AMSoracle::findInRunTable");
+
+  if (run && rtable) {
+
+
+     EXEC SQL SELECT run, id, fevent, levent, utimef, utimel, 
+                     priority, rawfilepath, status, history,
+                     submittime, cuid, timestamp
+              INTO 
+         :trun, :tidx, :tfirst, :tlast,
+         :ubegin, :uend, :tpriority, :filepath,
+         :tstatus, :thistory, :tsubmit, :tcuid, :tinsert
+       FROM m_runtable  WHERE
+         run = :trun AND fevent = :tfirst AND levent = :tlast;  
+       if (sqlca.sqlerrd[2] > 0) {
+         rtable[0].set(trun, tidx, tfirst, tlast,
+                       ubegin, uend, tpriority, filepath,
+                       tstatus, thistory, tsubmit, tcuid);
+         rstatus = 1;
+        }
+         rstatus = 0;
+   }
+
+
+  return rstatus;
+}
+
+int AMSoracle::setRunStatus(unsigned int id, unsigned int status)
+{
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::setRunStatus");
+ 
+    tid      = id;
+    tstatus = status;
+    tinsert = time((time_t)0);
+    
+    EXEC SQL UPDATE m_runtable 
+             SET
+                status          = :tstatus,
+                timestamp       = :tinsert
+                    WHERE id = :tid;
+  return 1;
+}
+
+int AMSoracle::setRunSubmitTime(unsigned int id, unsigned int submittime)
+{
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::setRunSubmitTime");
+ 
+    tid      = id;
+    tstatus = submittime;
+    tinsert = time((time_t)0);
+    time_to_oracle(tinsert, ctimei);
+    EXEC SQL UPDATE m_runtable 
+             SET
+                submittime      = :tsubmit,
+                timestamp       = :tinsert,
+                stimea          = TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS')
+              WHERE id = :tid;
+  return 1;
+}
+
+
+int AMSoracle::updateRunTable(RunTable *rtable)
+{
+  int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::updateRunTable");
+ 
+  if (rtable) {
+
+    rtable -> get(tid, trun, tfirst, tlast, ubegin, uend, tpriority, filepath,
+                  tstatus, thistory, tsubmit, tcuid);
+
+           
+    tinsert = time((time_t)0);
+    time_to_oracle(tsubmit,ctimei);
+    time_to_oracle(ubegin,ctimeb);
+    EXEC SQL UPDATE m_runtable 
+             SET
+                fevent = :tfirst,
+                levent = :tlast,
+                utimef = :ubegin,
+                utimel = :uend,
+                priority =   :tpriority,
+                status   =   :tstatus,
+                history  =   :thistory,
+                submittime = :tsubmit,
+                cuid       = :tcuid,
+                timef      = TO_DATE(:ctimeb,'DD-MON-YYYY HH24:MI:SS'),
+                stimea     = TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS'),
+                timestamp  = :tinsert
+                    WHERE id = :tid;
+    rstatus = 1;
+   }
+  return rstatus;
+}
+  
+int AMSoracle::insertRunTable(RunTable *rtable, int nruns)
+{
+  int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_nothing("ORACLE warning: AMSoracle::insertRunTable");
+ 
+  if (rtable && nruns) {
+
+   EXEC SQL WHENEVER SQLERROR DO 
+                     sql_error("ORACLE error: AMSoracle::insertRunTable");
+
+
+   tinsert = time((time_t)0);
+   for (int i=0; i< nruns; i++) {
+     rtable[i].get(tid, trun, ubegin, uend, tfirst, tlast, 
+                  tpriority, filepath,
+                   tstatus, thistory, tsubmit, tcuid);
+     time_to_oracle(tsubmit, ctimei);
+     time_to_oracle(tfirst, ctimeb);
+     
+     EXEC SQL INSERT INTO m_runtable
+        VALUES (
+           :trun, 
+           :tid,
+           :ubegin,
+           :uend,
+           :tfirst,
+           :tlast,
+           :tpriority,
+           :filepath,
+           :tstatus,
+           :thistory,
+           :tsubmit,
+           :tcuid,
+           TO_DATE(:ctimeb,'DD-MON-YYYY HH24:MI:SS'),
+           TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS'),
+           :tinsert);
+    }
+    rstatus = 1;
+   }
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error:");
+
+ return rstatus;
+}
+
+int AMSoracle::getRunsN()
+{
+    Nids = 0;
+
+    EXEC SQL CONTEXT USE :ams_context;
+
+    EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getRunsN");
+
+    EXEC SQL SELECT COUNT(RUN) INTO :Nids FROM m_runtable;
+
+    return Nids;
+}
+
+int AMSoracle::cleanRunTable(const unsigned int runstatus)
+{
+
+  int rstatus = 0;
+
+  tstatus = runstatus;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_nothing("AMSoracle::cleanRunTable");
+
+  EXEC SQL SELECT COUNT(run) INTO :Nruns FROM m_runtable;
+  EXEC SQL DELETE m_runtable WHERE status  != :tstatus AND
+                                   history != :tstatus;
+  EXEC SQL SELECT COUNT(run) INTO :tint FROM m_runtable;
+
+  if (Nruns) cout<<"AMSoracle::cleanRunTable -I- Runs "<<Nruns
+                 <<" deleted "<<Nruns-tint
+                 <<" left for check "<<tint<<endl;
+  return 1;
+}
+
+int AMSoracle::resetRunTable()
+{
+
+  int rstatus = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_nothing("AMSoracle::resetRunTable");
+
+  EXEC SQL UPDATE m_runtable 
+           SET m_runtable.status = (SELECT n FROM m_runstatus WHERE
+           status LIKE '%ToBeRerun%') 
+           WHERE 
+             m_runtable.status != (SELECT n FROM m_runstatus WHERE 
+             status LIKE '%Finished%') 
+          AND 
+             m_runtable.status != (SELECT n FROM m_runstatus WHERE 
+             status LIKE '%Failed%');
+  return rstatus;
+} 
+
+
+int AMSoracle::getRunTable(int &nruns, unsigned int &maxid, RunTable *rtable)
+{
+// return 1 - found
+//        0 - not found
+//       -1 - error
+// 
+
+  int rstatus = 0;
+ 
+
+  if (rtable) {
+
+    EXEC SQL CONTEXT USE :ams_context;
+
+    EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error:AMSoracle::getRunTable");
+
+    int nruns = getRunsN();
+
+   if (nruns > MAXRUNTABLESIZE) {
+      cout<<"AMSoracle::getRunTable -W- too many runs - "<<nruns
+          <<" return first "<<MAXRUNTABLESIZE<<endl;
+      return rstatus;
+    }
+
+    EXEC SQL SELECT
+                     run, id, fevent, levent, utimef, utimel,
+                     priority, rawfilepath, status, history,
+                     submittime, cuid, timestamp
+             INTO :runsT 
+             FROM m_runtable 
+             ORDER BY priority DESC, run;
+
+    nruns = sqlca.sqlerrd[2];
+
+    if (nruns) {
+       maxid = 0;
+       for (int i=0; i<nruns; i++) {
+         rtable[i].set(runsT[i].run, runsT[i].id, 
+                       runsT[i].fevent, runsT[i].levent,
+                       runsT[i].utimef, runsT[i].utimel, 
+                       runsT[i].priority, runsT[i].filepath,
+                       runsT[i].status, runsT[i].history, 
+                       runsT[i].submittime, runsT[i].cuid);
+          if (runsT[i].id > maxid) maxid = runsT[i].id;
+        }
+        rstatus = 1;
+       }
+   }
+  return rstatus;
+}
+
+int AMSoracle::getProdRunStat(unsigned int crun, ProdRun *rtable)
+{
+// return 1 - found
+//        0 - not found
+//       -1 - error
+// 
+
+  int rstatus = -1;
+ 
+
+  if (rtable) {
+
+    EXEC SQL CONTEXT USE :ams_context;
+
+    EXEC SQL WHENEVER SQLERROR DO 
+                      sql_error("ORACLE error:AMSoracle::getProdRunStat");
+
+    tuint = crun;
+    EXEC SQL SELECT run, idx, events, lastevent, criticalerrors, errors,
+                    cputime, elapsedtime, status, m_nominal_hosts.name
+             INTO
+                    :trun, :tid, :teventsp, :teventlp, :tcerrors, :terrors,
+                    :tcputime, :teltime, :tstatus, :thostname
+             FROM m_prodinfo, m_nominal_hosts
+             WHERE run = :tuint AND 
+                   m_nominal_hosts.id = m_prodinfo.hostid;
+     int nruns = sqlca.sqlerrd[2];
+     if (nruns == 1) {
+         rtable -> updateInfo(trun, tid,
+                              teventsp, teventlp,
+                              tcerrors, terrors,
+                              tcputime, teltime,
+                              tstatus, thostname);
+        rstatus = 1;
+    } else if (nruns == 0) {
+      EXEC SQL SELECT run, id, status INTO :trun, :tid, :tstatus
+               FROM m_runtable
+               WHERE run = :tuint;
+      if (sqlca.sqlerrd[2] == 1) {
+         strcpy(thostname," ");
+         rtable -> updateInfo(trun, tid,
+                               0, 0,
+                               0, 0,
+                               0, 0,
+                               tstatus, thostname);
+        rstatus = 1;
+       }
+    }
+   }
+  return rstatus;
+}
+
+
+int AMSoracle::dumpRunTable(RunTable *rtable, int nruns)
+{
+  int rstatus = -1;
+  char tablefile[256];
+
+  if (rtable && nruns) {
+   char* gtv=getenv("AMSTableDir");
+   if(gtv && strlen(gtv)>0){
+     strcpy(tablefile,gtv);
+    } else {
+     Fmessage("AMSoracle::dumpRunTable","AMSTableDir not defined","F");
+     return rstatus;
+   }
+   strcat(tablefile,runtablefile);
+    ofstream tfile(tablefile,ios::out|ios::out);
+    tfile.setf(ios::dec);
+    tfile<<setw(10)<<"# Run "<<setw(10)<<" FstEvent "<<setw(10)<<"LstEvent"
+          <<setw(12)<<"TimeFst"<<setw(12)<<"TimeLst"<<setw(4)<<" Prio "
+          <<"FilePath"<<endl;     
+    for (int i=0; i<nruns; i++) {
+     rtable[i].get(trun, ubegin, uend, tfirst, tlast, filepath);
+     suppressCR(filepath);
+     suppressBlanks(filepath);
+
+     //cout<<setw(10)<<trun<<setw(10)<<tfirst<<setw(10)<<tlast
+     //     <<setw(12)<<ubegin<<setw(12)<<uend<<setw(4)<<" 0 "
+     //     <<filepath<<endl;     
+
+     tfile<<setw(10)<<trun<<setw(10)<<tfirst<<setw(10)<<tlast
+          <<setw(12)<<ubegin<<setw(12)<<uend<<setw(4)<<" 0 "
+          <<filepath<<endl;     
+    }
+  tfile.close();
+  rstatus = 1;
+ }
+ return rstatus;
+}
+
+int AMSoracle::RunsToBeRerun()
+{
+//
+// return number of run with STATUS 'ToBeReRun'
+//
+
+ Nruns = 0;
+
+ EXEC SQL CONTEXT USE :ams_context;
+ EXEC SQL WHENEVER SQLERROR DO sql_nothing("AMSoracle::RunsToBeRerun");
+ EXEC SQL SELECT COUNT (run) INTO Nruns FROM m_runtable, m_runstatus 
+        WHERE
+        m_runtable.status = m_runstatus.n AND
+        m_runstatus.status = 'ToBeRerun';
+
+ return Nruns;
+}
+
+int AMSoracle::RunsProcessing()
+{
+//
+// return number of run with STATUS 'ToBeReRun'
+//
+
+ Nruns = 0;
+
+ EXEC SQL CONTEXT USE :ams_context;
+ EXEC SQL WHENEVER SQLERROR DO sql_nothing("AMSoracle::RunsToBeRerun");
+ EXEC SQL SELECT COUNT (run) INTO Nruns FROM m_runtable, m_runstatus 
+        WHERE
+        m_runtable.status = m_runstatus.n AND
+        m_runstatus.status = 'Processing';
+
+
+ return Nruns;
+}
+
+int AMSoracle::getRun(const char *host, RunTable *rtable)
+{
+// Find runs 1st try : with ToBeReRun status   ordered by priority
+//           2nd     : with ToBeReRun history   "   "     "     "
+//           3rd     : with Failed    history  and HOST != host
+//
+// return -1 -  error
+//         1 -  success
+// rtable - all run info
+//
+ int rstatus = -1;
+ int nruns   =  0;
+
+ EXEC SQL CONTEXT USE :ams_context;
+ EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getRun");
+
+ if (host) {
+  thostid = findHost(host);
+  if (thostid) {
+      EXEC SQL SELECT 
+                     run, id, fevent, levent, utimef, utimel, 
+                     priority, rawfilepath, m_runtable.status, history,
+                     submittime, cuid, timestamp
+                INTO runsT FROM m_runtable, m_runstatus  
+               WHERE
+                m_runtable.status = m_runstatus.n AND
+                m_runstatus.status = 'ToBeRerun' 
+               ORDER BY m_runtable.priority DESC, m_runtable.run;
+       nruns = sqlca.sqlerrd[2];
+       if (!nruns) {
+         cout<<"AMSoracle::getRun -I- no runs with ToBeRerun status  "<<endl;
+         EXEC SQL SELECT 
+                     run, id, fevent, levent, utimef, utimel, 
+                     priority, rawfilepath, m_runtable.status, history,
+                     submittime, cuid, timestamp
+                  INTO runsT FROM m_runtable, m_runstatus  
+                  WHERE
+                   m_runtable.history = m_runstatus.n AND
+                   m_runstatus.status = 'ToBeRerun'      
+                  ORDER BY m_runtable.priority DESC, m_runtable.run;
+         nruns = sqlca.sqlerrd[2];
+         if (!nruns) {
+          cout<<"AMSoracle::getRun -I- no runs with ToBeRerun history  "<<endl;
+          EXEC SQL SELECT 
+                     m_runtable.run, m_runtable.id, m_runtable.fevent, 
+                     m_runtable.levent, m_runtable.utimef, m_runtable.utimel,
+                     m_runtable.priority, m_runtable.rawfilepath, 
+                     m_runtable.status, history,
+                     m_runtable.submittime, m_runtable.cuid, 
+                     m_runtable.timestamp
+                   INTO runsT 
+                   FROM m_runtable, m_runstatus, m_prodruns 
+                   WHERE
+                   m_runtable.status = m_runstatus.n AND
+                   m_runstatus.status = 'Failed'        AND
+                   m_prodruns.hostid  != :thostid 
+                  ORDER BY m_runtable.priority DESC, m_runtable.run;
+          nruns = sqlca.sqlerrd[2];
+          if (!nruns) 
+           cout<<"AMSoracle::getRun -I- no runs with Failed history AND hostname !"
+               <<host<<endl;
+         }
+       }
+        if (nruns) {
+          rtable -> set(runsT[0].run, runsT[0].id, 
+                        runsT[0].fevent, runsT[0].levent,
+                        runsT[0].utimef, runsT[0].utimel, 
+                        runsT[0].priority, runsT[0].filepath,
+                        runsT[0].status, runsT[0].history, 
+                        runsT[0].submittime, runsT[0].cuid);
+          cout<<"AMSoracle::getRun -I- run, history, prio "<<runsT[0].run
+             <<", "<<runsT[0].history<<", "<<runsT[0].priority<<endl;
+          rstatus = 1;
+        } else {
+         cout<<"AMSoracle::getRun -I- no runs for host "<<thostname<<" found"<<endl;
+        }
+  } else {
+   cout<<"AMSoracle::getRun -E- unknown host "<<host<<endl;
+  }
+ }
+ return rstatus;
+}
+
+
+int AMSoracle::deleteProdRun(unsigned int run)
+{
+  int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error:AMSoracle::deleteProdRun");
+
+  trun = run;
+  EXEC SQL DELETE FROM m_prodruns WHERE run = :trun;
+  EXEC SQL DELETE FROM m_prodinfo  WHERE run = :trun;
+  
+  cout<<"AMSoracle::deleteProdRun -I- delete run "<<run
+      <<" record from m_prodruns, m_prodinfo"<<endl;
+
+  return 1;
+}
+
+int AMSoracle::deleteProdInfo(unsigned int run)
+{
+  int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+  EXEC SQL WHENEVER SQLERROR DO sql_error("AMSoracle::deleteProdRunInfo");
+
+  trun = run;
+  EXEC SQL DELETE FROM m_prodinfo  WHERE run = :trun;
+  
+  cout<<"AMSoracle::deleteProdInfo -I- delete run "<<run
+      <<" record from m_prodruns, m_prodinfo"<<endl;
+
+  return 1;
+}
+
+
+int AMSoracle::updateProdTable(ProdRun *rtable)
+{
+  int rstatus = 0;
+  
+
+  EXEC SQL CONTEXT USE :ams_context;
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error:AMSoracle::updateProdTable");
+ 
+  if (rtable) {
+
+    rtable -> getInfo(trun, tid, teventsp, teventlp, tcerrors,
+                      terrors, tcputime, teltime, tstatus, thostname);
+    thostid = findHost(thostname);
+   
+    if (thostid) {
+
+     tinsert = time((time_t)0);
+
+// insert or update m_prodinfo
+     EXEC SQL SELECT COUNT(run) 
+                         INTO :Nruns 
+                            FROM m_prodinfo 
+                                WHERE run = :trun AND idx = :tid;
+     if (Nruns == 0) {
+       EXEC SQL INSERT INTO m_prodinfo 
+              VALUES(
+                     :trun,
+                     :tid,
+                     :teventsp,
+                     :teventlp,
+                     :tcerrors,
+                     :terrors,
+                     :tcputime,
+                     :teltime,
+                     :tstatus,
+                     :thostid,
+                     :tinsert);
+          rstatus = 1;
+    } else if(Nruns == 1) { 
+     EXEC SQL UPDATE  m_prodinfo 
+             SET
+                events              = :teventsp,
+                lastevent           = :teventlp,
+                criticalerrors      = :tcerrors,
+                errors              = :terrors,
+                cputime             = :tcputime,
+                elapsedtime         = :teltime,
+                status              = :tstatus,
+                timestamp           = :tinsert
+                 WHERE run = :trun AND idx = :tid;
+
+     rstatus = 1;
+   } else {
+     cout<<"AMSoracle::updateProdTable -E- More than run "<<trun<<endl;
+   }
+  } else {
+//   cout<<"AMSoracle::updateProdTable -W- cannot find host "<<thostname<<endl;
+  }  
+ }
+   return rstatus;
+}
+
+// DST
+int AMSoracle::deleteDSTInfo()
+{
+  EXEC SQL CONTEXT USE :ams_context;
+  EXEC SQL WHENEVER SQLERROR DO sql_error("AMSoracle::deleteDSTInfo");
+
+ EXEC SQL DELETE m_dstinfo;
+
+ return 1;
+}
+
+int AMSoracle::deleteDSTInfo(const unsigned int uid)
+{
+  EXEC SQL CONTEXT USE :ams_context;
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error:AMSoracle::deleteDSTInfo");
+ tid = uid;
+
+ EXEC SQL DELETE m_dstinfo WHERE  id = :tid;
+
+ return 1;
+}
+
+int AMSoracle::deleteDST(const unsigned int type)
+{
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error:AMSoracle::deleteDST");
+  ttype = type;
+ 
+   EXEC SQL DELETE m_dst WHERE  
+                 type = :ttype ;
+ 
+  return 1;
+}
+
+int AMSoracle::deleteDST(const char *name, const unsigned int type)
+{
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error:AMSoracle::deleteDST");
+ if (name) {
+  ttype = type;
+  strcpy(tdirpath,name);
+ 
+   EXEC SQL DELETE m_dst WHERE  
+                 type = :ttype AND
+                 name = :tdirpath;
+ 
+  return 1;
+ }
+ return 0;
+}
+
+int AMSoracle::findDST(const char *name, const unsigned int type)
+{
+  int rstatus = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error:AMSoracle::findDST");
+ if (name) {
+  ttype = type;
+  suppressBlanks(tdirpath);
+  strcpy(tdirpath,name);
+  EXEC SQL SELECT COUNT(tinsert) INTO :Nrows FROM m_dst
+           WHERE  
+                 type = :ttype AND
+                 name = :tdirpath;
+    if (Nrows == 1) rstatus = 1;
+  } 
+ return rstatus;
+}
+
+int AMSoracle::findDSTInfo(const unsigned int uid)
+{
+  EXEC SQL CONTEXT USE :ams_context;
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error:AMSoracle::findDSTInfo");
+ 
+ tid = uid;
+ EXEC SQL SELECT id INTO :tuint FROM m_dstinfo
+           WHERE  id = :tid;
+    if (sqlca.sqlerrd[2] != 1) {
+     tuint = 0;
+    } 
+ return tuint;
+}
+
+int AMSoracle::getDSTInfoN()
+{
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_nothing("ORACLE warning: AMSoracle::getDSTInfoN");
+ 
+  Nids = 0;
+
+  EXEC SQL SELECT COUNT(id) INTO :Nids FROM m_dstinfo;
+
+ return Nids;
+}
+
+
+int AMSoracle::getDSTN()
+{
+
+  EXEC SQL CONTEXT USE :ams_context;
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::getDSTN");
+ 
+  Nids = 0;
+
+  EXEC SQL SELECT COUNT(tinsert) INTO :Nids FROM m_dst;
+
+ return Nids;
+}
+
+
+int AMSoracle::getDSTInfo(const char *hostname, DSTInfo *dstinfo)
+{
+
+  int N = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::getDSTInfo");
+ 
+   if (hostname) {
+    strcpy(thostname,hostname);
+   
+
+   EXEC SQL OPEN  DSTInfo_Cursor;
+
+   EXEC  SQL WHENEVER NOT FOUND DO BREAK;
+
+   for (;;)
+   {
+     EXEC SQL FETCH DSTInfo_Cursor INTO 
+                                     :ttype,
+                                     :tid,
+                                     :tdirpath,
+                                     :trunmode,
+                                     :tupdfreq,
+                                     :tdiehard,
+                                     :tfreespace,
+                                     :ttotalspace,
+                                     :thostname;
+
+         dstinfo[N].set(
+                        ttype,
+                        tid,
+                        thostname,
+                        tdirpath,
+                        trunmode,
+                        tupdfreq,
+                        tdiehard,
+                        tfreespace,
+                        ttotalspace);
+         N++;
+  }
+
+  EXEC SQL CLOSE  DSTInfo_Cursor;
+  EXEC SQL WHENEVER NOT FOUND DO sql_notfound("nothing is selected");
+ } else {
+  Fmessage("AMSoracle::getDSTInfo","invalid hostname","E");
+ }
+ return N;
+}
+
+int AMSoracle::getDSTInfoALL(DSTInfo *dstinfo)
+{
+
+  int N = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::getDSTInfo");
+ 
+  if (dstinfo) {
+   EXEC SQL OPEN  DSTInfoALL_Cursor;
+
+   EXEC  SQL WHENEVER NOT FOUND DO BREAK;
+
+   for (;;)
+   {
+     EXEC SQL FETCH DSTInfoALL_Cursor 
+               INTO 
+                                     :ttype,
+                                     :tid,
+                                     :tdirpath,
+                                     :trunmode,
+                                     :tupdfreq,
+                                     :tdiehard,
+                                     :tfreespace,
+                                     :ttotalspace,
+                                     :thostname;
+
+         dstinfo[N].set(
+                        ttype,
+                        tid,
+                        thostname,
+                        tdirpath,
+                        trunmode,
+                        tupdfreq,
+                        tdiehard,
+                        tfreespace,
+                        ttotalspace);
+         N++;
+  }
+
+  EXEC SQL CLOSE  DSTInfoALL_Cursor;
+  EXEC SQL WHENEVER NOT FOUND DO sql_notfound("nothing is selected");
+ } else {
+  Fmessage("AMSoracle::getDSTInfoAll","invalid *dstinfo","E");
+ }
+
+ return N;
+}
+
+
+
+int AMSoracle::getDST(DST *dst)
+{
+
+   int ndsts   = 0;
+   int n       = 0;
+
+   EXEC SQL CONTEXT USE :ams_context;
+
+   EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::getDST");
+
+   EXEC SQL OPEN  DST_Cursor;
+
+   // EXEC  SQL WHENEVER NOT FOUND DO BREAK;
+
+   for (;;)
+   {
+     EXEC SQL FETCH DST_Cursor INTO :tdst;
+     n = sqlca.sqlerrd[2] - ndsts;
+     if (n) {
+      for (int i=0; i<n; i++) {
+         dst[ndsts+i].set(
+                      tdst[i].insert,
+                      tdst[i].begin,
+                      tdst[i].end,
+                      tdst[i].run,
+                      tdst[i].firstevent,
+                      tdst[i].lastevent,
+                      tdst[i].events,
+                      tdst[i].status,
+                      tdst[i].type,
+                      tdst[i].size,
+                      tdst[i].name);
+
+     }
+     ndsts = sqlca.sqlerrd[2];
+    }
+    if (n < MAXDSTARRAYSIZE) break;
+ }
+
+  EXEC SQL CLOSE  DST_Cursor;
+  EXEC SQL WHENEVER NOT FOUND DO sql_notfound("nothing is selected");
+
+ return ndsts;
+}
+
+int AMSoracle::updateDSTInfo(
+                    const unsigned int type,
+                    const unsigned int uid,
+                    const char *hostname,
+                    const char *dirpath,
+                    unsigned int runmode,
+                    unsigned int updfreq,
+                    unsigned int diehard,
+                    unsigned int freespace,
+                    unsigned int totalspace)
+{
+  int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error:AMSoracle::updateDSTInfo");
+
+  if (dirpath && hostname) {
+    thostid = findHost(hostname);
+    if (thostid) {
+     ttype = type;
+     tid = uid;
+     trunmode = runmode;
+     tupdfreq = updfreq;
+     tdiehard = diehard;
+     tfreespace = freespace;
+     ttotalspace = totalspace;
+     tinsert = time((time_t)0);
+     strcpy(tdirpath, dirpath);
+     EXEC SQL UPDATE m_dstinfo 
+             SET
+                   type    = :ttype,
+                   hostid  = :thostid,
+                   runmode = :trunmode,
+                   updfreq = :tupdfreq,
+                   diehard = :tdiehard,
+                   freespace = :tfreespace,
+                   totalspace = :ttotalspace,
+                   dirpath = :tdirpath,
+                   timestamp = :tinsert
+             WHERE
+                   id = :tid;
+     rstatus = 1;
+   }
+  }
+  return rstatus;
+}
+int AMSoracle::insertDSTInfo(
+                    unsigned int type,
+                    unsigned int id,
+                    const char *hostname,
+                    const char *dirpath,
+                    unsigned int runmode,
+                    unsigned int updfreq,
+                    unsigned int diehard,
+                    long int freespace,
+                    long int totalspace)
+{
+  int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error:AMSoracle::insertDSTInfo");
+
+  if (dirpath && hostname) {
+    thostid = findHost(hostname);
+    if (!thostid) {
+      insertNominalHost(hostname,
+                        "default",
+                        "Dummy",
+                        0,
+                        0,
+                        0);
+      thostid = findHost(hostname);
+    } 
+     ttype = type;
+     tid = id;
+     trunmode = runmode;
+     tupdfreq = updfreq;
+     tdiehard = diehard;
+     tfreespace = freespace;
+     ttotalspace = totalspace;
+     tinsert = time((time_t)0);
+     strcpy(tdirpath, dirpath);
+     EXEC SQL INSERT  INTO m_dstinfo 
+             VALUES(
+                    :ttype,
+                    :tid,
+                    :thostid,
+                    :tdirpath,
+                    :trunmode,
+                    :tupdfreq,
+                    :tdiehard,
+                    :tfreespace,
+                    :ttotalspace,
+                    :tinsert);
+     rstatus = 1;
+  }
+  return rstatus;
+}
+
+
+  int   AMSoracle::insertDST(
+                  const unsigned int insert,
+                  const unsigned int begin,
+                  const unsigned int end,
+                  const long int run,
+                  const long int firstevent,
+                  const long int lastevent,
+                  const long int eventnumber,
+                  unsigned int status,
+                  unsigned int type,
+                  long int size,
+                  const char *name)
+{
+  int rstatus = -1;
+
+  if (name) {
+     uinsert = insert;
+     ubegin  = begin;
+     uend    = end;
+     trun    = run;
+     tfirst  = firstevent;
+     tlast   = lastevent;
+     tevents = eventnumber;
+     tstatus = status;
+     ttype   = type;
+     tsize   = size;
+     strcpy(tdirpath,name);
+     tinsert   = time((time_t)0);
+     time_to_oracle(tinsert, ctimei);
+     EXEC SQL CONTEXT USE :ams_context;
+     EXEC SQL WHENEVER SQLERROR DO 
+                    sql_nothing("ORACLE Info :AMSoracle::insertDST : nothing to delete");
+     EXEC SQL DELETE m_dst 
+                WHERE 
+                   run = :trun AND
+                   firstevent <= :tfirst AND
+                   lastevent  >= :tlast  AND
+                   type       = :ttype;
+
+     EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE Error :AMSoracle::insertDST");
+     EXEC SQL INSERT  INTO m_dst 
+             VALUES(
+                    :uinsert,
+                    :ubegin,
+                    :uend,
+                    :trun,
+                    :tfirst,
+                    :tlast,
+                    :tevents,
+                    :tstatus,
+                    :ttype,
+                    :tsize,
+                    :tdirpath,
+                    TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS'),
+                    :tinsert);
+     rstatus = 1;
+   }
+  return rstatus;
+}
+
+  int   AMSoracle::updateDST(
+                  const unsigned int insert,
+                  const unsigned int begin,
+                  const unsigned int end,
+                  const long int run,
+                  const long int firstevent,
+                  const long int lastevent,
+                  const long int eventnumber,
+                  unsigned int status,
+                  unsigned int type,
+                  long int size,
+                  const char *name)
+{
+  int rstatus = -1;
+  EXEC SQL CONTEXT USE :ams_context;
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error:AMSoracle::updateDST");
+
+  if (name) {
+     uinsert = insert;
+     ubegin  = begin;
+     uend    = end;
+     trun    = run;
+     tfirst  = firstevent;
+     tlast   = lastevent;
+     tevents = eventnumber;
+     tstatus = status;
+     ttype   = type;
+     tsize   = size;
+     strcpy(tdirpath,name);
+     tinsert   = time((time_t)0);
+     time_to_oracle(tinsert,ctimei);
+     EXEC SQL UPDATE m_dst 
+             SET
+                tinsert =    :uinsert,
+                tbegin  =    :ubegin,
+                tend    =    :uend,
+                firstevent =     :tfirst,
+                lastevent  =     :tlast,
+                events     =     :tevents,
+                status     =     :tstatus,
+                filesize   =     :tsize,
+                lastuptime =     TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS'),
+                timestamp  =     :tinsert
+              WHERE 
+                NAME = :tdirpath;
+     rstatus = 1;
+   }
+  return rstatus;
+}
+
+
+//
+
+unsigned int AMSoracle::findInterface(const char *name)
+{
+ tid = 0;
+ EXEC SQL CONTEXT USE :ams_context;
+ EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::findInterface");
+ if (name) {
+  strcpy(tinterface, name);
+  suppressBlanks(tinterface);
+  EXEC SQL SELECT id INTO :tid FROM m_interfaces 
+           WHERE  name = :tinterface;
+    if (sqlca.sqlerrd[2] != 1) {
+     cout<<"AMSoracle::findInterface -E- Unknown interface '"<<tinterface
+         <<"'"<<endl;
+     tid = 0;
+    }
+ }
+ return tid;
+}
+
+unsigned int AMSoracle::findPlatform(const char *name)
+{
+ tid = 0;
+ EXEC SQL CONTEXT USE :ams_context;
+ EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::findPlatform");
+ if (name) {
+  strcpy(tplatform, name);
+  suppressBlanks(tinterface);
+  EXEC SQL SELECT id INTO :tid FROM m_platforms 
+           WHERE type = :tplatform;
+    if (sqlca.sqlerrd[2] != 1) {
+     cout<<"AMSoracle::findPlatform -W- Unknown platform '"<<tplatform
+         <<"'"<<endl;
+     tid = 0;
+    }
+ }
+ return tid;
+}
+
+//
+// Host table  subroutines
+//
+unsigned int AMSoracle::findHost(const char *host)
+{
+  int nhosts = 0;
+  int hostid = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+// find host
+   EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::findHost");
+   if (host) {
+    strcpy(thostname,host);
+    strtok(thostname,".");
+    suppressBlanks(thostname);
+    thostid = 0;
+    EXEC SQL SELECT id 
+                   INTO :thostid 
+                       FROM m_nominal_hosts 
+                           WHERE name LIKE :thostname;
+    nhosts = sqlca.sqlerrd[2];
+    if (nhosts < 1) {
+     // cout<<"AMSoracle::findhost -W- Unknown host "<<thostname<<endl;
+     thostid = 0;
+    } else if (nhosts > 1) {
+     cout<<"AMSoracle::findhost -E- more than one host "<<thostname<<endl;
+    }
+  hostid = thostid;
+ }
+  return hostid;
+
+}
+
+int AMSoracle::getNominalHostId(const char *host)
+{
+  int nhosts = 0;
+// find host
+   EXEC SQL CONTEXT USE :ams_context;
+   EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getNominalHostId");
+   if (host) {
+    strcpy(thostname,host);
+    strtok(thostname,".");
+    suppressBlanks(thostname);
+    EXEC SQL SELECT id 
+                   INTO :thostid 
+                       FROM m_hostsid
+                           WHERE name = :thostname;
+    nhosts = sqlca.sqlerrd[2];
+    if (nhosts < 1) {
+     thostid = 0;
+    } else if (nhosts > 1) {
+     cout<<"AMSoracle::getNominalHostId -E- more than one host "<<thostname<<endl;
+    }
+ }
+  return thostid;
+}
+
+int AMSoracle::initActiveHostTables() 
+{
+
+   EXEC SQL CONTEXT USE :ams_context;
+
+   EXEC SQL WHENEVER SQLERROR DO 
+               sql_error("ORACLE error:AMSoracle::initActiveTables");
+
+
+   EXEC SQL DELETE m_active_hosts;
+
+   EXEC SQL DELETE m_hosts_duty;
+
+   Fmessage("AMSoracle::initActiveHostTables","Tables initialized","I");
+
+   return 1;
+}
+
+int AMSoracle::initProductionJob() 
+{
+
+   EXEC SQL CONTEXT USE :ams_context;
+
+   EXEC SQL WHENEVER SQLERROR DO 
+               sql_nothing("ORACLE warning:AMSoracle::initProductionJob");
+
+   tid = 0;
+   EXEC SQL SELECT COUNT(idx) INTO :tid FROM m_production;
+
+   if (tid < 1) 
+       tid = 1; 
+    else 
+       tid++;
+
+   tinsert = time((time_t)0);
+   time_to_oracle(tinsert, ctimei);
+   
+   EXEC SQL INSERT INTO m_production
+             VALUES(1, 
+                    :tid, 
+                    :tinsert, 
+                    0, 
+                   -1, 
+                   -1, 
+                   :tinsert, 
+                   TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS'),
+                   TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS'),
+                   'AMS01 Production test at CERN');
+
+
+
+   return 1;
+}
+
+int AMSoracle::updateProductionJob() 
+{
+
+   EXEC SQL CONTEXT USE :ams_context;
+
+   EXEC SQL WHENEVER SQLERROR DO 
+               sql_nothing("ORACLE warning:AMSoracle::updateProductionJob");
+
+   tinsert = time((time_t)0);
+   time_to_oracle(tinsert, ctimei);
+
+   EXEC SQL UPDATE m_production SET 
+            timestamp  = :tinsert,
+            lastupdate = TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS');
+
+   return 1;
+}
+
+int AMSoracle::resetActiveHostTables() 
+{
+
+    EXEC SQL CONTEXT USE :ams_context;
+   EXEC SQL WHENEVER SQLERROR DO 
+               sql_error("ORACLE error:AMSoracle::initActiveTables");
+
+   EXEC SQL CONTEXT USE :ams_context;
+
+   tinsert = time((time_t)0);
+
+   EXEC SQL UPDATE m_active_hosts SET active = 0, timestamp = :tinsert;
+
+   EXEC SQL UPDATE m_active_hosts SET STATUS = (SELECT n FROM 
+                   m_hoststatus WHERE status LIKE '%OK%');
+
+
+   EXEC SQL UPDATE m_hosts_duty SET atimestamp = :tinsert,
+                                    dtimestamp = 0,
+                                    timestamp  = :tinsert,
+                                    status     = (SELECT n FROM 
+                   m_hoststatus WHERE status LIKE '%OK%');
+
+         
+   Fmessage("AMSoracle::initActiveHostTables","Tables initialized","I");
+
+   return 1;
+}
+
+int AMSoracle::resetProdDSTTable() 
+{
+
+    EXEC SQL CONTEXT USE :ams_context;
+   EXEC SQL WHENEVER SQLERROR DO 
+               sql_error("ORACLE error:AMSoracle::initProdDSTTable");
+
+   EXEC SQL CONTEXT USE :ams_context;
+
+   EXEC SQL DELETE m_dst WHERE status != (SELECT n FROM 
+                   m_dststatus WHERE status LIKE '%Success%');
+
+   EXEC SQL UPDATE m_active_hosts SET STATUS = (SELECT n FROM 
+                   m_hoststatus WHERE status LIKE '%OK%');
+
+   Fmessage("AMSoracle::initActiveHostTables","Tables initialized","I");
+
+   return 1;
+}
+
+
+int AMSoracle::initActiveClientTables() 
+{
+
+    EXEC SQL CONTEXT USE :ams_context;
+   EXEC SQL WHENEVER SQLERROR DO 
+               sql_error("ORACLE error:AMSoracle::initActiveTables");
+
+   EXEC SQL CONTEXT USE :ams_context;
+
+//   EXEC SQL DELETE m_active_hosts;
+
+   EXEC SQL DELETE m_active_clients;
+   EXEC SQL DELETE m_active_clients_id;
+   EXEC SQL DELETE m_active_clients_ref;
+
+   Fmessage("AMSoracle::initActiveClientTables","Tables initialized","I");
+
+   return 1;
+}
+
+int AMSoracle::initNominalClientTables() 
+{
+   EXEC SQL CONTEXT USE :ams_context;
+
+   EXEC SQL WHENEVER SQLERROR DO 
+               sql_error("ORACLE error:AMSoracle::initNominalClientTables");
+
+
+   EXEC SQL DELETE m_nominal_clients WHERE id > 0;
+
+   Fmessage("AMSoracle::initNominalClientTables","Table initialiezed","I");
+   return 1;
+}
+
+int AMSoracle::initProdInfoTable() 
+{
+//
+// delete all information from m_prodinfo
+//
+   EXEC SQL CONTEXT USE :ams_context;
+   EXEC SQL WHENEVER SQLERROR DO 
+               sql_error("ORACLE error:AMSoracle::initProdInfoTable");
+
+   EXEC SQL DELETE m_prodinfo;
+
+   return 1;
+}
+
+int AMSoracle::resetProdInfoTable() 
+{
+//
+// leave information only about finished runs
+//
+   EXEC SQL CONTEXT USE :ams_context;
+   EXEC SQL WHENEVER SQLERROR DO 
+               sql_error("ORACLE error:AMSoracle::initProdInfoTable");
+
+   EXEC SQL DELETE m_prodinfo 
+            WHERE 
+                  status != 
+                  (SELECT n FROM m_runstatus WHERE status like '%Finished%');
+
+   return 1;
+}
+   
+int AMSoracle::initActiveHostTable(const unsigned int hoststatus)
+{
+ int rstatus  = -1;
+ int nhosts   =  0;
+ int nclients =  0;
+
+   EXEC SQL CONTEXT USE :ams_context;
+   EXEC SQL WHENEVER SQLERROR DO 
+               sql_error("ORACLE error:AMSoracle::initActiveHostTable");
+//
+// it is assumed there are < 50 NOMINAL HOSTS
+//
+   EXEC SQL OPEN NHosts_Cursor;
+   EXEC SQL WHENEVER NOT FOUND DO sql_notfound("nothing is selected");
+   
+   
+    EXEC SQL FETCH NHosts_Cursor INTO :nominalhost;
+    nhosts = sqlca.sqlerrd[2];
+    if (nhosts < 1) {
+     cout<<"AMSoracle::initActiveHostTable -E- table m_nominal_hosts empty "<<endl;
+     return rstatus;
+    } 
+   EXEC SQL CLOSE NHosts_Cursor;
+
+//
+// it is assumed there are < 50 NOMINAL CLIENTS
+//
+   EXEC SQL OPEN NClients_Cursor;
+   EXEC SQL FETCH NClients_Cursor INTO :nominaldesc;
+    nclients = sqlca.sqlerrd[2];
+    if (nclients < 1) {
+     cout<<"AMSoracle::initActiveHostTable -E- table m_nominal_clients empty"<<endl;
+     return rstatus;
+    } 
+   EXEC SQL CLOSE NClients_Cursor;
+   EXEC SQL WHENEVER NOT FOUND DO sql_notfound("nothing is selected");
+
+//
+// ANYWAY ONLY FIRST 50 HOSTS AND FIRST 50 CLIENTS ARE PROCESSED
+//
+    tinsert = time((time_t)0);
+    time_to_oracle(tinsert, ctimei);
+    tstatus = hoststatus;
+    for (int i=0; i<nhosts; i++) {
+     if(nominalhost[i].ncpu > 0 && nominalhost[i].memory) {
+      for (int j=0; j<nclients; j++) {
+       tint = nominalhost[i].ncpu/nominaldesc[j].cpu;
+       if (tint > nominalhost[i].memory/nominaldesc[j].memory) 
+        tint = nominalhost[i].memory/nominaldesc[j].memory;
+        cout<<nominalhost[i].name<<" "<<nominaldesc[j].type<<" allowed "<<tint
+            <<" mem "<<nominalhost[i].memory<<", "<<nominaldesc[j].memory
+            <<" cpu "<<nominalhost[i].ncpu<<", "<<nominaldesc[j].cpu<<endl;
+        ttype = nominaldesc[j].type;
+        EXEC SQL INSERT INTO m_active_hosts 
+                      VALUES(:ttype, 
+                             :nominalhost[i].id,
+                             :nominalhost[i].interface,
+                             :tstatus,
+                             0,
+                             :tint,
+                             0,
+                             0,
+                             0,
+                             :tinsert,
+                             :nominalhost[i].clock,
+                             TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS'),
+                             0,
+                             :tinsert);
+        EXEC SQL INSERT INTO m_hosts_duty 
+                       VALUES(:nominalhost[i].id,
+                              :tstatus,
+                              0,
+                              0,
+                              :tinsert,
+                              0,
+                              :tinsert);
+     }
+    }
+   }
+    commit();
+ return 1;
+}
+
+     
+int AMSoracle::findActiveHost(const char *host)
+{
+   thostid = 0;
+   EXEC SQL CONTEXT USE :ams_context;
+   EXEC SQL WHENEVER SQLERROR DO sql_nothing("ORACLE warning: AMSoracle::findActiveHost");
+   if (host) {
+// find host
+     strcpy(thostname,host);
+     strtok(thostname,".");
+     EXEC SQL SELECT MAX(m_active_hosts.id) INTO :thostid 
+             FROM m_active_hosts, m_nominal_hosts 
+                    WHERE m_active_hosts.id = m_nominal_hosts.id 
+                          AND
+                          m_nominal_hosts.name = :thostname;
+     if (thostid < 1) {
+      cout<<"AMSoracle::findhost -W- host "<<thostname
+           <<" unknown or tables are empty"<<endl;
+      thostid = 0;
+   } 
+  }
+  return thostid;
+}
+
+int AMSoracle::findActiveHost(const char *host, unsigned int type)
+{
+    thostid = 0;
+// find host
+   EXEC SQL CONTEXT USE :ams_context;
+    EXEC SQL WHENEVER SQLERROR DO 
+                      sql_nothing("ORACLE warning: AMSoracle::findActiveHost");
+    if (host) {
+     strcpy(thostname,host);
+     strtok(thostname,".");
+     suppressBlanks(thostname);
+     ttype = type;
+     EXEC SQL SELECT MAX(m_active_hosts.id) INTO :thostid 
+             FROM m_active_hosts, m_nominal_hosts 
+                    WHERE m_active_hosts.id = m_nominal_hosts.id 
+                          AND
+                          m_nominal_hosts.name = :thostname 
+                          AND
+                          m_active_hosts.type = :ttype;
+
+     if (sqlca.sqlerrd[2] != 1) {
+      cout<<"AMSoracle::findhost -W- host "<<thostname
+          <<" for client type "<<type
+          <<" unknown or m_active_hosts is empty"<<endl;
+      thostid = 0;
+   } 
+  }
+  return thostid;
+}
+
+int AMSoracle::updateActiveHost(unsigned int type,
+                                const char *host,
+                                unsigned int status,
+                                short int    clactive,
+                                short int    clallowed,
+                                unsigned int clprocessed,
+                                unsigned int clfailed,
+                                unsigned int clkilled,
+                                unsigned int lastfailed,
+                                unsigned int lastupd)
+
+{
+ int rstatus = -1;
+ int hostid  = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error:AMSoracle::updateActiveHost");
+
+ if (host) {
+  tinsert = time((time_t)0);
+  thostid = AMSoracle::findActiveHost(host, type);
+  if (thostid > 0) {
+    ttype        = type;
+    tstatus      = status;
+    tclactive    = clactive;
+    tclallowed   = clallowed;
+    tclprocessed = clprocessed;
+    tclfailed    = clfailed;
+    tclkilled    = clkilled;
+    tlastupdate  = lastupd;
+    tlastfailed  = lastfailed;
+    time_to_oracle(lastupd,ctimei);
+    if (tclallowed < tclactive) {
+     cout<<"---update------------ "<<tclallowed<<" "<<tclactive<<endl; 
+     cout<<"-------for host/type- "<<thostid<<" "<<ttype<<endl; 
+    }
+    EXEC SQL UPDATE m_active_hosts 
+             SET
+                status  =     :tstatus,
+                active  =     :tclactive,
+                allowed =     :tclallowed,
+                processed =   :tclprocessed,
+                failed    =   :tclfailed,
+                killed    =   :tclkilled,
+                lastuptime  = TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS'),
+                lastupdate =  :tlastupdate,
+                lastfailed =  :tlastfailed,
+                timestamp  =  :tinsert
+                WHERE id   = :thostid AND type = :ttype; 
+
+     EXEC SQL SELECT status, acttime, downtime, atimestamp, dtimestamp
+               INTO :tstatus, :tatime, :tdtime, :tatimestamp, :tdtimestamp 
+                            FROM m_hosts_duty 
+                            WHERE id = :thostid;
+     EXEC SQL SELECT n INTO :statusok FROM m_hoststatus 
+                            WHERE status LIKE '%OK%';
+     EXEC SQL SELECT n INTO :statuslf FROM m_hoststatus 
+                            WHERE status LIKE '%LastClientFailed%';
+
+// tstatus - host status from m_hosts_duty
+// status  - new status
+     if (tstatus == status || status == statuslf) { 
+// set timestamp , nothing changed
+       EXEC SQL UPDATE m_hosts_duty SET timestamp = :tinsert;
+     } else {
+       cout<<"Host "<<host<<endl;
+       cout<<"Host status changed "<<tstatus<<" to "<<status<<endl;
+// check is new status 'OK', 'LastClientFailed' or something else
+       if (status == statusok) {
+// new status 'OK'
+         if (tdtimestamp != 0) {
+          tdtime = tdtime + tinsert - tdtimestamp;
+         }
+         tatimestamp = tinsert;
+// new status !'OK'
+        } else {
+          if (tatimestamp != 0) {
+           tatime = tatime + tinsert - tatimestamp;
+          }
+         tdtimestamp = tinsert;
+       }
+      EXEC SQL UPDATE m_hosts_duty SET status = :tstatus,
+                                       acttime = :tatime,
+                                       downtime = :tdtime,
+                                       atimestamp = :tatimestamp,
+                                       dtimestamp = :tdtimestamp,
+                                       timestamp  = :tinsert
+                                   WHERE id = :thostid;
+    }
+    rstatus = 1;
+   
+  }
+ }
+ return rstatus;
+}
+
+int AMSoracle::insertActiveHost(unsigned int type,
+                                const char *host,
+                                unsigned int status,
+                                short int    clactive,
+                                short int    clallowed,
+                                unsigned int clprocessed,
+                                unsigned int clfailed,
+                                unsigned int clkilled,
+                                unsigned int lastupd)
+
+{
+ int rstatus = -1;
+ int nhosts;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error:AMSoracle::insertActiveHost");
+
+ if (host) {
+   strcpy(thostname,host);
+   strtok(thostname,".");
+   EXEC SQL SELECT id, interface, clock 
+            INTO   :tid, :tint, :tclock 
+            FROM m_nominal_hosts
+            WHERE name = :thostname;
+   nhosts = sqlca.sqlerrd[2];
+   if(nhosts == 1) {
+    ttype        = type;
+    tstatus      = status;
+    tclactive    = clactive;
+    tclallowed   = clallowed;
+    tclprocessed = clprocessed;
+    tclfailed    = clfailed;
+    tclkilled    = clkilled;
+    tlastupdate  = lastupd;
+    tinsert = time((time_t)0);
+    time_to_oracle(tinsert, ctimei);
+    if (tclallowed < tclactive) {
+     cout<<"----insert----------- "<<tclallowed<<" "<<tclactive<<endl; 
+     cout<<"-------for host/type- "<<thostid<<" "<<ttype<<endl; 
+    }
+      cout<<"AMSoracle::insertActiveHost -I- add host "<<thostname<<endl;
+      EXEC SQL INSERT INTO m_active_hosts 
+                      VALUES(:ttype, 
+                             :tid,
+                             :tint,
+                             :tstatus,
+                             :tclactive,
+                             :tclallowed,
+                             :tclprocessed,
+                             :tclfailed,
+                             :tclkilled,
+                             :tlastupdate,
+                             :tclock,
+                             TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS'),
+                             0,
+                             :tinsert);
+
+   EXEC SQL WHENEVER SQLERROR DO 
+                    sql_nothing("ORACLE warning:AMSoracle::insertActiveHost");
+       EXEC SQL SELECT id INTO :tid FROM m_hosts_duty WHERE 
+                       id = :tid;
+       if (sqlca.sqlerrd[2] != 1) {
+        tdtimestamp = 0;
+        if (tstatus != statusok) {
+         EXEC SQL SELECT n INTO :statusok FROM m_hoststatus 
+                            WHERE status LIKE '%OK%';
+         tdtimestamp = tinsert+1;
+        }
+        EXEC SQL INSERT INTO m_hosts_duty 
+                       VALUES(:tid,
+                              :tstatus,
+                              0,
+                              0,
+                              :tinsert,
+                              :tdtimestamp,
+                              :tinsert);
+      }
+
+    rstatus = 1;
+   
+  } else if (nhosts > 1)  {
+   cout<<"AMSoracle::insertActiveHost -E- more than one nominal host "
+       <<thostname<<endl;
+  } else {
+   cout<<"AMSoracle::insertActiveHost -E- nominal host "
+       <<thostname<<" not found "<<endl;
+  }
+ }
+ return rstatus;
+}
+
+int AMSoracle::deleteActiveHost(const unsigned int cltype)
+{
+ int rstatus = -1;
+ 
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::deleteActiveHost");
+
+ ttype = cltype;
+
+    EXEC SQL DELETE m_active_hosts WHERE m_active_hosts.type = :ttype;
+    rstatus = 1;
+
+ return rstatus;
+}
+
+int AMSoracle::deleteActiveHost(const char *host)
+{
+ int rstatus = -1;
+ 
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::deleteActiveHost");
+
+ if (host) {
+  int thostid = AMSoracle::findActiveHost(host);
+  if (thostid > 0) {
+    EXEC SQL DELETE m_active_hosts 
+             WHERE m_active_hosts.id = :thostid;
+    rstatus = 1;
+  }
+ }
+ return rstatus;
+}
+
+int AMSoracle::deleteActiveHost(unsigned int type, const char *host)
+{
+ int rstatus = -1;
+ 
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::deleteActiveHost");
+
+ if (host) {
+  ttype = type;
+  int thostid = AMSoracle::findActiveHost(host, type);
+  if (thostid > 0) {
+    EXEC SQL DELETE m_active_hosts 
+             WHERE m_active_hosts.id = :thostid AND
+                   m_active_hosts.type = :ttype;
+    rstatus = 1;
+  }
+ }
+ return rstatus;
+}
+
+int AMSoracle::deleteHostActiveClients(const char *host)
+{
+ int rstatus = -1;
+ 
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::deleteHostActiveClients");
+
+ if (host) {
+  int thostid = AMSoracle::findActiveHost(host);
+  if (thostid > 0) {
+    EXEC SQL SELECT id INTO :tids FROM m_active_clients_id
+             WHERE  hostid = :thostid;
+
+   tint = sqlca.sqlerrd[2];
+   if (tint > 0) {
+    EXEC SQL FOR :tint DELETE FROM m_active_clients 
+             WHERE id = :tids;
+    EXEC SQL FOR :tint DELETE FROM m_active_clients_ref 
+             WHERE id = :tids;
+    EXEC SQL DELETE FROM m_active_clients_id 
+             WHERE hostid = :thostid;
+   }
+
+    rstatus = 1;
+  } else {
+   cout<<"AMSoracle::deleteHostActiveClients -E- unknow host "<<host<<endl;
+  }
+ }
+ return rstatus;
+}
+
+int AMSoracle::deleteHostActiveClients(unsigned int type, const char *host)
+{
+ int rstatus = -1;
+ 
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::deleteHostActiveClients");
+
+ if (host) {
+  int thostid = AMSoracle::findActiveHost(host);
+  if (thostid > 0) {
+    ttype = type;
+    EXEC SQL SELECT id INTO :tids FROM m_active_clients_id
+             WHERE  hostid = :thostid AND 
+                    type   = :ttype;
+
+   tint = sqlca.sqlerrd[2];
+   if (tint > 0) {
+    EXEC SQL FOR :tint DELETE FROM m_active_clients 
+             WHERE id = :tids;
+    EXEC SQL FOR :tint DELETE FROM m_active_clients_ref 
+             WHERE id = :tids;
+    EXEC SQL DELETE FROM m_active_clients_id 
+             WHERE hostid = :thostid;
+   }
+
+    rstatus = 1;
+  } else {
+   cout<<"AMSoracle::deleteHostActiveClients -E- unknow host "<<host<<endl;
+  }
+ }
+ return rstatus;
+}
+
+int AMSoracle::deleteNominalHosts()
+{
+ int rstatus = -1;
+ 
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::deleteNominalHosts");
+
+    EXEC SQL DELETE m_nominal_hosts ;
+    rstatus = 1;
+
+ return rstatus;
+}
+
+int AMSoracle::deleteRunEvInfo(const unsigned int status)
+{
+ int rstatus = -1;
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::deleteRunEvInfo");
+ tstatus = status; 
+ EXEC SQL DELETE m_runtable WHERE status = :tstatus;
+ EXEC SQL DELETE m_prodinfo WHERE status = :tstatus;
+ EXEC SQL DELETE m_prodruns WHERE status = :tstatus;
+
+ return 1;
+}
+
+int AMSoracle::deleteNominalHost(const char *host)
+{
+ int rstatus = -1;
+ 
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::deleteNominalHost");
+
+ if (host) {
+    strcpy(thostname,host);
+    strtok(thostname,".");
+    EXEC SQL DELETE m_nominal_hosts 
+             WHERE 
+                    m_nominal_hosts.name = :thostname;
+    rstatus = 1;
+ }
+ return rstatus;
+}
+
+int AMSoracle::insertHostId(unsigned int id, const char *name)
+{
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::insertHostId");
+  tid = id;
+  strcpy(thostname,name);
+  EXEC SQL INSERT INTO m_hostsid VALUES(:thostname, :tid);
+}
+ 
+int AMSoracle::insertNominalHost(
+                                 const char *name,
+                                 const char *interface,
+                                 const char *platform,
+                                 const short int ncpu,                   
+                                 const short int memory,                   
+                                 const int clock)                   
+{   
+ int rstatus = -1;
+ int hostid  = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::insertNominalHost");
+
+ if (name) {
+   unsigned int interfaceType       = findInterface(interface);
+   unsigned int platformType        = findPlatform(platform);
+   strcpy(thostname, name);
+   strtok(thostname,".");
+   unsigned int hid  = AMSoracle::findHost(thostname);
+   if (!hid) {
+    hid = getNominalHostId(thostname);
+    if (!hid) {
+     hid = getNominalHostNextId();
+     insertHostId(hid, thostname);
+    }
+     thostid = hid;
+     tcpu    = ncpu;
+     tmem    = memory;
+     tclock  = clock;
+     tinsert = time((time_t)0);
+     tint    = interfaceType;
+     tplat   = platformType;
+
+     EXEC SQL INSERT INTO m_nominal_hosts 
+                    VALUES(:thostname, 
+                           :thostid,
+                           :tint,
+                           :tplat,
+                           0,
+                           :tcpu,
+                           :tmem,
+                           :tclock,
+                           :tinsert);
+
+     rstatus = 1;
+    if (hid == 0) {
+     cout<<"AMSoracle::insertNominalHost -W- "<<thostname
+         <<" not exists in m_hostsid"<<endl;
+    }
+   } else {
+    cout<<"AMSoracle::insertNominalHost -W- "<<name
+        <<" exists in m_nominal_hosts"<<endl;
+  }
+ }
+ return rstatus;
+}
+
+int AMSoracle::getNominalHostN()
+{
+  Nids = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getNominalHostN");
+ 
+  Nids = 0;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getNominalHostN");
+
+  EXEC SQL SELECT COUNT(id) INTO Nids FROM m_nominal_hosts 
+           WHERE id > 0;
+
+ return Nids;
+
+}
+
+int AMSoracle::getNominalHostList(NominalHost *hostl)
+{
+ int rstatus = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getNominalHostList");
+
+  EXEC SQL SELECT m_nominal_hosts.*, 
+                  m_interfaces.name, 
+                  m_platforms.type
+           INTO :nominalhost, :interfaces, :platforms
+           FROM m_nominal_hosts, m_interfaces, m_platforms  
+           WHERE
+                m_nominal_hosts.interface = m_interfaces.id AND
+                m_nominal_hosts.platform  = m_platforms.id;
+           
+   int n = sqlca.sqlerrd[2];
+   if ( n < 1) {
+    cout<<"AMSoracle::getNominalHostList -E- no info in m_nominal_hosts table "<<endl;
+    n = 0; 
+  } else {
+    for (int i=0; i<n; i++) {
+         hostl[i].set(nominalhost[i].name,
+                      interfaces[i].name,
+                      platforms[i].type,
+                      nominalhost[i].ncpu,
+                      nominalhost[i].memory,
+                      nominalhost[i].clock);
+    }
+   rstatus = n;
+  }
+ return rstatus;
+}
+int AMSoracle::getActiveHostN()
+{
+  Nids = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getActiveHostN");
+ 
+  Nids = 0;
+
+  EXEC SQL SELECT COUNT(id) INTO Nids FROM m_active_hosts;
+
+ return Nids;
+}
+
+int AMSoracle::getActiveHostN(unsigned int type)
+{
+  Nids = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getActiveHostN");
+ 
+  Nids = 0;
+  ttype = type;
+  EXEC SQL SELECT COUNT(id) INTO Nids FROM m_active_hosts
+           WHERE type = :ttype;
+
+ return Nids;
+}
+
+int AMSoracle::getActiveHostList(unsigned int cltype, unsigned int hostid, ActiveHost *hostl)
+{
+ int N  = 0;
+ bool ct = 0;
+
+ if (hostid > 0) ct = 1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+           sql_error("ORACLE error: AMSoracle::getActiveHostList");
+
+  if (hostl) {
+   ttype = cltype;
+   if (!ct) {
+      EXEC SQL OPEN  AHT_Cursor;
+   } else {
+    ttype = cltype;
+    thostid = hostid;
+      EXEC SQL OPEN  AHH_Cursor;
+   }
+
+
+   EXEC  SQL WHENEVER NOT FOUND DO BREAK;
+
+   for (;;)
+   {
+     if (!ct) {
+      EXEC SQL FETCH AHT_Cursor INTO 
+                                     :tstatus,
+                                     :tclactive,
+                                     :tclallowed,
+                                     :tclprocessed,
+                                     :tclfailed,
+                                     :tclkilled,
+                                     :tlastupdate,
+                                     :tclock,
+                                     :thostname,
+                                     :tinterface;
+     } else {
+      EXEC SQL FETCH AHH_Cursor INTO 
+                                     :tstatus,
+                                     :tclactive,
+                                     :tclallowed,
+                                     :tclprocessed,
+                                     :tclfailed,
+                                     :tclkilled,
+                                     :tlastupdate,
+                                     :tclock,
+                                     :thostname,
+                                     :tinterface;
+
+     }
+         hostl[N].set(thostname,
+                      tinterface,
+                      tstatus,
+                      tclactive,
+                      tclallowed,
+                      tclprocessed,
+                      tclfailed,
+                      tclkilled,
+                      tlastupdate,
+                      tclock);
+    N++;
+    if (tclallowed < tclactive) {
+     cout<<"----get----------- "<<tclallowed<<" "<<tclactive<<endl; 
+     cout<<"-------for host/type- "<<thostname<<" "<<ttype<<endl; 
+    }
+    if (ct) break;
+  }
+
+  if (!ct) {
+   EXEC SQL CLOSE  AHT_Cursor;
+  } else {
+   EXEC SQL CLOSE  AHH_Cursor;
+  }
+  EXEC SQL WHENEVER NOT FOUND DO sql_notfound("nothing is selected");
+ }
+ return N;
+}
+
+
+int AMSoracle::getHost(unsigned int type, ActiveHost *hostl)
+{
+// return the hostname to start new client 
+//
+// return 0 - no available host
+//        1 - host found
+//       -1 - error
+//
+ int rstatus = -1;
+ 
+  if (hostl) {
+   ttype = type;
+
+   EXEC SQL CONTEXT USE :ams_context;
+
+   EXEC SQL WHENEVER SQLERROR DO sql_nothing("ORACLE warning: AMSoracle::getHost");
+
+   EXEC SQL SELECT COUNT(id) INTO :tactiveclients
+            FROM m_active_clients_id 
+            WHERE 
+                m_active_clients_id.id > 0 AND
+                m_active_clients_id.type = :ttype;
+
+    EXEC SQL SELECT maxclients INTO :tmaxclients  
+             FROM m_nominal_clients, m_nominal_hosts 
+             WHERE m_nominal_clients.type = :ttype AND 
+                  (m_nominal_clients.hostid = m_nominal_hosts.id AND
+                   m_nominal_hosts.name = 'defaulthost');
+   if (tactiveclients < tmaxclients) {         
+    EXEC SQL SELECT m_active_hosts.id
+            INTO :tids
+                  FROM m_active_hosts 
+                  WHERE
+                     m_active_hosts.status =
+                      (SELECT n from m_hoststatus WHERE STATUS LIKE 'OK')
+                    AND
+                     m_active_hosts.active < m_active_hosts.allowed
+                    AND
+                     m_active_hosts.type = :ttype 
+                    ORDER BY 
+                     m_active_hosts.active,
+                     m_active_hosts.lastfailed,
+                     m_active_hosts.clock DESC; 
+     if (sqlca.sqlerrd[2] < 1) {
+     EXEC SQL SELECT m_active_hosts.id
+            INTO :tids
+            FROM m_active_hosts 
+            WHERE
+                m_active_hosts.status =
+            (SELECT n from m_hoststatus WHERE STATUS LIKE 'LastClientFailed')
+               AND
+                m_active_hosts.active < m_active_hosts.allowed
+               AND
+                m_active_hosts.type = :ttype 
+               ORDER BY 
+                 m_active_hosts.active,
+                 m_active_hosts.lastfailed,
+                 m_active_hosts.clock DESC; 
+     }
+     if (sqlca.sqlerrd[2] > 0) {
+       unsigned int hostid = tids[0];
+       rstatus = getActiveHostList(type, hostid, hostl);
+      } else {
+       rstatus = 0;
+      }
+   } else {
+    rstatus = 0;
+    if (debug > 1) 
+     cout<<"AMSoracle::getHost -I- no free slot to start client. "
+         <<" maxclients/running : "<<tint<<"/"<<tid<<endl;
+   }
+  }
+  return rstatus;
+}
+
+//
+// Client table  subroutines
+//
+
+int AMSoracle::setActiveHostStatus(const unsigned int status, 
+                                   const unsigned int type,
+                                   const char *hostname) 
+{
+ int rstatus = 0;
+
+ EXEC SQL CONTEXT USE :ams_context;
+
+ 
+ EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE warning: AMSoracle::setActiveHostStatus");
+ tstatus = status;
+ ttype   = type;
+ thostid = AMSoracle::findHost(hostname);
+ if (thostid) {
+  tinsert = time((time_t)0);
+  time_to_oracle(tinsert, ctimei);
+  EXEC SQL UPDATE m_active_hosts 
+           SET 
+                status = :tstatus, 
+                timestamp = :tinsert
+           WHERE type = :ttype and id = :thostid;
+
+  commit();
+  rstatus = 1;
+ }
+ return rstatus;
+}
+
+unsigned int AMSoracle::getActiveClientNextId(const unsigned int type)
+{
+  int rstatus = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE warning: AMSoracle::getActiveClientNextId");
+
+  ttype = type;
+  EXEC SQL SELECT MAX(id) INTO :tidx  FROM m_active_clients
+           WHERE type = :ttype;
+
+  if (tidx < 1) {
+    tidx = 1;
+  } else {
+    tidx++;
+  }
+  return tidx;
+}
+
+unsigned int AMSoracle::getNominalHostNextId()
+{
+  int rstatus = 0;
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_nothing("ORACLE warning: AMSoracle::getNominalHostNextId");
+  EXEC SQL SELECT MAX(id) INTO :tid  FROM m_nominal_hosts;
+  int n = sqlca.sqlerrd[2];
+  if ( n > 0) {
+   tid++;
+  } else {
+    tid = 1;
+  }
+
+  return tid;
+}
+
+unsigned int AMSoracle::getHostId(const char *name)
+{
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getNominalHostNextId");
+
+  EXEC SQL SELECT id INTO :tid  FROM m_hostsid
+           WHERE name = :thostname;
+
+  if (tid < 1) {
+    tid = 0;
+  }
+
+  return tid;
+}
+
+int AMSoracle::findActiveClient(const unsigned int id,
+                                const unsigned int type)
+{
+  int rstatus = 0;
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::findActiveClient");
+
+   tid   = id;
+   ttype = type;
+   EXEC SQL SELECT id INTO tidx FROM m_active_clients 
+                      WHERE id = :tid AND type = :ttype;
+   if (sqlca.sqlerrd[2] == 1) rstatus = 1;
+
+   return rstatus;
+}
+
+int AMSoracle::updateActiveClient(const unsigned int id, 
+                                  const unsigned int type,
+                                  const unsigned int lastupdate,
+                                  const unsigned int starttime,
+                                  const unsigned int status)
+//
+// insert new record or update lastupdate, status, timestamp if
+// client with given ID already exists
+//
+{
+
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+           sql_error("ORACLE error: AMSoracle::updateActiveClient");
+
+    tid   = id;
+    ttype = type;
+    tlastupdate = lastupdate;
+    tstarttime  = starttime;
+    tstatus     = status;  
+    tinsert     = time((time_t)0);
+    time_to_oracle(tinsert, ctimei);
+    time_to_oracle(tstarttime, ctimeb);
+      EXEC SQL UPDATE m_active_clients 
+                    SET
+                     lastupdate = :tlastupdate,
+                     starttime  = :tstarttime,
+                     status     = :tstatus,
+                     starttimea = TO_DATE(:ctimeb,'DD-MON-YYYY HH24:MI:SS'),
+                     lasttime   = TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS'),
+                     timestamp  = :tinsert
+           WHERE id = :tid AND type = :ttype;
+
+     rstatus = 1;
+
+ return rstatus;
+}
+
+int AMSoracle::insertActiveClient(const unsigned int id, 
+                                  const unsigned int type,
+                                  const unsigned int lastupdate,
+                                  const unsigned int starttime,
+                                  const unsigned int status)
+//
+// insert new record or update lastupdate, status, timestamp if
+// client with given ID already exists
+//
+{
+
+ int rstatus = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+           sql_error("ORACLE error: AMSoracle::insertActiveClient");
+
+    tid   = id;
+    ttype = type;
+    tlastupdate = lastupdate;
+    tstarttime  = starttime;
+    tstatus     = status;  
+    tinsert     = time((time_t)0);
+    time_to_oracle(tinsert, ctimei); 
+    time_to_oracle(tstarttime, ctimeb); 
+   EXEC SQL INSERT INTO m_active_clients 
+              VALUES(:tid,
+                     :ttype,
+                     :tlastupdate,
+                     :tstarttime,
+                     :tstatus,
+                     TO_DATE(:ctimeb,'DD-MON-YYYY HH24:MI:SS'),
+                     TO_DATE(:ctimei,'DD-MON-YYYY HH24:MI:SS'),
+                     :tinsert);
+     rstatus = 1;
+
+ return rstatus;
+}
+
+
+int AMSoracle::incHostClientsProcessed(unsigned int id, unsigned int type)
+{
+ int rstatus = -1;
+ 
+    EXEC SQL CONTEXT USE :ams_context;
+
+ thostid = getHostId(id);
+ if (thostid > 0) {
+  ttype = type;
+  tinsert = time((time_t)0);
+  time_to_oracle(tinsert, ctimei);
+  EXEC SQL UPDATE m_active_hosts 
+           SET 
+                processed = processed + 1,
+                timestamp = :tinsert
+           WHERE id = :thostid AND type = :ttype;
+  rstatus = 1;
+ } else {
+  Fmessage("AMSoracle::incHostClientsProcessed"," cannot find host ","E");
+ }
+ return rstatus;
+}
+
+int AMSoracle::incHostClientsFailed(unsigned int id, unsigned int type)
+{
+ int  rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+ 
+ thostid = getHostId(id);
+ if (thostid > 0) {
+  ttype = type;
+  tinsert = time((time_t)0);
+  time_to_oracle(tinsert, ctimei);
+  EXEC SQL UPDATE m_active_hosts 
+           SET failed = failed + 1,
+               lastfailed = :tinsert,
+               timestamp  = :tinsert
+           WHERE id = :thostid AND type = :ttype;
+  rstatus = 1;
+ } else {
+  Fmessage("AMSoracle::incHostClientsFailed"," cannot find host ","E");
+ }
+ return rstatus;
+}
+
+int AMSoracle::incHostClientsKilled(unsigned int id, unsigned int type)
+{
+ int  rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+ 
+ thostid = getHostId(id);
+ if (thostid > 0) {
+  ttype = type;
+  tinsert = time((time_t)0);
+  time_to_oracle(tinsert, ctimei);
+  EXEC SQL UPDATE m_active_hosts 
+           SET killed = killed + 1,
+               timestamp = :tinsert
+           WHERE id = :thostid AND type = :ttype;
+  rstatus = 1;
+ } else {
+  Fmessage("AMSoracle::incHostClientsKilled"," cannot find host ","E");
+ }
+ return rstatus;
+}
+
+int AMSoracle::incHostClientsActive(unsigned int id, unsigned int type)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+ 
+ thostid = getHostId(id);
+ if (thostid > 0) {
+  ttype = type;
+  tinsert = time((time_t)0);
+  time_to_oracle(tinsert, ctimei);
+  EXEC SQL UPDATE m_active_hosts 
+           SET active = active + 1,
+               timestamp = :tinsert 
+           WHERE id = :thostid AND type = :ttype;
+  rstatus = 1;
+ } else {
+  Fmessage("AMSoracle::incHostClientsActive"," cannot find host ","E");
+ }
+ return rstatus;
+}
+
+int AMSoracle::decHostClientsActive(unsigned int id, unsigned int type)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+ EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::decHostClientsActive");
+
+ thostid = getHostId(id);
+ if (thostid > 0) {
+  ttype = type;
+  tinsert = time((time_t)0);
+  time_to_oracle(tinsert, ctimei);
+  EXEC SQL SELECT active INTO :tint 
+           FROM m_active_hosts 
+           WHERE id = :thostid AND type = :ttype;
+  if (tint > 0) {
+   tint--;
+   EXEC SQL UPDATE m_active_hosts 
+            SET active = :tint,
+                timestamp = :tinsert
+           WHERE id = :thostid AND type = :ttype;
+  }
+  rstatus = 1;
+ } else {
+  Fmessage("AMSoracle::incHostClientsProcessed"," cannot find host ","E");
+ }
+ return rstatus;
+}
+
+int AMSoracle::setClientStatus(unsigned int id, unsigned int status)
+{
+ int rstatus = -1;
+ 
+  EXEC SQL CONTEXT USE :ams_context;
+
+ thostid = getHostId(id);
+ if (thostid > 0) {
+  tinsert = time((time_t)0);
+  time_to_oracle(tinsert, ctimei);
+  tstatus - status;
+  EXEC SQL UPDATE m_active_hosts 
+           SET status = :tstatus,
+               timestamp = :tinsert
+           WHERE id = :thostid;
+  rstatus = 1;
+ } else {
+  Fmessage("AMSoracle::setClientStatus"," cannot find host ","E");
+ }
+ return rstatus;
+}
+
+
+
+
+ 
+int AMSoracle::insertActiveClientRef(const unsigned int id, 
+                                     const unsigned int cltype,
+                                     const char *ior,
+                                     const char *interface,
+                                     const unsigned int reftype,
+                                     const unsigned int uid)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+       sql_error("ORACLE error: AMSoracle::insertActiveClientRef");
+
+   if (ior && interface) {
+      tidx = findInterface(interface);  
+      if (tidx > 0) {
+       tid = id;
+       tuid = uid;
+       ttype = cltype;
+       treftype = reftype;
+       strcpy(tior,ior);
+       EXEC SQL INSERT INTO m_active_clients_ref 
+                VALUES(:tid, :tior, :ttype, :treftype, :tidx, :tuid);
+       rstatus = 1;
+      } else {
+       cout<<
+        "AMSoracle::insertActiveClientRef -E- unknown interface '"
+        <<interface<<"'"<<endl;
+      }    
+  } else {
+    cout<<
+        "AMSoracle::insertActiveClientRef -E- problem with id OR ior OR interface "
+        <<endl;
+  }
+ return rstatus;
+}
+
+
+
+int AMSoracle::updateActiveClientId(const unsigned int id, 
+                                    const unsigned int cltype,
+                                    const unsigned int status)
+{
+ int rstatus = -1;
+  EXEC SQL CONTEXT USE :ams_context;
+
+
+  EXEC SQL WHENEVER SQLERROR DO 
+           sql_error("ORACLE error: AMSoracle::updateActiveClientId");
+
+      tid   = id;
+      ttype = cltype;
+      tstatus     = status;  
+      tinsert     = time((time_t)0);
+      EXEC SQL UPDATE m_active_clients_id 
+               SET exitingstatus    = :tstatus,
+                   lastupdate       = :tinsert,  
+                   timestamp        = :tinsert 
+              WHERE id = :tid AND type = :ttype;
+     rstatus = 1;
+
+ return rstatus;
+}
+
+int AMSoracle::insertActiveClientId(const unsigned int id, 
+                              const unsigned int pid,
+                              const unsigned int ppid,
+                              const char  *host,
+                              const unsigned int type,
+                              const unsigned int status,
+                              const char   *interface)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::insertActiveClientId");
+
+   if (host && interface) {
+     tidx    = findInterface(interface);
+     thostid = findHost(host);
+     if (tidx > 0 && thostid > 0) {
+      tid   = id;
+      tpid  = pid;
+      tppid = ppid;
+      ttype = type;
+      tstatus     = status;  
+      tinsert     = time((time_t)0);
+      EXEC SQL INSERT INTO m_active_clients_id 
+              VALUES(:tid,
+                     :tpid,
+                     :tppid,
+                     :thostid,
+                     :ttype,
+                     :tstatus,
+                     :tidx,
+                     :tinsert);
+     rstatus = 1;
+    } 
+ } else {
+   cout<<"AMSoracle::insertActiveClientID -E- problem with id OR ior OR interface "
+        <<endl;
+ }
+ return rstatus;
+}
+
+int AMSoracle::deleteActiveClient(const unsigned int id,
+                                  const unsigned int type)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::deleteActiveClient");
+
+   if (findActiveClient(id, type) == 1) {
+    tid   = id;
+    ttype = type;
+    EXEC SQL DELETE  
+             FROM 
+                 m_active_clients 
+             WHERE id = :tid AND type = :ttype;
+    EXEC SQL DELETE  
+             FROM 
+                 m_active_clients_ref
+             WHERE id = :tid AND type = :ttype;
+
+    EXEC SQL SELECT hostid INTO :thostid 
+             FROM   m_active_clients_id
+             WHERE  id = :tid AND type = :ttype;
+
+    EXEC SQL DELETE  
+             FROM 
+                 m_active_clients_id 
+             WHERE id = :tid AND type = :ttype;
+
+    rstatus = 1;
+    
+  } 
+ return rstatus;
+}
+
+int AMSoracle::deleteActiveClient(const unsigned int type)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::deleteActiveClient");
+
+    ttype = type;
+    EXEC SQL DELETE  
+             FROM 
+                 m_active_clients 
+             WHERE type = :ttype;
+    EXEC SQL DELETE  
+             FROM 
+                 m_active_clients_ref
+             WHERE type = :ttype;
+
+    EXEC SQL DELETE  
+             FROM 
+                 m_active_clients_id 
+             WHERE type = :ttype;
+
+    rstatus = 1;
+    
+ return rstatus;
+}
+
+int AMSoracle::deleteActiveClientRef(const unsigned int id,
+                                     const unsigned int type)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+           sql_error("ORACLE error: AMSoracle::deleteActiveClientRef");
+
+   tid   = id;
+   ttype = type;
+   EXEC SQL DELETE FROM m_active_clients_ref 
+            WHERE
+             id = :tid AND type = :ttype;
+    rstatus = 1;
+ 
+ return rstatus;
+}
+
+int AMSoracle::deleteActiveClientId(const unsigned int id,
+                                    const unsigned int type)
+
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::deleteActiveClientId");
+
+   tid   = id;
+   ttype = type;
+   EXEC SQL DELETE FROM m_active_clients_id 
+            WHERE
+             id = :tid AND type = :ttype;
+    rstatus = 1;
+ 
+ return rstatus;
+}
+
+
+int AMSoracle::getActiveClientN(unsigned int type)
+{
+  // return number of active processes for the given type
+  Nids = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_nothing("ORACLE warning: AMSoracle::getActiveClientN");
+ 
+  ttype = type;
+  EXEC SQL SELECT COUNT(id) INTO Nids FROM m_active_clients_id 
+           WHERE type = :ttype;
+
+ return Nids;
+}
+
+int AMSoracle::getActiveClientRefN(unsigned int id)
+{
+  // return number of ActiveRef record for the given process
+  Nids = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_nothing("ORACLE warning: AMSoracle::getActiveClientRefN");
+ 
+  Nids = 0;
+  tid = id;
+  EXEC SQL SELECT COUNT(id) INTO Nids FROM m_active_clients_ref
+                    WHERE 
+                      id = :tid;
+ return Nids;
+}
+
+
+int AMSoracle::getActiveClientDesc(const unsigned int type, 
+                                   ActiveClientDesc *procdesc)
+{
+ int rstatus = 0;
+
+ if (!procdesc) return rstatus;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::getActiveClientDesc");
+
+  EXEC SQL WHENEVER NOT FOUND DO sql_notfound("nothing is selected");
+
+  ttype = type;
+  int num_ret = 0;
+  int n = 0;
+  EXEC SQL OPEN AClients_Cursor;
+  for (;;) {
+   EXEC SQL FETCH AClients_Cursor INTO :activeclient;             
+   n = sqlca.sqlerrd[2] - num_ret;
+   if (n) {
+    for (int i=0; i<n; i++) {
+     procdesc[num_ret+i].set(activeclient[i].id,
+                             activeclient[i].lastupd,
+                             activeclient[i].starttime,
+                             activeclient[i].status);
+    }
+    num_ret = sqlca.sqlerrd[2];
+   } 
+    if (n < ACLIENTSARRAYSIZE) break;
+  }
+   if (!num_ret)
+     cout<<"AMSoracle::getActiveClientDesc -I- no info for process type "
+         <<type<<" in m_active_clients table"<<endl;
+  rstatus = num_ret;
+  EXEC SQL CLOSE AClients_Cursor ;
+
+ return rstatus;
+}
+
+int AMSoracle::getActiveClientId(const unsigned int type, 
+                                 ActiveClientId *procdesc)
+
+{
+ int rstatus = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getActiveClientId");
+
+ if (procdesc) {
+  ttype = type;
+   EXEC SQL OPEN  ACID_Cursor;
+
+   EXEC  SQL WHENEVER NOT FOUND DO BREAK;
+
+   int i = 0; 
+   for (;;)
+   {
+     EXEC SQL FETCH ACID_Cursor INTO 
+                                     :tid,
+                                     :tpid,
+                                     :tppid,
+                                     :tstatus,
+                                     :thostname,
+                                     :tinterface;
+
+      procdesc[i].set(tid,
+                        tpid,
+                        tppid,
+                        type,
+                        tstatus,
+                        tinterface, 
+                        thostname);
+    
+    i++;
+  }
+  if (i > 0) rstatus = 1;
+
+  EXEC SQL CLOSE  ACID_Cursor;
+  EXEC SQL WHENEVER NOT FOUND DO sql_notfound("nothing is selected");
+ }
+ return rstatus;
+}
+
+int AMSoracle::getActiveClientRef(const unsigned int id, 
+                                   ActiveClientRef *procdesc)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+           sql_error("ORACLE error: AMSoracle::getActiveClientRef");
+ 
+
+ if (procdesc) {
+  EXEC SQL OPEN AC_Cursor;
+  EXEC SQL WHENEVER NOT FOUND DO break;
+  tid = id;
+  int i = 0;
+  for (;;) {
+   EXEC SQL FETCH AC_Cursor INTO :tior, :ttype, :treftype, :tuid, :tinterface;
+   procdesc[i].set(
+                     tior,
+                     tinterface,
+                     ttype,
+                     treftype,
+                     tuid);
+     i++;
+    }
+  EXEC SQL CLOSE AC_Cursor;
+  EXEC SQL WHENEVER NOT FOUND DO sql_notfound("nothing is selected");
+  rstatus = 1;
+ }
+ return rstatus;
+}
+
+//
+// Nominal Processes (Client, Server, Killer)
+//
+int AMSoracle::findNominalClient(const unsigned int id,
+                                 const unsigned int type)
+{
+  int rstatus = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                     sql_error("ORACLE error: AMSoracle::findNominalClient");
+
+   tid   = id;
+   ttype = type;
+   EXEC SQL SELECT id INTO tidx FROM m_nominal_clients 
+                      WHERE id = :tid AND type = :ttype;
+   if (sqlca.sqlerrd[2] == 1) {
+     rstatus = 1;
+   } 
+   return rstatus;
+}
+
+unsigned int AMSoracle::getNominalClientNextId(const unsigned int type)
+{
+  int rstatus = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_nothing("ORACLE ewarning AMSoracle::getNominalClientNextId");
+
+  ttype = type;
+  EXEC SQL SELECT MAX(id) INTO :tid  FROM m_nominal_clients 
+           WHERE type = :ttype;
+
+  if (tid < 1) {
+    tid = 1;
+  } else {
+    tid++;
+  }
+  return tid;
+}
+
+
+int AMSoracle::getNominalClientN(unsigned int type)
+
+{
+  Nids = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getNominalClientN");
+ 
+  Nids = 0;
+  ttype = type;
+
+  EXEC SQL SELECT COUNT(id) INTO Nids FROM m_nominal_clients
+                    WHERE 
+                      m_nominal_clients.type = :ttype; 
+
+  return Nids;
+}
+
+
+int AMSoracle::deleteNominalClient(const unsigned int id,
+                                   const unsigned int type)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::deleteNominalClient");
+
+   tid   = id;
+   ttype = type;
+   if (findNominalClient(id, type) == 1) {  
+    EXEC SQL DELETE  
+             FROM 
+                 m_nominal_clients 
+             WHERE id = :tid AND type = :ttype;
+    rstatus = 1;
+ }
+ return rstatus;
+}
+
+int AMSoracle::deleteNominalClient(const unsigned int type)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO 
+                    sql_error("ORACLE error: AMSoracle::deleteNominalClient");
+
+   ttype = type;
+    EXEC SQL DELETE  
+             FROM 
+                 m_nominal_clients 
+             WHERE type = :ttype;
+    rstatus = 1;
+
+ return rstatus;
+}
+
+int AMSoracle::getNominalClientDesc(const unsigned int type, ProcDesc *procdesc)
+
+{
+ int rstatus = 0;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::getNominalClientDesc");
+ 
+ if (procdesc) {
+  ttype = type;
+  EXEC SQL SELECT m_nominal_clients.*, m_nominal_hosts.name
+           INTO :nominaldesc, :hostNames 
+           FROM m_nominal_clients, m_nominal_hosts     
+                    WHERE 
+                      m_nominal_clients.type = :ttype 
+                      AND
+                      m_nominal_clients.hostid = m_nominal_hosts.id;
+
+   int n = sqlca.sqlerrd[2];
+   if ( n < 1) {
+     cout<<"AMSoracle::getNominalProcDesc -E- no info for process type "
+         <<type<<" in m_nominal_clients table"<<endl;
+     n = 0;
+   } else {
+    for (int i=0; i<n; i++) {
+     suppressBlanks(nominaldesc[i].submitcmd);
+     suppressBlanks(nominaldesc[i].scriptpath);
+     suppressBlanks(nominaldesc[i].logpath);
+     suppressBlanks(hostNames[i].name);
+     procdesc[i].set(nominaldesc[i].id,
+                     nominaldesc[i].maxclients,
+                     nominaldesc[i].cpu,
+                     nominaldesc[i].memory,
+                     (const char*)nominaldesc[i].scriptpath,
+                     (const char*)nominaldesc[i].logpath,
+                     (const char*)nominaldesc[i].submitcmd,
+                     (const char*)hostNames[i].name,
+                     nominaldesc[i].logintheend);
+    }
+     rstatus = n;
+  }
+ }
+ return rstatus;
+}
+
+int AMSoracle::insertNominalClient( 
+                           unsigned int id,
+                           unsigned int type,
+                           short    int maxclients,
+                           float        cpuneeded,
+                           short    int memoryneeded,
+                           const char           *scriptpath,
+                           const char           *logpath,
+                           const char           *submitcmd,
+                           const char           *hostname,
+                           short    int logintheend)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::insertNominalClient");
+
+   if (id  && scriptpath && logpath && submitcmd && hostname) {
+    thostid = findHost(hostname);
+    if (!thostid) {
+      insertNominalHost(hostname,
+                        "default",
+                        "Dummy",
+                        0,
+                        0,
+                        0);
+      thostid = findHost(hostname);
+      cout<<"AMSoracle::insertNominalClient -I- add host "<<hostname<<endl;
+    } 
+      tid   = id;
+      ttype = type;
+      tmaxclients = maxclients;
+      tcpuneeded  = cpuneeded;
+      tmem        = memoryneeded;
+      strcpy(thostname,hostname);
+      strtok(thostname,".");
+      strcpy(tscriptpath,scriptpath);
+      strcpy(tlogpath,logpath);
+      strcpy(tsubmitcmd, submitcmd);
+      tlogend     = logintheend; 
+      tinsert     = time((time_t)0);
+     
+      cout<<"Insert Nominal Client"<<endl;
+      cout<<"id, type "<<tid<<", "<<ttype<<endl;
+      cout<<"maxclients, cpu, mem "<<tmaxclients<<", "<<tcpuneeded<<", "<<tmem<<endl;
+      cout<<"hostid "<<thostid<<endl;
+      cout<<"logintheend "<<tlogend<<endl;;
+
+      EXEC SQL INSERT INTO m_nominal_clients 
+              VALUES(:tid,
+                     :ttype,
+                     :tmaxclients,
+                     :tcpuneeded,
+                     :tmem,
+                     :tscriptpath,
+                     :tlogpath,
+                     :tsubmitcmd,
+                     :thostid,
+                     :tlogend,
+                     :tinsert);
+      rstatus = 1;
+    } else {
+     cout<<"AMSoracle::insertActiveClient -E- invalid client id "
+         <<id<<" or script/log/submitcmd"<<endl;
+   }
+ return rstatus;
+}
+
+int AMSoracle::setClientExitingStatus(unsigned int cid, unsigned int status)
+{
+ int rstatus = -1;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::setClientExitingStatus");
+
+  tstatus = status;
+  tid     = cid;
+
+
+  EXEC SQL UPDATE m_active_clients_id 
+           SET status = :tstatus
+           WHERE id = :tid ;
+
+  rstatus = 1;
+
+  return rstatus;
+}
+// datacards
+int AMSoracle::insertDataCards(const char *scriptpath)
+{
+  const int MAXDATACARDSSIZE = 4000;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  int rstatus = 0;
+  FILE *file;
+  char jobname[1024];
+  char line[256];
+  char filename[512];
+
+  EXEC SQL WHENEVER SQLERROR DO 
+           sql_nothing("ORACLE warning: AMSoracle::insertDataCards");
+
+   if (scriptpath) {
+    if (strlen(scriptpath) > 1024) {
+     cout<<"AMSoracle::insertDataCards -E- filename "<<scriptpath
+         <<" too long "<<endl;
+     return rstatus;
+    }
+    strcpy(filename,scriptpath);
+    if ((file=fopen(filename,"r"))==NULL) {
+     cout<<"AMSoracle::insertDataCards -E- file "<<filename<<" not found "<<endl;
+     return rstatus;
+    }
+    int j = 0;
+    int i;
+    int l = strlen(filename);
+    for (i=l-1; filename[i]!='/'; i--) {
+     j++;
+    }
+
+    for (i=0; i<j; i++) {
+     jobname[i] = filename[l-j+i];
+    }
+    jobname[i] = '\0';
+    strcpy(tname,jobname);
+    suppressBlanks(tname);
+    EXEC SQL SELECT idx INTO :tid FROM m_datacards
+             WHERE dname = :tname;
+    if (sqlca.sqlerrd[2] != 1) {
+     tid = 0;
+     EXEC SQL SELECT MAX(idx) INTO :tid FROM m_datacards;
+     if (tid < 1) {
+       tid = 1;
+     } else {
+       tid++;
+     }
+     tinsert = time((time_t)0);
+     EXEC SQL INSERT INTO m_datacards
+         VALUES(
+                 :tname,
+                 :tid,
+                 :tinsert);
+     int ll = 0;
+     while (fgets(line,256,file)) {
+      ll = ll + strlen(line);
+      if (ll > MAXDATACARDSSIZE) {
+       Fmessage("AMSoracle::insertDataCards","Line is too long","E");
+       return rstatus;
+      }
+      strcat((char *)datacards.arr,line);
+     }
+     datacards.len = (unsigned short)strlen((char *)datacards.arr);
+     EXEC SQL INSERT INTO m_datacards_cards
+             VALUES(
+               :tid,
+               :datacards);
+     commit();
+     rstatus = 1;
+  } else {
+    Fmessage("AMSoracle::insertDataCards",tname,"I");
+    Fmessage("AMSoracle::insertDataCards", " already exists ","I");
+  }
+  fclose(file);
+ }
+ return rstatus;
+}
+//
+// General subroutines
+//
+
+int AMSoracle::oracle_connect()
+{
+  char line[256];
+
+  EXEC SQL ENABLE THREADS;
+
+  EXEC SQL CONTEXT ALLOCATE :ams_context;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR GOTO connect_error;
+
+  strcpy(userpass,"amsdes/ams@amsdb");
+
+  EXEC SQL CONNECT :userpass;
+  strcpy(line,"connected to ");
+  strcat(line,userpass);
+  Fmessage("oracle_connect ", line,"I");
+  return 0;
+
+connect_error :
+   strcpy(line,"failed to connect to oracle as ");
+   strcat(line,userpass);
+   Fmessage("oracle_connect", line,"F");
+
+   return -1;
+}
+
+void AMSoracle::commit()
+//
+// commit oracle transaction
+{
+    EXEC SQL CONTEXT USE :ams_context;
+
+    EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: AMSoracle::commit");
+  
+    updateProductionJob();
+
+    EXEC SQL COMMIT WORK;
+
+}    
+
+void AMSoracle::time_to_oracle(const time_t mtime, char* date)
+{
+ const int WEEKDAY  = 0;
+ const int MONTH    = 1;
+ const int DAY      = 2;
+ const int TIME     = 3;
+ const int YEAR     = 4;
+ const int N        = 5;
+
+ char *ptr[N];
+
+ char ftime[40];
+
+ strcpy(ftime,ctime(&mtime));
+
+ ptr[0] = strtok(ftime," ");
+ for (int j=1; j<N; j++) ptr[j] = strtok(NULL," ");
+ strcpy(date,ptr[DAY]);
+ strcat(date,"-");
+ strcat(date,ptr[MONTH]);
+ strcat(date,"-");
+ strcat(date,ptr[YEAR]);
+ strcat(date," ");
+ suppressCR(date);
+ suppressBlanks(date);
+ strcat(date," ");
+ strcat(date,ptr[TIME]);
+ suppressCR(date);
+ suppressBlanks(date);
+}
+
+
+int AMSoracle::getTableSize(const char *tablename)
+{
+//
+// return 'tablename' size in KBytes or -1
+//
+ int tsize = -1;
+
+ EXEC SQL CONTEXT USE :ams_context;
+
+ EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error: getTableSize ");
+ if (tablename) {
+  strcpy(tname,tablename);
+  
+     (void) sprintf((char *)dynstmt.arr," %s %s ",
+     "SELECT SUM(BYTES)/1024 FROM USER_SEGMENTS ",
+     "where segment_name LIKE :tname");
+   dynstmt.len = (unsigned short)strlen((char *)dynstmt.arr);
+//   printf("%s \n",dynstmt.arr);
+
+  EXEC SQL PREPARE S from :dynstmt;
+  EXEC SQL DECLARE DBS CURSOR FOR S;
+  EXEC SQL OPEN DBS  USING :tname;
+  EXEC SQL FETCH DBS into :tsize;
+  EXEC SQL CLOSE DBS;
+ }
+return tsize;
+}
+
+int AMSoracle::MakeQuery()
+{
+  const int NQ = 18;
+  const int NSUBS = 2;
+  const int QNAME = 1;
+  const int QFLAG = 0;
+
+  const int DATASET = 0;
+  char  *ptr[NSUBS];
+
+  int rstatus = -1;
+
+  char queryfile[256];
+  char tablefile[256];
+
+  char line[256];
+  char lline[1024];
+
+  struct query   {               
+    char   name[256];
+    int    flag;
+   } qq[NQ];
+
+
+  FILE *qfile;
+
+  EXEC SQL CONTEXT USE :ams_context;
+
+  EXEC SQL WHENEVER SQLERROR DO sql_error("ORACLE error:");
+
+
+   char* gtv=getenv("AMSTableDir");
+   if(gtv && strlen(gtv)>0){
+     strcpy(queryfile,gtv);
+    } else {
+     Fmessage("AMSoracle::MakeQuery","AMSTableDir not defined","F");
+     return rstatus;
+   }
+
+   strcat(queryfile,runqueryfile);
+
+   if ((qfile = fopen(queryfile,"r")) == NULL) {
+     cout<<"AMSoracle::MakeQuery -E- file "<<queryfile<<" not found"<<endl;
+     return rstatus;
+   } else {
+    int nq = 0;
+    while (fgets(line,256,qfile)) {
+     if (line[0] != '#') {
+      ptr[0] = strtok(line,":");
+      for (int j=1; j<NSUBS; j++) ptr[j] = strtok(NULL,":");                 
+      qq[nq].flag = atoi(ptr[QFLAG]);
+      if (qq[nq].flag) {
+       strcpy(qq[nq].name,ptr[QNAME]);
+      }
+      nq++;
+     }
+     if (nq == NQ) break;
+   }
+   fclose(qfile);
+
+   strcpy(lline," SELECT ");
+   strcat(lline," m_runs_d.run,   ");     
+   strcat(lline," m_runs_d.utimef, m_runs_d.utimel,  ");     
+   strcat(lline," m_runs_dst.eventf, m_runs_dst.eventl,   ");
+//   strcat(lline," m_runs_d.events, m_runs_d.runtype, ");
+   strcat(lline," m_runs_dst.rawfilepath  ");
+   strcat(lline," FROM m_alldset, m_runs_d, m_runs_dst ");     
+   strcat(lline," WHERE  ");
+   if (qq[DATASET].flag) {
+    strcat(lline,qq[DATASET].name);
+    strcat(lline, " m_alldset.ndataset = m_runs_d.ndataset ");
+    strcat(lline, " AND ");
+    strcat(lline, " m_runs_d.run = m_runs_dst.run ");
+    strcat(lline, " AND ");
+   }
+
+  for (int i=0; i<NQ; i++) {
+   if (i != DATASET) {
+    if (qq[i].flag) {
+     strcat(lline," "); 
+     strcat(lline,qq[i].name); 
+     strcat(lline," "); 
+    }
+   }
+  }
+  strcat(lline," ORDER BY m_runs_d.run ");
+  (void) sprintf((char *)dynstmt.arr," %s ",lline);
+  dynstmt.len = (unsigned short)strlen((char *)dynstmt.arr);
+  printf("%s \n",dynstmt.arr);
+ 
+   EXEC SQL WHENEVER NOT FOUND DO break;
+
+   EXEC SQL PREPARE S from :dynstmt;
+ 
+   EXEC SQL DECLARE C CURSOR FOR S;
+
+   EXEC SQL OPEN C;
+
+  
+   RunTable *rtable = new RunTable[MAXRUNS];
+   int i = 0;
+   for (;;) {
+    EXEC SQL FETCH C INTO :trun, :ubegin, :uend, :tfirst, :tlast, :filepath;
+    rtable[i].set(trun,ubegin,uend,tfirst,tlast,filepath);
+    i++;
+    if (i == MAXRUNS) {
+       cout<<"AMSoracle::MakeQuery -W- the list is shrunked to 2000 runs "<<endl;
+       break;
+    }
+   }
+
+   if (sqlca.sqlerrd[2] < 1) {
+    rstatus = NOT_FOUND;
+   } else {
+      int nruns = sqlca.sqlerrd[2];
+      cout<<nruns<<" runs matched to query"<<endl;
+
+      rstatus = dumpRunTable(rtable, nruns);
+      rstatus = insertRunTable(rtable, nruns);
+      if (rstatus == 1) commit();
+      if (rtable) delete [] rtable;
+  }
+
+  EXEC SQL CLOSE C;
+ }
+
+ EXEC SQL WHENEVER SQLERROR DO sql_nothing("ORACLE warning:");
+
+ return rstatus;  
+}
+
+int AMSoracle::UnixFilestat(const char *path, long *id, long *size,
+                                      long *flags, time_t *modtime)
+{
+   // Get info about a file: id, size, flags, modification time.
+   // Id      is (statbuf.st_dev << 24) + statbuf.st_ino
+   // Size    is the file size
+   // Flags   is file type: bit 0 set executable, bit 1 set directory,
+   //                       bit 2 set regular file
+   // Modtime is modification time
+   // The function returns 0 in case of success and 1 if the file could
+   // not be stat'ed.
+   //
+ 
+  struct stat statbuf;
+
+
+   if (path != 0 && stat(path, &statbuf) >= 0) {
+      if (id)
+         *id = (statbuf.st_dev << 24) + statbuf.st_ino;
+      if (size)
+         *size = statbuf.st_size;
+      if (modtime)
+         *modtime = statbuf.st_mtime;
+      if (flags) {
+         *flags = 0;
+         if (statbuf.st_mode & ((S_IEXEC)|(S_IEXEC>>3)|(S_IEXEC>>6)))
+            *flags |= 1;
+         if ((statbuf.st_mode & S_IFMT) == S_IFDIR)
+            *flags |= 2;
+         if ((statbuf.st_mode & S_IFMT) != S_IFREG &&
+             (statbuf.st_mode & S_IFMT) != S_IFDIR)
+            *flags |= 4;
+      }
+      return 0;
+ }
+ return 1;
+}
+

@@ -1,0 +1,15 @@
+#  $Id: known_bugs.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+
+Compile Time
+-------------
+
+
+Run Time
+----------
+1. AMSgSen::getsenstrip-S-Error.  
+   Probably geant tracking bug. Happens rarely.
+
+2. The event sequences for OSF1 & AIX & linux are different.
+   Probably due to different geant tracking.
+
+

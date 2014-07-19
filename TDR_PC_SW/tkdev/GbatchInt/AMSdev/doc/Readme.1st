@@ -1,0 +1,114 @@
+#  $Id: Readme.1st,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $          
+Dear AMS User, 
+below are some (useful) info to make you more familiar  with AMS software.
+
+
+I. The following hardware platfoorms are fully(F) or partly(P) supported:
+a) IBM/AIX/xlC    (F)
+b) DEC/OSF1/cxx   (F)
+c) HP-UX/g++2.7.2 (P)     ! Support is marginal
+d) SGI/IRIX/g++2.7.2 (P)  ! Support is disconnected
+e) Linux/egcs1.0.3   (P)  ! Dbase version is not supported
+
+II. Software management:
+    cvs  ( Concurrent Version System)
+    described in detail in http://wwwcn1.cern.ch/asd/cvs/index.html
+
+III. Programming languagues:
+a) C++  (general framework, data structures, methods, algorithmes, i/o etc)
+b) F77/F90 ( algorithmes only)
+
+IV. I/O
+a) Objectivity database
+b) CW ntuples
+c) root (event display most)
+
+
+V. Documentation
+I) AMS Home Page at http:/hpl3tri1.cern.ch/analysis.html (AwMwSw 19980402)
+II) Other hints at
+a) http://hpl3itp1.cern.ch:8081/AMS.html and referencies therein
+b) http://hpl3itp1.cern.ch:8081/amsc++.ps  
+c) http://hpl3itp1.cern.ch:8081/overview.ps  
+d) files in doc subdirectory of AMS directory tree ( see VI. how to access) 
+e) 00index.txt file in each subdirectory
+   
+
+
+VI. Access to AMS software
+
+a) As a user:
+
+Method I : Pick up the //hpl3itp1.cern.ch:8081/ams.tar.gz file
+          gzip -d then tar -xvf it. You will get an AMS directory tree.
+          (see VII. for standalone environment)          
+
+Method II(Recommended): Get an account on  some ams computer (see VIII)
+                        ams software is in $Offline/vdev
+
+b) As a developper :
+
+  i)You should have an  account on  ams alpha's computers 
+   (See VIII about current situation with the computers )
+  ii)You should be a member of amsdev group on ams computers
+  (ask Vitaly.Choutko@cern.ch about it)                                                
+  iii) see VIII for $Offline & amsvar
+   iv) cvs checkout -r  v300_lastbuild AMS
+
+
+VII.  Standalone version   - Support is disabled, ignore it. 
+
+If you have neither account on cernsp nor afs server,
+   below are some hints how to build the standalone version of AMS 
+   (without dbase):
+
+a) Set up CERN libraries 
+   eq. -L/cern/pro/lib  -lgeant321  -lpacklib -lmathlib -lkernlib
+
+b) copy files from /afs/cern.ch/user/c/choutko/public/data
+   or  AMS.html("Data files for standalone version")
+   to <your preferred dir>  
+
+c) setenv AMSDataDir  <your preferred dir>
+
+
+
+VIII. Current (Sep 9 1998) computer situation
+
+a. Accounts
+   To get AFS account and account on shift51,rsplus,dxplus
+    ask Pierantonio.Marchesini@cern.ch      ;
+   To get local accounts on helium,ahelium,carbon,acarbon ask
+   Alexei.Klimentov@cern.ch                 ;
+   To get AFS accounts on afl3u0, afl3u1 ask Vitaly.Choutko@cern.ch
+   (you have to have AFS account before)
+   
+b. Disk space
+   AFS account can be as large as 300 mbytes
+   Local ams scratch disks will be organized later.
+
+c. SoftWare/DataAccess
+
+   setenv Offline   as:
+   /shift/shift51/data18/xv/choutko/Offline if on shift51
+   /Offline                                  ams alphas,pentiums
+   /afs/cern.ch/exp/ams/Offline              all others 
+                                            (e.g.rsplus,dxplus,hpplus)
+
+  source $Offline/vdev/install/amsvar
+
+  frozen version is in $Offline/v3.00  (v3.00 build 1023)
+  v3.00/doc contains doc
+
+  AMSDataBase is in $AMSDataDir/DataBase 
+  runs in $RunsDir 
+  old ntuples in $AMSDataNtuplesDir 
+  newest set in /f2dat1/STS91
+  
+  Database Related Ntuples in $AMSDataDir/ntuples  [only on ams alphas now]
+ 
+  Datacards to run real data $Offline/vdev/datacards/rt_all.job  
+  
+  AMS eventDisplay $amsed
+
+Comments, questions to shoutko@vxcern.cern.ch

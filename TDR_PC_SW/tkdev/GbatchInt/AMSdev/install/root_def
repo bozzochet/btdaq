@@ -1,0 +1,11 @@
+#! /bin/sh
+
+setenv PLATFORM $1
+setenv VERSION  $2
+
+setenv ROOTSYS /offline/root/$PLATFORM/$VERSION
+setenv PATH "${PATH}:$ROOTSYS/bin"
+setenv LIBPATH "$ROOTSYS/lib"
+setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:$ROOTSYS/lib"
+
+

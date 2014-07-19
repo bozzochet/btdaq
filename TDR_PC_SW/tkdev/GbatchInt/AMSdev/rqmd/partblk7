@@ -1,0 +1,56 @@
+CPAT,PARTBLK7 .                                                         
+      parameter (ntotma=90000)                                          
+      parameter (nbarym=480)                                            
+      parameter (numswi=24)                                             
+      logical switch(numswi)                                            
+      character*4 header                                                
+      character*3 ref                                                   
+      common /nlist1/header,ref                                         
+      common /nlist2/n1,iz1,n2,iz2,ndt,nprint,nruns,                    
+     a                         inttyp,ieos,iseed,idtcl,switch           
+      common /nlist3/elgev,b,dt,sepfp,sepft,cutfct                      
+      logical prop                                                      
+      logical nonrel                                                    
+      real*4 stork, tdtg,x,qdot,p,em,decay,denspp,                      
+     a          tlast,frfp,datsto,h,chi                                 
+      common/bl1/nt,npion,kdt,kclst,iofset,nprtcl,                      
+     &   irun,ierror,nspect,itripl,lmax,ntclst,                         
+     &   idcdif,inondf,idifr,inn2df,ibrhig,ievbb,inocol,                
+     &   nsppr,nspta,nspnuc,iyy,iqcnvt,ifndnx,nrclst,                   
+     &   iclusz(ntotma),nrbar(ntotma),itdth(5,ntotma),                  
+     &   nrmes(ntotma),ityp(ntotma),npidec(ntotma),ichbig(ntotma),      
+     &   nonrel(ntotma),prop(ntotma),nclcnt(ntotma),                    
+     &   lastcl(ntotma)                                                 
+     &   ,issn(ntotma),idud(1,ntotma)                                   
+      common/bl4/ tdtg(ntotma),x(0:3,ntotma),qdot(0:3,ntotma),          
+     a         p(0:3,ntotma),em(ntotma),decay(ntotma),denspp(ntotma),   
+     b           tlast(ntotma),frfp(0:3,ntotma),datsto(ntotma),         
+     c              ylast(ntotma),zlast(ntotma),                        
+     d               h(ntotma),chi(ntotma)                              
+      dimension stork(ntotma,8),kstor(ntotma,8)                         
+      common/kstorbk/ kstor,stork                                       
+      dimension psrc(2,4)                                               
+      common/psrcbk/ psrc                                               
+      dimension pnorm(0:3)                                              
+        common/potblk/al,sal,alpha,beta,gamma,dstint,glk,coef1,coef2,   
+     a                alpot,salpot,eosc3,coef3,                         
+     b                eosc1,eosc2,gm1,pr2max,pnorm,elab                 
+      dimension psyst(0:3),ptotal(0:3),pcorr(0:3)                       
+      common /bl2/ ptotal,psyst,tbegin,emproj,tcoll,zcoll,pcorr         
+      common/bl3/ ityppr,  ispcod, iqtot,ntbar,ievntn,                  
+     a                 iz1old,n1old,iz2old,n2old                        
+      common/nucloc/zmxpr,zmnpr,zmxta,zmnta,bplus,rprsq,rtasq,betapr,   
+     a              betata,yproj,ytarg,betapl,betatl,gamnn,betann,      
+     b              rr1,rr2                                             
+      real*4  ctime,cs,csig,seacut(maxtyp+1)                            
+      parameter (numema=400000)                                         
+      common /cbk/nument,                                               
+     &          i1c(numema),i2c(numema),                                
+     &            ctime(numema),csig(numema),seacut                     
+      common /tprdbl/tfrmcq,tfrmhd,nfrmcq,nfrmhd                        
+      common /timbl/dtprop,time,tlstev,tnexev,timmax                    
+      common /cputim/tmsctr,tmprop,tmupdt,tmpali,tmcoll,                
+     a          tmhit,tmcrs1,tmabsr                                     
+      common /countb/xblcut, xininw, xfirst,xbldel,xblock,              
+     a               xcnt(3),npaubl,ncollt,ncoll,                       
+     b               iabspi,idcntd,idcntn,idcntr                        

@@ -1,0 +1,26 @@
+#  $Id: 00index.txt,v 1.1.1.1 2007/11/13 09:56:12 zuccon Exp $
+#
+castor.cmp                  //  compare content of two directories
+castor.cp                   //  copy local directory tree to CASTOR
+checkdb.cgi                 //  compare DB content and files content
+                            //  recalculate and compare CRC (optional) 
+dbsqlserver.perl            //  start perl SQL server
+download.mysql.cgi          //  get files using MySQL interface 
+download.o.cgi              //  get files using Oracle interface
+geteventsleft.cgi           //  get processed events and CPUs statistics and estimated how
+                            //  more events and CPU will be needed
+gethostslist.cgi            //  get list of hosts, jobs and GBs for each cite
+getoutputdisk.cgi           //  get disk will be used to store DSTs
+monitor.perl (-m)               //  standalone gtk based monitor
+monitor.cgi                 //  cgi monitor script
+parseJournalFiles.o.cgi     //  parse Journal files for jobs running in StandAlone
+rc.dsp.cgi                  //  remote client start
+rc.dsp.mysql.cgi            //                     using MySQL
+showcites.cgi               //  show MC production cites
+showcites.mysql.cgi         //                    using MySQL
+stopParseJournalFiles.o.cgi //  set flag in DB to stop parseJournalFiles 
+validate.cgi                //  validate NTuples
+validate.mysql.cgi          //                  using MySQL
+validate.o.cgi              //                  using Oracle
+updatemops.cgi              //  prints and updates MIPS column in cern_hosts DB table
+updateMCDSTCopy.cgi         //  update MC_DST_COPY table according to ASCII files with list of copied DSTs

@@ -1,0 +1,197 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>HitDump</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>HitDump</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>602</width>
+            <height>810</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Hit Cluster Dump</string>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QGroupBox">
+            <property name="name">
+                <cstring>groupBox1</cstring>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>0</width>
+                    <height>65</height>
+                </size>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>32767</width>
+                    <height>65</height>
+                </size>
+            </property>
+            <property name="title">
+                <string></string>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QComboBox">
+                    <property name="name">
+                        <cstring>cbType</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>110</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>110</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                    <property name="insertionPolicy">
+                        <enum>NoInsertion</enum>
+                    </property>
+                    <property name="duplicatesEnabled">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QComboBox">
+                    <property name="name">
+                        <cstring>cbLayers</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>120</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>120</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                    <property name="sizeLimit">
+                        <number>8</number>
+                    </property>
+                    <property name="insertionPolicy">
+                        <enum>NoInsertion</enum>
+                    </property>
+                    <property name="duplicatesEnabled">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer1</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>91</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout3</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Hit #</string>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>spinBox3</cstring>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>pbDClus</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Display Clusters</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QTextEdit">
+            <property name="name">
+                <cstring>teDump</cstring>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>560</width>
+                    <height>350</height>
+                </size>
+            </property>
+            <property name="textFormat">
+                <enum>LogText</enum>
+            </property>
+        </widget>
+    </vbox>
+</widget>
+<connections>
+    <connection>
+        <sender>cbType</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>HitDump</receiver>
+        <slot>Update()</slot>
+    </connection>
+    <connection>
+        <sender>cbLayers</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>HitDump</receiver>
+        <slot>Update()</slot>
+    </connection>
+    <connection>
+        <sender>cbLayers</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>HitDump</receiver>
+        <slot>Update()</slot>
+    </connection>
+    <connection>
+        <sender>cbType</sender>
+        <signal>activated(int)</signal>
+        <receiver>HitDump</receiver>
+        <slot>Update()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">hitdump.ui.h</include>
+</includes>
+<slots>
+    <slot>Update()</slot>
+</slots>
+<functions>
+    <function access="private" specifier="non virtual">init()</function>
+</functions>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

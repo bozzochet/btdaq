@@ -1,4 +1,0 @@
-3653            // calib 6426_04 (bad from Claude only for daq example), reduction V670e_05 (6426-05 with TP activated, and bug fix) 
-01b6 a000       // page 4 contains evbld at 0x2000
-047c e000       // page 5 contains calibration at 0x2000
-0bee 0000       // page 0 contains main program (must come last)

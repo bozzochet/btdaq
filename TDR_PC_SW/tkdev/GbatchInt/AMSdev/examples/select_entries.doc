@@ -1,0 +1,15 @@
+/*! \example select_entries.doc
+ *  The program below (select_entries.C) illustrates how to write 
+ *  a subsample of selected events into a new AMS Root file. 
+ *    - To run it: root -b -q select_entries.C
+ *
+ *  The example also illustrates how to read/write just few
+ *  branches, thus saving some time on input and some disk 
+ *  space on output.
+ *
+ *  If you prefer to read/write all branches, just comment
+ *  the pieces of code between "BEGIN of block" and 
+ *  "END of block".
+ *
+ *  \include select_entries.C
+ */ 

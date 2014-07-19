@@ -1,0 +1,19 @@
+CPAT,SCATTER7 .  PDS = UF09.RQMD9.FORT  DATE = 951006  TIME = 215431562 
+      implicit real*4(a-h,o-z)                                          
+      real*4 ranf                                                       
+      common/cvalbk/                                                    
+     a     cvalu1,cvalu2,cvalu3,cvalu4,cvalu5,cvalu6,cvalu7,cvalu0      
+      parameter (maxtyp=120,mxchan=99)                                  
+      common /prtpar/                                                   
+     z       emnuc,emdelt,empion,emrho,emeta,widdlt,emstrm,emctst,      
+     a       emkap,emka0,emlamb,emsigp,emsig0,emsigm,                   
+     b       emkdec,emydec,emrhdc,tprd,tpar1,tpar2,tpar3,ekelmi,dltmas, 
+     c       widn1,widn2,widrho,emmnn2,emmnd2,gmprop,rho0,              
+     d       cst,cst1,cst2,emnres,wdnres,ekinmi,                        
+     e       r0cor,                                                     
+     f       hc,pi,pi2, pscal1,pscal2,p0ref ,                           
+     g       const1,const2,const,                                       
+     h       enhcnd,snnlim,snpilm                                       
+      real*4 da(22)                                                     
+      dimension ida(60),kspin(90)                                       
+      common /parmbl/da,ida,kspin                                       

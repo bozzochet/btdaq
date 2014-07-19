@@ -1,0 +1,184 @@
+==> Program to check/update TOF|ACC-pedestals DataBase <==
+   
+  It can perform the following actions:
+
+    1) Scan ScanD-dir and select all ped_table files in 
+       pre-defined dates range (ped_table file is the 
+       standard output of "Offline Program" working in 
+       "Ped-Calibration" mode and its name has begin_validity
+       UTC as extention).
+         You can re-run "Scan" with modified dates range 
+       based on info shown to you in "LogFileFrame" window.
+       
+    2) If required, can give some info on the content of 
+       ped_tables and their behaviour in the time (you need 
+       to open special control pannel by clicking "Check").
+       Based on the shown info you can exclude some of the
+       selected files from the candidates (to DB-writing)
+       list.
+       
+    3) Update DB (in "insert" or "rewrite" mode) with 
+       ped_table candidates by clicking "UpdDB"-button. The
+       "Offline Program" exec-file (previously compiled 
+       under "setenv TFADBW 1" conditions) will
+       be called in special "DB-update" mode. LogFile-window
+       will show you the output of "Offline Program" in real
+       time (also shown is the job progress bar at the left 
+       bottom of "Job conditions" pannel)
+       
+    4) If the update was successful, you can click "Exit" to
+       complete the procedure. Depending on "Job-conditions"
+       pannel selections, the program will archive UpdDB-used
+       ped_table files and save log-file under the name
+       "logfile.xxxxxx.txt" in working directory. The "xxxx"
+       will be the begin_validity UTC of the 1st ped_table
+       file written into DB (the files are written into DB 
+       in the increasing order of their begin_validity)
+       
+  The Program use the following directories :
+  
+       "AMS"   - according to your current "env" definition
+                 of standard path to AMSDataDir directory.
+       "TopD"  - path to standard SubDetector-calibration
+                 working directory.
+       "ScanD" - path to standard directory where the 
+                 ped_table files are stored befor writing
+		 to DB (currently sub-dir of "TopD").
+       "ArchD" - path to standard directory where the
+                 DB-written ped_table files are moved to
+		 (currently sub-dir of "ScanD").
+		 
+  The standard buttons sequence for the session is :
+     "Scan"->["Check"+plot_creation]->"UpdDB"->"Exit".
+     
+  The particular buttons description is shown below:
+      
+    "Scan-Button:" 
+                     scan "ScanD"-directory for pre-defined
+    ped_table files types (TOF||ACC, "on-board"|/&"offline"
+    calculated) in predefined low/high dates window. If
+    low-boundary > high-boundary ALL files are selected.
+    If in the "File" entry window default "All" was changed
+    to particular ped_table file name - only this file will
+    be searched for. The begin_validity time sorted list of
+    found files will be shown in LogFile-window and saved
+    locally (in sub-det working directory) in "selfile.dat"
+    file. After that the program stops and give you the
+    announsement in red. You can repeate scan with modified
+    dates window if nesessary.
+    
+    "UpdDB-Button:"
+                     start DB-update by calling Offline
+    Program in special "DB-update" mode for each selected 
+    ped-file. There are two mode of updating depending on 
+    pre-selected switch on "Job-condition" pannel: 
+    "DBinsertMode" or "DBrewriteMode". First mode provides
+    calculation of begin/end times for every new record 
+    (ped-file) in accordance with begin/end times of 
+    existing records. The second mode delete all old 
+    DB-records with begin-times inside of requested dates
+    window, delete old Tofpeds(Antipeds) map-file and write
+    new records with their begin-times and end-times year
+    2020. The request to run in this mode will require your 
+    confirmation. It is implied that the 1st filling of DB 
+    was done as series of records with increasing beg-times
+    and the end-times year 2020. The DB new map-file will 
+    be recreated and refilled by Offline Program 
+    automatically at every subsequent call. Warning: your
+    last DB-writed ped_table record is still not accounted
+    for in map-file befor next call to Offline Program. 
+    So the dry run (see below) is always useful to update
+    map-file and see its real contents befor real DB-update.
+    
+    "UpdDB_DryRun-Button:"
+                     when this switch is ON (red), the
+    clicking of "UpdDB"-button results to single call to
+    Offline Program in "no-real-update" mode thus updating
+    the corresponding map-file to see existing records and
+    their parameters (Begin/End/Insert-times).
+    
+    "ArchiveOnExit-Button:"
+                     being switched-on provides archiving
+    of original ped_table files written to DB during 
+    current session. This archiving is done really during
+    "exit" sequence (see below). 
+    
+    "Exit-Button:"
+                     save full-history LogFile screen 
+    into "logfile.xxxxxx.txt" file, where xxxxxx is the
+    begin UTC time of the first (youngest) ped_table 
+    written into DB. It also archive DB-written files 
+    into "ArchD"-directory (if requested) and exit the
+    session.
+    
+    "Check-Button:"
+                    open the control pannel for ped_table
+    files quality control. Based on shown plots you can
+    remove any of selected files from the list of 
+    candidates for DB-updating.
+    
+    "ResetPlot-Button:"
+                    resets points in the currently displayed
+    plot. Particularly the SUBSEQUENT calls to the "Ped time-
+    scan plot" plot will superimpose the new and old points,
+    but the color for new ones will be changed (repetition
+    period is 5) with each new fill.
+    
+    "DataLengthTimeScanPlot-Button:"
+                      plots time evolution of file data
+    length. It should be fixed for each subdetector. If
+    some data length is wrong - point will be in red and
+    corresponding file will be AUTOMATICALLY removed from 
+    the list for DB-update.
+    
+    "PedTimeScanPlot-Button:"
+                      plots time evolution of ped and rms
+    (2*rms is the height of the "point" and "middle of the
+    point" position corresponds to the value of pedestal)
+    for ONE particular channel (fill-in it in advance 
+    according to the prompt, but do not remove the prompt 
+    itself, or remove it completely !!!). If you see some 
+    suspicious point (ped value and/or rms) click it and 
+    the correcponding ped_table file name will appear in 
+    the yellow entry area. Now you can see all-channels 
+    peds/rms values for this file if you click the next 
+    button (see below).
+    
+    "OneFilePedsPlot-Button:"
+                     plots all-channels peds for file name
+    given in the yellow entry-area below this button.
+    The dynode channels peds are plotted with vertical 
+    shift - Pm1_dyn with "0" shift, Pm2_dyn "+50" to the
+    true ped-value, and Pm2_dyn(if present) "+100" to the
+    true value.
+      You can type-in another file name by hands or using the 
+    "point-click" methode described in "PedTimeScan" plot.
+    Under the yellow entry-area you have another button 
+    "Mark above file as bad" which can remove the file 
+    written in the yellow area from the list for DB-update
+    (his name will be in red after your click). If you 
+    changed your mind and decided to keep this file in the
+    list - click again.
+    
+        
+     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 

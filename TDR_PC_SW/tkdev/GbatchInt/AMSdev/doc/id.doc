@@ -1,0 +1,24 @@
+#  $Id: id.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+AMS Identifier 
+
+implemented as integer id + character name[]
+
+
+
+
+// constructor
+
+AMSID( integer id, char name[])
+AMSID( char name[], integer id)
+
+// member functions
+
+void setname(char name[])  // sets name
+char *getname()  // gets name
+void setid(integer id)    // sets id
+integer getid()    // gets id
+float getversion()    // returns version no.
+virual void _init()=0;   //initialization
+operator <
+operator ==
+operator <<

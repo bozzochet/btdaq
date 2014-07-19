@@ -1,0 +1,226 @@
+// file sfet2-write.c
+//
+// Writes Thresholds to S-Crates following config file
+//
+// A.Lebedev May-2008...
+
+#include "sfet2def.h"
+#include "jinflib.h"
+
+int TX = 1;                 // global variable
+int RX = 1;                 // global variable
+int P = 0;                  // global variable
+
+bool use_CAN  = FALSE;                             // global variable
+bool use_AMSW = TRUE;                              // global variable
+bool use_MEM  = FALSE;                             // global variable
+bool use_UDP  = FALSE;                             // global variable
+bool use_TCP  = FALSE;                             // global variable
+bool use_Peter_TCP = FALSE;                        // global variable
+bool use_PCIAMSW = FALSE;                          // global variable
+int16 AMSW_PATH[5];         // global variable
+int16 JINF_PATH = 0x0000;   // global variable
+
+char CS_address[100] = {"127.0.0.1"};  // global variable
+int  CS_port;                          // global variable
+int16 NODE_ADR;                        // global variable
+
+extern _scrate scrate[8];
+extern float V_ref_int;
+extern float V_ref_ext;
+extern _b thr_msk;
+extern _b ref_msk;
+
+char *brd_nam[5] = {"SFET2-A", "SFET2-B", "SFET2-C", "SFET2-D", "SFEA2"};
+int   brd_adr[5] = { SFET2_A,   SFET2_B,   SFET2_C,   SFET2_D,   SFEA2};
+char *grp_nam[2] = {"GRP-0", "GRP-1"};
+char *thr_nam[3] = {"LT", "HT", "SHT"};
+
+char *filename = {"Q"};
+FILE *file = NULL;
+
+//~ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+static void write_threshold(int crt, int brd, int thr, int16 cod, int16 *err);
+
+//~----------------------------------------------------------------------------
+
+static void write_threshold(int crt, int brd, int thr, int16 cod, int16 *err) {
+
+  int dac = thr % 3;
+  int cha = thr / 3;
+  int adr = brd_adr[brd];
+  int16 wri = (cod & 0x00FF) | (cha * 0x0400) | 0x0300;
+
+  JINF_PATH = scrate[crt].lnk << 8 | 0x003F;
+  NODE_ADR  = scrate[crt].adr;
+
+  *err = 0x0000;
+
+  exec_SDR2_SC_command(WRITE, adr, dac_adr[dac][cha], wri, NULL, NULL, err);
+}
+
+//~----------------------------------------------------------------------------
+
+void user_interface(int argc, char *argv[]) {
+
+  int k;
+
+  setbuf(stdout, NULL);
+  printf("Usage: \n");
+  printf("  %s filename [P]\n", argv[0]);
+  printf("  %s 1553 Server filename [P]\n", argv[0]);
+  printf("  %s HRDL Server filename [P]\n", argv[0]);
+
+  if (argc > 1 && !strcasecmp(argv[1], "1553")) {
+    k = 2;
+    if (argc <= k) PANIC("Too few arguments.\n");
+    strncpy(CS_address, argv[k++], 80);
+    CS_port = 61002;
+    use_APID      = 0x0018;
+    use_TCP       = TRUE;
+    use_Peter_TCP = TRUE;
+    printf("Server = %s\n",   CS_address);
+    printf("Port   = %d\n",   CS_port);
+    printf("Peter's format with TCP packet length %d bytes will be used\n", 
+            PETER_TCP_PACKET_LENGTH);
+  }
+  else if (argc > 1 && !strcasecmp(argv[1], "HRDL")) {
+    k = 2;
+    if (argc <= k) PANIC("Too few arguments.\n");
+    strncpy(CS_address, argv[k++], 80);
+    CS_port = 61001;
+    use_APID      = 0x03D6;
+    use_TCP       = TRUE;
+    use_Peter_TCP = TRUE;
+    printf("Server = %s\n",   CS_address);
+    printf("Port   = %d\n",   CS_port);
+    printf("Peter's format with TCP packet length %d bytes will be used\n", 
+            PETER_TCP_PACKET_LENGTH);
+  }
+  else {
+    k = 1;
+    use_AMSW = TRUE;
+    printf("Direct connection via EPP-CAN box will be used\n");
+  }
+
+  if (argc <= k) PANIC("Too few arguments.\n");
+  filename        = argv[k++];
+  if (argc > k) P = atoi(argv[k++]);
+  printf("filename = %s\n", filename);
+  printf("P        = %d\n", P);
+}
+
+//~============================================================================
+
+int main(int argc, char *argv[]) {
+
+  int i, ii, j;
+  int16 err = 0x0000;
+  float V_ref = V_ref_int;
+  char token[5][80];
+  char *q[1];
+
+  struct {
+    int   n;
+    char *nam[16];
+    char *fmt;
+    int   adr[16];
+    int   use;
+    bool  found;
+    int   ind;
+  } par[4] = {
+    {8, {"S0A", "S0B", "S1A", "S1B", "S2A", "S2B", "S3A", "S3B"}, "%3s ",
+        {0x10A, 0x10B, 0x10E, 0x10F, 0x112, 0x113, 0x116, 0x117}},
+    {5, {"SFET2-A", "SFET2-B", "SFET2-C", "SFET2-D", "SFEA2"}, "%-7s ",
+        { SFET2_A,   SFET2_B,   SFET2_C,   SFET2_D,   SFEA2}},
+    {2, {"GRP-0", "GRP-1"}, "%5s ",
+        {     0,       1}},
+    {3, {"LT", "HT", "SHT"}, "%-3s ",
+        {   0,    1,    2}}};
+  int n = sizeof(par) / sizeof(par[0]);
+        
+  user_interface(argc, argv);
+
+  if (!file) file = fopen(filename, "r");
+  if (!file) {
+    printf("File %s absent.\n", filename);
+    exit(1);
+  }
+  
+  for (ii=0; ii<n; ii++) {
+    par[ii].use   = par[ii].n;
+    par[ii].found = FALSE;
+    par[ii].ind   = par[ii].n;
+  }
+  
+  while (1) {
+    int16 cod = 0x0000;
+    int16 val;
+    bool cod_found = FALSE;
+    char b[8192];
+    char *token;
+    int k;
+
+    if (!fgets(b, sizeof(b), file)) break;
+    b[strlen(b)-1] = '\0';
+
+/*
+    k = sscanf(b, "%s %s %s %s %s", token[0], token[1], token[2], token[3], token[4]);
+    if (P) printf("k=%d ", k);
+    if (P) printf("Input = %s\n", b);
+    if (!k) continue;
+*/
+
+    for (k=0; k<n+1; k++) {
+      if (k) p = strtok(NULL, "\n ");
+      else   p = strtok(b,    "\n ");
+      if (!p) break;
+    }
+    
+    for (j=0; j<k; j++) {
+      if (!strcmp(token[j], "//")) break;
+      for (ii=0; ii<n; ii++) {
+        for (i=0; i<par[ii].n; i++) {
+          if (!strcmp(token[j], par[ii].nam[i])) {
+            par[ii].ind   = i;
+            par[ii].found = TRUE;
+            break;
+          }
+        }
+      }
+      if (!cod_found) {
+        cod = strtoul(token[j], q, 10);
+        if (!**q) cod_found = TRUE;
+      }
+      if (P) printf("j=%d, cod=%d, **q=%08X\n", j, cod, **q);
+    }
+
+    if (!cod_found) {
+      for (ii=0; ii<n; ii++) {
+        if (par[ii].found) par[ii].use = par[ii].ind;
+      }
+      continue;
+    }
+
+    for (ii=0; ii<n; ii++) {
+      if (!par[ii].found) {
+        if (!(par[ii].use < par[ii].n)) continue;
+        par[ii].ind = par[ii].use;
+      }
+    }
+    val = 2.0 * (float)cod / 256.0 * V_ref;
+    for (ii=0; ii<n; ii++) printf(par[ii].fmt, par[ii].nam[par[ii].ind]);
+    printf("%3d %4d\n", cod, val);
+
+//  write_threshold(crt, brd, grp*3+thr, cod, &err);
+    if (err) {
+      printf("err = %04X\n", err);
+      exit(1);
+    }
+  }
+
+  return 0;
+}
+
+//~============================================================================

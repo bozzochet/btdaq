@@ -1,0 +1,38 @@
+/*! \example amsplot.doc
+ *
+ *    - SCRIPT amsplot.py, to plot one AMS variable from a set of root files:
+ *                - amsplot.py [options] [variable] [files]
+ *
+ *    - DETAILS:
+ *          - a) It checks the validity of [variable] and the existence of [files]
+ *          - b) It creates the file "amsplot.C"
+ *          - c) It executes "root amsplot.C" at the end (use "--test" to avoid this)
+ *
+ *    - USAGES: 
+ *          - amsplot.py [variable] [root_file1] [root_file2] ...
+ *          - amsplot.py --list [variable] [file_with_list_of_root_files]
+ *          - amsplot.py --test [variable] [root_file1] [root_file2] ...
+ *          - amsplot.py --test --list [variable] [file_with_list_of_root_files]
+ *
+ *    - EXAMPLES: 
+ *          - amsplot.py nTrTrack proton_1.root               --> #tracks in event
+ *          - amsplot.py nTrTrack proton_1.root proton_2.root --> #tracks in event
+ *          - amsplot.py nTrTrack proton*.root                --> #tracks in event
+ *          - amsplot.py '1<=nTrTrack<=5' gammas_*_*.root     --> #tracks in a range
+ *          - amsplot.py Header.Run helium.root.*             --> Run number
+ *          - amsplot.py Run helium.root.*                    --> Run number
+ *          - amsplot.py TrTrack.Rigidity ntp/*.root.*        --> Track rigidities
+ *          - amsplot.py 'TrTrack.Rigidity>0' my_file.root    --> Track rigidities>0
+ *          - amsplot.py 'TrTrack.NTrRecHit()' my_file.root   --> #hits on tracks
+ *          - amsplot.py 'TrTrack.HPhi[1]' my_file.root       --> Phi of first half-track
+ *          - amsplot.py 'TrTrack.HPhi[1]!=0' my_file.root    --> (HPhi==0 => not filled)
+ *          - amsplot.py 'TrTrack.iTrRecHit(2)' my_file.root  --> link to 2nd hit on track
+ *          - amsplot.py --test nParticle my_file.root        --> #particles; test mode
+ *          - amsplot.py --list nParticle list_of_root_files  --> #particles; list mode
+ *
+ *    - IMPORTANT: 
+ *          - Please set the $AMSDir environment variable before using the script
+ *
+ *  \include amsplot.py
+ *
+ */

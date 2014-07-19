@@ -1,0 +1,11 @@
+0A 93 0E
+// subchain 1R
+12
+// STEPs 8, 9, 14, 15
+5F 5F 5F 5F
+// step1 duration 6000 sec
+17 70
+// step6 duration 1 sec
+00 01
+// step7 duration 60 sec
+00 3C

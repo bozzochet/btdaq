@@ -1,0 +1,259 @@
+#!/usr/local/bin/perl -w 
+use strict;
+use Carp;
+use POSIX qw(tmpnam);
+use CGI qw(-unique_headers);;
+
+my %queueh=(
+ams_1nd=>24,
+ams_1nh=>1,
+ams_4nh=>4,
+ams_night=>1440
+           );
+
+my %spectrumh=(
+cosmic=>0,
+undercutoff=>1,
+sealevelmuons=>2,
+lowenergyelectrons=>3,
+uniform=>4,
+uniformlog=>5
+              );
+my $spectrum={
+  %spectrumh,
+};
+
+my %particleh=(
+proton=>14,
+antiproton=>15,
+positron=>2,
+electron=>3,
+he4=>47,
+carbon=>67,
+muonminus=>5,
+photon=>1,
+              );
+
+my $particle={
+   %particleh,
+};
+
+my %jobh=(
+     triggers=>undef,     
+     particle=>undef,
+     spectrum=>undef,
+     pmin=>undef,
+     pmax=>undef,
+     costhetamax=>undef,
+     runnumber=>undef,
+     outputdirpath=>undef,
+     cpulimit=>undef,
+     queue=>undef,
+          host=>undef,
+        );
+my $job={
+     %jobh,
+ };
+
+my %defaulth=(
+     triggers=>100000,     
+     particle=>"proton",
+     spectrum=>"cosmic",
+     pmin=>0.1,
+     pmax=>10000.,
+     costhetamax=>1.,
+     runnumber=>100,
+     outputdirpath=>"/dat0/local/logs",
+     cpulimit=>10,
+     queue=>"ams_1nd",
+     host=>undef,
+              );
+my %mv=(
+     triggers=>" ",     
+     particle=>" ",
+     spectrum=>" ",
+     pmin=>"GeV/c",
+     pmax=>"GeV/c",
+     costhetamax=>" ",
+     runnumber=>" ",
+     outputdirpath=>" ",
+     cpulimit=>"sec",
+     queue=>"",
+     host=>"",
+            );
+my $default={
+%defaulth,
+};
+
+my $stupid={
+     spectrum=>$spectrum,
+     particle=>$particle,
+ };
+while(my $input=shift @ARGV){
+    my @pair=split "=",lc($input);
+    if($#pair<1){
+     print "Invalid token $input, no = separation found \n";
+     print "Please enter input in key=value pairs. \n ";
+     print "Existing keys are: \n";
+            foreach my $key (keys %jobh){
+                print $key,"\n";
+            }
+     die;
+         
+ }elsif($#pair==1){
+     
+     if(exists $job->{$pair[0]}){
+         my $hash=$stupid->{$pair[0]};
+         my @hk=sort keys %$hash;
+       if (exists $hash->{$pair[1]} or $#hk<0){
+           if($#hk<0){
+               $job->{$pair[0]}=$pair[1];
+           }
+           else{
+               $job->{$pair[0]}=$hash->{$pair[1]};
+           }
+         }
+         else{
+            print "Error: no value $pair[1]  found for key $pair[0], existing keys are:\n";
+            foreach my $key (@hk){
+                print $key,"\n";
+         } 
+            die "";
+        }
+ }
+        else{
+           print " Error:  no key $pair[0]  found, existing keys are:\n";
+            foreach my $key (sort keys %jobh){
+                print $key,"\n";
+            }            
+            die "";
+        }
+ }
+    else{
+     warn "Error: Invalid token $input, too many = separations found ";
+     print "Please enter input in key=value pairs. \n ";
+     print "Existing keys are: \n";
+            foreach my $key (sort keys %jobh){
+                print $key,"\n";
+            }
+     die;
+            die "";
+    }
+}
+while( my ($k,$v) = each %$job){
+    if(not defined $v){
+        if(defined $default->{$k}){
+        print "Warning: key $k not defined, using default $default->{$k} $mv{$k}\n";
+    }
+        else{
+        print "Warning: key $k not defined and no default used\n";
+        }
+        if (exists $stupid->{$k}){
+            my $hash=$stupid->{$k};
+          $job->{$k}=$hash->{$default->{$k}};
+        }
+        else{
+          $job->{$k}=$default->{$k};
+        }
+    }
+}
+#
+# Some checks
+#
+              if($job->{pmin}>$job->{pmax}){
+                die "pmin ($job->{pmin}) should be be < pmax ($job->{pmax}) \n";
+              }
+              if($job->{costhetamax}>1 or $job->{costhetamax}<-1){
+                die "costhetamax  ($job->{costhetamax}) should be be <= 1 \n";
+              } 
+while( my ($k,$v) = each %$job){
+        if( defined $v){
+         print "$k=>$v $mv{$k}\n";
+        }
+}
+
+
+#
+# Now submitting
+#
+
+          my $file="example.job";
+          open(FILE,">".$file) or die "Unable to open file $file\n";
+print FILE '[ -z "$UNAME" ]      && UNAME=`(uname) 2>/dev/null` '."\n";
+print FILE '[ -z "$UNAME" -a -d /sys/node_data ] && UNAME="DomainOS"'."\n";
+print FILE '[ -z "$UNAME" ]      && (echo could not determine hosttype ; exit)'."\n";
+print FILE ''."\n";
+print FILE 'if [ "$UNAME" = "AIX" ] ; then'."\n";
+print FILE '   MACHINE="aix"'."\n";
+print FILE 'elif [ "$UNAME" = "OSF1" ] ; then'."\n";
+print FILE '    MACHINE="osf1"'."\n";
+print FILE 'elif [ "$UNAME" = "HP-UX" ] ; then'."\n";
+print FILE '    MACHINE="hpux"'."\n";
+print FILE 'elif [ "$UNAME" = "Linux" ] ; then'."\n";
+print FILE '    MACHINE="linux"'."\n";
+print FILE 'else'."\n";
+print FILE 'echo $UNAME is not supported yet'."\n";
+print FILE ''."\n";
+print FILE 'fi'."\n";
+print FILE ''."\n";
+print FILE 'PART=$1'."\n";
+print FILE 'TRIG=$2'."\n";
+print FILE 'COST=$3'."\n";
+print FILE 'PMIN=$4'."\n";
+print FILE 'PMAX=$5'."\n";
+print FILE 'RUN=$6'."\n";
+print FILE 'SPCTNO=$7'."\n";
+print FILE 'OUTPUTDIR=$8'."\n";
+print FILE 'CPULIMITPEREVENT=$9'."\n";
+print FILE '/offline/vdev/exe/$MACHINE/gbatch.exe  <<!'."\n";
+print FILE 'LIST'."\n";
+print FILE 'KINE $PART '."\n";
+print FILE 'MULS 1 '."\n";
+print FILE 'C MSEL 1=0'."\n";
+print FILE 'LOSS 1 '."\n";
+print FILE 'CKOV 1 '."\n";
+print FILE 'CUTS 1=0.0005 2=0.0005 3=0.001 4=0.001 5=0.001'."\n";
+print FILE 'HADR 1'."\n";
+print FILE 'TRIG $TRIG'."\n";
+print FILE 'DEBUG -1 10 100'."\n";
+print FILE 'C    tmaxf  smax   fieldm  cconv   maxcal  nitm    xtol iver ialg   steps '."\n";
+print FILE 'C          Nparticles '."\n";
+print FILE 'MCGEN  12=$COST 13=$PMIN 14=$PMAX 15=1 19=$RUN 20=$SPCTNO 21=0'."\n";
+print FILE 'IOPA 1=3 2=\'$OUTPUTDIR/$RUN.hbk\' 43=2 '."\n";
+print FILE '45=\'TriggerLVL1  \' 168=100000000 '."\n";
+print FILE 'RNDM 191473093 131623257'."\n";
+print FILE 'C      Simul Debug    CpuLim  Read Write Jobname'."\n";
+print FILE 'AMSJOB 1=0   2=0      3=$CPULIMITPEREVENT   '."\n";
+print FILE '4=0  5=0   46=\'AMS02\' '."\n";
+print FILE 'TIME 3=10000000'."\n";
+print FILE 'TERM 1=1234567890'."\n";
+print FILE 'END'."\n";
+print FILE ''."\n";
+print FILE '!'."\n";
+close FILE;
+system "chmod +x $file";
+my $host="";
+if(defined $job->{host}){
+ $host="-m $job->{host}";
+}
+# assure floating
+my $pmin=sprintf("%.5f",$job->{pmin});
+my $pmax=sprintf("%.5f",$job->{pmax});
+my $ct=sprintf("%.5f",$job->{costhetamax});
+my $cl=sprintf("%.5f",$job->{cpulimit});
+my $string="/usr/local/lsf/bin/bsub  $host -q $job->{queue} $file $job->{particle} $job->{triggers} $ct $pmin $pmax $job->{runnumber} $job->{spectrum} $job->{outputdirpath} $cl";
+my $ntuple="$job->{outputdirpath}/$job->{runnumber}.hbk";
+if(system "touch $ntuple"){
+    print " Unable to write $ntuple, please change the outputdirpath\n";
+    exit;
+}
+print "$string\n";
+my $i=system $string;
+          if($i){
+            warn " Job Submit Failed \n"
+           }
+else{
+print "ntuple will be written in $ntuple\n"
+}
+#          unlink $file;
+         

@@ -1,0 +1,22 @@
+#  $Id: MakeuShuttle,v 1.1.1.1 2007/11/13 09:56:12 zuccon Exp $
+CFLAGS=-I/usr/local/include  -I. -I../include -g -define_templates    
+
+LDFLAGS= -g -lUfor   -lfor -lFutil -lots  -L/usr/local/lib  -lm -lamstcp -L/cern/pro/lib  -lgeant321 -lmathlib -lpacklib -lkernlib  
+
+LOADLIBES=
+
+CC=cxx
+
+
+ShuttlePar: uShuttlePar.o uCoordinates.o 
+	$(CC) $(CFLAGS)  -o uShuttlePar uShuttlePar.o uCoordinates.o ../bin/osf1/astring.o ../bin/osf1/sgif.o $(LDFLAGS) 
+
+uCoordinates.o: uCoordinates.C
+	$(CC)  $(CFLAGS)  -c uCoordinates.C  
+uShuttlePar.o: uShuttlePar.C
+	$(CC)  $(CFLAGS)  -c uShuttlePar.C  
+
+
+
+
+

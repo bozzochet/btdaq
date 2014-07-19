@@ -1,0 +1,10 @@
+LD_LIBRARY_PATH=.:$ROOTSYS/lib
+AMSEDDataDir=/offruns/scripts/log/root/
+DISPLAY=boron:0.1
+export DISPLAY
+export  AMSEDDataDir
+export LD_LIBRARY_PATH
+while( amsedc )
+do
+echo amsedc terminated
+done

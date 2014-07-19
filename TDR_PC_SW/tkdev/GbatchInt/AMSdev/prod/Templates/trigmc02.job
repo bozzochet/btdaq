@@ -1,0 +1,24 @@
+#generate AMS02 events from 3.9m cube surface and cosmax<0.25 TOF trigger only
+
+LIST
+KINE $PART 
+LOSS 1
+HADR 1 
+MULS 1
+CUTS 1=0.0005 2=0.0005 3=0.001 4=0.001 5=0.001
+TRIG $TRIG
+DEBUG -1 10 1000
+MCGEN  12=0.25 13=$PMIN 14=$PMAX 19=$RUN  20=5 21=0 34=0
+IOPA 1=3 2='$NtupleDir/real/general/$PART'
+43=102 45='TriggerLVL1' 126=50000 168=120000000
+RNDM $RNDM1 $RNDM2
+C      Simul Debug    CpuLim  Read Write Jobname
+AMSJOB 1=10000   2=0      3=$CPULIM   4=0  5=0 
+C Special HP-UX
+TIME 3=10000000
+TERM 1234567890
+L3REC 11=0
+TGL1 1=1
+ECCA 1=3
+END
+!

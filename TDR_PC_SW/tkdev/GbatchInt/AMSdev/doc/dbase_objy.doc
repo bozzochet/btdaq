@@ -1,0 +1,274 @@
+#  $Id: dbase_objy.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+                                                     Alexei Klimentov
+                                                    (alexei.klimentov@cern.ch)
+Filename : dbase_objy.doc                           Last Edit : March 12, 1998.
+
+
+
+General Information and Objectivity/DB Basics
+----------------------------------------------
+
+ AMS database uses Object Oriented Database Software known as Objectivity. 
+
+ Objectivity uses a hierarchical storage scheme to organize objects into 
+aggregates of objects. The Objectivity storage hierarchy consists of a federated 
+database (highest level), database, container, and basic object (lowest level). An 
+application opens or creates one federated database which contains a catalog of 
+databases, data type information (schema), and boot file information (lock-sever, 
+host, etc.). The federated database provides file management for the other elements
+in the hierarchy. Any number of databases may be opened inside the federated 
+database. (The federated database and each individual database are all stored as
+separate UNIX files on a disk.) At the next level, any number of containers may be 
+opened inside a database. Finally, basic objects are stored in containers. A 
+container may store any number of objects. If a container is not created or 
+specified, the stored object is placed in a default container. 
+ (Objectivity demo is in  /usr/local/objectivity/alphaosf1/demo/CC 
+              copy it to your local directory,
+              edit Makefile, change FDID and platform)
+
+MORE INFORMATION CAN BE FOUND ON 
+CERN RD45 page
+   http://wwwcn1.cern.ch/asd/cernlib/rd45/index.html
+Objectivity page
+   http://www.objy.com/
+
+AMS Database prototype 
+----------------------
+
+ AMS Database consists of multiple processes and files distributed on several 
+machines (federation of databases in Objectivity argo). The Database server 
+host machine is boronams.ethz.ch
+ 
+ Federation has name LOM, the boot file is /offdata/database/boot/LOM. Database 
+applications use system name and boot file when referring to federated 
+database.
+
+ The top level of hierarchical storage is a federated database 
+        /offdata/database/boot/LOM.FDDB. 
+
+ A schema is a physical representation of Objectivity/DB data model. With some 
+extent schemas are the translation of AMS C++ classes to Objectivity. 
+
+ The production version of the databases is placed in  /offdata/database/dbs
+ (you can use the production database or build your own version) 
+
+ Databases :
+ A database is the second level in Objectivity heirarchy.
+ Database is where application's data is stored. Databases consist of one or
+more logical structures called containers, which in turn contain fundamental 
+units, called basic objects. 
+
+ AMS databases :
+ DbList        - catalog of databases
+ Setup         - to store geometry, description of materials, constants
+ TDV           - time dependent values, for example pedestals, sigmas, etc
+ EventTag      - containes short description of event (see eventTag.ddl 
+                    file) and keeps pointers to reconstructed, simulated or
+                    raw events.
+ MCEvents      - containes simulated data
+ RawEvents     - containes raw data
+ RecEcents     - containes reconstructed data
+ Slow          - containes house keeping data 
+
+ to change the default location  (for the private federations) do
+ setenv  AMS_TagDB_Path  ~/here/there/, for the official version do 
+
+ setenv AMS_TDVDB_Path /offdata/database/dbs/tdv/
+ setenv AMS_SetupDB_Path /offdata/database/dbs/setup/
+
+(similar for AMS_MCDB_Path, AMS_RecDB_Path, AMS_SetupDB_Path, AMS_RawDB_Path, 
+ AMS_SlowDB_Path) 
+
+the second and subsequent databases will be placed to the same directory as 
+the first database. Database file names convention is databaseName-N, for
+example EventTag-0, Setup-1, etc. Program is opened file 'i+1' if mode equal 
+Update and the size of file 'i' is bigger than 1GB. 
+ 
+database Containers :
+ Setup database has containers : Materials, Geometry, AMSDBc
+ The information about tracks, clusters, hits, betas, etc is stored
+ in containers TrTracks, TrClusters, TrRecHits, Beta, etc, in the database
+ RecEvents.
+ The organization of containers for raw events is under discussion.
+ 
+Basic Objects : 
+
+Each AMS C++ class has a database analog, it is described using 
+DDL (Data Definition Language) and has the extension ddl. DDL file (also 
+called schema file) has a corresponding method file with the same name and the
+extension C. The DDL processor creates header files and schema implementation 
+file for each DDL schema file. 
+
+ For example :
+  particle.h - particle description class
+  particleD.ddl   - DDL schema file defines particle class for a 
+                             database
+  particleD.C     - method source file of particleD.ddl
+  particleD.h     - header file
+  particleD_ref.h - reference header file
+  particleD_ddl.C - C++ implementation file
+
+Files particleD.h, particleD_ref.h and particleD_ddl.C are generated by DDL 
+processor and they are machine independent (herein ARCH means architecture, 
+for example, alphaosf1, ibmrs6000)
+
+  AMS events objects are associated with list. The name of list is set by 
+program using JobName and SetupName datacards. The combination of event number
+and run number is unique within the list and is used to build search index. 
+Geometry, tracking media, materials and constants are also associated with 
+the list.
+
+
+
+How to set PATH's
+-----------------
+
+ The Objectivity related definitions are in objy_def (~/AMS/install), you can 
+include it to your .cshrc file or do source objy_def before starting to work 
+with the database.
+ If you want to build your own database look into  config.user_'ARCH' and 
+config.'ARCH' files (~/AMS/db/), config* files are included in make file. You
+have to change the ID number of federated database (FDID) in config file (use 
+the last 4 digits of your CERN office phone number, if you need more than one 
+FDID, ask me and I'll allocate it for you).
+
+ The object files are placed in ~/AMS/db/bin/'ARCH', the exe files are in 
+~/AMS/exe/'ARCH'. 
+
+
+Makefiles :
+
+  MakeDB  - to create AMS + All Databases program. MakeDB uses AMS object 
+            files, created by Mgbatch 
+              
+  Makesr  - to create AMS+DB+ROOT version
+
+  MakeSDB - to create AMS + 'Setup' + 'TDV' Databases (no event's classes)
+            MakeSDB uses AMS object files, created by Mgbatch 
+
+  MakeSDB_C - similar to MakeSDB but supposes that the official database will be
+              used
+
+*) goto ~/AMS/db directory first.
+
+
+READ/WRITE datacards
+
+ READ and WRITE data cards have the following meaning :
+
+ READ = 1 (WRITE = 1)
+    read (write) setup (geometry, materials, tracking media) from the database
+ READ = 10 (WRITE = 10)
+    read (write)  mceventg from the database for the list defined by JobName
+ READ = 100 (WRITE = 100)
+    read (write) all MC banks from the database for the list defined by JobName
+ READ = 1000 (WRITE = 1000)
+    read (write) raw event 
+ READ = 10000 (WRITE = 1000)
+    read (write) full reconstructed event
+ READ = 100000 (WRITE = 100000)
+    special mode. read (write) particle information only
+
+
+How to start ?
+
+ - do you have an account on AMS Alpha's  ? 
+    (send mail to klimentov@cern.ch to get it)
+ - do you have an access to the CVS repositary of AMS sw ?
+    (ask V.Choutko to give you an access, vitaly.choutko@cern.ch)
+ - create your own copy of AMS sw
+ - build necessary object files, use  Mgbatch makefile
+
+ from this point it is Objectivity specific
+
+ - get login definitions from the file ~/AMS/doc/objy_def, edit and execute them
+ - to have private database :
+    edit config.user_$ARCH and change FDID, set it to your CERN phone number
+   MakeSDB 
+ - build program to access production database
+   set OO_FD_BOOT /offdata/database/boot/LOM
+   MakeSDB_C
+
+
+ setenv OO_CACHE_MAX 1000 (set the cache size to 1000, it a bit improves speed
+                           of I/O)
+
+ usefull Objectivity commands
+
+// to run the browser
+
+   $setenv DISPLAY display_name:0
+   $ootoolmgr 'PATH'/LOM & 
+
+   where LOM is the name of database bootfile and PATH is a path to it
+
+// cleanup if program abnormally ended
+
+   $oocleanup -local 'PATH'/LOM 
+
+
+
+HOW TO BUILD CERNSP VERSION OF PROGRAM TO ACCESS dbase PLACED ON AMS ALPHA 
+                   (afl3u0.cern.ch) LOCAL DISK
+
+- build database on local disk
+- copy ../db/boot/LOM file from the local disk to the place you can access from
+  cernsp.
+- execute on cernsp setenv OO_FD_BOOT 'PATH'/LOM
+- copy schema files, method files, the result of ooddlx processing to the area
+  you can access from the cernsp
+- execute gmake -f MakeClientDB on cersnp, it starts compiling of *.C files.
+  as the result of MakeClientDB you'll get an executive one can run from 
+  cernsp. 
+- be sure that remote access to the database is allowed (oostartams should be
+  run and alive on afl3u0, usually I take care of this)
+- start exec on cernsp.
+
+
+AMS DBASE UTILITIES (../exe/$(ARCH) )
+
+ printList [flag] [listname]  - prints full (flag = F/f) or short (flag = S/s) 
+                                information about the list with name listname 
+                                or about all lists 
+ deleteRun             - delete all events of the particular run (works only on
+                         aix, because of bug in Objectivity)
+ deleteList            - delete list and all associated containers
+ deleteSetup           - delete setup
+
+
+
+Main Subroutines :
+
+AddMaterial()  - write materials to database
+ReadMaterial() - read materials from database
+
+AddTMedia()    - write tracking media to database
+ReadTMedia()   - read tracking media from database
+
+AddGeometry()  - write geometry to database
+ReadGeometry() - read geometry from database
+
+AddEvent
+    (uinteger run, uinteger eventNumber, time_t time, integer WriteStartEnd)
+//
+// listH         - pointer to the container to place event in
+// run           - unique run number
+// eventNumber   - event number
+// WriteStartEnd - flag;
+//                       1 - start transaction
+//                      -1 - end transaction
+//                      -2 - start&end trasaction
+//
+
+
+How to do backup :
+
+    setenv OO_FD_BOOT /offdata/database/boot/LOM
+    cd /offdata/database
+    oocreateset -set testBackup /offdata/database/boot/LOM
+    ls /offdata/database/boot
+    oobackup -set testBackup -backup 1stBackup -volume 1st -device /offdata/database/backup /offdata/database/boot/LOM
+    /usr0/users/alexei/AMS/exe/osf1/printTDV S TrackerPedestals.l
+   oorestore -set testBackup -backup 1stBackup -device /offdata/database/backup -volume 1st /offdata/database/boot/LOM
+   /usr0/users/alexei/AMS/exe/osf1/printTDV S TrackerPedestals.l
+   

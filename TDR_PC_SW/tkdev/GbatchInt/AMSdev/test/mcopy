@@ -1,0 +1,11 @@
+CFLAGS= -g -I../include
+LDFLAGS= -L/cern/pro/lib -lgeant321 -lmathlib -lpacklib -lkernlib
+FILES=   copy.C
+OBJECTS= copy.o ../bin/upool.o ../bin/link.o
+HEADERS= ../include/amsstl.h ../include/cern.h
+gv:	$(OBJECTS)
+	xlC -o copy.exe $(OBJECTS) $(LDFLAGS)
+
+copy.o:	$(HEADERS)    	
+	xlC -c $(CFLAGS) copy.C
+

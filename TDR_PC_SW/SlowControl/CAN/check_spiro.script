@@ -1,0 +1,26 @@
+#INIT
+
+ADDR 0x14b
+slot h
+
+#CMD
+
+wait 15
+
+L1:
+
+read P3      0 5000
+read P4      0 5000
+read T01     -5000.0 5000
+read T23     -5000.0 5000
+read T24     -5000.0 5000
+read T25     -5000.0 5000
+read T18   -50  1000
+read T19   -50  1000
+read spirometer 0
+
+wait 15
+
+goto L1
+
+#END

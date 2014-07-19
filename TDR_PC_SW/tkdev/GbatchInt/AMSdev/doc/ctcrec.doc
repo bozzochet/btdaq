@@ -1,0 +1,65 @@
+#  $Id: ctcrec.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+// CTC reconstruction - V. Choutko 24/09/96
+
+
+class AMSCTCRawCluster: public AMSlink{
+protected:
+ integer _status;  // status
+ integer _bar;     // bar number 
+ integer _layer;   // layer number
+ number _signal;  //  signal in photoelectrons
+
+
+public:
+
+
+ integer getstatus() const{return _status;}
+
+ integer getbarno()const {return _bar;}
+
+ integer getlayno()const {return _layer;}
+
+ number getsignal()const {return _signal;}
+
+ AMSCTCRawCluster(integer status, integer bar, number signal):
+
+ static void sictcdigi();
+};
+
+
+
+class AMSCTCCluster: public AMSlink{
+protected:
+ integer _Status;             // if USED bit on -- correction done
+ integer _Layer;              // Layer number
+ AMSPoint _Coo;               // coordinates
+ AMSPoint _ErrorCoo;          // Error to coordinates
+ number   _Signal;            // signal in pe
+ number   _CorrectedSignal;   // corrected to cos(theta) signal
+ number   _ErrorSignal;       // Error in corrected to length and charge signal
+public:
+
+ integer checkstatus(integer checker) const{return _Status & checker;}
+
+ inline void setstatus(integer status){_Status=_Status | status;}
+
+ inline void correct(number factor){_CorrectedSignal=_CorrectedSignal*factor;
+ _ErrorSignal=_ErrorSignal*factor;}
+
+ integer getlayno() const {return _Layer;}
+
+ number getrawsignal()const {return _Signal;}
+
+ number getsignal()const {return _CorrectedSignal;}
+
+ number geterror()const {return _ErrorSignal;}
+
+ AMSPoint getcoo()const {return _Coo;}
+
+ AMSPoint getecoo()const {return _ErrorCoo;}
+
+ static void build();
+
+ static void print();
+};
+

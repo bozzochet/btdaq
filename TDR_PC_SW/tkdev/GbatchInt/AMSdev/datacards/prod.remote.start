@@ -1,0 +1,1 @@
+/usr/sue/bin/rsh $3 nice -10 prod.local $1 $2 1>/Offline/logs.local/$1.log 2>/Offline/logs.local/$1.e.log &

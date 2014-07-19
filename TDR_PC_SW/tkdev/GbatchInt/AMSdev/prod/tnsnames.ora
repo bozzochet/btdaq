@@ -1,0 +1,9 @@
+amsdb=(DESCRIPTION=
+        (ADDRESS=
+                (PROTOCOL=tcp)
+                (HOST=oraams.cern.ch)
+                (PORT=1521)
+        )
+        (CONNECT_DATA=
+                (SID=AMS))
+        )

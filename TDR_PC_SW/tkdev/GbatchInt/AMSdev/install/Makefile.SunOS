@@ -1,0 +1,77 @@
+#pz june 2005 
+# Genaral clean up and reorganization
+# !!!!! TO BE TESTED !!!!
+
+#ifeq  "$(shell uname)"  "SunOS" 
+CXX=CC
+CC=CC
+FF=f77
+LD=CC
+
+
+CERN_LEVEL = pro
+CERNDIR = /cern/$(CERN_LEVEL)
+CERNSRCDIR = /afs/cern.ch/asis/share/cern/2002
+AMSLIB =   /afs/cern.ch/exp/ams/Offline/lib/sunos
+NAGDIR = /afs/cern.ch/sw/nag/mark18/sun/flsol18da
+
+BIN=$(AMSWD)/bin/sunos/
+EXE=$(AMSWD)/exe/sunos/
+LIB=$(AMSWD)/lib/sunos/
+
+INCLUDE=../include/
+IFLAGS= -I/usr/include -I$(SRC)  -I$(ROOTSYS)/include
+
+ifdef AMSDEBUG
+CFLAGS=    -D__AMSDEBUG__  -D__BATCH__  -g    -I../include   -I../db  -D__WRITEROOT__  -I$(ROOTSYS)/include
+CFLAGS_gxint=$(CFLAGS)
+CFLAGSTOFSIM= $(CFLAGS)
+CFLAGSn=      $(CFLAGS)
+CFLAGSDAQ=    $(CFLAGS) 
+FFLAGS=   -g -I../include  
+FFLAGSn=   -g -I../include  
+CFLAGSB=   -D__AMSDEBUG__ -g   -D__BATCH__      -I../include   -I../db -D__WRITEROOT__  -I$(ROOTSYS)/include
+else
+#CFLAGSB=      -D__BATCH__   -library=rwtools7,iostream,Cstd,Crun    -I../include   -I../db -D__WRITEROOT__
+#CFLAGSB=      -D__BATCH__       -I../include     -mt -lpthread
+CFLAGSB=      -D__BATCH__       -I../include    -O4 -xarch=v8plusa -D__WRITEROOT__  -I$(ROOTSYS)/include
+CFLAGSTOFSIM= $(CFLAGSB)
+CFLAGSDAQ=    $(CFLAGSB)
+CFLAGSn=      $(CFLAGSB)
+CFLAGS=      $(CFLAGSB) 
+FFLAGS=   -O4 -xarch=v8plusa -I../include
+FFLAGSn=    -I../include
+endif
+
+
+
+LDFLAGSSTATIC=   -O4 -xarch=v8plusa -Bstatic  -library=f77,Cstd,Crun -lm -L$(ROOTSYS)/lib -lcrypt -L$(CERNDIR)/lib   -lgeant321   -lpacklib -lmathlib -lkernlib -L/usr/local/lib -lshift -L$(NAGDIR) -lnag - -L/usr/lib -lm -lsocket  -L/usr/lib   -lnsl  -lm      -L$(AMSLIB) -lamsut -lkernlib -Bdynamic -L$(ROOTSYS)/lib -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lm -ldl -lnsl -lsocket
+
+
+LDFLAGS_gxint= $(LSDFLAGSSTATIC) $(ROOTLIBS) -L$(CERNDIR)/lib -lpacklib -lgeant321 -L/usr/local/lib -lshift -lw -lgen -lsocket -lnsl -lintl -lrt
+
+#LDFLAGS=   -Bstatic -library=f77,Cstd,Crun -lm   -L$(CERNDIR)/lib   -lgeant321   -lpacklib -lmathlib -lkernlib -L/afs/cern.ch/asis/packages/licensed/nag-mark16/sun4x_56/nagfl16df -lnag -L/usr/lib -lm  -L/usr/lib  -lsocket -lnsl  -lm -lc     -L/afs/cern.ch/exp/ams/Offline/lib/sunos -lamsut -lkernlib -L/usr/ucblib -lucb -Bdynamic -L/usr/lib -ldl 
+TIMEL=
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

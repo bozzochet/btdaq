@@ -1,0 +1,85 @@
+// file lddr-test-1-configuration-file.txt
+//
+// test file for lddr-test-1 program
+//
+// A.Lebedev Dec-2006...
+
+
+Configuration-File:
+------------------------------------------------------------------------------
+
+Operator Name W.Karpinski
+Store Directory test-data
+//USCM#0 1A7
+USCM#0 198
+USCM#1 1A8
+USCM ON #0
+
+;LDDR ON
+LDDR ON: L0_Enable = H
+LDDR ON: L0_Power  = H
+LDDR ON: L1_Enable = H
+LDDR ON: L1_Power  = H
+LDDR ON: OFF/ON 0  = L
+LDDR ON: OFF/ON 1  = L
+
+;LDDR OFF
+LDDR OFF: L0_Enable = L
+LDDR OFF: L0_Power  = L
+LDDR OFF: L1_Enable = L
+LDDR OFF: L1_Power  = L
+LDDR OFF: OFF/ON 0  = L
+LDDR OFF: OFF/ON 1  = L
+LDDR OFF: SetDAC    = 0V
+
+;Trigger
+Trigger: L_DC    = L
+Trigger: I_trg   = L
+Trigger: Trg B/A = L
+
+;Dallas IDs
+
+LDDR#0 L0 Hot 08000800543E4010
+LDDR#0 L1 Hot BE0008004C392010
+LDDR#1 L0 Hot AD000800AACDA010
+LDDR#1 L1 Hot BF000800AB0C5010
+LDDR#2 L0 Hot 3F000800AAF87010
+LDDR#2 L1 Hot 48000800AAFB0810
+LDDR#3 L0 Hot A7000800AAA71810
+LDDR#3 L1 Hot AA0008004C0D7810
+LDDR#4 L0 Hot F10008004C1CF810
+LDDR#4 L1 Hot 37000800AA959410
+
+LDDR#0 L0 Cld 00000800BC1B1310
+LDDR#0 L1 Cld 00000800BC1B1310
+LDDR#1 L0 Cld 00000800BC1B1310
+LDDR#1 L1 Cld 00000800BC1B1310
+LDDR#2 L0 Cld 00000800BC1B1310
+LDDR#2 L1 Cld 00000800BC1B1310
+LDDR#3 L0 Cld 00000800BC1B1310
+LDDR#3 L1 Cld 00000800BC1B1310
+LDDR#4 L0 Cld 00000800BC1B1310
+LDDR#4 L1 Cld 00000800BC1B1310
+
+//P_Counter_Max = 100
+P_Counter_Max = 10
+T_Counter_Max = 10
+//Repeatition Time 0.05s
+Repeatition Time 2s
+
+;Parallel Port Settings
+LPT Address = 378h
+  
+          Databit   7 6 5 4 3 2 1 0
+    LDDR-Address:
+           LDDR#0   x x x x x 0 0 0
+           LDDR#1   x x x x x 0 0 1
+           LDDR#2   x x x x x 0 1 0
+           LDDR#3   x x x x x 0 1 1 
+           LDDR#4   x x x 1 x 1 0 0
+  Set LCTL Port A   x x 1 x x x x x
+  Set LCTL Port B   x 1 x x x x x x
+    Trigger Pulse   1 x x x x x x x
+
+End Of Configuration-File
+------------------------------------------------------------------------------

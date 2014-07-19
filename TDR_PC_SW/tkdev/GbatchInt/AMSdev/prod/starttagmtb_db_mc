@@ -1,0 +1,2 @@
+source $AMSDataDir/DataManagement/prod/AMSProdVarMC
+nice -20    $AMSProdDir/prod/starttagmt_db_mc $1 $2 1>$AMSProdDir/logs/Server.1.log 2>&1 &

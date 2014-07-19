@@ -1,0 +1,273 @@
+#  $Id: flow_rec.doc,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
+              AMS Reconstruction program simplified flowchart
+              -------------------------------------------
+                                                       Last Edit : Nov 24, 1997
+
+M A I N  ->      gbatch.C
+ |
+ |
+ |-> G Z E B R A     (*)  initialization of Zebra system
+ |
+ |
+ |-> U G I N I T           user initialization routine 
+ |    |
+ |    |
+ |    |->GINIT            GEANT initialization routine
+ |    |->new AMSjob()     Creates job instance
+ |    |->AMSJob::data     defines user data cards
+ |    |   |
+ |    |   |->_siamsdata   Simulation specific datacards
+ |    |   |    |
+ |    |   |    |->_sitrigdata   Trigger datacards
+ |    |   |    |->_sitkdata   Tracker datacards
+ |    |   |    |->_signdata   MCGen datacards
+ |    |   |    |->_sitofdata  TOF datacards
+ |    |   |    |->_siantidata Anti datacards
+ |    |   |    |->_sitrddata  TRD datacards
+ |    |   |    |->_sictcdata  CTC datacards
+ |    |   |    
+ |    |   |->_reamsdata   Reconstruction specific datacards    
+ |    |        |
+ |    |        |->_retkdata   Tracker datacards
+ |    |        |->_retofdata  TOF datacards
+ |    |        |->_reantidata Antidatacards
+ |    |        |->_retrddata  TRD datacards
+ |    |        |->_rectcdata  CTC datacards
+ |    |        |->_reaxdata   AMS datacards
+ |    |        |->_redaqdata  DAQ datacards
+ |    |        
+ |    |->GFFGO  
+ |    |->AMSJob::udata     read user data cards
+ |#ifndef __DB__
+ |    |->AMSgmat::amsmat   AMS materials definitions
+ |    |->AMSgvolume::amsgeom AMS geometry
+ |    |   |     
+ |    |   |->magnetgeom    Magnet geometry
+ |    |   |->tofgeom       TOF geometry
+ |    |   |->antigeom      Anti counter geometry
+ |    |   |->tkgeom        Tracker geometry
+ |    |   |->ctcgeom       CTC      geometry
+ |#else
+ |    |->initDB
+ |    |   |->    setapplicationName = jobname
+ |    |   |->    setprefix          = jobname
+ |    |   |->    setsetup           = datacards setup
+ |    |   |->    settypeR           = datacards Read
+ |    |   |->    settypeW           = datacards Write
+ |    |   |->    ClusteringInit   
+ |    |->readGeomDB             read geometry, materials definitions from dbase
+ |    |->CheckConstants         check amsdbc, antidbc, ctcdbc, tofdbc
+ |    |->CheckCommons           compare content of 'common' blocks in memory 
+ |    |                         and dbase
+ |    |->AMSJob::FillTDVTable   fill TDV table wih names of known TDV's
+ |    |->FillTDV                read TDV's from dbase and fill table in memory
+ |    |                         of insert/begin/end time for all TDV's.
+ |#endif
+ |    |   
+ |    |->AMSJob::init      User initialization routine 
+ |    |   |
+ |    |   |
+ |    |   |->_siamsinitjob   Simulation initialization
+ |    |   |    | 
+ |    |   |    |->_sitriginitjob
+ |    |   |    |->_sitkinitjob
+ |    |   |    |->_signinitjob
+ |    |   |    |->_sitofinitjob
+ |    |   |    |->_siantiinitjob
+ |    |   |    |->_sitrdinitjob
+ |    |   |    |->_sictcinitjob
+ |    |   |    
+ |    |   |->_reamsinitjob    Reconstruction initialization   
+ |    |   |    | 
+ |    |   |    |->_redaqinitjob
+ |    |   |    |->_retkinitjob
+ |    |   |    |->_retofinitjob
+ |    |   |    |->_reantiinitjob
+ |    |   |    |->_retrdinitjob
+ |    |   |    |->_rectcinitjob
+ |    |   |    |->_reaxinitjob
+ |    |   |    
+ |    |   |->_caamsinitjob    Calibration initialization
+ |    |   |    | 
+ |    |   |    |->_catkinitjob
+ |    |   |    |->_catofinitjob
+ |    |   |    |->_catrdinitjob
+ |    |   |    |->_cactcinitjob
+ |    |   |    |->_caaxinitjob
+ |    |   |
+ |    |   |->_timeinitjob   Initialization time dependent vars
+ |    |
+ |    |->map               Map Job tree       
+ |    |   
+ |#ifdef __DB__
+ |    |-> CheckCommons     compare common blocks in database and memory
+ |    |-> WriteGeomDB      write geometry, materials definition, TDV, 
+ |    |                    constants  to the database if required.
+ |#endif
+ |    |->uhinit            Book histograms/ntuples
+ |
+ |
+ |-> G R U N
+ |    |
+ |    |->GUKINE
+ |    |   |
+ |    |   |->AMSEvent::sethead()   Create new event structure 
+ |    |   |    |
+ |    |   |    | 
+ |    |   |    |->_siamsinitrun    Initialize if run no changed
+ |    |   |    |    |
+ |    |   |    |    |->_sitkinitrun
+ |    |   |    |    |->_sitofinitrun
+ |    |   |    |    |->_siantiinitrun
+ |    |   |    |    |->_sitrdinitrun
+ |    |   |    |    |->_sictcinitrun
+ |    |   |    |    |->_signinitrun
+ |    |   |    |    |
+ |    |   |    |->_reamsinitrun      ----------------------------
+ |    |   |    |    |
+ |    |   |    |    |->_retkinitrun
+ |    |   |    |    |->_retofinitrun
+ |    |   |    |    |->_reantiinitrun
+ |    |   |    |    |->_retrdinitrun
+ |    |   |    |    |->_rectcinitrun
+ |    |   |    |    |->_reaxinitrun
+ |    |   |    |                      
+ |    |   |    |
+ |    |   |    |->_siamsinitevent    Initialize event
+ |    |   |    |    |
+ |    |   |    |    |->_signinitevent
+ |    |   |    |    |->_sitkinitevent
+ |    |   |    |    |->_sitofinitevent
+ |    |   |    |    |->_siantiinitevent
+ |    |   |    |    |->_sitrdinitevent
+ |    |   |    |    |->_sictcinitevent
+ |    |   |    |    |
+ |    |   |    |->_reamsinitevent
+ |    |   |    |    |
+ |    |   |    |    |->_redaqinitevent
+ |    |   |    |    |->_retriginitevent
+ |    |   |    |    |->_retkinitevent
+ |    |   |    |    |->_retofinitevent
+ |    |   |    |    |->_reantiinitevent
+ |    |   |    |    |->_retrdinitevent
+ |    |   |    |    |->_rectcinitevent
+ |    |   |    |    |->_reaxinitevent
+ |    |   |    |
+ |    |   |    |->_validate             Validate time dep constants
+ |    |   |    |->_validateDB           Compare one by one TDV's in memory
+ |    |   |          |                  with ones in dbase
+ |    |   |          |                  
+ |    |   |          +-->FindTheBestTDV check i/b/e time 
+ |    |   |
+ |    |   |
+ |    |   |->AMSmceventg->run      Create MC Gen  structure
+ |    |
+ |    |
+ |    |   
+ |    |->GUOUT
+ |        |
+ |        |->AMSEvent::event         Analyze event
+ |        |    |
+ |        |    |
+ |        |    |
+ |        |    |->_reamsevent         Reconstruct event
+ |        |    |    |     
+ |        |    |    |->_redaqevent     (Re)Create raw data structures,     
+ |        |    |    |     |->(if TRCALIB.CalibProcedureNo == 1)BuildSigmaPed 
+ |        |    |    |     
+ |        |    |    |->_retofevent     Reconstruct TOF
+ |        |    |    |     |
+ |        |    |    |     |->AMSTOFRawEvent::validate  RawEvent-->RawEvent
+ |        |    |    |     |  (also includes STRR+AVSD calibration if selected)
+ |        |    |    |     |                        
+ |        |    |    |     |->AMSTOFRawCluster::build   RawEvent-->RawCluster
+ |        |    |    |     |->AMSTOFCluster::build      RawCluster-->Cluster
+ |        |    |    |
+ |        |    |    |->_reantievent     Reconstruct Anti
+ |        |    |    |     |
+ |        |    |    |     |->AMSAntiRawEvent::validate  RawEvent-->RawEvent
+ |        |    |    |     |->AMSAntiRawCluster::build   RawEvent-->RawCluster
+ |        |    |    |     |->AMSAntiCluster::build      RawCluster-->Cluster
+ |        |    |    |
+ |        |    |    |->_retkevent      reconstruct Tracker
+ |        |    |    |     |
+ |        |    |    |     |->AMSTrCluster::build        Make clusters
+ |        |    |    |     |->AMSTrRecHit::build         Make Rec Hits
+ |        |    |    |     |->AMSTrTrack::build          Pattern rec + fitting 
+ |        |    |    |     |        |->Fit               Trajectory Fit
+ |        |    |    |     |                     
+ |        |    |    |     |->_retkevent                 Refit if necessary     
+ |        |    |    |                          
+ |        |    |    |->_retrdevent     reconstruct TRD
+ |        |    |    |
+ |        |    |    |->_rectcevent     reconstruct CTC
+ |        |    |    |     |->AMSCTCRawEvent::validate   RawEvent-->RawEvent
+ |        |    |    |     |->AMSCTCRawHit::build        RawEvent-->RawHit
+ |        |    |    |     |->AMSCTCCluster::build       RawHit-->Cluster
+ |        |    |    |
+ |        |    |    |->_reaxevent      global reconstruction
+ |        |    |          |
+ |        |    |          |->AMSBeta::build         Beta reconstruction 
+ |        |    |          |   |->SimpleFit          Straight Line fit   
+ |        |    |          | 
+ |        |    |          |->AMSCharge::build       Charge reconstruction 
+ |        |    |          |   |->Fit                Likelihood Fit
+ |        |    |          | 
+ |        |    |          |->AMSParticle::build     Final reconstruction
+ |        |    |          |   |->pid                Particle Identification
+ |        |    |          |   |->refit              Refitting Trajectory
+ |        |    |          |
+ |        |    |           
+ |        |    |                                    
+ |        |    |
+ |        |    |
+ |        |    |->_caamsevent           Calibration
+ |        |    |     |
+ |        |          |->_catofevent      TOF
+ |        |          |      |
+ |        |          |      |->TOFTZSLcalib::select() Event selection for
+ |        |          |      |                         TOF TZSL-calibration
+ |        |          |      |->TOFTDIFcalib::select() .... for TDIF-calibration
+ |        |          |      |->TOFAMPLcalib::select() .... for AMPL-calibration
+ |        |          |
+ |        |          |->_cactcevent       Cerenkov
+ |        |          |
+ |        |          | 
+ |        |          |->catkevent        Tracker 
+ |        |          |     |
+ |        |          |     |
+ |        |          |     |->AMSTrIdCalib::_check,_hist,_update  // ped&sigmas calculation
+ |        |          |     |
+ |        |          |     |->AMSTrCalibFit::Test     // tracker alignment
+ |        |          |     |->AMSTrCalibFit::Fit      // tracker alignment
+ |        |          |
+ |        |          |->_catrdevent
+ |        |          |
+ |        |
+ |        |
+ |        |
+ |        |       
+ |        |->AMSEvent::write         Write event output to ntuple
+ |        |       
+ |        |->AddEvent                Write event output to Objectivity db
+ |             |
+ |             |-> AddTagEvent           write tag information
+ |             |-> AddMCEvent            add MC objects
+ |             |-> AddRecoEvent          add reconstructed objects
+ |        |
+ |        |->AMSEvent::remove        Clear event
+ |        |       
+ |        |->UPool.erase             Reset memory pool
+ |
+ |
+ | ->U G L A S T                      Termination
+      |
+      |->GLAST          
+      |->delete AMSjob()                   Delete job instance          
+           |
+           |->_ctcendjob            Detector specific terminations
+           |->_tofendjob
+           |->_tkendjob
+           |->_trdendjob
+           |->_dbendjob
+           |->_axendjob

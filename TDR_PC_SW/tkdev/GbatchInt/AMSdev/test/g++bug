@@ -1,0 +1,2 @@
+g++ -fhandle-exceptions throw.C
+a.out

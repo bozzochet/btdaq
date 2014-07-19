@@ -1,0 +1,15 @@
+addr 0x1A1
+
+L1:
+
+slot C
+read P3   3000.0 4000.0 
+
+
+
+c+   C0        -      - 
+goto L1
+
+
+slot FVC
+read MUX1   -0.1    0.1

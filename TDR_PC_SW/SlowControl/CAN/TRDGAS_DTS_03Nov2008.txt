@@ -1,0 +1,55 @@
+TRD-GAS Dallas Temperature Sensors     Th.Siedenburg  update 3-Nov-2008
+
+Global Sensors:
+
+//    No    Location                ---DTS-A--------     ---DTS-B--------    
+//    in    on                                                 
+//  Chain   TRD-GAS                      ID                   ID            Name_Tag
+//  				  		       			  
+//     1    Plate-Bottom            BF000800AA9E9F10     F4000800AB024610   PlateBot
+//     2    CO2-1                   EE0008008E617510     EE0008008E968210   CO2_1
+//     3    CO2-2                   DD0008008E470F10     DA0008008E78BA10   CO2_2
+//     4    Preheater-1             62000800AA9C2C10     B7000800AB04D410   PreHeat1
+//     5    Preheater-2             2E000800AA9C1410     0C000800AAE56B10   PreHeat2
+//     6    Xenon-1                 AC0008008E4FA110     680008008E988D10   Xe_1
+//     7    Tower-Valve             37000800AAC8BE10     D0000800AAA74B10   TowerVlv
+//     8    Four-Valve              D8000800AAF0D710     E0000800AAE7EC10   FourValv
+//     9    Two-Valve-Filter        56000800AAB10510     18000800AABACD10   2VlvFilt
+//    10    Vent-Valve              3F000800AAFF3F10     6D000800AAFA9B10   VentValv
+//    11    Two-Valve-GP50          AC000800AAEE0510     31000800AAAFD910   2VlvGP50
+//    12    Plate-Top               73000800AAF6D610     2C000800AAE66910   PlateTop
+//    13    Xenon-2                 FD0008008E582810     620008008E5ADA10   Xe_2
+//    14    Box-C Valves            F1000800AACA4F10     35000800AADA1610   BoxC_Vlv
+
+
+
+Local Sensors:
+
+//    No    Location                ---DTS-A--------     ---DTS-B--------   
+//    in    on                                                 
+//  Chain   TRD-GAS                      ID                   ID            Name_Tag
+//  
+//    01    Plate Middle Fin        180008008B5D0810     820008008B4BB410   PlateFin
+//    02    CO2 #1                  400008008B487A10     9B0008008B4AFC10   CO2_1
+//    03    CO2 Outlet Boss         D70008008B431510     870008008B3CCC10   CO2_Out
+//    04    CO2 #2                  490008008B359210     B40008008B690910   CO2_2
+//    05    PreHeater #1            670008008B5D1710     680008008B3DF610   PreHeat1
+//    06    PreHeater #2            0B0008008B3B4D10     590008008B517310   PreHeat2
+//    07    Valve Tower             A50008008B527510     1C0008008B475D10   VlvTower
+//    08    CO2 FeedLine #1         170008008B6F4410     7B0008008B399C10   CO2Feed1
+//    09    CO2 FeedLine #2         D70008008B5E2910     6E0008008B66BF10   CO2Feed2
+//    10    Four Valve              D00008008B5DB210     F80008008B482310   FourValv
+//    11    Two Valve Filter        60000800AAA9C010     F3000800AAE4C910   2VlvFilt
+//    12    Xe FeedLine             AB000800AAA20F10     16000800AACA2010   Xe_Feed
+//    13    Vent Valve              9A000800AAD5E010     60000800AAFF0910   VentValv
+//    14    Two Valve GP50          AF000800AAB09210     BC000800AA9A6D10   2VlvGP50
+//    15    Xe Outlet Boss          6E000800AB064110     BA000800AA9D1710   Xe_Out
+//    16    Xe #1                   45000800AAA4FF10     B8000800AADB4410   Xe_1
+//    17    Plate close to USS      D2000800AAF95910     B7000800AAB88E10   PlateTop
+//    18    Box-C Valves            A9000800AADD0F10     FF000800AAD42110   BoxC_Vlv
+//    19    Box-C Canister          08000800AAC20910     F4000800AAA00B10   BoxC_Can
+//    20    Mixing Vessel           FE000800AAC15010     CD000800AB0CA010   Mix_Vess
+//    21    Xe #2                   05000800AAF05610     98000800AAD5F310   Xe_2
+//    22    Spirometer-1            170008008B4E5610     440008008B42A610   Spiro_1
+//    23    Spirometer-2            DD0008008B463710     D50008008B36EF10   Spiro_2
+

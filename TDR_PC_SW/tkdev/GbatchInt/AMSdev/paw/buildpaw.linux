@@ -1,0 +1,4 @@
+g77 -c pawmain.f
+gcc -c -I/cern/pro/src/pawlib/paw/ntuple -I/cern/pro/src/pawlib/paw/ -I/cern/pro/include qp_execute.c
+
+g77  -o pawX11 pawmain.o qp_execute.o    -v -O -Wl,-E   -L/cern/pro/lib    -lpawlib         -lpacklib              -lgraflib   -lgrafX11   -lpacklib     -lmathlib  -lkernlib        -llapack3       -lblas   -L/usr/X11R6/lib -lX11 -lcrypt -ldl -lnsl  

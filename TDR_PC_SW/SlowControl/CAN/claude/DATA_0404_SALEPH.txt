@@ -1,0 +1,932 @@
+serial port 0 setup: mode = 0x03, rate = 19200
+serial port 1 setup: mode = 0x00, rate = 19200
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               41
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               42
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               43
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               44
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               45
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               46
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               47
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               48
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               49
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               4A
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               4B
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               4C
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               4D
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               4E
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               4F
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               50
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               51
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               52
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               53
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               54
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               55
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               56
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               57
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               58
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               59
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               5A
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               5B
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               5C
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               5D
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               5E
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               5F
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** SALEPH     *** Almanac or Ephemeris
+Validity                       00
+ID signal source               60
+Health status & type           7F
+Ephemeris-IODE or reserved     00
+URA & presence in sky          80
+Week number                    0 weeks
+Ephemeris-Toc or reserved      0
+TO Ephemeris or Almanach       0
+Mean anomaly - ref. time       0
+Eccentricity                   0
+Square root semi-major axis    0
+Longitude ascendant node       0
+Inclination angle              644245094
+Argument perigee               0
+Rate right ascension           0
+Clock Af0                      0
+Clock Af1                      0
+Clock Af2                      0
+Rate inclination angle         0
+Mean motion difference         0
+C_uc                           0
+C_us                           0
+C_ic                           0
+C_is                           0
+C_rc                           0
+C_rs                           0
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     28440
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
+
+*** STIME      *** GPS/UTC Time
+Validity                       00
+Source of GPS time             00
+GPS time: Week number          0
+GPS time: Seconds              0
+GPS time: Second fraction      0
+GPS time: FOM                  0
+UTC time: Week number          0
+UTC time: Seconds              0
+UTC time: Second fraction      0
+Local time                     28540
+Sync msg GPS time: Validity    F0
+Sync msg GPS time: Week        0
+Sync msg GPS time: Seconds     0
+Sync msg GPS time: Fraction    0
+Sync msg GPS time: ID          00000000
