@@ -1,0 +1,11 @@
+#ifdef S_CONTROL
+  CONTROL->Delete();
+#endif      
+
+#ifdef S_DATA
+  DATA->Delete();
+#endif      
+
+#ifdef S_HISTO
+  HISTO->Delete();
+#endif      

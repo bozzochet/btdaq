@@ -1,0 +1,25 @@
+#ifndef MCLIB_H
+#define MCLIB_H
+
+#include "Ladder.h"
+
+class Mclib {
+ public:
+  Mclib();
+  ~Mclib(){ };
+  float Gaussian(float mean, float sigma);
+  int Poisson(float mean);
+  float Landau(float mean, float sigma);
+  void ReadLadder();
+  void GenerateEvent(int *aAdc);
+
+ private:
+  float fCommonNoise[max_number_va];
+  float fPedestal[max_number_va][channel_per_va];
+  float fSigma[max_number_va][channel_per_va];
+  float fGain[max_number_va][channel_per_va];
+  int fStatus[max_number_va][channel_per_va];
+};
+
+#endif /*MCLIB_H*/
+

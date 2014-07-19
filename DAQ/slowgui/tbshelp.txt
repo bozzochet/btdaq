@@ -1,0 +1,50 @@
+***********
+**  TBS  **
+***********
+
+The TBS is composed of four linear regulators, each producing either 80 or 60 V. 
+The TBS also produces the guard ring voltages for S- and K- sides. 
+The power distribution is split into two halves:
+
+  * half 0, corresponding to TDR lines 0 to 5;
+  * half 1, which is related to TDR lines 6 to 11.
+
+12 circuits are used to produce each S-guard ring voltage. Unless the +/-6 V supply is
+switched off (from S9055), there is no way to switch off the S-guard ring voltage.
+
+The K-guard ring voltage is distributed by each linear regulator, while the 
+local ground K is produced by two circuits, one for each half.
+
+Each half is supplied by two regulators, called ``Hot'' and ``Cold''. 
+The way those regulators interact is important:
+
+  * By design, Hot and Cold cannot be ``on'' at the same time 
+    (but there are protection diodes in case of failure).
+  * By default HOT is ``on''.
+  * If Hot stops supplying high voltage (whatever the reason is), Cold will do.
+  * To stop the supply of high voltage, one needs to explicitly send 
+    an ``off'' signal to both regulators.
+  * It is possible to set a different voltage level for Hot and Cold. 
+    It is thus important to apply the same settings to both regulators.
+
+Following table summarizes these rules:
+ ----------------------------------
+| Hot off  |  Cold off  | GRINGK   |
+ ----------------------------------
+|    0     |     0      | From Hot |
+|    0     |     1      | From Hot |
+|    1     |     0      | From Cold|
+|    1     |     1      | 0        |
+ ----------------------------------
+
+The linear regulators are indexed from 0 to 3, with following correspondence:
+
+ ----------------
+| Index |  LR    |
+ ----------------
+|   0   | Hot 0  |
+|   1   | Hot 1  |
+|   2   | Cold 0 |
+|   3   | Cold 1 |
+ ----------------
+

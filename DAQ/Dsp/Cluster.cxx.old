@@ -1,0 +1,241 @@
+#include "Ladder.h"
+
+Ladder::Ladder(char aVoltage, char aSensors[3], char aAssembly, 
+	       char aLayer  , char aSerial[4]){
+  fVoltage  = aVoltage;
+  strcpy(fSensors,aSensors);
+  fAssembly = aAssembly;
+  fLayer    = aLayer;
+  strcpy(fSerial,aSerial);
+
+  sprintf(fName,"%c%s%c%c%s",fVoltage,fSensors,fAssembly,fLayer,fSerial);
+  memset(fStatus,0,sizeof(fStatus));
+  memset(fNonGaussian,0,sizeof(fNonGaussian));
+
+  fNevent=0;
+  memset(fGood,0,sizeof(fGood));
+
+  char file[200];
+#include "msg_definition.code"
+#include "shm_definition.code"
+} 
+
+
+Ladder::Ladder(char aName[15]){
+
+  strcpy(fName,aName);
+  memset(fStatus,0,sizeof(fStatus));
+  memset(fNonGaussian,0,sizeof(fNonGaussian));
+
+  fNevent=0;
+  memset(fGood,0,sizeof(fGood));
+
+  char file[200];
+#include "msg_definition.code"
+#include "shm_definition.code"
+} 
+
+void Ladder::FreeCluster(cluster **aCluster){
+  cluster *actual,*save;
+  actual=*aCluster;
+  *aCluster=NULL;
+  while (actual != NULL) {
+    save=actual->next;
+    delete actual;
+    actual=save;
+  }
+}
+
+ 
+void Ladder::DoCluster(char aSorK, cluster **aCluster){
+  int i=0;
+  int clusmin,clusmax;
+  int ifirst=0,ilast=0;
+  int numva=0;
+ 
+  boolean noclusters = true;
+  cluster *actual=NULL;
+
+  float cut1=0.0 ,cut2=0.0;
+  int firstva=0,lastva=0;
+  int mask_clu=0;
+
+  FreeCluster(aCluster);
+
+  switch (aSorK){
+   case 'S':
+    numva=5;
+    cut1 = 4.0;
+    cut2 = 1.0;
+    firstva=0;
+    lastva=9;
+    break;
+  case 'K':
+    numva=6;
+    cut1 = 4.0;
+    cut2 = 1.0;
+    firstva=10;
+    lastva=15;
+    break;
+  }
+  ifirst=firstva*channel_per_va;
+  ilast=(lastva+1)*channel_per_va;
+
+
+  mask_clu=31;  // mask_clu=11111 
+  i=ifirst;
+  while (i<ilast) {
+    int va = Getva(i);
+    int ch = Getch(i);
+
+    if (fReadOut[va][ch] <= cut1*fSigma[va][ch] || 
+	(fStatus[va][ch] & mask_clu) !=0 ){
+      i++;
+      continue;
+    }
+    
+    clusmin=i-1;
+    va = Getva(clusmin);
+    ch = Getch(clusmin);
+    if (clusmin>=ifirst){
+      while (clusmin>=ifirst && 
+	     fReadOut[va][ch] > cut2*fSigma[va][ch] &&
+	     (fStatus[va][ch] & mask_clu) == 0) {
+	clusmin--;
+	va=Getva(clusmin);
+	ch=Getch(clusmin);
+      }
+    }
+    clusmin++;
+
+
+    clusmax=i+1;
+    if (clusmax<ilast) {
+      va=Getva(clusmax);
+      ch=Getch(clusmax);
+      while (clusmax<ilast && 
+	     fReadOut[va][ch] > cut2*fSigma[va][ch] &&
+	     (fStatus[va][ch] & mask_clu) == 0) {
+	clusmax++; 
+	va=Getva(clusmax);
+	ch=Getch(clusmax);
+      }
+    }
+    clusmax--;
+    i=clusmax+1;
+
+    if (noclusters) {
+      *aCluster=new cluster;
+      actual=*aCluster;
+      noclusters=false;
+    } else {
+      actual->next=new cluster;
+      actual=actual->next;
+    }
+    actual->first=clusmin;
+    actual->length=clusmax-clusmin+1;
+    actual->cog=0.0;
+    actual->maxloc=0;
+    actual->maxval=0.0;
+    actual->integral=0.0;
+    actual->sovern1=0.0;
+    actual->sovern2=0.0;
+    actual->sovern3=0.0;
+    actual->next=NULL;
+        
+    for (int l=clusmin;l<=clusmax;l++){
+      va=Getva(l);
+      ch=Getch(l);
+      if (fReadOut[va][ch]>actual->maxval) {
+	actual->maxval=fReadOut[va][ch];
+	actual->maxloc=l;
+      }      
+      actual->integral += fReadOut[va][ch];
+      actual->cog += fReadOut[va][ch]*(l+1);
+      if (fSigma[va][ch]>0) { 
+        actual->sovern1+=fSigma[va][ch]*fSigma[va][ch];
+        actual->sovern2+=fSigma[va][ch];
+	actual->sovern3+=fReadOut[va][ch]/fSigma[va][ch]*
+	                 fReadOut[va][ch]/fSigma[va][ch];
+      }
+    }
+    actual->cog/=actual->integral;
+    actual->cog-=1.0;
+    if (actual->sovern1>0)
+      actual->sovern1=actual->integral/sqrt(actual->sovern1);
+    if (actual->sovern2>0)
+      actual->sovern2=actual->length*actual->integral/actual->sovern2;
+    actual->sovern3=sqrt(actual->sovern3);
+  }
+}
+
+void Ladder::Reduction(){
+  SubstractPedestal();
+  ComputeCN2();
+  SubstractCN();
+  UpdateSignal();
+  DoCluster('S',&Scluster);
+  DoCluster('K',&Kcluster);
+
+
+  int bin;
+  int nclus_S=0;
+  int nclus_K=0;
+  cluster *actual;
+
+  actual=Scluster;
+  while (actual != NULL){
+    nclus_S++;
+    bin = GetBin(kHISTO_CLUSTER_LENGTH_S,actual->length);
+    histo->fhClusLength_S[bin]++;
+    bin = GetBin(kHISTO_CLUSTER_COG,actual->cog);
+    histo->fhClusCog[bin]++;
+    bin = GetBin(kHISTO_CLUSTER_MAXLOC,actual->maxloc-actual->cog);
+    histo->fhClusMaxloc[bin]++;
+    bin = GetBin(kHISTO_CLUSTER_INTEGRAL_S,actual->integral);
+    histo->fhClusIntegral_S[bin]++;
+    bin = GetBin(kHISTO_CLUSTER_SOVERN_S,actual->sovern2);
+    histo->fhClusSovern_S[bin]++;
+    //    printf("%s%4i%4i%4i%9.1f\n","Cluster: ",nclus,actual->first,
+    //	   actual->length,actual->integral);
+    actual=actual->next;
+  }
+
+  actual=Kcluster;
+  while (actual != NULL){
+    nclus_K++;
+    bin = GetBin(kHISTO_CLUSTER_LENGTH_K,actual->length);
+    histo->fhClusLength_K[bin]++;
+    bin = GetBin(kHISTO_CLUSTER_COG,actual->cog);
+    histo->fhClusCog[bin]++;
+    bin = GetBin(kHISTO_CLUSTER_MAXLOC,actual->maxloc-actual->cog);
+    histo->fhClusMaxloc[bin]++;
+    bin = GetBin(kHISTO_CLUSTER_INTEGRAL_K,actual->integral);
+    histo->fhClusIntegral_K[bin]++;
+    bin = GetBin(kHISTO_CLUSTER_SOVERN_K,actual->sovern2);
+    histo->fhClusSovern_K[bin]++;
+    //    printf("%s%4i%4i%4i%9.1f\n","Cluster: ",nclus,actual->first,
+    //	   actual->length,actual->integral);
+    actual=actual->next;
+  }
+
+  bin = GetBin(kHISTO_CLUSTER_NUMBER_S,nclus_S);
+  histo->fhClusNumber_S[bin]++;
+  bin = GetBin(kHISTO_CLUSTER_NUMBER_K,nclus_K);
+  histo->fhClusNumber_K[bin]++;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,4 @@
+3f93            // 
+01ba a000       // page 4 contains evbld at 0x2000
+03ce e000       // page 5 contains calibration at 0x2000
+0bee 0000       // page 0 contains main program (must come last)

@@ -1,0 +1,4 @@
+3d63		// DAQ 8c02 and jan-feb cern version, with CN calc. debugged
+0294 a000	// page 4 contains evbld at 0x2000 
+0772 e000	// page 5 contains calibration at 0x2000
+0cce 0000	// page 0 contains main program (must come last)

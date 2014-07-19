@@ -1,0 +1,336 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>Daq0</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>Daq0</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>964</width>
+            <height>510</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Daq0</string>
+    </property>
+    <hbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout13</cstring>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout12</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>txLaTitle</cstring>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>100</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
+                            <property name="text">
+                                <string>textLabel2</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>pbGetLog</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Start Log</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>pbStopLog</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Stop Log</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>pbNewLog</cstring>
+                            </property>
+                            <property name="text">
+                                <string>New Log</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QTextEdit">
+                    <property name="name">
+                        <cstring>textEdit2</cstring>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout11</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>pbUpdate</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Update</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>pbClear</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Clear</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+            </vbox>
+        </widget>
+        <widget class="QButtonGroup">
+            <property name="name">
+                <cstring>buttonGroup2</cstring>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>200</width>
+                    <height>0</height>
+                </size>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>200</width>
+                    <height>32767</height>
+                </size>
+            </property>
+            <property name="title">
+                <string></string>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QTextEdit">
+                    <property name="name">
+                        <cstring>textEdCount</cstring>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>pbInit</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Init</string>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout6</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout4</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel1</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>&lt;p align="center"&gt;Run&lt;/p&gt;</string>
+                                    </property>
+                                </widget>
+                                <widget class="QLineEdit">
+                                    <property name="name">
+                                        <cstring>leRun</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>100</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignRight</set>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout5</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>&lt;p align="center"&gt;Ev Max&lt;/p&gt;</string>
+                                    </property>
+                                </widget>
+                                <widget class="QLineEdit">
+                                    <property name="name">
+                                        <cstring>leEvMax</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>1000</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignRight</set>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>pbStart</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Start</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>pbStop</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Stop</string>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer16</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>16</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>pbCalib</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Calibrate</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>pbKill</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Kill</string>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+    </hbox>
+</widget>
+<connections>
+    <connection>
+        <sender>pbGetLog</sender>
+        <signal>clicked()</signal>
+        <receiver>Daq0</receiver>
+        <slot>pbGetLog_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>pbClear</sender>
+        <signal>clicked()</signal>
+        <receiver>Daq0</receiver>
+        <slot>pbClear_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>pbInit</sender>
+        <signal>clicked()</signal>
+        <receiver>Daq0</receiver>
+        <slot>pbInit_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>pbStart</sender>
+        <signal>clicked()</signal>
+        <receiver>Daq0</receiver>
+        <slot>pbStart_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>textEdCount</sender>
+        <signal>doubleClicked(int,int)</signal>
+        <receiver>Daq0</receiver>
+        <slot>UpdateCount()</slot>
+    </connection>
+    <connection>
+        <sender>pbStopLog</sender>
+        <signal>clicked()</signal>
+        <receiver>Daq0</receiver>
+        <slot>pbStopLog_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>textEdit2</sender>
+        <signal>doubleClicked(int,int)</signal>
+        <receiver>Daq0</receiver>
+        <slot>UpdateLog()</slot>
+    </connection>
+    <connection>
+        <sender>pbUpdate</sender>
+        <signal>clicked()</signal>
+        <receiver>Daq0</receiver>
+        <slot>pbUpdate_clicked()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">TDRGUI.ui.h</include>
+</includes>
+<slots>
+    <slot returnType="bool">pbGetLog_clicked()</slot>
+    <slot>UpdateLog()</slot>
+    <slot>pbClear_clicked()</slot>
+    <slot>pbInit_clicked()</slot>
+    <slot>pbStart_clicked()</slot>
+    <slot>UpdateCount()</slot>
+    <slot>pbStopLog_clicked()</slot>
+    <slot>pbUpdate_clicked()</slot>
+</slots>
+<functions>
+    <function returnType="bool">CheckConn()</function>
+    <function access="private" specifier="non virtual">init()</function>
+</functions>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

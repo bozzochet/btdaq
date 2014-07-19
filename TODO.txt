@@ -1,0 +1,7 @@
+Cose da controllare/implementare:
+----------------------------------------------------------------------------------------------------------------
+
+- fixare il SwitchOffNode(XX) in Jinj.cxx che serve per spegnere la seconda JLV1 del JTCrate
+
+- il check dell'evento preso, controllare cosa c'è di sbagliato
+

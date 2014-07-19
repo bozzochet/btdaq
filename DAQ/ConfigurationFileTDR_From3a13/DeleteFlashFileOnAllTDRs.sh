@@ -1,0 +1,1 @@
+../DeleteFlashFileOnAllTDRs.sh
