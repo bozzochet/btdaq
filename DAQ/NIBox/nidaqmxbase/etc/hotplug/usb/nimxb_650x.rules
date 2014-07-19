@@ -1,0 +1,2 @@
+SUBSYSTEM=="usb", SYSFS{idVendor}=="3923", SYSFS{idProduct}=="718a", RUN+="/etc/udev/agents.d/usb/nimxb_usb650x"
+SUBSYSTEM=="usb_device", SYSFS{idVendor}=="3923", SYSFS{idProduct}=="718a", RUN+="/etc/udev/agents.d/usb/nimxb_usb650x"

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+comm=$*
+
+for name in `cat tdrlist`; do
+
+
+echo ./TESTepp 0 $name\3f0b3f $comm
+ ./TESTepp 0 $name\3f0b3f $comm
+sleep 2
+
+done 
+

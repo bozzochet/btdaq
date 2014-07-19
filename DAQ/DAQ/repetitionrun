@@ -1,0 +1,13 @@
+#!/bin/sh
+
+events=15000
+
+
+while [ true ]; do
+
+echo ./TakePCI  0 COMPLETERUN $events 
+./TakePCI  0 COMPLETERUN $events
+
+sleep 1
+
+done

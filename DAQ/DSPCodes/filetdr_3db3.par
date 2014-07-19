@@ -1,4 +1,0 @@
-3db3		// DAQ 8c02 and Claude's mars version, with CN calc. debugged, occupancy for pos and neg signals, sraw factor to 30, dt ext, added param 0x8020
-0298 a000	// page 4 contains evbld at 0x2000 
-0780 e000	// page 5 contains calibration at 0x2000
-0cce 0000	// page 0 contains main program (must come last)
