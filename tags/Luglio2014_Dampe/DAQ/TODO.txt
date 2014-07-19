@@ -1,0 +1,10 @@
+Cose da controllare/implementare:
+----------------------------------------------------------------------------------------------------------------
+
+- controllare che quando viene fatto il CTRL-C comunque venga scritto lo shortlog
+
+- controllare che quando viene fatto il CTRL-C comunque venga messo il trigger nel giusto stato
+
+- controllare che PrintAllEventNumbers chiamato da SIGUSR1 sia fatto bene con le ultime modifiche e non crashi
+
+- trovare se c'è un modo più figo p fare il SIGUSR1 con combinazione tasti (come avviene per CTRL-C)
