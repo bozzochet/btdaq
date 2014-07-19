@@ -1,0 +1,117 @@
+* Introduction
+The program just listens to the tcp port 6666 and waits for a connection.
+When it occurs the program checks if the originating IP is in the allow list,
+which is hosts.allow. If it is, you are allowed to issue commands.
+Some commands are available to run always, few aren't. You don't want to run
+two different START on the same time.
+If you close (or lose) the connection, the running process will be always
+running, and you can STOP it or KILL it, if you wish to.
+
+* Basic configuration
+In the conf.py file there are basic configurations, particularly:
+- localtwisted: defines a local path for twisted, if u didn't install it in
+  the proper location
+- logfile: this is the default logfile to be used with the GETLOG command (see
+  below)
+- commands: those are the system commands (and options) to be run. For example,
+  the line 'INIT':['scripts/init.sh','firstarg'] specifies that INIT command
+  executes "scripts/init.sh firstarg". They are here to be edited more easily.
+- BasicComm,TrkComm: these are dictionaries just to be used by the help system.
+  Probably you don't want to touch them.
+
+* Usage
+Once connected (if allowed), you can issue the following commands, case
+insensitive:
+PING 
+  Test whether the server is alive or not. Reply is PONG.
+QUIT 
+  You guessed it. Reply is BYE, then the connection is terminated.
+HELP [command]
+  Show available commands. With an optional argument, show help for the
+  command specified.
+INIT
+  Initialize the system. Configurable in conf.py
+  Reply is script's output or BUSY.
+START
+  Start the system. Configurable in conf.py
+  Reply is script's output or BUSY.
+STOP
+  Stop current executing process (with a SIGTERM). Reply is OK or 
+  ERROR: NO PROCESS TO STOP.
+CALIB
+  Calibrate the system. Configurable in conf.py
+  Reply is script's output or BUSY.
+KILL
+  Kill current executing process (with a SIGKILL). Reply is OK or
+  ERROR: NO PROCESS TO KILL.
+GETFILE <filename>
+  Read filename and keep giving output as the file gets updated. Acts kind 
+  of "tail -f <filename>". 
+GETLOG
+  Read logfile and keep giving output as the log gets updated. It is equivalent
+  to GETFILE logfile, as specified in conf.py. Reply is OK.
+STOPLOG
+  Stop giving output if the (log)file gets updated. Reply is OK.
+STATUS
+  Test whether a process is running or not. Reply is OK or BUSY.
+SLEEP
+  ** FOR TESTING PURPOSE ONLY **
+  Sleep for 10 (configurable) seconds. During this time it won't be possible to
+  start other processes, and u can try to STOP or KILL it. 
+ECHO [arg]
+  ** FOR TESTING PURPOSE ONLY **
+  Echoes back string passed as argument. 
+NC
+  Listen on port 3333 (configurable) and echoes back what u write to that port.
+  If you have netcat installed, of course.
+
+* How to add a new command
+To add a new command to the system, it is enough to implement a new method in
+the TrackerProtocol class. If, for instance, we want to add the command FOO,
+we have to implement:
+-
+class TrackerProtocol(base.BasicProtocol):
+	... other existing methods here ...
+	def cmd_FOO(self, *args)
+		do_something()
+		...
+-
+and your method will be called with a tuple of received arguments. That is,
+sending "FOO -param 3" your method will be called with ('-param','3') as arg
+tuple.
+If your command executes a script or a shell program you may want to use the 
+small subsytem included, that means:
+1) You cannot run other programs/scripts while this is running
+2) You can STOP it or KILL it whenever you like
+3) You want its standard stdout (and stderr) back
+To do that, it's enough to edit pyremote.py and add a method (template follows):
+-
+	def cmd_MYSCRIPT(self, *args)
+		cmd = ['/path/to/my_script.sh','arg1','arg2']
+		self.cmd_SCRIPT(cmd + list(args))
+-
+which means it will always run "/path/to/my_script.sh" followed by received
+arguments. In this case, "MYSCRIPT" will be "/path/to/my_script.sh arg1 arg2", 
+"MYSCRIPT arg3" will be "/path/to/my_script.sh arg1 arg2 arg3" and so on.
+You can find this example commented in the pyremote.py file.
+Optionally, you may want to add an help describing your new command. To do this,
+edit conf.py and add the command name and the description (template follows)
+-
+	... prevoius help here ...
+	'FOO':"""\
+* FOO
+	Description here.
+	""",
+	... following help here ...
+-
+You can find this example commented in the conf.py file.
+cazxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxzo
+cazxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxzo
+me ciojia
+me ciojia
+dasdsadas
+paolo
+paolo2
+paolo3
+paoloxxxxxx
+paolovvvvvvvvvvv

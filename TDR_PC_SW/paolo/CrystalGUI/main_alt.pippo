@@ -1,0 +1,39 @@
+#include <qapplication.h>
+#include "Crystal.h"
+#include "ExitDialog.h"
+
+class myApp: public QApplication{
+
+Q_OBJECT
+
+public:
+  myApp( int argc=0, char ** argv=0);
+  ~myApp(){};
+protected slots:
+  void Exit(QWidget* w);
+
+};
+
+myApp::myApp( int argc, char **argv ) : QApplication( argc, argv )
+{
+char pippo[10]="pippo";
+}
+
+void myApp::Exit(QWidget* w){
+
+ // Create a new dialog
+      MyDialog dlg( w );
+    
+    // Show it and wait for Ok or Cancel
+      if( dlg.exec() == QDialog::Accepted )
+        quit();
+}
+
+int main( int argc, char ** argv )
+{
+    myApp a( argc, argv );
+    CrystalGUI w;
+    w.show();
+    a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( Exit(w) ) );
+    return a.exec();
+}
