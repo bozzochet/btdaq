@@ -6,10 +6,10 @@
 
 
 class JLV1 : public JinjSlave{
-
-private:
-
-public:
+  
+ private:
+  
+ public:
   JLV1(char* name,char* conf_file,int address,AMSWcom* node);
   ~JLV1();
   int Init();
@@ -19,11 +19,11 @@ public:
   int EventReset();
   int SetDelay();
   int OverWriteDelay(u_short del);
-	int TriggerOn();
-	int TriggerOff();
-	int CalibTriggerOn();
-	int CalibTriggerOff();
-	
+  int TriggerOn();
+  int TriggerOff();
+  int CalibTriggerOn();
+  int CalibTriggerOff();
+  
 };
 
 #endif
