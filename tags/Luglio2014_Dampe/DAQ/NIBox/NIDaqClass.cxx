@@ -99,6 +99,8 @@ int NIDaqClass::Read(){
 }
 
 int NIDaqClass::Write(uInt32 a, uInt32 b){
+
+  printf("NiDaqClass::Write %d %d\n", a, b);
   
   uInt32       w_data [2];
   int32        written;

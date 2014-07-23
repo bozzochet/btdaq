@@ -127,7 +127,7 @@ int SmallNetServer::Start(){
       int connectSocket=accept(lsock,
 			   (struct sockaddr *) &clientAddress,
 			   &clientAddressLength);
-      
+      printf("CONNECTED\n");
       if(connectSocket<0) continue;
       OpenConnections++;
 
@@ -136,15 +136,16 @@ int SmallNetServer::Start(){
 	ChildPid=fork();
 	if(ChildPid==0){ //Child
 	  HandleConnection(connectSocket);
+	 fprintf(stdout, "closing client\n");
+	 fflush(stdout);
 	  close(connectSocket);
 	  return 0;
-	}
-	else {//father
-	  close(connectSocket);
+	} else {//father
+	  //close(connectSocket);
 	  continue;
 	}
       }//ELSE DENY CONNECTION !!!
-      else if(OpenConnections>1){
+     else if(OpenConnections>1){
 	DenyConnection(connectSocket);
 	close(connectSocket);
 	OpenConnections--;
@@ -176,14 +177,17 @@ void SmallNetServer::HandleConnection(int connectSocket){
   sprintf(ss,"Control Server for the NI-6105 Digital I/O box \n");
   //send(connectSocket,ss,strlen(ss)+1,0);
   while(1){
-    int ret=read(connectSocket,rr,120);
-    //printf("ret %d  %d %s \n",ret,connectSocket,rr);fflush(stdout);
-    int opt=ProcessCommand(connectSocket, rr);
-    if(opt==-1||ret<=0) break;
+    	int ret=read(connectSocket,rr,120);
+	if (ret > 0) {
+    		fflush(stdout);
+    		int opt=ProcessCommand(connectSocket, rr);
+		if (opt==-1)
+			break;
+	} else if(ret <= 0) 
+		break;
   }
-  sprintf(ss,"Closing Connection \n");
-  send(connectSocket,ss,strlen(ss)+1,0);
-  
+  //sprintf(ss,"Closing Connection \n");
+  //send(connectSocket,ss,strlen(ss)+1,0);
   return;
 }
 
