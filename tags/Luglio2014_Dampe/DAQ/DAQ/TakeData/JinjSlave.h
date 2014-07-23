@@ -5,11 +5,12 @@
 typedef unsigned short u_short;
 
 #define NTDRS 24 //maximum number of TDRs (for Jinfs)
+#define d_jinjslave_ip_size 16
+#define d_jinjslave_port_size 6
 
 
 class ConfPars{
-
-public:
+ public:
   int type;
   u_short JLV1flash;
   u_short JINFflash;
@@ -17,6 +18,8 @@ public:
   u_short delay; 
   char DATAPATH[255];
   char CALPATH[255];
+  char REMOTEPATH[255];
+  char dampeIP[d_jinjslave_ip_size], dampePORT[d_jinjslave_port_size];
   int Ntdrs;
   u_short mode[NTDRS];
   unsigned int refmask;
@@ -32,12 +35,13 @@ public:
 
 
 class JinjSlave{
-
-public:
+ public:
+  
   // FILE * logfile;
-  char myname[20];
+  char myname[20], myaction[20];
   int broadcastadd;
   int  selfaddress;
+  int timestamp, ancillary_code;
   AMSWcom *node;
   SlaveMask mask;
   JinjSlave(char* name,char* conf_file,int address,AMSWcom* node);
@@ -52,9 +56,8 @@ public:
   virtual int GetEventNumber(){};
   virtual char* PrintAllEventNumber(int log=1,int jinjslavenum=0){};
   virtual int EventReset(){};
-
-private:
- 
+ private:
+  
 };
 
 #endif

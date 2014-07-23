@@ -184,9 +184,8 @@ int Jinf::ReadSlaveMask() {
   ret=ShowConnect(mask);
 
 //  printf("Refmask read = %x | Read expected = %x\n",mask.ID[0],CPars->refmask);//Only for debug
-
-  if(mask.ID[0]!=CPars->refmask){
-    PRINTF("ERROR: not all or not only needed tdrs seem to be connected\n");
+  if((mask.ID[0]&CPars->refmask) != CPars->refmask) {
+    PRINTF("ERROR: not all needed tdrs seem to be connected\n");
     return -1;
   }
   else if( mask.ID[0]==0){

@@ -16,9 +16,10 @@ TrigClass::TrigClass(JLV1* pointer):CommClass(NULL,0){
 }
 
 //NI_USB case
-TrigClass::TrigClass(char* address,int port):CommClass(address,port){
+TrigClass::TrigClass(char* address, int port):CommClass(address,port){
   //initializing...
-
+  this->TestConnection();
+  _PJLV1 = NULL;
   number1=0;
   number2=0;
   number3=0;
@@ -34,7 +35,7 @@ int TrigClass::ReadCounter(){
       return counter;
     }
     else{
-      PRINTF("This is no real Trigger Class, so there's no counter...\n"); 
+      ////PRINTF("This is no real Trigger Class, so there's no counter...\n"); 
       return -9999;
     }
   }
@@ -53,7 +54,7 @@ int TrigClass::ResetCounter(){
       usleep(300000);
     }
     else{
-      PRINTF("This is no real Trigger Class, so there's no counter...\n");
+      //PRINTF("This is no real Trigger Class, so there's no counter...\n");
     }
     return ret;
   }
@@ -74,6 +75,8 @@ int TrigClass::TriggerOn(){
     else{
       char reply;
       PRINTF("Please turn on the trigger production and then press RETURN!\n");
+      //printf("HACK FOR NOW: NO NEED TO PRESS, JUST WAIT 3 SECONDS!\n");
+      //sleep(3);
       reply = getchar();
     }
     
@@ -96,6 +99,8 @@ int TrigClass::TriggerOff(){
     else{
       char reply;
       PRINTF("Please turn off the trigger production and then press RETURN!\n");
+      //printf("HACK FOR NOW: NO NEED TO PRESS, JUST WAIT 3 SECONDS!\n");
+      //sleep(3);
       reply = getchar();
     }
     
@@ -118,6 +123,8 @@ int TrigClass::CalibTriggerOn(){
     else{
       char reply;
       PRINTF("Please turn on calibration trigger and then press RETURN!\n");
+      //printf("HACK FOR NOW: NO NEED TO PRESS, JUST WAIT 3 SECONDS!\n");
+      //sleep(3);
       reply = getchar();
     }
     
@@ -140,6 +147,8 @@ int TrigClass::CalibTriggerOff(){
     else{
       char reply;
       PRINTF("Please turn off calibration trigger and then press RETURN!\n");
+      //printf("HACK FOR NOW: NO NEED TO PRESS, JUST WAIT 3 SECONDS!\n");
+      //sleep(3);
       reply = getchar();
     }
     
