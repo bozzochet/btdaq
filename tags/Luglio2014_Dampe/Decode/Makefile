@@ -13,7 +13,7 @@ LIB_OBJ=$(LIB_SOURCES:%.cxx=obj/%.o)
 CFLAGS= -g -fPIC  
 DEFINES=
 
-all: Decode  
+all: Decode lib
 
 lib:  libEvent.so
 
