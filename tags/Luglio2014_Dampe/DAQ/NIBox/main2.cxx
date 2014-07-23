@@ -18,9 +18,9 @@ int main(){
     printf("Scrivo  %d  \n",wr);
     ni->Write(wr,wr+1);
     if(ii%200) ni->ResetCounter();
-//     printf("RiLeggo \n ");
-//     ni->Read();
-//     ni->Print();
+    printf("RiLeggo \n ");
+    ni->Read();
+    ni->Print();
     
     usleep(100000);
   }
