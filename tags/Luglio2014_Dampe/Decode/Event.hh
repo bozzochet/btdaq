@@ -14,7 +14,7 @@
 
 
 
-class Event:public TObject{
+class Event: public TObject{
 
 public:
   //! Progressive Event number
@@ -65,12 +65,11 @@ public:
 
 
   ClassDef(Event,1)
-
 };
 
 
 //! Run Header Class
-class RHClass:public TObject{
+class RHClass: public TObject{
 
 public:
   //! Run number
