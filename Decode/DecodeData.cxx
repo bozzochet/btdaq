@@ -173,6 +173,7 @@ void DecodeData::DumpRunHeader(){
   ReadFile(&size,sizeof(size),1,rawfile);
   
   if(pri) printf("Headersize: %d\n",size);
+  printf("Headersize: %d\n",size);
    
   ReadFile(&hh,sizeof(hh),1,rawfile);
   
