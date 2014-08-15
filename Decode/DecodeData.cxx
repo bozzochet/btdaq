@@ -62,12 +62,8 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run){
   // Create the ROOT run header
   rh= new RHClass();
 
-  printf("Qui!\n");
-
   //Read the run Header
   DumpRunHeader();
-
-  printf("Qui!\n");
   
   // Try to get some info on how many ladders there are in the data (RAW and CMP)
   long int pos=ftell(rawfile);
@@ -174,23 +170,16 @@ void DecodeData::DumpRunHeader(){
   unsigned short int size;
   header hh;
 
-  {
-    int run;    // run number
-    char date[50];        // date
-    double gonpar[4];// goniometer parameters
-    unsigned int refmaskjj;
-    unsigned int refmask[24];
-    printf("%d %d %d %d %d -> %d\n", (int)(sizeof(run)), (int)(sizeof(date)), (int)(sizeof(gonpar)), (int)(sizeof(refmaskjj)), (int)(sizeof(refmask)), (int)(sizeof(run))+(int)(sizeof(date))+(int)(sizeof(gonpar))+(int)(sizeof(refmaskjj))+(int)(sizeof(refmask)));
-  }
-
   //Read The Header Size
   ReadFile(&size,sizeof(size),1,rawfile);
   
   if(pri) printf("Headersize: %d\n",size);
-  printf("Headersize: %d\n",size);
    
-  printf("--------- %d\n", (int)(sizeof(hh)));
-  ReadFile(&hh,sizeof(hh),1,rawfile);
+  if(size*sizeof(unsigned short int) != sizeof(hh)) 
+    printf("WARNING: The header written onf file has a different size wrt to the header t be filled...\n");
+
+  //  printf("--------- %d\n", (int)(sizeof(size)));//16/08/2014 reading the size of the written header and not of the scruct is more portable. The 'header' could however read non well
+  ReadFile(&hh,size*sizeof(unsigned short int),1,rawfile);
   
   rh->Run=hh.run;
   sprintf(rh->date,"%s",hh.date);
@@ -675,8 +664,8 @@ int DecodeData::ReadOneJINF(){
 
 int DecodeData::ReadFile(void * ptr, size_t size, size_t nitems, FILE * stream){
 
-  printf("Reading size %d\n", (int)(size));
-  sleep(1);
+  // printf("Reading size %d\n", (int)(size));//only for debug
+  // sleep(1);//only for debug
 
   int ret=0;
   ret=fread(ptr,size,nitems,stream);

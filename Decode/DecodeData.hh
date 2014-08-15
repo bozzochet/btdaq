@@ -18,9 +18,9 @@ typedef struct calib{
 //typedef struct header { // gcc 4.3, considers 'typedef' useless
 struct header {//for file writing NOT in AMSBlock
   int run;    // run number
-  char date[50];        // date
+  char date[50];        // date // this is seen with sizeof 52, maybe is normal and there are some term char. If the sizeof is done direccly to an array, NOT inside the struct, char pippo[n] the size if pippo*n*2
   double gonpar[4];// goniometer parameters
-  unsigned int refmaskjj;
+  unsigned int refmaskjj;//16/08/2014 - On Mac this is seen as long 8 (instead of 4) and the reader is read wrongly
   unsigned int refmask[24];
 };
 
