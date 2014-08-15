@@ -20,7 +20,7 @@ struct header {//for file writing NOT in AMSBlock
   int run;    // run number
   char date[50];        // date
   double gonpar[4];// goniometer parameters
-  // unsigned int refmaskjj;
+  unsigned int refmaskjj;
   // unsigned int refmask[24];
 };
 
