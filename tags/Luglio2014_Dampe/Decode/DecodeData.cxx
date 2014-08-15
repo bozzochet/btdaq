@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "DecodeData.hh"
 
 
@@ -660,6 +661,7 @@ int DecodeData::ReadOneJINF(){
 int DecodeData::ReadFile(void * ptr, size_t size, size_t nitems, FILE * stream){
 
   printf("Reading size %d\n", (int)(size));
+  sleep(1);
 
   int ret=0;
   ret=fread(ptr,size,nitems,stream);
