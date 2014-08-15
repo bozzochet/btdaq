@@ -173,7 +173,6 @@ void DecodeData::DumpRunHeader(){
   ReadFile(&size,sizeof(size),1,rawfile);
   
   if(pri) printf("Headersize: %d\n",size);
-  printf("Headersize: %d\n",size);
    
   ReadFile(&hh,sizeof(hh),1,rawfile);
   
@@ -659,6 +658,8 @@ int DecodeData::ReadOneJINF(){
 //=============================================================================================
 
 int DecodeData::ReadFile(void * ptr, size_t size, size_t nitems, FILE * stream){
+
+  printf("Reading size %d\n", (int)(size));
 
   int ret=0;
   ret=fread(ptr,size,nitems,stream);
