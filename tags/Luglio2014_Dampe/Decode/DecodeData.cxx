@@ -174,6 +174,15 @@ void DecodeData::DumpRunHeader(){
   unsigned short int size;
   header hh;
 
+  {
+    int run;    // run number
+    char date[50];        // date
+    double gonpar[4];// goniometer parameters
+    unsigned int refmaskjj;
+    unsigned int refmask[24];
+    printf("%d %d %d %d %d -> %d\n", (int)(sizeof(run)), (int)(sizeof(date)), (int)(sizeof(gonpar)), (int)(sizeof(refmaskjj)), (int)(sizeof(refmask)), (int)(sizeof(run))+(int)(sizeof(date))+(int)(sizeof(gonpar))+(int)(sizeof(refmaskjj))+(int)(sizeof(refmask)));
+  }
+
   //Read The Header Size
   ReadFile(&size,sizeof(size),1,rawfile);
   
