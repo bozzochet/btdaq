@@ -495,6 +495,7 @@ void DecodeData::FindCalibs(){
     return;
   }
   
+  printf("Searching the calibration %s/<%10d-%10d>_%04d.cal\n", rawCaldir, runn-12*60*60, runn, tdrCmp[0]);
   for (run2=runn ;run2>0 ;run2--){
     sprintf(name1,"%s/%06d_%04d.cal",rawCaldir,run2,tdrCmp[0]);
     if (pri) printf("searching for %s \n",name1);
@@ -502,13 +503,13 @@ void DecodeData::FindCalibs(){
       printf("First calib Found %s run %d\n",name1,run2);
       break;
     }
+    if( run2<(runn-12*60*60)) {
+      printf("Cannot find any calibration done within 12 hours before the requested run %d\n", runn);
+      printf("I give up. Bye.\n");
+      exit(2);
+    }
   }
-  if( run2<40) {
-    printf("Cannot find any calibration done before the requested run %d\n",runn);
-    printf("I give up. Bye.\n");
-    exit(2);
-  }else 
-    printf ("Searching for other calib files\n");
+  printf ("Searching for other calib files\n");
   
 
   for (int ii=0;ii<ntdrCmp;ii++){
