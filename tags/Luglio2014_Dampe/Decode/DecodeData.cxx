@@ -62,8 +62,12 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run){
   // Create the ROOT run header
   rh= new RHClass();
 
+  printf("Qui!\n");
+
   //Read the run Header
   DumpRunHeader();
+
+  printf("Qui!\n");
   
   // Try to get some info on how many ladders there are in the data (RAW and CMP)
   long int pos=ftell(rawfile);
@@ -175,6 +179,7 @@ void DecodeData::DumpRunHeader(){
   
   if(pri) printf("Headersize: %d\n",size);
    
+  printf("--------- %d\n", (int)(sizeof(hh)));
   ReadFile(&hh,sizeof(hh),1,rawfile);
   
   rh->Run=hh.run;
