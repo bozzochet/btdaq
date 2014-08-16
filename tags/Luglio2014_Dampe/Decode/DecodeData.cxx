@@ -176,7 +176,7 @@ void DecodeData::DumpRunHeader(){
   if(pri) printf("Headersize: %d\n",size);
    
   if(size*sizeof(unsigned short int) != sizeof(hh)) 
-    printf("WARNING: The header written onf file has a different size wrt to the header t be filled...\n");
+    printf("WARNING: The header written on file has a different size wrt to the header t be filled...\n");
 
   //  printf("--------- %d\n", (int)(sizeof(size)));//16/08/2014 reading the size of the written header and not of the scruct is more portable. The 'header' could however read non well
   ReadFile(&hh,size*sizeof(unsigned short int),1,rawfile);
