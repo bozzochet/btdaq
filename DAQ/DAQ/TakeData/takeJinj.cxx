@@ -35,6 +35,8 @@ Jinj* JJ=0;
 
 timeval unixtime;
 
+#pragma pack(push,1)
+
 //typedef struct header { // gcc 4.3, considers 'typedef' useless
 struct header {//for file writing NOT in AMSBlock
 	int run;// run number
@@ -43,6 +45,8 @@ struct header {//for file writing NOT in AMSBlock
 	unsigned int refmaskjj;// Jinj refmask
 	unsigned int refmask[24];// JinjSlave refmask
 };
+
+#pragma pack(pop)
 
 //typedef struct wholeheader { // gcc 4.3, considers 'typedef' useless
 struct wholeheader {//for file writing in ASMBlock
