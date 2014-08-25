@@ -173,7 +173,8 @@ void DecodeData::DumpRunHeader(){
   //Read The Header Size
   ReadFile(&size,sizeof(size),1,rawfile);
   
-  if(pri) printf("Headersize: %d\n",size);
+  //  if(pri) printf("Headersize: %d\n",size);
+  printf("Headersize: %ld\n", sizeof(hh));
    
   if(size*sizeof(unsigned short int) != sizeof(hh)) 
     printf("WARNING: The header written on file has a different size wrt to the header t be filled...\n");
