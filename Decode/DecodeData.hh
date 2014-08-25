@@ -15,6 +15,8 @@ typedef struct calib{
 
 } calib;
 
+#pragma pack(push,1)
+
 //typedef struct header { // gcc 4.3, considers 'typedef' useless
 struct header {//for file writing NOT in AMSBlock
   int run;    // run number
@@ -23,6 +25,8 @@ struct header {//for file writing NOT in AMSBlock
   unsigned int refmaskjj;//16/08/2014 - On Mac this is seen as long 8 (instead of 4) and the reader is read wrongly
   unsigned int refmask[24];
 };
+
+#pragma pack(pop)
 
 class DecodeData {
   
