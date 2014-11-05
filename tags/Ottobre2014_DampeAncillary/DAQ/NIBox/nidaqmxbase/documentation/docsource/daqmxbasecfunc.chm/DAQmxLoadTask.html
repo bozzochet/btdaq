@@ -1,0 +1,73 @@
+
+<html>
+<head>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+<link rel="STYLESHEET" type="text/css" href="../daqmxbasecfunccommon/styles.css"></link>
+<title>DAQmxBaseLoadTask</title>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+</head>
+<body bgcolor="#ffffff">
+<h1>DAQmxBaseLoadTask</h1>
+<p class="syntax">int32 DAQmxBaseLoadTask (const char taskName[ ], TaskHandle *taskHandle);</p>
+<h2>Purpose</h2>
+<p class="body">Loads an existing named 
+task created by you with the NI-DAQmx Base Task Configuration Utility.  If you use this function to load a task, you must use <span id="monospace">DAQmxBaseClearTask</span> to destroy it.</p>
+<h2>Parameters</h2>
+<table class="borderless">
+<tr>
+<td>
+<em>Input</em>
+</td>
+</tr>
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>taskName</strong>
+</td>
+<td valign="top">
+<nobr>const char [ ]</nobr>
+</td>
+<td valign="top">A named task in the NI-DAQmx Base Task Configuration Utility.</td>
+</tr>
+<tr>
+<td>
+<em>Output</em>
+</td>
+</tr>
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td>
+<strong>taskHandle</strong>
+</td>
+<td>
+<nobr>TaskHandle *</nobr>
+</td>
+<td>A reference to the task returned by this function.</td>
+</tr>
+</table>
+<h2>Return Value</h2>
+<table class="borderless">
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>status</strong>
+</td>
+<td valign="top">int32</td>
+<td valign="top">The error code returned by the function in the event of an error or warning. A value of 0 indicates success. A positive value indicates a warning. A negative value indicates an error.</td>
+</tr>
+</table>
+</body>
+</html>
+
