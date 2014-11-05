@@ -1,4 +1,0 @@
-3d43		// DAQ 8c02 and claude version cf backup 22.1.2008
-0292 a000	// page 4 contains evbld at 0x2000 
-0772 e000	// page 5 contains calibration at 0x2000
-0cce 0000	// page 0 contains main program (must come last)

@@ -1,4 +1,0 @@
-3e43		// new daq V9310 R04 with phazz updates 17.5.2009 and bug fixes 21.5.2009 8:00
-02ea a000	// page 4 contains evbld at 0x2000 
-08dc e000	// page 5 contains calibration at 0x2000
-0cd8 0000	// page 0 contains main program (must come last)
