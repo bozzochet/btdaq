@@ -1,0 +1,109 @@
+
+<html>
+<head>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+<link rel="STYLESHEET" type="text/css" href="../daqmxbasecfunccommon/styles.css"></link>
+<title>DAQmxBaseCfgAnlgEdgeRefTrig</title>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+</head>
+<body bgcolor="#ffffff">
+<h1>DAQmxBaseCfgAnlgEdgeRefTrig</h1>
+<p class="syntax">int32 DAQmxBaseCfgAnlgEdgeRefTrig (TaskHandle taskHandle, const char 
+triggerSource[ ], int32 triggerSlope, float64 triggerLevel, uInt32 pretriggerSamples);</p>
+<h2>Purpose</h2>
+<p class="body">Configures the task to stop the acquisition when the device acquires all pretrigger samples, an analog signal reaches the level you specify, and the device acquires all post-trigger samples.</p>
+<h2>Parameters</h2>
+<table class="borderless">
+<tr>
+<td>
+<em>Input</em>
+</td>
+</tr>
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>taskHandle</strong>
+</td>
+<td valign="top">TaskHandle</td>
+<td valign="top">The task used in this function.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>triggerSource</strong>
+</td>
+<td valign="top">
+<nobr>const char [ ]</nobr>
+</td>
+<td valign="top">The name of a 
+terminal where there is an analog signal to use as the source of the trigger, such as the following: /Dev1/PFI0.
+The only terminal you can use for E Series devices is PFI0. </td>
+</tr>
+<tr>
+<td>
+<strong>triggerSlope</strong>
+</td>
+<td>int32</td>
+<td>Specifies on which slope of the signal the Reference Trigger occurs.
+<enum id="DAQmx_AnlgEdge_RefTrig_Slope">
+<table class="Borderless">
+<tr>
+<th class="Left-Align">Value</th>
+<th width="20"></th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td>
+<span id="Monospace">DAQmx_Val_RisingSlope</span>
+</td>
+<td></td>
+<td>Trigger on the rising slope of the signal.</td>
+</tr>
+<tr>
+<td>
+<span id="Monospace">DAQmx_Val_FallingSlope</span>
+</td>
+<td></td>
+<td>Trigger on the falling slope of the signal.</td>
+</tr>
+</table>
+</enum>
+</td>
+</tr>
+<tr>
+<td>
+<strong>triggerLevel</strong>
+</td>
+<td>float64</td>
+<td>Specifies at what threshold to trigger. Specify this value in the units of the measurement. Use <strong>triggerSlope</strong> to specify on which slope to trigger at this threshold.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>pretriggerSamples</strong>
+</td>
+<td valign="top">uInt32</td>
+<td valign="top">The minimum number of samples per channel to acquire before recognizing the Reference Trigger. The number of post-trigger samples per channel is equal to number of samples per channel in the NI-DAQmx Base Timing functions minus <strong>pretriggerSamples</strong>.
+</td>
+</tr>
+</table>
+<h2>Return Value</h2>
+<table class="borderless">
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>status</strong>
+</td>
+<td valign="top">int32</td>
+<td valign="top">The error code returned by the function in the event of an error or warning. A value of 0 indicates success. A positive value indicates a warning. A negative value indicates an error.</td>
+</tr>
+</table>
+</body>
+</html>
+
