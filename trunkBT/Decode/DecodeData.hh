@@ -15,14 +15,16 @@ typedef struct calib{
 
 } calib;
 
-//typedef struct header { // gcc 4.3, considers 'typedef' useless
-struct header {//for file writing NOT in AMSBlock
-  int run;    // run number
-  char date[50];        // date
-  double gonpar[4];// goniometer parameters
-  unsigned int refmaskjj;
+#pragma pack(push)
+//typedef struct header { // gcc 4.3, considers 'typedef' useless // (what??)
+struct header {			//for file writing NOT in AMSBlock
+  int run;    			// run number
+  char date[50];        	// date
+  double gonpar[4];		// goniometer parameters
+  unsigned int refmaskjj;//16/08/2014 - On Mac this is seen as long 8 (instead of 4) and the reader is read wrongly
   unsigned int refmask[24];
 };
+#pragma pack(pop)
 
 class DecodeData {
   

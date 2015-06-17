@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "DecodeData.hh"
 
 
@@ -39,7 +40,7 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
   memset(tdrRaw,-1,TDRNUM*sizeof(tdrRaw[0]));
   ntdrCmp=0;
   memset(tdrCmp,-1,TDRNUM*sizeof(tdrCmp[0]));
-  pri=0;
+  pri=1;
   evpri=0;
   sprintf(type,"Jinf");
   if (ancillary < 0)
@@ -116,8 +117,7 @@ int DecodeData::FindPos(int tdrnum){
 
 	for (int ii=0;ii<ntdrCmp;ii++)
 		if(tdrCmp[ii]==tdrnum)  return ii;
-	printf("DecodeData::FindPos:  Fatal Error can't find postion for TDR %d\n",tdrnum);
-	exit(4);
+	return -1;
 }
 //=============================================================================================
 
@@ -125,8 +125,7 @@ int DecodeData::FindPosRaw(int tdrnum){
 
 	for (int ii=0;ii<ntdrRaw;ii++)
 		if(tdrRaw[ii]==tdrnum)  return ii;
-	printf("DecodeData::FindRawPos:  Fatal Error can't find postion for TDR %d\n",tdrnum);
-	exit(4);
+	return -1;
 }
 //=============================================================================================
 
@@ -172,24 +171,23 @@ void DecodeData::DumpRunHeader(){
 	header hh;
 
 	//Read The Header Size
-	ReadFile(&size,sizeof(size),1,rawfile);
+	ReadFile(&size, sizeof(size), 1, rawfile);
 
-	if(pri) printf("Headersize: %d\n",size);
-
-	ReadFile(&hh,sizeof(hh),1,rawfile);
+	if(pri)
+		printf("Headersize: %d\n",size);
+	/* check the header size */
+	printf("WRONG: Headersize = %zu (but sizeof(header) = %zu)\n", size, sizeof(hh));
+	ReadFile(&hh, sizeof(hh), 1, rawfile);
 
 	rh->Run=hh.run;
-	sprintf(rh->date,"%s",hh.date);
+	sprintf(rh->date, "%s", hh.date);
 
 	printf("Run: %d   Date: %s\n",hh.run,hh.date);
-	for (int ii=0;ii<4;ii++) {
-		//    printf("Angle (%d) = %f\n", ii, hh.gonpar[ii]);
-	}
-	//  printf("RefmaskJJ: 0x%x\n", hh.refmaskjj);
-	for (int ii=0;ii<24;ii++) {
-		//    printf("Refmask (%d) = 0x%x\n", ii, hh.refmask[ii]);
-	}
-
+	for (int ii=0;ii<4;ii++)
+		printf("Angle (%d) = %f\n", ii, hh.gonpar[ii]);
+	printf("RefmaskJJ: 0x%x\n", hh.refmaskjj);
+	for (int ii=0;ii<24;ii++)
+		printf("Refmask (%d) = 0x%x\n", ii, hh.refmask[ii]);
 }
 
 //=============================================================================================
@@ -265,14 +263,15 @@ int DecodeData::ReadOneEvent(){
 	}
 
 	// read the last word of the event
-	if(pri) printf("pos:%ld\n",ftell(rawfile)/2);
+	if(pri)
+		printf("pos:%ld\n",ftell(rawfile)/2);
 	fstat=ReadFile(&status,sizeof(status),1,rawfile);
 	if (fstat==-1) return 1;
 
 	if(pri||evpri)printf("%s Status %d: address=%02d  status=",type,status,status&0x1f); 
 
 	int count=5;
-	for (int dase=32;dase<0x8000;dase*=2)
+	for (int dase=32; dase<0x8000; dase*=2)
 		if(pri||evpri)printf(" %2d: %d |",count++,((status&dase)>0));
 	if(pri||evpri)printf("\n");
 
@@ -311,33 +310,35 @@ int DecodeData::ReadOneEvent(){
 	}
 
 	if(strcmp(type,"JinJ")==0){
-		while ( ftell(rawfile)/2< base+size-1 ){
-			ReadOneJINF();
-		}
+	  while ( ftell(rawfile)/2< base+size-1 ){
+	    ReadOneJINF();
+	  }
 	}
 	else {
-		while ( ftell(rawfile)/2< base+size-3 ){
-			if(pri) printf("ReadOneTDR from file position: %ld\n", ftell(rawfile)/2);
-			ReadOneTDR(0);
-		}
-		// Read the last 2 words before status
-		unsigned short int dummy;
-		fstat=ReadFile(&dummy,sizeof(dummy),1,rawfile);
-		tdrnoeventmask=dummy<<16;
-		dummy=0;
-		fstat=ReadFile(&dummy,sizeof(dummy),1,rawfile);
-		tdrnoeventmask+=dummy;;
-		if (fstat==-1) return 1;
-		if(pri||evpri) printf("Tdrs with no event Mask: %d\n", tdrnoeventmask); 
-		for (int ii=0; ii<NTDRS; ii++){
-			if (tdrnoeventmask&(1<<ii)){
-				if(pri||evpri) printf("A tdr (%d) replied with no event...\n",ii);
-				if(!out_flag) tdrCmp[ntdrCmp++]=ii+100*0;
-			}
-			else if(pri||evpri) printf("A tdr (%d) didn't replied...\n",ii);
-		}
+	  while ( ftell(rawfile)/2< base+size-3 ){
+	    if(pri) 
+	      printf("ReadOneTDR from file position: %ld\n", ftell(rawfile)/2);
+	    ReadOneTDR(0);
+	  }
+	  // Read the last 2 words before status
+	  unsigned short int dummy;
+	  fstat=ReadFile(&dummy,sizeof(dummy),1,rawfile);
+	  tdrnoeventmask=dummy<<16;
+	  dummy=0;
+	  fstat=ReadFile(&dummy,sizeof(dummy),1,rawfile);
+	  tdrnoeventmask+=dummy;;
+	  if (fstat==-1) return 1;
+	  if(pri||evpri) printf("Tdrs with no event Mask: %d\n", tdrnoeventmask); 
+	  for (int ii=0; ii<NTDRS; ii++){
+	    if (tdrnoeventmask&(1<<ii)){
+	      if(pri||evpri) printf("A tdr (%d) replied with no event...\n",ii);
+	      if(!out_flag)
+		tdrCmp[ntdrCmp++]=ii+100*0;
+	    } else if (pri||evpri) 
+	      printf("A tdr (%d) didn't replied...\n",ii);
+	  }
 	}
-
+	
 	// Reread the last word
 	fstat=ReadFile(&status,sizeof(status),1,rawfile);
 	if (fstat==-1) return 1;
@@ -350,136 +351,142 @@ int DecodeData::ReadOneEvent(){
 //=============================================================================================
 
 int DecodeData::ReadOneTDR(int Jinfnum){
-	unsigned short int size;
-
-	//read the size of the TDR events
-	if(pri) printf("pos:%ld\n",ftell(rawfile)/2);
-	ReadFile(&size,sizeof(size),1,rawfile);
-
-	if(pri) printf("TDRsize: %d \n",size);
-
-	// allocate memory for the TDR event and read the event
-	short int *array=(short int*)calloc(size,sizeof(short int));
-	if(!array) {
-		printf("Fatal error cannot alloc memeory./n");
-		exit(3);
+  unsigned short int size;
+  
+  //read the size of the TDR events
+  if(pri) printf("pos:%ld\n",ftell(rawfile)/2);
+  ReadFile(&size,sizeof(size),1,rawfile);
+  
+  if(pri) printf("TDRsize: %d \n",size);
+  
+  // allocate memory for the TDR event and read the event
+  short int *array=(short int*)calloc(size,sizeof(short int));
+  if(!array) {
+    printf("Fatal error cannot alloc memeory.\n");
+    exit(3);
+  }
+  
+  ReadFile(array,size*sizeof(short int),1,rawfile);
+  
+  //Decode the tdr number (the order of tdrs in the file may change event by event!!!)
+  int tdrnum=-1;
+  int numnum=((unsigned int)array[size-1])&0x1f;	
+  if(out_flag) {
+    tdrnum=FindPos(numnum+100*Jinfnum);
+    if(tdrnum<0) tdrnum=FindPosRaw(numnum+100*Jinfnum);
+    if(tdrnum<0) { printf("DecodeData::ReadOneTDR::Cannot-Find-TDR-in-CMP-or-RAW\n"); exit(4); }
+  }
+  
+  if(pri) printf("==========> TDR %02d, Jinf %02d, Size=%4d, TDR Status=%04hx: ", numnum, Jinfnum, size, array[size-1]);
+  if(!out_flag) if((array[size-1]&64)>0)  tdrRaw[ntdrRaw++]=numnum+100*Jinfnum;
+  if(!out_flag) if((array[size-1]&128)>0) tdrCmp[ntdrCmp++]=numnum+100*Jinfnum;
+  
+  int count=5;
+  for (int base=32;base<0x8000;base*=2)
+    if(pri||evpri)
+      printf(" %2d: %d |",count++,((array[size-1]&base)>0));
+  if(pri||evpri)printf("\n");
+  
+  count=5;
+  for (int base=32;base<0x8000;base*=2){
+    if((array[size-1]&base)>0)
+      if(pri)printf(" %02d: %s\n",count,errmess[count]);
+    count++;
+  }
+  
+  if(pri) printf("\n");
+  // if(pri)for(int ii=0;ii<size;ii++) printf("arr: %d =  %d\n",ii,array[ii]);
+  
+  // - bit 15 { DATA bit, set by master when assembling group reply;
+  // - bit 14 { END bit / CRC error (if DATA=1), set by master;
+  // - bit 13 { ABORT bit / assembly error (if DATA=1), set by master;
+  // - bit 12 { ERROR bit / AMSW error (if DATA=1), set by master;
+  // - bit 11 { NEXT bit / timeout (if DATA=1), set by master;
+  // - bit 10 { build conditions (FE power fault for event building);
+  // - bit 9 { build errors (sequencer errors for event building);
+  // - bit 8 { cumulative node status;
+  // - bit 7 { if the node is building COMPRESSED events;
+  // - bit 6 { if the node is building RAW events;
+  // - bit 5 { if replying node is CDP;
+  // - bits 4-0 { slave ID, set by master;
+  
+  if(out_flag)ev->TDRStatus[tdrnum]=array[size-1];
+  if(out_flag)ev->ReadTDR[tdrnum]=1;
+  
+  int RawOffset=0;
+  if (TESTBIT(array[size-1],6) ){
+    RawOffset=1024;// RAW data present
+    if(pri) printf("|->RAW data present\n");
+    int tdrnumraw=0;
+    int count=0;
+    if(out_flag){
+      tdrnumraw=FindPosRaw(numnum+100*Jinfnum);
+      if(tdrnumraw<0) { printf("DecodeData::ReadOneTDR::Cannot-Find-TDR-%d-RAW\n",numnum+100*Jinfnum); exit(4); }
+      for (int kk=0;kk<320;kk++){
+	ev->Signal[tdrnumraw][kk]=array[count];
+	ev->Signal[tdrnumraw][320+kk]=array[count+1];
+	ev->Signal[tdrnumraw][640+kk]=array[count+2];
+	//	printf("RAW %d %d  %d\n",kk,ev->Signal[FindTDRPos(tdrnum)][kk],array[count]);
+	count+=3;
+      }
+      for (int kk=960;kk<1024;kk++){
+	ev->Signal[tdrnumraw][kk]=array[kk];
+      }
+    }
+    
+  }  
+  
+  if (TESTBIT(array[size-1],7)){    // Compressed data present
+    if(pri) printf("|->Compressed data present\n");
+    //dump clusters
+    int count=RawOffset;
+    while (count<(size-1)){
+      int bad=0;
+      int lenword=(array[count++]);
+      int cluslen=(lenword&0x7F) +1;
+      int Sig2NoiStatus=(lenword&0xFF80)>>7;
+      int addword=(array[count++]);
+      int clusadd=addword&0x3FF;
+      int CNStatus=(addword&0x3C00)>>10;
+      int PowBits=(addword&0xC000)>>14;
+      float sig[MAXLENGHT];
+      if(pri) printf("Cluster: add=%d  lenght=%d\n", clusadd, cluslen);
+      for(int hh=0; hh<cluslen; hh++){
+	if(pri)printf("Signal: %d, Pos:%d\n", array[count], hh);
+	if(hh<MAXLENGHT){
+	  sig[hh]=array[count]/8.;
+	  if(pri)printf("        %f, Pos: %d\n", sig[hh], hh);
 	}
-
-	ReadFile(array,size*sizeof(short int),1,rawfile);
-
-	//Decode the tdr number (the order of tdrs in the file may change event by event!!!)
-	int tdrnum=-1;
-	int numnum=((unsigned int)array[size-1])&0x1f;
-	if(out_flag) tdrnum=FindPos(numnum+100*Jinfnum);
-
-	if(pri) printf("==========> TDR %02d, Jinf %02d, Size=%4d, TDR Status=%04hx: ",numnum,Jinfnum,size,array[size-1]);
-	if(!out_flag) if((array[size-1]&64)>0)  tdrRaw[ntdrRaw++]=numnum+100*Jinfnum;
-	if(!out_flag) if((array[size-1]&128)>0) tdrCmp[ntdrCmp++]=numnum+100*Jinfnum;
-
-	int count=5;
-	for (int base=32;base<0x8000;base*=2)
-		if(pri||evpri)printf(" %2d: %d |",count++,((array[size-1]&base)>0));
-	if(pri||evpri)printf("\n");
-
-	count=5;
-	for (int base=32;base<0x8000;base*=2){
-		if((array[size-1]&base)>0)
-			if(pri)printf(" %02d: %s\n",count,errmess[count]);
-		count++;
-	}
-
-	if(pri) printf("\n");
-	// if(pri)for(int ii=0;ii<size;ii++) printf("arr: %d =  %d\n",ii,array[ii]);
-
-	// - bit 15 { DATA bit, set by master when assembling group reply;
-	// - bit 14 { END bit / CRC error (if DATA=1), set by master;
-	// - bit 13 { ABORT bit / assembly error (if DATA=1), set by master;
-	// - bit 12 { ERROR bit / AMSW error (if DATA=1), set by master;
-	// - bit 11 { NEXT bit / timeout (if DATA=1), set by master;
-	// - bit 10 { build conditions (FE power fault for event building);
-	// - bit 9 { build errors (sequencer errors for event building);
-	// - bit 8 { cumulative node status;
-	// - bit 7 { if the node is building COMPRESSED events;
-	// - bit 6 { if the node is building RAW events;
-	// - bit 5 { if replying node is CDP;
-	// - bits 4-0 { slave ID, set by master;
-
-	if(out_flag)ev->TDRStatus[tdrnum]=array[size-1];
-	if(out_flag)ev->ReadTDR[tdrnum]=1;
-
-	int RawOffset=0;
-	if (TESTBIT(array[size-1],6) ){
-		RawOffset=1024;// RAW data present
-		if(pri) printf("|->RAW data present\n");
-		int tdrnumraw=0;
-		int count=0;
-		if(out_flag){
-			tdrnumraw=FindPosRaw(numnum+100*Jinfnum);
-			for (int kk=0;kk<320;kk++){
-				ev->Signal[tdrnumraw][kk]=array[count];
-				ev->Signal[tdrnumraw][320+kk]=array[count+1];
-				ev->Signal[tdrnumraw][640+kk]=array[count+2];
-				//	printf("RAW %d %d  %d\n",kk,ev->Signal[FindTDRPos(tdrnum)][kk],array[count]);
-				count+=3;
-			}
-			for (int kk=960;kk<1024;kk++){
-				ev->Signal[tdrnumraw][kk]=array[kk];
-			}
-		}
-
-	}  
-
-	if (TESTBIT(array[size-1],7)){    // Compressed data present
-		if(pri)printf("|->Compressed data present\n");
-		//dump clusters
-		int count=RawOffset;
-		while (count<(size-1)){
-			int bad=0;
-			int lenword=(array[count++]);
-			int cluslen=(lenword&0x7F) +1;
-			int Sig2NoiStatus=(lenword&0xFF80)>>7;
-			int addword=(array[count++]);
-			int clusadd=addword&0x3FF;
-			int CNStatus=(addword&0x3C00)>>10;
-			int PowBits=(addword&0xC000)>>14;
-			float sig[MAXLENGHT];
-			if(pri) printf("Cluster: add=%d  lenght=%d\n", clusadd, cluslen);
-			for(int hh=0; hh<cluslen; hh++){
-				if(pri)printf("Signal: %d, Pos:%d\n", array[count], hh);
-				if(hh<MAXLENGHT){
-					sig[hh]=array[count]/8.;
-					if(pri)printf("        %f, Pos: %d\n", sig[hh], hh);
-				}
-				else bad=1;
-				count++;
-			}
-
-			int sid=0;
-			if(clusadd>640) sid=1;
-			if(out_flag){
-				Cluster* pp= ev->AddCluster(numnum+100*Jinfnum,sid);
-				calib* cal=&(cals[tdrnum]);
-				hmio[tdrnum]->Fill(clusadd);
-				pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
-						&(cal->status[clusadd]),Sig2NoiStatus, CNStatus, PowBits, bad);
-				if(pri) pp->Print();
-			}
-		}
-
-		//      int cc=1;
-		//      //Read the  cnoise values
-		//      for (int ii=size-17;ii<size-1;ii++){
-		//        if(pri)printf("Cnoise %d:  %f \n",cc++,(array[ii])/8.);
-		//        if(out_flag)ev->CNoise[tdrnum][ii-size+17]=(array[ii])/8.;
-		//      }
-	}
-	if(pri)printf("\n");
-	if(pri) printf("End op the TDR pos:%ld  \n",ftell(rawfile)/2);
-	//free the memory for the next tdr
-	free(array);
-
-
-	return 0;
+	else bad=1;
+	count++;
+      }
+      
+      int sid=0;
+      if(clusadd>640) sid=1;
+      if(out_flag){
+	Cluster* pp= ev->AddCluster(numnum+100*Jinfnum,sid);
+	calib* cal=&(cals[tdrnum]);
+	hmio[tdrnum]->Fill(clusadd);
+	pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
+		  &(cal->status[clusadd]),Sig2NoiStatus, CNStatus, PowBits, bad);
+	if(pri) pp->Print();
+      }
+    }
+    
+    //      int cc=1;
+    //      //Read the  cnoise values
+    //      for (int ii=size-17;ii<size-1;ii++){
+    //        if(pri)printf("Cnoise %d:  %f \n",cc++,(array[ii])/8.);
+    //        if(out_flag)ev->CNoise[tdrnum][ii-size+17]=(array[ii])/8.;
+    //      }
+  }
+  if(pri)printf("\n");
+  if(pri) printf("End of the TDR pos:%ld  \n",ftell(rawfile)/2);
+  //free the memory for the next tdr
+  free(array);
+  
+  
+  return 0;
 }
 
 
@@ -499,7 +506,6 @@ void DecodeData::FindCalibs(){
 
 	for (run2=runn ;run2>0 ;run2--){
 		sprintf(name1,"%s/%06d_%04d.cal",rawCaldir,run2,tdrCmp[0]);
-		if (pri) printf("searching for %s \n",name1);
 		if(stat(name1,&buf)==0){
 			printf("First calib Found %s run %d\n",name1,run2);
 			break;
@@ -574,9 +580,11 @@ int DecodeData::ReadOneJINF(){
 
 
 	//Read The Event Size
-	if(pri) printf("pos:%ld  ",ftell(rawfile)/2);
+	if(pri)
+		printf("pos:%ld  ",ftell(rawfile)/2);
 	ReadFile(&size,sizeof(size),1,rawfile);
-	if(pri)printf("JINFsize    %d \n",size);
+	if(pri)
+		printf("JINFsize    %d \n",size);
 
 	long int base=ftell(rawfile)/2;
 

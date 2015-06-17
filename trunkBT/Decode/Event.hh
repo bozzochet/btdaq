@@ -14,7 +14,7 @@
 
 
 
-class Event:public TObject{
+class Event: public TObject{
 
 public:
   //! Progressive Event number
@@ -41,7 +41,7 @@ public:
   //!number of TDRS in raw mode
   int rawtdrnum;
   //! pointer to the data
-  short int Signal[8][1024];   //
+  short int Signal[8][1024];   //8 since more than 8 raw TDRs cannot be read by a single Jinf
 
 
   short int ReadTDR[NTDRS];
@@ -65,12 +65,11 @@ public:
 
 
   ClassDef(Event,1)
-
 };
 
 
 //! Run Header Class
-class RHClass:public TObject{
+class RHClass: public TObject{
 
 public:
   //! Run number
