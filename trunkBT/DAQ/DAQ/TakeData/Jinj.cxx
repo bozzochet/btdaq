@@ -153,7 +153,7 @@ Jinj::~Jinj(){
 	for (int ii=0;ii<NSLAVE;ii++)
 		if(Slave[ii]) delete Slave[ii];
 	/* lets syncrhonize everything */
-	system("./synchronize.sh");
+	//	system("./synchronize.sh");
 }
 
 int Jinj::SelfInit() {
