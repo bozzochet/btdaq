@@ -9,6 +9,10 @@ LIB_SOURCES =    rootElibdict.cxx
 LIB_SOURCES += $(CLASSES:%.hh=%.cxx)
 LIB_OBJ=$(LIB_SOURCES:%.cxx=obj/%.o)
 
+VIE_SOURCES = viewer.cxx
+VIE_OBJ=$(VIE_SOURCES:%.cxx=obj/%.o)
+
+
 CFLAGS= -g -fPIC  
 DEFINES=
 
@@ -31,6 +35,10 @@ libEvent.a:$(LIB_OBJ)
 
 Decode: $(DEC_OBJ)
 	$(CXX) $(CFLAGS) -o$@ $^  `$(ROOTSYS)/bin/root-config --libs`
+
+Viewer: $(VIE_OBJ)
+	$(CXX) $(CFLAGS)  -o$@ $^  `$(ROOTSYS)/bin/root-config --libs`
+
 
 obj/%.o:%.cxx 
 	@echo Compiling $< ...; 
