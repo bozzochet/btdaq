@@ -74,7 +74,7 @@ int TrigClass::TriggerOn(){
     }
     else{
       char reply;
-      PRINTF("Please turn on the trigger production and then press RETURN!\n");
+      PRINTF("Please press RETURN and then turn ON the trigger production!\n");
       //printf("HACK FOR NOW: NO NEED TO PRESS, JUST WAIT 3 SECONDS!\n");
       //sleep(3);
       reply = getchar();
@@ -98,7 +98,7 @@ int TrigClass::TriggerOff(){
     }
     else{
       char reply;
-      PRINTF("Please turn off the trigger production and then press RETURN!\n");
+      PRINTF("Please turn OFF the trigger production and then press RETURN!\n");
       //printf("HACK FOR NOW: NO NEED TO PRESS, JUST WAIT 3 SECONDS!\n");
       //sleep(3);
       reply = getchar();
@@ -122,7 +122,7 @@ int TrigClass::CalibTriggerOn(){
     }
     else{
       char reply;
-      PRINTF("Please turn on calibration trigger and then press RETURN!\n");
+      PRINTF("Please press RETURN and then turn ON the trigger production!\n");
       //printf("HACK FOR NOW: NO NEED TO PRESS, JUST WAIT 3 SECONDS!\n");
       //sleep(3);
       reply = getchar();
@@ -146,7 +146,7 @@ int TrigClass::CalibTriggerOff(){
     }
     else{
       char reply;
-      PRINTF("Please turn off calibration trigger and then press RETURN!\n");
+      PRINTF("Please turn OFF calibration trigger and then press RETURN!\n");
       //printf("HACK FOR NOW: NO NEED TO PRESS, JUST WAIT 3 SECONDS!\n");
       //sleep(3);
       reply = getchar();
