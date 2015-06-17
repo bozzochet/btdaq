@@ -1,1 +1,1 @@
-cmd_/home/testsys/duranti_work2/TDR_PC_SW/myTDRControl/amsw/amswire.ko := ld -m elf_i386 -r -o /home/testsys/duranti_work2/TDR_PC_SW/myTDRControl/amsw/amswire.ko /home/testsys/duranti_work2/TDR_PC_SW/myTDRControl/amsw/amswire.o /home/testsys/duranti_work2/TDR_PC_SW/myTDRControl/amsw/amswire.mod.o
+cmd_/home/testsys/AMS/amsw/amswire.ko := cp /home/testsys/AMS/amsw/amswire.ko.unsigned /home/testsys/AMS/amsw/amswire.ko

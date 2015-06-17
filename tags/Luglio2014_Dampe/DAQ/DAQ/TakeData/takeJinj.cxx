@@ -349,6 +349,7 @@ int Calibrate(AMSWcom* node) {
     JinjSlave *slave = JJ->GetSlavePointer(ii);
     slave->timestamp = runnum;
     slave->ancillary_code = ancillary_code;
+    printf("Slave %d ancillary code is: %d\n", ii, ancillary_code);
     snprintf(slave->myaction, 20, "calib");
   }
   //Stop the calibration for precaution
@@ -498,7 +499,7 @@ int SaveCalibration(AMSWcom* node, int runnum, int ancillary_code){
 		//AMSBlock writing file mode  
 		//----------------opening data file for writing-----------------
 		char datafilename[255];
-		sprintf(datafilename,"%s/%d.dat", JJ->CPars->CALPATH, runnum/*, ancillary_code*/);
+		sprintf(datafilename,"%s/%d_ANC_%d.dat", JJ->CPars->CALPATH, runnum, ancillary_code);
 
 		struct stat buf;
 
@@ -678,7 +679,7 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
 	//----------------opening data file for writing-----------------
 	char datafilename[255];
 
-	sprintf(datafilename,"%s/%d.dat", JJ->CPars->DATAPATH, runnum/*, ancillary_code*/);
+	sprintf(datafilename,"%s/%d_ANC_%d.dat", JJ->CPars->DATAPATH, runnum, ancillary_code);
 
 	struct stat buf;
 

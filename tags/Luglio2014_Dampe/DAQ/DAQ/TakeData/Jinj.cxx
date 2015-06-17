@@ -124,14 +124,15 @@ Jinj::Jinj(const char* name, const char* conf_file, int address, AMSWcom* node_i
   calib_ancillary = 0;
   char buffer[512], *pointer;
   /* reading ancillary codes */
+  printf("readed: %s\n", CPars->CONFPATH);
   if ((stream = fopen(CPars->CONFPATH, "r"))) {
     while ((fgets(buffer, 512, stream))) {
       if ((pointer = strchr(buffer, '='))) {
 	*pointer = '\0';
 	pointer++;
-	if (strcmp(buffer, "data") == 0)
+	if (strstr(buffer, "data"))
 	  data_ancillary = atoi(pointer);
-	else if (strcmp(buffer, "calib") == 0)
+	else if (strstr(buffer, "calib"))
 	  calib_ancillary = atoi(pointer);
       }
     }
@@ -144,13 +145,15 @@ Jinj::Jinj(const char* name, const char* conf_file, int address, AMSWcom* node_i
 
 Jinj::~Jinj(){
 	FILE *stream;
-	if ((stream = fopen(CPars->CONFPATH, "w"))) {
-		fprintf(stream, "data=%d\ncalib=%d\n", data_ancillary, calib_ancillary);
-		fclose(stream);
-	}
+	//if ((stream = fopen(CPars->CONFPATH, "w"))) {
+	//	fprintf(stream, "[INDEXES]\ndata=%d\ncalib=%d\n", data_ancillary, calib_ancillary);
+	//	fclose(stream);
+	//}
 	if(CPars) delete CPars;
 	for (int ii=0;ii<NSLAVE;ii++)
 		if(Slave[ii]) delete Slave[ii];
+	/* lets syncrhonize everything */
+	//	system("./synchronize.sh");
 }
 
 int Jinj::SelfInit() {

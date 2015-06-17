@@ -57,7 +57,7 @@ extern "C" {
  ****************************************************/
 #define AMSW_DMA_RD			0x30			/* From PCI board to Computer */
 #define AMSW_DMA_WR			0x38			/* From Computer to PCI board */
-#define AMSW_DMA_TIMEOUT	1000000			/* Timeout counter */
+#define AMSW_DMA_TIMEOUT	10000000			/* Timeout counter */
 #define AMSW_DMA_DONE		4
 #define AMSW_DMA_ERROR		3
 #define AMSW_DMA_CHECK		7

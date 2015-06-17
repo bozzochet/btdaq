@@ -34,7 +34,7 @@
 #include <linux/types.h>
 #include <linux/mm.h>
 //#include <linux/wrapper.h>
-#include <linux/byteorder/swab.h>
+#include <linux/swab.h>
 
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -52,8 +52,8 @@
  ************************************************************************/
 #define AMS_VENDOR_ID			0x414D
 #define AMSW_DEVICE_ID			0x5304
-#define AMSWIRE_SUB_VENDOR_ID	0x0000
-#define AMSWIRE_SUBSYSTEM_ID	0x0000
+#define AMSWIRE_SUB_VENDOR_ID		0x0000
+#define AMSWIRE_SUBSYSTEM_ID		0x0000
 
 #define AMSW_MAJOR_NUMBER		241
 
@@ -77,8 +77,8 @@ typedef struct __mem_desc {
 
 typedef struct {
 	/* device info */
-	struct pci_dev	*pdev;			/* Device information */
-	u_char   		irq;			/* IRQ number */
+	struct pci_dev			*pdev;			/* Device information */
+	u_char   			irq;			/* IRQ number */
 
 	/* driver parameters */
 	int				inuse;			/* Device inuse flag */
@@ -88,37 +88,37 @@ typedef struct {
 
 	int				dma_wr;			/* Write DMA enabled flag */
 	int				dma_rd;			/* Read DMA enabled flag */
-	volatile int	dma_done;		/* DMA done flag */
+	volatile int			dma_done;		/* DMA done flag */
 
 	/* BAR information */
-	u_long			pBar0;			/* BAR0 physical address */
-	u_long			vBar0;			/* BAR0 virtual address */
+	u_long				pBar0;			/* BAR0 physical address */
+	u_long				vBar0;			/* BAR0 virtual address */
 	int				size0;			/* size of BAR0 */
 
-	u_long			pBar1;			/* BAR1 physical address */
-	u_long			vBar1;			/* BAR1 virtual address */
+	u_long				pBar1;			/* BAR1 physical address */
+	u_long				vBar1;			/* BAR1 virtual address */
 	int				size1;			/* size of BAR1 */
 
-	u_long			pBar2;			/* BAR2 physical address */
-	u_long			vBar2;			/* BAR2 virtual address */
+	u_long				pBar2;			/* BAR2 physical address */
+	u_long				vBar2;			/* BAR2 virtual address */
 	int				size2;			/* size of BAR1 */
 
 	/* firmware info */
-	u_short			a_ver;			/* Actel version */
-	u_long			x_ver;			/* Xilinx version */
+	u_short				a_ver;			/* Actel version */
+	u_long				x_ver;			/* Xilinx version */
 
 	/* IRQ counters */
-	u_long			irq_cnt;
-	u_long			irq_err_cnt;
-	u_long			irq_fail_cnt;
-	u_long			irq_rx_cnt;
-	u_long			irq_dma_cnt;
+	u_long				irq_cnt;
+	u_long				irq_err_cnt;
+	u_long				irq_fail_cnt;
+	u_long				irq_rx_cnt;
+	u_long				irq_dma_cnt;
 
 	/* DMA counters */
-	u_long			dma_cnt;
-	u_long			dma_err_cnt;
-	u_long			dma_rd_cnt;
-	u_long			dma_wr_cnt;
+	u_long				dma_cnt;
+	u_long				dma_err_cnt;
+	u_long				dma_rd_cnt;
+	u_long				dma_wr_cnt;
 
 	/* TX control */
 	volatile int	tx_chan_stat;	/* TX channel hardware status */
@@ -197,17 +197,18 @@ static struct file_operations amsw_dev_fops =
 	mmap:			amsw_dev_mmap,
 };
 
-MODULE_PARM(dma_write, "i");
-MODULE_PARM(dma_read, "i");
-MODULE_PARM(debug, "i");
-MODULE_PARM(swapbyte, "i");
+//MODULE_PARM(dma_write, "i");
+//MODULE_PARM(dma_read, "i");
+//MODULE_PARM(debug, "i");
+//MODULE_PARM(swapbyte, "i");
+module_param(dma_write, int, 0);
+module_param(dma_read, int, 0);
+module_param(debug, int, 0);
+module_param(swapbyte, int, 0);
 
 MODULE_AUTHOR("Xudong CAI");
-MODULE_DESCRIPTION("AMSW-PCI Device Driver");
-
-#if LINUX_VERSION_CODE > KERNEL_VERSION(3,4,10)
+MODULE_DESCRIPTION("AMSWPCI");
 MODULE_LICENSE("GPL");
-#endif
 
 /************************************************************************
 	Function:
@@ -222,9 +223,9 @@ MODULE_LICENSE("GPL");
  		0 on success
  ************************************************************************/
 #define LETOBE32(x) (((x >> 24) & 0x000000FFU) | \
-				   ((x << 24) & 0xFF000000U) | \
-				   ((x >>  8) & 0x0000FF00U) | \
-				   ((x <<  8) & 0x00FF0000U))
+			((x << 24) & 0xFF000000U) | \
+			((x >>  8) & 0x0000FF00U) | \
+			((x <<  8) & 0x00FF0000U))
 
 void memcpy_swap(void *dest, const void *src, size_t nbytes) {
 	u_long *s = (u_long *) src;
@@ -704,7 +705,7 @@ int amsw_indirect_dma(AMSW_DEV *pd, int dir, u_long pci_offset, void *buff, int 
 
 		/* Wait for DMA done */
 		for ( i = 0; i < AMSW_DMA_TIMEOUT; i++ ) {
-			if ( pd->dma_done ) {
+			//if ( pd->dma_done ) {
 				pd->dma_done = 0;
 				dma_ctrl = inl(dma + AMSW_DMA_CTRL);
 				if ( dma_ctrl & AMSW_DMA_ERROR ) {
@@ -716,7 +717,7 @@ int amsw_indirect_dma(AMSW_DEV *pd, int dir, u_long pci_offset, void *buff, int 
 					goto dma_end;
 				}
 				break;
-			}
+			//}
 		}
 
 		/* Check Timeout */
@@ -756,7 +757,6 @@ dma_end:
  ************************************************************************/
 ssize_t amsw_dev_mem_read(AMSW_DEV *pd, u_long offset, void *buff, size_t nbytes) {
 	int size;
-	int status;
 	struct vm_area_struct *vma;
 	u_long addr = 0;
 	int user_flag;
@@ -767,36 +767,37 @@ ssize_t amsw_dev_mem_read(AMSW_DEV *pd, u_long offset, void *buff, size_t nbytes
 
 	/* Check address */
 	vma = find_vma(current->mm, (int) buff);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(3,4,10)
 	if ( vma->vm_flags & VM_ACCOUNT ) {
-#else
-	if ( !(vma->vm_flags & (VM_SHARED | VM_MAYSHARE)) ) {
-#endif
 		user_flag = 1;
-	}
-	else {
+	} else {
 		addr = (u_long) (vma->vm_pgoff << PAGE_SHIFT) | ((u_long) buff - vma->vm_start);
 		user_flag = 0;
 	}
 
 	/* Check DMA enable */
-	if ( pd->dma_rd && nbytes > 32 ) {
-		/* Make DMA transfer */
-		if ( user_flag ) status = amsw_indirect_dma(pd, AMSW_DMA_RD, offset, buff, size);
-		else {
+	/*
+ 	int status;
+ 	if ( pd->dma_rd && nbytes > 32 ) {
+		if ( user_flag ) {
+			printk("using amsw_indirec_dma\n");
+			status = amsw_indirect_dma(pd, AMSW_DMA_RD, offset, buff, size);
+		}else {
+			printk("using amsw_direct_dma\n");
 			status = amsw_direct_dma(pd, AMSW_DMA_RD, offset, addr, size);
-			if ( swapbyte ) mem_swap(__va(addr), nbytes);
+			if ( swapbyte ) 
+				mem_swap(__va(addr), nbytes);
 		}
 
-		/* Check status returned for DMA operation */
-		if ( status < 0 ) return status;
-	}
-	else if (swapbyte)
+		if ( status < 0 )
+			return status;
+	} else*/ 
+	if (swapbyte) {
 		memcpy_swap(buff, (void *) (pd->vBar0 + offset), nbytes);
-	else if ( user_flag )
+	} else if ( user_flag ) {
 		copy_to_user(buff, (void *) (pd->vBar0 + offset), nbytes);
-	else
+	} else {
 		memcpy(buff, (void *) (pd->vBar0 + offset), nbytes);
+	}
 
 	return nbytes;
 }
@@ -836,7 +837,8 @@ ssize_t amsw_dev_mem_write(AMSW_DEV *pd, u_long offset, void *buff, size_t nbyte
 	if ( pd->dma_wr && nbytes > 32 ) {
 		/* Make DMA transfer */
 		if ( user_flag || swapbyte ) status = amsw_indirect_dma(pd, AMSW_DMA_WR, offset, buff, size);
-		else 						 status = amsw_direct_dma(pd, AMSW_DMA_WR, offset, addr, size);
+		else 
+			status = amsw_direct_dma(pd, AMSW_DMA_WR, offset, addr, size);
 
 		/* Check status returned for DMA operation */
 		if ( status < 0 ) return status;
@@ -931,7 +933,7 @@ static int amsw_dev_mmap(struct file *file, struct vm_area_struct *vma) {
 	//if ( remap_page_range(     vma->vm_start, offset, vma->vm_end - vma->vm_start, vma->vm_page_prot) )
 	//if ( remap_page_range(vma, vma->vm_start, offset, vma->vm_end - vma->vm_start, vma->vm_page_prot) )
 	//if ( remap_page_range(   vma->vm_start, addr, vsize, vma->vm_page_prot) )
-	if ( remap_page_range(vma, vma->vm_start, addr, vsize, vma->vm_page_prot) )
+	if ( remap_pfn_range(vma, vma->vm_start, addr, vsize, vma->vm_page_prot) )
 		return -EAGAIN;
 
 
@@ -1227,7 +1229,7 @@ static int amsw_probe(struct pci_dev *pdev, const struct pci_device_id *ent) {
 	pd->irq_ena = 1;
 
 	/* Start IRQ service */
-	if ( request_irq(pd->irq, &amsw_irq_handle, SA_SHIRQ, device_name, pd) < 0 ) {
+	if ( request_irq(pd->irq, &amsw_irq_handle, IRQF_SHARED, device_name, pd) < 0 ) {
 		printk("AMSWIRE: Fail to request IRQ\n");
 		return -EFAULT;
 	}
@@ -1375,7 +1377,7 @@ int init_module(void) {
 	ncards = 0;
 
 	/* Initialize cards */
-	if ( (err = pci_module_init(&amsw_pci_driver)) < 0 ) {
+	if ( (err = pci_register_driver(&amsw_pci_driver)) < 0 ) {
 		if ( !ncards )
 			printk("AMSWIRE: No AMSWire PCI card found.\n");
 		else
@@ -1426,8 +1428,7 @@ void cleanup_module(void){
 	pci_unregister_driver(&amsw_pci_driver);
 
 	/* Unregister character device */
-	if ( (unregister_chrdev(AMSW_MAJOR_NUMBER, device_name)) )
-		printk("AMSWIRE: Fail to unregister character device\n");
+	unregister_chrdev(AMSW_MAJOR_NUMBER, device_name);
 
 	return;
 }
