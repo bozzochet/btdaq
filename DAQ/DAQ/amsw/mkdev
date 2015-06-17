@@ -29,7 +29,8 @@ fi
 
 
 # invoke insmod 
-/sbin/insmod -o ${module} ${module}.mod || exit 1
+#/sbin/insmod -o ${module} ${module}.mod || exit 1
+/sbin/insmod ${module}.ko
 
 # show information
 echo "Module information:"

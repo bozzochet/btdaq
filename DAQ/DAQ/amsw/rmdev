@@ -6,4 +6,4 @@ device="amsw"
 # remove module
 /sbin/rmmod ${module}
 
-rm -f /dev/amsw*
+#rm -f /dev/amsw*

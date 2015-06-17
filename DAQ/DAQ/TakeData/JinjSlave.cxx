@@ -109,9 +109,6 @@ JinjSlave::JinjSlave(char* name,char* conf_file,int address,AMSWcom* node_in){
   jinfevents[1]=0;
   for (int ii=0;ii<NTDRS;ii++)tdrevents[0][ii]=0;
   for (int ii=0;ii<NTDRS;ii++)tdrevents[1][ii]=0;
-
-  int timestamp = - 999999;
-  int ancillary_code = -999999; 
 }
 //--------------------------------------------------------------
 JinjSlave::~JinjSlave(){

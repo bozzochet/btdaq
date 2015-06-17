@@ -1,5 +1,6 @@
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 #include "Jinf.h"
 #include "PUtil.h"
 
@@ -452,9 +453,10 @@ int Jinf::SaveCalibrations(int run_number,int Jinfnum){
 int Jinf::SaveCalibrationOneTDR(unsigned int tdr_number, char *calfileprefix) {
   int ret=0;
 	
-  char calfilename[255];
+  char calfilename[255], linkfilename[255];
 	
-  sprintf(calfilename,"%s%02d.cal", calfileprefix,tdr_number);
+  sprintf(calfilename,"%s%02d_ANC_%d.cal", calfileprefix, tdr_number, ancillary_code);
+  sprintf(linkfilename, "%s%02d.cal", calfileprefix, tdr_number);
   
   int addr=GenAddress(tdr_number);
   
@@ -502,9 +504,12 @@ int Jinf::SaveCalibrationOneTDR(unsigned int tdr_number, char *calfileprefix) {
     fprintf(calfil,"%4d %2d %2d %5.3f %5.3f %5.3f %5.3f %4d\n",1+i, 1+i/64, 1+i%64, calib.ped[i], calib.sigr[i], calib.sig[i],0.0, calib.sta[i]);
     //    LPRINTF("%4d %2d %2d %5.3f %5.3f %5.3f %5.3f %4d\n",1+i, 1+i/64, 1+i%64, node->ped[i], node->sigr[i], node->sig[i],0.0, node->sta[i]);//only for debug
   }
-
   fclose(calfil); 
   PRINTF("Calibration file %s saved\n",calfilename);
+  PRINTF("Calibration file %s linked\n", (calfilename+strlen(CPars->CALPATH)+1));
+  char linkcommand[1024];
+  sprintf(linkcommand, "ln -s %s %s", (calfilename+strlen(CPars->CALPATH)+1), linkfilename);
+  system(linkcommand);
   
   return ret;
 }
