@@ -18,7 +18,7 @@ extern "C" {
 	Definitions
  ****************************************************/
 
-#define AMSW_MEM_SIZE		256 * 1024		/* 256 Kbytes */
+#define AMSW_MEM_SIZE		256 * 1024			/* 256 Kbytes */
 #define AMSW_REG_SIZE		256				/* 256 bytes */
 
 /****************************************************
@@ -51,12 +51,12 @@ int amsw_rx_packet(int link, void *data, int size, int *bc);
 
 typedef struct {
 	int			chan;			/* TX and RX channel number */
-	u_long		csr;			/* CSR for TX and RX */
+	u_long			csr;			/* CSR for TX and RX */
 	int			size;			/* size in bytes */
-	u_long		data;			/* Buffer address */
-	u_long		status;			/* Status for RX */
-	u_long	 	pci_off;		/* PCI offset (memory access only) */
-} AMSW_DATA;
+	u_long			data;			/* Buffer address */
+	u_long			status;			/* Status for RX */
+	u_long	 		pci_off;		/* PCI offset (memory access only) */
+} AMSW_DATA;	
 
 typedef struct {
 	int			mask;			/* Channel mask for which got RX */

@@ -1,1 +1,1 @@
-cmd_/home/testsys/BTF/DAQ/DAQ/amsw/amswire.ko := ld -r -m elf_i386 -T /usr/src/kernels/2.6.34.9-69.fc13.i686.PAE/scripts/module-common.lds --build-id -o /home/testsys/BTF/DAQ/DAQ/amsw/amswire.ko /home/testsys/BTF/DAQ/DAQ/amsw/amswire.o /home/testsys/BTF/DAQ/DAQ/amsw/amswire.mod.o
+cmd_/home/testsys/AMS/amsw/amswire.ko := cp /home/testsys/AMS/amsw/amswire.ko.unsigned /home/testsys/AMS/amsw/amswire.ko
