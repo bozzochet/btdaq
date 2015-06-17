@@ -1,7 +1,7 @@
 #ifndef Cluster_hh
 #define Cluster_hh
 #include "TObject.h"
-#define MAXLENGHT 50
+#define MAXLENGHT 128
 #define NTDRS  24
 
 //!  Tracker Cluster class. 
