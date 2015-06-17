@@ -9,25 +9,28 @@ LIB_SOURCES =    rootElibdict.cxx
 LIB_SOURCES += $(CLASSES:%.hh=%.cxx)
 LIB_OBJ=$(LIB_SOURCES:%.cxx=obj/%.o)
 
-
 CFLAGS= -g -fPIC  
 DEFINES=
+
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+	SOFLAGS = -dynamic -shared -dynamiclib -undefined dynamic_lookup
+else
+        SOFLAGS = -shared
+endif
 
 all: Decode lib
 
 lib:  libEvent.so
 
 libEvent.so:$(LIB_OBJ)
-	$(CXX) --shared $(CFLAGS) $(DEFINES)  -o$@ $^ 
+	$(CXX) $(CFLAGS) $(DEFINES) $(SOFLAGS) -o $@ $^ 
 
 libEvent.a:$(LIB_OBJ)
-	$(CXX) $(CFLAGS) $(DEFINES)  -o$@ $^ 
-
+	$(CXX) $(CFLAGS) $(DEFINES) -o $@ $^ 
 
 Decode: $(DEC_OBJ)
-	$(CXX) $(CFLAGS)  -o$@ $^  `$(ROOTSYS)/bin/root-config --libs`
-
-
+	$(CXX) $(CFLAGS) -o$@ $^  `$(ROOTSYS)/bin/root-config --libs`
 
 obj/%.o:%.cxx 
 	@echo Compiling $< ...; 
@@ -36,9 +39,8 @@ obj/%.o:%.cxx
 
 rootElibdict.cxx: $(CLASSES) LinkDef.h
 	@echo Creating ROOT dictionary
-	@$(ROOTSYS)/bin/rootcint -f $@  -c $^
-
+	rootcint -f $@  -c -p $(CFLAGS) $(DEFINES) $^
 
 clean:
-	@rm -fv libEvent.a libEvent.so Decode CalDecode  rootElibdict.cxx rootElibdict.h obj/*.o 
+	@rm -fv libEvent.a libEvent.so Decode rootElibdict.cxx rootElibdict.h obj/*.o 
 	@rm -frv obj
