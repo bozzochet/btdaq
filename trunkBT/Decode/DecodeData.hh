@@ -15,7 +15,8 @@ typedef struct calib{
 
 } calib;
 
-#pragma pack(push)
+#pragma pack(push, 1)
+
 //typedef struct header { // gcc 4.3, considers 'typedef' useless // (what??)
 struct header {			//for file writing NOT in AMSBlock
   int run;    			// run number
@@ -24,6 +25,7 @@ struct header {			//for file writing NOT in AMSBlock
   unsigned int refmaskjj;//16/08/2014 - On Mac this is seen as long 8 (instead of 4) and the reader is read wrongly
   unsigned int refmask[24];
 };
+
 #pragma pack(pop)
 
 class DecodeData {
@@ -36,15 +38,15 @@ private:
   int Xstant;
   int runn;
   int tdroffset;
-  calib cals[TDRNUM];
+  calib cals[NJINF*TDRNUM];
   int pri;
   int evpri;
   int nJinf;
   int JinfMap[NJINF];
   int ntdrRaw;
-  int tdrRaw[TDRNUM];
+  int tdrRaw[NJINF*TDRNUM];
   int ntdrCmp;
-  int tdrCmp[TDRNUM];
+  int tdrCmp[NJINF*TDRNUM];
   int out_flag;
   char type[10]; //JinF or JinJ
   void FindCalibs ();
@@ -59,7 +61,7 @@ public:
   RHClass *rh;
   
   int evenum;
-  TH1F* hmio[TDRNUM];
+  TH1F* hmio[NJINF*TDRNUM];
   
   void DumpRunHeader();
   
@@ -71,6 +73,9 @@ public:
   int ReadOneEvent();
   int ReadOneTDR(int jinf=0);
   int ReadOneJINF();
+  void AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float* sig);
+  void Clusterize(int numnum, int Jinfnum, short int Signal[1024]);
+
   void CloseFile();
   int EndOfFile();
   void SetPrintOff(){pri=0;}

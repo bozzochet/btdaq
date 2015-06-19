@@ -20,8 +20,10 @@ Event::Event(int irawtdrnum){
     NClus[ii][1]=0;
   }
   for(int ii=0;ii<1024;ii++)
-    for(int kk=0;kk<8;kk++)
+    for(int kk=0;kk<8;kk++) {
       Signal[kk][ii]=0;
+      SoN[kk][ii]=0.0;
+    }
   
   //  RawLadder = new TClonesArray("RawData",rawtdrnum);
   
@@ -53,8 +55,10 @@ void Event::Clear(){
   }
 
   for(int ii=0;ii<8;ii++){ 
-    for(int kk=0;kk<1024;kk++)
+    for(int kk=0;kk<1024;kk++) {
       Signal[ii][kk]=0;
+      SoN[ii][kk]=0.0;
+    }
   }
 
   if(Cls)  Cls->Delete();

@@ -173,11 +173,10 @@ void DecodeData::DumpRunHeader(){
 	//Read The Header Size
 	ReadFile(&size, sizeof(size), 1, rawfile);
 
-	if(pri)
-		printf("Headersize: %d\n",size);
+	if(pri) printf("Headersize: %d\n", size);
 	/* check the header size */
 	printf("WRONG: Headersize = %zu (but sizeof(header) = %zu)\n", size, sizeof(hh));
-	ReadFile(&hh, sizeof(hh), 1, rawfile);
+	ReadFile(&hh, sizeof(header), 1, rawfile);
 
 	rh->Run=hh.run;
 	sprintf(rh->date, "%s", hh.date);
@@ -416,28 +415,38 @@ int DecodeData::ReadOneTDR(int Jinfnum){
   int RawOffset=0;
   if (TESTBIT(array[size-1],6) ){
     RawOffset=1024;// RAW data present
-    if(pri) printf("|->RAW data present\n");
+    if (pri) printf("|->RAW data present\n");
+    if (pri) printf("Filling Event and Histograms for JINF %d, TDR %d (RAW)\n", Jinfnum, numnum);
     int tdrnumraw=0;
     int count=0;
-    if(out_flag){
+    if (out_flag){
       tdrnumraw=FindPosRaw(numnum+100*Jinfnum);
       if(tdrnumraw<0) { printf("DecodeData::ReadOneTDR::Cannot-Find-TDR-%d-RAW\n",numnum+100*Jinfnum); exit(4); }
+      calib* cal=&(cals[numnum+100*Jinfnum]);
       for (int kk=0;kk<320;kk++){
-	ev->Signal[tdrnumraw][kk]=array[count];
-	ev->Signal[tdrnumraw][320+kk]=array[count+1];
-	ev->Signal[tdrnumraw][640+kk]=array[count+2];
+	ev->Signal[tdrnumraw][kk]=array[count];//first ADC on S
+	ev->Signal[tdrnumraw][320+kk]=array[count+1];//second ADC on S
+	ev->Signal[tdrnumraw][640+kk]=array[count+2];//ADC on K
 	//	printf("RAW %d %d  %d\n",kk,ev->Signal[FindTDRPos(tdrnum)][kk],array[count]);
 	count+=3;
       }
-      for (int kk=960;kk<1024;kk++){
+      for (int kk=960;kk<1024;kk++){//remaining (320->384) on ADC on K
 	ev->Signal[tdrnumraw][kk]=array[kk];
       }
+      for (int cc=0; cc<1024; cc++) {
+	//	printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->sig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
+	ev->SoN[tdrnumraw][cc] = (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc];
+	if (ev->SoN[tdrnumraw][cc]>3.5) hmio[numnum+100*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);//TEMPORARY!!! Should be replaced by the one filled with the off-line clusterization
+      }
+
+      Clusterize(numnum, Jinfnum, ev->Signal[tdrnumraw]);
     }
     
   }  
   
   if (TESTBIT(array[size-1],7)){    // Compressed data present
-    if(pri) printf("|->Compressed data present\n");
+    if (pri) printf("|->Compressed data present\n");
+    if (pri) printf("Filling Event and Histograms for JINF %d, TDR %d (CMP)\n", Jinfnum, numnum);
     //dump clusters
     int count=RawOffset;
     while (count<(size-1)){
@@ -461,15 +470,8 @@ int DecodeData::ReadOneTDR(int Jinfnum){
 	count++;
       }
       
-      int sid=0;
-      if(clusadd>640) sid=1;
       if(out_flag){
-	Cluster* pp= ev->AddCluster(numnum+100*Jinfnum,sid);
-	calib* cal=&(cals[tdrnum]);
-	hmio[tdrnum]->Fill(clusadd);
-	pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
-		  &(cal->status[clusadd]),Sig2NoiStatus, CNStatus, PowBits, bad);
-	if(pri) pp->Print();
+	AddCluster(numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
       }
     }
     
@@ -489,55 +491,113 @@ int DecodeData::ReadOneTDR(int Jinfnum){
   return 0;
 }
 
+void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float* sig) {
+
+  int sid=0;
+  if (clusadd>640) sid=1;
+  Cluster* pp= ev->AddCluster(numnum+100*Jinfnum,sid);
+  calib* cal=&(cals[numnum+100*Jinfnum]);
+  hmio[numnum+100*Jinfnum]->Fill(clusadd);
+  pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
+	    &(cal->status[clusadd]),Sig2NoiStatus, CNStatus, PowBits, bad);
+  if(pri) pp->Print();
+
+  return;
+}
+
+void DecodeData::Clusterize(int numnum, int Jinfnum, short int Signal[1024]) {
+  
+  /*
+    int bad=0;
+    int lenword=(array[count++]);
+    int cluslen=(lenword&0x7F) +1;
+    int Sig2NoiStatus=(lenword&0xFF80)>>7;
+    int addword=(array[count++]);
+    int clusadd=addword&0x3FF;
+    int CNStatus=(addword&0x3C00)>>10;
+    int PowBits=(addword&0xC000)>>14;
+    float sig[MAXLENGHT];
+    if(pri) printf("Cluster: add=%d  lenght=%d\n", clusadd, cluslen);
+    for(int hh=0; hh<cluslen; hh++){
+    if(pri)printf("Signal: %d, Pos:%d\n", array[count], hh);
+    if(hh<MAXLENGHT){
+    sig[hh]=array[count]/8.;
+    if(pri)printf("        %f, Pos: %d\n", sig[hh], hh);
+    }
+    else bad=1;
+    count++;
+    }
+    
+    AddCluster(numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
+  */
+  
+  return;
+}
 
 //=============================================================================================
 
 void DecodeData::FindCalibs(){
-	struct stat buf;
-	char name1[300];
-	int run2;
-	FILE* calfile[TDRNUM];
-	int old=pri;
 
-	if(ntdrCmp<1){
-		printf("No TDR in CMP mode --> No DSP Calib can be found\n");
-		return;
-	}
+  struct stat buf;
+  char name1[300];
+  int run2;
+  FILE* calfile[TDRNUM];
+  int old=pri;
+  
+  if((ntdrCmp+ntdrRaw)<1){
+    printf("No TDR in CMP or RAW mode --> No DSP Calib can be found\n");
+    return;
+  }
+  
+  for (run2=runn ;run2>0 ;run2--){
+    sprintf(name1,"%s/%06d_%04d.cal",rawCaldir,run2,tdrCmp[0]);
+    if(stat(name1,&buf)==0){
+      printf("First calib Found %s run %d\n",name1,run2);
+      break;
+    }
+  }
+  
+  if (run2<40) {
+    printf("Cannot find any calibration done before the requested run %d\n",runn);
+    printf("I give up. Bye.\n");
+    exit(2);
+  }
+  else 
+    printf ("Searching for other calib files\n");
+  
+  for (int ii=0;ii<ntdrCmp;ii++){
+    int Jinfnum=tdrCmp[ii]/100;
+    int tdrnum=tdrCmp[ii]-Jinfnum*100;
+    int index = Jinfnum*100+tdrnum;
+    sprintf(name1,"%s/%06d_%02d%02d.cal", rawCaldir, run2, Jinfnum, tdrnum);
+    calfile[index]=fopen(name1,"r");
+    if(!calfile[index]){
+      printf("Cannot find the calib %s for the requested calib run %d\n",name1,run2);
+      printf("I give up. Bye.\n");
+      exit(2);
+    }
+    printf("Found file %s\n",name1);
+    //    printf("---- %d\n", index);
+    ReadCalib(calfile[index],&(cals[index]));
+  }
 
-	for (run2=runn ;run2>0 ;run2--){
-		sprintf(name1,"%s/%06d_%04d.cal",rawCaldir,run2,tdrCmp[0]);
-		if(stat(name1,&buf)==0){
-			printf("First calib Found %s run %d\n",name1,run2);
-			break;
-		}
-	}
+  for (int ii=0;ii<ntdrRaw;ii++){
+    int Jinfnum=tdrRaw[ii]/100;
+    int tdrnum=tdrRaw[ii]-Jinfnum*100;
+    int index = Jinfnum*100+tdrnum;
+    sprintf(name1,"%s/%06d_%02d%02d.cal", rawCaldir, run2, Jinfnum, tdrnum);
+    calfile[index]=fopen(name1,"r");
+    if(!calfile[index]){
+      printf("Cannot find the calib %s for the requested calib run %d\n",name1,run2);
+      printf("I give up. Bye.\n");
+      exit(2);
+    }
+    printf("Found file %s\n",name1);
+    //    printf("---- %d\n", index);
+    ReadCalib(calfile[index],&(cals[index]));
+  }
 
-	if( run2<40) {
-		printf("Cannot find any calibration done before the requested run %d\n",runn);
-		printf("I give up. Bye.\n");
-		exit(2);
-	}else 
-		printf ("Searching for other calib files\n");
-
-
-	for (int ii=0;ii<ntdrCmp;ii++){
-		int Jinfnum=tdrCmp[ii]/100;
-		int tdrnum=tdrCmp[ii]-Jinfnum*100;
-		sprintf(name1,"%s/%06d_%02d%02d.cal",rawCaldir,run2,Jinfnum,tdrnum);
-		calfile[ii]=fopen(name1,"r");
-		if(!calfile[ii]){
-			printf("Cannot find the calib %s for the requested calib run %d\n",name1,run2);
-			printf("I give up. Bye.\n");
-			exit(2);
-		}
-		printf("Found file %s\n",name1);
-
-		ReadCalib(calfile[ii],&(cals[ii]));
-
-	}
-
-
-	pri=old;
+  pri=old;
 }
 
 //=============================================================================================
