@@ -42,7 +42,7 @@ public:
   int rawtdrnum;
   //! pointer to the data
   short int Signal[8][1024];   //8 since more than 8 raw TDRs cannot be read by a single Jinf
-
+  float        SoN[8][1024];   //8 since more than 8 raw TDRs cannot be read by a single Jinf
 
   short int ReadTDR[NTDRS];
   
