@@ -173,10 +173,13 @@ void DecodeData::DumpRunHeader(){
 	//Read The Header Size
 	ReadFile(&size, sizeof(size), 1, rawfile);
 
+	size*=2;//this is the size stored but for some reasone we decided (in TakeData) to store in units of word, so divided by 2.0
+
 	if(pri) printf("Headersize: %d\n", size);
 	/* check the header size */
-	printf("WRONG: Headersize = %zu (but sizeof(header) = %zu)\n", size, sizeof(hh));
-	ReadFile(&hh, sizeof(header), 1, rawfile);
+	if (size!=sizeof(hh)) printf("!!!!!!!!!!!!!!!!!!! WRONG: Headersize = %zu (but sizeof(header) = %zu)\n", size, sizeof(hh));
+	//	ReadFile(&hh, sizeof(header), 1, rawfile);//this should be fine also
+	ReadFile(&hh, size, 1, rawfile);
 
 	rh->Run=hh.run;
 	sprintf(rh->date, "%s", hh.date);
