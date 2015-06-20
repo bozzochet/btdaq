@@ -70,11 +70,12 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
   // Try to get some info on how many ladders there are in the data (RAW and CMP)
   long int pos=ftell(rawfile);
   out_flag=0;
+  if (pri) printf("*************** Reading one event to understand things...\n");
   ReadOneEvent();
   // come back to the previous pos
   if(int ret0=fseek(rawfile,pos,SEEK_SET)){
-	  printf("Fatal: error during file skip  %d\n",ret0);
-	  exit(3);
+    printf("Fatal: error during file skip  %d\n",ret0);
+    exit(3);
   }
   out_flag=1;
 
@@ -96,12 +97,20 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
   for (int ii=0;ii<ntdrCmp;ii++)
 	  rh->tdrCmpMap[ii]=tdrCmp[ii];
 
-  if(pri) printf("Dumping the root file headers...\n");
+  if(pri) printf("Dumping the file headers that are going to be written in the ROOT files...\n");
   rh->Print();
-
+  
   //Find the Calibrations
   if(pri) printf("Finding a valid calibration...\n");
   FindCalibs();
+
+  // for (int ii=0;ii<ntdrRaw;ii++) {
+  //   printf("RAW: %d -> %d\n", ii, tdrRaw[ii]);
+  // }
+
+  // for (int ii=0;ii<ntdrCmp;ii++) {
+  //   printf("CMP: %d -> %d\n", ii, tdrCmp[ii]);
+  // }  
 }
 //=============================================================================================
 
@@ -115,17 +124,25 @@ DecodeData::~DecodeData(){
 
 int DecodeData::FindPos(int tdrnum){
 
-	for (int ii=0;ii<ntdrCmp;ii++)
-		if(tdrCmp[ii]==tdrnum)  return ii;
-	return -1;
+  // for (int ii=0;ii<ntdrCmp;ii++) {
+  //   printf("CMP: %d -> %d\n", ii, tdrCmp[ii]);
+  // }
+  
+  for (int ii=0;ii<ntdrCmp;ii++)
+    if(tdrCmp[ii]==tdrnum)  return ii;
+  return -1;
 }
 //=============================================================================================
 
 int DecodeData::FindPosRaw(int tdrnum){
-
-	for (int ii=0;ii<ntdrRaw;ii++)
-		if(tdrRaw[ii]==tdrnum)  return ii;
-	return -1;
+  
+  // for (int ii=0;ii<ntdrRaw;ii++) {
+  //   printf("RAW: %d -> %d\n", ii, tdrRaw[ii]);
+  // }
+  
+  for (int ii=0;ii<ntdrRaw;ii++)
+    if(tdrRaw[ii]==tdrnum)  return ii;
+  return -1;
 }
 //=============================================================================================
 
@@ -167,29 +184,29 @@ int DecodeData::EndOfFile(){
 //=============================================================================================
 
 void DecodeData::DumpRunHeader(){
-	unsigned short int size;
-	header hh;
-
-	//Read The Header Size
-	ReadFile(&size, sizeof(size), 1, rawfile);
-
-	size*=2;//this is the size stored but for some reasone we decided (in TakeData) to store in units of word, so divided by 2.0
-
-	if(pri) printf("Headersize: %d\n", size);
-	/* check the header size */
-	if (size!=sizeof(hh)) printf("!!!!!!!!!!!!!!!!!!! WRONG: Headersize = %zu (but sizeof(header) = %zu)\n", size, sizeof(hh));
-	//	ReadFile(&hh, sizeof(header), 1, rawfile);//this should be fine also
-	ReadFile(&hh, size, 1, rawfile);
-
-	rh->Run=hh.run;
-	sprintf(rh->date, "%s", hh.date);
-
-	printf("Run: %d   Date: %s\n",hh.run,hh.date);
-	for (int ii=0;ii<4;ii++)
-		printf("Angle (%d) = %f\n", ii, hh.gonpar[ii]);
-	printf("RefmaskJJ: 0x%x\n", hh.refmaskjj);
-	for (int ii=0;ii<24;ii++)
-		printf("Refmask (%d) = 0x%x\n", ii, hh.refmask[ii]);
+  unsigned short int size;
+  header hh;
+  
+  //Read The Header Size
+  ReadFile(&size, sizeof(size), 1, rawfile);
+  
+  size*=2;//this is the size stored but for some reason we decided (in TakeData) to store in units of word, so divided by 2.0
+  
+  if(pri) printf("Headersize: %d\n", size);
+  /* check the header size */
+  if (size!=sizeof(hh)) printf("!!!!!!!!!!!!!!!!!!! WRONG: Headersize = %zu (but sizeof(header) = %zu)\n", size, sizeof(hh));
+  //	ReadFile(&hh, sizeof(header), 1, rawfile);//this should be fine also
+  ReadFile(&hh, size, 1, rawfile);
+  
+  rh->Run=hh.run;
+  sprintf(rh->date, "%s", hh.date);
+  
+  printf("Run: %d   Date: %s\n",hh.run,hh.date);
+  for (int ii=0;ii<4;ii++)
+    printf("Angle (%d) = %f\n", ii, hh.gonpar[ii]);
+  printf("RefmaskJJ: 0x%x\n", hh.refmaskjj);
+  for (int ii=0;ii<24;ii++)
+    printf("Refmask (%d) = 0x%x\n", ii, hh.refmask[ii]);
 }
 
 //=============================================================================================
@@ -217,136 +234,137 @@ int DecodeData::SkipOneEvent(int evskip){
 //=============================================================================================
 
 int DecodeData::ReadOneEvent(){
-	unsigned short int size;
-	unsigned int tdrnoeventmask;//two words before status
-	unsigned short int status;
-	unsigned short int num;
 
-	int fstat=0;
-
-	if(!out_flag){
-		ntdrRaw=0;
-		ntdrCmp=0;
-		nJinf=0;
-	}
-
-	//Read The Event Size
-	if(pri) printf("pos:%ld\n ",ftell(rawfile)/2);
-
-	fstat=ReadFile(&size,sizeof(size),1,rawfile);
-	if (fstat==-1) return 1; 
-
-	long int base=ftell(rawfile)/2;
-
-	//update the event counters
-	evenum++;
-
-	if(out_flag) ev->Evtnum=evenum;
-
-	if(pri) printf("pos:%ld\n",ftell(rawfile)/2);
-
-	//Read the Event Number
-	fstat=ReadFile(&num,sizeof(num),1,rawfile);
-	if (fstat==-1) return 1;
-
-	if(pri) printf("Evenum: %d\n",num);
-	if(out_flag)ev->Evtnum=num;
-	if(pri||evpri)printf("\n-----------------------------> New event: %d\n",num);
-
-	if(pri||evpri)printf("%s size: %d\n",type,size);
-
-	//Store the position on the file
-	long int pos=ftell(rawfile);
-
-	// skip all the TDR data
-	if(int ret0=fseek(rawfile,(size-2)*2,SEEK_CUR)){
-		printf("Fatal: error during file skip ret0=%d \n",ret0);
-		exit(3);
-	}
-
-	// read the last word of the event
-	if(pri)
-		printf("pos:%ld\n",ftell(rawfile)/2);
-	fstat=ReadFile(&status,sizeof(status),1,rawfile);
-	if (fstat==-1) return 1;
-
-	if(pri||evpri)printf("%s Status %d: address=%02d  status=",type,status,status&0x1f); 
-
-	int count=5;
-	for (int dase=32; dase<0x8000; dase*=2)
-		if(pri||evpri)printf(" %2d: %d |",count++,((status&dase)>0));
-	if(pri||evpri)printf("\n");
-
-	count=5;
-	for (int dase=32;dase<0x8000;dase*=2){
-		if((status&dase)>0)
-			if(pri||evpri)printf(" %02d: %s\n",count,errmess[count]);
-		count++;
-	}
-	if(pri||evpri)printf("\n\n");
-
-	if(out_flag) ev->JINJStatus=status;
-
-
-	if((status&0x200)>0||(status&0x400)>0){
-		printf("=======================> %s Error!!!  Skip this event: %d\n",type,ev->Evtnum); 
-		count=5;
-		for (int dase=32;dase<0x8000;dase*=2){
-			if((status&dase)>0)
-				printf(" %02d: %s\n",count,errmess[count]);
-			count++;
-		}
-		return 10;
-	}
-
-	// come back to the previous pos (i.e. to the first sub-block)
-	if(int ret0=fseek(rawfile,pos,SEEK_SET)){
-		printf("Fatal: error during file skip %d\n",ret0);
-		exit(3);
-	}
-
-	// Read the TDRs or the JINFs
-	if(!out_flag){
-		ntdrRaw=0;
-		ntdrCmp=0;
-	}
-
-	if(strcmp(type,"JinJ")==0){
-	  while ( ftell(rawfile)/2< base+size-1 ){
-	    ReadOneJINF();
-	  }
-	}
-	else {
-	  while ( ftell(rawfile)/2< base+size-3 ){
-	    if(pri) 
-	      printf("ReadOneTDR from file position: %ld\n", ftell(rawfile)/2);
-	    ReadOneTDR(0);
-	  }
-	  // Read the last 2 words before status
-	  unsigned short int dummy;
-	  fstat=ReadFile(&dummy,sizeof(dummy),1,rawfile);
-	  tdrnoeventmask=dummy<<16;
-	  dummy=0;
-	  fstat=ReadFile(&dummy,sizeof(dummy),1,rawfile);
-	  tdrnoeventmask+=dummy;;
-	  if (fstat==-1) return 1;
-	  if(pri||evpri) printf("Tdrs with no event Mask: %d\n", tdrnoeventmask); 
-	  for (int ii=0; ii<NTDRS; ii++){
-	    if (tdrnoeventmask&(1<<ii)){
-	      if(pri||evpri) printf("A tdr (%d) replied with no event...\n",ii);
-	      if(!out_flag)
-		tdrCmp[ntdrCmp++]=ii+100*0;
-	    } else if (pri||evpri) 
-	      printf("A tdr (%d) didn't replied...\n",ii);
-	  }
-	}
-	
-	// Reread the last word
-	fstat=ReadFile(&status,sizeof(status),1,rawfile);
-	if (fstat==-1) return 1;
-
-	if(pri||evpri) printf("%s status: %d\n",type,status); 
-	return 0;
+  unsigned short int size;
+  unsigned int tdrnoeventmask;//two words before status
+  unsigned short int status;
+  unsigned short int num;
+  
+  int fstat=0;
+  
+  if(!out_flag){
+    ntdrRaw=0;
+    ntdrCmp=0;
+    nJinf=0;
+  }
+  
+  //Read The Event Size
+  if(pri) printf("ReadOneEvent) pos:%ld\n ",ftell(rawfile)/2);
+  
+  fstat=ReadFile(&size,sizeof(size),1,rawfile);
+  if (fstat==-1) return 1; 
+  
+  long int base=ftell(rawfile)/2;
+  
+  //update the event counters
+  evenum++;
+  
+  if(out_flag) ev->Evtnum=evenum;
+  
+  if(pri) printf("ReadOneEvent-AfterSizeRead) pos:%ld\n",ftell(rawfile)/2);
+  
+  //Read the Event Number
+  fstat=ReadFile(&num,sizeof(num),1,rawfile);
+  if (fstat==-1) return 1;
+  
+  if(pri) printf("Evenum: %d\n",num);
+  if(out_flag)ev->Evtnum=num;
+  if(pri||evpri)printf("\n-----------------------------> New event: %d\n",num);
+  
+  if(pri||evpri)printf("%s size: %d\n",type,size);
+  
+  //Store the position on the file
+  long int pos=ftell(rawfile);
+  
+  // skip all the TDR data
+  if(int ret0=fseek(rawfile,(size-2)*2,SEEK_CUR)){
+    printf("Fatal: error during file skip ret0=%d \n",ret0);
+    exit(3);
+  }
+  
+  // read the last word of the event
+  if(pri) printf("ReadOneEvent-LastWordOfEvent) pos:%ld\n",ftell(rawfile)/2);
+  fstat=ReadFile(&status,sizeof(status),1,rawfile);
+  if (fstat==-1) return 1;
+  
+  if(pri||evpri)printf("%s Status %d: address=%02d  status=",type,status,status&0x1f); 
+  
+  int count=5;
+  for (int dase=32; dase<0x8000; dase*=2)
+    if(pri||evpri)printf(" %2d: %d |",count++,((status&dase)>0));
+  if(pri||evpri)printf("\n");
+  
+  count=5;
+  for (int dase=32;dase<0x8000;dase*=2){
+    if((status&dase)>0)
+      if(pri||evpri)printf(" %02d: %s\n",count,errmess[count]);
+    count++;
+  }
+  if(pri||evpri)printf("\n\n");
+  
+  if(out_flag) ev->JINJStatus=status;
+  
+  //  if((status&0x400)>0){
+  if((status&0x200)>0||(status&0x400)>0){
+    printf("=======================> %s Error!!! Status %hx\n", type, status); 
+    if (out_flag) printf("=======================> %s Error!!!  Skip this event: %d\n",type, ev->Evtnum); 
+    count=5;
+    for (int dase=32;dase<0x8000;dase*=2){
+      if((status&dase)>0)
+	printf(" %02d: %s\n",count,errmess[count]);
+      count++;
+    }
+    return 10;
+  }
+  
+  // come back to the previous pos (i.e. to the first sub-block)
+  if(int ret0=fseek(rawfile,pos,SEEK_SET)){
+    printf("Fatal: error during file skip %d\n",ret0);
+    exit(3);
+  }
+  
+  // Read the TDRs or the JINFs
+  if(!out_flag){
+    ntdrRaw=0;
+    ntdrCmp=0;
+  }
+  
+  if(strcmp(type,"JinJ")==0){
+    while ( ftell(rawfile)/2< base+size-1 ){
+      ReadOneJINF();
+    }
+  }
+  else {
+    while ( ftell(rawfile)/2< base+size-3 ){
+      if(pri) 
+	printf("ReadOneTDR from file position: %ld\n", ftell(rawfile)/2);
+      ReadOneTDR(0);
+    }
+    // Read the last 2 words before status
+    unsigned short int dummy;
+    fstat=ReadFile(&dummy,sizeof(dummy),1,rawfile);
+    tdrnoeventmask=dummy<<16;
+    dummy=0;
+    fstat=ReadFile(&dummy,sizeof(dummy),1,rawfile);
+    tdrnoeventmask+=dummy;;
+    if (fstat==-1) return 1;
+    if(pri||evpri) printf("Tdrs with no event Mask: %d\n", tdrnoeventmask); 
+    for (int ii=0; ii<NTDRS; ii++){
+      if (tdrnoeventmask&(1<<ii)){
+	if(pri||evpri) printf("A tdr (%d) replied with no event...\n",ii);
+	if(!out_flag)
+	  tdrCmp[ntdrCmp++]=ii+100*0;
+      } else if (pri||evpri) 
+	printf("A tdr (%d) didn't replied...\n",ii);
+    }
+  }
+  
+  // Reread the last word
+  fstat=ReadFile(&status,sizeof(status),1,rawfile);
+  if (fstat==-1) return 1;
+  
+  if(pri||evpri) printf("%s status: %d\n",type,status); 
+  return 0;
 }
 
 
@@ -370,13 +388,26 @@ int DecodeData::ReadOneTDR(int Jinfnum){
   
   ReadFile(array,size*sizeof(short int),1,rawfile);
   
+  // for (int ii=0;ii<ntdrRaw;ii++) {
+  //   printf("RAW: %d -> %d\n", ii, tdrRaw[ii]);
+  // }
+
+  // for (int ii=0;ii<ntdrCmp;ii++) {
+  //   printf("CMP: %d -> %d\n", ii, tdrCmp[ii]);
+  // }
+
   //Decode the tdr number (the order of tdrs in the file may change event by event!!!)
   int tdrnum=-1;
-  int numnum=((unsigned int)array[size-1])&0x1f;	
+  int numnum=((unsigned int)array[size-1])&0x1f;
+  //  printf("JINF=%d, NUMNUM=%d\n", Jinfnum, numnum);
   if(out_flag) {
     tdrnum=FindPos(numnum+100*Jinfnum);
+    //    printf("%d\n", tdrnum);
     if(tdrnum<0) tdrnum=FindPosRaw(numnum+100*Jinfnum);
-    if(tdrnum<0) { printf("DecodeData::ReadOneTDR::Cannot-Find-TDR-in-CMP-or-RAW\n"); exit(4); }
+    if(tdrnum<0) {
+      printf("DecodeData::ReadOneTDR::Cannot-Find-TDR-in-CMP-or-RAW\n");
+      exit(4);
+    }
   }
   
   if(pri) printf("==========> TDR %02d, Jinf %02d, Size=%4d, TDR Status=%04hx: ", numnum, Jinfnum, size, array[size-1]);
@@ -629,102 +660,99 @@ int  DecodeData::ReadCalib(FILE * fil,calib* cal){
 
 //=============================================================================================
 
-
-
 int DecodeData::ReadOneJINF(){
-	unsigned short int size;
-	unsigned short int noknown;
-	unsigned short int tdrnoeventmask;
-	unsigned short int status;
-
-	int old=1;
-	old=pri;
-
-
-
-	//Read The Event Size
-	if(pri)
-		printf("pos:%ld  ",ftell(rawfile)/2);
-	ReadFile(&size,sizeof(size),1,rawfile);
-	if(pri)
-		printf("JINFsize    %d \n",size);
-
-	long int base=ftell(rawfile)/2;
-
-	if(pri) printf("pos:%ld  \n",ftell(rawfile)/2);
-
-
-	//Store the position on the file
-	long int pos=ftell(rawfile);
-
-	// skip all the TDR data
-	if(int ret0=fseek(rawfile,(size-1)*2,SEEK_CUR)){
-		printf("Fatal: error during file skip ret0=%d \n",ret0);
-		exit(3);
-	}
-
-	// read the last word of the JINF event
-	if(pri) printf("pos:%ld  ",ftell(rawfile)/2);
-
-	ReadFile(&status,sizeof(status),1,rawfile);
-
-	if(pri||evpri)printf("Jinf status    %d : address %02d  status ",status,status&0x1f); 
-
-	int Jinfnum=((unsigned int)status)&0x1f;//e questo numero se non c'è un jinj master non sò chi glielo potrebbe aver messo (però se sta nello status che comunque ci sarà, al limite sarà 0...) 
-
-
-	int count=1;
-	for (int base=32;base<0x8000;base*=2)
-		if(pri||evpri)printf(" %2d %d",count++,((status&base)>0));
-	if(pri||evpri)printf("\n");
-
-	count=5;
-	for (int base=32;base<0x8000;base*=2){
-		if((status&base)>0)
-			if(pri||evpri)printf("%02d: %s\n",count,errmess[count]);
-		count++;
-	}
-	if(pri||evpri)printf("\n \n");
-
-	if(out_flag)ev->JINFStatus[Jinfnum]=status;
-
-	if((status&0x200)>0||(status&0x400)>0){
-		printf("=======================> JINF Error!!!  Skip this event: %d\n",ev->Evtnum); 
-		count=5;
-		for (int base=32;base<0x8000;base*=2){
-			if((status&base)>0)
-				printf("%02d: %s\n",count,errmess[count]);
-			count++;
-		}
-		return 10;
-	}
-	// come back to the previous pos
-	if(int ret0=fseek(rawfile,pos,SEEK_SET)){
-		printf("Fatal: error during file skip %d\n",ret0);
-		exit(3);
-	}
-
-
-	if(!out_flag)JinfMap[nJinf++]=status&0x1f;
-
-	// Read the TDR
-	while ( ftell(rawfile)/2< base+size-1 )  ReadOneTDR(status&0x1f);
-	// Read the last 2 words before status
-	ReadFile(&noknown,sizeof(noknown),1,rawfile);
-	ReadFile(&tdrnoeventmask,sizeof(tdrnoeventmask),1,rawfile);
-	if(pri||evpri) printf("Tdrs with no event Mask: %d\n", tdrnoeventmask); 
-	for (int ii=0; ii<NTDRS; ii++){
-		if (tdrnoeventmask&(1<<ii)){
-			if(pri||evpri) printf("A tdr (%d) replied with no event...\n",ii);
-			if(!out_flag) tdrCmp[ntdrCmp++]=ii+100*(status&0x1f);
-		}
-	}
-	// Reread the last word
-	ReadFile(&status,sizeof(status),1,rawfile);
-	if(pri||evpri)printf("Jinf status    %d \n ",status); 
-	return 0;
-
-	pri=old;
+  unsigned short int size;
+  unsigned short int noknown;
+  unsigned short int tdrnoeventmask;
+  unsigned short int status;
+  
+  int old=1;
+  old=pri;
+  
+  //Read The Event Size
+  if(pri)
+    printf("pos:%ld  ",ftell(rawfile)/2);
+  ReadFile(&size,sizeof(size),1,rawfile);
+  if(pri)
+    printf("JINFsize    %d \n",size);
+  
+  long int base=ftell(rawfile)/2;
+  
+  if(pri) printf("pos:%ld  \n",ftell(rawfile)/2);
+  
+  
+  //Store the position on the file
+  long int pos=ftell(rawfile);
+  
+  // skip all the TDR data
+  if(int ret0=fseek(rawfile,(size-1)*2,SEEK_CUR)){
+    printf("Fatal: error during file skip ret0=%d \n",ret0);
+    exit(3);
+  }
+  
+  // read the last word of the JINF event
+  if(pri) printf("pos:%ld  ",ftell(rawfile)/2);
+  
+  ReadFile(&status,sizeof(status),1,rawfile);
+  
+  if(pri||evpri)printf("Jinf status    %d : address %02d  status ",status,status&0x1f); 
+  
+  int Jinfnum=((unsigned int)status)&0x1f;//e questo numero se non c'è un jinj master non sò chi glielo potrebbe aver messo (però se sta nello status che comunque ci sarà, al limite sarà 0...) 
+  
+  
+  int count=1;
+  for (int base=32;base<0x8000;base*=2)
+    if(pri||evpri)printf(" %2d %d",count++,((status&base)>0));
+  if(pri||evpri)printf("\n");
+  
+  count=5;
+  for (int base=32;base<0x8000;base*=2){
+    if((status&base)>0)
+      if(pri||evpri)printf("%02d: %s\n",count,errmess[count]);
+    count++;
+  }
+  if(pri||evpri)printf("\n \n");
+  
+  if(out_flag) ev->JINFStatus[Jinfnum]=status;
+  
+  //  if((status&0x400)>0){
+  if((status&0x200)>0||(status&0x400)>0){
+    printf("=======================> JINF Error!!!  Skip this event: %d\n",ev->Evtnum); 
+    count=5;
+    for (int base=32;base<0x8000;base*=2){
+      if((status&base)>0)
+	printf("%02d: %s\n",count,errmess[count]);
+      count++;
+    }
+    return 10;
+  }
+  // come back to the previous pos
+  if(int ret0=fseek(rawfile,pos,SEEK_SET)){
+    printf("Fatal: error during file skip %d\n",ret0);
+    exit(3);
+  }
+  
+  
+  if(!out_flag)JinfMap[nJinf++]=status&0x1f;
+  
+  // Read the TDR
+  while ( ftell(rawfile)/2< base+size-1 )  ReadOneTDR(status&0x1f);
+  // Read the last 2 words before status
+  ReadFile(&noknown,sizeof(noknown),1,rawfile);
+  ReadFile(&tdrnoeventmask,sizeof(tdrnoeventmask),1,rawfile);
+  if(pri||evpri) printf("Tdrs with no event Mask: %d\n", tdrnoeventmask); 
+  for (int ii=0; ii<NTDRS; ii++){
+    if (tdrnoeventmask&(1<<ii)){
+      if(pri||evpri) printf("A tdr (%d) replied with no event...\n",ii);
+      if(!out_flag) tdrCmp[ntdrCmp++]=ii+100*(status&0x1f);
+    }
+  }
+  // Reread the last word
+  ReadFile(&status,sizeof(status),1,rawfile);
+  if(pri||evpri)printf("Jinf status    %d \n ",status); 
+  return 0;
+  
+  pri=old;
 }
 
 

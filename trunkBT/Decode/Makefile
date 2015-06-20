@@ -1,13 +1,15 @@
 
-CLASSES=   Cluster.hh Event.hh 
+CLASSES = Cluster.hh Event.hh 
 
-DEC_SOURCES=  DecodeData.cxx    main.cxx  rootElibdict.cxx 
+DEC_SOURCES = DecodeData.cxx main.cxx rootElibdict.cxx 
 DEC_SOURCES+= $(CLASSES:%.hh=%.cxx)
 DEC_OBJ=$(DEC_SOURCES:%.cxx=obj/%.o)
 
-LIB_SOURCES =    rootElibdict.cxx
+LIB_SOURCES = rootElibdict.cxx
 LIB_SOURCES += $(CLASSES:%.hh=%.cxx)
 LIB_OBJ=$(LIB_SOURCES:%.cxx=obj/%.o)
+
+ANYOPTION=AnyOption
 
 CFLAGS= -g -fPIC  
 DEFINES=
@@ -21,7 +23,7 @@ endif
 
 all: Decode lib
 
-lib:  libEvent.so
+lib: libEvent.so
 
 libEvent.so:$(LIB_OBJ)
 	$(CXX) $(CFLAGS) $(DEFINES) $(SOFLAGS) -o $@ $^ 
@@ -29,13 +31,16 @@ libEvent.so:$(LIB_OBJ)
 libEvent.a:$(LIB_OBJ)
 	$(CXX) $(CFLAGS) $(DEFINES) -o $@ $^ 
 
-Decode: $(DEC_OBJ)
-	$(CXX) $(CFLAGS) -o$@ $^  `$(ROOTSYS)/bin/root-config --libs`
+Decode: $(ANYOPTION)/anyoption.o $(DEC_OBJ)
+	$(CXX) $(CFLAGS) -o$@ $^ -I$(ROOTSYS)/include -I$(ANYOPTION) `$(ROOTSYS)/bin/root-config --libs`
 
 obj/%.o:%.cxx 
 	@echo Compiling $< ...; 
 	@ if ! [ -d ./obj ] ; then  mkdir -p obj; fi
-	@$(CXX) $(CFLAGS) $(DEFINES) -c -Wall $< -o$@  -I$(ROOTSYS)/include
+	$(CXX) $(CFLAGS) $(DEFINES) -c -Wall $< -o$@ -I$(ROOTSYS)/include -I$(ANYOPTION)
+
+$(ANYOPTION)/anyoption.o :
+	make -C $(ANYOPTION)
 
 rootElibdict.cxx: $(CLASSES) LinkDef.h
 	@echo Creating ROOT dictionary
@@ -44,3 +49,4 @@ rootElibdict.cxx: $(CLASSES) LinkDef.h
 clean:
 	@rm -fv libEvent.a libEvent.so Decode rootElibdict.cxx rootElibdict.h obj/*.o 
 	@rm -frv obj
+	make -C $(ANYOPTION) clean
