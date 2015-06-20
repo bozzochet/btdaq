@@ -142,5 +142,6 @@ void RHClass::Print(){
   //     printf(" \n");
   //     printf(" \n");
   //   }
+  printf("---------------------------------------------\n");
   return;
 }

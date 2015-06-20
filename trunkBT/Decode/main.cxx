@@ -13,12 +13,16 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "anyoption.h"
+#include <getopt.h>
+
 using namespace std;
 
-
+AnyOption *opt;                //Handle the option input
 char progname[50];
 
 int main(int argc,char** argv){
+
   char filename[255], pdf_filename[1024];
   char name[255];
 
@@ -37,33 +41,84 @@ int main(int argc,char** argv){
   sprintf(DirRaw,"./RawData/");
   sprintf(DirCal,"./CalData/");
 
-  sprintf(progname,"%s",argv[0]);
-  if (argc >= 3) {
-    run = atoi(argv[1]);
-    ancillary = atoi(argv[2]);
-    if (argc >= 4) {
-      sprintf(DirRoot,"%s/",argv[3]);
-      if (argc >= 5) {
-	sprintf(DirRaw,"%s/",argv[4]);
-	if (argc >= 6)
-	  sprintf(DirCal,"%s/",argv[5]);
-      }
-    }
-  } else{
-    printf("Usage %s <runnum> <ancillary code (-1 is null)> [DirRoot] [DirRaw] [DirCal]  \n",argv[0]);
-    printf("If you do not specify directories the default is:\n");
-    printf(" DirRaw =  %s  \n", DirRaw);
-    printf(" DirCal = %s \n", DirCal);
-    printf(" DirRoot = %s \n", DirRoot);
-    exit(1);  
+  opt = new AnyOption();
+
+  opt->addUsage("Usage: ./Decode [options] [arguments]");
+  opt->addUsage("" );
+  opt->addUsage("Options: ");
+  opt->addUsage(     "  -h, --help  ................................. Print this help " );
+  opt->addUsage(Form("  --rawdata <path/to/dir/with/raw> ............ Directory with raw data (%s is the default)", DirRaw));
+  opt->addUsage(Form("  --caldata <path/to/dir/with/cal> ............ Directory with cal data (%s is the default)", DirCal));
+  opt->addUsage(Form("  --rootdata <path/to/dir/for/root> ........... Directory where to put ROOT file (%s is the default)", DirRoot));
+  opt->addUsage("" );
+  opt->addUsage("Arguments: " );
+  opt->addUsage("  <runnum> <ancillary code (-1 is null)>" );
+
+  //***********
+  //set Flags
+  //***********
+  opt->setFlag("help", 'h');
+
+  //***********
+  //set Options
+  //***********
+  opt->setOption("rawdata");
+  opt->setOption("caldata");
+  opt->setOption("rootdata");
+  
+  //****************
+  //Get Line Command
+  //****************
+  opt->processCommandArgs( argc, argv );
+
+  //*************
+  //Get Flags
+  //*************
+  if(opt->getFlag("help") || opt->getFlag('h')){
+    opt->printUsage();
+    exit(2);
   }
+
+  //*********
+  //Get Options
+  //*********
+  if (opt->getValue("rawdata")) {
+    sprintf(DirRaw,"%s/", opt->getValue("rawdata"));
+  }
+  
+  if (opt->getValue("caldata")) {
+    sprintf(DirCal,"%s/", opt->getValue("caldata"));
+  }
+  
+  if (opt->getValue("rootdata")) {
+    sprintf(DirRoot,"%s/", opt->getValue("rootdata"));
+  }
+  
+  //*************
+  //Get Arguments
+  //************
+
+  switch(opt->getArgc()){
+
+  case 2:
+    run = atoi(opt->getArgv(0));
+    ancillary = atoi(opt->getArgv(1));
+    break;
+    
+  default:
+    opt->printUsage();
+    exit(-1);
+    break;
+  }
+
+  sprintf(progname,"%s", argv[0]);
 
   printf("Reading Raw Data from %s\n", DirRaw);
   printf("Reading Cal Data from %s\n", DirCal);
   printf("Writing output in %s\n", DirRoot);
 
   DecodeData *dd1= new DecodeData(DirRaw,DirCal,run,ancillary);
-
+  
   dd1->SetPrintOff();
   dd1->SetEvPrintOff();
   if (ancillary < 0)
@@ -77,9 +132,9 @@ int main(int argc,char** argv){
   for (int hh=0;hh<NTDRS;hh++){
     sprintf(name,"lad%d",hh);
     dd1->hmio[hh]= new TH1F(name,name,1024,0,1024);
-
+    
   }
-
+  
   TTree* t4= new TTree("t4","My cluster tree");
   t4->Branch("cluster_branch","Event",&(dd1->ev),32000,2);
   double chaK[24];
@@ -87,14 +142,15 @@ int main(int argc,char** argv){
     t4->Branch(Form("ChargeK_Ladder%02d", ii), &chaK[ii], Form("ChargeK_Ladder%02d/D", ii));
   }
   t4->GetUserInfo()->Add(dd1->rh);
-
-
+  
+  
   int ret1=0;
   for (int ii=0;ii<10;){
     ret1=dd1->EndOfFile();    
     if (ret1) break;
 
     ret1=dd1->ReadOneEvent();
+    //    printf("%d\n", ret1);
     
     ret1=dd1->EndOfFile();    
     if (ret1) break;
