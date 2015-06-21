@@ -73,6 +73,13 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
   evenum=0;
   runn=run;
 
+  shighthreshold=3.5;
+  slowthreshold=1.0;
+  khighthreshold=3.5;
+  klowthreshold=1.0;
+
+  kClusterize=false;
+
   // Create the ROOT run header
   rh= new RHClass();
 
@@ -352,6 +359,16 @@ int DecodeData::ReadOneEvent(){
 	printf("ReadOneTDR from file position: %ld\n", ftell(rawfile)/2);
       ReadOneTDR(0);
     }
+
+    // if (pri) {
+    //   for (int ii=0;ii<ntdrCmp;ii++) {
+    // 	printf("CMP: %d -> %d\n", ii, tdrCmp[ii]);
+    //   }
+    //   for (int ii=0;ii<ntdrRaw;ii++) {
+    // 	printf("RAW: %d -> %d\n", ii, tdrRaw[ii]);
+    //   }
+    // }
+
     // Read the last 2 words before status
     unsigned short int dummy;
     fstat=ReadFile(&dummy,sizeof(dummy),1,rawfile);
@@ -360,14 +377,27 @@ int DecodeData::ReadOneEvent(){
     fstat=ReadFile(&dummy,sizeof(dummy),1,rawfile);
     tdrnoeventmask+=dummy;;
     if (fstat==-1) return 1;
-    if(pri||evpri) printf("Tdrs with no event Mask: %d\n", tdrnoeventmask); 
+    if (pri||evpri) printf("Tdrs with no event Mask: %d\n", tdrnoeventmask); 
     for (int ii=0; ii<NTDRS; ii++){
       if (tdrnoeventmask&(1<<ii)){
-	if(pri||evpri) printf("A tdr (%d) replied with no event...\n",ii);
-	if(!out_flag)
+	if (pri||evpri) printf("A tdr (%02d) replied with no event...\n", ii);
+	if (!out_flag) {
 	  tdrCmp[ntdrCmp++]=ii+100*0;
-      } else if (pri||evpri) 
-	printf("A tdr (%d) didn't replied...\n",ii);
+	}
+      }
+      else if (pri||evpri) {
+	int tdrnum=FindPos(ii);
+	//	  printf("%d\n", tdrnum);
+	if (tdrnum>=0) printf("A tdr (%02d) is CMP...\n", ii);
+	else {
+	  tdrnum=FindPosRaw(ii);
+	  //	    printf("%d\n", tdrnum);
+	  if (tdrnum>=0) printf("A tdr (%02d) is RAW...\n", ii);
+	  else {
+	    printf("A tdr (%02d) didn't replied...\n", ii);
+	  }
+	}
+      }
     }
   }
   
@@ -462,7 +492,7 @@ int DecodeData::ReadOneTDR(int Jinfnum){
   if (TESTBIT(array[size-1],6) ){
     RawOffset=1024;// RAW data present
     if (pri) printf("|->RAW data present\n");
-    if (pri) printf("Filling Event and Histograms for JINF %d, TDR %d (RAW)\n", Jinfnum, numnum);
+    if (pri&&out_flag) printf("Filling Event and Histograms for JINF %d, TDR %d (RAW)\n", Jinfnum, numnum);
     int tdrnumraw=0;
     int count=0;
     if (out_flag){
@@ -482,9 +512,19 @@ int DecodeData::ReadOneTDR(int Jinfnum){
       for (int cc=0; cc<1024; cc++) {
 	//	printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->sig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
 	ev->SoN[tdrnumraw][cc] = (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc];
-	if (ev->SoN[tdrnumraw][cc]>3.5) hmio[numnum+100*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);//TEMPORARY!!! Should be replaced by the one filled with the off-line clusterization
       }
 
+      for (int cc=0; cc<1204; cc++) {
+	if (!kClusterize) {//otherwise the histos will be filled better with the clusters
+	  double threshold = shighthreshold;
+	  if (cc>640) threshold = khighthreshold;
+	  if (ev->SoN[tdrnumraw][cc]>threshold) hmio[numnum+100*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);
+	}
+      }
+
+      //      printf("%d %f %f %f %f\n", kClusterize, shighthreshold, slowthreshold, khighthreshold, klowthreshold);  
+
+      //this searches for clusters and if found Fill the histograms as in the CMP case
       Clusterize(numnum, Jinfnum, ev->Signal[tdrnumraw]);
     }
     
@@ -492,7 +532,7 @@ int DecodeData::ReadOneTDR(int Jinfnum){
   
   if (TESTBIT(array[size-1],7)){    // Compressed data present
     if (pri) printf("|->Compressed data present\n");
-    if (pri) printf("Filling Event and Histograms for JINF %d, TDR %d (CMP)\n", Jinfnum, numnum);
+    if (pri&&out_flag) printf("Filling Event and Histograms for JINF %d, TDR %d (CMP)\n", Jinfnum, numnum);
     //dump clusters
     int count=RawOffset;
     while (count<(size-1)){
@@ -553,6 +593,12 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
 
 void DecodeData::Clusterize(int numnum, int Jinfnum, short int Signal[1024]) {
   
+  //here we can use these
+  shighthreshold;
+  slowthreshold;
+  khighthreshold;
+  klowthreshold;
+    
   /*
     int bad=0;
     int lenword=(array[count++]);

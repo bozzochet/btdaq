@@ -62,6 +62,13 @@ public:
   
   int evenum;
   TH1F* hmio[NJINF*TDRNUM];
+
+  double shighthreshold;
+  double slowthreshold;
+  double khighthreshold;
+  double klowthreshold;
+
+  bool kClusterize;
   
   void DumpRunHeader();
   
