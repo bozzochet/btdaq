@@ -30,6 +30,13 @@ int main(int argc,char** argv){
   char DirCal[255];
   char DirRoot[255];
 
+  double shighthreshold=3.5;
+  double slowthreshold=1.0;
+  double khighthreshold=3.5;
+  double klowthreshold=1.0;
+
+  bool kClusterize=false;
+
   int run=110;
   int ancillary=-1;
 
@@ -50,6 +57,11 @@ int main(int argc,char** argv){
   opt->addUsage(Form("  --rawdata <path/to/dir/with/raw> ............ Directory with raw data (%s is the default)", DirRaw));
   opt->addUsage(Form("  --caldata <path/to/dir/with/cal> ............ Directory with cal data (%s is the default)", DirCal));
   opt->addUsage(Form("  --rootdata <path/to/dir/for/root> ........... Directory where to put ROOT file (%s is the default)", DirRoot));
+  opt->addUsage(     "  -c, --clusterize ............................ To perform an offline clusterization to the RAW event. (NOT YET IMPLEMENTED)");
+  opt->addUsage(     "  --shighthreshold <X> ........................ S-side S/N high threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (3.5 is the default)");
+  opt->addUsage(     "  --slowthreshold  <X> ........................ S-side S/N low threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (1.0 is the default)");
+  opt->addUsage(     "  --khighthreshold <X> ........................ K-side S/N high threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (3.5 is the default)");
+  opt->addUsage(     "  --klowthreshold  <X> ........................ K-side S/N low threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (1.0 is the default)");
   opt->addUsage("" );
   opt->addUsage("Arguments: " );
   opt->addUsage("  <runnum> [ancillary code (-1 is the default)]" );
@@ -58,6 +70,7 @@ int main(int argc,char** argv){
   //set Flags
   //***********
   opt->setFlag("help", 'h');
+  opt->setFlag("clusterize", 'c');
 
   //***********
   //set Options
@@ -65,6 +78,10 @@ int main(int argc,char** argv){
   opt->setOption("rawdata");
   opt->setOption("caldata");
   opt->setOption("rootdata");
+  opt->setOption("shighthreshold");
+  opt->setOption("slowthreshold");
+  opt->setOption("khighthreshold");
+  opt->setOption("klowthreshold");
   
   //****************
   //Get Line Command
@@ -74,9 +91,13 @@ int main(int argc,char** argv){
   //*************
   //Get Flags
   //*************
-  if(opt->getFlag("help") || opt->getFlag('h')){
+  if (opt->getFlag("help") || opt->getFlag('h')){
     opt->printUsage();
     exit(2);
+  }
+
+  if (opt->getFlag("clusterize") || opt->getFlag('c')){
+    kClusterize = true;
   }
 
   //*********
@@ -93,7 +114,25 @@ int main(int argc,char** argv){
   if (opt->getValue("rootdata")) {
     sprintf(DirRoot,"%s/", opt->getValue("rootdata"));
   }
+
+  if (opt->getValue("shighthreshold")) {
+    shighthreshold = atof(opt->getValue("shighthreshold"));
+  }
+
+  if (opt->getValue("slowthreshold")) {
+    slowthreshold = atof(opt->getValue("slowthreshold"));
+  }
+
+  if (opt->getValue("khighthreshold")) {
+    khighthreshold = atof(opt->getValue("khighthreshold"));
+  }
+
+  if (opt->getValue("klowthreshold")) {
+    klowthreshold = atof(opt->getValue("klowthreshold"));
+  }
   
+  //  printf("%d %f %f %f %f\n", kClusterize, shighthreshold, slowthreshold, khighthreshold, klowthreshold);
+
   //*************
   //Get Arguments
   //************
@@ -123,6 +162,12 @@ int main(int argc,char** argv){
   printf("Writing output in %s\n", DirRoot);
 
   DecodeData *dd1= new DecodeData(DirRaw, DirCal, run, ancillary);
+
+  dd1->shighthreshold=shighthreshold;
+  dd1->slowthreshold=slowthreshold;
+  dd1->khighthreshold=khighthreshold;
+  dd1->klowthreshold=klowthreshold;
+  dd1->kClusterize=kClusterize;
   
   dd1->SetPrintOff();
   dd1->SetEvPrintOff();
