@@ -31,7 +31,7 @@ int main(int argc,char** argv){
   char DirRoot[255];
 
   int run=110;
-  int ancillary=0;
+  int ancillary=-1;
 
   int processed=0;
   int jinffailed=0;
@@ -52,7 +52,7 @@ int main(int argc,char** argv){
   opt->addUsage(Form("  --rootdata <path/to/dir/for/root> ........... Directory where to put ROOT file (%s is the default)", DirRoot));
   opt->addUsage("" );
   opt->addUsage("Arguments: " );
-  opt->addUsage("  <runnum> <ancillary code (-1 is null)>" );
+  opt->addUsage("  <runnum> [ancillary code (-1 is the default)]" );
 
   //***********
   //set Flags
@@ -100,6 +100,11 @@ int main(int argc,char** argv){
 
   switch(opt->getArgc()){
 
+  case 1:
+    run = atoi(opt->getArgv(0));
+    ancillary = -1;
+    break;
+
   case 2:
     run = atoi(opt->getArgv(0));
     ancillary = atoi(opt->getArgv(1));
@@ -117,7 +122,7 @@ int main(int argc,char** argv){
   printf("Reading Cal Data from %s\n", DirCal);
   printf("Writing output in %s\n", DirRoot);
 
-  DecodeData *dd1= new DecodeData(DirRaw,DirCal,run,ancillary);
+  DecodeData *dd1= new DecodeData(DirRaw, DirCal, run, ancillary);
   
   dd1->SetPrintOff();
   dd1->SetEvPrintOff();
