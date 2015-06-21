@@ -32,9 +32,14 @@ char errmess[16][80]={"","","","","","replying node is CDP",
 		      "END bit / CRC error (if DATA=1), set by master",
 		      "DATA bit, set by master when assembling group reply"};
 
+inline bool file_exists(const std::string& name) {
+  struct stat buffer;
+  return (stat (name.c_str(), &buffer) == 0);
+}
+
 //=============================================================================================
 DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
-
+  
   runn=run;
   ntdrRaw=0;
   memset(tdrRaw,-1,TDRNUM*sizeof(tdrRaw[0]));
@@ -43,20 +48,27 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
   pri=1;
   evpri=0;
   sprintf(type,"Jinf");
-  if (ancillary < 0)
-	  sprintf(rawname,"%s/%06d.dat",ifname,runn);
-  else
-	  sprintf(rawname, "%s/%06d_ANC_%d.dat", ifname, runn, ancillary);
+  if (ancillary>=0) {
+    sprintf(rawname, "%s/%06d_ANC_%d.dat", ifname, runn, ancillary);
+  }
+  else {
+    sprintf(rawname, "%s/%06d.dat", ifname, runn);
+    if (!file_exists(rawname)) {
+      for (int ii=0; ii<10000; ii++) {
+	sprintf(rawname, "%s/%06d_ANC_%d.dat", ifname, runn, ii);
+	if (file_exists(rawname)) break;
+      }
+    }
+  }
   sprintf(rawdir,"%s",ifname);
   sprintf(rawCaldir,"%s",caldir);
 
   rawfile = fopen(rawname,"r");
   if (rawfile == NULL) {
-	  printf ("Error file %s not found \n",rawname);
-	  exit(2);
+    printf ("Error file %s not found \n", rawname);
+    exit(2);
   }
-
-
+  
   tdroffset=0;
   evenum=0;
   runn=run;
@@ -584,7 +596,7 @@ void DecodeData::FindCalibs(){
   }
   
   for (run2=runn ;run2>0 ;run2--){
-    sprintf(name1,"%s/%06d_%04d.cal",rawCaldir,run2,tdrCmp[0]);
+    sprintf(name1, "%s/%06d_%04d.cal", rawCaldir,run2,tdrCmp[0]);
     if(stat(name1,&buf)==0){
       printf("First calib Found %s run %d\n",name1,run2);
       break;
