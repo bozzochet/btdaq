@@ -83,7 +83,7 @@ public:
   int ReadOneJINF();
   void AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float* sig);
   void Clusterize(int numnum, int Jinfnum, calib* cal);
-  double ComputeCN(int size, short int* Signal, float* SoN);
+  double ComputeCN(int size, short int* Signal, float* pede, float* SoN);
 
   void CloseFile();
   int EndOfFile();
