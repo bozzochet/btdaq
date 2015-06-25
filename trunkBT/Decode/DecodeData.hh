@@ -69,6 +69,7 @@ public:
   double klowthreshold;
 
   bool kClusterize;
+  int cworkaround;
   
   void DumpRunHeader();
   
@@ -81,7 +82,8 @@ public:
   int ReadOneTDR(int jinf=0);
   int ReadOneJINF();
   void AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float* sig);
-  void Clusterize(int numnum, int Jinfnum, short int Signal[1024]);
+  void Clusterize(int numnum, int Jinfnum, calib* cal);
+  double ComputeCN(int size, short int* Signal, float* SoN);
 
   void CloseFile();
   int EndOfFile();

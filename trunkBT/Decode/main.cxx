@@ -36,6 +36,7 @@ int main(int argc,char** argv){
   double klowthreshold=1.0;
 
   bool kClusterize=false;
+  int cworkaround=0;
 
   int run=110;
   int ancillary=-1;
@@ -62,6 +63,9 @@ int main(int argc,char** argv){
   opt->addUsage(     "  --slowthreshold  <X> ........................ S-side S/N low threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (1.0 is the default)");
   opt->addUsage(     "  --khighthreshold <X> ........................ K-side S/N high threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (3.5 is the default)");
   opt->addUsage(     "  --klowthreshold  <X> ........................ K-side S/N low threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (1.0 is the default)");
+  opt->addUsage(     "  --cworkaround <N> ........................... To choose the workaround clusterization:");
+  opt->addUsage(     "                                                    0 is the standard one (default)");
+  opt->addUsage(     "                                                    1 for the Limadou monster. On S-side only even channels are bonded");
   opt->addUsage("" );
   opt->addUsage("Arguments: " );
   opt->addUsage("  <runnum> [ancillary code (-1 is the default)]" );
@@ -82,6 +86,7 @@ int main(int argc,char** argv){
   opt->setOption("slowthreshold");
   opt->setOption("khighthreshold");
   opt->setOption("klowthreshold");
+  opt->setOption("cworkaround");
   
   //****************
   //Get Line Command
@@ -130,6 +135,10 @@ int main(int argc,char** argv){
   if (opt->getValue("klowthreshold")) {
     klowthreshold = atof(opt->getValue("klowthreshold"));
   }
+
+  if (opt->getValue("cworkaround")) {
+    cworkaround = atoi(opt->getValue("cworkaround"));
+  }
   
   //  printf("%d %f %f %f %f\n", kClusterize, shighthreshold, slowthreshold, khighthreshold, klowthreshold);
 
@@ -168,6 +177,7 @@ int main(int argc,char** argv){
   dd1->khighthreshold=khighthreshold;
   dd1->klowthreshold=klowthreshold;
   dd1->kClusterize=kClusterize;
+  dd1->cworkaround=cworkaround;
   
   dd1->SetPrintOff();
   dd1->SetEvPrintOff();
