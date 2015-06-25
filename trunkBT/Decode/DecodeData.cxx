@@ -662,7 +662,8 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
     double CN[nvas];
     
     for (int va=0; va<nvas; va++) {
-      CN[va] = ComputeCN(nchava, &(array[va*nchava]), &(arraySoN[va*nchava]));
+      CN[va] = ComputeCN(nchava, &(array[va*nchava]), &(pede[va*nchava]), &(arraySoN[va*nchava]));
+      //      printf("%d) %f\n", va, CN[va]);
     }
 
     int bad=0;
@@ -672,18 +673,21 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
     int CNStatus=0.0;//boh
     int PowBits=0.0;//boh
     float sig[MAXLENGHT];
+
+    bool firstfound=false;
+    bool seedfound=false;
     
     for (int count=0; count<arraysize; count++) {
 
       int va = (int)(count/nchava);
-      
-      bool firstfound=false;
-      bool seedfound=false;
     
       float ssun = (array[count]/8.0-pede[count]-CN[va])/sigma[count];
+      if (ssun>highthreshold) printf("%d) %f %f %f %f -> %f\n", count, array[count]/8.0, pede[count], CN[va], sigma[count], ssun);
       
       if (ssun>highthreshold) {//the seed that can also be the first of the cluster
+	printf(">high\n");
 	if (firstfound) { //this is the seed (maybe there was another seed previously, but doesn't matter...)
+	  printf("firstfound already \n");
 	  seedfound=true;
 	  cluslen++;
 	}
@@ -695,22 +699,28 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
 	}
       }
       else if (ssun>lowthreshold) { //potentially the start of a cluster, or maybe another neighbour...
+	printf(">low\n");
 	if (!firstfound) {//is the first of the potential cluster
 	  firstfound=true;
 	  clusadd=count;
 	  cluslen=1;
 	}
 	else {//there was already a 'first' so this can be a neighbour between the first and the seed or a neighbour after
+	  printf("firstfound already \n");
 	  cluslen++;
 	}
       }
       else if (ssun<lowthreshold || count==(arraysize-1)) { //end of a cluster or end of a "potential" cluster or simply nothing
+	printf("<low\n");
 	if (seedfound) {//the cluster is done, let's save it!
-	  if (pri) printf("Cluster: add=%d  lenght=%d\n", clusadd, cluslen);
+	  printf("seedfound already \n");
+	  if (pri) {}
+	  printf("Cluster: add=%d  lenght=%d\n", clusadd, cluslen);
 	  for (int hh=clusadd; hh<(clusadd+cluslen); hh++){
 	    int _va = (int)(hh/nchava);
 	    float s = array[hh]/8.0-pede[hh]-CN[_va];
-	    if (pri) printf("Signal: %d, Pos:%d\n", (int)(8*s), hh);
+	    if (pri) {}
+	    printf("Signal: %d, Pos:%d\n", (int)(8*s), hh);
 	    if (hh<MAXLENGHT){
 	      sig[hh]=s;
 	      if (pri) printf("        %f, Pos: %d\n", sig[hh], hh);
@@ -731,7 +741,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
   return;
 }
 
-double DecodeData::ComputeCN(int size, short int* Signal, float* SoN){
+double DecodeData::ComputeCN(int size, short int* Signal, float* pede, float* SoN){
 
   double mean=0.0;
   int n=0;
@@ -739,11 +749,12 @@ double DecodeData::ComputeCN(int size, short int* Signal, float* SoN){
   for (int ii=0; ii<size; ii++) {
     if (SoN[ii]<3.0) {//to avoid real signal...
       n++;
-      mean+=Signal[ii];
+      //      printf("    %d) %f %f\n", ii, Signal[ii]/8.0, pede[ii]);
+      mean+=(Signal[ii]/8.0-pede[ii]);
     }
   }
   mean/=n;
-  mean/=8.0;//since the array (short int) of ADC counts is in 1/8 of ADC. We will return the CN, as float, in ADC counts
+  //  printf("    CN = %f\n", mean);
 
   return mean;
 }
