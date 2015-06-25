@@ -9,17 +9,6 @@ using namespace std;
 
 extern char progname[50];
 
-
-// "DATA bit, set by master when assembling group reply"
-// "END bit / CRC error (if DATA=1), set by master"
-//
-// 
-// 
-// 
-// 
-// 
-// 
-// 
 char errmess[16][80]={"","","","","","replying node is CDP",
 		      " RAW events",
 		      " COMPRESSED events",
@@ -79,6 +68,7 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
   klowthreshold=1.0;
 
   kClusterize=false;
+  cworkaround=0;
 
   // Create the ROOT run header
   rh= new RHClass();
@@ -490,6 +480,8 @@ int DecodeData::ReadOneTDR(int Jinfnum){
   
   int RawOffset=0;
   if (TESTBIT(array[size-1],6) ){
+    //    printf("size = %d\n", size);
+    //    sleep(10);
     RawOffset=1024;// RAW data present
     if (pri) printf("|->RAW data present\n");
     if (pri&&out_flag) printf("Filling Event and Histograms for JINF %d, TDR %d (RAW)\n", Jinfnum, numnum);
@@ -510,22 +502,38 @@ int DecodeData::ReadOneTDR(int Jinfnum){
 	ev->Signal[tdrnumraw][kk]=array[kk];
       }
       for (int cc=0; cc<1024; cc++) {
-	//	printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->sig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
-	ev->SoN[tdrnumraw][cc] = (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc];
+	//	printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->rsig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc]);
+	if (cal->rsig[cc]>0.125 && //not a dead channel
+	    cal->rsig[cc]<10.0) {//not a noisy channel
+	  ev->SoN[tdrnumraw][cc] = (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc];
+	}
+	else {
+	  ev->SoN[tdrnumraw][cc] = 0.0;
+	}
       }
 
       for (int cc=0; cc<1204; cc++) {
 	if (!kClusterize) {//otherwise the histos will be filled better with the clusters
 	  double threshold = shighthreshold;
 	  if (cc>640) threshold = khighthreshold;
-	  if (ev->SoN[tdrnumraw][cc]>threshold) hmio[numnum+100*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);
+	  if (ev->SoN[tdrnumraw][cc]>threshold) {
+	    //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->rsig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc]);
+	    // printf("%04d) %f\n", cc, ev->SoN[tdrnumraw][cc]);
+	    // sleep(10);
+	    //	    hmio[numnum+100*Jinfnum]->Fill(100*(cc-570), ev->SoN[tdrnumraw][cc]);
+	    //	    if (cc==576) { // on run 1435155389 this was the worst, then even disappeared...
+	    //	    if (cc==577)  { // on run 1435189697 576 disappeared, now is 577 (one of the two should even be disconnected...) and now this is even not the worst of the ladder and neither of the S-side...
+	    hmio[numnum+100*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);
+	      //	      printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->rsig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc]);
+	      //	    }
+	  }
 	}
       }
 
       //      printf("%d %f %f %f %f\n", kClusterize, shighthreshold, slowthreshold, khighthreshold, klowthreshold);  
 
       //this searches for clusters and if found Fill the histograms as in the CMP case
-      Clusterize(numnum, Jinfnum, ev->Signal[tdrnumraw]);
+      if (kClusterize) Clusterize(numnum, Jinfnum, cal);
     }
     
   }  
@@ -568,7 +576,7 @@ int DecodeData::ReadOneTDR(int Jinfnum){
     //        if(out_flag)ev->CNoise[tdrnum][ii-size+17]=(array[ii])/8.;
     //      }
   }
-  if(pri)printf("\n");
+  if(pri) printf("\n");
   if(pri) printf("End of the TDR pos:%ld  \n",ftell(rawfile)/2);
   //free the memory for the next tdr
   free(array);
@@ -591,39 +599,153 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   return;
 }
 
-void DecodeData::Clusterize(int numnum, int Jinfnum, short int Signal[1024]) {
+void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
+
+  int tdrnumraw=FindPosRaw(numnum+100*Jinfnum);
   
-  //here we can use these
-  shighthreshold;
-  slowthreshold;
-  khighthreshold;
-  klowthreshold;
+  int nvasS=10;
+  int nvasK= 6;
+  int nchavaS=64;
+  int nchavaK=64;
+  if (cworkaround==1) {
+    nchavaS=32;
+  }
+
+  short int array[1024];
+  float arraySoN[1024];
+  float pede[1024];
+  float sigma[1024];
+  int arraysize=1024;
+  
+  int nvas=10;
+  int nchava=64;
+
+  double highthreshold=3.5;
+  double lowthreshold=1.0;
+
+  for (int side=0; side<2; side++) {
+
+    if (side==0) {
+      nvas=nvasS;
+      nchava=nchavaS;
+      highthreshold=shighthreshold;
+      lowthreshold=slowthreshold;
+      if (cworkaround==1) {
+	arraysize=320;
+	for (int cc=0; cc<320; cc++) {
+	  array[cc] = ev->Signal[tdrnumraw][cc*2];
+	  arraySoN[cc] = ev->SoN[tdrnumraw][cc*2];
+	  pede[cc] = cal->ped[cc*2];
+	  sigma[cc] = cal->sig[cc*2];
+	}
+      }
+      else {
+	arraysize=640;
+	memcpy(array, ev->Signal[tdrnumraw], 640*sizeof(ev->Signal[tdrnumraw][0]));
+	memcpy(arraySoN, ev->SoN[tdrnumraw], 640*sizeof(ev->SoN[tdrnumraw][0]));
+	memcpy(pede, cal->ped, 640*sizeof(cal->ped[0]));
+	memcpy(sigma, cal->sig, 640*sizeof(cal->sig[0]));
+      }
+    }
+    else {
+      nvas=nvasK;
+      nchava=nchavaK;
+      highthreshold=khighthreshold;
+      lowthreshold=klowthreshold;
+      arraysize=384;
+      memcpy(array, &(ev->Signal[tdrnumraw][640]), 384*sizeof(ev->Signal[tdrnumraw][0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
+      memcpy(arraySoN, &(ev->SoN[tdrnumraw][640]), 384*sizeof(ev->SoN[tdrnumraw][0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
+      memcpy(pede, &(cal->ped[640]), 384*sizeof(cal->ped[0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
+      memcpy(sigma, &(cal->sig[640]), 384*sizeof(cal->sig[0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
+    }
     
-  /*
+    double CN[nvas];
+    
+    for (int va=0; va<nvas; va++) {
+      CN[va] = ComputeCN(nchava, &(array[va*nchava]), &(arraySoN[va*nchava]));
+    }
+
     int bad=0;
-    int lenword=(array[count++]);
-    int cluslen=(lenword&0x7F) +1;
-    int Sig2NoiStatus=(lenword&0xFF80)>>7;
-    int addword=(array[count++]);
-    int clusadd=addword&0x3FF;
-    int CNStatus=(addword&0x3C00)>>10;
-    int PowBits=(addword&0xC000)>>14;
+    int cluslen=0.0;//to fill
+    int Sig2NoiStatus=0.0;//boh
+    int clusadd=0.0;//to fill
+    int CNStatus=0.0;//boh
+    int PowBits=0.0;//boh
     float sig[MAXLENGHT];
-    if(pri) printf("Cluster: add=%d  lenght=%d\n", clusadd, cluslen);
-    for(int hh=0; hh<cluslen; hh++){
-    if(pri)printf("Signal: %d, Pos:%d\n", array[count], hh);
-    if(hh<MAXLENGHT){
-    sig[hh]=array[count]/8.;
-    if(pri)printf("        %f, Pos: %d\n", sig[hh], hh);
-    }
-    else bad=1;
-    count++;
-    }
     
-    AddCluster(numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
-  */
+    for (int count=0; count<arraysize; count++) {
+
+      int va = (int)(count/nchava);
+      
+      bool firstfound=false;
+      bool seedfound=false;
+    
+      float ssun = (array[count]/8.0-pede[count]-CN[va])/sigma[count];
+      
+      if (ssun>highthreshold) {//the seed that can also be the first of the cluster
+	if (firstfound) { //this is the seed (maybe there was another seed previously, but doesn't matter...)
+	  seedfound=true;
+	  cluslen++;
+	}
+	else {//is the seed but also the first of the cluster...
+	  firstfound=true;
+	  seedfound=true;
+	  clusadd=count;
+	  cluslen=1;
+	}
+      }
+      else if (ssun>lowthreshold) { //potentially the start of a cluster, or maybe another neighbour...
+	if (!firstfound) {//is the first of the potential cluster
+	  firstfound=true;
+	  clusadd=count;
+	  cluslen=1;
+	}
+	else {//there was already a 'first' so this can be a neighbour between the first and the seed or a neighbour after
+	  cluslen++;
+	}
+      }
+      else if (ssun<lowthreshold || count==(arraysize-1)) { //end of a cluster or end of a "potential" cluster or simply nothing
+	if (seedfound) {//the cluster is done, let's save it!
+	  if (pri) printf("Cluster: add=%d  lenght=%d\n", clusadd, cluslen);
+	  for (int hh=clusadd; hh<(clusadd+cluslen); hh++){
+	    int _va = (int)(hh/nchava);
+	    float s = array[hh]/8.0-pede[hh]-CN[_va];
+	    if (pri) printf("Signal: %d, Pos:%d\n", (int)(8*s), hh);
+	    if (hh<MAXLENGHT){
+	      sig[hh]=s;
+	      if (pri) printf("        %f, Pos: %d\n", sig[hh], hh);
+	    }
+	    else bad=1;
+	  }
+	  AddCluster(numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
+	}
+	// there was no seed found: "potential" cluster not promoted or even "nothing"
+	seedfound=false;
+	firstfound=false;
+	memset(sig, 0, MAXLENGHT*sizeof(sig[0]));
+      }
+  
+    }
+  }
   
   return;
+}
+
+double DecodeData::ComputeCN(int size, short int* Signal, float* SoN){
+
+  double mean=0.0;
+  int n=0;
+  
+  for (int ii=0; ii<size; ii++) {
+    if (SoN[ii]<3.0) {//to avoid real signal...
+      n++;
+      mean+=Signal[ii];
+    }
+  }
+  mean/=n;
+  mean/=8.0;//since the array (short int) of ADC counts is in 1/8 of ADC. We will return the CN, as float, in ADC counts
+
+  return mean;
 }
 
 //=============================================================================================
@@ -641,16 +763,16 @@ void DecodeData::FindCalibs(){
     return;
   }
   
-  for (run2=runn ;run2>0 ;run2--){
-    sprintf(name1, "%s/%06d_%04d.cal", rawCaldir,run2,tdrCmp[0]);
-    if(stat(name1,&buf)==0){
-      printf("First calib Found %s run %d\n",name1,run2);
+  for (run2=runn; run2>0 ;run2--){
+    sprintf(name1, "%s/%06d_%04d.cal", rawCaldir, run2, tdrCmp[0]);
+    if(stat(name1, &buf)==0){
+      printf("First calib Found %s run %d\n", name1, run2);
       break;
     }
   }
   
   if (run2<40) {
-    printf("Cannot find any calibration done before the requested run %d\n",runn);
+    printf("Cannot find any calibration done before the requested run %d\n", runn);
     printf("I give up. Bye.\n");
     exit(2);
   }
