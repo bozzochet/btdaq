@@ -767,22 +767,46 @@ void DecodeData::FindCalibs(){
 
   struct stat buf;
   char name1[300];
+  char nameA[300];
+  char nameB[300];
   int run2;
+  int runA;
+  int runB;
   FILE* calfile[TDRNUM];
   int old=pri;
+  bool afterclose=false;
   
   if((ntdrCmp+ntdrRaw)<1){
     printf("No TDR in CMP or RAW mode --> No DSP Calib can be found\n");
     return;
   }
   
-  for (run2=runn; run2>0 ;run2--){
-    sprintf(name1, "%s/%06d_%04d.cal", rawCaldir, run2, tdrCmp[0]);
-    if(stat(name1, &buf)==0){
-      printf("First calib Found %s run %d\n", name1, run2);
+  for (runB=runn; runB>0 ;runB--){
+    sprintf(nameB, "%s/%06d_%04d.cal", rawCaldir, runB, tdrCmp[0]);
+    if(stat(nameB, &buf)==0){
+      //printf("First calib Found %s run %d\n", name1, run2);
       break;
     }
   }
+
+  for (runA=runn; runA<(runn+(runn-runB)) ;runA++){
+    sprintf(nameA, "%s/%06d_%04d.cal", rawCaldir, runA, tdrCmp[0]);
+    if(stat(nameA, &buf)==0){
+      //printf("First calib Found %s run %d\n", name1, run2);
+      afterclose=true;
+      break;
+    }
+  }
+
+  if(afterclose){
+    run2=runA;
+    sprintf(name1, "%s/%06d_%04d.cal", rawCaldir, runA, tdrCmp[0]);
+  }else{
+    run2=runB;
+    sprintf(name1, "%s/%06d_%04d.cal", rawCaldir, runB, tdrCmp[0]);
+  }
+
+  printf("Closest calib Found %s run %d\n", name1, run2);
   
   if (run2<40) {
     printf("Cannot find any calibration done before the requested run %d\n", runn);
