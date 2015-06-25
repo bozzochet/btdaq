@@ -23,7 +23,7 @@ do
 #	echo $i;
 #	echo ${i:0:10}
 	echo ./Decode ${i:0:10} -c --cworkaround 1 --rootdata /data/bt_dampe_jun2015/RootData_$SUFFIX/ --rawdata Data_$SUFFIX --caldata Calibrations_$SUFFIX/
-#	./Decode ${i:0:10} -c --cworkaround 1 --rootdata /data/bt_dampe_jun2015/RootData_$SUFFIX/ --rawdata Data_$SUFFIX --caldata Calibrations_$SUFFIX/
+	./Decode ${i:0:10} -c --cworkaround 1 --rootdata /data/bt_dampe_jun2015/RootData_$SUFFIX/ --rawdata Data_$SUFFIX --caldata Calibrations_$SUFFIX/
     done
     
     cp FILELIST_$SUFFIX.txt FILELIST_$SUFFIX.old.txt
@@ -47,8 +47,6 @@ do
 	./SUMMARY ${i:0:10} 0
     done
     
-    rm Calibrations
-
     cp CALLIST_$SUFFIX.txt CALLIST_$SUFFIX.old.txt
 
 done
