@@ -686,12 +686,12 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
       int va = (int)(count/nchava);
     
       float ssun = (array[count]/8.0-pede[count]-CN[va])/sigma[count];
-      if (ssun>highthreshold) printf("%d) %f %f %f %f -> %f\n", count, array[count]/8.0, pede[count], CN[va], sigma[count], ssun);
+      //      if (ssun>highthreshold) printf("%d) %f %f %f %f -> %f\n", count, array[count]/8.0, pede[count], CN[va], sigma[count], ssun);
       
       if (ssun>highthreshold) {//the seed that can also be the first of the cluster
-	printf(">high\n");
+	//	printf(">high\n");
 	if (firstfound) { //this is the seed (maybe there was another seed previously, but doesn't matter...)
-	  printf("firstfound already \n");
+	  //	  printf("firstfound already \n");
 	  seedfound=true;
 	  cluslen++;
 	}
@@ -703,28 +703,26 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
 	}
       }
       else if (ssun>lowthreshold) { //potentially the start of a cluster, or maybe another neighbour...
-	printf(">low\n");
+	//	printf(">low\n");
 	if (!firstfound) {//is the first of the potential cluster
 	  firstfound=true;
 	  clusadd=count;
 	  cluslen=1;
 	}
 	else {//there was already a 'first' so this can be a neighbour between the first and the seed or a neighbour after
-	  printf("firstfound already \n");
+	  //	  printf("firstfound already \n");
 	  cluslen++;
 	}
       }
       else if (ssun<lowthreshold || count==(arraysize-1)) { //end of a cluster or end of a "potential" cluster or simply nothing
-	printf("<low\n");
+	//	printf("<low\n");
 	if (seedfound) {//the cluster is done, let's save it!
-	  printf("seedfound already \n");
-	  if (pri) {}
-	  printf("Cluster: add=%d  lenght=%d\n", clusadd+shift, cluslen);
+	  //	  printf("seedfound already\n");
+	  if (pri) printf("Cluster: add=%d  lenght=%d\n", clusadd+shift, cluslen);
 	  for (int hh=clusadd; hh<(clusadd+cluslen); hh++){
 	    int _va = (int)(hh/nchava);
 	    float s = array[hh]/8.0-pede[hh]-CN[_va];
-	    if (pri) {}
-	    printf("Signal: %d, Pos:%d\n", (int)(8*s), hh+shift);
+	    if (pri) printf("Signal: %d, Pos:%d\n", (int)(8*s), hh+shift);
 	    if (hh<MAXLENGHT){
 	      sig[hh-clusadd]=s;
 	      if (pri) printf("        %f, Pos: %d\n", sig[hh-clusadd], hh+shift);
