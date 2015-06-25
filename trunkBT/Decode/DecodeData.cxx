@@ -623,6 +623,8 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
   double highthreshold=3.5;
   double lowthreshold=1.0;
 
+  int shift=0;
+
   for (int side=0; side<2; side++) {
 
     if (side==0) {
@@ -630,6 +632,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
       nchava=nchavaS;
       highthreshold=shighthreshold;
       lowthreshold=slowthreshold;
+      shift=0;
       if (cworkaround==1) {
 	arraysize=320;
 	for (int cc=0; cc<320; cc++) {
@@ -652,6 +655,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
       nchava=nchavaK;
       highthreshold=khighthreshold;
       lowthreshold=klowthreshold;
+      shift=640;
       arraysize=384;
       memcpy(array, &(ev->Signal[tdrnumraw][640]), 384*sizeof(ev->Signal[tdrnumraw][0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
       memcpy(arraySoN, &(ev->SoN[tdrnumraw][640]), 384*sizeof(ev->SoN[tdrnumraw][0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
@@ -715,19 +719,19 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
 	if (seedfound) {//the cluster is done, let's save it!
 	  printf("seedfound already \n");
 	  if (pri) {}
-	  printf("Cluster: add=%d  lenght=%d\n", clusadd, cluslen);
+	  printf("Cluster: add=%d  lenght=%d\n", clusadd+shift, cluslen);
 	  for (int hh=clusadd; hh<(clusadd+cluslen); hh++){
 	    int _va = (int)(hh/nchava);
 	    float s = array[hh]/8.0-pede[hh]-CN[_va];
 	    if (pri) {}
-	    printf("Signal: %d, Pos:%d\n", (int)(8*s), hh);
+	    printf("Signal: %d, Pos:%d\n", (int)(8*s), hh+shift);
 	    if (hh<MAXLENGHT){
-	      sig[hh]=s;
-	      if (pri) printf("        %f, Pos: %d\n", sig[hh], hh);
+	      sig[hh-clusadd]=s;
+	      if (pri) printf("        %f, Pos: %d\n", sig[hh-clusadd], hh+shift);
 	    }
 	    else bad=1;
 	  }
-	  AddCluster(numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
+	  AddCluster(numnum, Jinfnum, clusadd+shift, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
 	}
 	// there was no seed found: "potential" cluster not promoted or even "nothing"
 	seedfound=false;
