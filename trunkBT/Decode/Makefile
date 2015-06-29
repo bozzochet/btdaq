@@ -37,7 +37,7 @@ Decode: $(ANYOPTION)/anyoption.o $(DEC_OBJ)
 obj/%.o:%.cxx 
 	@echo Compiling $< ...; 
 	@ if ! [ -d ./obj ] ; then  mkdir -p obj; fi
-	$(CXX) $(CFLAGS) $(DEFINES) -c -Wall $< -o$@ -I$(ROOTSYS)/include -I$(ANYOPTION)
+	@$(CXX) $(CFLAGS) $(DEFINES) -c -Wall -Wno-overloaded-virtual $< -o$@  -I$(ROOTSYS)/include -I$(ANYOPTION)
 
 $(ANYOPTION)/anyoption.o :
 	make -C $(ANYOPTION)

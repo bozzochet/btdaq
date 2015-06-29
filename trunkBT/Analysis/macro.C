@@ -8,6 +8,8 @@
 #include "TFile.h"
 #include "TROOT.h"
 #include "TObjArray.h"
+#include "TChain.h"
+#include "TF1.h"
 
 /* from the Matteo 'Bozzochet' Duranti's API */
 #include "Cluster.hh"
@@ -18,175 +20,222 @@
 
 using namespace std;
 
+double Z[6] = {
+  0-3000,
+  305-3000,
+  362+305-3000,
+  4095+362+305-3000,
+  4095+362+305+379-3000,
+  4095+362+305+379+990-3000,
+};
+
+double align_S[6] = {
+  0.001*39975.943028,
+  0.001*41255.147420,
+  0.001*17173.970321,
+  0.001*41755.635591,
+  0.001*40921.845304,
+  0.001*33841.101306
+};
+
+double align_K[6] = {
+   0.001*92113.607793,
+  0.001*108630.753474,
+  0.001*116327.464394,
+  0.001*115121.431475,
+   0.001*67920.425844,
+   0.001*75508.210764
+};
+
+int FindArrayNumber(int ladder);
 void SavePDF( TObjArray *arrCanvas, const char *outfilename);
 
-int macro(const long run, int anc, int ladder) {
+int macro(unsigned int runfirstnumbers) {
 
   //  gSystem->Load("./libEvent.so");
 
-  TTree *branch;
-  string file = Form("RootData/run_%ld_ANC_%d.root", run, anc);
-  TFile *stream = new TFile(file.c_str());
+  TChain* ch_up = new TChain("t4");
+  TChain* ch_dw = new TChain("t4");
+  
+  int n_up = ch_up->Add(Form("./RootData_upstream/run_%d*.root", runfirstnumbers));
+  printf("Added %d files for the upstream chain\n", n_up);
 
-  Event *current_event;
-  Cluster *current_cluster;
-  RHClass *current_infos;
+  int n_dw = ch_dw->Add(Form("./RootData_downstream/run_%d*.root", runfirstnumbers));
+  printf("Added %d files for the upstream chain\n", n_dw);
+  
+  
+  Event* event_up=0;
+  Event* event_dw=0;
+  
+  TH1F* occupancy_S[6];
+  TH1F* occupancy_K[6];
+  TH1F* occupancy_S_ru[6];
+  TH1F* occupancy_K_ru[6];
+  for (int ii=0; ii<6; ii++) {
+    occupancy_S[ii] = new TH1F(Form("occupancy_S_%d", ii) , Form("occupancy_S_%d;Channel;Entries", ii), 650, 0, 650);
+    occupancy_K[ii] = new TH1F(Form("occupancy_K_%d", ii) , Form("occupancy_K_%d;channel;Entries", ii), 5*384, 0, 5*384);
+    occupancy_S_ru[ii] = new TH1F(Form("occupancy_S_ru_%d", ii) , Form("occupancy_S_ru_%d;Position (mm);Entries", ii), 2*640, -0.001*110*640, 0.001*110*640);
+    occupancy_K_ru[ii] = new TH1F(Form("occupancy_K_ru_%d", ii) , Form("occupancy_K_ru_%d;Position (mm);Entries", ii), 5*384, -0.001*220*384, 0.001*5*220*384);
+  }
 
-  Long64_t entries;
-
-  TH1F* occupancy = new TH1F("occupancy", "occupancy", 1024, 0, 1024);
-  TH1F* occupancy_add = new TH1F("occupancy_add", "occupancy_add", 1024, 0, 1024);
-
-  bool signal_log=false;
-
-  int nbins_signal=200;
-  double bin_signal[nbins_signal+1];
-  if(signal_log)
-    {
-      bin_signal[0]=1.0;
-      double deltalog = (log10(10000.0)-log10(1.0))/nbins_signal;
-      for (int ii=1; ii<=nbins_signal; ii++) { bin_signal[ii] = pow(10.0, log10(bin_signal[ii-1])+deltalog); }
-    }
-  else
-    {
-      double sigmin=0, sigmax=200;
-      double delta = (sigmax-sigmin)/nbins_signal;
-      for (int ii=0; ii<=nbins_signal; ii++) { bin_signal[ii] = sigmin + ii*delta; }
-    }
-
-  TH1F* signalS = new TH1F("signalS", "signalS", nbins_signal, bin_signal);
-  TH1F* signalK = new TH1F("signalK", "signalK", nbins_signal, bin_signal);
-
-  TH1F* chargeS = new TH1F("chargeS", "chargeS", 200, 0, 25);
-  TH1F* chargeK = new TH1F("chargeK", "chargeK", 200, 0, 25);
-  TH2F* charge = new TH2F("charge", "charge", 200, 0, 25, 200, 0, 25);
-
-  TH2F* charge_vs_occupancy = new TH2F("charge_vs_occupancy", "charge_vs_occupancy", 1024, 0, 1024, 200, 0, 25);
-
-  TH1F* nclusters = new TH1F("nclusters", "nclusters", 40, 0, 40);
-
-  TH1F* width = new TH1F("width", "width", 128, 0, 128);
-
-  if (stream->IsOpen()) {
-    if ((branch = (TTree *)(stream->Get("t4")))) {
-      entries = branch->GetEntries();
-      printf("This run has %lld entries\n", entries);
-      if (entries > 0) {
-	current_event = new Event();
-	branch->SetBranchAddress("cluster_branch", &current_event);
-	branch->GetEntry(0);
-	if ((current_infos = (RHClass *)branch->GetUserInfo()->At(0))) {
-	  for (int index_event = 0; index_event < entries; ++index_event) {
-	    branch->GetEntry(index_event);
-	    int NClusTot = current_event->NClusTot;
-	    int ncluslad = 0;
-	    vector<double> v_charge[2];
-	    for (int index_cluster = 0; index_cluster < NClusTot; ++index_cluster) {
-	      current_cluster = current_event->GetCluster(index_cluster);
-	      int this_lad = current_cluster->ladder;
-	      if (this_lad == ladder) {
-		ncluslad++;
-		occupancy->Fill(current_cluster->GetCoG());
-		occupancy_add->Fill(current_cluster->address);
-		width->Fill(current_cluster->length);
-		int side=current_cluster->side;
-		if (side==0) {
-		  signalS->Fill(current_cluster->GetTotSig());
-		  chargeS->Fill(sqrt(current_cluster->GetTotSig())/sqrt(35.0));
-		}
-		else {
-		  signalK->Fill(current_cluster->GetTotSig());
-		  chargeK->Fill(sqrt(current_cluster->GetTotSig())/sqrt(35.0));
-		}
-		charge_vs_occupancy->Fill(current_cluster->GetCoG(), sqrt(current_cluster->GetTotSig())/sqrt(35.0));
-		v_charge[side].push_back(sqrt(current_cluster->GetTotSig())/sqrt(35.0));
-	      }
-	    }
-	    for (int ii=0; ii<(int)(v_charge[0].size()); ii++) {
-	      for (int jj=0; jj<(int)(v_charge[1].size()); jj++) {
-		charge->Fill(v_charge[0][ii], v_charge[1][jj]);
-	      }
-	    }
-	    nclusters->Fill(ncluslad);
+  TH2F* downstream_K = new TH2F("downstream_K", "downstream_K;Z (mm);Position (mm);Entries", 20, -3100, 3600, 5*384, -0.001*220*384, 0.001*5*220*384);
+  
+  Long64_t entries_up = ch_up->GetEntries();
+  Long64_t entries_dw = ch_dw->GetEntries();
+  printf("This run has %lld (%lld) entries\n", entries_up, entries_dw);
+  
+  if (entries_up > 0) {
+    event_up = new Event();
+    event_dw = new Event();
+    ch_up->SetBranchAddress("cluster_branch", &event_up);
+    ch_up->GetEntry(0);
+    ch_dw->SetBranchAddress("cluster_branch", &event_dw);
+    ch_dw->GetEntry(0);
+  }
+  
+  for (int index_event = 0; index_event < entries_up; index_event++) {
+    ch_up->GetEntry(index_event);
+    ch_dw->GetEntry(index_event);
+    //    printf("%p %p\n", event_up, event_dw);
+    int NClusTot_up = event_up->NClusTot;
+    int NClusTot_dw = event_dw->NClusTot;
+    int NClusTot = 0;
+    Cluster* cluster;
+    Event* event;
+    for (int ii=0; ii<2; ii++) {
+      if (ii==0) {
+	NClusTot = NClusTot_up;
+	event = event_up;
+      }
+      else if (ii==1) {
+	NClusTot = NClusTot_dw;
+	event = event_dw;
+      }
+      for (int index_cluster = 0; index_cluster < NClusTot; ++index_cluster) {
+	cluster = event->GetCluster(index_cluster);
+	int side=cluster->side;
+	int index = FindArrayNumber(cluster->ladder);
+	//	printf("%d\n", index);
+	if (cluster->ladder==4 && (cluster->address==895 || cluster->address==896)) continue;
+	//	if (cluster->ladder==4) printf("%d\n", cluster->address);
+	if (side==0) {
+	  occupancy_S[index]->Fill(cluster->GetCoG());
+	  occupancy_S_ru[index]->Fill(0.001*110*cluster->GetCoG()-align_S[index]);
+	}
+	else {
+	  for (int mm=0; mm<5; mm++) {
+	    occupancy_K[index]->Fill(cluster->GetCoG()-640+mm*384);
+	    occupancy_K_ru[index]->Fill(0.001*220*(cluster->GetCoG()-640+mm*384)-align_K[index]);
+	    downstream_K->Fill(Z[index], 0.001*220*(cluster->GetCoG()-640+mm*384)-align_K[index]);
 	  }
 	}
       }
     }
-  
-    string outfilename = Form("%s/output_%ld_%d_lad_%d.pdf","output",run,anc,ladder);
-    TObjArray *arrCanvas = new TObjArray();
-    
-    static TCanvas* cnclu = NULL;
-    if (!cnclu) cnclu = new TCanvas("C_NClusters", "NClusters"); arrCanvas->Add(cnclu);
-    cnclu->cd();
-    nclusters->DrawCopy();
-    arrCanvas->Add(cnclu);
-    
-    static TCanvas* cwidth = NULL;
-    if (!cwidth) cwidth = new TCanvas("C_Width", "Width");
-    cwidth->cd();
-    width->DrawCopy();
-    arrCanvas->Add(cwidth);
-    
-    static TCanvas* cocc = NULL;
-    if (!cocc) cocc = new TCanvas("C_Occupancy", "Occupancy");
-    cocc->cd();
-    occupancy->DrawCopy();
-    arrCanvas->Add(cocc);
-    
-    static TCanvas* cocc_add = NULL;
-    if (!cocc_add) cocc_add = new TCanvas("C_Occupancy_Address", "Occupancy_Address");
-    cocc_add->cd();
-    occupancy_add->DrawCopy();
-    arrCanvas->Add(cocc_add);
-    
-    static TCanvas* csigS = NULL;
-    if (!csigS) csigS = new TCanvas("C_SignalS", "SignalS");
-    if(signal_log) csigS->SetLogx();
-    csigS->cd();
-    signalS->DrawCopy();
-    arrCanvas->Add(csigS);
-
-    static TCanvas* csigK = NULL;
-    if (!csigK) csigK = new TCanvas("C_SignalK", "SignalK");
-    if(signal_log) csigK->SetLogx();
-    csigK->cd();
-    signalK->DrawCopy();
-    arrCanvas->Add(csigK);
-    
-    static TCanvas* ccharS = NULL;
-    if (!ccharS) ccharS = new TCanvas("C_ChargeS", "ChargeS");
-    ccharS->SetLogy();
-    ccharS->cd();
-    chargeS->DrawCopy();
-    arrCanvas->Add(ccharS);
-    
-    static TCanvas* ccharK = NULL;
-    if (!ccharK) ccharK = new TCanvas("C_ChargeK", "ChargeK");
-    ccharK->SetLogy();
-    ccharK->cd();
-    chargeK->DrawCopy();
-    arrCanvas->Add(ccharK);
-
-    static TCanvas* cchar = NULL;
-    if (!cchar) cchar = new TCanvas("C_Charge", "Charge");
-    cchar->SetLogz();
-    cchar->cd();
-    charge->DrawCopy("colz");
-    arrCanvas->Add(cchar);
-    
-    static TCanvas* cchargvsocc = NULL;
-    if (!cchargvsocc) cchargvsocc = new TCanvas("C_Charge_vs_Occupancy", "Charge_vs_Occupancy");
-    cchargvsocc->SetLogz();
-    cchargvsocc->cd();
-    charge_vs_occupancy->DrawCopy("colz");
-    arrCanvas->Add(cchargvsocc);
-    
-    SavePDF(arrCanvas, outfilename.c_str());
   }
+  
+  string outfilename = Form("%s/output_%d.pdf","output", runfirstnumbers);
+  TObjArray *arrCanvas = new TObjArray();
 
-  delete stream;
+  TF1* fitfunc = new TF1("fitfunc", "gaus", -9999999, 99999999);
+
+  printf("**********************S********************\n");
+  static TCanvas* cocc_S = NULL;
+  if (!cocc_S) cocc_S = new TCanvas("C_Occupancy_S", "Occupancy_S");
+  cocc_S->Divide(3,2);
+  cocc_S->cd();
+  for (int ii=0; ii<6; ii++) {
+    cocc_S->cd(ii+1);
+    occupancy_S[ii]->DrawCopy();
+  }
+  arrCanvas->Add(cocc_S);
+
+  static TCanvas* cocc_S_ru = NULL;
+  if (!cocc_S_ru) cocc_S_ru = new TCanvas("C_Occupancy_S_ru", "Occupancy_S_ru");
+  cocc_S_ru->Divide(3,2);
+  cocc_S_ru->cd();
+  for (int ii=0; ii<6; ii++) {
+    cocc_S_ru->cd(ii+1);
+    occupancy_S_ru[ii]->DrawCopy();
+    occupancy_S_ru[ii]->Fit(fitfunc, "Q");
+    occupancy_S_ru[ii]->Fit(fitfunc, "Q");
+    printf("%f\n", fitfunc->GetParameter(1));
+  }
+  arrCanvas->Add(cocc_S_ru);
+
+  printf("**********************K********************\n");
+  static TCanvas* cocc_K = NULL;
+  if (!cocc_K) cocc_K = new TCanvas("C_Occupancy_K", "Occupancy_K");
+  cocc_K->Divide(3,2);
+  cocc_K->cd();
+  for (int ii=0; ii<6; ii++) {
+    cocc_K->cd(ii+1);
+    occupancy_K[ii]->DrawCopy();
+  }
+  arrCanvas->Add(cocc_K);
+
+  static TCanvas* cocc_K_ru = NULL;
+  if (!cocc_K_ru) cocc_K_ru = new TCanvas("C_Occupancy_K_ru", "Occupancy_K_ru");
+  cocc_K_ru->Divide(3,2);
+  cocc_K_ru->cd();
+  for (int ii=0; ii<6; ii++) {
+    cocc_K_ru->cd(ii+1);
+    occupancy_K_ru[ii]->DrawCopy();
+    float lowlimit, highlimit;
+    //before alignment && no deflection
+    // if (ii==0 || ii==1) {
+    //   lowlimit=50;
+    //   highlimit=150;
+    // }
+    // else if (ii==2 || ii==3) {
+    //   lowlimit=70;
+    //   highlimit=170;
+    // }
+    // else if (ii==4 || ii==5) {
+    //   lowlimit=20;
+    //   highlimit=120;
+    // }
+    //after alignment && no deflection
+    // lowlimit = -50;
+    // highlimit = 50;
+    if (ii==0 || ii==1 || ii==2) {
+      lowlimit = -50;
+      highlimit = 50;
+    }
+    else if (ii==3 || ii==4) {
+      lowlimit=0;
+      highlimit=100;
+    }
+    else if (ii==5) {
+      lowlimit=-30;
+      highlimit=80;
+    }    
+    occupancy_K_ru[ii]->Fit(fitfunc, "Q", "", lowlimit, highlimit);
+    occupancy_K_ru[ii]->Fit(fitfunc, "Q", "", lowlimit, highlimit);
+    printf("%f\n", fitfunc->GetParameter(1));
+  }
+  arrCanvas->Add(cocc_K_ru);
+
+  static TCanvas* cdown_K = NULL;
+  if (!cdown_K) cdown_K = new TCanvas("C_Downstream_K", "Downstream_K");
+  cdown_K->cd();
+  downstream_K->DrawCopy("colz");
+  arrCanvas->Add(cdown_K);
+  
+  SavePDF(arrCanvas, outfilename.c_str());
+
   return 0;
+}
+
+int FindArrayNumber(int ladder){
+
+  if (ladder==0) return 0;
+  else if (ladder==1) return 1;
+  else if (ladder==4) return 2;
+  else if (ladder==12) return 3;
+  else if (ladder==16) return 4;
+  else if (ladder==17) return 5;
+
+  return -9;
 }
 
 void SavePDF( TObjArray *arrCanvas, const char *outfilename){
@@ -195,6 +244,8 @@ void SavePDF( TObjArray *arrCanvas, const char *outfilename){
   TCanvas *c = NULL;
   c = new TCanvas();
   c->SaveAs(Form("%s(", outfilename));
+  if (c) delete c;
+  
   for(int ic=0; ic<(int)arrCanvas->GetEntries(); ic++)
     {
       c = (TCanvas*)(arrCanvas->At(ic));
@@ -202,6 +253,7 @@ void SavePDF( TObjArray *arrCanvas, const char *outfilename){
     }
   c = new TCanvas();
   c->SaveAs(Form("%s)", outfilename));
+  if (c) delete c;
   
   arrCanvas->Clear();
   return;
