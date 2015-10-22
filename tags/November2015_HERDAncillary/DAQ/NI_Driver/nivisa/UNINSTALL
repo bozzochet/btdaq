@@ -1,0 +1,255 @@
+#!/bin/sh -
+
+#
+# numeric constants
+#
+
+kFalse=0
+kTrue=1
+
+#
+# string constants
+#
+
+strName_nivisa="NI-VISA Runtime"
+strName_nivisadevelopment="NI-VISA Development"
+strName_nivisaconfig="NI-VISA Configuration"
+strName_nivisaserver="NI-VISA Server"
+strName_nicvirte="CVI Run-Time Engine"
+
+#
+# numeric variables
+#
+
+bFound_nivisa=$kFalse
+bFound_nivisadevelopment=$kFalse
+bFound_nivisaconfig=$kFalse
+bFound_nivisaserver=$kFalse
+bFound_nicvirte=$kFalse
+bRemove_nivisa=$kFalse
+bRemove_nivisaserver=$kFalse
+bRemove_nicvirte=$kFalse
+
+#
+# string variables
+#
+
+RPM=""
+strVersion_nivisa=""
+strVersion_nivisadevelopment=""
+strVersion_nivisaconfig=""
+strVersion_nivisaserver=""
+strVersion_nicvirte=""
+strFoundList=""
+
+# findutil gets the path to a utility
+# Input: $1: name of utility to find
+# Output: $FINDUTIL: path of found utility or empty string
+# Returns: 0=success, nonzero=failure
+FINDUTIL=""
+findutil()
+{
+  # Validate inputs
+  if [ -z "$1" ]; then
+    FINDUTIL=""
+    return 1
+  fi
+
+  # Use which to locate the executable
+  FINDUTIL=`which $1 --skip-alias 2>/dev/null`
+  # If not found, display an error
+  if [ -n "$FINDUTIL" ] && [ -x "$FINDUTIL" ]; then
+    return 0
+  fi
+
+  # Not in path. Find using well-known locations.
+  if [ -x "/sbin/$1" ]; then
+    FINDUTIL="/sbin/$1"
+    return 0;
+  elif [ -x "/usr/sbin/$1" ]; then
+    FINDUTIL="/usr/sbin/$1"
+    return 0;
+  elif [ -x "/usr/local/sbin/$1" ]; then
+    FINDUTIL="/usr/local/sbin/$1"
+    return 0;
+  elif [ -x "/bin/$1" ]; then
+    FINDUTIL="/bin/$1"
+    return 0;
+  elif [ -x "/usr/bin/$1" ]; then
+    FINDUTIL="/usr/bin/$1"
+    return 0;
+  elif [ -x "/usr/local/bin/$1" ]; then
+    FINDUTIL="/usr/local/bin/$1"
+    return 0;
+  else
+    FINDUTIL=""
+    return 1
+  fi
+}
+# getRpmVersion gets the version of a package from the RPM database
+# Input: $1: package name to query
+#        $RPM: path of RPM executable
+# Output: $strRpmVersion: version string of package
+# Returns: 0=success, nonzero=failure
+getRpmVersion ()
+{  
+   strRpmVersion="`$RPM -q --queryformat "%{VERSION}" "$1" 2>/dev/null`"
+   if [ $? -ne 0 ] ; then 
+      strRpmVersion=""
+      return 1
+   fi
+   return 0
+}
+
+# uninstallRpm uninstalls an rpm package
+# Input: $1: descriptive name of package to uninstall
+# Input: $2: rpm name of package to uninstall
+# Input: $3: rpm version of package to uninstall
+# Output: $bRpmRemoved: true if rpm was removed
+uninstallRpm()
+{
+   if [ -z "${2}" ] ; then
+      return 0
+   fi
+   echo -n "Would you like to remove ${1} ${3}? [yN] "
+   read ans
+   if [ "$ans" = "y" ]; then
+      $RPM -e ${2}
+      if [ $? -eq 0 ] ; then
+         echo "${1} uninstalled successfully."
+	 bRpmRemoved=$kTrue
+      else
+         echo "An error occurred when attempting to uninstall ${1}."
+	 bRpmRemoved=$kFalse
+      fi 
+   elif [ "$ans" = "q" ]; then
+      exit 0
+   else
+      bRpmRemoved=$kFalse
+   fi
+   echo ""
+}
+
+# Beginning of script execution
+findutil "rpm"
+if [ -z "$FINDUTIL" ]; then
+  echo "This system does not use an RPM-based package installation system."
+  echo "To uninstall NI-VISA, simply remove the installation directories"
+  echo "(e.g. 'rm -rf /usr/local/vxipnp /usr/local/cvirte')."
+  exit 1
+else
+    RPM=$FINDUTIL
+fi
+
+echo "Searching for installed packages related to NI-VISA..."
+echo " "
+
+getRpmVersion "nivisaserver"
+if [ -n "$strRpmVersion" ] ; then
+   strVersion_nivisaserver="$strRpmVersion"
+   bFound_nivisaserver=$kTrue
+   strFoundList="$strFoundList nivisaserver"
+   echo "$strName_nivisaserver $strVersion_nivisaserver detected."
+fi
+
+getRpmVersion "nivisa-config"
+if [ -n "$strRpmVersion" ] ; then
+   strVersion_nivisaconfig="$strRpmVersion"
+   bFound_nivisaconfig=$kTrue
+   strFoundList="$strFoundList nivisa-config"
+   echo "$strName_nivisaconfig $strVersion_nivisaconfig detected."
+fi
+
+getRpmVersion "nivisa-devel"
+if [ -n "$strRpmVersion" ] ; then
+   strVersion_nivisadevelopment="$strRpmVersion"
+   bFound_nivisadevelopment=$kTrue
+   strFoundList="$strFoundList nivisa-devel"
+   echo "$strName_nivisadevelopment $strVersion_nivisadevelopment detected."
+fi
+
+getRpmVersion "nivisa"
+if [ -n "$strRpmVersion" ] ; then
+   strVersion_nivisa="$strRpmVersion"
+   bFound_nivisa=$kTrue
+   strFoundList="$strFoundList nivisa"
+   echo "$strName_nivisa $strVersion_nivisa detected."
+fi
+
+getRpmVersion "nicvirte"
+if [ -n "$strRpmVersion" ] ; then
+   strVersion_nicvirte="$strRpmVersion"
+   bFound_nicvirte=$kTrue
+   strFoundList="$strFoundList nicvirte"
+   echo "$strName_nicvirte $strVersion_nicvirte detected."
+fi
+
+if [ -z "${strFoundList}" ] ; then
+  echo "No relevant installed packages detected."
+  echo "Exiting."
+  exit 0
+fi
+
+echo ""
+echo -n "Would you like to remove all detected packages? [yN] "
+read ans
+if [ "$ans" = "y" ]; then
+  $RPM -e ${strFoundList}
+  if [ $? -eq 0 ] ; then
+    echo "Packages uninstalled successfully."
+  else
+    echo "An error occurred when attempting to uninstall the packages."
+  fi 
+  echo "Exiting."
+  exit 0
+elif [ "$ans" = "q" ]; then
+  exit 0
+fi
+
+echo ""
+
+if [ $bFound_nivisaserver -eq $kTrue ] ; then
+   uninstallRpm "$strName_nivisaserver" "nivisaserver" "$strVersion_nivisaserver"
+   bRemove_nivisaserver=$bRpmRemoved
+fi
+
+if [ $bFound_nivisaconfig -eq $kTrue ] ; then
+   uninstallRpm "$strName_nivisaconfig" "nivisa-config" "$strVersion_nivisaconfig"
+   bRemove_nivisaconfig=$bRpmRemoved
+fi
+
+if [ $bFound_nivisadevelopment -eq $kTrue ] ; then
+   uninstallRpm "$strName_nivisadevelopment" "nivisa-devel" "$strVersion_nivisadevelopment"
+   bRemove_nivisadevelopment=$bRpmRemoved
+fi
+
+if [ $bFound_nivisa -eq $kTrue ] ; then
+   # Do not prompt if there exists a dependency
+   if [ $bFound_nivisaserver -eq $kTrue ] && [ $bRemove_nivisaserver -eq $kFalse ] ; then
+      echo "Cannot remove ${strName_nivisa} because it is depended on by ${strName_nivisaserver}."
+      echo ""
+   elif [ $bFound_nivisaconfig -eq $kTrue ] && [ $bRemove_nivisaconfig -eq $kFalse ] ; then
+      echo "Cannot remove ${strName_nivisa} because it is depended on by ${strName_nivisaconfig}."
+      echo ""
+   elif [ $bFound_nivisadevelopment -eq $kTrue ] && [ $bRemove_nivisadevelopment -eq $kFalse ] ; then
+      echo "Cannot remove ${strName_nivisa} because it is depended on by ${strName_nivisadevelopment}."
+      echo ""
+   else
+      uninstallRpm "$strName_nivisa" "nivisa" "$strVersion_nivisa"
+      bRemove_nivisa=$bRpmRemoved
+   fi
+fi
+
+if [ $bFound_nicvirte -eq $kTrue ] ; then
+   # Do not prompt if there exists a dependency
+   if [ $bFound_nivisa -eq $kTrue ] && [ $bRemove_nivisa -eq $kFalse ] ; then
+      echo "Cannot remove ${strName_nicvirte} because it is depended on by ${strName_nivisa}."
+      echo ""
+   else
+      uninstallRpm "$strName_nicvirte" "nicvirte" "$strVersion_nicvirte"
+      bRemove_nicvirte=$bRpmRemoved
+   fi
+fi
+
+echo "Exiting."
+

@@ -1,0 +1,258 @@
+#!/bin/sh
+
+# UNINSTALL
+# This is the uninstallation script for NI-DAQmx Base for Linux.  It is
+# strictly optional; advanced users may wish to simply uninstall the RPM
+# files themselves.
+#
+#  Copyright 2004-2006
+#  National Instruments Corporation.
+#  All Rights reserved.
+#
+#  originated:  23 July 2004
+#
+
+REL=f0
+VER=2.1.0
+BSVER=2.1.0
+COMVER=2.1.0
+LV80VER=2.1.0
+LV82VER=2.1.0
+CIVER=2.1.0
+USBVER=2.1.0
+VISAVER=4.0.0
+
+kpkgroot=nidaqmxbase-kernel
+bspkgroot=nidaqmxbase-board-support
+compkgroot=nidaqmxbase-common
+lv80pkgroot=nidaqmxbase-labview80-VIs
+lv82pkgroot=nidaqmxbase-labview82-VIs
+cipkgroot=nidaqmxbase-cinterface
+usbpkgroot=nidaqmxbase-usb-support
+lv80rtepkg=labview80-rte
+visapkgroot=nivisa
+
+lv80Label="NI-DAQmx Base for LabVIEW 8.0"
+lv82Label="NI-DAQmx Base for LabVIEW 8.2"
+ciLabel="NI-DAQmx Base for C"
+usbLabel="NI-DAQmx Base USB Device Support"
+bsLabel="NI-DAQmx Base PCI/PXI Support"
+comLabel="NI-DAQmx Base Common Utilities"
+visaLabel="NI-VISA"
+
+
+
+#Say hi.
+echo " "
+echo "  *************************************"
+echo "  * NI-DAQmx Base $VER$REL for Linux/x86 *"
+echo "  *************************************"
+echo " "
+
+# Check for root permissions
+if [ `id -ur` != 0 ]; then
+  echo "This script needs to be run with superuser permission to install files"
+  echo "on the system.  Please re-run this installer as the 'root' user."
+  echo "Aborting installation."
+  return 1
+fi
+
+#Check for RPM installation.
+RPM=`which rpm`
+if [ -z $RPM ]; then
+    echo " "
+    echo "I didn't find a version of RPM on your system."
+    echo "This installer uses RPM to install the NI-DAQmx Base $VER packages."
+    echo "Please install rpm and restart this installer."
+    return 1
+else
+    RPMVERSION=`rpm --version | sed 's,^RPM version ,,'`
+    case "$RPMVERSION" in
+        [123]\.*)
+            echo " "
+            echo "RPM version $RPMVERSION was found on your system."
+            echo "This INSTALL script requires version 4.0 or higher."
+            echo "Please install a newer version of RPM or follow these"
+            echo "instructions to install:"
+            echo " "
+            echo "1. Make sure you are a user with root permissions."
+            echo "2. Issue the following commands:"
+            echo "   %> rpm -e $usbpkgroot"
+            echo "   %> rpm -e $cipkgroot"
+            echo "   %> rpm -e $lv82pkgroot"
+            echo "   %> rpm -e $lv80pkgroot"
+            echo "   %> rpm -e $compkgroot"
+            echo "   %> rpm -e $bspkgroot"
+            echo "   %> rpm -e $kpkgroot"
+            echo " NOTE: $kpkgroot is used only in NI-DAQmx Base 1.4.0 and earlier."
+            ;;
+        *)
+            ;;
+    esac
+fi
+
+uninstalllv80=f
+uninstalllv82=f
+uninstallci=f
+uninstallusb=f
+uninstallk=f
+uninstallbs=f
+uninstallcom=f
+uninstallvisa=f
+
+#Check that each package is installed and if it is, remove it.
+if rpm -q $usbpkgroot > /dev/null; then
+    echo " "
+    echo -n "Do you want to uninstall $usbLabel? [Yn] "
+    read ans
+    test -z "$ans" && ans=y
+    case "$ans" in
+        [yY]*)
+            uninstallusb=t
+            ;;
+        *)
+            ;;
+    esac
+else
+    uninstallusb=x
+fi
+if rpm -q $cipkgroot > /dev/null; then
+    echo " "
+    echo -n "Do you want to uninstall $ciLabel? [Yn] "
+    read ans
+    test -z "$ans" && ans=y
+    case "$ans" in
+        [yY]*)
+            uninstallci=t
+            ;;
+        *)
+            ;;
+    esac
+else
+    uninstallci=x
+fi
+if rpm -q $lv82pkgroot > /dev/null; then
+    echo " "
+    echo -n "Do you want to uninstall $lv82Label? [Yn] "
+    read ans
+    test -z "$ans" && ans=y
+    case "$ans" in
+        [yY]*)
+            uninstalllv82=t
+            ;;
+        *)
+            ;;
+    esac
+else
+    uninstalllv82=x
+fi
+if rpm -q $lv80pkgroot > /dev/null; then
+    echo " "
+    echo -n "Do you want to uninstall $lv80Label? [Yn] "
+    read ans
+    test -z "$ans" && ans=y
+    case "$ans" in
+        [yY]*)
+            uninstalllv80=t
+            ;;
+        *)
+            ;;
+    esac
+else
+    uninstalllv80=x
+fi
+
+
+#List the packages requested to be installeduninstallpkg=
+if [ "$uninstallusb" = "t" -o "$uninstallci" = "t" -o "$uninstalllv82" = "t" -o "$uninstalllv80" = "t" ]; then
+    echo " "
+    echo "The following NI-DAQmx Base components will be uninstalled:"
+    if [ "$uninstallusb" = "t" ]; then
+        echo "$usbLabel"
+    fi
+    if [ "$uninstallci" = "t" ]; then
+        echo "$ciLabel"
+    fi
+    if [ "$uninstalllv82" = "t" ]; then
+        echo "$lv82Label"
+    fi
+    if [ "$uninstalllv80" = "t" ]; then
+        echo "$lv80Label"
+    fi
+    if (( [ "$uninstallusb" = "t" -o "$uninstallusb" = "x" ] ) && ( [ "$uninstallci" = "t" -o "$uninstallci" = "x" ] ) && ( [ "$uninstalllv82" = "t" -o "$uninstalllv82" = "x" ] ) && ( [ "$uninstalllv80" = "t" -o "$uninstalllv80" = "x" ] )); then
+        echo " "
+        echo "$comLabel"
+        echo "$bsLabel"
+        echo "These components have been selected automatically."
+    fi
+    echo " "
+    echo -n "Continue uninstall? [yN] "
+    read ans
+    test -z "$ans" && ans=n
+    case "$ans" in
+        [yY]*)
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+fi
+
+#Uninstall the packages requested.
+if [ "$uninstallusb" = "t" ]; then
+    rpm -e $usbpkgroot
+fi
+if [ "$uninstallci" = "t" ]; then
+    rpm -e $cipkgroot
+fi
+if [ "$uninstalllv82" = "t" ]; then
+    rpm -e $lv82pkgroot
+fi
+if [ "$uninstalllv80" = "t" ]; then
+    rpm -e $lv80pkgroot
+fi
+
+#If the common package is installed and no one else depends upon it, remove it.
+if rpm -q $compkgroot > /dev/null; then
+    if rpm -e --test $compkgroot > /dev/null 2>&1; then
+        rpm -ev $compkgroot
+    fi
+fi
+#If the board-support package is installed and no one else depends upon it, remove it.
+if rpm -q $bspkgroot > /dev/null; then
+    if rpm -e --test $bspkgroot > /dev/null 2>&1; then
+        uninstallbs=t
+        rpm -ev $bspkgroot
+    fi
+fi
+#If the RTE package is installed and no one else depends upon it, remove it.
+if rpm -q $lv80rtepkg > /dev/null; then
+    if rpm -e --test $lv80rtepkg > /dev/null 2>&1; then
+        rpm -ev $lv80rtepkg
+    fi
+fi
+
+if rpm -q $visapkgroot > /dev/null; then
+    if [ `rpm -e --test $visapkgroot 2>&1 | grep -v nivisa.*nivisa | grep -c nivisa` -eq 0 ]; then
+        uninstallvisa=t
+    fi
+fi
+
+if [ "$uninstallvisa" = "t" ]; then
+    echo " "
+    echo -n "Do you want to uninstall NI-VISA? [yN] "
+    read ans
+    test -z "$ans" && ans=n
+    case "$ans" in
+        [yY]*)
+            VISADIR=`rpm -q --queryformat "%{INSTALLPREFIX}\n" $visapkgroot`
+            ${SHELL:-sh} $VISADIR/vxipnp/linux/NIvisa/UNINSTALL
+            ;;
+        *)
+            ;;
+    esac
+fi
+
+echo " "
+echo "Finished uninstalling NI-DAQmx Base $VER$REL."
+echo " "
