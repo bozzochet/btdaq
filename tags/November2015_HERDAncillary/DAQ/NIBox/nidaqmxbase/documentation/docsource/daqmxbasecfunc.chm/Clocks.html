@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<title>Clocks</title>
+
+<link rel="STYLESHEET" type="text/css" href="../daqmxbasecfunccommon/minimal.css">
+</head>
+
+<body bgcolor="#FFFFFF">
+<h1>Clocks</h1>
+
+
+<p class="Body">Periodic digital edges measure time and are called <em>clocks</em>. Clocks such as a sample timebase clock and the 20 MHz timebase clock mark the passing of time or are used to align other signals in time. Clocks usually do not cause actions in the sense that triggers do. The names of clocks usually do not refer to actions. The sample clock is a notable exception.</p>
+
+<h2>Clocks in NI-DAQmx Base</h2>
+
+<ul><li><strong>AI Convert Clock</strong>&#0151;The E Series clock that directly causes ADC conversions. </li>
+
+<li><strong>AI Convert Clock Timebase</strong>&#0151;The clock that is divided down to produce the AI convert clock. </li>
+
+<li><strong>AI Sample Clock</strong>&#0151;The clock that controls the time interval between samples. Each time the sample clock ticks (produces a pulse) one sample per channel is acquired.</li>
+
+<li><strong>AI Sample Clock Timebase</strong>&#0151;The clock used as the onboard clock source of the sample clock. When the source of the sample clock is set to the onboard clock, the Sample Clock Timebase is divided down to produce the sample clock. When the source of the Sample Clock Timebase is also the onboard clock, the master timebase is divided down to produce the Sample Clock Timebase.</li>
+
+
+<li><strong>AO Sample Clock</strong>&#0151;The clock that controls the time interval between samples. Each time the sample clock ticks (and produces a pulse), one sample per channel is generated. </li>
+
+
+<li><strong>AO Sample Clock Timebase</strong>&#0151;The onboard clock used as the source of the AO sample clock. The AO Sample Clock Timebase is divided down to produce the AO sample clock.</li>
+
+<li><strong>Counter Timebase</strong>&#0151;The clock connected to the Source terminal of a counter (Ctr0Source, for example).</li>
+
+
+<li><strong>Master Timebase</strong>&#0151;An onboard clock used by other counters on the device. The master timebase is divided down to produce a slower clock or to measure elapsed time. This timebase is the onboard clock used as the source of the AI Sample Clock timebase, the AO Sample Clock timebase, and the counter timebases, for example. </li>
+
+
+
+<li><strong>20 MHz Timebase</strong>&#0151;The onboard clock source for the master timebase from which other timebases are derived.</li>
+
+<li><strong>100 kHz Timebase</strong>&#0151;The clock produced by dividing the 20 MHz Timebase by 200.</li>
+</ul>
+
+
+<h2>Trigger and Clock Confusion</h2>
+<p class="Body">The distinction between triggers and clocks is blurred when the digital edges used as a trigger are periodic. In such a case, a clock causes the device to perform an action. The sample clock is the primary example. The stimulus for the action of producing a sample is so often a clock that NI-DAQmx Base configures the sample clock instead of the sample trigger. The distinction is made clear when you consider the sample clock is in fact just one way of providing the source of a sample trigger.</p>
+
+
+
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Terminal Names</title>
+
+<link rel="STYLESHEET" type="text/css" href="../daqmxbasecfunccommon/minimal.css">
+</head>
+<body bgcolor="#FFFFFF">
+<h1>Terminal Names</h1>
+<table class="Borderless-Wide">
+
+<tr><td>Onboard Clock</td><td>An alias for the terminal within a device where the default source for a clock can be found. If your application does not set the source of a clock  (or uses an empty string as the source), the clock's particular onboard clock is used. For example, the onboard clock for the ai sample clock is the ai Sample Clock Timebase.</td></tr>
+
+<tr><td>PFI<em>n</em></td><td>Programmable Function Interface&#0151;general-purpose input terminals, fixed-purpose output terminals. The name of the fixed output signal is often placed on the I/O connector next to the terminal as a hint.</td></tr>
+
+<tr><td>PXITrig<em>n</em> </td><td>PXI Trigger bus&#0151;general-purpose input/output lines. </td></tr>
+<tr><td>RTSI<em>n</em> </td><td>Real Time System Integration bus&#0151;general-purpose input/output lines. RTSI7 is the exception. It is the only line to use for the 20 MHz Timebase signal.</td></tr> 
+ <tr><td>ai/SampleClock </td><td>A terminal within a device where the analog input sample clock can be found.</td></tr> 
+ <tr><td>ai/StartTrigger </td><td> A terminal within a device where the analog input Start Trigger can be found.</td></tr> 
+ <tr><td>ai/ReferenceTrigger </td><td>A terminal within a device where the analog input Reference Trigger can be found.</td></tr> 
+ <tr><td>ao/SampleClock</td> <td>A terminal within a device where the analog output sample clock can be found.</td> </tr>
+ <tr><td>ao/StartTrigger</td> <td>A terminal within a device where the analog output Start Trigger can be found. </td></tr>
+ <tr><td>20MHzTimebase</td> <td>A terminal within a device where the onboard clock source for the master timebase can be found.</td></tr>  
+ <tr><td>MasterTimebase </td> <td>A terminal within  a device where the master timebase signal can be found. This signal originates either from the 20MHzTimebase terminal or the RTSI7 terminal. This signal is the onboard source for the Sample Clock Timebases and is one of the possible sources for the AI convert clock timebase.</td> </tr>
+ <tr><td>100kHzTimebase</td> <td>A terminal within  a device where the 100 kHz Timebase signal can be found. This signal is created by dividing the signal at the 20MHzTimebase terminal by 200 and is one of the possible sources for the Sample Clock Timebases.</td></tr> 
+
+ <tr><td>ai/ConvertClock</td> <td>A terminal within a device where the AI Convert Clock can be found.</td></tr> 
+ <tr><td>ai/ConvertClockTimebase</td>  <td>A terminal within a device where the AI Convert Clock Timebase can be found. This is the onboard clock source for the AI convert clock.</td></tr> 
+ <tr><td>ai/HoldCompleteEvent</td> <td>A terminal within a device where the AI Hold Complete Event signal can be found. </td></tr>
+ <tr><td>AI Hold Complete</td>  <td>The terminal at the I/O connector (external to the device) where the AI Hold Complete Event signal can be emitted.</td> </tr>
+ <tr><td>ai/PauseTrigger</td>  <td>A terminal within a device where the analog input pause trigger can be found.</td></tr> 
+ <tr><td>ai/SampleClockTimebase</td> <td>A terminal within a device where the AI Sample Clock Timebase can be found. This is the onboard clock source for the AI sample clock.</td> </tr>
+ <tr><td>AnalogComparisonEvent</td>  <td>A terminal within a device where the output of the analog comparison circuit, the Analog Comparison Event signal, can be found. This circuit is active whenever an analog edge or window trigger is configured.</td> </tr>
+ <tr><td>ao/PauseTrigger</td>  <td>A terminal within a device where the analog output pause trigger can be found.</td></tr> 
+ <tr><td>ao/SampleClockTimebase</td>  <td>A terminal within a device where the AO Sample Clock Timebase can be found. This is the onboard clock source for the AO sample clock.</td></tr>
+ 
+
+
+
+ <tr><td>Ctr0Out, Ctr1Out </td> <td>Terminals at the I/O connector where the output of counter 0 or counter 1 can be emitted. You also can use Ctr0Out  also as an input terminal for driving an external signal onto the RTSI bus.</td> </tr>
+ <tr><td>Ctr0Gate, Ctr1Gate</td> <td>Terminals within  a device whose purpose depends on the application.  </td></tr>
+
+<tr><td>Ctr0Source, Ctr1Source </td><td>Terminals within  a device whose purpose depends on the application. </td></tr>
+
+
+
+<tr><td>Ctr0InternalOutput, Ctr1InternalOutput </td> <td>Terminals within  a device where you can choose the pulsed or toggled output of the counters. </td></tr>
+
+<tr><td>PairedCtrInternalOutput</td> <td>An alias for one of the counter internal output terminals. For example, if you  use counter 1, PairedCtrInternalOutput refers to Ctr0InternalOutput. If you  use counter 0, PairedCtrInternalOutput refers to Ctr1InternalOutput. </td></tr>
+
+
+<tr><td>PairedCtrOutputPulse</td>  <td>A terminal within a device that chains counters together without using any external connections. If you configure counter 0, PairedCtrOutputPulse refers to the pulsed output of counter 1.  If you  configure counter 1, PairedCtrOutputPulse refers to the pulsed output of counter 0. When the counter reaches terminal count (zero when counting down, its maximum count when counting up), the output of the PairedCtrOutputPulse pulses.  By using this terminal, you can chain counters together to create a wider counter, perform buffered event counting using the other counter as your clock source, perform finite pulse-train generation, and create other custom applications.</td></tr>
+
+</table> 
+
+
+
+</body>
+</html>
