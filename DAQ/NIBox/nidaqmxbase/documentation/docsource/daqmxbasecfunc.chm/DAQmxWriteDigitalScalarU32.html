@@ -1,0 +1,89 @@
+
+<html>
+<head>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+<link rel="STYLESHEET" type="text/css" href="../daqmxbasecfunccommon/styles.css"></link>
+<title>DAQmxBaseWriteDigitalScalarU32</title>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+</head>
+<body bgcolor="#ffffff">
+<h1>DAQmxBaseWriteDigitalScalarU32</h1>
+<p class="syntax">int32 DAQmxBaseWriteDigitalScalarU32 (TaskHandle taskHandle, bool32 autoStart, float64 timeout, uInt32 value, bool32 *reserved);</p>
+<h2>Purpose</h2>
+<p class="body">Writes a single 32-bit unsigned 
+integer sample to a task that contains a single 
+digital output channel. 
+Use this format for devices with up to 32 lines per port. Useful for static digital tasks only.</p>
+<h2>Parameters</h2>
+<table class="borderless">
+<tr>
+<td>
+<em>Input</em>
+</td>
+</tr>
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>taskHandle</strong>
+</td>
+<td valign="top">TaskHandle</td>
+<td valign="top">The task to write the sample to.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>autoStart</strong>
+</td>
+<td valign="top">bool32</td>
+<td valign="top">Specifies whether or not this function automatically starts the task if you do not start it.
+This is used only for static digital tasks; otherwise set autoStart to FALSE.
+</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>timeout</strong>
+</td>
+<td valign="top">float64</td>
+<td valign="top">The amount of time, in seconds, to wait for this function to write the <strong>value</strong>. 
+This function returns an error if the timeout elapses.<br></br>
+</td>
+</tr>
+<tr>
+<td>
+<strong>value</strong>
+</td>
+<td>uInt32</td>
+<td>A 
+32-bit integer sample to write to the task.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>reserved</strong>
+</td>
+<td valign="top">
+<nobr>bool32 *</nobr>
+</td>
+<td valign="top">Reserved for future use.  Pass NULL to this parameter.</td>
+</tr>
+</table>
+<h2>Return Value</h2>
+<table class="borderless">
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>status</strong>
+</td>
+<td valign="top">int32</td>
+<td valign="top">The error code returned by the function in the event of an error or warning. A value of 0 indicates success. A positive value indicates a warning. A negative value indicates an error.</td>
+</tr>
+</table>
+</body>
+</html>
+
