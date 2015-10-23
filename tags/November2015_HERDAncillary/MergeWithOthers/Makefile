@@ -19,10 +19,6 @@ endif
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags) -fPIC
 
 ROOTDYNAMICLIBS := $(shell root-config --glibs)
-ROOTDYNAMICLIBS += -lMinuit
-
-EXTRALIBS= -ldl -lssl -lTreePlayer -lProof -lProofPlayer -lNetx -lgfortran
-EXTRALIBS += -lTMVA -lXMLIO -lMLP
 
 DECODE = ../Decode/
 DECODELIBS = -Wl,-rpath,$(DECODE) -L$(DECODE) -lEvent
