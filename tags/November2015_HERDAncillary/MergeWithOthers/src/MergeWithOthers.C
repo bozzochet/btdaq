@@ -67,11 +67,11 @@ int main(int argc, char* argv[]){
 
   TChain* t3in[3] = {ams, anc, herd};
   
-  int intvar[9999];
+  int intvar[99999];
   int indexintvar=0;
-  double doublevar[9999];
+  double doublevar[99999];
   int indexdoublevar=0;  
-  
+
   for (int tt=0; tt<3; tt++) {
     t3in[tt]->GetEntry(0);
     TObjArray* oa = t3in[tt]->GetListOfBranches();
@@ -104,15 +104,28 @@ int main(int argc, char* argv[]){
 	    EDataType expectedType;
 	    tb->GetExpectedType(expectedClass, expectedType);
 	    //	    printf("%d\n", expectedType);
+	    TObjArray* tslash = bt.Tokenize("/");
+	    // for (int ss=0; ss<tslash->GetEntries(); ss++) {
+	    //   printf("%d) %s\n", ss, ((TObjString*)(tslash->At(ss)))->GetString().Data());
+	    // }
+	    TString btnoslash = ((TObjString*)(tslash->At(0)))->GetString();
+	    //	    printf("%s\n", btnoslash.Data());
+	    TObjArray* tbracket = btnoslash.Tokenize("[]");
+	    int size=1;
+	    for (int ss=0; ss<tbracket->GetEntries(); ss++) {
+	      //	      printf("%d) %s\n", ss, ((TObjString*)(tbracket->At(ss)))->GetString().Data());
+	      if (ss!=0) size*=((TObjString*)(tbracket->At(ss)))->GetString().Atoi();
+	    }
+	    //	    printf("size: %d\n", size);
 	    if (expectedType==kInt_t) {
 	      t3in[tt]->SetBranchAddress(bn.Data(), &intvar[indexintvar]);
 	      t3out->Branch(bn.Data(), &intvar[indexintvar], bt.Data());
-	      indexintvar++;
+	      indexintvar+=size;
 	    }
 	    else if (expectedType==kDouble_t) {
 	      t3in[tt]->SetBranchAddress(bn.Data(), &doublevar[indexdoublevar]);
 	      t3out->Branch(bn.Data(), &doublevar[indexdoublevar], bt.Data());
-	      indexdoublevar++;
+	      indexdoublevar+=size;
 	    }
 	    else {
 	      printf("WARNING: Branch type %d not yet impemented...\n", expectedType);
