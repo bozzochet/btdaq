@@ -44,3 +44,6 @@ libEvent:
 clean: 
 	rm -f ./obj/*.o
 	rm -f ./MergeWithOthers
+
+cleanALL: clean
+	make -C ../Decode clean
