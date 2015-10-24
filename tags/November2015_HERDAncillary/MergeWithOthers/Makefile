@@ -16,6 +16,15 @@ else
 VERSIONP = $(VERSION)
 endif
 
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Linux)
+ADDFLAGS = -Wl,--no-as-needed
+endif
+ifeq ($(UNAME), Darwin)
+ADDFLAGS =
+endif
+
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags) -fPIC
 
 ROOTDYNAMICLIBS := $(shell root-config --glibs)
@@ -28,7 +37,7 @@ INCLUDES=-I./ -I$(ROOTSYS)/include -isystem$(ROOTSYS)/include -I$(DECODE) -isyst
 default: MergeWithOthers
 
 MergeWithOthers: ./obj/MergeWithOthers.o libEvent
-	$(CXX) $(CFLAGS) ./obj/MergeWithOthers.o -Wl,--no-as-needed $(ROOTDYNAMICLIBS) $(DECODELIBS) -o ./MergeWithOthers
+	$(CXX) $(CFLAGS) ./obj/MergeWithOthers.o $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o ./MergeWithOthers
 
 ./obj/%.o: ./src/%.C
 	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
