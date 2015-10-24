@@ -19,10 +19,10 @@ endif
 UNAME := $(shell uname)
 
 ifeq ($(UNAME), Linux)
-ADDFLAGS = -Wl,--no-as-needed
+ADDLDFLAGS = -Wl,--no-as-needed
 endif
 ifeq ($(UNAME), Darwin)
-ADDFLAGS =
+ADDLDFLAGS =
 endif
 
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags) -fPIC
