@@ -28,7 +28,7 @@ INCLUDES=-I./ -I$(ROOTSYS)/include -isystem$(ROOTSYS)/include -I$(DECODE) -isyst
 default: MergeWithOthers
 
 MergeWithOthers: ./obj/MergeWithOthers.o libEvent
-	$(CXX) $(CFLAGS) ./obj/MergeWithOthers.o $(ROOTDYNAMICLIBS) $(EXTRALIBS) $(DECODELIBS) -o ./MergeWithOthers
+	$(CXX) $(CFLAGS) ./obj/MergeWithOthers.o -Wl,--no-as-needed $(ROOTDYNAMICLIBS) $(DECODELIBS) -o ./MergeWithOthers
 
 ./obj/%.o: ./src/%.C
 	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
