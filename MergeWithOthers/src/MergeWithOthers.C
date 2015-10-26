@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <stdlib.h>
 
 #include <TFile.h>
 #include <TKey.h>
