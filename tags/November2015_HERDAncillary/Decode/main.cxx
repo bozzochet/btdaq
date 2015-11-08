@@ -58,7 +58,7 @@ int main(int argc,char** argv){
   opt->addUsage(Form("  --rawdata <path/to/dir/with/raw> ............ Directory with raw data (%s is the default)", DirRaw));
   opt->addUsage(Form("  --caldata <path/to/dir/with/cal> ............ Directory with cal data (%s is the default)", DirCal));
   opt->addUsage(Form("  --rootdata <path/to/dir/for/root> ........... Directory where to put ROOT file (%s is the default)", DirRoot));
-  opt->addUsage(     "  -c, --clusterize ............................ To perform an offline clusterization to the RAW event. (NOT YET IMPLEMENTED)");
+  opt->addUsage(     "  -c, --clusterize ............................ To perform an offline clusterization to the RAW event.");
   opt->addUsage(     "  --shighthreshold <X> ........................ S-side S/N high threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (3.5 is the default)");
   opt->addUsage(     "  --slowthreshold  <X> ........................ S-side S/N low threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (1.0 is the default)");
   opt->addUsage(     "  --khighthreshold <X> ........................ K-side S/N high threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (3.5 is the default)");

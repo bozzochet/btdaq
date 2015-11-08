@@ -11,7 +11,9 @@ LIB_OBJ=$(LIB_SOURCES:%.cxx=obj/%.o)
 
 ANYOPTION=AnyOption
 
-CFLAGS= -g -fPIC  
+ROOTDYNAMICLIBS := $(shell root-config --glibs) -lMinuit
+
+CFLAGS= -g -fPIC
 DEFINES=
 
 UNAME_S := $(shell uname -s)
@@ -32,7 +34,7 @@ libEventa.a:$(LIB_OBJ)
 	ar rv $@ $^ 
 
 Decode: $(ANYOPTION)/anyoption.o $(DEC_OBJ)
-	$(CXX) $(CFLAGS) -o$@ $^ -I$(ROOTSYS)/include -I$(ANYOPTION) `$(ROOTSYS)/bin/root-config --libs`
+	$(CXX) $(CFLAGS) -o$@ $^ -I$(ROOTSYS)/include -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
 
 obj/%.o:%.cxx 
 	@echo Compiling $< ...; 
