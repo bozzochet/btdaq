@@ -8,6 +8,7 @@
 #include "TChain.h"
 #include "TFile.h"
 #include "TROOT.h"
+#include "TF1.h"
 
 /* from the 'Decode' API */
 #include "Cluster.hh"
@@ -34,9 +35,7 @@ int main(int argc, char* argv[]) {
 
   TString filename = argv[1];
 
-  if (filename=="rootfiles/run_1416121279_ANC_374_S0.root") Event::ReadAlignment("alignment_S0.dat");
-  else if (filename=="rootfiles/run_1416121279_ANC_374_S1.root") Event::ReadAlignment("alignment_S1.dat");
-  else Event::ReadAlignment("alignment.dat");
+  Event::ReadAlignment("alignment.dat");
   
   Event *ev;
   Cluster *cl;
@@ -76,9 +75,9 @@ int main(int argc, char* argv[]) {
     residual_posK[tt] = new TH1F(Form("residual_posK_%02d", tt), Form("residual_posK_%02d", tt), 2*384, -384*Cluster::GetPitch(1), 384*Cluster::GetPitch(1));
   }
   
-  for (int index_event=7; index_event<8; index_event++) {
-    //  for (int index_event=0; index_event<entries; index_event++) {
-    printf("----- new event %d\n", index_event);
+  //  for (int index_event=405; index_event<406; index_event++) {
+  for (int index_event=0; index_event<entries; index_event++) {
+    //    printf("----- new event %d\n", index_event);
     chain->GetEntry(index_event);
     
     int NClusTot = ev->NClusTot;
@@ -86,16 +85,19 @@ int main(int argc, char* argv[]) {
     std::vector<double> v_cog_laddS[NJINF*NTDRS];
     std::vector<double> v_cog_laddK[NJINF*NTDRS];
 
-    ev->FindTrackAndFit(3, 3, false);
-    printf("%f %f %f %f %f\n", ev->GetChiBestTrack(), ev->GetThetaBestTrack(), ev->GetPhiBestTrack(), ev->GetX0BestTrack(), ev->GetY0BestTrack());
+    bool trackfitok = ev->FindTrackAndFit(2, 2, false);//at least 2 points on S, and 2 points on K, not verbose
+    //    printf("%d\n", trackfitok);
+    if (!trackfitok) continue;
+    //    printf("%f %f %f %f %f\n", ev->GetChiBestTrack(), ev->GetThetaBestTrack(), ev->GetPhiBestTrack(), ev->GetX0BestTrack(), ev->GetY0BestTrack());
     
     for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
-
+      if (!ev->IsClusterUsedInBestTrack(index_cluster)) continue;
+      
       cl = ev->GetCluster(index_cluster);
       int ladder = cl->ladder;
-
-      printf("%d --> %d\n", ladder, rh->tdrCmpMap[ladder]);
-      printf("%d --> %d\n", ladder, rh->FindPos(ladder));
+      
+      // printf("%d --> %d\n", ladder, rh->tdrCmpMap[ladder]);
+      // printf("%d --> %d\n", ladder, rh->FindPos(ladder));
       occupancy[rh->FindPos(ladder)]->Fill(cl->GetCoG());
 
       int side=cl->side;
@@ -110,7 +112,20 @@ int main(int argc, char* argv[]) {
 	v_cog_laddK[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
       }
     }
+    
+  }
 
+  for (int tt=0; tt<_maxtdr; tt++) {
+    TF1* gauss = new TF1("gauss", "gaus", -640*Cluster::GetPitch(0), 640*Cluster::GetPitch(0));
+    residual_posS[tt]->Fit("gauss", "Q", "", -640*Cluster::GetPitch(0), 640*Cluster::GetPitch(0));
+    residual_posS[tt]->Fit("gauss", "Q", "", -640*Cluster::GetPitch(0), 640*Cluster::GetPitch(0));
+    double Smean = ev->GetAlignPar(0, rh->tdrCmpMap[tt], 0) + gauss->GetParameter(1);
+    //    printf("S align par = %f\n", ev->GetAlignPar(0, rh->tdrCmpMap[tt], 0));
+    residual_posK[tt]->Fit("gauss", "Q", "", -640*Cluster::GetPitch(0), 640*Cluster::GetPitch(0));
+    residual_posK[tt]->Fit("gauss", "Q", "", -640*Cluster::GetPitch(0), 640*Cluster::GetPitch(0));
+    double Kmean = ev->GetAlignPar(0, rh->tdrCmpMap[tt], 1) + gauss->GetParameter(1);
+    //    printf("K align par = %f\n", ev->GetAlignPar(0, rh->tdrCmpMap[tt], 1));
+    printf("%d -> %d) %f %f\n", rh->tdrCmpMap[tt], tt, Smean, Kmean);
   }
 
   foutput->Write();
