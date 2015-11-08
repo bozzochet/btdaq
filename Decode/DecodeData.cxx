@@ -31,9 +31,9 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
   
   runn=run;
   ntdrRaw=0;
-  memset(tdrRaw,-1,TDRNUM*sizeof(tdrRaw[0]));
+  memset(tdrRaw,-1,NTDRS*sizeof(tdrRaw[0]));
   ntdrCmp=0;
-  memset(tdrCmp,-1,TDRNUM*sizeof(tdrCmp[0]));
+  memset(tdrCmp,-1,NTDRS*sizeof(tdrCmp[0]));
   pri=1;
   evpri=0;
   sprintf(type,"Jinf");
@@ -89,7 +89,7 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
   out_flag=1;
 
   //  // Create the ROOT Classes for the ROOT data format
-  ev = new Event(ntdrRaw);
+  ev = new Event();
 
   mysort(tdrRaw,ntdrRaw);
   mysort(tdrCmp,ntdrCmp);
@@ -203,7 +203,7 @@ void DecodeData::DumpRunHeader(){
   
   if(pri) printf("Headersize: %d\n", size);
   /* check the header size */
-  if (size!=sizeof(hh)) printf("!!!!!!!!!!!!!!!!!!! WRONG: Headersize = %zu (but sizeof(header) = %zu)\n", size, sizeof(hh));
+  if (size!=sizeof(hh)) printf("!!!!!!!!!!!!!!!!!!! WRONG: Headersize = %hu (but sizeof(header) = %zu)\n", size, sizeof(hh));
   //	ReadFile(&hh, sizeof(header), 1, rawfile);//this should be fine also
   ReadFile(&hh, size, 1, rawfile);
   
@@ -512,20 +512,14 @@ int DecodeData::ReadOneTDR(int Jinfnum){
 	}
       }
 
-      for (int cc=0; cc<1204; cc++) {
+      for (int cc=0; cc<1024; cc++) {
 	if (!kClusterize) {//otherwise the histos will be filled better with the clusters
 	  double threshold = shighthreshold;
 	  if (cc>640) threshold = khighthreshold;
 	  if (ev->SoN[tdrnumraw][cc]>threshold) {
 	    //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->rsig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc]);
 	    // printf("%04d) %f\n", cc, ev->SoN[tdrnumraw][cc]);
-	    // sleep(10);
-	    //	    hmio[numnum+100*Jinfnum]->Fill(100*(cc-570), ev->SoN[tdrnumraw][cc]);
-	    //	    if (cc==576) { // on run 1435155389 this was the worst, then even disappeared...
-	    //	    if (cc==577)  { // on run 1435189697 576 disappeared, now is 577 (one of the two should even be disconnected...) and now this is even not the worst of the ladder and neither of the S-side...
 	    hmio[numnum+100*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);
-	      //	      printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->rsig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc]);
-	      //	    }
 	  }
 	}
       }
@@ -772,7 +766,7 @@ void DecodeData::FindCalibs(){
   int run2;
   int runA;
   int runB;
-  FILE* calfile[TDRNUM];
+  FILE* calfile[NTDRS];
   int old=pri;
   bool afterclose=false;
   

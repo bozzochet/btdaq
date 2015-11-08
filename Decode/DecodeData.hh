@@ -4,9 +4,6 @@
 #include "TH1F.h"
 #include <cstdio>
 
-#define TDRNUM 24
-#define NJINF 1
-
 typedef struct calib{
   float ped[1024];
   float rsig[1024];
@@ -35,18 +32,18 @@ private:
   char rawname[300];
   char rawdir[300];
   char rawCaldir[300];
-  int Xstant;
+  //  int Xstant;
   int runn;
   int tdroffset;
-  calib cals[NJINF*TDRNUM];
+  calib cals[NJINF*NTDRS];
   int pri;
   int evpri;
   int nJinf;
   int JinfMap[NJINF];
   int ntdrRaw;
-  int tdrRaw[NJINF*TDRNUM];
+  int tdrRaw[NJINF*NTDRS];
   int ntdrCmp;
-  int tdrCmp[NJINF*TDRNUM];
+  int tdrCmp[NJINF*NTDRS];
   int out_flag;
   char type[10]; //JinF or JinJ
   void FindCalibs ();
@@ -61,7 +58,7 @@ public:
   RHClass *rh;
   
   int evenum;
-  TH1F* hmio[NJINF*TDRNUM];
+  TH1F* hmio[NJINF*NTDRS];
 
   double shighthreshold;
   double slowthreshold;
