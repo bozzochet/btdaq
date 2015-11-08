@@ -12,8 +12,6 @@
 /*!  Tracker Event class contains all the information about a Event
  */
 
-
-
 class Event: public TObject{
 
 public:
@@ -37,9 +35,6 @@ public:
   TClonesArray *Cls;
   //! (TClones) Array of the recontructed hits
 
-
-  //!number of TDRS in raw mode
-  int rawtdrnum;
   //! pointer to the data
   short int Signal[8][1024];   //8 since more than 8 raw TDRs cannot be read by a single Jinf
   float        SoN[8][1024];   //8 since more than 8 raw TDRs cannot be read by a single Jinf
@@ -48,7 +43,7 @@ public:
   
   //! Default contructor
 
-  Event(int tdrrawnum=0);
+  Event();
   //! Default destructor
   ~Event();
 
@@ -59,14 +54,51 @@ public:
   Cluster* AddCluster(int lad,int side);
   //! Get the Cluster in the postion ii of the array
   Cluster* GetCluster(int ii);
- 
+
+  static int GetNTDRS() { return NTDRS;};
+  static int GetNJINFS() { return NJINF;};  
 
   int NGoldenClus(int lad, int side);
 
+  static void ReadAlignment(TString filename);
+  static float GetAlignPar(int jinfnum, int tdrnum, int component);
 
-  ClassDef(Event,1)
+  bool FindTrackAndFit(int nptsS, int nptsK, bool verbose=false);
+  double GetThetaBestTrack() { return _theta; };
+  double GetPhiBestTrack() { return _phi; };
+  double GetX0BestTrack() { return _X0; };
+  double GetY0BestTrack() { return _Y0; };
+  double GetChiBestTrack() { return _chisq; };
+  double ExtrapolateBestTrack(double z, int component);
+  bool IsClusterUsedInBestTrack(int index_cluster);
+  
+private:
+  static bool alignmentnotread;
+  static float alignpar[NJINF][NTDRS][3];
+
+  double CombinatorialFit(
+			std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddS[NJINF][NTDRS],
+			std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddK[NJINF][NTDRS],
+			int ijinf, int itdr,
+			std::vector<std::pair<int, std::pair<double, double> > > v_cog_trackS,
+			std::vector<std::pair<int, std::pair<double, double> > > v_cog_trackK,
+			int nptsS, int nptsK, 
+			bool verbose=false
+			);
+  double SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS, std::vector<std::pair<int, std::pair<double, double> > > vK, double& theta, double& thetaerr, double& phi, double& phierr, double& x0, double& x0err, double& y0, double& y0err, bool verbose=false);
+
+private:
+  //track parameters and points
+  double _theta;//!
+  double _phi;//!
+  double _X0;//!
+  double _Y0;//!
+  std::vector<std::pair<int, std::pair<double, double> > > _v_trackS;//!
+  std::vector<std::pair<int, std::pair<double, double> > > _v_trackK;//!
+  double _chisq;//!
+  
+  ClassDef(Event,2)
 };
-
 
 //! Run Header Class
 class RHClass: public TObject{
@@ -91,7 +123,9 @@ public:
   virtual ~RHClass(){};
   //! Prints the Header infos
   void Print();
-  
+
+  int FindPos(int tdrnum);
+  int FindPosRaw(int tdrnum);
 
   ClassDef(RHClass,1)
 };
