@@ -2,9 +2,12 @@
 #define Cluster_hh
 
 #include "TObject.h"
+#include "math.h"
 
 #define MAXLENGHT 128
 #define NTDRS  24
+
+static double MIPSIG[2] = {30.0, 30.0};
 
 //!  Tracker Cluster class. 
 /*!  Tracker Cluser class contains all the information about a Cluster
@@ -86,6 +89,8 @@ public:
   //! Returns the Z position
   double GetZPosition();
 
+  double GetCharge() { return sqrt(GetTotSig())/sqrt(MIPSIG[side]); };
+  
   int GoldRegion();
 
   int GetLenght(float val=1.);

@@ -59,6 +59,7 @@ public:
   
   int evenum;
   TH1F* hmio[NJINF*NTDRS];
+  TH1F* hcharge[NJINF*NTDRS][2];
 
   double shighthreshold;
   double slowthreshold;
