@@ -2,7 +2,7 @@
 #include <sys/stat.h>
 #include "JLV1.h"
 #include "PUtil.h"
-
+#include <unistd.h>
 
 //--------------------------------------------------------------
 JLV1::JLV1(char* name,char* conf_file,int address,AMSWcom* node_in):JinjSlave(name, conf_file, address, node_in){
