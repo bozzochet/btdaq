@@ -41,7 +41,7 @@ class JinjSlave{
   char myname[20], myaction[20];
   int broadcastadd;
   int  selfaddress;
-  int timestamp, ancillary_code;
+  int timestamp;
   AMSWcom *node;
   SlaveMask mask;
   JinjSlave(char* name,char* conf_file,int address,AMSWcom* node);
