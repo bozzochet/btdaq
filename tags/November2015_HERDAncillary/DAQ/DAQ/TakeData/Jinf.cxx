@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "Jinf.h"
 #include "PUtil.h"
+#include <unistd.h>
 
 
 //--------------------------------------------------------------

@@ -478,111 +478,111 @@ int Calibrate(AMSWcom* node) {
 }
 
 int SaveCalibration(AMSWcom* node, int runnum){
-	int ret=0;
+  int ret=0;
 
-	unsigned short usize=0;//a "short" are 16 bit (2 Bytes). sizeof() return the argument's number of Bytes
-	int size_u_short=sizeof(u_short); //u_short is a typedef (I don't know in which library) to a generic unsigned short int (however sizeof(u_short) is 2!!)
+  unsigned short usize=0;//a "short" are 16 bit (2 Bytes). sizeof() return the argument's number of Bytes
+  int size_u_short=sizeof(u_short); //u_short is a typedef (I don't know in which library) to a generic unsigned short int (however sizeof(u_short) is 2!!)
 
-	unsigned short DSPCRC16=0;//Not in struct because it must be wrote after data flow
-	wholeheader Head;
+  unsigned short DSPCRC16=0;//Not in struct because it must be wrote after data flow
+  wholeheader Head;
 
-	HeaderReset(&Head,0);
+  HeaderReset(&Head,0);
 
-	Head.RUNNUMMSB=runnum>>16;
-	Head.RUNNUMLSB=runnum&0xffff;
-	Head.RUNTAGMSB=Head.RUNNUMMSB;
-	Head.RUNTAGLSB=Head.RUNNUMLSB;
+  Head.RUNNUMMSB=runnum>>16;
+  Head.RUNNUMLSB=runnum&0xffff;
+  Head.RUNTAGMSB=Head.RUNNUMMSB;
+  Head.RUNTAGLSB=Head.RUNNUMLSB;
 
-	if (WritingMode==0){
-		//AMSBlock writing file mode  
-		//----------------opening data file for writing-----------------
-		char datafilename[255];
-		sprintf(datafilename,"%s/%d_ANC_%d.dat", JJ->CPars->CALPATH, runnum);
+  if (WritingMode==0){
+    //AMSBlock writing file mode  
+    //----------------opening data file for writing-----------------
+    char datafilename[255];
+    sprintf(datafilename,"%s/%d_ANC_%d.dat", JJ->CPars->CALPATH, runnum);
 
-		struct stat buf;
+    struct stat buf;
 
-		if (stat(datafilename,&buf)==0) {
-			ret=0;
-			char reply[256];
-			PRINTF("I've found yet a file %s for Calibration number %d\n", datafilename, runnum);
-			PRINTF("You want to ovewrite it ([Y] [N])?\n");
-			scanf("%s",reply);
-			PRINTF("You reply was %s so now I ",reply);
-			if (!strcmp(reply,"Y")) {
-				PRINTF("overwrite this file\n");
-			}
-			else {
-				PRINTF("exit\n");
-				return 1;
-			}
-		}
+    if (stat(datafilename,&buf)==0) {
+      ret=0;
+      char reply[256];
+      PRINTF("I've found yet a file %s for Calibration number %d\n", datafilename, runnum);
+      PRINTF("You want to ovewrite it ([Y] [N])?\n");
+      scanf("%s",reply);
+      PRINTF("You reply was %s so now I ",reply);
+      if (!strcmp(reply,"Y")) {
+	PRINTF("overwrite this file\n");
+      }
+      else {
+	PRINTF("exit\n");
+	return 1;
+      }
+    }
 
-		FILE *datafile;
-		datafile=fopen(datafilename,"w");
-		if (datafile==NULL) {
-			PRINTF("Error: file %s could not be created, perhaps the data dir %s doesn't exist?\n",datafilename, JJ->CPars->CALPATH);
-			return 1;
-		}
+    FILE *datafile;
+    datafile=fopen(datafilename,"w");
+    if (datafile==NULL) {
+      PRINTF("Error: file %s could not be created, perhaps the data dir %s doesn't exist?\n",datafilename, JJ->CPars->CALPATH);
+      return 1;
+    }
 
-		int offset=0;
-		int tdrnum=0;
-		gettimeofday(&unixtime, NULL);
-		Head.TIMEMSB=(ushort)(unixtime.tv_sec>>16&0xffff);
-		Head.TIMELSB=(ushort) (unixtime.tv_sec&0xffff);
-		Head.JMDCTIMEMSB=(ushort)(unixtime.tv_sec>>16&0xffff);
-		Head.JMDCTIMELSB=(ushort)(unixtime.tv_sec&0xffff);
-		Head.JMDCTIMEFINEMSB=(ushort)(unixtime.tv_usec>>16&0xffff);
-		Head.JMDCTIMEFINELSB=(ushort)(unixtime.tv_usec&0xffff);
+    int offset=0;
+    int tdrnum=0;
+    gettimeofday(&unixtime, NULL);
+    Head.TIMEMSB=(ushort)(unixtime.tv_sec>>16&0xffff);
+    Head.TIMELSB=(ushort) (unixtime.tv_sec&0xffff);
+    Head.JMDCTIMEMSB=(ushort)(unixtime.tv_sec>>16&0xffff);
+    Head.JMDCTIMELSB=(ushort)(unixtime.tv_sec&0xffff);
+    Head.JMDCTIMEFINEMSB=(ushort)(unixtime.tv_usec>>16&0xffff);
+    Head.JMDCTIMEFINELSB=(ushort)(unixtime.tv_usec&0xffff);
 
-		int DSPNT=Head.DSPRRRWNODETYPE;
+    int DSPNT=Head.DSPRRRWNODETYPE;
 
-		for (int ii=0;ii<NSLAVE;ii++) {
-			if((JJ->CPars->refmask&(1<<ii)) && strstr(JJ->CPars->SlaveConfFile[ii],"JINF")) {
-				int addr=ii<<8|0x3f;//cause GenAddress this is useless...
-				Jinf* firstjinf=(Jinf*)(JJ->GetSlavePointer(ii));
-				for (int jj=0;jj<NTDRS;jj++){
-					if(firstjinf->CPars->refmask&(1<<jj)) {
-						int address=firstjinf->GenAddress(jj);
-						PRINTF("Getting calibration from address %08x \n",address);//only for debug
-						usize=node->GetCalibration(address,0xef);
-						Head.DSPSIZE=usize*2+4;
-						Head.SIZE=(ushort)(8+2+Head.JMDCSIZE+2+Head.DSPSIZE);
+    for (int ii=0;ii<NSLAVE;ii++) {
+      if((JJ->CPars->refmask&(1<<ii)) && strstr(JJ->CPars->SlaveConfFile[ii],"JINF")) {
+	int addr=ii<<8|0x3f;//cause GenAddress this is useless...
+	Jinf* firstjinf=(Jinf*)(JJ->GetSlavePointer(ii));
+	for (int jj=0;jj<NTDRS;jj++){
+	  if(firstjinf->CPars->refmask&(1<<jj)) {
+	    int address=firstjinf->GenAddress(jj);
+	    PRINTF("Getting calibration from address %08x \n",address);//only for debug
+	    usize=node->GetCalibration(address,0xef);
+	    Head.DSPSIZE=usize*2+4;
+	    Head.SIZE=(ushort)(8+2+Head.JMDCSIZE+2+Head.DSPSIZE);
 
-						offset=0;
-						if(ii==1) offset=450;
-						PRINTF("Offset = %d \n",offset);//only for debug
+	    offset=0;
+	    if(ii==1) offset=450;
+	    PRINTF("Offset = %d \n",offset);//only for debug
 
-						Head.EVTNUMMSB=tdrnum>>16;//	EVTNUM is the sequence number of TDR'request
-						Head.EVTNUMMSB=tdrnum&0xffff;//	EVTNUM is the sequence number of TDR'request
+	    Head.EVTNUMMSB=tdrnum>>16;//	EVTNUM is the sequence number of TDR'request
+	    Head.EVTNUMMSB=tdrnum&0xffff;//	EVTNUM is the sequence number of TDR'request
 
-						PRINTF("EVTNUM = %d \n",tdrnum);//only for debug					
-						tdrnum++;
-						Head.DSPRRRWNODETYPE=DSPNT+((offset+jj)<<5); //come node deve avere il numero del tdr + un offset (cioè tipo da 450 a 473...)
+	    PRINTF("EVTNUM = %d \n",tdrnum);//only for debug					
+	    tdrnum++;
+	    Head.DSPRRRWNODETYPE=DSPNT+((offset+jj)<<5); //come node deve avere il numero del tdr + un offset (cioè tipo da 450 a 473...)
 
-						fwrite(&(Head.SIZE), sizeof(Head), 1, datafile);
-						fwrite(node->Event,usize*size_u_short, 1, datafile);
-						fwrite(&DSPCRC16, sizeof(DSPCRC16), 1, datafile);
-					}
-				}
-			}
-		}
-
-		fclose(datafile);
-
-		PRINTF("Calibration %d saved in %s\n", runnum, datafilename);
+	    fwrite(&(Head.SIZE), sizeof(Head), 1, datafile);
+	    fwrite(node->Event,usize*size_u_short, 1, datafile);
+	    fwrite(&DSPCRC16, sizeof(DSPCRC16), 1, datafile);
+	  }
 	}
-
-	else if(WritingMode==1){
-		for (int ii=0;ii<NSLAVE;ii++) {
-			if((JJ->CPars->refmask&(1<<ii)) && strstr(JJ->CPars->SlaveConfFile[ii],"JINF")) {
-				int addr=ii<<8|0x3f;//cause GenAddress this is useless...
-				Jinf* jinf=(Jinf*)(JJ->GetSlavePointer(ii));
-				jinf->SaveCalibrations(runnum, JJ->SlaveAdd[ii]);
-			}
-		}
-	}
-
-	return ret;
+      }
+    }
+    
+    fclose(datafile);
+    
+    PRINTF("Calibration %d saved in %s\n", runnum, datafilename);
+  }
+  
+  else if(WritingMode==1){
+    for (int ii=0;ii<NSLAVE;ii++) {
+      if((JJ->CPars->refmask&(1<<ii)) && strstr(JJ->CPars->SlaveConfFile[ii],"JINF")) {
+	int addr=ii<<8|0x3f;//cause GenAddress this is useless...
+	Jinf* jinf=(Jinf*)(JJ->GetSlavePointer(ii));
+	jinf->SaveCalibrations(runnum, JJ->SlaveAdd[ii]);
+      }
+    }
+  }
+  
+  return ret;
 }
 
 int EventReset(AMSWcom *node) {
@@ -652,6 +652,7 @@ void PrintNumbers(int dum) {
 
 //=========================================================================================================
 int StartRun(AMSWcom *node, int nevents, int fake) {
+  
   int ret = 0, runnum = time(NULL);
   
   for (int ii=0; ii < JJ->NSlave; ii++) {
@@ -660,27 +661,73 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
     snprintf(slave->myaction, 20, "data");
   }
   
-  if(trig->TriggerOff()) return 1;
-  TESTRXDONE(node);
-  
+  int ancillary_code;
+  FILE *stream;
   ancillary_code = 0;
   char buffer[512], *pointer;
   /* reading ancillary codes */
-  printf("readed: %s\n", CPars->CONFPATH);
-  if ((stream = fopen(CPars->CONFPATH, "r"))) {
+  printf("readed: %s\n", JJ->CPars->CONFPATH);
+  if ((stream = fopen(JJ->CPars->CONFPATH, "r"))) {
     while ((fgets(buffer, 512, stream))) {
       if ((pointer = strchr(buffer, '='))) {
 	*pointer = '\0';
 	pointer++;
 	if (strstr(buffer, "data"))
-	  data_ancillary = atoi(pointer);
+	  ancillary_code = atoi(pointer);
       }
     }
     fclose(stream);
-    printf("[>>> Ancillary] DATA code %d\n", data_ancillary);
+    printf("[>>> Ancillary] DATA code %d\n", ancillary_code);
   }
   else
     printf("404 - Ancillary's configuration file missing\n");
+  
+  if(trig->TriggerOff()) return 1;
+  TESTRXDONE(node);
+  
+  if (!nevents) nevents=-1;
+  
+  ControlOn=1;//if 1 we take data (we're in loop), when becames != 1 (e.g. 0) the system exit from the loop
+  
+  signal(SIGTERM,StopRun);//killing the PID of the process we call the function StopRun that stop the taking of data in the right way (the param send to StopRun is SIGTERM itself and we need that StopRun accepts a param even if cannot use it)
+  signal(SIGINT,StopRun);// sending 'CTRL_C' the program exits in the right way 
+  signal(SIGQUIT,PrintNumbers);//sending 'CTRL \' we print the numbers of taken events
+  
+  
+  unsigned short usize=0;//a "short" are 16 bit (2 Bytes). sizeof() returns argument's number of Bytes
+  int size_u_short=sizeof(u_short); //u_short is a typedef (I don't know in which library) to a generic unsigned short int (however sizeof(u_short) is 2!!)
+  
+  //----------------opening data file for writing-----------------
+  char datafilename[255];
+  
+  sprintf(datafilename,"%s/%d_ANC_%d.dat", JJ->CPars->DATAPATH, runnum, ancillary_code);
+  
+  struct stat buf;
+  
+  if (stat(datafilename,&buf)==0) {
+    ret=0;
+    char reply[256];
+    PRINTF("I've found yet a file %s for Run number %d\n", datafilename, runnum);
+    PRINTF("You want to ovewrite it ([Y] [N])?\n");
+    scanf("%s",reply);
+    PRINTF("You reply was %s so now I ",reply);
+    if (!strcmp(reply,"Y")) {
+      PRINTF("overwrite this file\n");
+    }
+    else {
+      PRINTF("exit\n");
+      return 1;
+    }
+  }
+  
+  FILE *datafile;
+  if (daq) {
+    datafile=fopen(datafilename,"wt");
+    if (datafile==NULL) {
+      PRINTF("Error: file %s could not be created, perhaps the data dir %s doesn't exist?\n",datafilename, JJ->CPars->DATAPATH);
+      return 1;
+    }
+  }
   
   //----------------------preparing headers--------------------------------
   wholeheader Head;//AMSBlock writing used
@@ -838,10 +885,10 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
   SLPRINTF("RUN %d [%d events]\n", runnum, evtcnt);
   PRINTF("There were %d errors during run.\n",errcnt);
   unlink("./TakeJPCI.pid");
-
-  FILE *stream;
+  
+  ancillary_code++;
   //if ((stream = fopen(CPars->CONFPATH, "w"))) {
-  //	fprintf(stream, "[INDEXES]\ndata=%d\n", data_ancillary);
+  //	fprintf(stream, "[INDEXES]\ndata=%d\n", ancillary_code);
   //	fclose(stream);
   //}
   
