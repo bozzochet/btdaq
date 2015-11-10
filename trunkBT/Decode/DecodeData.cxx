@@ -520,6 +520,7 @@ int DecodeData::ReadOneTDR(int Jinfnum){
 	    //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->rsig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc]);
 	    // printf("%04d) %f\n", cc, ev->SoN[tdrnumraw][cc]);
 	    hmio[numnum+100*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);
+	    // hcharge not filled in this case...
 	  }
 	}
       }
@@ -586,6 +587,7 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   Cluster* pp= ev->AddCluster(numnum+100*Jinfnum,sid);
   calib* cal=&(cals[numnum+100*Jinfnum]);
   hmio[numnum+100*Jinfnum]->Fill(clusadd);
+  hcharge[numnum+100*Jinfnum][sid]->Fill(pp->GetCharge());
   pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
 	    &(cal->status[clusadd]),Sig2NoiStatus, CNStatus, PowBits, bad);
   if(pri) pp->Print();

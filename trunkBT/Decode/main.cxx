@@ -190,9 +190,12 @@ int main(int argc,char** argv){
   TCanvas *canvas;
   char title[255], local_pdf_filename[255];
   for (int hh=0;hh<NTDRS;hh++){
-    sprintf(name,"lad%d",hh);
+    sprintf(name,"occ%d",hh);
     dd1->hmio[hh]= new TH1F(name,name,1024,0,1024);
-    
+    sprintf(name,"qS%d",hh);
+    dd1->hcharge[hh][0]= new TH1F(name,name,1000,0,100);
+    sprintf(name,"qK%d",hh);
+    dd1->hcharge[hh][1]= new TH1F(name,name,1000,0,100);    
   }
   
   TTree* t4= new TTree("t4","My cluster tree");
