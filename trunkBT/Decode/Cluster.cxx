@@ -1,6 +1,9 @@
 #include "Cluster.hh"
+
 #include <cmath>
 #include <string.h>
+
+#include "Event.hh"
 
 ClassImp(Cluster);
 
@@ -180,6 +183,17 @@ float Cluster::GetCoG(){
   float ee=GetEtaRaw();
   if(ee<0) return address+se;
   else return address+ee;
+}
+
+double Cluster::GetAlignedPosition(){
+  double align_shift = Event::GetAlignPar(GetJinf(), GetTDR(), side);
+  double channel_shift = 0;
+  if (side==1) channel_shift = 640;
+  return (GetCoG()-channel_shift)*GetPitch(side)-align_shift;
+}
+
+double Cluster::GetZPosition(){
+  return Event::GetAlignPar(GetJinf(), GetTDR(), 2);
 }
 
 float Cluster::GetSeedVal(){

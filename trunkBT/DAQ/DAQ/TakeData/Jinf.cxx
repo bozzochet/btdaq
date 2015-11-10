@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "Jinf.h"
 #include "PUtil.h"
+#include <unistd.h>
 
 
 //--------------------------------------------------------------
@@ -455,8 +456,7 @@ int Jinf::SaveCalibrationOneTDR(unsigned int tdr_number, char *calfileprefix) {
 	
   char calfilename[255], linkfilename[255];
 	
-  sprintf(calfilename,"%s%02d_ANC_%d.cal", calfileprefix, tdr_number, ancillary_code);
-  sprintf(linkfilename, "%s%02d.cal", calfileprefix, tdr_number);
+  sprintf(calfilename, "%s%02d.cal", calfileprefix, tdr_number);
   
   int addr=GenAddress(tdr_number);
   
@@ -506,10 +506,7 @@ int Jinf::SaveCalibrationOneTDR(unsigned int tdr_number, char *calfileprefix) {
   }
   fclose(calfil); 
   PRINTF("Calibration file %s saved\n",calfilename);
-  PRINTF("Calibration file %s linked\n", (calfilename+strlen(CPars->CALPATH)+1));
-  char linkcommand[1024];
-  sprintf(linkcommand, "ln -s %s %s", (calfilename+strlen(CPars->CALPATH)+1), linkfilename);
-  system(linkcommand);
+  //  PRINTF("Calibration file %s linked\n", (calfilename+strlen(CPars->CALPATH)+1));
   
   return ret;
 }

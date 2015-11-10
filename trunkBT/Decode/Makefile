@@ -11,7 +11,9 @@ LIB_OBJ=$(LIB_SOURCES:%.cxx=obj/%.o)
 
 ANYOPTION=AnyOption
 
-CFLAGS= -g -fPIC  
+ROOTDYNAMICLIBS := $(shell root-config --glibs) -lMinuit
+
+CFLAGS= -g -fPIC
 DEFINES=
 
 UNAME_S := $(shell uname -s)
@@ -23,16 +25,16 @@ endif
 
 all: Decode lib
 
-lib: libEvent.so
+lib: libEvent.so libEventa.a
 
 libEvent.so:$(LIB_OBJ)
 	$(CXX) $(CFLAGS) $(DEFINES) $(SOFLAGS) -o $@ $^ 
 
-libEvent.a:$(LIB_OBJ)
-	$(CXX) $(CFLAGS) $(DEFINES) -o $@ $^ 
+libEventa.a:$(LIB_OBJ)
+	ar rv $@ $^ 
 
 Decode: $(ANYOPTION)/anyoption.o $(DEC_OBJ)
-	$(CXX) $(CFLAGS) -o$@ $^ -I$(ROOTSYS)/include -I$(ANYOPTION) `$(ROOTSYS)/bin/root-config --libs`
+	$(CXX) $(CFLAGS) -o$@ $^ -I$(ROOTSYS)/include -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
 
 obj/%.o:%.cxx 
 	@echo Compiling $< ...; 
@@ -47,6 +49,6 @@ rootElibdict.cxx: $(CLASSES) LinkDef.h
 	rootcint -f $@  -c -p $(CFLAGS) $(DEFINES) $^
 
 clean:
-	@rm -fv libEvent.a libEvent.so Decode rootElibdict.cxx rootElibdict.h obj/*.o 
+	@rm -fv libEventa.a libEvent.so Decode rootElibdict.cxx rootElibdict.h obj/*.o 
 	@rm -frv obj
 	make -C $(ANYOPTION) clean

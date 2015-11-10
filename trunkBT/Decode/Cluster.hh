@@ -1,12 +1,16 @@
 #ifndef Cluster_hh
 #define Cluster_hh
+
 #include "TObject.h"
+
 #define MAXLENGHT 128
 #define NTDRS  24
 
 //!  Tracker Cluster class. 
 /*!  Tracker Cluser class contains all the information about a Cluster
  */
+
+//class Event;//forward declaration
 
 class Cluster :public TObject{
 
@@ -24,7 +28,7 @@ public:
   float Noise[MAXLENGHT];
   //! Vector of the status of the cluster strips
   int Status[MAXLENGHT];
-  //! Ladder (0-1 upstream, 2-5 downstream)
+  //! Ladder (trdnum + 100*jinfnum)
   int ladder;
   //! side (0=S, 1=K)
   int side; //0 S / 1 K
@@ -39,7 +43,9 @@ public:
   // Power bits
   int powbits;
 
-
+  static double GetPitch(int side){ return (side==0)?0.104:0.208; };//104mum and 208mum
+  static double GetNominalResolution(int side){ return (side==0)?0.01:0.03; };//10mum and 30mum
+  
   //! std constructor (create an empty cluster)
   Cluster();
   //! copy constructor 
@@ -74,12 +80,19 @@ public:
   float GetEtaRaw();
   //! printout the cluster infos
   void Print();
+
+  //! Returns the position of the cluster (Cog), in mm units and after alignment
+  double GetAlignedPosition();
+  //! Returns the Z position
+  double GetZPosition();
+
   int GoldRegion();
-
-
 
   int GetLenght(float val=1.);
 
+  int GetTDR() { return ladder%100;};
+  int GetJinf() { return (int)(ladder/100);};
+  
   ClassDef(Cluster,2)
 };
 
