@@ -1,54 +1,62 @@
+CXX := `$(ROOTSYS)/bin/root-config --cxx`
+MARCH := `$(ROOTSYS)/bin/root-config --arch`
+LD:=$(CXX)
 
-CLASSES=   Cluster.hh Event.hh 
+OBJ=./obj/
+SRC=./src/
+INC=./include/
 
-DEC_SOURCES=  DecodeData.cxx    main.cxx  rootElibdict.cxx 
-DEC_SOURCES+= $(CLASSES:%.hh=%.cxx)
-DEC_OBJ=$(DEC_SOURCES:%.cxx=obj/%.o)
+#CFLAGS:= -g -Wno-deprecated
+CFLAGS:= -O3 -Wno-deprecated
 
-LIB_SOURCES =    rootElibdict.cxx
-LIB_SOURCES += $(CLASSES:%.hh=%.cxx)
-LIB_OBJ=$(LIB_SOURCES:%.cxx=obj/%.o)
-
-VIE_SOURCES = viewer.cxx
-VIE_OBJ=$(VIE_SOURCES:%.cxx=obj/%.o)
-
-
-CFLAGS= -g -fPIC  
-DEFINES=
-
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Darwin)
-	SOFLAGS = -dynamic -shared -dynamiclib -undefined dynamic_lookup
+VERSION      := $(shell $(ROOTSYS)/bin/root-config --version | cut -b1-4)
+ifeq ($(VERSION),5.27)
+VERSIONP=
 else
-        SOFLAGS = -shared
+VERSIONP = $(VERSION)
 endif
 
-all: Decode lib
+UNAME := $(shell uname)
 
-lib:  libEvent.so
+ifeq ($(UNAME), Linux)
+ADDLDFLAGS = -Wl,--no-as-needed
+endif
+ifeq ($(UNAME), Darwin)
+ADDLDFLAGS =
+endif
 
-libEvent.so:$(LIB_OBJ)
-	$(CXX) $(CFLAGS) $(DEFINES) $(SOFLAGS) -o $@ $^ 
+CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags) -fPIC
 
-libEvent.a:$(LIB_OBJ)
-	$(CXX) $(CFLAGS) $(DEFINES) -o $@ $^ 
+ROOTDYNAMICLIBS := $(shell root-config --glibs) -lMinuit
 
-Decode: $(DEC_OBJ)
-	$(CXX) $(CFLAGS) -o$@ $^  `$(ROOTSYS)/bin/root-config --libs`
+DECODE = ../Decode/
+DECODELIBS = -Wl,-rpath,$(DECODE) -L$(DECODE) -lEvent
 
-Viewer: $(VIE_OBJ)
-	$(CXX) $(CFLAGS)  -o$@ $^  `$(ROOTSYS)/bin/root-config --libs`
+INCLUDES=-I./ -I$(ROOTSYS)/include -isystem$(ROOTSYS)/include -I$(DECODE) -isystem$(DECODE)
 
+default: Align
 
-obj/%.o:%.cxx 
-	@echo Compiling $< ...; 
-	@ if ! [ -d ./obj ] ; then  mkdir -p obj; fi
-	@$(CXX) $(CFLAGS) $(DEFINES) -c -Wall $< -o$@  -I$(ROOTSYS)/include
+Viewer: ./obj/viewer.o
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) -o$@ 
 
-rootElibdict.cxx: $(CLASSES) LinkDef.h
-	@echo Creating ROOT dictionary
-	rootcint -f $@  -c -p $(CFLAGS) $(DEFINES) $^
+Align: ./obj/Align.o libEvent
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@ 
 
-clean:
-	@rm -fv libEvent.a libEvent.so Decode CalDecode  rootElibdict.cxx rootElibdict.h obj/*.o 
-	@rm -frv obj
+./obj/%.o: ./src/%.C
+	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
+	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+./obj/%.o: ./src/%.cxx
+	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
+	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+libEvent:
+	make -C $(DECODE)
+
+clean: 
+	rm -f ./obj/*.o
+	rm -f ./Viewer
+	rm -f ./Align
+
+cleanALL: clean
+	make -C ../Decode clean
