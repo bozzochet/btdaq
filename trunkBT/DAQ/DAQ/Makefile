@@ -5,7 +5,7 @@ TOP= ./
 
 ROOTCFLAGS    = $(shell root-config --cflags)
 ROOTLIBS      = $(shell root-config --libs)
-ROOTGLIBS     = $(shell root-config --glibs)
+ROOTGLIBS     = $(shell root-config --libs)
 
 LIBSOURCES= $(TOP)PeCpIp/amswcom.cxx $(TOP)SlowControl/QList.cxx $(TOP)amsw/amsw_lib.cxx
 LIBINCLUDE= -I$(ROOTSYS)/include -I $(TOP)PeCpIp/ -I  $(TOP)SlowControl/ -I $(TOP)amsw/
@@ -38,7 +38,7 @@ TESTpci: $(TOP)/Tests/test.o $(TOP)lib/libamswire.a
 
 TakeJPCI: $(OBJECTS)  $(TOP)lib/libamswire.a
 	@echo Linking $@ ...
-	$(CXX) $(CFLAGS)  $(CPPFLAGS) -o $@ $(OBJECTS) -L$(TOP)lib/ -lamswire `root-config --libs`
+	$(CXX) $(CFLAGS)  $(CPPFLAGS) -o $@ $(OBJECTS) -L$(TOP)lib/ -lamswire $(ROOTLIBS)
 	@echo "------ for using through EPP and without Jinf (it depends on the program's name) ------"
 	rm -f ./TakeJEPP
 	ln -s ./$@ ./TakeJEPP
@@ -49,9 +49,11 @@ TakeJPCI: $(OBJECTS)  $(TOP)lib/libamswire.a
 	@echo "---------------------------------------------------------------------------------------"
 	@echo
 
-SUMMARY: $(TOP)/TakeData/summary.o  $(TOP)lib/libamswire.a
+#SUMMARY: $(TOP)/TakeData/summary.o  $(TOP)lib/libamswire.a
+SUMMARY: $(TOP)/TakeData/summary.o
 	@echo Linking $@ ...
-	$(CXX) $(CFLAGS) $(ROOTCFLAGS) $(CPPFLAGS) -o $@ $(TOP)/TakeData/summary.o -L$(TOP)lib/ -lamswire $(ROOTLIBS)
+#	$(CXX) $(CFLAGS) $(ROOTCFLAGS) $(CPPFLAGS) -o $@ $(TOP)/TakeData/summary.o -L$(TOP)lib/ -lamswire $(ROOTLIBS)
+	$(CXX) $(CFLAGS) $(ROOTCFLAGS) $(CPPFLAGS) -o $@ $(TOP)/TakeData/summary.o $(ROOTLIBS)
 
 %.o : %.cxx
 	@echo Compiling $< ...
