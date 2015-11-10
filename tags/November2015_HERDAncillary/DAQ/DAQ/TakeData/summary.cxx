@@ -40,88 +40,88 @@ ConfPars::ConfPars() {
 ConfPars* CPars;
 
 void ShowHelp(char *cmd);
-void RefMask(ConfPars *CPars, int run_number, int ancillary, int jinfnum, char *nameprefixin);
-Int_t Summary(char *dir, int run_number, int ancillary, int jinfnum, int tdr_number, char *nameprefixin, char *nameout, char *outkind);
+void RefMask(ConfPars *CPars, int run_number, int jinfnum, char *nameprefixin);
+Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, char *nameprefixin, char *nameout, char *outkind);
 Int_t Summary(char *filename, char *nameout, char *outkind);
-int SummaryComplete(char *dir, int run_number, int ancillary, int jinfnum, char *outkind, char *nameprefix);
+int SummaryComplete(char *dir, int run_number, int jinfnum, char *outkind, char *nameprefix);
 
 //--------------------------------------------------------------------------------------------
 //                              Here comes the main...
 //-------------------------------------------------------------------------------------------
-int main(int argv, char **argc) {
-	int ret=0;
+int main(int argc, char **argv) {
+  
+  int ret=0;
 
-	CPars= new ConfPars();
-	//-------------------------------------------------
-	//              COMMANDS
-	//-------------------------------------------------
-	if (argv<2) {
-		ret=1;
-		printf("Too few arguments: %s <run #><ancillary # (-1 for null)>	[type of file](everything for pdf, \"ps\" for PostScript)        \n                   [name prefix](default is \"\")			[dir](default is \"./Calibrations\")\n",argc[0]);
-	}
-	else if (argv==3) {
-		for (int ii=0;ii<NJINF;ii++) {
-			RefMask(CPars, atoi(argc[1]), atoi(argc[2]), ii, "");
-			ret=SummaryComplete(CPars->CALPATH, atoi(argc[1]), atoi(argc[2]), ii, "pdf", "");
-		}
-	}
-	if (argv>3) {
-		char type[255];
-		sprintf(type,"pdf");
-		if (!strcmp(argc[3],"ps"))
-			sprintf(type,"ps");
-		if (argv==4) {
-			for (int ii=0;ii<NJINF;ii++) {
-				RefMask(CPars,atoi(argc[1]), atoi(argc[2]), ii, "");
-				ret=SummaryComplete(CPars->CALPATH, atoi(argc[1]), atoi(argc[2]), ii, type, "");
-			}
-		}
-		else if (argv==5) {
-			for (int ii=0;ii<NJINF;ii++) {
-				RefMask(CPars,atoi(argc[1]), atoi(argc[2]), ii, argc[4]);
-				ret=SummaryComplete(CPars->CALPATH, atoi(argc[1]), atoi(argc[2]), ii, type, argc[4]);
-			}
-		}
-		else if (argv>5) {
-			sprintf(CPars->CALPATH,"%s/",argc[5]);
-			for (int ii=0;ii<NJINF;ii++) {
-				RefMask(CPars,atoi(argc[1]), atoi(argc[2]), ii, argc[3]);
-				ret=SummaryComplete(CPars->CALPATH, atoi(argc[1]), atoi(argc[2]), ii, type, argc[4]);
-			}
-		}
-	}
+  CPars= new ConfPars();
+  //-------------------------------------------------
+  //              COMMANDS
+  //-------------------------------------------------
+  if (argc<2) {
+    ret=1;
+    printf("Too few arguments: %s <run #> [type of file](everything for pdf, \"ps\" for PostScript)\n", argv[0]);
+    printf("                              [name prefix](default is \"\")\n");
+    printf("                              [dir](default is \"./Calibrations\")\n");
+  }
+  else if (argc==2) {
+    for (int ii=0;ii<NJINF;ii++) {
+      RefMask(CPars, atoi(argv[1]), ii, "");
+      ret=SummaryComplete(CPars->CALPATH, atoi(argv[1]), ii, "pdf", "");
+    }
+  }
+  if (argc>2) {
+    char type[255];
+    sprintf(type,"pdf");
+    if (!strcmp(argv[2],"ps"))
+      sprintf(type,"ps");
+    if (argc==3) {
+      for (int ii=0;ii<NJINF;ii++) {
+	RefMask(CPars,atoi(argv[1]), ii, "");
+	ret=SummaryComplete(CPars->CALPATH, atoi(argv[1]), ii, type, "");
+      }
+    }
+    else if (argc==4) {
+      for (int ii=0;ii<NJINF;ii++) {
+	RefMask(CPars,atoi(argv[1]), ii, argv[3]);
+	ret=SummaryComplete(CPars->CALPATH, atoi(argv[1]), ii, type, argv[3]);
+      }
+    }
+    else if (argc>4) {
+      sprintf(CPars->CALPATH,"%s/",argv[4]);
+      for (int ii=0;ii<NJINF;ii++) {
+	RefMask(CPars,atoi(argv[1]), ii, argv[3]);
+	ret=SummaryComplete(CPars->CALPATH, atoi(argv[1]), ii, type, argv[3]);
+      }
+    }
+  }
 
-	printf("%s\n",(ret)?"ERROR":"READY");
+  printf("%s\n",(ret)?"ERROR":"READY");
 
-	delete CPars;
-	return 0;
+  delete CPars;
+  return 0;
 }
 
-void RefMask(ConfPars *CPars, int run_number, int ancillary, int jinfnum, char *nameprefixin) {
-	CPars->refmask=0; 
-	char calfileprefix[255];
-	char prefix[255];
-	sprintf(prefix,"%s",nameprefixin);
-	if (prefix[0]!=0) sprintf(prefix,"%s_",prefix);
-	sprintf(calfileprefix,"%s/%s%06d", CPars->CALPATH, prefix, run_number);
-
-	char calfilename[255];
-
-	for (int ii=0;ii<24;ii++) {
-		if (ancillary < 0)
-			sprintf(calfilename,"%s_%02d%02d.cal", calfileprefix, jinfnum, ii);
-		else
-			sprintf(calfilename,"%s_%02d%02d_ANC_%d.cal", calfileprefix, jinfnum, ii, ancillary);
-		struct stat buf;
-		if (stat(calfilename,&buf)==0) {
-			CPars->refmask=CPars->refmask|1<<ii;
-			printf("I,ve found %s for TDR number %d\n", calfilename,ii);
-		}
-	}
-
+void RefMask(ConfPars *CPars, int run_number, int jinfnum, char *nameprefixin) {
+  CPars->refmask=0; 
+  char calfileprefix[255];
+  char prefix[255];
+  sprintf(prefix,"%s",nameprefixin);
+  if (prefix[0]!=0) sprintf(prefix,"%s_",prefix);
+  sprintf(calfileprefix,"%s/%s%06d", CPars->CALPATH, prefix, run_number);
+  
+  char calfilename[255];
+  
+  for (int ii=0;ii<24;ii++) {
+    sprintf(calfilename,"%s_%02d%02d.cal", calfileprefix, jinfnum, ii);
+    struct stat buf;
+    if (stat(calfilename,&buf)==0) {
+      CPars->refmask=CPars->refmask|1<<ii;
+      printf("I,ve found %s for TDR number %d\n", calfilename,ii);
+    }
+  }
+  return;
 }
 
-int SummaryComplete(char *dir, int run_number, int ancillary, int jinfnum, char *outkind, char *nameprefix) {
+int SummaryComplete(char *dir, int run_number, int jinfnum, char *outkind, char *nameprefix) {
 	int ret=0;
 	int lasttdr=0;
 	int tdrcount=0;
@@ -134,10 +134,7 @@ int SummaryComplete(char *dir, int run_number, int ancillary, int jinfnum, char 
 
 	if (nameprefix[0]!=0) sprintf(nameprefixtemp,"summary-%s_",nameprefix);
 	else sprintf(nameprefixtemp,"summary-%s",nameprefix);	
-	if (ancillary < 0)
-		sprintf(calfileprefix,"%s/%s%02d_%06d", dir, nameprefixtemp, jinfnum, run_number);
-	else
-		sprintf(calfileprefix,"%s/%s%02d_%06d_ANC_%d", dir, nameprefixtemp, jinfnum, run_number, ancillary);
+	sprintf(calfileprefix,"%s/%s%02d_%06d", dir, nameprefixtemp, jinfnum, run_number);
 	printf("%s\n", calfileprefix);
 	sprintf(nameout,"%s.cal.%s", calfileprefix, outkind);
 
@@ -168,7 +165,7 @@ int SummaryComplete(char *dir, int run_number, int ancillary, int jinfnum, char 
 				sprintf(nameouttemp,"%s",nameout);
 				printf("n-th TDR (# %d)...\n",ii);
 			}
-			ret=Summary(dir, run_number, ancillary, jinfnum, ii, nameprefix, nameouttemp, outkind);
+			ret=Summary(dir, run_number, jinfnum, ii, nameprefix, nameouttemp, outkind);
 		}
 	}
 	struct stat buff;
@@ -176,7 +173,7 @@ int SummaryComplete(char *dir, int run_number, int ancillary, int jinfnum, char 
 	return ret;
 }
 
-Int_t Summary(char *dir, int run_number, int ancillary, int jinfnum, int tdr_number, char *nameprefixin, char *nameout, char *outkind) {
+Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, char *nameprefixin, char *nameout, char *outkind) {
 	int ret=0;
 
 	char calfileprefix[255];
@@ -186,12 +183,9 @@ Int_t Summary(char *dir, int run_number, int ancillary, int jinfnum, int tdr_num
 	if (nameprefixin[0]!=0) sprintf(nameprefixintemp,"%s_",nameprefixin);
 	else sprintf(nameprefixintemp,"%s",nameprefixin);
 	sprintf(calfileprefix,"%s/%s%06d", dir, nameprefixintemp, run_number);
-	if (ancillary < 0)
-		sprintf(filename,"%s_%02d%02d.cal", calfileprefix,jinfnum, tdr_number);
-	else
-		sprintf(filename, "%s_%02d%02d_ANC_%d.cal", calfileprefix, jinfnum, tdr_number, ancillary);
+	sprintf(filename,"%s_%02d%02d.cal", calfileprefix,jinfnum, tdr_number);
 	ret=Summary(filename, nameout, outkind);
-
+	
 	return ret;
 }
 
