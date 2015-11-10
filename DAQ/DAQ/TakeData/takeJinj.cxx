@@ -497,7 +497,7 @@ int SaveCalibration(AMSWcom* node, int runnum){
     //AMSBlock writing file mode  
     //----------------opening data file for writing-----------------
     char datafilename[255];
-    sprintf(datafilename,"%s/%d_ANC_%d.dat", JJ->CPars->CALPATH, runnum);
+    sprintf(datafilename,"%s/%d.dat", JJ->CPars->CALPATH, runnum);
 
     struct stat buf;
 
@@ -699,8 +699,13 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
   
   //----------------opening data file for writing-----------------
   char datafilename[255];
-  
-  sprintf(datafilename,"%s/%d_ANC_%d.dat", JJ->CPars->DATAPATH, runnum, ancillary_code);
+
+  if (ancillary_code<0) {
+    sprintf(datafilename,"%s/%d.dat", JJ->CPars->DATAPATH, runnum);
+  }
+  else {
+    sprintf(datafilename,"%s/%d_ANC_%d.dat", JJ->CPars->DATAPATH, runnum, ancillary_code);
+  }
   
   struct stat buf;
   
@@ -873,6 +878,7 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
   }
   
   if(daq) fclose(datafile);
+  
   JJ->GetEventNumber();
   PrintAllEventNumber(evtcnt, sumsize);//only for debug
   if(daq){ 
@@ -891,6 +897,14 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
   //	fprintf(stream, "[INDEXES]\ndata=%d\n", ancillary_code);
   //	fclose(stream);
   //}
+
+  //10 November 2015 - trick to add the stoptime to the file name...
+  char newfilename[255];
+  int stoptime = time(NULL);
+  sprintf(newfilename,"%s/%d_ANC_%d.dat", JJ->CPars->DATAPATH, runnum, stoptime);
+  char systemcommand[255];
+  sprintf(systemcommand, "cp -v %s %s", datafilename, newfilename);
+  system(systemcommand);
   
   /* lets syncrhonize everything */
   //	system("./synchronize.sh");
