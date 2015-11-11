@@ -829,8 +829,8 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
       sumsize+=usize;
       //  PRINTF("Counted %d events\n",evtcnt);//only for debug
       int JStatus=node->Event[usize-1];
-      //			if (JStatus!=0x140 || JStatus!=340){//0x140 //Matteo duranti 30Mar2011 messo anche 340 che viene se un TDR del crate ha problemi e il JINx sputa fuori di rimando l'errore
-      if (JStatus!=0x140){
+      if (!(JStatus==0x140 || JStatus==0x340)) {//Matteo duranti 20May2015 to hide the error coming from one TDR
+	//      if (JStatus!=0x140){
 	PRINTF(" JINJ Error %04hx  Event %d\n", JStatus, evtcnt);
 	PrintAllEventNumber(evtcnt, sumsize);
 	sumsize=0;
