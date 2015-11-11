@@ -1,55 +1,138 @@
-Wed 20-Oct-2010 12:03:03: >>LOG: Initalizing processes....
-Wed 20-Oct-2010 12:03:03: >>DSP: Creating a ladder
-Wed 20-Oct-2010 12:03:03: >>DSP: TDR001
-Wed 20-Oct-2010 12:03:06: >>CTL: Reading Run info from Ladder directory - 74 runs found
-Wed 20-Oct-2010 12:03:06: >>CTL: Ladder TDR001 created
-Wed 20-Oct-2010 12:03:06: >>CTL: Control is alive
-Wed 20-Oct-2010 12:03:06: >>CTL: RUN is alive
-Wed 20-Oct-2010 12:03:06: >>DSP: Last calibration loaded
-Wed 20-Oct-2010 12:03:06: >>CTL: DSP is alive
-Wed 20-Oct-2010 12:03:06: >>CTL: LOG is alive
-Wed 20-Oct-2010 12:03:29: >>CTL: Start Run 00075   Source:    DataMode: Raw Data            
-Wed 20-Oct-2010 12:03:29: >>RUN: creating the AMSW object...
-Wed 20-Oct-2010 12:03:29: >>RUN: Jinf object created
-Wed 20-Oct-2010 12:03:29: >>RUN: Please wait... JINF/TDRs initialization
-Wed 20-Oct-2010 12:03:29: >>RUN: Booting TDR (address 0xffff) with program 0x3a73
-Wed 20-Oct-2010 12:03:38: >>RUN: rxdone=0140
-Wed 20-Oct-2010 12:03:42: >>RUN: JINF/TDRs initialization done
-Wed 20-Oct-2010 12:03:42: >>RUN: Hardware reset sent
-Wed 20-Oct-2010 12:03:46: >>RUN: epp rxdone=0140
-Wed 20-Oct-2010 12:04:04: >>RUN: Please wait... JINF/TDRs initialization
-Wed 20-Oct-2010 12:04:04: >>RUN: Booting TDR (address 0xffff) with program 0x3a73
-Wed 20-Oct-2010 12:04:09: >>RUN: rxdone=4080
-Wed 20-Oct-2010 12:04:09: >>RUN: JINF/TDRs initialization done
-Wed 20-Oct-2010 12:04:09: >>RUN: Hardware reset sent
-Wed 20-Oct-2010 12:04:21: >>RUN: Please wait... JINF/TDRs initialization
-Wed 20-Oct-2010 12:04:21: >>RUN: Booting TDR (address 0xffff) with program 0x3a83
-Wed 20-Oct-2010 12:04:26: >>RUN: rxdone=4180
-Wed 20-Oct-2010 12:04:26: >>RUN: JINF/TDRs initialization done
-Wed 20-Oct-2010 12:04:26: >>RUN: Hardware reset sent
-Wed 20-Oct-2010 12:04:30: >>CTL: Start Run 00076   Source:    DataMode: Raw Data            
-Wed 20-Oct-2010 12:04:52: >>CTL: Start Run 00077   Source:    DataMode: Raw Data            
-Wed 20-Oct-2010 12:04:52: >>DSP: Opened output file: /home/testsys/data/testsys/TDR001/TDR001_00077.ascii
-Wed 20-Oct-2010 12:04:57: >>DSP: Closed output file: /home/testsys/data/testsys/TDR001/TDR001_00077.ascii
-Wed 20-Oct-2010 12:05:02: >>CTL: Start Run 00078   Source:    DataMode: Raw Data            
-Wed 20-Oct-2010 12:05:02: >>DSP: Opened output file: /home/testsys/data/testsys/TDR001/TDR001_00078.binary
-Wed 20-Oct-2010 12:05:25: >>DSP: Closed output file: /home/testsys/data/testsys/TDR001/TDR001_00078.binary
-Wed 20-Oct-2010 12:08:01: >>CTL: Start Run 00079   Source:    DataMode: Raw Data            
-Wed 20-Oct-2010 12:08:01: >>DSP: Opened output file: /home/testsys/data/testsys/TDR001/TDR001_00079.ascii
-Wed 20-Oct-2010 12:08:28: >>DSP: Closed output file: /home/testsys/data/testsys/TDR001/TDR001_00079.ascii
-Wed 20-Oct-2010 12:08:32: >>CTL: Start Run 00080   Source:    DataMode: Raw Data            
-Wed 20-Oct-2010 12:08:32: >>DSP: Opened output file: /home/testsys/data/testsys/TDR001/TDR001_00080.binary
-Wed 20-Oct-2010 12:08:59: >>DSP: Closed output file: /home/testsys/data/testsys/TDR001/TDR001_00080.binary
-Wed 20-Oct-2010 12:09:38: >>CTL: Start Run 00081   Source:    DataMode: Raw Data            
-Wed 20-Oct-2010 12:10:08: >>CTL: Starting Pedestal Calibration
-Wed 20-Oct-2010 12:10:09: >>CTL:    >>> Pass: 0 - Pedestal and Sigma Estimation:  1024 events
-Wed 20-Oct-2010 12:10:09: >>CTL: Start Run 00082   Source:    DataMode: Pedestal Calibration
-Wed 20-Oct-2010 12:10:11: >>CTL:    >>> Pass: 1 - Pedestal computation:  1024 events
-Wed 20-Oct-2010 12:10:14: >>CTL:    >>> Pass: 2 - Sigma Raw computation:  1024 events
-Wed 20-Oct-2010 12:10:16: >>CTL:    >>> Pass: 3 - Sigma computation:  2048 events
-Wed 20-Oct-2010 12:10:21: >>CTL:    >>> Pass: 4 - Common Noise Width computation:  1024 events
-Wed 20-Oct-2010 12:10:23: >>CTL: Pedestal Calibration Finished
-Wed 20-Oct-2010 12:10:23: >>CTL: Run 82 finished after 6144 events
-Wed 20-Oct-2010 12:10:30: >>CTL: Start Run 00083   Source:    DataMode: Raw Data            
-Wed 20-Oct-2010 12:18:05: >>DSP: Finisihing DSP ... Goodbye
-Wed 20-Oct-2010 12:18:05: >>RUN: Finisihing RUN ... Goodbye
+Sat 20-Jun-2015 09:23:43: >>LOG: Initalizing processes....
+Sat 20-Jun-2015 09:23:43: >>DSP: Creating a ladder
+Sat 20-Jun-2015 09:23:43: >>DSP: TDR000
+Sat 20-Jun-2015 09:23:46: >>CTL: Reading Run info from Ladder directory - 2 runs found
+Sat 20-Jun-2015 09:23:46: >>CTL: Ladder TDR000 created
+Sat 20-Jun-2015 09:23:46: >>CTL: Control is alive
+Sat 20-Jun-2015 09:23:46: >>CTL: RUN is alive
+Sat 20-Jun-2015 09:23:46: >>CTL: DSP is alive
+Sat 20-Jun-2015 09:23:46: >>CTL: LOG is alive
+Sat 20-Jun-2015 09:24:03: >>CTL: Start Run 00003   Source: JINF    DataMode: Raw Data            
+Sat 20-Jun-2015 09:24:03: >>RUN: creating the AMSW object...
+Sat 20-Jun-2015 09:24:03: >>RUN: Jinf object created
+Sat 20-Jun-2015 09:24:03: >>RUN: Please wait... JINF/TDRs initialization
+Sat 20-Jun-2015 09:24:03: >>RUN: Booting JINF...
+Sat 20-Jun-2015 09:24:10: >>RUN: Booting TDRs...
+Sat 20-Jun-2015 09:24:17: >>RUN: JINF/TDRs initialization done
+Sat 20-Jun-2015 09:24:17: >>RUN: Hardware reset sent
+Sat 20-Jun-2015 09:24:26: >>CTL: l13ao026
+Sat 20-Jun-2015 09:24:26: >>DSP: Creating a ladder
+Sat 20-Jun-2015 09:24:26: >>DSP: l13ao026
+Sat 20-Jun-2015 09:24:26: >>RUN: Reference TDR set to 1
+Sat 20-Jun-2015 09:24:26: >>CTL: Reading Run info from Ladder directory - 2 runs found
+Sat 20-Jun-2015 09:24:26: >>CTL: Ladder l13ao026 created
+Sat 20-Jun-2015 09:24:26: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 09:24:27: >>CTL: l13ao071
+Sat 20-Jun-2015 09:24:27: >>DSP: Creating a ladder
+Sat 20-Jun-2015 09:24:27: >>DSP: l13ao071
+Sat 20-Jun-2015 09:24:27: >>CTL: Reading Run info from Ladder directory - 2 runs found
+Sat 20-Jun-2015 09:24:27: >>CTL: Ladder l13ao071 created
+Sat 20-Jun-2015 09:24:27: >>RUN: Reference TDR set to 0
+Sat 20-Jun-2015 09:24:27: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 09:24:30: >>CTL: l13ao026
+Sat 20-Jun-2015 09:24:30: >>DSP: Creating a ladder
+Sat 20-Jun-2015 09:24:30: >>DSP: l13ao026
+Sat 20-Jun-2015 09:24:30: >>CTL: Reading Run info from Ladder directory - 2 runs found
+Sat 20-Jun-2015 09:24:30: >>CTL: Ladder l13ao026 created
+Sat 20-Jun-2015 09:24:30: >>RUN: Reference TDR set to 1
+Sat 20-Jun-2015 09:24:30: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 09:24:32: >>CTL: l12ao105
+Sat 20-Jun-2015 09:24:32: >>DSP: Creating a ladder
+Sat 20-Jun-2015 09:24:32: >>DSP: l12ao105
+Sat 20-Jun-2015 09:24:32: >>RUN: Reference TDR set to 4
+Sat 20-Jun-2015 09:24:32: >>CTL: Reading Run info from Ladder directory - 0 runs found
+Sat 20-Jun-2015 09:24:32: >>CTL: Ladder l12ao105 created
+Sat 20-Jun-2015 09:24:35: >>CTL: l09gi011
+Sat 20-Jun-2015 09:24:35: >>DSP: Creating a ladder
+Sat 20-Jun-2015 09:24:35: >>DSP: l09gi011
+Sat 20-Jun-2015 09:24:35: >>RUN: Reference TDR set to 5
+Sat 20-Jun-2015 09:24:35: >>CTL: Reading Run info from Ladder directory - 2 runs found
+Sat 20-Jun-2015 09:24:35: >>CTL: Ladder l09gi011 created
+Sat 20-Jun-2015 09:24:35: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 09:24:37: >>CTL: l13ao071
+Sat 20-Jun-2015 09:24:37: >>DSP: Creating a ladder
+Sat 20-Jun-2015 09:24:37: >>DSP: l13ao071
+Sat 20-Jun-2015 09:24:37: >>CTL: Reading Run info from Ladder directory - 2 runs found
+Sat 20-Jun-2015 09:24:37: >>CTL: Ladder l13ao071 created
+Sat 20-Jun-2015 09:24:37: >>RUN: Reference TDR set to 0
+Sat 20-Jun-2015 09:24:37: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 09:27:54: >>CTL: l13ao026
+Sat 20-Jun-2015 09:27:54: >>DSP: Creating a ladder
+Sat 20-Jun-2015 09:27:54: >>RUN: Reference TDR set to 1
+Sat 20-Jun-2015 09:27:54: >>DSP: l13ao026
+Sat 20-Jun-2015 09:27:54: >>CTL: Reading Run info from Ladder directory - 2 runs found
+Sat 20-Jun-2015 09:27:54: >>CTL: Ladder l13ao026 created
+Sat 20-Jun-2015 09:27:54: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 09:30:32: >>CTL: Starting Pedestal Calibration
+Sat 20-Jun-2015 09:30:32: >>CTL:    >>> Pass: 0 - Pedestal and Sigma Estimation:  1024 events
+Sat 20-Jun-2015 09:30:32: >>CTL: Start Run 00003   Source: JINF    DataMode: Pedestal Calibration
+Sat 20-Jun-2015 09:31:05: >>CTL:    >>> Pass: 1 - Pedestal computation:  1024 events
+Sat 20-Jun-2015 09:31:41: >>CTL:    >>> Pass: 2 - Sigma Raw computation:  1024 events
+Sat 20-Jun-2015 09:32:17: >>CTL:    >>> Pass: 3 - Sigma computation:  2048 events
+Sat 20-Jun-2015 09:33:27: >>CTL: l13ao071
+Sat 20-Jun-2015 09:33:27: >>DSP: Creating a ladder
+Sat 20-Jun-2015 09:33:27: >>DSP: l13ao071
+Sat 20-Jun-2015 09:33:27: >>CTL: Reading Run info from Ladder directory - 2 runs found
+Sat 20-Jun-2015 09:33:27: >>CTL: Ladder l13ao071 created
+Sat 20-Jun-2015 09:33:27: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 09:33:27: >>RUN: Reference TDR set to 0
+Sat 20-Jun-2015 09:33:29: >>CTL:    >>> Pass: 4 - Common Noise Width computation:  1024 events
+Sat 20-Jun-2015 09:33:33: >>CTL: l13ao026
+Sat 20-Jun-2015 09:33:33: >>DSP: Creating a ladder
+Sat 20-Jun-2015 09:33:33: >>DSP: l13ao026
+Sat 20-Jun-2015 09:33:33: >>CTL: Reading Run info from Ladder directory - 3 runs found
+Sat 20-Jun-2015 09:33:33: >>CTL: Ladder l13ao026 created
+Sat 20-Jun-2015 09:33:33: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 09:33:33: >>RUN: Reference TDR set to 1
+Sat 20-Jun-2015 09:34:05: >>CTL: Pedestal Calibration Finished
+Sat 20-Jun-2015 09:34:05: >>CTL: Full Calibration finished
+Sat 20-Jun-2015 09:34:36: >>CTL: Start Run 00004   Source: JINF    DataMode: Raw Data            
+Sat 20-Jun-2015 09:34:50: >>CTL: l13ao071
+Sat 20-Jun-2015 09:34:50: >>DSP: Creating a ladder
+Sat 20-Jun-2015 09:34:50: >>RUN: Reference TDR set to 0
+Sat 20-Jun-2015 09:34:50: >>DSP: l13ao071
+Sat 20-Jun-2015 09:34:50: >>CTL: Reading Run info from Ladder directory - 2 runs found
+Sat 20-Jun-2015 09:34:50: >>CTL: Ladder l13ao071 created
+Sat 20-Jun-2015 09:34:50: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 09:34:57: >>CTL: l13ao026
+Sat 20-Jun-2015 09:34:57: >>DSP: Creating a ladder
+Sat 20-Jun-2015 09:34:57: >>DSP: l13ao026
+Sat 20-Jun-2015 09:34:57: >>CTL: Reading Run info from Ladder directory - 4 runs found
+Sat 20-Jun-2015 09:34:57: >>CTL: Ladder l13ao026 created
+Sat 20-Jun-2015 09:34:57: >>RUN: Reference TDR set to 1
+Sat 20-Jun-2015 09:34:57: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 09:35:35: >>CTL: Start Run 00005   Source: JINF    DataMode: Data Reduction      
+Sat 20-Jun-2015 10:24:04: >>CTL: Start Run 00006   Source: JINF    DataMode: Data Reduction      
+Sat 20-Jun-2015 10:24:26: >>CTL: Start Run 00007   Source: JINF    DataMode: Raw Data            
+Sat 20-Jun-2015 10:31:34: >>CTL: Start Run 00008   Source: JINF    DataMode: Data Reduction      
+Sat 20-Jun-2015 10:32:32: >>CTL: l13ao071
+Sat 20-Jun-2015 10:32:32: >>DSP: Creating a ladder
+Sat 20-Jun-2015 10:32:32: >>DSP: l13ao071
+Sat 20-Jun-2015 10:32:32: >>CTL: Reading Run info from Ladder directory - 2 runs found
+Sat 20-Jun-2015 10:32:32: >>CTL: Ladder l13ao071 created
+Sat 20-Jun-2015 10:32:32: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 10:32:46: >>CTL: Start Run 00003   Source: JINF    DataMode: Data Reduction      
+Sat 20-Jun-2015 10:33:08: >>CTL: l13ao026
+Sat 20-Jun-2015 10:33:08: >>DSP: Creating a ladder
+Sat 20-Jun-2015 10:33:08: >>DSP: l13ao026
+Sat 20-Jun-2015 10:33:08: >>CTL: Reading Run info from Ladder directory - 9 runs found
+Sat 20-Jun-2015 10:33:08: >>CTL: Ladder l13ao026 created
+Sat 20-Jun-2015 10:33:08: >>DSP: Reference calibration loaded
+Sat 20-Jun-2015 10:33:08: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 10:33:08: >>RUN: Reference TDR set to 1
+Sat 20-Jun-2015 10:33:18: >>CTL: l13ao071
+Sat 20-Jun-2015 10:33:18: >>DSP: Creating a ladder
+Sat 20-Jun-2015 10:33:18: >>DSP: l13ao071
+Sat 20-Jun-2015 10:33:18: >>CTL: Reading Run info from Ladder directory - 2 runs found
+Sat 20-Jun-2015 10:33:18: >>CTL: Ladder l13ao071 created
+Sat 20-Jun-2015 10:33:18: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 10:33:18: >>RUN: Reference TDR set to 0
+Sat 20-Jun-2015 10:33:24: >>CTL: l13ao026
+Sat 20-Jun-2015 10:33:24: >>DSP: Creating a ladder
+Sat 20-Jun-2015 10:33:24: >>DSP: l13ao026
+Sat 20-Jun-2015 10:33:24: >>CTL: Reading Run info from Ladder directory - 9 runs found
+Sat 20-Jun-2015 10:33:24: >>CTL: Ladder l13ao026 created
+Sat 20-Jun-2015 10:33:24: >>DSP: Reference calibration loaded
+Sat 20-Jun-2015 10:33:24: >>DSP: Last calibration loaded
+Sat 20-Jun-2015 10:33:24: >>RUN: Reference TDR set to 1
+Sat 20-Jun-2015 10:34:15: >>DSP: Finisihing DSP ... Goodbye

@@ -572,6 +572,7 @@ void MainFrame::ProcessComboBox(Long_t parm1, Long_t parm2){
     break;
   case kCB_HISTOS_REMAIN:
     fRemain=parm2;
+    //    printf("********************* %d\n", fRemain);
     UpdateMainFrame();
     break;
   default:
