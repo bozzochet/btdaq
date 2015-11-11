@@ -91,6 +91,14 @@ void Event::Clear(){
   //     Cluster* ff=(Cluster*) Cls->RemoveAt(ii);
   //     if(ff) delete ff;
   //   }
+
+  _theta = -9999.9;
+  _phi = -9999.9;
+  _X0 = -9999.9;
+  _Y0 = -9999.9;
+  _v_trackS.clear();
+  _v_trackK.clear();
+  _chisq = 999999999.9;
   
   return;
 }
@@ -197,6 +205,14 @@ float Event::GetAlignPar(int jinfnum, int tdrnum, int component) {
 }
 
 bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
+
+  _theta = -9999.9;
+  _phi = -9999.9;
+  _X0 = -9999.9;
+  _Y0 = -9999.9;
+  _v_trackS.clear();
+  _v_trackK.clear();
+  _chisq = 999999999.9;
   
   std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddS[NJINF][NTDRS];
   std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddK[NJINF][NTDRS];
