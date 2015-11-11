@@ -660,6 +660,7 @@ void MainFrame::SelectHisto(){
   fSHf62 = new TGComboBox(fSub2,kCB_HISTOS_REMAIN);
   fSHf62->AddEntry("1", 1); fSHf62->AddEntry("10", 10);
   fSHf62->AddEntry("20", 20); fSHf62->AddEntry("50", 50);
+  fSHf62->AddEntry("200", 200); fSHf62->AddEntry("500", 500);
   fSHf62->Select(1);
   fSHf62->Resize(50,fSHf61->GetDefaultHeight());
   fSHf62->Associate(this);

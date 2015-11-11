@@ -78,7 +78,7 @@ private:
 #define HISMAX  40
   TH1F *fh[HISMAX]; Axis_t fAxis[HISMAX][1026];
 
-#define SCOPECOPYMAX 60
+#define SCOPECOPYMAX 500
 #define MAXTYP 4
 
   TH1F *fhh[MAXTYP][SCOPECOPYMAX];
