@@ -1,5 +1,6 @@
 #!/bin/bash
 
+DATADIR=$1
 current_directory=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd $current_directory
 #echo $current_directory
@@ -22,8 +23,8 @@ do
     do
 #	echo $i;
 #	echo ${i:0:10}
-	echo ./Decode ${i:0:10} -c --cworkaround 1 --rootdata /data/bt_dampe_jun2015/RootData_$SUFFIX/ --rawdata Data_$SUFFIX --caldata Calibrations_$SUFFIX/
-	./Decode ${i:0:10} -c --cworkaround 1 --rootdata /data/bt_dampe_jun2015/RootData_$SUFFIX/ --rawdata Data_$SUFFIX --caldata Calibrations_$SUFFIX/
+	echo ./Decode ${i:0:10} -c --cworkaround 1 --rootdata ${DATADIR}/RootData_$SUFFIX/ --rawdata Data_$SUFFIX --caldata Calibrations_$SUFFIX/
+	./Decode ${i:0:10} -c --cworkaround 1 --rootdata ${DATADIR}/RootData_$SUFFIX/ --rawdata Data_$SUFFIX --caldata Calibrations_$SUFFIX/
     done
     
     cp FILELIST_$SUFFIX.txt FILELIST_$SUFFIX.old.txt
