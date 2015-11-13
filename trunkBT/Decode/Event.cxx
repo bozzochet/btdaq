@@ -149,14 +149,13 @@ void Event::ReadAlignment(TString filename){
     return;
   }
   else {
-    while(!feof(ft)){
+    while(1){
       if (fgets(line, dimline, ft)!=NULL) {
-	//	printf("%s\n", line);
 	if (*line == '#') continue; /* ignore comment line */
 	else {
 	  sscanf(line, "%d\t%d\t%f\t%f\t%f", &jinfnum, &tdrnum, &dummy, &dummy, &dummy);
 	  if (jinfnum<NJINF && tdrnum<NTDRS) {
-	    sscanf(line, "%d\t%d\t%f\t%f\t%f", &jinfnum, &tdrnum, &alignpar[jinfnum][tdrnum][0], &alignpar[jinfnum][tdrnum][1], &alignpar[jinfnum][tdrnum][2]);
+	    sscanf(line,"%d\t%d\t%f\t%f\t%f", &jinfnum, &tdrnum, &alignpar[jinfnum][tdrnum][0], &alignpar[jinfnum][tdrnum][1], &alignpar[jinfnum][tdrnum][2]);
 	  }
 	  else {
 	    printf("Wrong JINF/TDR (%d, %d): maximum is (%d,%d)\n", jinfnum, tdrnum, NJINF, NTDRS);
@@ -164,12 +163,13 @@ void Event::ReadAlignment(TString filename){
 	}
       }
       else {
-	fclose(ft);
+	printf(" closing alignment file \n");
+	  fclose(ft);
+	  break;
       }
     }
   }
 
-  fclose(ft);
   
   for (int jj=0; jj<NJINF; jj++) {
     for (int tt=0; tt<NTDRS; tt++) {
