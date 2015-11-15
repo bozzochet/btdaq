@@ -3,6 +3,9 @@
 #include "TMinuit.h"
 #include "TH1F.h"
 #include "TMath.h"
+#include <iostream>
+
+using namespace std;
 
 ClassImp(Event);
 
@@ -54,6 +57,8 @@ Event::Event(){
   _v_trackS.clear();
   _v_trackK.clear();
   _chisq = 999999999.9;
+  _track_cluster_pattern[0]=0;
+  _track_cluster_pattern[1]=0;
   
   return;
 }
@@ -217,13 +222,14 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
   std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddS[NJINF][NTDRS];
   std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddK[NJINF][NTDRS];
   
+
   for (int index_cluster = 0; index_cluster < NClusTot; index_cluster++) {
     
     Cluster* current_cluster = GetCluster(index_cluster);
     
     int jinfnum = current_cluster->GetJinf();
     int tdrnum = current_cluster->GetTDR();
-    
+
     int side=current_cluster->side;
     if (side==0) {
       v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
@@ -232,6 +238,7 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
       v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
     }
   }
+
 
   int totmult=1.0;
   for (int jj=0; jj<NJINF; jj++) {
@@ -257,6 +264,8 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
   if (cc>=999999999.9) ret =false;
   else if (cc<-0.000000001) ret = false;
   else ret = true;
+
+  this->StoreTrackClusterPatterns();
   
   return ret;
 }
@@ -485,6 +494,42 @@ bool Event::IsClusterUsedInBestTrack(int index_cluster){
   return false;
 }
 
+void Event::StoreTrackClusterPatterns(){
+
+
+  std::vector<std::pair<int, std::pair<double, double> > > _v_track_tmp;
+  _v_track_tmp.clear();
+  for (int i_side=0; i_side<2; i_side++){
+    if(i_side==0) _v_track_tmp = _v_trackS;
+    else if(i_side==1) _v_track_tmp = _v_trackK;
+    _track_cluster_pattern[i_side]=0;
+    for (int ii=0; ii<(int)(_v_track_tmp.size()); ii++){
+      int index_cluster=_v_track_tmp.at(ii).first;
+      Cluster *cl=GetCluster(index_cluster);
+      int tdrnum=cl->GetTDR();
+      //printf("TDR %d , %d cluster (%d) in track\n", tdrnum, index_cluster, i_side);
+      int tdr_index=0;
+      if(tdrnum==0)
+	tdr_index=1;
+      else     if(tdrnum==4)
+	tdr_index=10;
+      else     if(tdrnum==8)
+	tdr_index=100;
+      else     if(tdrnum==12)
+	tdr_index=1000;
+      else     if(tdrnum==14)
+	tdr_index=10000;
+      //      printf("TDR %d %d\n", tdrnum,i_side);
+      _track_cluster_pattern[i_side] +=  tdr_index;
+    }
+    //cout<<" _track_cluster_pattern["<<i_side<<"] \t "<< _track_cluster_pattern[i_side]<<endl;
+  }
+  
+
+
+}
+
+
 //-------------------------------------------------------------------------------------
 
 
@@ -557,3 +602,5 @@ int RHClass::FindPosRaw(int tdrnum){
     if(tdrRawMap[ii]==tdrnum)  return ii;
   return -1;
 }
+
+

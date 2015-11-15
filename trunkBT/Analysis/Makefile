@@ -27,12 +27,13 @@ endif
 
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags) -fPIC
 
-ROOTDYNAMICLIBS := $(shell root-config --glibs) -lMinuit
+ROOTDYNAMICLIBS := $(shell root-config --glibs) -lMinuit -lSpectrum
+ROOTINC := $(shell root-config --incdir)
 
 DECODE = ../Decode/
 DECODELIBS = -Wl,-rpath,$(DECODE) -L$(DECODE) -lEvent
 
-INCLUDES=-I./ -I$(ROOTSYS)/include -isystem$(ROOTSYS)/include -I$(DECODE) -isystem$(DECODE)
+INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE)
 
 default: Align
 
