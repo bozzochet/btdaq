@@ -71,6 +71,8 @@ public:
   double GetChiBestTrack() { return _chisq; };
   double ExtrapolateBestTrack(double z, int component);
   bool IsClusterUsedInBestTrack(int index_cluster);
+  void StoreTrackClusterPatterns();
+  inline int GetTrackHitPattern(int side){ return _track_cluster_pattern[side];};
   
 private:
   static bool alignmentnotread;
@@ -96,8 +98,9 @@ private:
   std::vector<std::pair<int, std::pair<double, double> > > _v_trackS;//!
   std::vector<std::pair<int, std::pair<double, double> > > _v_trackK;//!
   double _chisq;//!
+  int _track_cluster_pattern[2];//!
   
-  ClassDef(Event,2)
+  ClassDef(Event,3)
 };
 
 //! Run Header Class
