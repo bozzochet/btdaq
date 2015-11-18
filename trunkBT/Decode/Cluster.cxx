@@ -73,10 +73,7 @@ int Cluster::GetSeed(){
   float max=-1000;
   int seed=-1;
   for (int ii=0;ii<length;ii++){
-    if (Signal[ii]/Noise[ii]>=max&&Status[ii]==0
-	&&!(ladder==5&&(ii+address)==380)
-	&&!(ladder==5&&(ii+address)==381)
-	){
+    if (Signal[ii]/Noise[ii]>=max&&Status[ii]==0){
       max=Signal[ii]/Noise[ii];
       seed=ii;
     }
@@ -106,8 +103,7 @@ float Cluster::GetCSignal(int aa){
   return  Signal[aa];
 }
 
-
-
+//why not simply 'return lenght'?
 int Cluster::GetLenght(float val){
   int se=GetSeed();
   int myle=1;
@@ -117,8 +113,7 @@ int Cluster::GetLenght(float val){
   for (int ii=se+1;ii<length;ii++)
     if(GetCSignal(ii)/Noise[ii]>val) myle++;
     else break;
-  return myle;
-  
+  return myle;  
 }
 
 
@@ -137,8 +132,7 @@ float Cluster::GetTotNoise(){
 }
 
 
-
-float Cluster::GetTotSig(){
+float Cluster::GetSig(){
   int se=GetSeed();
   int se_r=se+1;
   int se_l=se-1;
@@ -150,6 +144,15 @@ float Cluster::GetTotSig(){
   else val_r=0;
   if(val_l>val_r) return val_l+GetCSignal(se);
   else return val_r+GetCSignal(se);
+}
+
+
+float Cluster::GetTotSig(){
+  float val=0;
+  for (int ii=0; ii<length; ii++) {
+    val += GetCSignal(ii);
+  }
+  return val;
 }
 
 
