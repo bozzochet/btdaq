@@ -73,6 +73,8 @@ public:
   int   GetLength();
   //! Calculate the CoG of the cluster using 2 strips
   float GetCoG();
+  //! Returns the Total Signal of the cluster using 2 strips
+  float GetSig();
   //! Returns the Total Signal of the cluster
   float GetTotSig();
   //! Return the Cluster SN
