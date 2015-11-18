@@ -7,7 +7,7 @@
 #define MAXLENGHT 128
 #define NTDRS  24
 
-static double MIPSIG[2] = {30.0, 30.0};
+static double MIPSIG[2] = {35.0, 35.0};
 
 //!  Tracker Cluster class. 
 /*!  Tracker Cluser class contains all the information about a Cluster
