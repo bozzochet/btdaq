@@ -225,7 +225,7 @@ int main(int argc,char** argv){
       for (int cc=0; cc<(dd1->ev)->NClusTot; cc++) {
 	Cluster* cl = (dd1->ev)->GetCluster(cc);
 	if (cl->side==1) { //interesting only for K side (better resolution)
-	  double charge = sqrt(cl->GetTotSig())/sqrt(35.0);
+	  double charge = cl->GetCharge();
 	  if (charge>chaK[cl->ladder]) {
 	    chaK[cl->ladder]=charge;
 	  }
