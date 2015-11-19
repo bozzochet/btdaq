@@ -101,6 +101,12 @@ int main(int argc, char* argv[]) {
   TH1F* hY0 = new TH1F("hY0", "hY0", 1000, -100, 100);
   TH1F* hchi = new TH1F("hchi", "hchi", 1000, -5, 10);
 
+  TH1F* hclusSladd = new TH1F("hclusSladd", "hclusSladd;Ladder;Clusters", 24, 0, 24);
+  TH1F* hclusSladdtrack = new TH1F("hclusSladdtrack", "hclusSladdtrack;Ladder;Clusters", 24, 0, 24);
+  TH1F* hclusKladd = new TH1F("hclusKladd", "hclusKladd;Ladder;Clusters", 24, 0, 24);
+  TH1F* hclusKladdtrack = new TH1F("hclusKladdtrack", "hclusKladdtrack;Ladder;Clusters", 24, 0, 24);
+  TH1F* hclus = new TH1F("hclus", "hclus;Clusters", 1000, 0, 1000);
+
   PRINTDEBUG;
   
   //  for (int index_event=405; index_event<406; index_event++) {
@@ -116,54 +122,64 @@ int main(int argc, char* argv[]) {
 
     std::vector<double> v_cog_laddS[NJINF*NTDRS];
     std::vector<double> v_cog_laddK[NJINF*NTDRS];
+    std::vector<double> v_cog_all_laddS[NJINF*NTDRS];
+    std::vector<double> v_cog_all_laddK[NJINF*NTDRS];
 
     bool trackfitok = ev->FindTrackAndFit(3, 3, false);//at least 2 points on S, and 2 points on K, not verbose
 
     //    printf("%d\n", trackfitok);
     if (!trackfitok) continue;
     //    printf("%f %f %f %f %f\n", ev->GetChiBestTrack(), ev->GetThetaBestTrack(), ev->GetPhiBestTrack(), ev->GetX0BestTrack(), ev->GetY0BestTrack());
-    /* 
-       cout<<" Tracker Pattern "<<ev->GetTrackHitPattern(0)
-	<<" \t "<<ev->GetTrackHitPattern(1)
-	<<endl;
-    */
-    if(ev->GetTrackHitPattern(1) != 111) continue;
-    //
+    //                              321098765432109876543210
+    if(ev->GetTrackHitPattern(0) !=                100010001) continue;
+    if(ev->GetTrackHitPattern(1) !=                100010001) continue;
 
-    htheta->Fill(ev->GetThetaBestTrack()/180.0*TMath::Pi());
-    htphi->Fill(ev->GetPhiBestTrack()/180.0*TMath::Pi());
+    htheta->Fill(ev->GetThetaBestTrack()*180.0/TMath::Pi());
+    htphi->Fill(ev->GetPhiBestTrack()*180.0/TMath::Pi());
     hX0->Fill(ev->GetX0BestTrack());
     hY0->Fill(ev->GetY0BestTrack());
     hchi->Fill(log10(ev->GetChiBestTrack()));
-    bool makeme_exit=false;
-    for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
-      if (!ev->IsClusterUsedInBestTrack(index_cluster)) continue;
-      
-      cl = ev->GetCluster(index_cluster);
 
+    hclus->Fill(NClusTot);
+    
+    for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
+	
+      cl = ev->GetCluster(index_cluster);
+      
       int ladder = cl->ladder;
+      //      printf("%d --> %d\n", ladder, rh->FindPos(ladder));
       occupancy[rh->FindPos(ladder)]->Fill(cl->GetCoG());
       int side=cl->side;
-
-      if( (side==1) && (cl->GetTDR()== 12 || cl->GetTDR()== 14)){
-	makeme_exit=true;
-      }
-      if(makeme_exit)
-	printf(" TDR %d Pattern %d\n", cl->GetTDR(), ev->GetTrackHitPattern(1));       
-
+      
       if (side==0) {
 	occupancy_posS[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
-	residual_posS[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateBestTrack(cl->GetZPosition(), 0));
-	v_cog_laddS[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	v_cog_all_laddS[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
       }
       else {
 	occupancy_posK[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
+	v_cog_all_laddK[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+      }
+            
+      if (!ev->IsClusterUsedInBestTrack(index_cluster)) continue;
+      
+      if (side==0) {
+	residual_posS[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateBestTrack(cl->GetZPosition(), 0));
+	v_cog_laddS[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	hclusSladdtrack->Fill(ladder);
+      }
+      else {
 	residual_posK[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateBestTrack(cl->GetZPosition(), 1));
 	v_cog_laddK[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	hclusKladdtrack->Fill(ladder);
       }
-      if (makeme_exit) exit(1);
+      
     }
 
+    for (int ll=0; ll<NJINF*NTDRS; ll++) {
+      hclusSladd->Fill(rh->tdrCmpMap[ll], v_cog_all_laddS[ll].size());
+      hclusKladd->Fill(rh->tdrCmpMap[ll], v_cog_all_laddK[ll].size());
+    }
+      
     //    printf(" \n ");
     //    exit(1);
   }
