@@ -25,6 +25,7 @@ int main(int argc,char** argv){
 
   char filename[255], pdf_filename[1024];
   char name[255];
+  char title[255], local_pdf_filename[255];
 
   char DirRaw[255];
   char DirCal[255];
@@ -170,6 +171,15 @@ int main(int argc,char** argv){
   printf("Reading Cal Data from %s\n", DirCal);
   printf("Writing output in %s\n", DirRoot);
 
+  if (ancillary < 0)
+    sprintf(filename,"%s/run_%06d.root", DirRoot, run);
+  else
+    sprintf(filename,"%s/run_%06d_ANC_%d.root", DirRoot, run, ancillary);
+  sprintf(pdf_filename, "%s.pdf", filename);
+  
+  TFile* foutput = new TFile(filename,"RECREATE");
+  TCanvas* canvas;
+  
   DecodeData *dd1= new DecodeData(DirRaw, DirCal, run, ancillary);
 
   dd1->shighthreshold=shighthreshold;
@@ -181,23 +191,7 @@ int main(int argc,char** argv){
   
   dd1->SetPrintOff();
   dd1->SetEvPrintOff();
-  if (ancillary < 0)
-    sprintf(filename,"%s/run_%06d.root",DirRoot,run);
-  else
-    sprintf(filename,"%s/run_%06d_ANC_%d.root",DirRoot, run, ancillary);
-  sprintf(pdf_filename, "%s.pdf", filename);
-  TFile *g=new TFile(filename,"RECREATE");
-  TCanvas *canvas;
-  char title[255], local_pdf_filename[255];
-  for (int hh=0;hh<NTDRS;hh++){
-    sprintf(name,"occ%d",hh);
-    dd1->hmio[hh]= new TH1F(name,name,1024,0,1024);
-    sprintf(name,"qS%d",hh);
-    dd1->hcharge[hh][0]= new TH1F(name,name,1000,0,100);
-    sprintf(name,"qK%d",hh);
-    dd1->hcharge[hh][1]= new TH1F(name,name,1000,0,100);    
-  }
-  
+    
   TTree* t4= new TTree("t4","My cluster tree");
   t4->Branch("cluster_branch","Event",&(dd1->ev),32000,2);
   double chaK[24];
@@ -207,8 +201,7 @@ int main(int argc,char** argv){
     t4->Branch(Form("ChargeS_Ladder%02d", ii), &chaS[ii], Form("ChargeS_Ladder%02d/D", ii));
   }
   t4->GetUserInfo()->Add(dd1->rh);
-  
-  
+    
   int ret1=0;
   for (int ii=0;ii<10;){
     ret1=dd1->EndOfFile();    
@@ -228,16 +221,16 @@ int main(int argc,char** argv){
       for (int cc=0; cc<(dd1->ev)->NClusTot; cc++) {
 	Cluster* cl = (dd1->ev)->GetCluster(cc);
 	double charge = sqrt(cl->GetTotSig());
-	if (cl->side==1) { //interesting only for K side (better resolution)
+	if (cl->side==1) {
 	  if (charge>chaK[cl->ladder]) {
 	    chaK[cl->ladder]=charge;
 	  }
-	}else{
+	}
+	else{
 	  if (charge>chaS[cl->ladder]) {
 	    chaS[cl->ladder]=charge;
 	  }
-	}
-	
+	}	
       }
       t4->Fill();
       if (processed%1000==0) printf("Processed %d events...\n", processed);
@@ -263,55 +256,61 @@ int main(int argc,char** argv){
   bool first=true;
   gStyle->SetOptStat(1);
   gStyle->SetOptFit(1);
-  for (int hh = 0; hh < NTDRS; hh++) {
-    canvas = new TCanvas(name, name, 1024, 1024);
-    sprintf(name, "ladder %d", hh);
-    TF1 *fit_s = new TF1("fit_s", "gaus", 0, 639);
-    TF1 *fit_k = new TF1("fit_k", "gaus", 640, 1023);
-    fit_s->SetLineColor(kBlue);
-    fit_k->SetLineColor(kRed);
-    TH1F *clone_chartA = (TH1F *)dd1->hmio[hh]->Clone("cloneA");
-    TH1F *clone_chartB = (TH1F *)dd1->hmio[hh]->Clone("cloneB");
-    clone_chartA->Fit(fit_s, "R");
-    clone_chartB->Fit(fit_k, "R");
-    clone_chartA->Draw();
-    gPad->Modified();
-    gPad->Update();
-    TPaveStats *statA = (TPaveStats*)(clone_chartA->GetListOfFunctions()->FindObject("stats"));
-    clone_chartB->Draw("SAMES");
-    gPad->Modified();
-    gPad->Update();
-    TPaveStats *statB = (TPaveStats*)(clone_chartB->GetListOfFunctions()->FindObject("stats"));
-    if(statA && statB) {
-      statA->SetTextColor(kBlue);
-      statB->SetTextColor(kRed);
-      statA->SetX1NDC(0.12); statA->SetX2NDC(0.32); statA->SetY1NDC(0.75);
-      statB->SetX1NDC(0.72); statB->SetX2NDC(0.92); statB->SetY1NDC(0.78);
-      statA->Draw();
-      canvas->Update();
-    }
-    canvas->Update();
-		
-    int entries=dd1->hmio[hh]->GetEntries();
-    canvas->Modified();
-    canvas->Update();
-    sprintf(title, "ladder %d", hh);
-    canvas->SetTitle(title);
-    if (entries>1) {
-      if (!first) strcpy(local_pdf_filename, pdf_filename);
-      else {
-	sprintf(local_pdf_filename, "%s(", pdf_filename);
-	first=false;
+  for (int jj=0; jj<NJINF; jj++){
+    for (int hh = 0; hh < NTDRS; hh++) {
+      canvas = new TCanvas(name, name, 1024, 1024);
+      sprintf(name, "ladder %d %d", jj, hh);
+      TF1 *fit_s = new TF1("fit_s", "gaus", 0, 639);
+      TF1 *fit_k = new TF1("fit_k", "gaus", 640, 1023);
+      fit_s->SetLineColor(kBlue);
+      fit_k->SetLineColor(kRed);
+      TH1F *clone_chartA = (TH1F *)dd1->hmio[jj*100+hh]->Clone("cloneA");
+      TH1F *clone_chartB = (TH1F *)dd1->hmio[jj*100+hh]->Clone("cloneB");
+      clone_chartA->Fit(fit_s, "R");
+      clone_chartB->Fit(fit_k, "R");
+      clone_chartA->Draw();
+      gPad->Modified();
+      gPad->Update();
+      TPaveStats *statA = (TPaveStats*)(clone_chartA->GetListOfFunctions()->FindObject("stats"));
+      clone_chartB->Draw("SAMES");
+      gPad->Modified();
+      gPad->Update();
+      TPaveStats *statB = (TPaveStats*)(clone_chartB->GetListOfFunctions()->FindObject("stats"));
+      if(statA && statB) {
+	statA->SetTextColor(kBlue);
+	statB->SetTextColor(kRed);
+	statA->SetX1NDC(0.12); statA->SetX2NDC(0.32); statA->SetY1NDC(0.75);
+	statB->SetX1NDC(0.72); statB->SetX2NDC(0.92); statB->SetY1NDC(0.78);
+	statA->Draw();
+	canvas->Update();
       }
-      canvas->Print(local_pdf_filename, "pdf");
+      canvas->Update();
+      
+      int entries=dd1->hmio[100*jj+hh]->GetEntries();
+      canvas->Modified();
+      canvas->Update();
+      sprintf(title, "ladder %d %d", jj, hh);
+      canvas->SetTitle(title);
+      if (entries>1) {
+	if (!first) strcpy(local_pdf_filename, pdf_filename);
+	else {
+	  sprintf(local_pdf_filename, "%s(", pdf_filename);
+	  first=false;
+	}
+	canvas->Print(local_pdf_filename, "pdf");
+      }
+      delete canvas;
+      if (clone_chartA) delete clone_chartA;
+      if (clone_chartB) delete clone_chartB;
+      if (fit_s) delete fit_s;
+      if (fit_k) delete fit_k;
     }
-    delete canvas;
   }
   TCanvas* c_exit = new TCanvas("dummy", "dummy", 1024, 1024);
   snprintf(local_pdf_filename, 255, "%s]", pdf_filename);
   c_exit->Print(local_pdf_filename, "pdf");
   delete c_exit; 
-
+    
   t4->Write("",TObject::kOverwrite);
 
   printf("\nProcessed %5d  Events\n",processed+readfailed+jinffailed);
@@ -320,9 +319,9 @@ int main(int argc,char** argv){
   printf("Rejected  %5d  Events --> Jinf/Jinj Error\n",jinffailed);
 
   delete dd1;
-
-  g->Write("",TObject::kOverwrite);
-  g->Close("R");
+  
+  foutput->Write("",TObject::kOverwrite);
+  foutput->Close("R");
 
   return 0;
 }

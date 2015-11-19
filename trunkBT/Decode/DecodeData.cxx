@@ -119,15 +119,48 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
 
   // for (int ii=0;ii<ntdrCmp;ii++) {
   //   printf("CMP: %d -> %d\n", ii, tdrCmp[ii]);
-  // }  
+  // }
+
+  char name[255];
+  for (int jj=0; jj<NJINF; jj++){
+    for (int hh=0; hh<NTDRS; hh++){
+      sprintf(name,"occ_%d_%d",jj, hh);
+      hmio[jj*100+hh]= new TH1F(name,name,1024,0,1024);
+      sprintf(name,"qS_%d_%d", jj, hh);
+      hcharge[jj*100+hh][0]= new TH1F(name,name,1000,0,100);
+      sprintf(name,"qK_%d_%d", jj, hh);
+      hcharge[jj*100+hh][1]= new TH1F(name,name,1000,0,100);
+    }
+  }
+
 }
 //=============================================================================================
 
 DecodeData::~DecodeData(){
-	if(pri) cout<< "In the destructor..." <<endl;
-	if(rawfile) CloseFile();
-	if (ev) delete ev;
-	if(pri) cout<< "Destroyed." <<endl;
+
+  for (int jj=0; jj<NJINF; jj++){
+    for (int hh = 0; hh < NTDRS; hh++) {
+      //      printf("%d %d --> %f\n", jj, hh, hmio[jj*100+hh]->GetEntries());
+      if (hmio[jj*100+hh]->GetEntries()<1.0) {
+	//	printf("deleting hmio %d %d\n", jj, hh);
+	delete hmio[jj*100+hh];
+      }
+      for (int ss=0; ss<2; ss++) {
+	//	printf("%d %d %d --> %f\n", jj, hh, ss, hcharge[jj*100+hh][ss]->GetEntries());
+	if (hcharge[jj*100+hh][ss]->GetEntries()<1.0) {
+	  //	  printf("deleting hcharge %d %d %d\n", jj, hh, ss);
+	  delete hcharge[jj*100+hh][ss];
+	}
+      }
+    }
+  }
+  
+  if(pri) cout<< "In the destructor..." <<endl;
+  if(rawfile) CloseFile();
+  if (ev) delete ev;
+  if(pri) cout<< "Destroyed." <<endl;
+
+  return;
 }
 //=============================================================================================
 
