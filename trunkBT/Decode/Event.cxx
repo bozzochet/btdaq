@@ -476,13 +476,13 @@ Double_t* _func(double z, double theta, double phi, double x0, double y0) {
   return point;
 }
 
-double Event::ExtrapolateBestTrack(double z, int component) {
+double Event::ExtrapolateTrack(double z, int component) {
   return _func(z, _theta, _phi, _X0, _Y0)[component];
 }
 
-bool Event::IsClusterUsedInBestTrack(int index_cluster){
+bool Event::IsClusterUsedInTrack(int index_cluster){
 
-  //  printf("IsClusterUsedInBestTrack\n");
+  //  printf("IsClusterUsedInTrack\n");
   
   for (int ii=0; ii<(int)(_v_trackS.size()); ii++){
     //    printf("%d cluster (S) in track\n", _v_trackS.at(ii).first);
@@ -527,6 +527,9 @@ void Event::StoreTrackClusterPatterns(){
   return;
 }
 
+bool Event::IsTDRInTrack(int side, int tdrnum, int jinfnum) {
+  return ((bool)(((unsigned long long int)(_track_cluster_pattern[jinfnum][side]/pow(10, tdrnum)))%10));
+}
 
 //-------------------------------------------------------------------------------------
 

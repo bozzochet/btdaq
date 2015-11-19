@@ -64,15 +64,16 @@ public:
   static float GetAlignPar(int jinfnum, int tdrnum, int component);
 
   bool FindTrackAndFit(int nptsS, int nptsK, bool verbose=false);
-  double GetThetaBestTrack() { return _theta; };
-  double GetPhiBestTrack() { return _phi; };
-  double GetX0BestTrack() { return _X0; };
-  double GetY0BestTrack() { return _Y0; };
-  double GetChiBestTrack() { return _chisq; };
-  double ExtrapolateBestTrack(double z, int component);
-  bool IsClusterUsedInBestTrack(int index_cluster);
+  double GetThetaTrack() { return _theta; };
+  double GetPhiTrack() { return _phi; };
+  double GetX0Track() { return _X0; };
+  double GetY0Track() { return _Y0; };
+  double GetChiTrack() { return _chisq; };
+  double ExtrapolateTrack(double z, int component);
+  bool IsClusterUsedInTrack(int index_cluster);
   void StoreTrackClusterPatterns();
   inline unsigned long long int GetTrackHitPattern(int side, int jinfnum=0){ return _track_cluster_pattern[jinfnum][side];};
+  bool IsTDRInTrack(int side, int tdrnum, int jinfnum=0);
   
 private:
   static bool alignmentnotread;
