@@ -617,14 +617,18 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
 
   int sid=0;
   if (clusadd>640) sid=1;
+  
   Cluster* pp= ev->AddCluster(numnum+100*Jinfnum,sid);
   calib* cal=&(cals[numnum+100*Jinfnum]);
-  hmio[numnum+100*Jinfnum]->Fill(clusadd);
-  hcharge[numnum+100*Jinfnum][sid]->Fill(pp->GetCharge());
+  
   pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
 	    &(cal->status[clusadd]),Sig2NoiStatus, CNStatus, PowBits, bad);
-  if(pri) pp->Print();
+  
+  hmio[numnum+100*Jinfnum]->Fill(clusadd);
+  hcharge[numnum+100*Jinfnum][sid]->Fill(pp->GetCharge());
 
+  if(pri) pp->Print();
+  
   return;
 }
 
