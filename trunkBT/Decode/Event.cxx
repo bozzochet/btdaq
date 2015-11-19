@@ -522,7 +522,6 @@ void Event::StoreTrackClusterPatterns(){
       //      printf("TDR %d %d\n", tdrnum,i_side);
       _track_cluster_pattern[i_side] +=  tdr_index;
     }
-    //cout<<" _track_cluster_pattern["<<i_side<<"] \t "<< _track_cluster_pattern[i_side]<<endl;
   }
   
 

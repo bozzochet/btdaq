@@ -201,8 +201,10 @@ int main(int argc,char** argv){
   TTree* t4= new TTree("t4","My cluster tree");
   t4->Branch("cluster_branch","Event",&(dd1->ev),32000,2);
   double chaK[24];
+  double chaS[24];
   for (int ii=0; ii<24; ii++) {
     t4->Branch(Form("ChargeK_Ladder%02d", ii), &chaK[ii], Form("ChargeK_Ladder%02d/D", ii));
+    t4->Branch(Form("ChargeS_Ladder%02d", ii), &chaS[ii], Form("ChargeS_Ladder%02d/D", ii));
   }
   t4->GetUserInfo()->Add(dd1->rh);
   
@@ -222,14 +224,20 @@ int main(int argc,char** argv){
       processed++;
       //      printf("This event has %d clusters\n", (dd1->ev)->NClusTot);
       memset(chaK, 0, 24*sizeof(chaK[0]));
+      memset(chaS, 0, 24*sizeof(chaS[0]));
       for (int cc=0; cc<(dd1->ev)->NClusTot; cc++) {
 	Cluster* cl = (dd1->ev)->GetCluster(cc);
+	double charge = sqrt(cl->GetTotSig());
 	if (cl->side==1) { //interesting only for K side (better resolution)
-	  double charge = cl->GetCharge();
 	  if (charge>chaK[cl->ladder]) {
 	    chaK[cl->ladder]=charge;
 	  }
+	}else{
+	  if (charge>chaS[cl->ladder]) {
+	    chaS[cl->ladder]=charge;
+	  }
 	}
+	
       }
       t4->Fill();
       if (processed%1000==0) printf("Processed %d events...\n", processed);
