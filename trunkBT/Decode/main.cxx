@@ -220,16 +220,12 @@ int main(int argc,char** argv){
       memset(chaS, 0, 24*sizeof(chaS[0]));
       for (int cc=0; cc<(dd1->ev)->NClusTot; cc++) {
 	Cluster* cl = (dd1->ev)->GetCluster(cc);
-	double charge = sqrt(cl->GetTotSig());
+	double charge = sqrt(cl->GetCharge());
 	if (cl->side==1) {
-	  if (charge>chaK[cl->ladder]) {
-	    chaK[cl->ladder]=charge;
-	  }
+	  if (charge>chaK[cl->ladder]) chaK[cl->ladder]=charge;
 	}
 	else{
-	  if (charge>chaS[cl->ladder]) {
-	    chaS[cl->ladder]=charge;
-	  }
+	  if (charge>chaS[cl->ladder]) chaS[cl->ladder]=charge;
 	}	
       }
       t4->Fill();
