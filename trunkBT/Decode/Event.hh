@@ -72,7 +72,7 @@ public:
   double ExtrapolateBestTrack(double z, int component);
   bool IsClusterUsedInBestTrack(int index_cluster);
   void StoreTrackClusterPatterns();
-  inline int GetTrackHitPattern(int side){ return _track_cluster_pattern[side];};
+  inline unsigned long long int GetTrackHitPattern(int side, int jinfnum=0){ return _track_cluster_pattern[jinfnum][side];};
   
 private:
   static bool alignmentnotread;
@@ -98,7 +98,7 @@ private:
   std::vector<std::pair<int, std::pair<double, double> > > _v_trackS;//!
   std::vector<std::pair<int, std::pair<double, double> > > _v_trackK;//!
   double _chisq;//!
-  int _track_cluster_pattern[2];//!
+  unsigned long long int _track_cluster_pattern[NJINF][2];//!
   
   ClassDef(Event,3)
 };
