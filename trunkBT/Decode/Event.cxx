@@ -57,8 +57,11 @@ Event::Event(){
   _v_trackS.clear();
   _v_trackK.clear();
   _chisq = 999999999.9;
-  _track_cluster_pattern[0]=0;
-  _track_cluster_pattern[1]=0;
+  for (int ii=0; ii<NJINF; ii++) {;
+    for (int ss=0; ss<2; ss++) {
+      _track_cluster_pattern[ii][ss]=0;
+    }
+  }
   
   return;
 }
@@ -222,7 +225,6 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
   std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddS[NJINF][NTDRS];
   std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddK[NJINF][NTDRS];
   
-
   for (int index_cluster = 0; index_cluster < NClusTot; index_cluster++) {
     
     Cluster* current_cluster = GetCluster(index_cluster);
@@ -496,36 +498,33 @@ bool Event::IsClusterUsedInBestTrack(int index_cluster){
 
 void Event::StoreTrackClusterPatterns(){
 
-
-  std::vector<std::pair<int, std::pair<double, double> > > _v_track_tmp;
-  _v_track_tmp.clear();
-  for (int i_side=0; i_side<2; i_side++){
-    if(i_side==0) _v_track_tmp = _v_trackS;
-    else if(i_side==1) _v_track_tmp = _v_trackK;
-    _track_cluster_pattern[i_side]=0;
-    for (int ii=0; ii<(int)(_v_track_tmp.size()); ii++){
-      int index_cluster=_v_track_tmp.at(ii).first;
-      Cluster *cl=GetCluster(index_cluster);
-      int tdrnum=cl->GetTDR();
-      //printf("TDR %d , %d cluster (%d) in track\n", tdrnum, index_cluster, i_side);
-      int tdr_index=0;
-      if(tdrnum==0)
-	tdr_index=1;
-      else     if(tdrnum==4)
-	tdr_index=10;
-      else     if(tdrnum==8)
-	tdr_index=100;
-      else     if(tdrnum==12)
-	tdr_index=1000;
-      else     if(tdrnum==14)
-	tdr_index=10000;
-      //      printf("TDR %d %d\n", tdrnum,i_side);
-      _track_cluster_pattern[i_side] +=  tdr_index;
+  for (int ii=0; ii<NJINF; ii++) {;
+    for (int ss=0; ss<2; ss++) {
+      _track_cluster_pattern[ii][ss]=0;
     }
   }
   
+  std::vector<std::pair<int, std::pair<double, double> > > _v_track_tmp;
+  _v_track_tmp.clear();
+  
+  for (int i_side=0; i_side<2; i_side++){
+    if(i_side==0) _v_track_tmp = _v_trackS;
+    else if(i_side==1) _v_track_tmp = _v_trackK;
+    
+    for (int ii=0; ii<(int)(_v_track_tmp.size()); ii++){
+      int index_cluster=_v_track_tmp.at(ii).first;
+      Cluster* cl=GetCluster(index_cluster);
+      int tdrnum=cl->GetTDR();
+      int jinfnum=cl->GetJinf();
+      //      printf("JINF %d, TDR %d , %d cluster (%d) in track\n", jinfnum, tdrnum, index_cluster, i_side);
+      
+      unsigned long long int tdr_index = pow(10, tdrnum);
+      //      printf("TDR %d %d --> %lld\n", tdrnum, i_side, tdr_index);
+      _track_cluster_pattern[jinfnum][i_side] +=  tdr_index;
+    }
+  }
 
-
+  return;
 }
 
 
