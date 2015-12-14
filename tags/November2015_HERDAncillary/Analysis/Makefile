@@ -1,5 +1,5 @@
-CXX := `$(ROOTSYS)/bin/root-config --cxx`
-MARCH := `$(ROOTSYS)/bin/root-config --arch`
+CXX := `root-config --cxx`
+MARCH := `root-config --arch`
 LD:=$(CXX)
 
 OBJ=./obj/
@@ -9,7 +9,7 @@ INC=./include/
 #CFLAGS:= -g -Wno-deprecated
 CFLAGS:= -O3 -Wno-deprecated
 
-VERSION      := $(shell $(ROOTSYS)/bin/root-config --version | cut -b1-4)
+VERSION      := $(shell root-config --version | cut -b1-4)
 ifeq ($(VERSION),5.27)
 VERSIONP=
 else
@@ -25,14 +25,15 @@ ifeq ($(UNAME), Darwin)
 ADDLDFLAGS =
 endif
 
-CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags) -fPIC
+CFLAGS += $(shell root-config --auxcflags) -fPIC
 
 ROOTDYNAMICLIBS := $(shell root-config --glibs) -lMinuit
+ROOTINCLUDES :=  $(shell root-config --incdir)
 
 DECODE = ../Decode/
 DECODELIBS = -Wl,-rpath,$(DECODE) -L$(DECODE) -lEvent
 
-INCLUDES=-I./ -I$(ROOTSYS)/include -isystem$(ROOTSYS)/include -I$(DECODE) -isystem$(DECODE)
+INCLUDES=-I./ -I$(ROOTINCLUDES) -isystem$(ROOTINCLUDES) -I$(DECODE) -isystem$(DECODE)
 
 default: Align
 

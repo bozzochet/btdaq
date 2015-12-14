@@ -12,6 +12,7 @@ LIB_OBJ=$(LIB_SOURCES:%.cxx=obj/%.o)
 ANYOPTION=AnyOption
 
 ROOTDYNAMICLIBS := $(shell root-config --glibs) -lMinuit
+ROOTINCLUDES := $(shell root-config --incdir)
 
 CFLAGS= -g -fPIC
 DEFINES=
@@ -34,12 +35,12 @@ libEventa.a:$(LIB_OBJ)
 	ar rv $@ $^ 
 
 Decode: $(ANYOPTION)/anyoption.o $(DEC_OBJ)
-	$(CXX) $(CFLAGS) -o$@ $^ -I$(ROOTSYS)/include -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
+	$(CXX) $(CFLAGS) -o$@ $^ -I$(ROOTINCLUDES) -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
 
 obj/%.o:%.cxx 
 	@echo Compiling $< ...; 
 	@ if ! [ -d ./obj ] ; then  mkdir -p obj; fi
-	@$(CXX) $(CFLAGS) $(DEFINES) -c -Wall -Wno-overloaded-virtual $< -o$@  -I$(ROOTSYS)/include -I$(ANYOPTION)
+	@$(CXX) $(CFLAGS) $(DEFINES) -c -Wall -Wno-overloaded-virtual $< -o$@  -I$(ROOTINCLUDES) -I$(ANYOPTION)
 
 $(ANYOPTION)/anyoption.o :
 	make -C $(ANYOPTION)

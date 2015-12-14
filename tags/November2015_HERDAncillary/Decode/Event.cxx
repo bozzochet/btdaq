@@ -286,17 +286,17 @@ double Event::CombinatorialFit(
     if (verbose) {
       printf("new track to fit\n");
       printf("S: ");
-      for (int ss=0; ss<v_cog_trackS.size(); ss++) {
+      for (unsigned int ss=0; ss<v_cog_trackS.size(); ss++) {
 	printf("(%f,%f)", v_cog_trackS.at(ss).second.first, v_cog_trackS.at(ss).second.second);
       }
       printf("\n");
       printf("K: ");
-      for (int kk=0; kk<v_cog_trackK.size(); kk++) {
+      for (unsigned int kk=0; kk<v_cog_trackK.size(); kk++) {
 	printf("(%f,%f)", v_cog_trackK.at(kk).second.first, v_cog_trackK.at(kk).second.second);
       }
       printf("\n");
     }
-    if (v_cog_trackS.size()>=nptsS && v_cog_trackK.size()>=nptsK) {
+    if (v_cog_trackS.size()>=(unsigned int)nptsS && v_cog_trackK.size()>=(unsigned int)nptsK) {
       /* debug
       static TH1F hchi("hchi", "hchi", 1000, 0.0, 10.0);
       static TH1F htheta("htheta", "htheta", 1000, -TMath::Pi()/2.0, TMath::Pi()/2.0);
@@ -422,7 +422,7 @@ double _compchisq(std::vector<std::pair<int, std::pair<double, double> > > vec, 
   delta = 0.0;
   static double error;
   error = Cluster::GetNominalResolution(side);
-  for (int pp=0; pp<vec.size(); pp++) {
+  for (unsigned int pp=0; pp<vec.size(); pp++) {
     delta = (vec.at(pp).second.first - _func(vec.at(pp).second.second, theta, phi, x0, y0)[side])/error;
     chisq += delta*delta;
   }
@@ -457,11 +457,11 @@ bool Event::IsClusterUsedInBestTrack(int index_cluster){
 
   //  printf("IsClusterUsedInBestTrack\n");
   
-  for (int ii=0; ii<_v_trackS.size(); ii++){
+  for (unsigned int ii=0; ii<_v_trackS.size(); ii++){
     //    printf("%d cluster (S) in track\n", _v_trackS.at(ii).first);
     if (_v_trackS.at(ii).first==index_cluster) return true;
   }
-  for (int ii=0; ii<_v_trackK.size(); ii++){
+  for (unsigned int ii=0; ii<_v_trackK.size(); ii++){
     //    printf("%d cluster (K) in track\n", _v_trackK.at(ii).first);
     if (_v_trackK.at(ii).first==index_cluster) return true;
   }
