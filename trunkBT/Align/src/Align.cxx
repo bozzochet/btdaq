@@ -386,11 +386,18 @@ int SingleAlign(int argc, char* argv[]){
   return 0;
 }
 
-// GENERALIZE ME!
+// GENERALIZE ME! IS ALSO WRONG:
+// - IF FOR ONE LADDER THERE ARE TWO CLUSTERS ONLY THE SECOND IS CONSIDERED.
+// - IF ON LADDER HAS NO CLUSTERS THE CUT IS NOT PASSED
+// - IT ASSUMES THAT ONLY ONE JINF IS PRESENT (THIS MAYBE IS SAFE AT THIS LEVEL)
 bool ChargeSelection(Event *ev, RHClass *_rh, float charge_center, float lower_limit, float higher_limit){
   bool chargeselection=false;
   
   float charge[NTDRS];
+  for (int ii=0; ii<NTDRS; ii++) {
+    charge[ii] = 0.0;
+  }
+  
   for (int index_cluster=0; index_cluster<ev->NClusTot; index_cluster++) {
     //    if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
     
