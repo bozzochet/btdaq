@@ -37,9 +37,6 @@ INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE)
 
 default: Align
 
-Viewer: ./obj/viewer.o
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) -o$@ 
-
 Align: ./obj/Align.o libEvent
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@ 
 
@@ -56,7 +53,6 @@ libEvent:
 
 clean: 
 	rm -f ./obj/*.o
-	rm -f ./Viewer
 	rm -f ./Align
 
 cleanALL: clean
