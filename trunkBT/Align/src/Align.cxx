@@ -141,7 +141,6 @@ int SingleAlign(int argc, char* argv[]){
 
   TString align_filename = "alignment.dat";
   TString output_filename = argv[1];
-  TString filename = argv[2];
 
   PRINTDEBUG;
   
