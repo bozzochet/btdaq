@@ -35,12 +35,12 @@ DECODELIBS = -Wl,-rpath,$(DECODE) -L$(DECODE) -lEvent
 
 INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE)
 
-default: Align
+default: Analysis
 
 Viewer: ./obj/viewer.o
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) -o$@ 
 
-Align: ./obj/Align.o libEvent
+Analysis: ./obj/Analysis.o libEvent
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@ 
 
 ./obj/%.o: ./src/%.C
@@ -57,7 +57,7 @@ libEvent:
 clean: 
 	rm -f ./obj/*.o
 	rm -f ./Viewer
-	rm -f ./Align
+	rm -f ./Analysis
 
 cleanALL: clean
 	make -C ../Decode clean
