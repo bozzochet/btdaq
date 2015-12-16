@@ -141,11 +141,6 @@ int main(int argc, char* argv[]) {
     std::vector<double> v_cog_laddK[NJINF*NTDRS];
     std::vector<double> v_cog_all_laddS[NJINF*NTDRS];
     std::vector<double> v_cog_all_laddK[NJINF*NTDRS];
-    std::pair<double,double> qpair[NJINF*NTDRS];
-    for (int pp=0; pp<_maxtdr; pp++) {
-      qpair[pp].first=-9999.9;
-      qpair[pp].second=-9999.9;
-    }
     
     bool trackfitok = ev->FindTrackAndFit(3, 3, false);//at least 3 points on 3, and 2 points on K, not verbose
 
@@ -224,15 +219,13 @@ int main(int argc, char* argv[]) {
             
       if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
 
-      double charge=cl->GetCharge();
+      double charge=cl->GetCharge();//unused for now
       
       if (side==0) {
 	if (strackok) {
 	  residual_posS[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));
 	  v_cog_laddS[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
 	  hclusSladdtrack->Fill(ladder);
-	  chargeS[rh->FindPos(ladder)]->Fill(charge);
-	  qpair[rh->FindPos(ladder)].first=charge;
 	}
       }
       else {
@@ -240,20 +233,27 @@ int main(int argc, char* argv[]) {
 	  residual_posK[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));
 	  v_cog_laddK[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
 	  hclusKladdtrack->Fill(ladder);
-	  chargeK[rh->FindPos(ladder)]->Fill(charge);
-	  qpair[rh->FindPos(ladder)].second=charge;
 	}
       }
       
     }
 
-    for (int tt=0; tt<_maxtdr; tt++) {
-      //      printf("%d\n", tt);
-      if (qpair[tt].first>-9000.0 && qpair[tt].second>-9000.0) {
-	charge2D[tt]->Fill(qpair[tt].first, qpair[tt].second);
+    std::vector<std::pair<int, std::pair<int, int> > > vec_charge = ev->GetHitVector();
+    for (unsigned int tt=0; tt<vec_charge.size(); tt++) {
+      int ladder = vec_charge.at(tt).first;
+      int index_cluster_S = vec_charge.at(tt).second.first;
+      int index_cluster_K = vec_charge.at(tt).second.second;
+      if (index_cluster_S>=0) {
+	chargeS[rh->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge());
+      }
+      if (index_cluster_K>=0) {
+	chargeK[rh->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_K)->GetCharge());
+      }
+      if (index_cluster_S>=0 && index_cluster_K>=0) {
+	charge2D[rh->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge(), ev->GetCluster(index_cluster_K)->GetCharge());
       }
     }
-
+    
     chargeS_ave->Fill(ev->GetChargeTrack(0));
     chargeK_ave->Fill(ev->GetChargeTrack(1));
     charge2D_ave->Fill(ev->GetChargeTrack(0), ev->GetChargeTrack(1));
