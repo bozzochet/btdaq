@@ -88,34 +88,34 @@ int main(int argc, char* argv[]) {
   int NSTRIPSS=640;
   int NSTRIPSK=384;
   for (int tt=0; tt<_maxtdr; tt++) {
-    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_0_%02d", rh->tdrCmpMap[tt]), 1024, 0, 1024);
-    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_posS_0_%02d", rh->tdrCmpMap[tt]), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0), NSTRIPSS*Cluster::GetPitch(0));
-    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_posK_0_%02d", rh->tdrCmpMap[tt]), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(1), NSTRIPSK*Cluster::GetPitch(1));
-    residual_posS[tt] = new TH1F(Form("residual_posS_0_%02d", rh->tdrCmpMap[tt]), Form("residual_posS_0_%02d", rh->tdrCmpMap[tt]), 
+    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_0_%02d;Channel number;Occupancy", rh->tdrCmpMap[tt]), 1024, 0, 1024);
+    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", rh->tdrCmpMap[tt]), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0), NSTRIPSS*Cluster::GetPitch(0));
+    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", rh->tdrCmpMap[tt]), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(1), NSTRIPSK*Cluster::GetPitch(1));
+    residual_posS[tt] = new TH1F(Form("residual_posS_0_%02d", rh->tdrCmpMap[tt]), Form("residual_posS_0_%02d;Residual_{S} (mm);Entries", rh->tdrCmpMap[tt]), 
 				 2*NSTRIPSS, -float(NSTRIPSS)/100.*Cluster::GetPitch(0), float(NSTRIPSS)/100.*Cluster::GetPitch(0));
-    residual_posK[tt] = new TH1F(Form("residual_posK_0_%02d", rh->tdrCmpMap[tt]), Form("residual_posK_0_%02d", rh->tdrCmpMap[tt]), 
+    residual_posK[tt] = new TH1F(Form("residual_posK_0_%02d", rh->tdrCmpMap[tt]), Form("residual_posK_0_%02d;Residual_{K} (mm);Entries", rh->tdrCmpMap[tt]), 
 				 40*NSTRIPSK, -20*float(NSTRIPSK)/100.*Cluster::GetPitch(1), 20*float(NSTRIPSK)/100.*Cluster::GetPitch(1));
-    chargeS[tt] = new TH1F(Form("chargeS_0_%02d", rh->tdrCmpMap[tt]), Form("chargeS_0_%02d", rh->tdrCmpMap[tt]), 1000, 0, 100);
-    chargeK[tt] = new TH1F(Form("chargeK_0_%02d", rh->tdrCmpMap[tt]), Form("chargeK_0_%02d", rh->tdrCmpMap[tt]), 1000, 0, 100);
-    charge2D[tt] = new TH2F(Form("charge_0_%02d", rh->tdrCmpMap[tt]), Form("charge_0_%02d", rh->tdrCmpMap[tt]), 1000, 0, 100, 1000, 0, 100);
+    chargeS[tt] = new TH1F(Form("chargeS_0_%02d", rh->tdrCmpMap[tt]), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", rh->tdrCmpMap[tt]), 1000, 0, 100);
+    chargeK[tt] = new TH1F(Form("chargeK_0_%02d", rh->tdrCmpMap[tt]), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", rh->tdrCmpMap[tt]), 1000, 0, 100);
+    charge2D[tt] = new TH2F(Form("charge_0_%02d", rh->tdrCmpMap[tt]), Form("charge_0_%02d;Q_{S} (c.u.);Q_{K} (c.u.);Entries", rh->tdrCmpMap[tt]), 1000, 0, 100, 1000, 0, 100);
   }
-  chargeS_ave = new TH1F("chargeS", "chargeS", 1000, 0, 100);
-  chargeK_ave = new TH1F("chargeK", "chargeK", 1000, 0, 100);
-  charge2D_ave = new TH2F("charge", "charge", 1000, 0, 100, 1000, 0, 100);
+  chargeS_ave = new TH1F("chargeS", "chargeS;Q_{S} (c.u.);Entries", 1000, 0, 100);
+  chargeK_ave = new TH1F("chargeK", "chargeK;Q_{K} (c.u.);Entries", 1000, 0, 100);
+  charge2D_ave = new TH2F("charge", "charge;Q_{S} (c.u.);Q_{K} (c.u.);Entries", 1000, 0, 100, 1000, 0, 100);
   
-  TH1F* htheta = new TH1F("htheta", "htheta", 1000, -45.0, 45.0);
-  TH1F* htphi = new TH1F("hphi", "hphi", 1000, -180.0, 180.0);
-  TH1F* hX0 = new TH1F("hX0", "hX0", 1000, -100, 100);
-  TH1F* hY0 = new TH1F("hY0", "hY0", 1000, -100, 100);
-  TH1F* hchi = new TH1F("hchi", "hchi", 1000, -5, 10);
-  TH1F* hX0HERD = new TH1F("hX0HERD", "hX0HERD", 1000, -100, 100);
-  TH1F* hY0HERD = new TH1F("hY0HERD", "hY0HERD", 1000, -100, 100);
+  TH1F* htheta = new TH1F("htheta", "htheta;#theta (deg);Entries", 1000, -45.0, 45.0);
+  TH1F* htphi = new TH1F("hphi", "hphi;#phi (deg);Entries", 1000, -180.0, 180.0);
+  TH1F* hX0 = new TH1F("hX0", "hX0;X_{Z=0} (mm);Entries", 1000, -100, 100);
+  TH1F* hY0 = new TH1F("hY0", "hY0;Y_{Z=0} (mm);Entries", 1000, -100, 100);
+  TH1F* hchi = new TH1F("hchi", "hchi;log10(#chi^{2});Entries", 1000, -5, 10);
+  TH1F* hX0HERD = new TH1F("hX0HERD", "hX0HERD;X_{Z=HERD} (mm);Entries", 1000, -100, 100);
+  TH1F* hY0HERD = new TH1F("hY0HERD", "hY0HERD;Y_{Z=HERD} (mm);Entries", 1000, -100, 100);
 
-  TH1F* hclusSladd = new TH1F("hclusSladd", "hclusSladd;Ladder;Clusters", 24, 0, 24);
-  TH1F* hclusSladdtrack = new TH1F("hclusSladdtrack", "hclusSladdtrack;Ladder;Clusters", 24, 0, 24);
-  TH1F* hclusKladd = new TH1F("hclusKladd", "hclusKladd;Ladder;Clusters", 24, 0, 24);
-  TH1F* hclusKladdtrack = new TH1F("hclusKladdtrack", "hclusKladdtrack;Ladder;Clusters", 24, 0, 24);
-  TH1F* hclus = new TH1F("hclus", "hclus;Clusters", 1000, 0, 1000);
+  TH1F* hclusSladd = new TH1F("hclusSladd", "hclusSladd;Ladder;Clusters_{S}", 24, 0, 24);
+  TH1F* hclusSladdtrack = new TH1F("hclusSladdtrack", "hclusSladdtrack;Ladder;Clusters_{S,OnTrack}", 24, 0, 24);
+  TH1F* hclusKladd = new TH1F("hclusKladd", "hclusKladd;Ladder;Clusters_{K}", 24, 0, 24);
+  TH1F* hclusKladdtrack = new TH1F("hclusKladdtrack", "hclusKladdtrack;Ladder;Clusters_{K,OnTrack}", 24, 0, 24);
+  TH1F* hclus = new TH1F("hclus", "hclus;Clusters;Entries", 1000, 0, 1000);
 
   Long64_t tracks=0;
   Long64_t goodtracks=0;
