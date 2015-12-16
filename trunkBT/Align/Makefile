@@ -38,7 +38,8 @@ INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE)
 default: Align
 
 Align: ./obj/Align.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@ 
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@
+	ln -sfv Align RunOnce
 
 ./obj/%.o: ./src/%.C
 	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
