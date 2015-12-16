@@ -21,7 +21,10 @@ using namespace std;
 
 int main(int argc, char* argv[]);
 void AddAdditionalStuff(TFile* infiles[2], const char* t3names[2], TFile* fout);
-void GetStartANDStopTime(string t3names, time_t &start_time, time_t &stop_time);
+void GetStartANDStopTimeHERD(string t3names, time_t &start_time, time_t &stop_time);
+void GetStartANDStopTimeAMS(string t3names, time_t &start_time, time_t &stop_time);
+time_t GetTime(string time_string,string time_format);
+
 //--------------------------------------------------------------------
 
 static bool nosave = false;
@@ -36,6 +39,19 @@ int main(int argc, char* argv[]){
     printf("\n\n");
     exit(1);
   }
+
+  /*
+  time_t start_time_herd =0;
+  time_t stop_time_herd =0;
+  GetStartANDStopTimeHERD(argv[3], start_time_herd, stop_time_herd);
+  time_t start_time_ams =0;
+  time_t stop_time_ams =0;
+  GetStartANDStopTimeAMS(argv[2], start_time_ams, stop_time_ams);
+
+  cout<<" AMS : start "<<start_time_ams<<" stop "<<stop_time_ams<<"\n"
+      <<" HERD: start "<<start_time_herd<<" stop "<<stop_time_herd
+      <<endl;
+  */
   
   const char* t3names[n_trees] = {"t4", "HERD_CALO"};
   TFile* fin[n_trees];
@@ -48,12 +64,6 @@ int main(int argc, char* argv[]){
   
   TChain* herd = new TChain(t3names[1]);
   
-  time_t start_time =0;
-  time_t stop_time =0;
-  //  GetStartANDStopTime(t3names[1], start_time, stop_time);
-
-
-    
 
   herd->Add(argv[3]);
   fin[1] = new TFile(argv[3]);
@@ -65,7 +75,7 @@ int main(int argc, char* argv[]){
   if (nentriesams != nentriesherd) {
     printf("WARNING: The number of entries is different. I will process only %lld entries...\n", nentries);
   }
-
+  exit(1);
   TFile* f = new TFile(argv[1], "RECREATE");
   f->cd();
   AddAdditionalStuff(fin, t3names, f);
@@ -237,53 +247,108 @@ void AddAdditionalStuff(TFile* fin[2], const char* t3names[2], TFile* fout){
 }
 
 
-
-void GetStartANDStopTime(string t3names, time_t &start_time, time_t &stop_time){
-  
-  const int n_pos=6;
+void GetStartANDStopTimeAMS(string t3names, time_t &start_time, time_t &stop_time){
+  const int n_pos=3;
   int  pos_start[n_pos];
   int index_pos=0;
-  pos_start[index_pos]= t3names.find("eV_");index_pos++;//0
-  pos_start[index_pos]= t3names.find("Nov");index_pos++;//1
-  pos_start[index_pos]= t3names.find("2015_");index_pos++;//2
-  pos_start[index_pos]= t3names.find_first_of("\\:");index_pos++;//3
-  pos_start[index_pos]= t3names.find_last_of("~");index_pos++;//4
-  pos_start[index_pos]= t3names.find_last_of("\\:");index_pos++;//5
+  string _substring[n_pos]={"run_","_ANC",".root"};
 
-  for (int i_pos=1; i_pos<n_pos; i_pos++){
+  for (int i_pos=0; i_pos<n_pos; i_pos++){
+    int starting_pos=0;
+    if(i_pos>0) starting_pos= pos_start[i_pos-1];
+    pos_start[i_pos]= t3names.find(_substring[i_pos].c_str(),starting_pos);
     if (pos_start[i_pos]==std::string::npos){
-      cout<<" File name with different standard time indication "<<endl;
+      cout<<" t3names "<<t3names<<endl;
+      cout<<" i_pos "<<i_pos<<" pos_start[i_pos] "<<pos_start[i_pos]<<" "<<" "<<_substring[i_pos].c_str()<<endl;
+      cout<<" File name with different standard time indication "<<-i_pos<<endl;
+      exit(-i_pos);
+    }
+  }
+  if( pos_start[1]-(pos_start[0]+4)<1){
+    cout<<" File name with different standard time indication "<<endl;
+    exit(-n_pos);
+  }
+  if( pos_start[2]-(pos_start[1]+5)<1){
+    cout<<" File name with different standard time indication "<<endl;
+    exit(-(n_pos+1));
+  }
+
+  string _start=t3names.substr(pos_start[0]+4,pos_start[1]-(pos_start[0]+4));
+  string _stop =t3names.substr(pos_start[1]+5,pos_start[2]-(pos_start[1]+5));
+
+  stop_time = atoi( _stop.c_str());
+  start_time= atoi(_start.c_str());
+
+}
+void GetStartANDStopTimeHERD(string t3names, time_t &start_time, time_t &stop_time){
+  
+  const int n_pos=7;
+  int  pos_start[n_pos];
+  int index_pos=0;
+  string _substring[n_pos]={"eV_","Nov","2015_","\:","~","\:",".root"};
+
+  for (int i_pos=0; i_pos<n_pos; i_pos++){
+    int starting_pos=0;
+    if(i_pos>0) starting_pos= pos_start[i_pos-1];
+    pos_start[i_pos]= t3names.find(_substring[i_pos].c_str(),starting_pos);
+    if (pos_start[i_pos]==std::string::npos){
+      cout<<" t3names "<<t3names<<endl;
+      cout<<" i_pos "<<i_pos<<" pos_start[i_pos] "<<pos_start[i_pos]<<" "<<" "<<_substring[i_pos].c_str()<<endl;
+      cout<<" File name with different standard time indication "<<-i_pos<<endl;
       exit(-i_pos);
     }
   }
   
   if(pos_start[1]-(pos_start[0]+3)<1){
-    cout<<" File name with different standard time indication "<<endl;
+    cout<<" File name with different standard time indication "<<-n_pos<<endl;
     exit(-n_pos);
   }
   
-
-  string _day = t3names.substr(pos_start[0]+3,pos_start[1]-(pos_start[0]+3));
-  string _month="12";
+  //  string _day = t3names.substr(pos_start[0]+3,pos_start[1]-(pos_start[0]+3));
+  string _day="13";
+  string _month="11";
   string _year="2015";
 
   if(pos_start[3]-(pos_start[2]+5)<1){
-    cout<<" File name with different standard time indication "<<endl;
+    cout<<" File name with different standard time indication "<<-(n_pos+1)<<endl;
     exit(-(n_pos+1));
   }  
   string _h_start=t3names.substr(pos_start[2]+5,pos_start[3]-(pos_start[2]+5));
 
-  if(pos_start[4]-(pos_start[3]+2)<1){
-    cout<<" File name with different standard time indication "<<endl;
+  if(pos_start[4]-(pos_start[3]+1)<1){
+    cout<<" File name with different standard time indication "<<-(n_pos+2)<<endl;
     exit(-(n_pos+2));
   }
-  string _m_start=t3names.substr(pos_start[3]+2,pos_start[4]-(pos_start[3]+2));
-  string _s_start="00";
-  string _start_time=_year+"-"+_month+"-"+_day+"-"
-    +_h_start+":"+_m_start+":"+_s_start;
-  
-  struct tm tm;
-  strptime(_start_time.c_str(), "%Y-%m-%d-%H:%M:%S", &tm);
-  time_t t = mktime(&tm);  // t is now your desired time_t
 
+  struct tm tm;
+  string time_format="%Y-%m-%d-%H:%M:%S";
+  string _m_start=t3names.substr(pos_start[3]+1,pos_start[4]-(pos_start[3]+1));
+  string _s_start="00";
+  if(pos_start[5]-(pos_start[4]+1)<1){
+    cout<<" File name with different standard time indication "<<-(n_pos+2)<<endl;
+    exit(-(n_pos+3));
+  }
+  string _h_stop=t3names.substr(pos_start[4]+1,pos_start[5]-(pos_start[4]+1));
+  if(pos_start[6]-(pos_start[5]+1)<1){
+    cout<<" File name with different standard time indication "<<-(n_pos+2)<<endl;
+    exit(-(n_pos+4));
+  }
+  string _m_stop=t3names.substr(pos_start[5]+1,pos_start[6]-(pos_start[5]+1));
+  string _s_stop="00";
+  string _start_time=_year+"-"+_month+"-"+_day+"-"
+    +_h_start+":"+_m_start+":"+_s_start;  
+  string _stop_time=_year+"-"+_month+"-"+_day+"-"
+    +_h_stop+":"+_m_stop+":"+_s_stop;
+
+  start_time = GetTime(_start_time,time_format);
+  stop_time = GetTime(_stop_time,time_format);
+  
+}
+
+time_t GetTime(string time_string,string time_format){
+  time_t _time;
+  struct tm tm;
+  strptime(time_string.c_str(), time_format.c_str(), &tm);
+  _time = mktime(&tm); 
+  return _time;
 }
