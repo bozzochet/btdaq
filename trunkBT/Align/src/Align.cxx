@@ -211,7 +211,7 @@ int SingleAlign(int argc, char* argv[]){
     //    printf("----- new event %d\n", index_event);
     chain->GetEntry(index_event);
     
-    int NClusTot = ev->NClusTot;
+    int NClusTot = ev->GetNClusTot();
     if(NClusTot<1 ||  NClusTot>10) continue;
 
     bool chargeselection = ChargeSelection(ev, rh, 1, 0.9, 3) ; 
@@ -398,7 +398,7 @@ bool ChargeSelection(Event *ev, RHClass *_rh, float charge_center, float lower_l
     charge[ii] = 0.0;
   }
   
-  for (int index_cluster=0; index_cluster<ev->NClusTot; index_cluster++) {
+  for (int index_cluster=0; index_cluster<ev->GetNClusTot(); index_cluster++) {
     //    if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
     
     Cluster *_cl = ev->GetCluster(index_cluster);

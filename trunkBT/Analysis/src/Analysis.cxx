@@ -22,6 +22,9 @@
 
 using namespace std;
 
+//raw value. To put the real distance from the most upward AMS ladder to the desired position in the ICC
+#define ZHERD 1500
+
 bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS=0, int safetyK=0);
 
 int main(int argc, char* argv[]) {
@@ -79,6 +82,9 @@ int main(int argc, char* argv[]) {
   TH1F* chargeS[NJINF*NTDRS];
   TH1F* chargeK[NJINF*NTDRS];
   TH2F* charge2D[NJINF*NTDRS];
+  TH1F* chargeS_ave;
+  TH1F* chargeK_ave;
+  TH2F* charge2D_ave;
   int NSTRIPSS=640;
   int NSTRIPSK=384;
   for (int tt=0; tt<_maxtdr; tt++) {
@@ -93,12 +99,17 @@ int main(int argc, char* argv[]) {
     chargeK[tt] = new TH1F(Form("chargeK_0_%02d", rh->tdrCmpMap[tt]), Form("chargeK_0_%02d", rh->tdrCmpMap[tt]), 1000, 0, 100);
     charge2D[tt] = new TH2F(Form("charge_0_%02d", rh->tdrCmpMap[tt]), Form("charge_0_%02d", rh->tdrCmpMap[tt]), 1000, 0, 100, 1000, 0, 100);
   }
+  chargeS_ave = new TH1F("chargeS", "chargeS", 1000, 0, 100);
+  chargeK_ave = new TH1F("chargeK", "chargeK", 1000, 0, 100);
+  charge2D_ave = new TH2F("charge", "charge", 1000, 0, 100, 1000, 0, 100);
   
   TH1F* htheta = new TH1F("htheta", "htheta", 1000, -45.0, 45.0);
   TH1F* htphi = new TH1F("hphi", "hphi", 1000, -180.0, 180.0);
   TH1F* hX0 = new TH1F("hX0", "hX0", 1000, -100, 100);
   TH1F* hY0 = new TH1F("hY0", "hY0", 1000, -100, 100);
   TH1F* hchi = new TH1F("hchi", "hchi", 1000, -5, 10);
+  TH1F* hX0HERD = new TH1F("hX0HERD", "hX0HERD", 1000, -100, 100);
+  TH1F* hY0HERD = new TH1F("hY0HERD", "hY0HERD", 1000, -100, 100);
 
   TH1F* hclusSladd = new TH1F("hclusSladd", "hclusSladd;Ladder;Clusters", 24, 0, 24);
   TH1F* hclusSladdtrack = new TH1F("hclusSladdtrack", "hclusSladdtrack;Ladder;Clusters", 24, 0, 24);
@@ -118,7 +129,7 @@ int main(int argc, char* argv[]) {
     //    printf("----- new event %d\n", index_event);
     chain->GetEntry(index_event);
     
-    int NClusTot = ev->NClusTot;
+    int NClusTot = ev->GetNClusTot();
     //    printf("\t\tnclusters = %d\n", NClusTot);
 
     //at least 6 clusters and at most 12
@@ -178,12 +189,18 @@ int main(int argc, char* argv[]) {
     */
     strackok=true;
     ktrackok=true;
+
+    // if (ev->GetNHitsTrack()>5) {
+    //   printf("Nhits: %u (S: %u, K: %u)\n", ev->GetNHitsTrack(), ev->GetNHitsSTrack(), ev->GetNHitsKTrack());
+    // }
     
     htheta->Fill(ev->GetThetaTrack()*180.0/TMath::Pi());
     htphi->Fill(ev->GetPhiTrack()*180.0/TMath::Pi());
     hX0->Fill(ev->GetX0Track());
     hY0->Fill(ev->GetY0Track());
     hchi->Fill(log10(ev->GetChiTrack()));
+    hX0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 0));
+    hY0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 1));
 
     hclus->Fill(NClusTot);
     
@@ -236,6 +253,10 @@ int main(int argc, char* argv[]) {
 	charge2D[tt]->Fill(qpair[tt].first, qpair[tt].second);
       }
     }
+
+    chargeS_ave->Fill(ev->GetChargeTrack(0));
+    chargeK_ave->Fill(ev->GetChargeTrack(1));
+    charge2D_ave->Fill(ev->GetChargeTrack(0), ev->GetChargeTrack(1));
     
     for (int ll=0; ll<NJINF*NTDRS; ll++) {
       hclusSladd->Fill(rh->tdrCmpMap[ll], v_cog_all_laddS[ll].size());
@@ -264,7 +285,7 @@ int main(int argc, char* argv[]) {
 
 bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS, int safetyK){
 
-  int NClusTot = ev->NClusTot;
+  int NClusTot = ev->GetNClusTot();
   if(NClusTot<(minclus-1) ||  NClusTot>(maxclus+1)) return false;
   
   int nclusS[NJINF*NTDRS];

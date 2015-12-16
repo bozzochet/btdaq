@@ -215,10 +215,10 @@ int main(int argc,char** argv){
 
     if (ret1==0) {
       processed++;
-      //      printf("This event has %d clusters\n", (dd1->ev)->NClusTot);
+      //      printf("This event has %d clusters\n", (dd1->ev)->GetNClusTot());
       memset(chaK, 0, 24*sizeof(chaK[0]));
       memset(chaS, 0, 24*sizeof(chaS[0]));
-      for (int cc=0; cc<(dd1->ev)->NClusTot; cc++) {
+      for (int cc=0; cc<(dd1->ev)->GetNClusTot(); cc++) {
 	Cluster* cl = (dd1->ev)->GetCluster(cc);
 	double charge = sqrt(cl->GetCharge());
 	if (cl->side==1) {
