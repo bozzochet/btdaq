@@ -22,6 +22,7 @@ using namespace std;
 int main(int argc, char* argv[]);
 void AddAdditionalStuff(TFile* infiles[2], const char* t3names[2], TFile* fout);
 void GetStartANDStopTimeHERD(string t3names, time_t &start_time, time_t &stop_time);
+void GetTimeFromHERDTree(TChain *ch, time_t &_time, int _evt_number);
 void GetStartANDStopTimeAMS(string t3names, time_t &start_time, time_t &stop_time);
 time_t GetTime(string time_string,string time_format);
 
@@ -40,18 +41,6 @@ int main(int argc, char* argv[]){
     exit(1);
   }
 
-  /*
-  time_t start_time_herd =0;
-  time_t stop_time_herd =0;
-  GetStartANDStopTimeHERD(argv[3], start_time_herd, stop_time_herd);
-  time_t start_time_ams =0;
-  time_t stop_time_ams =0;
-  GetStartANDStopTimeAMS(argv[2], start_time_ams, stop_time_ams);
-
-  cout<<" AMS : start "<<start_time_ams<<" stop "<<stop_time_ams<<"\n"
-      <<" HERD: start "<<start_time_herd<<" stop "<<stop_time_herd
-      <<endl;
-  */
   
   const char* t3names[n_trees] = {"t4", "HERD_CALO"};
   TFile* fin[n_trees];
@@ -75,7 +64,10 @@ int main(int argc, char* argv[]){
   if (nentriesams != nentriesherd) {
     printf("WARNING: The number of entries is different. I will process only %lld entries...\n", nentries);
   }
-  exit(1);
+
+
+
+
   TFile* f = new TFile(argv[1], "RECREATE");
   f->cd();
   AddAdditionalStuff(fin, t3names, f);
@@ -85,18 +77,33 @@ int main(int argc, char* argv[]){
   
   
   if( ams->GetTree()->GetUserInfo()->GetSize() > 0) {
-    cout<<" ams->GetUserInfo()->GetSize() "<<ams->GetTree()->GetUserInfo()->GetSize()<<endl;  
+
     RHClass *rh = (RHClass*) ams->GetTree()->GetUserInfo()->At(0);
     if(rh){
-      cout<<" rh->Run "<<rh->Run<<endl;
       RHClass rh2= *rh;
-      cout<<" t3out->GetUserInfo()->GetSize() "<<t3out->GetTree()->GetUserInfo()->GetSize()<<endl; 
       t3out->GetUserInfo()->Add(&rh2);
-      cout<<" t3out->GetUserInfo()->GetSize() "<<t3out->GetTree()->GetUserInfo()->GetSize()<<endl;
     }
   } 
 
 
+  time_t start_time_ams =0;
+  time_t stop_time_ams =0;
+  GetStartANDStopTimeAMS(argv[2], start_time_ams, stop_time_ams);
+  cout<<" AMS : start "<<start_time_ams<<" stop "<<stop_time_ams
+      <<endl;
+  
+  time_t start_time_herd =0;
+  time_t stop_time_herd =0;
+  GetTimeFromHERDTree(herd, start_time_herd, 0);
+  GetTimeFromHERDTree(herd, stop_time_herd, (herd->GetEntries()-1));
+  cout<<" HERD: start "<<start_time_herd<<" stop "<<stop_time_herd
+      <<endl;
+  
+  if(stop_time_herd < start_time_ams  || start_time_herd > stop_time_ams){
+    cout<<" WARNING : Processing files corresponding to files without time overlap "<<endl;
+  }
+
+    
   TChain* t3in[n_trees] = {ams, herd};
   
   int intvar[99999];
@@ -111,11 +118,11 @@ int main(int argc, char* argv[]){
     //    oa->Print();
     for (int ii=0; ii<oa->GetEntries(); ii++) {
       TObject* obj = oa->At(ii);
-      //      printf("%s, %s\n", obj->GetName(), obj->ClassName());
+      // printf("%s, %s\n", obj->GetName(), obj->ClassName());
       TBranchElement* tbe = dynamic_cast<TBranchElement*>(obj);
       if (tbe) {
 	TString bn = tbe->GetName();
-	//    printf("%s\n", bn.Data());
+	printf("%s\n", bn.Data());
 	TString classname = tbe->GetClassName();
 	//      printf("%s\n", classname.Data());
 	t3out->Branch(bn.Data(), classname.Data(), (void**)(tbe->GetAddress()));
@@ -193,7 +200,6 @@ int main(int argc, char* argv[]){
       printf("Processed %lld out of %lld: %d%%\n", (ii+1-start), stop-start, (int)perc);
       perc++;
     }
-
   }
   printf("Processed %lld out of %lld: %d%%\n", (ii+1-start), stop-start, (int)perc);
   f->cd();
@@ -276,10 +282,48 @@ void GetStartANDStopTimeAMS(string t3names, time_t &start_time, time_t &stop_tim
   string _start=t3names.substr(pos_start[0]+4,pos_start[1]-(pos_start[0]+4));
   string _stop =t3names.substr(pos_start[1]+5,pos_start[2]-(pos_start[1]+5));
 
-  stop_time = atoi( _stop.c_str());
-  start_time= atoi(_start.c_str());
+  stop_time = atoi( _stop.c_str())-3600;
+  start_time= atoi(_start.c_str())-3600;
 
 }
+void GetTimeFromHERDTree(TChain *ch, time_t &_time, int _evt_number){
+  int n_entries=ch->GetEntries();
+  if (n_entries<1) {
+    cout<<" No entries found in HERD Tree "<<endl;
+    exit(1);
+  }
+  int time_frame[5];
+  ch->GetEntry(0);
+  string _branch_name="FrameTime";
+  TObjArray* oa = ch->GetListOfBranches();
+  for (int ii=0; ii<oa->GetEntries(); ii++) {
+    TObject* obj = oa->At(ii);
+    if(!obj) continue;
+    if(_branch_name.find(obj->GetName())== std::string::npos  ) continue;
+    //    printf(" @@@@@@@@@  %s,#####  %s\n", obj->GetName(), obj->ClassName());             
+    TBranch* tb = dynamic_cast<TBranch*>(obj);
+    if(!tb) continue;
+    TString bn = tb->GetName();
+    TString bt = tb->GetTitle();
+ 
+    ch->SetBranchAddress(bn.Data(), time_frame);
+  }
+
+  ch->GetEntry(_evt_number);
+  string time_format="%Y-%m-%d-%H:%M:%S";
+  int _year = 2015;
+  int _month= 11;
+  int _day =time_frame[0];
+  int _hour=time_frame[1];
+  int _minute=time_frame[2];
+  int _second=time_frame[3];
+  string _time_string=Form("%d-%d-%d-%d:%d:%d",_year,_month,_day,
+			   _hour,_minute,_second);
+  _time = GetTime(_time_string,time_format);
+  
+}
+
+
 void GetStartANDStopTimeHERD(string t3names, time_t &start_time, time_t &stop_time){
   
   const int n_pos=7;
