@@ -56,6 +56,7 @@ Event::Event(){
   _Y0 = -9999.9;
   _v_trackS.clear();
   _v_trackK.clear();
+  _v_trackhit.clear();
   _chisq = 999999999.9;
   for (int ii=0; ii<NJINF; ii++) {;
     for (int ss=0; ss<2; ss++) {
@@ -106,6 +107,7 @@ void Event::Clear(){
   _Y0 = -9999.9;
   _v_trackS.clear();
   _v_trackK.clear();
+  _v_trackhit.clear();
   _chisq = 999999999.9;
   
   return;
@@ -124,6 +126,7 @@ Cluster* Event::GetCluster(int ii){
   return (Cluster*)Cls->At(ii);
 }
 
+/*
 int Event::NGoldenClus(int lad, int side){
   int num=0;
   for (int ii=0;ii<NClusTot;ii++){
@@ -132,6 +135,7 @@ int Event::NGoldenClus(int lad, int side){
   }
   return num;
 }
+*/
 
 void Event::ReadAlignment(TString filename){
   
@@ -220,6 +224,7 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
   _Y0 = -9999.9;
   _v_trackS.clear();
   _v_trackK.clear();
+  _v_trackhit.clear();
   _chisq = 999999999.9;
   
   std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddS[NJINF][NTDRS];
@@ -241,7 +246,6 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
     }
   }
 
-
   int totmult=1.0;
   for (int jj=0; jj<NJINF; jj++) {
     for (int tt=0; tt<NTDRS; tt++) {
@@ -259,15 +263,14 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
   std::vector<std::pair<int, std::pair<double, double> > > vecS;//actually used just for compatibility with the telescopic function
   std::vector<std::pair<int, std::pair<double, double> > > vecK;//actually used just for compatibility with the telescopic function
   double cc = CombinatorialFit(v_cog_laddS, v_cog_laddK, NJINF, NTDRS, vecS, vecK, nptsS, nptsK, verbose);
-
   //  printf("cc = %f\n", cc);
+  this->StoreTrackClusterPatterns();
+  this->FillHitVector();
   
   bool ret = false;
   if (cc>=999999999.9) ret =false;
   else if (cc<-0.000000001) ret = false;
   else ret = true;
-
-  this->StoreTrackClusterPatterns();
   
   return ret;
 }
@@ -531,8 +534,67 @@ bool Event::IsTDRInTrack(int side, int tdrnum, int jinfnum) {
   return ((bool)(((unsigned long long int)(_track_cluster_pattern[jinfnum][side]/pow(10, tdrnum)))%10));
 }
 
-//-------------------------------------------------------------------------------------
+void Event::FillHitVector(){
 
+  std::pair<int,int> coopair[NJINF*NTDRS];
+  for (int pp=0; pp<NJINF*NTDRS; pp++) {
+    coopair[pp].first=-1;
+    coopair[pp].second=-1;
+  }
+  
+  for (int index_cluster = 0; index_cluster<NClusTot; index_cluster++) {
+
+    if (!IsClusterUsedInTrack(index_cluster)) continue;
+    Cluster* current_cluster = GetCluster(index_cluster);
+    
+    int ladder = current_cluster->ladder;
+    int side=current_cluster->side;
+    
+    if (side==0) {
+      coopair[ladder].first=index_cluster;
+    }
+    else {
+      coopair[ladder].second=index_cluster;
+    }
+  }
+  
+  for (int tt=0; tt<NJINF*NTDRS; tt++) {
+    if (coopair[tt].first>=0 || coopair[tt].second>=0) {
+      _v_trackhit.push_back(std::make_pair(tt, coopair[tt]));      
+    }
+  }
+
+  return;
+}
+
+// A TRUNCATED MEAN WOULD BE BETTER BUT STICAZZI FOR NOW...
+double Event::GetChargeTrack(int side){
+
+  if (side<0 || side>1) {
+    printf("Not a valid side: %d\n", side);
+    return -99999.9;
+  }
+  
+  int npts=0;
+  double charge=0.0;
+  
+  for (unsigned int ii=0; ii<_v_trackhit.size(); ii++) {
+    int index_cluster=-1;
+    if (side==0) index_cluster=_v_trackhit.at(ii).second.first;
+    else index_cluster=_v_trackhit.at(ii).second.second;
+    if (index_cluster>=0) {
+      Cluster* cl = GetCluster(index_cluster);
+      charge += cl->GetCharge();
+      npts++;
+    }
+  }
+  
+  charge/=npts;
+
+  return charge;
+}
+
+//-------------------------------------------------------------------------------------
 
 ClassImp(RHClass);
 
