@@ -28,6 +28,7 @@ float deltaalign[NJINF][NTDRS][3];
 
 int SingleAlign(int argc, char* argv[], bool donotwritealign=false);
 void ReadDeltaAlignment(TString filename="delta_alignment.dat");
+bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS=0, int safetyK=0);
 bool ChargeSelection(Event *_ev, RHClass *_rh,float charge_center, float lower_limit, float higher_limit); 
 
 int main(int argc, char* argv[]) {
@@ -129,8 +130,9 @@ int main(int argc, char* argv[]) {
     printf("-----------------------------------------------------------------------------------------------------------------------------\n");
     printf("FORSE LA SELEZIONE MESSA IN Analysis VA COPIATA QUI\n");
     printf("-----------------------------------------------------------------------------------------------------------------------------\n");
-    printf("L'ALLINEAMENTO SEMBRA MIGLIORE, AD ESEMPIO THETA, DANDO UNA PRIMA ALLINEATA ROZZA SEMPLICEMENTE SPOSTANDO LE OCCUPANCY A ZERO");
+    printf("L'ALLINEAMENTO E' MIGLIORE, AD ESEMPIO THETA, DANDO UNA PRIMA ALLINEATA ROZZA SEMPLICEMENTE SPOSTANDO LE OCCUPANCY A ZERO");
     printf("SENZA QUESTA COSA SI ALLINEA MA DIREI ATTORNO AD UNA TRAIETTORIA ARBITRARIA. QUINDI TIPO AD ESEMPIO THETA NON E' A MEDIA ZERO");
+    printf("AGGIUNGERE DUNQUE UNA PRODUZIONE DI UN raw_aligment.dat, NEL CASO RUNONCE, CON LE SEMPLICI h->GetMean()\n");
     printf("-----------------------------------------------------------------------------------------------------------------------------\n");
     printf("AGGIUNGERE UN REPORT ALLA FINE PER SAPERE QUELLI CHE NON HANNO CONVERGIUTO\n");
     printf("SE CI METTE TROPPO A CONVERGERE CHIAMARLO COMUNQUE COME NON CONVERGIUTO\n");
@@ -201,22 +203,24 @@ int SingleAlign(int argc, char* argv[], bool donotwritealign){
   int NSTRIPSS=640;
   int NSTRIPSK=384;
   for (int tt=0; tt<_maxtdr; tt++) {
-    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_0_%02d", rh->tdrCmpMap[tt]), 1024, 0, 1024);
-    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_posS_0_%02d", rh->tdrCmpMap[tt]), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0), NSTRIPSS*Cluster::GetPitch(0));
-    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_posK_0_%02d", rh->tdrCmpMap[tt]), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(1), NSTRIPSK*Cluster::GetPitch(1));
-    residual_posS[tt] = new TH1F(Form("residual_posS_0_%02d", rh->tdrCmpMap[tt]), Form("residual_posS_0_%02d", rh->tdrCmpMap[tt]), 
+    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_0_%02d;Channel number;Occupancy", rh->tdrCmpMap[tt]), 1024, 0, 1024);
+    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", rh->tdrCmpMap[tt]), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0), NSTRIPSS*Cluster::GetPitch(0));
+    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", rh->tdrCmpMap[tt]), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(1), NSTRIPSK*Cluster::GetPitch(1));
+    residual_posS[tt] = new TH1F(Form("residual_posS_0_%02d", rh->tdrCmpMap[tt]), Form("residual_posS_0_%02d;Residual_{S} (mm);Entries", rh->tdrCmpMap[tt]), 
 				 2*NSTRIPSS, -float(NSTRIPSS)/100.*Cluster::GetPitch(0), float(NSTRIPSS)/100.*Cluster::GetPitch(0));
-    residual_posK[tt] = new TH1F(Form("residual_posK_0_%02d", rh->tdrCmpMap[tt]), Form("residual_posK_0_%02d", rh->tdrCmpMap[tt]), 
+    residual_posK[tt] = new TH1F(Form("residual_posK_0_%02d", rh->tdrCmpMap[tt]), Form("residual_posK_0_%02d;Residual_{K} (mm);Entries", rh->tdrCmpMap[tt]), 
 				 40*NSTRIPSK, -20*float(NSTRIPSK)/100.*Cluster::GetPitch(1), 20*float(NSTRIPSK)/100.*Cluster::GetPitch(1));
   }
   
   PRINTDEBUG;
-  
-  TH1F* htheta = new TH1F("htheta", "htheta", 1000, -45.0, 45.0);
-  TH1F* htphi = new TH1F("hphi", "hphi", 1000, -180.0, 180.0);
-  TH1F* hX0 = new TH1F("hX0", "hX0", 1000, -100, 100);
-  TH1F* hY0 = new TH1F("hY0", "hY0", 1000, -100, 100);
-  TH1F* hchi = new TH1F("hchi", "hchi", 1000, -5, 10);
+
+  TH1F* chi = new TH1F("chi", "chi;log10(#chi^{2});Entries", 1000, -5, 10);
+  TH1F* theta = new TH1F("theta", "theta;#theta (rad);Entries", 10000, -1.0, 1.0);
+  TH1F* phi = new TH1F("phi", "phi;#phi (rad);Entries", 1000, -TMath::Pi(), TMath::Pi());
+  TH2F* thetaphi = new TH2F("thetaphi", "thetaphi;#theta (rad);#phi (rad);Entries", 10000, -1.0, 1.0, 1000, -TMath::Pi(), TMath::Pi());
+  TH1F* X0 = new TH1F("X0", "X0;X_{Z=0} (mm);Entries", 1000, -100, 100);
+  TH1F* Y0 = new TH1F("Y0", "Y0;Y_{Z=0} (mm);Entries", 1000, -100, 100);
+  TH2F* X0Y0 = new TH2F("X0Y0", "X0Y0;X_{Z=0} (mm);Y_{Z=0} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
 
   TH1F* hclusSladd = new TH1F("hclusSladd", "hclusSladd;Ladder;Clusters", 24, 0, 24);
   TH1F* hclusSladdtrack = new TH1F("hclusSladdtrack", "hclusSladdtrack;Ladder;Clusters", 24, 0, 24);
@@ -230,12 +234,17 @@ int SingleAlign(int argc, char* argv[], bool donotwritealign){
   for (int index_event=0; index_event<entries; index_event++) {
     //    printf("----- new event %d\n", index_event);
     chain->GetEntry(index_event);
-    
+
     int NClusTot = ev->GetNClusTot();
-    if(NClusTot<6 ||  NClusTot>10) continue;
+    //    printf("\t\tnclusters = %d\n", NClusTot);
+    
+    //at least 6 clusters and at most 12
+    //at most 3 clusters per ladder (per side) + 1 additional clusters in total (per side)
+    bool cleanevent = CleanEvent(ev, rh, 6, 30, 3, 3, 0, 0);
+    if (!cleanevent) continue;
 
     bool chargeselection = ChargeSelection(ev, rh, 1, 0.9, 3) ; 
-    if (chargeselection == false ) continue;
+    if (!chargeselection) continue;
 
     std::vector<double> v_cog_laddS[NJINF*NTDRS];
     std::vector<double> v_cog_laddK[NJINF*NTDRS];
@@ -257,7 +266,8 @@ int SingleAlign(int argc, char* argv[], bool donotwritealign){
 
     bool strackok = false;
     bool ktrackok = false;
-    
+
+    /*
     if (
 	ev->IsTDRInTrack(0, 0) &&
 	ev->IsTDRInTrack(0, 4) &&
@@ -269,13 +279,17 @@ int SingleAlign(int argc, char* argv[], bool donotwritealign){
 	ev->IsTDRInTrack(1, 4) &&
 	ev->IsTDRInTrack(1, 8) &&
 	(ev->IsTDRInTrack(1, 12) || ev->IsTDRInTrack(1, 14)) ) ktrackok=true;
+    */
+    strackok=true;
+    ktrackok=true;
 
-    
-    htheta->Fill(ev->GetThetaTrack()*180.0/TMath::Pi());
-    htphi->Fill(ev->GetPhiTrack()*180.0/TMath::Pi());
-    hX0->Fill(ev->GetX0Track());
-    hY0->Fill(ev->GetY0Track());
-    hchi->Fill(log10(ev->GetChiTrack()));
+    chi->Fill(log10(ev->GetChiTrack()));
+    theta->Fill(ev->GetThetaTrack());
+    phi->Fill(ev->GetPhiTrack());
+    thetaphi->Fill(ev->GetThetaTrack(), ev->GetPhiTrack());
+    X0->Fill(ev->GetX0Track());
+    Y0->Fill(ev->GetY0Track());
+    X0Y0->Fill(ev->GetX0Track(), ev->GetY0Track());
 
     hclus->Fill(NClusTot);
     
@@ -409,39 +423,6 @@ int SingleAlign(int argc, char* argv[], bool donotwritealign){
   return 0;
 }
 
-// GENERALIZE ME! IS ALSO WRONG:
-// - IF FOR ONE LADDER THERE ARE TWO CLUSTERS ONLY THE SECOND IS CONSIDERED.
-// - IF ON LADDER HAS NO CLUSTERS THE CUT IS NOT PASSED
-// - IT ASSUMES THAT ONLY ONE JINF IS PRESENT (THIS MAYBE IS SAFE AT THIS LEVEL)
-bool ChargeSelection(Event *ev, RHClass *_rh, float charge_center, float lower_limit, float higher_limit){
-  bool chargeselection=false;
-  
-  float charge[NTDRS];
-  for (int ii=0; ii<NTDRS; ii++) {
-    charge[ii] = 0.0;
-  }
-  
-  for (int index_cluster=0; index_cluster<ev->GetNClusTot(); index_cluster++) {
-    //    if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
-    
-    Cluster *_cl = ev->GetCluster(index_cluster);
-    int ladder = _cl->ladder;
-    
-    //    printf("%d --> %d\n", ladder, _rh->tdrCmpMap[ladder]);
-    // printf("%d --> %d\n", ladder, _rh->FindPos(ladder));
-    charge[ladder]=_cl->GetCharge();
-  }
-  if(    ((charge[0] > (charge_center-lower_limit)) && (charge[0] < (charge_center+higher_limit)))
-	 && ((charge[4] > (charge_center-lower_limit)) && (charge[4] < (charge_center+higher_limit)))
-	 && ((charge[8] > (charge_center-lower_limit)) && (charge[8] < (charge_center+higher_limit)))
-	 && ((charge[14] > (charge_center-lower_limit)) && (charge[14] < (charge_center+higher_limit)))
-	 
-	 )
-    chargeselection=true;
-  
-  return chargeselection;
-}
-
 void ReadDeltaAlignment(TString filename){
   
   //  printf("Reading delta-alignment from %s:\n", filename.Data());
@@ -499,4 +480,80 @@ void ReadDeltaAlignment(TString filename){
   // }
   
   return;
+}
+
+bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS, int safetyK){
+
+  int NClusTot = ev->GetNClusTot();
+  if(NClusTot<(minclus-1) ||  NClusTot>(maxclus+1)) return false;
+  
+  int nclusS[NJINF*NTDRS];
+  int nclusK[NJINF*NTDRS];
+  memset(nclusS, 0, sizeof(nclusS[0])*NJINF*NTDRS);
+  memset(nclusK, 0, sizeof(nclusK[0])*NJINF*NTDRS);
+
+  int safetySspent = safetyS;
+  int safetyKspent = safetyK;
+  
+  for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
+    Cluster *cl = ev->GetCluster(index_cluster);
+    int ladder = cl->ladder;
+    //      printf("%d --> %d\n", ladder, rh->FindPos(ladder));
+    int side=cl->side;
+    if (side==0) {
+      nclusS[rh->FindPos(ladder)]++;
+      if (nclusS[rh->FindPos(ladder)]>=(perladdS+safetyS)) {
+	safetySspent--;
+	if (safetySspent<0) return false;
+      }
+    }
+    else {
+      nclusK[rh->FindPos(ladder)]++;
+      if (nclusK[rh->FindPos(ladder)]>=(perladdK+safetyK)) {
+	safetyKspent--;
+	if (safetyKspent<0) return false;
+      }
+    }
+  }
+
+  /*
+  for (int jj=0; jj<NJINF*NTDRS; jj++) {
+    printf("%d %d\n", nclusS[jj], nclusK[jj]);
+  }
+  */
+  
+  return true;
+}
+
+// GENERALIZE ME! IS ALSO WRONG:
+// - IF FOR ONE LADDER THERE ARE TWO CLUSTERS ONLY THE SECOND IS CONSIDERED.
+// - IF ON LADDER HAS NO CLUSTERS THE CUT IS NOT PASSED
+// - IT ASSUMES THAT ONLY ONE JINF IS PRESENT (THIS MAYBE IS SAFE AT THIS LEVEL)
+bool ChargeSelection(Event *ev, RHClass *_rh, float charge_center, float lower_limit, float higher_limit){
+  bool chargeselection=false;
+  
+  float charge[NTDRS];
+  for (int ii=0; ii<NTDRS; ii++) {
+    charge[ii] = 0.0;
+  }
+  
+  for (int index_cluster=0; index_cluster<ev->GetNClusTot(); index_cluster++) {
+    //    if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
+    
+    Cluster *_cl = ev->GetCluster(index_cluster);
+    int ladder = _cl->ladder;
+    
+    //    printf("%d --> %d\n", ladder, _rh->tdrCmpMap[ladder]);
+    // printf("%d --> %d\n", ladder, _rh->FindPos(ladder));
+    charge[ladder]=_cl->GetCharge();
+  }
+  if(    ((charge[0] > (charge_center-lower_limit)) && (charge[0] < (charge_center+higher_limit)))
+	 && ((charge[4] > (charge_center-lower_limit)) && (charge[4] < (charge_center+higher_limit)))
+	 && ((charge[8] > (charge_center-lower_limit)) && (charge[8] < (charge_center+higher_limit)))
+	 && ((charge[14] > (charge_center-lower_limit)) && (charge[14] < (charge_center+higher_limit)))
+	 
+	 )
+    chargeselection=true;
+  
+  return chargeselection;
 }
