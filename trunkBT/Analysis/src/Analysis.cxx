@@ -102,14 +102,17 @@ int main(int argc, char* argv[]) {
   chargeS_ave = new TH1F("chargeS", "chargeS;Q_{S} (c.u.);Entries", 1000, 0, 100);
   chargeK_ave = new TH1F("chargeK", "chargeK;Q_{K} (c.u.);Entries", 1000, 0, 100);
   charge2D_ave = new TH2F("charge", "charge;Q_{S} (c.u.);Q_{K} (c.u.);Entries", 1000, 0, 100, 1000, 0, 100);
-  
-  TH1F* htheta = new TH1F("htheta", "htheta;#theta (deg);Entries", 1000, -45.0, 45.0);
-  TH1F* htphi = new TH1F("hphi", "hphi;#phi (deg);Entries", 1000, -180.0, 180.0);
-  TH1F* hX0 = new TH1F("hX0", "hX0;X_{Z=0} (mm);Entries", 1000, -100, 100);
-  TH1F* hY0 = new TH1F("hY0", "hY0;Y_{Z=0} (mm);Entries", 1000, -100, 100);
-  TH1F* hchi = new TH1F("hchi", "hchi;log10(#chi^{2});Entries", 1000, -5, 10);
-  TH1F* hX0HERD = new TH1F("hX0HERD", "hX0HERD;X_{Z=HERD} (mm);Entries", 1000, -100, 100);
-  TH1F* hY0HERD = new TH1F("hY0HERD", "hY0HERD;Y_{Z=HERD} (mm);Entries", 1000, -100, 100);
+
+  TH1F* chi = new TH1F("chi", "chi;log10(#chi^{2});Entries", 1000, -5, 10);
+  TH1F* theta = new TH1F("theta", "theta;#theta (rad);Entries", 10000, -1.0, 1.0);
+  TH1F* phi = new TH1F("phi", "phi;#phi (rad);Entries", 1000, -TMath::Pi(), TMath::Pi());
+  TH2F* thetaphi = new TH2F("thetaphi", "thetaphi;#theta (rad);#phi (rad);Entries", 10000, -1.0, 1.0, 1000, -TMath::Pi(), TMath::Pi());
+  TH1F* X0 = new TH1F("X0", "X0;X_{Z=0} (mm);Entries", 1000, -100, 100);
+  TH1F* Y0 = new TH1F("Y0", "Y0;Y_{Z=0} (mm);Entries", 1000, -100, 100);
+  TH2F* X0Y0 = new TH2F("X0Y0", "X0Y0;X_{Z=0} (mm);Y_{Z=0} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
+  TH1F* X0HERD = new TH1F("X0HERD", "X0HERD;X_{Z=HERD} (mm);Entries", 1000, -100, 100);
+  TH1F* Y0HERD = new TH1F("Y0HERD", "Y0HERD;Y_{Z=HERD} (mm);Entries", 1000, -100, 100);
+  TH2F* X0Y0HERD = new TH2F("X0Y0HERD", "X0Y0HERD;X_{Z=HERD} (mm);Y_{Z=HERD} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
 
   TH1F* hclusSladd = new TH1F("hclusSladd", "hclusSladd;Ladder;Clusters_{S}", 24, 0, 24);
   TH1F* hclusSladdtrack = new TH1F("hclusSladdtrack", "hclusSladdtrack;Ladder;Clusters_{S,OnTrack}", 24, 0, 24);
@@ -188,14 +191,17 @@ int main(int argc, char* argv[]) {
     // if (ev->GetNHitsTrack()>5) {
     //   printf("Nhits: %u (S: %u, K: %u)\n", ev->GetNHitsTrack(), ev->GetNHitsSTrack(), ev->GetNHitsKTrack());
     // }
-    
-    htheta->Fill(ev->GetThetaTrack()*180.0/TMath::Pi());
-    htphi->Fill(ev->GetPhiTrack()*180.0/TMath::Pi());
-    hX0->Fill(ev->GetX0Track());
-    hY0->Fill(ev->GetY0Track());
-    hchi->Fill(log10(ev->GetChiTrack()));
-    hX0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 0));
-    hY0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 1));
+
+    chi->Fill(log10(ev->GetChiTrack()));
+    theta->Fill(ev->GetThetaTrack());
+    phi->Fill(ev->GetPhiTrack());
+    thetaphi->Fill(ev->GetThetaTrack(), ev->GetPhiTrack());
+    X0->Fill(ev->GetX0Track());
+    Y0->Fill(ev->GetY0Track());
+    X0Y0->Fill(ev->GetX0Track(), ev->GetY0Track());
+    X0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 0));
+    Y0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 1));
+    X0Y0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 0), ev->ExtrapolateTrack(ZHERD, 1));
 
     hclus->Fill(NClusTot);
     
