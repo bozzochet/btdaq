@@ -387,7 +387,7 @@ double Event::SingleFit(std::vector<std::pair<int, std::pair<double, double> > >
   // Set starting values and step sizes for parameters
   static Double_t vstart[5] = {0.0, 0.0 , 0.0 , 0.0, 0.0};
   static Double_t step[5] =   {0.001 , 0.001 , 0.001 , 0.001};
-  minuit->mnparm(0, "theta", vstart[0], step[0], -TMath::Pi()/2.0, TMath::Pi()/2.0, ierflg);
+  minuit->mnparm(0, "theta", vstart[0], step[0], 0.0, TMath::Pi(), ierflg);
   minuit->mnparm(1, "phi",   vstart[1], step[1], -TMath::Pi(), TMath::Pi(), ierflg);
   minuit->mnparm(2, "X0",    vstart[2], step[2], 0,0, ierflg);
   minuit->mnparm(3, "Y0",    vstart[3], step[3], 0,0, ierflg);
@@ -463,6 +463,9 @@ double _compchisq(std::vector<std::pair<int, std::pair<double, double> > > vec, 
 Double_t* _func(double z, double theta, double phi, double x0, double y0) {
   
   static double iDir[3];
+
+  //even if is not required since theta is left limited to zero in minuit
+  if (theta<0) phi+=TMath::Pi();
   
   // --- directions ---
   iDir[0] = sin(theta)*cos(phi);
