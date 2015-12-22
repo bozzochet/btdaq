@@ -71,7 +71,7 @@ private:
 			int nptsS, int nptsK, 
 			bool verbose=false
 			);
-  double SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS, std::vector<std::pair<int, std::pair<double, double> > > vK, double& theta, double& thetaerr, double& phi, double& phierr, double& x0, double& x0err, double& y0, double& y0err, bool verbose=false);
+  double SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS, std::vector<std::pair<int, std::pair<double, double> > > vK, double& theta, double& thetaerr, double& phi, double& phierr, double& iDirX, double& iDirXerr, double& iDirY, double& iDirYerr, double& x0, double& x0err, double& y0, double& y0err, bool verbose=false);
 
   void FillHitVector();
   
@@ -102,6 +102,8 @@ private:
   short int ReadTDR[NTDRS];
   
   //track parameters and points
+  double _iDirX;//!
+  double _iDirY;//!
   double _theta;//!
   double _phi;//!
   double _X0;//!

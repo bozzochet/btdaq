@@ -26,7 +26,7 @@ using namespace std;
 
 float deltaalign[NJINF][NTDRS][3];
 
-int SingleAlign(int argc, char* argv[], bool donotwritealign=false);
+int SingleAlign(int argc, char* argv[], bool alignoccupancy=false, bool donotwritealign=false);
 void ReadDeltaAlignment(TString filename="delta_alignment.dat");
 bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS=0, int safetyK=0);
 bool ChargeSelection(Event *_ev, RHClass *_rh,float charge_center, float lower_limit, float higher_limit); 
@@ -55,11 +55,14 @@ int main(int argc, char* argv[]) {
 	}
       }
     }
+
+    bool firstalignment = true;
     
     bool allaligned=false;
     while (!allaligned) {
       
-      ret = SingleAlign(argc, argv);
+      ret = SingleAlign(argc, argv, firstalignment);//first alignment is done just shifting the occupancies to zero
+      firstalignment = false;
       
       float deltaalign_old[NJINF][NTDRS][3];
       for (int jj=0; jj<NJINF; jj++) {
@@ -75,13 +78,19 @@ int main(int argc, char* argv[]) {
       for (int jj=0; jj<NJINF; jj++) {
 	for (int tt=0; tt<NTDRS; tt++) {
 	  for (int cc=0; cc<2; cc++) {
-	    if (!aligned[jj][tt][cc] &&
+	    if (
+		//		!aligned[jj][tt][cc] &&
 		(fabs(deltaalign[jj][tt][cc])<0.003)
 		) {
 	      if (cc==0) printf("S ");
 	      else if (cc==1) printf("K ");
-	      printf("JINF %02d TDR %02d) aligned!\n", jj, tt);
+	      printf("JINF %02d TDR %02d) OK!\n", jj, tt);
 	      aligned[jj][tt][cc]=true;
+	    }
+	    else {
+	      if (cc==0) printf("S ");
+	      else if (cc==1) printf("K ");
+	      printf("JINF %02d TDR %02d) KO\n", jj, tt);
 	    }
 	  }
 	}
@@ -144,7 +153,7 @@ int main(int argc, char* argv[]) {
   }
   else if (progname.Contains("RunOnce")) {
 
-    ret = SingleAlign(argc, argv, true);
+    ret = SingleAlign(argc, argv, false, true);
 
     return ret;
   }
@@ -152,7 +161,7 @@ int main(int argc, char* argv[]) {
   return -9;
 }
 
-int SingleAlign(int argc, char* argv[], bool donotwritealign){
+int SingleAlign(int argc, char* argv[], bool alignoccupancy, bool donotwritealign){
   
   TChain *chain = new TChain("t4");
      
@@ -348,54 +357,64 @@ int SingleAlign(int argc, char* argv[], bool donotwritealign){
     
     new_align_file<<"#JINF \t TDR \t S (mm) \t K (mm) \t Z (mm)"<<endl;
     delta_align_file<<"#JINF \t TDR \t S (mm) \t K (mm) \t Z (mm)"<<endl;
-    
+
+    double Smean = 0.0;
+    double Kmean = 0.0;
+
     float fit_limit[2]={-30.0, 30.0};
+    
     for (int tt=0; tt<_maxtdr; tt++) {
-      TF1* gauss = new TF1("gauss", "gaus", -100.0, 100.0);
-      
-      //----------
-      
-      //    double Smean = residual_posS[tt]->GetMean();
-      double Smean = residual_posS[tt]->GetBinCenter(residual_posS[tt]->GetMaximumBin());
-      fit_limit[0]=Smean-0.3;
-      fit_limit[1]=Smean+0.3;
-      
-      residual_posS[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      residual_posS[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      
-      fit_limit[0]=gauss->GetParameter(1)-3.0*gauss->GetParameter(2);
-      fit_limit[1]=gauss->GetParameter(1)+3.0*gauss->GetParameter(2);
-      
-      residual_posS[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      residual_posS[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      
-      Smean = gauss->GetParameter(1);
-      // cout<<" Fit between "<<fit_limit[0]
-      //  	<<" and "<<	   fit_limit[1]
-      //  	<<endl;
-      // printf("S align par = %f\n", ev->GetAlignPar(0, rh->tdrCmpMap[tt], 0));
-      
-      //----------
-      
-      //    double Kmean = residual_posK[tt]->GetMean();
-      double Kmean = residual_posK[tt]->GetBinCenter(residual_posK[tt]->GetMaximumBin());
-      fit_limit[0]=Kmean-0.3;
-      fit_limit[1]=Kmean+0.3;
-      
-      residual_posK[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      residual_posK[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      
-      fit_limit[0]=gauss->GetParameter(1)-3.0*gauss->GetParameter(2);
-      fit_limit[1]=gauss->GetParameter(1)+3.0*gauss->GetParameter(2);
-      
-      residual_posK[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      residual_posK[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      
-      Kmean = gauss->GetParameter(1);
-      // cout<<" Fit between "<<fit_limit[0]
-      //  	<<" and "<<	   fit_limit[1]
-      //  	<<endl;    
-      // printf("K align par = %f\n", ev->GetAlignPar(0, rh->tdrCmpMap[tt], 1));
+      if (!alignoccupancy) {
+	TF1* gauss = new TF1("gauss", "gaus", -100.0, 100.0);
+	
+	//----------
+	
+	//    double Smean = residual_posS[tt]->GetMean();
+	Smean = residual_posS[tt]->GetBinCenter(residual_posS[tt]->GetMaximumBin());
+	fit_limit[0]=Smean-0.3;
+	fit_limit[1]=Smean+0.3;
+	
+	residual_posS[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	residual_posS[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	
+	fit_limit[0]=gauss->GetParameter(1)-3.0*gauss->GetParameter(2);
+	fit_limit[1]=gauss->GetParameter(1)+3.0*gauss->GetParameter(2);
+	
+	residual_posS[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	residual_posS[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	
+	Smean = gauss->GetParameter(1);
+	// cout<<" Fit between "<<fit_limit[0]
+	//  	<<" and "<<	   fit_limit[1]
+	//  	<<endl;
+	// printf("S align par = %f\n", ev->GetAlignPar(0, rh->tdrCmpMap[tt], 0));
+	
+	//----------
+	
+	//    double Kmean = residual_posK[tt]->GetMean();
+	Kmean = residual_posK[tt]->GetBinCenter(residual_posK[tt]->GetMaximumBin());
+	fit_limit[0]=Kmean-0.3;
+	fit_limit[1]=Kmean+0.3;
+	
+	residual_posK[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	residual_posK[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	
+	fit_limit[0]=gauss->GetParameter(1)-3.0*gauss->GetParameter(2);
+	fit_limit[1]=gauss->GetParameter(1)+3.0*gauss->GetParameter(2);
+	
+	residual_posK[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	residual_posK[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	
+	Kmean = gauss->GetParameter(1);
+	// cout<<" Fit between "<<fit_limit[0]
+	//  	<<" and "<<	   fit_limit[1]
+	//  	<<endl;    
+	// printf("K align par = %f\n", ev->GetAlignPar(0, rh->tdrCmpMap[tt], 1));
+      }
+      else {
+	Smean = occupancy_posS[tt]->GetMean();
+	Kmean = occupancy_posK[tt]->GetMean();
+      }
       
       new_align_file<<" 0 \t"<<rh->tdrCmpMap[tt]
 		    <<" \t " <<Smean+ev->GetAlignPar(0, rh->tdrCmpMap[tt], 0)
