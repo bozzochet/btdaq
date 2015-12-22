@@ -16,8 +16,8 @@ std::vector<std::pair<int, std::pair<double, double> > > _v_trackS_tmp;
 std::vector<std::pair<int, std::pair<double, double> > > _v_trackK_tmp;
 double _chisq_tmp;
 
-static double _compchisq(std::vector<std::pair<int, std::pair<double, double> > > vec, double theta, double phi, double x0, double y0, int side);
-static Double_t* _func(double z, double theta, double phi, double x0, double y0);
+static double _compchisq(std::vector<std::pair<int, std::pair<double, double> > > vec, double iDir, double iX, double iXerr);
+static Double_t _func(double z, double iDir, double iX);
 static void _fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
 
 Event::Event(){
@@ -50,6 +50,8 @@ Event::Event(){
 
   if (alignmentnotread) ReadAlignment("alignment.dat");
 
+  _iDirX = -9999.9;
+  _iDirY = -9999.9;
   _theta = -9999.9;
   _phi = -9999.9;
   _X0 = -9999.9;
@@ -101,6 +103,8 @@ void Event::Clear(){
   //     if(ff) delete ff;
   //   }
 
+  _iDirX = -9999.9;
+  _iDirY = -9999.9;
   _theta = -9999.9;
   _phi = -9999.9;
   _X0 = -9999.9;
@@ -218,6 +222,8 @@ float Event::GetAlignPar(int jinfnum, int tdrnum, int component) {
 
 bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
 
+  _iDirX = -9999.9;
+  _iDirY = -9999.9;
   _theta = -9999.9;
   _phi = -9999.9;
   _X0 = -9999.9;
@@ -334,19 +340,23 @@ double Event::CombinatorialFit(
       static TH1F hx0("hx0", "hx0", 1000, -1000.0, 1000.0);
       static TH1F hy0("hy0", "hy0", 1000, -1000.0, 1000.0); 
       */
+      double iDirX, iDirXerr;
+      double iDirY, iDirYerr;
       double theta, thetaerr;
       double phi, phierr;
       double x0, x0err;
       double y0, y0err;
       double chisq;
-      chisq = SingleFit(v_cog_trackS, v_cog_trackK, theta, thetaerr, phi, phierr, x0, x0err, y0, y0err, verbose);
+      chisq = SingleFit(v_cog_trackS, v_cog_trackK, theta, thetaerr, phi, phierr, iDirX, iDirXerr, iDirY, iDirYerr, x0, x0err, y0, y0err, verbose);
       if (chisq<_chisq) {
 	if (verbose) printf("Best track) new chisq %f, old one %f\n", chisq, _chisq);
 	_chisq=chisq;
-	_theta=theta;
-	_phi=phi;
-	_X0=x0;
-	_Y0=y0;
+	_iDirX = iDirX;
+	_iDirY = iDirY;
+	_theta = theta;
+	_phi = phi;
+	_X0 = x0;
+	_Y0 = y0;
 	_v_trackS = v_cog_trackS;
 	_v_trackK = v_cog_trackK;
       }
@@ -368,7 +378,7 @@ double Event::CombinatorialFit(
   return _chisq;
 }
 
-double Event::SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS, std::vector<std::pair<int, std::pair<double, double> > > vK, double& theta, double& thetaerr, double& phi, double& phierr, double& x0, double& x0err, double& y0, double& y0err, bool verbose){
+double Event::SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS, std::vector<std::pair<int, std::pair<double, double> > > vK, double& theta, double& thetaerr, double& phi, double& phierr, double& iDirX, double& iDirXerr, double& iDirY, double& iDirYerr, double& x0, double& x0err, double& y0, double& y0err, bool verbose){
 
   _v_trackS_tmp = vS;
   _v_trackK_tmp = vK;
@@ -386,14 +396,14 @@ double Event::SingleFit(std::vector<std::pair<int, std::pair<double, double> > >
   
   // Set starting values and step sizes for parameters
   static Double_t vstart[5] = {0.0, 0.0 , 0.0 , 0.0, 0.0};
-  static Double_t step[5] =   {0.001 , 0.001 , 0.001 , 0.001};
-  minuit->mnparm(0, "theta", vstart[0], step[0], 0.0, TMath::Pi(), ierflg);
-  minuit->mnparm(1, "phi",   vstart[1], step[1], -TMath::Pi(), TMath::Pi(), ierflg);
+  static Double_t step[5] =   {1.0e-5 , 1.0e-5 , 1.0e-5 , 1.0e-5};
+  minuit->mnparm(0, "iDirX", vstart[0], step[0], -1, 1, ierflg);
+  minuit->mnparm(1, "iDirY", vstart[1], step[1], -1, 1, ierflg);
   minuit->mnparm(2, "X0",    vstart[2], step[2], 0,0, ierflg);
   minuit->mnparm(3, "Y0",    vstart[3], step[3], 0,0, ierflg);
   
   // Now ready for minimization step
-  arglist[0] = 500;
+  arglist[0] = 50000;
   arglist[1] = 1.;
   minuit->mnexcm("MIGRAD", arglist, 2, ierflg);
   
@@ -402,12 +412,15 @@ double Event::SingleFit(std::vector<std::pair<int, std::pair<double, double> > >
   // Int_t nvpar,nparx,icstat;
   // minuit->mnstat(amin, edm, errdef, nvpar, nparx, icstat);
   // minuit->mnprin(3,amin);
-
-  minuit->GetParameter (0, theta, thetaerr);
-  minuit->GetParameter (1, phi, phierr);
+  
+  minuit->GetParameter (0, iDirX, iDirXerr);
+  minuit->GetParameter (1, iDirY, iDirYerr);
   minuit->GetParameter (2, x0, x0err);
   minuit->GetParameter (3, y0, y0err);
 
+  theta = std::acos(std::sqrt(1.0-iDirX*iDirX-iDirY*iDirY));//rho is 1
+  phi = std::atan2(iDirY, iDirX);
+  
   int ndofS = vS.size() - 2;
   int ndofK = vK.size() - 2;
 
@@ -415,11 +428,11 @@ double Event::SingleFit(std::vector<std::pair<int, std::pair<double, double> > >
   double chisqK = 0.0;
   double chisq = 0.0;
   if (ndofS>0) {
-    chisqS = _compchisq(vS, theta, phi, x0, y0, 0);
+    chisqS = _compchisq(vS, iDirX, x0, Cluster::GetNominalResolution(0));
     chisq += chisqS;
   }
   if (ndofK>0) {
-    chisqK = _compchisq(vK, theta, phi, x0, y0, 1);
+    chisqK = _compchisq(vK, iDirY, y0, Cluster::GetNominalResolution(1));
     chisq += chisqK;
   }
   
@@ -431,59 +444,56 @@ double Event::SingleFit(std::vector<std::pair<int, std::pair<double, double> > >
     else if (ndof==0) ret = 0.0;
     else ret = -1.0;
   }
-  
-  if (verbose) printf("chisq/ndof = %f/%d = %f\n", chisq, ndof, ret);
+
+  if (verbose) printf("chisq/ndof = %f/%d = %f, chisqS/ndofS = %f/%d = %f, chisqK/ndofK = %f/%d = %f\n", chisq, ndof, ret, chisqS, ndofS, chisqS/ndofS, chisqK, ndofK, chisqK/ndofK);
+
+  double dthetaddirx = iDirX/(std::sqrt(1.0-iDirX*iDirX-iDirY*iDirY)*std::sqrt(iDirX*iDirX+iDirY*iDirY));
+  double dthetaddiry = iDirY/(std::sqrt(1.0-iDirX*iDirX-iDirY*iDirY)*std::sqrt(iDirX*iDirX+iDirY*iDirY));
+  double dphiddirx = - iDirY/(iDirX*iDirX+iDirY*iDirY);
+  double dphiddiry =   iDirX/(iDirX*iDirX+iDirY*iDirY);
+
+  thetaerr = std::sqrt(std::pow(dthetaddirx*iDirXerr,2.0)+std::pow(dthetaddiry*iDirYerr,2.0));
+  phierr = std::sqrt(std::pow(dphiddirx*iDirXerr,2.0)+std::pow(dphiddiry*iDirYerr,2.0));
   
   return ret;
 }
 
 void _fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag) {
   
-  f = _compchisq(_v_trackS_tmp, par[0], par[1], par[2], par[3], 0) + _compchisq(_v_trackK_tmp, par[0], par[1], par[2], par[3], 1);
+  f = _compchisq(_v_trackS_tmp, par[0], par[2], Cluster::GetNominalResolution(0)) + _compchisq(_v_trackK_tmp, par[1], par[3], Cluster::GetNominalResolution(1));
   
   return;
 }
 
-double _compchisq(std::vector<std::pair<int, std::pair<double, double> > > vec, double theta, double phi, double x0, double y0, int side){
+double _compchisq(std::vector<std::pair<int, std::pair<double, double> > > vec, double iDir, double iX, double iXerr){
   
   static Double_t chisq;
   chisq = 0.0;
   static Double_t delta;
   delta = 0.0;
-  static double error;
-  error = Cluster::GetNominalResolution(side);
   for (int pp=0; pp<(int)(vec.size()); pp++) {
-    delta = (vec.at(pp).second.first - _func(vec.at(pp).second.second, theta, phi, x0, y0)[side])/error;
+    delta = (vec.at(pp).second.first - _func(vec.at(pp).second.second, iDir, iX))/iXerr;
     chisq += delta*delta;
   }
   
   return chisq;
 }
 
-Double_t* _func(double z, double theta, double phi, double x0, double y0) {
-  
-  static double iDir[3];
+Double_t _func(double z, double iDir, double iX) {
 
-  //even if is not required since theta is left limited to zero in minuit
-  if (theta<0) phi+=TMath::Pi();
+  Double_t iDirZ = 0;
+  iDirZ = std::sqrt(1 - iDir*iDir);//in this view the straight track is a polar one
   
-  // --- directions ---
-  iDir[0] = sin(theta)*cos(phi);
-  iDir[1] = sin(theta)*sin(phi);
-  iDir[2] = cos(theta);
-
   static double tt1;
-  tt1 = z/iDir[2];
-  
-  static Double_t point[2];
-  point[0] = x0 + tt1*iDir[0];
-  point[1] = y0 + tt1*iDir[1];
-  
-  return point;
+  tt1 = z/iDirZ;
+    
+  return iX + tt1*iDir;
 }
 
 double Event::ExtrapolateTrack(double z, int component) {
-  return _func(z, _theta, _phi, _X0, _Y0)[component];
+  if (component==0) return _func(z, _iDirX, _X0);
+  else if (component==1) return _func(z, _iDirY, _Y0);
+  else return -9999.99;
 }
 
 bool Event::IsClusterUsedInTrack(int index_cluster){
