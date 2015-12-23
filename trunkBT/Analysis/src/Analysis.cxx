@@ -20,12 +20,14 @@
 #include "Event.hh"
 /* end */
 
+/* from the CommonTool dir */
+#include "TrackSelection.hh"
+/* end */
+
 using namespace std;
 
 //raw value. To put the real distance from the most upward AMS ladder to the desired position in the ICC
 #define ZHERD 1500
-
-bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS=0, int safetyK=0);
 
 int main(int argc, char* argv[]) {
   
@@ -77,8 +79,8 @@ int main(int argc, char* argv[]) {
   TH1F* occupancy[NJINF*NTDRS];
   TH1F* occupancy_posS[NJINF*NTDRS];
   TH1F* occupancy_posK[NJINF*NTDRS];
-  TH1F* residual_posS[NJINF*NTDRS];
-  TH1F* residual_posK[NJINF*NTDRS];
+  TH1F* residual_S[NJINF*NTDRS];
+  TH1F* residual_K[NJINF*NTDRS];
   TH1F* chargeS[NJINF*NTDRS];
   TH1F* chargeK[NJINF*NTDRS];
   TH2F* charge2D[NJINF*NTDRS];
@@ -91,9 +93,9 @@ int main(int argc, char* argv[]) {
     occupancy[tt] = new TH1F(Form("occupancy_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_0_%02d;Channel number;Occupancy", rh->tdrCmpMap[tt]), 1024, 0, 1024);
     occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", rh->tdrCmpMap[tt]), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0), NSTRIPSS*Cluster::GetPitch(0));
     occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", rh->tdrCmpMap[tt]), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", rh->tdrCmpMap[tt]), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(1), NSTRIPSK*Cluster::GetPitch(1));
-    residual_posS[tt] = new TH1F(Form("residual_posS_0_%02d", rh->tdrCmpMap[tt]), Form("residual_posS_0_%02d;Residual_{S} (mm);Entries", rh->tdrCmpMap[tt]), 
+    residual_S[tt] = new TH1F(Form("residual_S_0_%02d", rh->tdrCmpMap[tt]), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", rh->tdrCmpMap[tt]), 
 				 2*NSTRIPSS, -float(NSTRIPSS)/100.*Cluster::GetPitch(0), float(NSTRIPSS)/100.*Cluster::GetPitch(0));
-    residual_posK[tt] = new TH1F(Form("residual_posK_0_%02d", rh->tdrCmpMap[tt]), Form("residual_posK_0_%02d;Residual_{K} (mm);Entries", rh->tdrCmpMap[tt]), 
+    residual_K[tt] = new TH1F(Form("residual_K_0_%02d", rh->tdrCmpMap[tt]), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", rh->tdrCmpMap[tt]), 
 				 40*NSTRIPSK, -20*float(NSTRIPSK)/100.*Cluster::GetPitch(1), 20*float(NSTRIPSK)/100.*Cluster::GetPitch(1));
     chargeS[tt] = new TH1F(Form("chargeS_0_%02d", rh->tdrCmpMap[tt]), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", rh->tdrCmpMap[tt]), 1000, 0, 100);
     chargeK[tt] = new TH1F(Form("chargeK_0_%02d", rh->tdrCmpMap[tt]), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", rh->tdrCmpMap[tt]), 1000, 0, 100);
@@ -229,14 +231,14 @@ int main(int argc, char* argv[]) {
       
       if (side==0) {
 	if (strackok) {
-	  residual_posS[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));
+	  residual_S[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));
 	  v_cog_laddS[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
 	  hclusSladdtrack->Fill(ladder);
 	}
       }
       else {
 	if (ktrackok) {
-	  residual_posK[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));
+	  residual_K[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));
 	  v_cog_laddK[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
 	  hclusKladdtrack->Fill(ladder);
 	}
@@ -287,47 +289,4 @@ int main(int argc, char* argv[]) {
   foutput->Close();
   
   return 0;
-}
-
-bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS, int safetyK){
-
-  int NClusTot = ev->GetNClusTot();
-  if(NClusTot<(minclus-1) ||  NClusTot>(maxclus+1)) return false;
-  
-  int nclusS[NJINF*NTDRS];
-  int nclusK[NJINF*NTDRS];
-  memset(nclusS, 0, sizeof(nclusS[0])*NJINF*NTDRS);
-  memset(nclusK, 0, sizeof(nclusK[0])*NJINF*NTDRS);
-
-  int safetySspent = safetyS;
-  int safetyKspent = safetyK;
-  
-  for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
-    Cluster *cl = ev->GetCluster(index_cluster);
-    int ladder = cl->ladder;
-    //      printf("%d --> %d\n", ladder, rh->FindPos(ladder));
-    int side=cl->side;
-    if (side==0) {
-      nclusS[rh->FindPos(ladder)]++;
-      if (nclusS[rh->FindPos(ladder)]>=(perladdS+safetyS)) {
-	safetySspent--;
-	if (safetySspent<0) return false;
-      }
-    }
-    else {
-      nclusK[rh->FindPos(ladder)]++;
-      if (nclusK[rh->FindPos(ladder)]>=(perladdK+safetyK)) {
-	safetyKspent--;
-	if (safetyKspent<0) return false;
-      }
-    }
-  }
-
-  /*
-  for (int jj=0; jj<NJINF*NTDRS; jj++) {
-    printf("%d %d\n", nclusS[jj], nclusK[jj]);
-  }
-  */
-  
-  return true;
 }
