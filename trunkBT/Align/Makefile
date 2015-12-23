@@ -33,12 +33,14 @@ ROOTINC := $(shell root-config --incdir)
 DECODE = ../Decode/
 DECODELIBS = -Wl,-rpath,$(DECODE) -L$(DECODE) -lEvent
 
-INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE)
+COMMON = ../CommonTool/
+
+INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE) -I$(COMMON)
 
 default: Align
 
-Align: ./obj/Align.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@
+Align: ./obj/Align.o $(COMMON)/obj/TrackSelection.o libEvent
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(DECODELIBS) -o$@
 	ln -sfv Align RunOnce
 
 ./obj/%.o: ./src/%.C
@@ -47,6 +49,14 @@ Align: ./obj/Align.o libEvent
 
 ./obj/%.o: ./src/%.cxx
 	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
+	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(COMMON)/obj/%.o: $(COMMON)/%.C
+	@if ! [ -d $(COMMON)/$(OBJ) ] ; then mkdir -p $(COMMON)/$(OBJ); fi
+	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(COMMON)/obj/%.o: $(COMMON)/%.cxx
+	@if ! [ -d $(COMMON)/$(OBJ) ] ; then mkdir -p $(COMMON)/$(OBJ); fi
 	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 libEvent:
@@ -58,3 +68,4 @@ clean:
 
 cleanALL: clean
 	make -C ../Decode clean
+	rm -f $(COMMON)/$(OBJ)/*.o
