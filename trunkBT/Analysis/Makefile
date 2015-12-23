@@ -33,15 +33,17 @@ ROOTINC := $(shell root-config --incdir)
 DECODE = ../Decode/
 DECODELIBS = -Wl,-rpath,$(DECODE) -L$(DECODE) -lEvent
 
-INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE)
+COMMON = ../CommonTool/
+
+INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE) -I$(COMMON)
 
 default: Analysis
 
 Viewer: ./obj/viewer.o
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) -o$@ 
 
-Analysis: ./obj/Analysis.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@ 
+Analysis: ./obj/Analysis.o $(COMMON)/obj/TrackSelection.o libEvent
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(DECODELIBS) -o$@ 
 
 ./obj/%.o: ./src/%.C
 	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
@@ -49,6 +51,14 @@ Analysis: ./obj/Analysis.o libEvent
 
 ./obj/%.o: ./src/%.cxx
 	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
+	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(COMMON)/obj/%.o: $(COMMON)/%.C
+	@if ! [ -d $(COMMON)/$(OBJ) ] ; then mkdir -p $(COMMON)/$(OBJ); fi
+	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(COMMON)/obj/%.o: $(COMMON)/%.cxx
+	@if ! [ -d $(COMMON)/$(OBJ) ] ; then mkdir -p $(COMMON)/$(OBJ); fi
 	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 libEvent:
@@ -61,3 +71,4 @@ clean:
 
 cleanALL: clean
 	make -C ../Decode clean
+	rm -f $(COMMON)/$(OBJ)/*.o
