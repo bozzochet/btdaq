@@ -4,6 +4,7 @@
 #include "TGraph.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TProfile.h"
 #include "TStyle.h"
 #include "TTree.h"
 #include "TChain.h"
@@ -225,10 +226,10 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
   TH1F* occupancy_posK[NJINF*NTDRS];
   TH1F* residual_S[NJINF*NTDRS];
   TH1F* residual_K[NJINF*NTDRS];
-  TGraph* residualS_vs_posS[NJINF*NTDRS];
-  TGraph* residualS_vs_posK[NJINF*NTDRS];
-  TGraph* residualK_vs_posK[NJINF*NTDRS];
-  TGraph* residualK_vs_posS[NJINF*NTDRS];
+  TProfile* residualS_vs_posS[NJINF*NTDRS];
+  TProfile* residualS_vs_posK[NJINF*NTDRS];
+  TProfile* residualK_vs_posK[NJINF*NTDRS];
+  TProfile* residualK_vs_posS[NJINF*NTDRS];
   TH1F* TrackS[NJINF*NTDRS];
   TH1F* TrackK[NJINF*NTDRS];
   int NSTRIPSS=640;
@@ -243,14 +244,10 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
 			      40*NSTRIPSK, -20*float(NSTRIPSK)/100.*Cluster::GetPitch(1), 20*float(NSTRIPSK)/100.*Cluster::GetPitch(1));
     TrackS[tt] = new TH1F(Form("TrackS_0_%02d", rh->tdrCmpMap[tt]), Form("TrackS;X_{Z%02d} (mm);Entries", rh->tdrCmpMap[tt]), 1000, -100, 100);
     TrackK[tt] = new TH1F(Form("TrackK_0_%02d", rh->tdrCmpMap[tt]), Form("TrackK;Y_{Z%02d} (mm);Entries", rh->tdrCmpMap[tt]), 1000, -100, 100);
-    residualS_vs_posS[tt] = new TGraph();
-    residualS_vs_posS[tt]->SetNameTitle(Form("residualS_vs_posS_%02d", rh->tdrCmpMap[tt]), Form("residualS_vs_posS_%02d", rh->tdrCmpMap[tt]));
-    residualS_vs_posK[tt] = new TGraph();
-    residualS_vs_posK[tt]->SetNameTitle(Form("residualS_vs_posK_%02d", rh->tdrCmpMap[tt]), Form("residualS_vs_posK_%02d", rh->tdrCmpMap[tt]));
-    residualK_vs_posK[tt] = new TGraph();
-    residualK_vs_posK[tt]->SetNameTitle(Form("residualK_vs_posK_%02d", rh->tdrCmpMap[tt]), Form("residualK_vs_posK_%02d", rh->tdrCmpMap[tt]));
-    residualK_vs_posS[tt] = new TGraph();
-    residualK_vs_posS[tt]->SetNameTitle(Form("residualK_vs_posS_%02d", rh->tdrCmpMap[tt]), Form("residualK_vs_posS_%02d", rh->tdrCmpMap[tt]));
+    residualS_vs_posS[tt] = new TProfile(Form("residualS_vs_posS_%02d", rh->tdrCmpMap[tt]), Form("residualS_vs_posS_%02d", rh->tdrCmpMap[tt]), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0), NSTRIPSS*Cluster::GetPitch(0));
+    residualS_vs_posK[tt] = new TProfile(Form("residualS_vs_posK_%02d", rh->tdrCmpMap[tt]), Form("residualS_vs_posK_%02d", rh->tdrCmpMap[tt]), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(1), NSTRIPSK*Cluster::GetPitch(1));
+    residualK_vs_posK[tt] = new TProfile(Form("residualK_vs_posK_%02d", rh->tdrCmpMap[tt]), Form("residualK_vs_posK_%02d", rh->tdrCmpMap[tt]), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(1), NSTRIPSK*Cluster::GetPitch(1));
+    residualK_vs_posS[tt] = new TProfile(Form("residualK_vs_posS_%02d", rh->tdrCmpMap[tt]), Form("residualK_vs_posS_%02d", rh->tdrCmpMap[tt]), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0), NSTRIPSS*Cluster::GetPitch(0));
   }
   
   PRINTDEBUG;
@@ -395,17 +392,17 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
 	cl_S = ev->GetCluster(index_cluster_S);
 	posS = cl_S->GetAlignedPosition();
 	resS = cl_S->GetAlignedPosition()-ev->ExtrapolateTrack(cl_S->GetZPosition(), 0);
-	residualS_vs_posS[rh->FindPos(ladder)]->SetPoint(residualS_vs_posS[rh->FindPos(ladder)]->GetN(), posS, resS);
+	residualS_vs_posS[rh->FindPos(ladder)]->Fill(posS, resS);
       }
       if (index_cluster_K>=0) {
 	cl_K = ev->GetCluster(index_cluster_K);
-	posK = cl_K->GetAlignedPosition();
+	posK = cl_K->GetAlignedPosition()>0.5*NSTRIPSK*Cluster::GetPitch(1)?cl_K->GetAlignedPosition()-NSTRIPSK*Cluster::GetPitch(1):cl_K->GetAlignedPosition();
 	resK = cl_K->GetAlignedPosition()-ev->ExtrapolateTrack(cl_K->GetZPosition(), 1);
-	residualK_vs_posK[rh->FindPos(ladder)]->SetPoint(residualK_vs_posK[rh->FindPos(ladder)]->GetN(), posK, resK);
+	residualK_vs_posK[rh->FindPos(ladder)]->Fill(posK, resK);
       }
       if (index_cluster_S>=0 && index_cluster_K>=0) {
-	residualS_vs_posK[rh->FindPos(ladder)]->SetPoint(residualS_vs_posK[rh->FindPos(ladder)]->GetN(), resS, posK);
-	residualK_vs_posS[rh->FindPos(ladder)]->SetPoint(residualK_vs_posS[rh->FindPos(ladder)]->GetN(), resK, posS);
+	residualS_vs_posK[rh->FindPos(ladder)]->Fill(posK, resS);
+	residualK_vs_posS[rh->FindPos(ladder)]->Fill(posS, resK);
       }
     }
     
@@ -418,14 +415,7 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
     //    printf(" \n ");
     //    exit(1);
   }
-  
-  for (int tt=0; tt<_maxtdr; tt++) {
-    residualS_vs_posS[tt]->Write();
-    residualS_vs_posK[tt]->Write();
-    residualK_vs_posK[tt]->Write();
-    residualK_vs_posS[tt]->Write();
-  }
-  
+    
   PRINTDEBUG;
 
   if (!donotwritealign) {
