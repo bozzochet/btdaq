@@ -268,7 +268,7 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
 
   PRINTDEBUG;
 
-  //  for (int index_event=405; index_event<406; index_event++) {
+  //  for (int index_event=14; index_event<15; index_event++) {
   for (int index_event=0; index_event<entries; index_event++) {
     //    printf("----- new event %d\n", index_event);
     chain->GetEntry(index_event);
@@ -290,7 +290,6 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
     std::vector<double> v_cog_all_laddK[NJINF*NTDRS];
 
     bool trackfitok = ev->FindTrackAndFit(3, 3, false);//at least 2 points on S, and 2 points on K, not verbose
-
     //    printf("%d\n", trackfitok);
     if (!trackfitok) continue;
     //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());
@@ -305,6 +304,8 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
     double logchi = log10(ev->GetChiTrack());
     //    printf("%d %f (%f)\n", firstalignment, logchi, fiftycent);
     if (whichalignment>=999 && logchi>2) continue;
+
+    //    printf("Qui!\n");
     
     bool strackok = false;
     bool ktrackok = false;
@@ -460,6 +461,7 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
 	residual_S[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
 	
 	Smean = gauss->GetParameter(1);
+	if (fabs(Smean)<3.0*gauss->GetParError(1)) Smean=0.0;
 	// cout<<" Fit between "<<fit_limit[0]
 	//  	<<" and "<<	   fit_limit[1]
 	//  	<<endl;
@@ -481,6 +483,7 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
 	residual_K[tt]->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
 	
 	Kmean = gauss->GetParameter(1);
+	if (fabs(Kmean)<3.0*gauss->GetParError(1)) Kmean=0.0;
 	// cout<<" Fit between "<<fit_limit[0]
 	//  	<<" and "<<	   fit_limit[1]
 	//  	<<endl;    

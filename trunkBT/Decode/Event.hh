@@ -71,7 +71,7 @@ private:
 			int nptsS, int nptsK, 
 			bool verbose=false
 			);
-  double SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS, std::vector<std::pair<int, std::pair<double, double> > > vK, double& theta, double& thetaerr, double& phi, double& phierr, double& iDirX, double& iDirXerr, double& iDirY, double& iDirYerr, double& x0, double& x0err, double& y0, double& y0err, bool verbose=false);
+  double SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS, std::vector<std::pair<int, std::pair<double, double> > > vK, double& theta, double& thetaerr, double& phi, double& phierr, double& iDirX, double& iDirXerr, double& iDirY, double& iDirYerr, double& iDirZ, double& iDirZerr, double& mX, double& mXerr, double& mY, double& mYerr, double& x0, double& x0err, double& y0, double& y0err, bool verbose=false);
 
   void FillHitVector();
   
@@ -102,12 +102,24 @@ private:
   short int ReadTDR[NTDRS];
   
   //track parameters and points
-  double _iDirX;//!
-  double _iDirY;//!
+  double _mX;//! angular coefficient in the X-Z view (mX = iDirX/iDirZ)
+  double _mY;//! angular coefficient in the Y-Z view (mX = iDirY/iDirZ)
+  double _mXerr;//!
+  double _mYerr;//!
+  double _iDirX;//! cosine director X
+  double _iDirY;//! cosine director X
+  double _iDirZ;//! cosine director Z (DirX*DirX+DirY*DirY+DirZ*DirZ=1)
+  double _iDirXerr;//!
+  double _iDirYerr;//!
+  double _iDirZerr;//!
   double _theta;//!
   double _phi;//!
+  double _thetaerr;//!
+  double _phierr;//!
   double _X0;//!
   double _Y0;//!
+  double _X0err;//!
+  double _Y0err;//!
   std::vector<std::pair<int, std::pair<double, double> > > _v_trackS;//!
   std::vector<std::pair<int, std::pair<double, double> > > _v_trackK;//!
   //! filled by FillHitVector. Here the int is the ladder number and the second pair is <cluster index X, cluster index Y>
