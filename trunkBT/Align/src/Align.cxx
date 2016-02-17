@@ -232,6 +232,9 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
   TProfile* residualK_vs_posS[NJINF*NTDRS];
   TH1F* TrackS[NJINF*NTDRS];
   TH1F* TrackK[NJINF*NTDRS];
+  vector<Double_t> cooreldiff_S[NJINF*NTDRS]; //VV
+  vector<Double_t> cooreldiff_K[NJINF*NTDRS]; //VV
+
   int NSTRIPSS=640;
   int NSTRIPSK=384;
   for (int tt=0; tt<_maxtdr; tt++) {
@@ -267,12 +270,12 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
   TH1F* hclus = new TH1F("hclus", "hclus;Clusters", 1000, 0, 1000);
 
   PRINTDEBUG;
-
+  
   //  for (int index_event=14; index_event<15; index_event++) {
   for (int index_event=0; index_event<entries; index_event++) {
     //    printf("----- new event %d\n", index_event);
     chain->GetEntry(index_event);
-
+    
     int NClusTot = ev->GetNClusTot();
     //    printf("\t\tnclusters = %d\n", NClusTot);
 
@@ -341,7 +344,7 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
       cl = ev->GetCluster(index_cluster);
       
       int ladder = cl->ladder;
-      //      printf("%d --> %d\n", ladder, rh->FindPos(ladder));
+      //printf("ladder %d --> %d\n", ladder, rh->FindPos(ladder));
       occupancy[rh->FindPos(ladder)]->Fill(cl->GetCoG());
       int side=cl->side;
       
@@ -377,6 +380,21 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
       hclusSladd->Fill(rh->tdrCmpMap[ll], v_cog_all_laddS[ll].size());
       hclusKladd->Fill(rh->tdrCmpMap[ll], v_cog_all_laddK[ll].size());
     }
+
+    //Relative Disalignment -->VV
+    for(int jj=1; jj<_maxtdr; jj++){
+      for(int ihit=0; ihit<(int)v_cog_all_laddS[jj].size(); ihit++)
+	for(int jhit=0; jhit<(int)v_cog_all_laddS[jj-1].size(); jhit++)
+	  {
+	    cooreldiff_S[jj].push_back( v_cog_all_laddS[jj].at(ihit) - v_cog_all_laddS[jj-1].at(jhit) ); 
+	  }
+      for(int ihit=0; ihit<(int)v_cog_all_laddK[jj].size(); ihit++)
+	for(int jhit=0; jhit<(int)v_cog_all_laddK[jj-1].size(); jhit++)
+	  {
+	    cooreldiff_K[jj].push_back( v_cog_all_laddK[jj].at(ihit) - v_cog_all_laddK[jj-1].at(jhit) ); 
+	  }
+    }
+    //<-- VV
 
     std::vector<std::pair<int, std::pair<int, int> > > vec_charge = ev->GetHitVector();
     for (unsigned int tt=0; tt<vec_charge.size(); tt++) {
@@ -513,7 +531,29 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
     
     new_align_file.close();
   }
+  //-->VV
+  TH1F* hcooreldiff_S[NJINF*NTDRS];
+  TH1F* hcooreldiff_K[NJINF*NTDRS];
   
+  for (int tt=1; tt<_maxtdr; tt++) {
+    sort( cooreldiff_S[tt].begin(), cooreldiff_S[tt].end() );
+    Double_t cooreldiffminS = cooreldiff_S[tt].at( (int)(cooreldiff_S[tt].size()*0.10 ) );
+    Double_t cooreldiffmaxS = cooreldiff_S[tt].at( (int)(cooreldiff_S[tt].size()*0.90 ) );
+    hcooreldiff_S[tt] = new TH1F( Form("hcooreldiff_S_%02d", rh->tdrCmpMap[tt]), Form("RelDiffWRTprevplane;Pos_{S}[%d]-Pos_{S}[%d] (mm);Occupancy",rh->tdrCmpMap[tt],rh->tdrCmpMap[tt-1]), 200, cooreldiffminS, cooreldiffmaxS);
+    for(int ii=0; ii<(int)cooreldiff_S[tt].size(); ii++) hcooreldiff_S[tt]->Fill( cooreldiff_S[tt].at(ii)); 
+    sort( cooreldiff_K[tt].begin(), cooreldiff_K[tt].end() );
+    Double_t cooreldiffminK = cooreldiff_K[tt].at( (int)(cooreldiff_K[tt].size()*0.10 ) );
+    Double_t cooreldiffmaxK = cooreldiff_K[tt].at( (int)(cooreldiff_K[tt].size()*0.90 ) );
+    hcooreldiff_K[tt] = new TH1F( Form("hcooreldiff_K_%02d", rh->tdrCmpMap[tt]), Form("RelDiffWRTprevplane;Pos_{K}[%d]-Pos_{K}[%d] (mm);Occupancy",rh->tdrCmpMap[tt],rh->tdrCmpMap[tt-1]), 200, cooreldiffminK, cooreldiffmaxK);
+    for(int ii=0; ii<(int)cooreldiff_K[tt].size(); ii++) hcooreldiff_K[tt]->Fill( cooreldiff_K[tt].at(ii)); 
+  }
+  
+  for (int tt=0; tt<_maxtdr; tt++) {
+    cooreldiff_S[tt].clear();
+    cooreldiff_K[tt].clear();
+  }
+  //<-- VV
+ 
   foutput->Write();
   foutput->Close();
   
