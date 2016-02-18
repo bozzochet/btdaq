@@ -273,41 +273,70 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
   
   //  for (int index_event=14; index_event<15; index_event++) {
   for (int index_event=0; index_event<entries; index_event++) {
-    //    printf("----- new event %d\n", index_event);
+    printf("----- new event %d\n", index_event);
+    if (rh->ntdrCmp>5) {
+      printf("0) Troppi cluster...\n");
+    }
+    PRINTDEBUG;
     chain->GetEntry(index_event);
-    
+
+    PRINTDEBUG;
+    if (rh->ntdrCmp>5) {
+      printf("1) Troppi cluster...\n");
+    }
+
     int NClusTot = ev->GetNClusTot();
     //    printf("\t\tnclusters = %d\n", NClusTot);
+    PRINTDEBUG;
 
+    if (rh->ntdrCmp>5) {
+      printf("2) Troppi cluster...\n");
+    }
+    
     //at least 6 clusters and at most 12
     //at most 3 clusters per ladder (per side) + 1 additional clusters in total (per side)
     bool cleanevent = CleanEvent(ev, rh, 6, 30, 3, 3, 0, 0);
     if (!cleanevent) continue;
 
+    if (rh->ntdrCmp>5) {
+      printf("3) Troppi cluster...\n");
+      sleep(300000);
+    }
+    
+    PRINTDEBUG;
+    
     // bool chargeselection = ChargeSelection(ev, rh, 1, 0.9, 3) ; 
     // if (!chargeselection) continue;
 
+    PRINTDEBUG;
+    
     std::vector<double> v_cog_laddS[NJINF*NTDRS];
     std::vector<double> v_cog_laddK[NJINF*NTDRS];
     std::vector<double> v_cog_all_laddS[NJINF*NTDRS];
     std::vector<double> v_cog_all_laddK[NJINF*NTDRS];
 
-    bool trackfitok = ev->FindTrackAndFit(3, 3, false);//at least 2 points on S, and 2 points on K, not verbose
+    PRINTDEBUG;
+    
+    bool trackfitok = ev->FindTrackAndFit(3, 3, false);//at least 3 points on S, and 3 points on K, not verbose
     //    printf("%d\n", trackfitok);
     if (!trackfitok) continue;
     //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());
 
+    PRINTDEBUG;
+    
     //    printf("S %024lld: %d %d %d %d %d\n", ev->GetTrackHitPattern(0), ev->IsTDRInTrack(0, 0), ev->IsTDRInTrack(0, 4), ev->IsTDRInTrack(0, 8), ev->IsTDRInTrack(0, 12), ev->IsTDRInTrack(0, 14));
     //    printf("K %024lld: %d %d %d %d %d\n", ev->GetTrackHitPattern(1), ev->IsTDRInTrack(1, 0), ev->IsTDRInTrack(1, 4), ev->IsTDRInTrack(1, 8), ev->IsTDRInTrack(1, 12), ev->IsTDRInTrack(1, 14));
     
     // //                              321098765432109876543210
     // if (ev->GetTrackHitPattern(0) <                100010001) continue;
     // if (ev->GetTrackHitPattern(1) <                100010001) continue;
-
+    
     double logchi = log10(ev->GetChiTrack());
     //    printf("%d %f (%f)\n", firstalignment, logchi, fiftycent);
     if (whichalignment>=999 && logchi>2) continue;
 
+    PRINTDEBUG;
+    
     //    printf("Qui!\n");
     
     bool strackok = false;
@@ -336,17 +365,30 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
     X0->Fill(ev->GetX0Track());
     Y0->Fill(ev->GetY0Track());
     X0Y0->Fill(ev->GetX0Track(), ev->GetY0Track());
+
+    PRINTDEBUG;
     
     hclus->Fill(NClusTot);
+
+    PRINTDEBUG;
     
     for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
-	
+
+      PRINTDEBUG;
       cl = ev->GetCluster(index_cluster);
+
+      PRINTDEBUG;
       
       int ladder = cl->ladder;
       //printf("ladder %d --> %d\n", ladder, rh->FindPos(ladder));
+      PRINTDEBUG;
+      
       occupancy[rh->FindPos(ladder)]->Fill(cl->GetCoG());
+      PRINTDEBUG;
+      
       int side=cl->side;
+
+      PRINTDEBUG;
       
       if (side==0) {
 	occupancy_posS[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
@@ -356,8 +398,12 @@ int SingleAlign(int argc, char* argv[], int whichalignment, bool donotwritealign
 	occupancy_posK[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition()>0.5*NSTRIPSK*Cluster::GetPitch(1)?cl->GetAlignedPosition()-NSTRIPSK*Cluster::GetPitch(1):cl->GetAlignedPosition());
 	v_cog_all_laddK[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
       }
-            
+
+      PRINTDEBUG;
+      
       if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
+
+      PRINTDEBUG;
       
       if (side==0) {
 	if (strackok) {
