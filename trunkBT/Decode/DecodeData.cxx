@@ -34,7 +34,7 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
   memset(tdrRaw,-1,NTDRS*sizeof(tdrRaw[0]));
   ntdrCmp=0;
   memset(tdrCmp,-1,NTDRS*sizeof(tdrCmp[0]));
-  pri=1;
+  pri=0;
   evpri=0;
   sprintf(type,"Jinf");
   if (ancillary>=0) {
@@ -95,16 +95,19 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
   mysort(tdrCmp,ntdrCmp);
   // Update the ROOT run header
   rh->nJinf=nJinf;
-  for (int ii=0;ii<nJinf;ii++)
-	  rh->JinfMap[ii]=JinfMap[ii];
+  for (int ii=0;ii<nJinf;ii++) {
+    rh->JinfMap[ii]=JinfMap[ii];
+  }
 
   rh->ntdrRaw=ntdrRaw;
-  for (int ii=0;ii<ntdrRaw;ii++)
-	  rh->tdrRawMap[ii]=tdrRaw[ii];
+  for (int ii=0;ii<ntdrRaw;ii++) {
+    rh->tdrRawMap[ii]=tdrRaw[ii];
+  }
 
   rh->ntdrCmp=ntdrCmp;
-  for (int ii=0;ii<ntdrCmp;ii++)
-	  rh->tdrCmpMap[ii]=tdrCmp[ii];
+  for (int ii=0;ii<ntdrCmp;ii++) {
+    rh->tdrCmpMap[ii]=tdrCmp[ii];
+  }
 
   if(pri) printf("Dumping the file headers that are going to be written in the ROOT files...\n");
   rh->Print();
@@ -244,11 +247,13 @@ void DecodeData::DumpRunHeader(){
   sprintf(rh->date, "%s", hh.date);
   
   printf("Run: %d   Date: %s\n",hh.run,hh.date);
-  for (int ii=0;ii<4;ii++)
-    printf("Angle (%d) = %f\n", ii, hh.gonpar[ii]);
-  printf("RefmaskJJ: 0x%x\n", hh.refmaskjj);
-  for (int ii=0;ii<24;ii++)
-    printf("Refmask (%d) = 0x%x\n", ii, hh.refmask[ii]);
+  if (pri) {
+    for (int ii=0;ii<4;ii++)
+      printf("Angle (%d) = %f\n", ii, hh.gonpar[ii]);
+    printf("RefmaskJJ: 0x%x\n", hh.refmaskjj);
+    for (int ii=0;ii<24;ii++)
+      printf("Refmask (%d) = 0x%x\n", ii, hh.refmask[ii]);
+  }
 }
 
 //=============================================================================================

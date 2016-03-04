@@ -40,27 +40,31 @@ public:
 
   static void ReadAlignment(TString filename);
   static float GetAlignPar(int jinfnum, int tdrnum, int component);
+  static float GetMultiplicityFlip(int jinfnum, int tdrnum);
 
   bool FindTrackAndFit(int nptsS, int nptsK, bool verbose=false);
+  double RefineTrack(double nsigmaS=5.0, double nsigmaK=5.0, bool verbose=false);
   double GetThetaTrack() { return _theta; };
   double GetPhiTrack() { return _phi; };
   double GetX0Track() { return _X0; };
   double GetY0Track() { return _Y0; };
   double GetChiTrack() { return _chisq; };
+  double GetChiTrackX() { return _chisqx; };
+  double GetChiTrackY() { return _chisqy; };
   double ExtrapolateTrack(double z, int component);
   bool IsClusterUsedInTrack(int index_cluster);
-  void StoreTrackClusterPatterns();
   inline unsigned long long int GetTrackHitPattern(int side, int jinfnum=0){ return _track_cluster_pattern[jinfnum][side];};
   bool IsTDRInTrack(int side, int tdrnum, int jinfnum=0);
   inline std::vector<std::pair<int, std::pair<int, int> > > GetHitVector(){ return _v_trackhit; }
   inline unsigned int GetNHitsTrack(){ return (unsigned int)(_v_trackhit.size()); }
-  inline unsigned int GetNHitsSTrack(){ return (unsigned int)(_v_trackS.size()); }
-  inline unsigned int GetNHitsKTrack(){ return (unsigned int)(_v_trackK.size()); }
+  inline unsigned int GetNHitsXTrack(){ return (unsigned int)(_v_trackS.size()); }
+  inline unsigned int GetNHitsYTrack(){ return (unsigned int)(_v_trackK.size()); }
   double GetChargeTrack(int side);
   
 private:
   static bool alignmentnotread;
   static float alignpar[NJINF][NTDRS][3];
+  static bool multflip[NJINF][NTDRS];
 
   double CombinatorialFit(
 			std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddS[NJINF][NTDRS],
@@ -71,8 +75,29 @@ private:
 			int nptsS, int nptsK, 
 			bool verbose=false
 			);
-  double SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS, std::vector<std::pair<int, std::pair<double, double> > > vK, double& theta, double& thetaerr, double& phi, double& phierr, double& iDirX, double& iDirXerr, double& iDirY, double& iDirYerr, double& iDirZ, double& iDirZerr, double& mX, double& mXerr, double& mY, double& mYerr, double& x0, double& x0err, double& y0, double& y0err, bool verbose=false);
-
+  double SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS,
+		   std::vector<std::pair<int, std::pair<double, double> > > vK,
+		   std::vector<double>& v_chilayS,
+		   std::vector<double>& v_chilayK,
+		   double& theta, double& thetaerr,
+		   double& phi, double& phierr,
+		   double& iDirX, double& iDirXerr,
+		   double& iDirY, double& iDirYerr,
+		   double& iDirZ, double& iDirZerr,
+		   double& mX, double& mXerr,
+		   double& mY, double& mYerr,
+		   double& x0, double& x0err,
+		   double& y0, double& y0err,
+		   double& chisqx, double& chisqy,
+		   bool verbose=false);
+  double SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS,
+		   std::vector<std::pair<int, std::pair<double, double> > > vK,
+		   bool verbose=false);
+  void AssignAsBestTrackFit();
+  void ClearTrack();
+  void ClearTrack_sf();
+  
+  void StoreTrackClusterPatterns();
   void FillHitVector();
   
   //! Progressive Event number
@@ -102,6 +127,9 @@ private:
   short int ReadTDR[NTDRS];
   
   //track parameters and points
+  double _chisq;//!
+  double _chisqy;//!
+  double _chisqx;//!
   double _mX;//! angular coefficient in the X-Z view (mX = iDirX/iDirZ)
   double _mY;//! angular coefficient in the Y-Z view (mX = iDirY/iDirZ)
   double _mXerr;//!
@@ -122,9 +150,11 @@ private:
   double _Y0err;//!
   std::vector<std::pair<int, std::pair<double, double> > > _v_trackS;//!
   std::vector<std::pair<int, std::pair<double, double> > > _v_trackK;//!
-  //! filled by FillHitVector. Here the int is the ladder number and the second pair is <cluster index X, cluster index Y>
+  std::vector<double> _v_chilayS;//!
+  std::vector<double> _v_chilayK;//!
+  //! filled by FillHitVector(). Here the int is the ladder number and the second pair is <cluster index X, cluster index Y>
   std::vector<std::pair<int, std::pair<int, int> > > _v_trackhit;//!
-  double _chisq;//!
+  //! filled by StoreTrackClusterPatterns()
   unsigned long long int _track_cluster_pattern[NJINF][2];//!
   
   ClassDef(Event,3)

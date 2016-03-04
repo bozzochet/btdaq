@@ -7,6 +7,30 @@
 #define MAXLENGHT 128
 #define NTDRS  24
 
+//110mum and 208mum
+#define SPITCH 0.110
+#define KPITCH 0.208
+
+//10mum and 30mum
+#define SRESO 0.010
+#define KRESO 0.030
+
+//640 and 384 channels
+#define SCHANN 640
+#define KCHANN 384
+
+#define KREADCHANN 192
+#define KSENSPITCH 41.40
+
+// 715 + 40 + 715 = 1470μm - this is the gap between two sensor on S
+// (the strip conceptually is just one but is the particle passes in this gap is not detected, both on K but also on S)
+#define SGAP 1470
+// 676 + 40 + 676 = 1392μm
+#define KGAP 1392
+
+// 40007 + 1392 (KGAP)
+#define KACTIVE 41399
+
 static double MIPSIG[2] = {35.0, 35.0};
 
 //!  Tracker Cluster class. 
@@ -20,6 +44,9 @@ class Cluster :public TObject{
 private:
   float GetCSignal(int aa);
 
+  int GetReadChannelK() { return KREADCHANN; };
+  float GetSensPitchK() { return KSENSPITCH; };
+  
 public:
   //! Adress of the first strip of the cluster
   int address;
@@ -46,8 +73,9 @@ public:
   // Power bits
   int powbits;
 
-  static double GetPitch(int side){ return (side==0)?0.104:0.208; };//104mum and 208mum
-  static double GetNominalResolution(int side){ return (side==0)?0.01:0.03; };//10mum and 30mum
+  static double GetPitch(int side){ return (side==0)?SPITCH:KPITCH; };
+  static double GetNominalResolution(int side){ return (side==0)?SRESO:KRESO; };
+  static int GetNChannels(int side){ return (side==0)?SCHANN:KCHANN; };
   
   //! std constructor (create an empty cluster)
   Cluster();
@@ -87,7 +115,7 @@ public:
   void Print();
 
   //! Returns the position of the cluster (Cog), in mm units and after alignment
-  double GetAlignedPosition();
+  double GetAlignedPosition(int mult=0);
   //! Returns the Z position
   double GetZPosition();
 

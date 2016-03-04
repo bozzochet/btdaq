@@ -13,12 +13,28 @@ ClassImp(Event);
 
 bool Event::alignmentnotread=true;
 float Event::alignpar[NJINF][NTDRS][3];
+bool Event::multflip[NJINF][NTDRS];
 
-std::vector<std::pair<int, std::pair<double, double> > > _v_trackS_tmp;
-std::vector<std::pair<int, std::pair<double, double> > > _v_trackK_tmp;
-double _chisq_tmp;
+//they store temporarily the result of the fit----------------------------
+double mX_sf, mXerr_sf;
+double mY_sf, mYerr_sf;
+double iDirX_sf, iDirXerr_sf;
+double iDirY_sf, iDirYerr_sf;
+double iDirZ_sf, iDirZerr_sf;
+double theta_sf, thetaerr_sf;
+double phi_sf, phierr_sf;
+double X0_sf, X0err_sf;
+double Y0_sf, Y0err_sf;
+double chisq_sf;
+double chisqx_sf;
+double chisqy_sf;
+std::vector<std::pair<int, std::pair<double, double> > > v_trackS_sf;
+std::vector<std::pair<int, std::pair<double, double> > > v_trackK_sf;
+std::vector<double> v_chilayS_sf;
+std::vector<double> v_chilayK_sf;
+//-------------------------------------------------------------------------
 
-static double _compchisq(std::vector<std::pair<int, std::pair<double, double> > > vec, double iDir, double iX, double iXerr, double Z0=0);
+static double _compchisq(std::vector<std::pair<int, std::pair<double, double> > > vec, std::vector<double>& v_chilay, double iDir, double iX, double iXerr, double Z0=0);
 static Double_t _func(double z, double imX, double iX, double Z0=0);
 #ifdef USEMINUIT
 static void _fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
@@ -54,40 +70,7 @@ Event::Event(){
 
   if (alignmentnotread) ReadAlignment("alignment.dat");
 
-  _iDirX = -9999.9;
-  _iDirY = -9999.9;
-  _iDirZ = -9999.9;
-  _iDirXerr = -9999.9;
-  _iDirYerr = -9999.9;
-  _iDirZerr = -9999.9;
-  
-  _mX = -9999.9;
-  _mY = -9999.9;
-  _mXerr = -9999.9;
-  _mYerr = -9999.9;
-
-  _theta = -9999.9;
-  _phi = -9999.9;
-  _thetaerr = -9999.9;
-  _phierr = -9999.9;
-  
-  _X0err = -9999.9;
-  _Y0err = -9999.9;
-  _X0err = -9999.9;
-  _Y0err = -9999.9;
-  
-  _v_trackS.clear();
-  _v_trackK.clear();
-  
-  _v_trackhit.clear();
-  
-  _chisq = 999999999.9;
-  
-  for (int ii=0; ii<NJINF; ii++) {;
-    for (int ss=0; ss<2; ss++) {
-      _track_cluster_pattern[ii][ss]=0;
-    }
-  }
+  ClearTrack();
   
   return;
 }
@@ -126,40 +109,7 @@ void Event::Clear(){
   //     if(ff) delete ff;
   //   }
 
-  _iDirX = -9999.9;
-  _iDirY = -9999.9;
-  _iDirZ = -9999.9;
-  _iDirXerr = -9999.9;
-  _iDirYerr = -9999.9;
-  _iDirZerr = -9999.9;
-  
-  _mX = -9999.9;
-  _mY = -9999.9;
-  _mXerr = -9999.9;
-  _mYerr = -9999.9;
-
-  _theta = -9999.9;
-  _phi = -9999.9;
-  _thetaerr = -9999.9;
-  _phierr = -9999.9;
-  
-  _X0err = -9999.9;
-  _Y0err = -9999.9;
-  _X0err = -9999.9;
-  _Y0err = -9999.9;
-  
-  _v_trackS.clear();
-  _v_trackK.clear();
-  
-  _v_trackhit.clear();
-  
-  _chisq = 999999999.9;
-  
-  for (int ii=0; ii<NJINF; ii++) {;
-    for (int ss=0; ss<2; ss++) {
-      _track_cluster_pattern[ii][ss]=0;
-    }
-  }
+  ClearTrack();
   
   return;
 }
@@ -197,12 +147,14 @@ void Event::ReadAlignment(TString filename){
       for (int cc=0; cc<3; cc++) {
 	alignpar[jj][tt][cc]=0.0;
       }
+      multflip[jj][tt]=false;
     }
   }
   
   int const dimline=255;
   char line[dimline];
   float dummy;
+  int dummyint;
   int jinfnum=0;
   int tdrnum=0;
   
@@ -216,9 +168,10 @@ void Event::ReadAlignment(TString filename){
       if (fgets(line, dimline, ft)!=NULL) {
 	if (*line == '#') continue; /* ignore comment line */
 	else {
-	  sscanf(line, "%d\t%d\t%f\t%f\t%f", &jinfnum, &tdrnum, &dummy, &dummy, &dummy);
+	  sscanf(line, "%d\t%d\t%f\t%f\t%f\t%d", &jinfnum, &tdrnum, &dummy, &dummy, &dummy, &dummyint);
 	  if (jinfnum<NJINF && tdrnum<NTDRS) {
-	    sscanf(line,"%d\t%d\t%f\t%f\t%f", &jinfnum, &tdrnum, &alignpar[jinfnum][tdrnum][0], &alignpar[jinfnum][tdrnum][1], &alignpar[jinfnum][tdrnum][2]);
+	    sscanf(line,"%d\t%d\t%f\t%f\t%f\t%d", &jinfnum, &tdrnum, &alignpar[jinfnum][tdrnum][0], &alignpar[jinfnum][tdrnum][1], &alignpar[jinfnum][tdrnum][2], &dummyint);
+	    multflip[jinfnum][tdrnum]=(bool)(dummyint);
 	  }
 	  else {
 	    printf("Wrong JINF/TDR (%d, %d): maximum is (%d,%d)\n", jinfnum, tdrnum, NJINF, NTDRS);
@@ -239,7 +192,7 @@ void Event::ReadAlignment(TString filename){
       for (int cc=0; cc<3; cc++) {
 	if (cc==0) printf("JINF %02d TDR %02d)\t", jj, tt);
 	printf("%f\t", alignpar[jj][tt][cc]);
-	if (cc==2) printf("\n");
+	if (cc==2) printf("%d\n", (int)(multflip[jj][tt]));
       }
     }
   }
@@ -267,8 +220,26 @@ float Event::GetAlignPar(int jinfnum, int tdrnum, int component) {
   return alignpar[jinfnum][tdrnum][component];
 }
 
-bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
+float Event::GetMultiplicityFlip(int jinfnum, int tdrnum) {
 
+  if (jinfnum>=NJINF || jinfnum<0) {
+    printf("Jinf %d: not possible, the maximum is %d...\n", jinfnum, NJINF-1);
+    return -9999;
+  }
+  if (tdrnum>=NTDRS || tdrnum<0) {
+    printf("TDR %d: not possible, the maximum is %d...\n", tdrnum, NTDRS-1);
+    return -9999;
+  }
+  
+  return multflip[jinfnum][tdrnum];
+}
+
+void Event::ClearTrack(){
+
+  _chisq = 999999999.9;
+  _chisqx = 999999999.9;
+  _chisqy = 999999999.9;
+  
   _iDirX = -9999.9;
   _iDirY = -9999.9;
   _iDirZ = -9999.9;
@@ -286,24 +257,69 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
   _thetaerr = -9999.9;
   _phierr = -9999.9;
   
-  _X0err = -9999.9;
-  _Y0err = -9999.9;
+  _X0 = -9999.9;
+  _Y0 = -9999.9;
   _X0err = -9999.9;
   _Y0err = -9999.9;
   
   _v_trackS.clear();
   _v_trackK.clear();
   
+  _v_chilayS.clear();
+  _v_chilayK.clear();
+  
   _v_trackhit.clear();
-  
-  _chisq = 999999999.9;
-  
+    
   for (int ii=0; ii<NJINF; ii++) {;
     for (int ss=0; ss<2; ss++) {
       _track_cluster_pattern[ii][ss]=0;
     }
   }
-    
+
+  return;
+}
+
+void Event::ClearTrack_sf(){
+
+  chisq_sf = 999999999.9;
+  chisqx_sf = 999999999.9;
+  chisqy_sf = 999999999.9;
+  
+  iDirX_sf = -9999.9;
+  iDirY_sf = -9999.9;
+  iDirZ_sf = -9999.9;
+  iDirXerr_sf = -9999.9;
+  iDirYerr_sf = -9999.9;
+  iDirZerr_sf = -9999.9;
+  
+  mX_sf = -9999.9;
+  mY_sf = -9999.9;
+  mXerr_sf = -9999.9;
+  mYerr_sf = -9999.9;
+
+  theta_sf = -9999.9;
+  phi_sf = -9999.9;
+  thetaerr_sf = -9999.9;
+  phierr_sf = -9999.9;
+  
+  X0_sf = -9999.9;
+  Y0_sf = -9999.9;
+  X0err_sf = -9999.9;
+  Y0err_sf = -9999.9;
+  
+  v_trackS_sf.clear();
+  v_trackK_sf.clear();
+  
+  v_chilayS_sf.clear();
+  v_chilayK_sf.clear();
+  
+  return;
+}
+
+bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
+
+  ClearTrack();
+  
   std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddS[NJINF][NTDRS];
   std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddK[NJINF][NTDRS];
   
@@ -339,15 +355,12 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
   
   std::vector<std::pair<int, std::pair<double, double> > > vecS;//actually used just for compatibility with the telescopic function
   std::vector<std::pair<int, std::pair<double, double> > > vecK;//actually used just for compatibility with the telescopic function
-  double cc = CombinatorialFit(v_cog_laddS, v_cog_laddK, NJINF, NTDRS, vecS, vecK, nptsS, nptsK, verbose);
-  //  printf("cc = %f\n", cc);
-  this->StoreTrackClusterPatterns();
-  this->FillHitVector();
+  double chisq = CombinatorialFit(v_cog_laddS, v_cog_laddK, NJINF, NTDRS, vecS, vecK, nptsS, nptsK, verbose);
+  //  printf("chisq = %f\n", chisq);
   
-  bool ret = false;
-  if (cc>=999999999.9) ret =false;
-  else if (cc<-0.000000001) ret = false;
-  else ret = true;
+  bool ret = true;
+  if (chisq>=999999999.9) ret =false;
+  else if (chisq<-0.000000001) ret = false;
   
   return ret;
 }
@@ -368,7 +381,7 @@ double Event::CombinatorialFit(
     ijinf--;
   }
   
-  if (ijinf!=0) {
+  if (ijinf!=0) {//recursion
     int sizeS = v_cog_laddS[ijinf-1][itdr-1].size();
     int sizeK = v_cog_laddK[ijinf-1][itdr-1].size();
     //    printf("size: %d %d\n", sizeS, sizeK);
@@ -389,7 +402,7 @@ double Event::CombinatorialFit(
       }
     }
   }
-  else {
+  else {//now is time to fit!
     if (verbose) {
       printf("new track to fit\n");
       printf("S: ");
@@ -404,68 +417,106 @@ double Event::CombinatorialFit(
       printf("\n");
     }
     if ((int)(v_cog_trackS.size())>=nptsS && (int)(v_cog_trackK.size())>=nptsK) {
-      /* debug
-      static TH1F hchi("hchi", "hchi", 1000, 0.0, 10.0);
-      static TH1F htheta("htheta", "htheta", 1000, -TMath::Pi()/2.0, TMath::Pi()/2.0);
-      static TH1F hphi("hphi", "hphi", 1000, -TMath::Pi(), TMath::Pi());
-      static TH1F hx0("hx0", "hx0", 1000, -1000.0, 1000.0);
-      static TH1F hy0("hy0", "hy0", 1000, -1000.0, 1000.0); 
-      */
-      double mX, mXerr;
-      double mY, mYerr;
-      double iDirX, iDirXerr;
-      double iDirY, iDirYerr;
-      double iDirZ, iDirZerr;
-      double theta, thetaerr;
-      double phi, phierr;
-      double x0, x0err;
-      double y0, y0err;
-      double chisq;
-      chisq = SingleFit(v_cog_trackS, v_cog_trackK, theta, thetaerr, phi, phierr, iDirX, iDirXerr, iDirY, iDirYerr, iDirZ, iDirZerr, mX, mXerr, mY, mYerr, x0, x0err, y0, y0err, verbose);
+      double chisq = SingleFit(v_cog_trackS, v_cog_trackK, verbose);
       if (chisq<_chisq) {
 	if (verbose) printf("Best track) new chisq %f, old one %f\n", chisq, _chisq);
-	_chisq = chisq;
-	_mX = mX;
-	_mY = mY;
-	_iDirX = iDirX;
-	_iDirY = iDirY;
-	_iDirZ = iDirZ;
-	_iDirXerr = iDirXerr;
-	_iDirYerr = iDirYerr;
-	_iDirZerr = iDirZerr;
-	_theta = theta;
-	_phi = phi;
-	_thetaerr = thetaerr;
-	_phierr = phierr;
-	_X0 = x0;
-	_Y0 = y0;
-	_X0err = x0err;
-	_Y0err = y0err;
-	_v_trackS = v_cog_trackS;
-	_v_trackK = v_cog_trackK;
+	AssignAsBestTrackFit();
       }
-      /*
-      hchi.Fill(log10(chisq));
-      htheta.Fill(theta);
-      hphi.Fill(phi);
-      hx0.Fill(x0);
-      hy0.Fill(y0);
-      */
     }
     if (verbose) {
       printf("----------------------\n");
     }
   }
-
+  
   //  sleep(1);
   
   return _chisq;
 }
 
-double Event::SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS, std::vector<std::pair<int, std::pair<double, double> > > vK, double& theta, double& thetaerr, double& phi, double& phierr, double& iDirX, double& iDirXerr, double& iDirY, double& iDirYerr, double& iDirZ, double& iDirZerr, double& mX, double& mXerr, double& mY, double& mYerr, double& x0, double& x0err, double& y0, double& y0err, bool verbose){
+void Event::AssignAsBestTrackFit(){
 
-  _v_trackS_tmp = vS;
-  _v_trackK_tmp = vK;
+  _chisq = chisq_sf;
+  _chisqx = chisqx_sf;
+  _chisqy = chisqy_sf;
+  _mX = mX_sf;
+  _mY = mY_sf;
+  _mXerr = mXerr_sf;
+  _mYerr = mYerr_sf;
+  _iDirX = iDirX_sf;
+  _iDirY = iDirY_sf;
+  _iDirZ = iDirZ_sf;
+  _iDirXerr = iDirXerr_sf;
+  _iDirYerr = iDirYerr_sf;
+  _iDirZerr = iDirZerr_sf;
+  _theta = theta_sf;
+  _phi = phi_sf;
+  _thetaerr = thetaerr_sf;
+  _phierr = phierr_sf;
+  _X0 = X0_sf;
+  _Y0 = Y0_sf;
+  _X0err = X0err_sf;
+  _Y0err = Y0err_sf;
+  _v_trackS = v_trackS_sf;
+  _v_trackK = v_trackK_sf;
+  _v_chilayS = v_chilayS_sf;
+  _v_chilayK = v_chilayK_sf;
+
+  StoreTrackClusterPatterns();
+  FillHitVector();
+  
+  return;  
+}
+
+double Event::SingleFit(
+			std::vector<std::pair<int, std::pair<double, double> > > vS,
+			std::vector<std::pair<int, std::pair<double, double> > > vK,
+			bool verbose
+			){
+
+  ClearTrack_sf();
+  
+  /* debug
+     static TH1F hchi("hchi", "hchi", 1000, 0.0, 10.0);
+     static TH1F htheta("htheta", "htheta", 1000, -TMath::Pi()/2.0, TMath::Pi()/2.0);
+     static TH1F hphi("hphi", "hphi", 1000, -TMath::Pi(), TMath::Pi());
+     static TH1F hx0("hx0", "hx0", 1000, -1000.0, 1000.0);
+     static TH1F hy0("hy0", "hy0", 1000, -1000.0, 1000.0); 
+  */
+  
+  chisq_sf = SingleFit(vS, vK, v_chilayS_sf, v_chilayK_sf, theta_sf, thetaerr_sf, phi_sf, phierr_sf, iDirX_sf, iDirXerr_sf, iDirY_sf, iDirYerr_sf, iDirZ_sf, iDirZerr_sf, mX_sf, mXerr_sf, mY_sf, mYerr_sf, X0_sf, X0err_sf, Y0_sf, Y0err_sf, chisqx_sf, chisqy_sf, verbose);
+  
+  /*
+    hchi.Fill(log10(chisq_sf));
+    htheta.Fill(theta_sf);
+    hphi.Fill(phi_sf);
+    hx0.Fill(X0_sf);
+    hy0.Fill(Y0_sf);
+  */
+
+  if (verbose) printf("chisq: %f, chisqx: %f, chisqy: %f, theta = %f, phi = %f, X0 = %f, Y0 = %f\n", chisq_sf, chisqx_sf, chisqy_sf, theta_sf, phi_sf, X0_sf, Y0_sf);
+  
+  return chisq_sf;
+}
+
+double Event::SingleFit(
+			std::vector<std::pair<int, std::pair<double, double> > > vS,
+			std::vector<std::pair<int, std::pair<double, double> > > vK,
+			std::vector<double>& v_chilayS,
+			std::vector<double>& v_chilayK,
+			double& theta, double& thetaerr,
+			double& phi, double& phierr,
+			double& iDirX, double& iDirXerr,
+			double& iDirY, double& iDirYerr,
+			double& iDirZ, double& iDirZerr,
+			double& mX, double& mXerr,
+			double& mY, double& mYerr,
+			double& X0, double& X0err,
+			double& Y0, double& Y0err,
+			double& chisqx, double& chisqy,
+			bool verbose){
+
+  v_trackS_sf = vS;
+  v_trackK_sf = vK;
 
   Double_t corrXmX, corrYmY;
   
@@ -519,8 +570,8 @@ double Event::SingleFit(std::vector<std::pair<int, std::pair<double, double> > >
   
   minuit->GetParameter (0, mX, mXerr);
   minuit->GetParameter (1, mY, mYerr);
-  minuit->GetParameter (2, x0, x0err);
-  minuit->GetParameter (3, y0, y0err);
+  minuit->GetParameter (2, X0, X0err);
+  minuit->GetParameter (3, Y0, Y0err);
   
   Double_t covmat[4][4];
   minuit->mnemat(&covmat[0][0],4);
@@ -537,10 +588,10 @@ double Event::SingleFit(std::vector<std::pair<int, std::pair<double, double> > >
   Double_t Sx=0;   for(int i=0; i<(int)nx; i++) Sx  += vS.at(i).second.first/pow(Cluster::GetNominalResolution(0),2);
   Double_t Szx=0;  for(int i=0; i<(int)nx; i++) Szx += (vS.at(i).second.first*vS.at(i).second.second)/pow(Cluster::GetNominalResolution(0),2);
   Double_t Dx = S1*Szz - Sz*Sz;
-  x0 = (Sx*Szz-Sz*Szx)/Dx;
+  X0 = (Sx*Szz-Sz*Szx)/Dx;
   //iDirX = (S1*Szx-Sz*Sx)/Dx; iDirX=-iDirX;
   mX = (S1*Szx-Sz*Sx)/Dx; //mX=-mX;
-  x0err = sqrt(Szz/Dx);
+  X0err = sqrt(Szz/Dx);
   //iDirXerr = sqrt(S1/Dx);
   mXerr = sqrt(S1/Dx);
   corrXmX = -Sz/sqrt(Szz*S1);
@@ -553,16 +604,16 @@ double Event::SingleFit(std::vector<std::pair<int, std::pair<double, double> > >
   Double_t Sy=0;   for(int i=0; i<(int)ny; i++) Sy  += vK.at(i).second.first/pow(Cluster::GetNominalResolution(1),2);
   Double_t Szy=0;  for(int i=0; i<(int)ny; i++) Szy += (vK.at(i).second.first*vK.at(i).second.second)/pow(Cluster::GetNominalResolution(1),2);
   Double_t Dy = S1*Szz - Sz*Sz;
-  y0 = (Sy*Szz-Sz*Szy)/Dy;
+  Y0 = (Sy*Szz-Sz*Szy)/Dy;
   //iDirY = (S1*Szy-Sz*Sy)/Dy; iDirY=-iDirY;
   mY = (S1*Szy-Sz*Sy)/Dy; //mY=-mY;
-  y0err = sqrt(Szz/Dy);
+  Y0err = sqrt(Szz/Dy);
   //iDirYerr = sqrt(S1/Dy);
   mYerr = sqrt(S1/Dy);
   corrYmY = -Sz/sqrt(Szz*S1);
 #endif
 
-  //  printf("%f %f %f %f\n", mX, mY, x0, y0);
+  //  printf("%f %f %f %f\n", mX, mY, X0, Y0);
   
   //    dirX = mX * dirZ                 -->       dirX = mX / sqrt(1 + mX^2 + mY^2)
   //    dirY = mY * dirZ                 -->       dirX = mY / sqrt(1 + mX^2 + mY^2)
@@ -624,39 +675,49 @@ double Event::SingleFit(std::vector<std::pair<int, std::pair<double, double> > >
   double chisqS = 0.0;
   double chisqK = 0.0;
   double chisq = 0.0;
-  if (ndofS>0) {
-    chisqS = _compchisq(vS, mX, x0, Cluster::GetNominalResolution(0));
+  if (ndofS>=0) {
+    chisqS = _compchisq(vS, v_chilayS, mX, X0, Cluster::GetNominalResolution(0));
     chisq += chisqS;
   }
-  if (ndofK>0) {
-    chisqK = _compchisq(vK, mY, y0, Cluster::GetNominalResolution(1));
+  if (ndofK>=0) {
+    chisqK = _compchisq(vK, v_chilayK, mY, Y0, Cluster::GetNominalResolution(1));
     chisq += chisqK;
   }
   
   int ndof = ndofS + ndofK;
-  double ret = chisq/ndof;  
+  double ret = chisq/ndof;
   if (ndof<=0) {
     if (ndofS>0) ret = chisqS/ndofS;
     else if (ndofK>0) ret = chisqK/ndofK;
     else if (ndof==0) ret = 0.0;
     else ret = -1.0;
   }
+  chisqx = -1.0;
+  if (ndofS>0) chisqx = chisqS/ndofS;
+  else if (ndofS==0) chisqx = 0.0;
+  chisqy = -1.0;
+  if (ndofK>0) chisqy = chisqK/ndofK;
+  else if (ndofK==0) chisqy = 0.0;
 
-  if (verbose) printf("chisq/ndof = %f/%d = %f, chisqS/ndofS = %f/%d = %f, chisqK/ndofK = %f/%d = %f\n", chisq, ndof, ret, chisqS, ndofS, chisqS/ndofS, chisqK, ndofK, chisqK/ndofK);
+  if (verbose) printf("chisq/ndof = %f/%d = %f, chisqS/ndofS = %f/%d = %f, chisqK/ndofK = %f/%d = %f\n", chisq, ndof, ret, chisqS, ndofS, chisqx, chisqK, ndofK, chisqy);
 
   return ret;
 }
 
 #ifdef USEMINUIT
 void _fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag) {
+
+  std::vector<double> v_chilay;
   
-  f = _compchisq(_v_trackS_tmp, par[0], par[2], Cluster::GetNominalResolution(0)) + _compchisq(_v_trackK_tmp, par[1], par[3], Cluster::GetNominalResolution(1));
+  f = _compchisq(v_trackS_sf, v_chilay, par[0], par[2], Cluster::GetNominalResolution(0)) + _compchisq(v_trackK_sf, v_chilay, par[1], par[3], Cluster::GetNominalResolution(1));
   
   return;
 }
 #endif
 
-double _compchisq(std::vector<std::pair<int, std::pair<double, double> > > vec, double imX, double iX, double iXerr, double Z0){
+double _compchisq(std::vector<std::pair<int, std::pair<double, double> > > vec, std::vector<double>& v_chilay, double imX, double iX, double iXerr, double Z0){
+
+  v_chilay.clear();
   
   static Double_t chisq;
   chisq = 0.0;
@@ -664,6 +725,7 @@ double _compchisq(std::vector<std::pair<int, std::pair<double, double> > > vec, 
   delta = 0.0;
   for (int pp=0; pp<(int)(vec.size()); pp++) {
     delta = (vec.at(pp).second.first - _func(vec.at(pp).second.second, imX, iX, Z0))/iXerr;
+    v_chilay.push_back(delta*delta);
     chisq += delta*delta;
   }
   
@@ -733,6 +795,8 @@ bool Event::IsTDRInTrack(int side, int tdrnum, int jinfnum) {
 
 void Event::FillHitVector(){
 
+  _v_trackhit.clear();
+  
   std::pair<int,int> coopair[NJINF*NTDRS];
   for (int pp=0; pp<NJINF*NTDRS; pp++) {
     coopair[pp].first=-1;
@@ -762,6 +826,42 @@ void Event::FillHitVector(){
   }
 
   return;
+}
+
+struct sort_pred {
+  bool operator()(const std::pair<int,double> &left, const std::pair<int,double> &right) {
+    return left.second < right.second;
+  }
+};
+
+double Event::RefineTrack(double nsigmaS, double nsigmaK, bool verbose){
+  
+  std::vector<std::pair<int, std::pair<double, double> > > _v_trackS_tmp = _v_trackS;
+  std::vector<std::pair<int, std::pair<double, double> > > _v_trackK_tmp = _v_trackK;
+  
+  std::vector<std::pair<int, double> > _v_chilayS_tmp;
+  for (unsigned int ii=0; ii<_v_chilayS.size(); ii++) {
+    _v_chilayS_tmp.push_back(std::make_pair(ii, _v_chilayS.at(ii)));
+  }
+  std::sort(_v_chilayS_tmp.begin(), _v_chilayS_tmp.end(), sort_pred());
+  
+  std::vector<std::pair<int, double> > _v_chilayK_tmp;
+  for (unsigned int ii=0; ii<_v_chilayK.size(); ii++) {
+    _v_chilayK_tmp.push_back(std::make_pair(ii, _v_chilayK.at(ii)));
+  }
+  std::sort(_v_chilayK_tmp.begin(), _v_chilayK_tmp.end(), sort_pred());
+
+  if (sqrt(_v_chilayS_tmp.at(_v_chilayS_tmp.size()-1).second)>nsigmaS) {//if the worst residual is above threshold is removed
+    _v_trackS_tmp.erase(_v_trackS_tmp.begin()+_v_chilayS_tmp.at(_v_chilayS_tmp.size()-1).first);
+  }
+  if (sqrt(_v_chilayK_tmp.at(_v_chilayK_tmp.size()-1).second)>nsigmaK) {//if the worst residual is above threshold is removed
+    _v_trackK_tmp.erase(_v_trackK_tmp.begin()+_v_chilayK_tmp.at(_v_chilayK_tmp.size()-1).first);
+  }
+
+  double ret = SingleFit(_v_trackS_tmp, _v_trackK_tmp, false);
+  AssignAsBestTrackFit();
+  
+  return ret;
 }
 
 // A TRUNCATED MEAN WOULD BE BETTER BUT STICAZZI FOR NOW...
@@ -843,12 +943,20 @@ void RHClass::Print(){
 
 int RHClass::FindPos(int tdrnum){
 
-  // for (int ii=0;ii<ntdrCmp;ii++) {
-  //   printf("CMP: %d -> %d\n", ii, tdrCmp[ii]);
-  // }
+  if (ntdrCmp>5) {
+    Print();
+    sleep(10);
+    printf("ntdrCmp = %d\n", ntdrCmp);
+    sleep(10);
+    for (int ii=0; ii<ntdrCmp; ii++) {
+      printf("CMP: %d -> %d\n", ii, tdrCmpMap[ii]);
+    }
+    sleep(10);
+  }
   
-  for (int ii=0;ii<ntdrCmp;ii++)
-    if(tdrCmpMap[ii]==tdrnum)  return ii;
+  for (int ii=0; ii<ntdrCmp; ii++)
+    if (tdrCmpMap[ii]==tdrnum) return ii;
+  
   return -1;
 }
 
