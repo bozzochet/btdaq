@@ -203,16 +203,17 @@ int main(int argc,char** argv){
   t4->GetUserInfo()->Add(dd1->rh);
     
   int ret1=0;
-  for (int ii=0;ii<10;){
+  while (1) {
+    
     ret1=dd1->EndOfFile();    
     if (ret1) break;
-
+    
     ret1=dd1->ReadOneEvent();
     //    printf("%d\n", ret1);
     
     ret1=dd1->EndOfFile();    
     if (ret1) break;
-
+    
     if (ret1==0) {
       processed++;
       //      printf("This event has %d clusters\n", (dd1->ev)->GetNClusTot());

@@ -42,6 +42,7 @@ default: Align
 Align: ./obj/Align.o $(COMMON)/obj/TrackSelection.o libEvent
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(DECODELIBS) -o$@
 	ln -sfv Align RunOnce
+	ln -sfv Align FirstStepAlign
 
 ./obj/%.o: ./src/%.C
 	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi

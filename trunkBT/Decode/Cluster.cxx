@@ -188,11 +188,24 @@ float Cluster::GetCoG(){
   else return address+ee;
 }
 
-double Cluster::GetAlignedPosition(){
+double Cluster::GetAlignedPosition(int mult){
   double align_shift = Event::GetAlignPar(GetJinf(), GetTDR(), side);
-  double channel_shift = 0;
-  if (side==1) channel_shift = 640;
-  return (GetCoG()-channel_shift)*GetPitch(side)-align_shift;
+  float cog = GetCoG();
+  float cog2=cog;
+  double mult_shift = 0.0;
+  float pitchcorr = 0.0;
+  if (side==1) {
+    cog2 -= GetNChannels(0);//N channels of S --> cog in [0, 383]
+    int sensor=(int)((cog2+mult*GetNChannels(1))/GetReadChannelK());//cast to int but essentially is also used as 'floor'
+    bool multflip = Event::GetMultiplicityFlip(GetJinf(), GetTDR());
+    if (multflip && sensor%2) {//if sensor is odd (DISPARO)
+      sensor-=2;//move 'back' of two sensors...
+    }
+    mult_shift = GetSensPitchK()*sensor;
+    if(cog2>191.5) cog2-=192.0;//--> cog in [0, 191]
+    if (cog2>190.5) pitchcorr = 0.5;//last strip of the sensor is half pitch more far
+  }
+  return (cog2+pitchcorr)*GetPitch(side)+mult_shift-align_shift;
 }
 
 double Cluster::GetZPosition(){
