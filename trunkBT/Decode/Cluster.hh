@@ -106,7 +106,7 @@ public:
   //! Returns the Total Signal of the cluster
   float GetTotSig();
   //! Return the Cluster SN
-  float GetTotSN();  
+  float GetTotSN();
   //! Caclulate the eta (0.,1.)
   float GetEta();
   //! Calculate Etaraw (-0.5,0.5)

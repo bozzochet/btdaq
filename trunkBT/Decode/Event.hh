@@ -43,7 +43,8 @@ public:
   static float GetMultiplicityFlip(int jinfnum, int tdrnum);
 
   bool FindTrackAndFit(int nptsS, int nptsK, bool verbose=false);
-  double RefineTrack(double nsigmaS=5.0, double nsigmaK=5.0, bool verbose=false);
+  bool FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, double threshK, bool verbose=false);
+  double RefineTrack(double nsigmaS=5.0, int nptsS=3, double nsigmaK=5.0, int nptsK=3, bool verbose=false);
   double GetThetaTrack() { return _theta; };
   double GetPhiTrack() { return _phi; };
   double GetX0Track() { return _X0; };
