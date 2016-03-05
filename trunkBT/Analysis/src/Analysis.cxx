@@ -122,6 +122,7 @@ int main(int argc, char* argv[]) {
   TH1F* hclusKladdtrack = new TH1F("hclusKladdtrack", "hclusKladdtrack;Ladder;Clusters_{K,OnTrack}", 24, 0, 24);
   TH1F* hclus = new TH1F("hclus", "hclus;Clusters;Entries", 1000, 0, 1000);
 
+  Long64_t cleanevs=0;
   Long64_t tracks=0;
   Long64_t goodtracks=0;
   Long64_t goodStracks=0;
@@ -137,22 +138,42 @@ int main(int argc, char* argv[]) {
     int NClusTot = ev->GetNClusTot();
     //    printf("\t\tnclusters = %d\n", NClusTot);
 
-    //at least 6 clusters and at most 12
-    //at most 3 clusters per ladder (per side) + 1 additional clusters in total (per side)
-    bool cleanevent = CleanEvent(ev, rh, 6, 30, 3, 3, 0, 0);
+    //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
+    //and at most 50 (to avoid too much noise around and too much combinatorial)
+    //at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
+    bool cleanevent = CleanEvent(ev, rh, 4, 50, 6, 6, 0, 0);
     if (!cleanevent) continue;
+    cleanevs++;
     
     std::vector<double> v_cog_laddS[NJINF*NTDRS];
     std::vector<double> v_cog_laddK[NJINF*NTDRS];
     std::vector<double> v_cog_all_laddS[NJINF*NTDRS];
     std::vector<double> v_cog_all_laddK[NJINF*NTDRS];
-    
-    bool trackfitok = ev->FindTrackAndFit(3, 3, false);//at least 3 points on 3, and 2 points on K, not verbose
 
-    //    printf("trackfit: %d\n", trackfitok);
+    int nptsS=3;
+    int nptsK=3;
+
+    //at least 3 points on S, and 3 points on K, not verbose
+    nptsS=3;
+    nptsK=3;
+    bool trackfitok = ev->FindTrackAndFit(nptsS, nptsK, false);
+    //    printf("%d\n", trackfitok);
+    if (!trackfitok) {
+      //let's downscale to 2 (on S) and 2 (on K) hits but even in this no-chisq case
+      //let's garantee a certain relaiability of the track fitting the one with the higher charge (this method can be used also for ions)
+      //and requiring an higher S/N for the cluster
+      nptsS=2;
+      nptsK=2;
+      trackfitok = ev->FindHigherChargeTrackAndFit(nptsS, 5.0, nptsK, 5.0, false);
+    }
     if (!trackfitok) continue;
+    //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());    
     tracks++;
-    //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());
+    
+    //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
+    //(but only if removing them still we'll have more or equal than 3 (2 if 'HigherCharge') hits on S and 3 (2 if 'HigherCharge') hits on K)
+    //and perform the fit again
+    ev->RefineTrack(6.0, nptsS, 6.0, nptsK);
 
     //    printf("S %024lld: %d %d %d %d %d\n", ev->GetTrackHitPattern(0), ev->IsTDRInTrack(0, 0), ev->IsTDRInTrack(0, 4), ev->IsTDRInTrack(0, 8), ev->IsTDRInTrack(0, 12), ev->IsTDRInTrack(0, 14));
     //    printf("K %024lld: %d %d %d %d %d\n", ev->GetTrackHitPattern(1), ev->IsTDRInTrack(1, 0), ev->IsTDRInTrack(1, 4), ev->IsTDRInTrack(1, 8), ev->IsTDRInTrack(1, 12), ev->IsTDRInTrack(1, 14));
@@ -279,6 +300,7 @@ int main(int argc, char* argv[]) {
   
   printf("---------------------------------------------\n");
   printf("\t%lld events analyzed\n", entries);
+  printf("\t\t%lld clean events\n", cleanevs);
   printf("\t\t%lld tracks fitted\n", tracks);
   printf("\t\t%lld good tracks found\n", goodtracks);
   // printf("\t\t%lld good S tracks found\n", goodStracks);

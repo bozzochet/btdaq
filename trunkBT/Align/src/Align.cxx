@@ -32,7 +32,7 @@ using namespace std;
 
 float deltaalign[NJINF][NTDRS][3];
 
-int SingleAlign(int argc, char* argv[], int indexalignment, bool brunasalig=false, bool chisqcut=false, bool writealign=true);
+int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth=0, bool chisqcut=false, bool writealign=true);
 void ReadDeltaAlignment(TString filename="delta_alignment.dat");
 
 int main(int argc, char* argv[]) {
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
 
     int indexalignment = 0;
 
-    ret = SingleAlign(argc, argv, indexalignment++, true);//first alignment with the 'Bruna's method'
+    ret = SingleAlign(argc, argv, indexalignment++, 1);//first alignment with the 'Bruna's method'
     if (ret) return ret;
     
     bool allaligned=false;
@@ -144,9 +144,9 @@ int main(int argc, char* argv[]) {
       if (progname.Contains("FirstStepAlign")) return 0;
     }
 
-    // ret = SingleAlign(argc, argv, indexalignment++, false, true);//last alignment with the chisq cut and with the residuals method
-    // if (ret) return ret;
-    ret = SingleAlign(argc, argv, indexalignment++, false, true, false);//let's run again to have the plots with the final alignment
+    ret = SingleAlign(argc, argv, indexalignment++, 2);//last alignment just to shift all the ladder of the same quantity to have <X0>=0 and <Y0>=0 
+    if (ret) return ret;
+    ret = SingleAlign(argc, argv, indexalignment++, 0, true, false);//let's run again to have the plots with the final alignment
     if (ret) return ret;
     
     printf("-----------------------------------------------------------------------------------------------------------------------------\n");
@@ -175,7 +175,7 @@ int main(int argc, char* argv[]) {
   }
   else if (progname.Contains("RunOnce")) {
 
-    ret = SingleAlign(argc, argv, 0, false, false, false);//without the cut on chisq
+    ret = SingleAlign(argc, argv, 0, 0, false, false);//without the cut on chisq
 
     return ret;
   }
@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
   return -9;
 }
 
-int SingleAlign(int argc, char* argv[], int indexalignment, bool brunasalig, bool chisqcut, bool writealign){
+int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool chisqcut, bool writealign){
   
   TChain *chain = new TChain("t4");
      
@@ -307,12 +307,11 @@ int SingleAlign(int argc, char* argv[], int indexalignment, bool brunasalig, boo
       printf("2) Troppi cluster...\n");
     }
     
-    //at least 6 clusters (if we want 3 on S and 3 on K this is really the sindacal minimum...)
-    //and at most 50 (to avoid too much noise around)
-    //at most 5 clusters per ladder (per side) + 5 additional clusters in total (per side)
-    bool cleanevent = CleanEvent(ev, rh, 6, 50, 5, 5, 5, 5);
+    //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
+    //and at most 50 (to avoid too much noise around and too much combinatorial)
+    //at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
+    bool cleanevent = CleanEvent(ev, rh, 4, 50, 6, 6, 0, 0);
     if (!cleanevent) continue;
-
     cleanevs++;
     
     if (rh->ntdrCmp>5) {
@@ -322,28 +321,39 @@ int SingleAlign(int argc, char* argv[], int indexalignment, bool brunasalig, boo
     
     PRINTDEBUG;
     
-    // bool chargeselection = ChargeSelection(ev, rh, 1, 0.9, 3) ; 
-    // if (!chargeselection) continue;
-
-    PRINTDEBUG;
-    
     std::vector<double> v_cog_laddS[NJINF*NTDRS];
     std::vector<double> v_cog_laddK[NJINF*NTDRS];
     std::vector<double> v_cog_all_laddS[NJINF*NTDRS];
     std::vector<double> v_cog_all_laddK[NJINF*NTDRS];
 
     PRINTDEBUG;
-    
-    bool trackfitok = ev->FindTrackAndFit(3, 3, false);//at least 3 points on S, and 3 points on K, not verbose
+
+    int nptsS=3;
+    int nptsK=3;
+
+    //at least 3 points on S, and 3 points on K, not verbose
+    nptsS=3;
+    nptsK=3;
+    bool trackfitok = ev->FindTrackAndFit(nptsS, nptsK, false);
     //    printf("%d\n", trackfitok);
+    /* better to waste these 2 hits events...
+    if (!trackfitok) {
+      //let's downscale to 2 (on S) and 2 (on K) hits but even in this no-chisq case
+      //let's garantee a certain relaiability of the track fitting the one with the higher charge (this method can be used also for ions)
+      //and requiring an higher S/N for the cluster
+      nptsS=2;
+      nptsK=2;
+      trackfitok = ev->FindHigherChargeTrackAndFit(nptsS, 5.0, nptsK, 5.0, false);
+    }
+    */
     if (!trackfitok) continue;
-    //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());
-    
+    //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());    
     goodtracks++;
     
-    //remove from the best fit track the worst hit if giving a residual greater than 5.0 sigmas on S and 5.0 sigmas on K
+    //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
+    //(but only if removing them still we'll have more or equal than 3 (2 if 'HigherCharge') hits on S and 3 (2 if 'HigherCharge') hits on K)
     //and perform the fit again
-    ev->RefineTrack(5.5, 5.5);
+    ev->RefineTrack(6.0, nptsS, 6.0, nptsK);
 
     PRINTDEBUG;
     
@@ -540,15 +550,19 @@ int SingleAlign(int argc, char* argv[], int indexalignment, bool brunasalig, boo
   
   for (int tt=0; tt<_maxtdr; tt++) {
 
-    for (int kk=0; kk<2; kk++) {//0 is Bruna's, 1 is Residuals
+    for (int kk=0; kk<3; kk++) {//0 is Residuals, 1 is Bruna's, 2 X0/Y0 shift
 
-      if (kk!=0) {
+      if (kk==0) {
 	h2fitS = residual_S[tt];
 	h2fitK = residual_K[tt];
       }
-      else {
+      else if (kk==1) {
 	h2fitS = hcooreldiff_S[tt];
 	h2fitK = hcooreldiff_K[tt];
+      }
+      else {
+	h2fitS = X0;
+	h2fitK = Y0;
       }
       
       // printf("%d) %d %d\n", tt, h2fitS->GetNbinsX(), h2fitK->GetNbinsX());
@@ -563,62 +577,67 @@ int SingleAlign(int argc, char* argv[], int indexalignment, bool brunasalig, boo
 
       double _smean = 0.0;
       double _kmean = 0.0;
-      
-      //----------
-      
-      _smean = h2fitS->GetBinCenter(h2fitS->GetMaximumBin());
-      fit_limit[0]=_smean-0.3;
-      fit_limit[1]=_smean+0.3;
-      
-      h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      
-      fit_limit[0]=gauss->GetParameter(1)-1.0*gauss->GetParameter(2);
-      fit_limit[1]=gauss->GetParameter(1)+1.0*gauss->GetParameter(2);
-      
-      h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      
-      _smean = gauss->GetParameter(1);
-      if (fabs(_smean)<3.0*gauss->GetParError(1)) _smean=0.0;
-      // cout<<" Fit between "<<fit_limit[0]
-      //     <<" and "<<	   fit_limit[1]
-      //     <<endl;
-      // printf("S align par = %f (old = %f)\n", _smean+ev->GetAlignPar(0, rh->tdrCmpMap[tt], 0), ev->GetAlignPar(0, rh->tdrCmpMap[tt], 0));
-      
-      //----------
-      
-      _kmean = h2fitK->GetBinCenter(h2fitK->GetMaximumBin());
-      fit_limit[0]=_kmean-0.3;
-      fit_limit[1]=_kmean+0.3;
-      
-      h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      
-      fit_limit[0]=gauss->GetParameter(1)-1.0*gauss->GetParameter(2);
-      fit_limit[1]=gauss->GetParameter(1)+1.0*gauss->GetParameter(2);
-      
-      h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-      
-      _kmean = gauss->GetParameter(1);
-      if (fabs(_kmean)<3.0*gauss->GetParError(1)) _kmean=0.0;
-      // cout<<" Fit between "<<fit_limit[0]
-      //     <<" and "<<	   fit_limit[1]
-      //     <<endl;    
-      // printf("K align par = %f (old = %f)\n", _kmean+ev->GetAlignPar(0, rh->tdrCmpMap[tt], 1), ev->GetAlignPar(0, rh->tdrCmpMap[tt], 1));
 
-      if (brunasalig && kk==0) {
-	Smean = _smean;
-	Kmean = _kmean;
-	if (tt==0) {
-	  Smean = 0;
-	  Kmean = 0;
-	}
+      if (kk==2) {
+	_smean = h2fitS->GetMean();
+	_kmean = h2fitK->GetMean();
+	printf("%d) %f %f\n", tt, _smean, _kmean);
       }
-      else if (!brunasalig && kk==1) {
+      else {
+	//----------
+	
+	_smean = h2fitS->GetBinCenter(h2fitS->GetMaximumBin());
+	fit_limit[0]=_smean-0.3;
+	fit_limit[1]=_smean+0.3;
+	
+	h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	
+	fit_limit[0]=gauss->GetParameter(1)-1.0*gauss->GetParameter(2);
+	fit_limit[1]=gauss->GetParameter(1)+1.0*gauss->GetParameter(2);
+	
+	h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	
+	_smean = gauss->GetParameter(1);
+	if (fabs(_smean)<3.0*gauss->GetParError(1) || fabs(_smean)<0.1*Cluster::GetNominalResolution(0)) _smean=0.0;
+	// cout<<" Fit between "<<fit_limit[0]
+	//     <<" and "<<	   fit_limit[1]
+	//     <<endl;
+	// printf("S align par = %f (old = %f)\n", _smean+ev->GetAlignPar(0, rh->tdrCmpMap[tt], 0), ev->GetAlignPar(0, rh->tdrCmpMap[tt], 0));
+	
+	//----------
+	
+	_kmean = h2fitK->GetBinCenter(h2fitK->GetMaximumBin());
+	fit_limit[0]=_kmean-0.3;
+	fit_limit[1]=_kmean+0.3;
+	
+	h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	
+	fit_limit[0]=gauss->GetParameter(1)-1.0*gauss->GetParameter(2);
+	fit_limit[1]=gauss->GetParameter(1)+1.0*gauss->GetParameter(2);
+	
+	h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	
+	_kmean = gauss->GetParameter(1);
+	if (fabs(_kmean)<3.0*gauss->GetParError(1) || fabs(_smean)<0.1*Cluster::GetNominalResolution(1)) _kmean=0.0;
+	// cout<<" Fit between "<<fit_limit[0]
+	//     <<" and "<<	   fit_limit[1]
+	//     <<endl;    
+	// printf("K align par = %f (old = %f)\n", _kmean+ev->GetAlignPar(0, rh->tdrCmpMap[tt], 1), ev->GetAlignPar(0, rh->tdrCmpMap[tt], 1));
+      }
+      
+      if (alignmeth==kk) {//only for the choosen align method
 	Smean = _smean;
 	Kmean = _kmean;
+	if (alignmeth==1 && kk==1) {//in the Bruna's method has no reason to shift the first layer...
+	  if (tt==0) {
+	    Smean = 0;
+	    Kmean = 0;
+	  }
+	}
       }
       
     }
