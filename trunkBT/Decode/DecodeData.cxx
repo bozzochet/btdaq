@@ -553,7 +553,7 @@ int DecodeData::ReadOneTDR(int Jinfnum){
       for (int cc=0; cc<1024; cc++) {
 	if (!kClusterize) {//otherwise the histos will be filled better with the clusters
 	  double threshold = shighthreshold;
-	  if (cc>640) threshold = khighthreshold;
+	  if (cc>=640) threshold = khighthreshold;
 	  if (ev->SoN[tdrnumraw][cc]>threshold) {
 	    //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->rsig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc]);
 	    // printf("%04d) %f\n", cc, ev->SoN[tdrnumraw][cc]);
@@ -621,7 +621,7 @@ int DecodeData::ReadOneTDR(int Jinfnum){
 void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float* sig) {
 
   int sid=0;
-  if (clusadd>640) sid=1;
+  if (clusadd>=640) sid=1;
   
   Cluster* pp= ev->AddCluster(numnum+100*Jinfnum,sid);
   calib* cal=&(cals[numnum+100*Jinfnum]);

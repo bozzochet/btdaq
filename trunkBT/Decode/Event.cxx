@@ -339,20 +339,67 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
     }
   }
 
-  int totmult=1.0;
-  for (int jj=0; jj<NJINF; jj++) {
-    for (int tt=0; tt<NTDRS; tt++) {
-      totmult *= std::max((int)(v_cog_laddS[jj][tt].size()), 1);
-      totmult *= std::max((int)(v_cog_laddK[jj][tt].size()), 1);
-      if (verbose) printf("multiplicity ladder 100*%d+%d: %lu %lu\n", jj, tt, (long unsigned int)(v_cog_laddS[jj][tt].size()), (long unsigned int)(v_cog_laddK[jj][tt].size()));
+  std::vector<std::pair<int, std::pair<double, double> > > vecS;//actually used just for compatibility with the telescopic function
+  std::vector<std::pair<int, std::pair<double, double> > > vecK;//actually used just for compatibility with the telescopic function
+  double chisq = CombinatorialFit(v_cog_laddS, v_cog_laddK, NJINF, NTDRS, vecS, vecK, nptsS, nptsK, verbose);
+  //  printf("chisq = %f\n", chisq);
+  
+  bool ret = true;
+  if (chisq>=999999999.9) ret =false;
+  else if (chisq<-0.000000001) ret = false;
+  
+  return ret;
+}
+
+bool Event::FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, double threshK, bool verbose) {
+
+  ClearTrack();
+
+  std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddS[NJINF][NTDRS];
+  std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddK[NJINF][NTDRS];
+
+  std::vector<double> v_q_laddS[NJINF][NTDRS];
+  std::vector<double> v_q_laddK[NJINF][NTDRS];
+
+  for (int index_cluster = 0; index_cluster < NClusTot; index_cluster++) {
+
+    Cluster* current_cluster = GetCluster(index_cluster);
+    
+    int jinfnum = current_cluster->GetJinf();
+    int tdrnum = current_cluster->GetTDR();
+
+    int side=current_cluster->side;
+    if (side==0) {
+      if (current_cluster->GetTotSN()>threshS) {
+	if (v_q_laddS[jinfnum][tdrnum].size()==0) {
+	  v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+	  v_q_laddS[jinfnum][tdrnum].push_back(current_cluster->GetCharge());
+	}
+	else {
+	  if (current_cluster->GetCharge()>v_q_laddS[jinfnum][tdrnum][0]) {
+	    v_cog_laddS[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2)));
+	    v_q_laddS[jinfnum][tdrnum][0] = current_cluster->GetCharge();
+	  }
+	}
+      }
+    }
+    else {
+      if (current_cluster->GetTotSN()>threshK) {
+	if (v_q_laddK[jinfnum][tdrnum].size()==0) {
+	  v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+	  v_q_laddK[jinfnum][tdrnum].push_back(current_cluster->GetCharge());
+	}
+	else {
+	  if (current_cluster->GetCharge()>v_q_laddK[jinfnum][tdrnum][0]) {
+	    v_cog_laddK[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2)));
+	    v_q_laddK[jinfnum][tdrnum][0] = current_cluster->GetCharge();
+	  }
+	}
+      }
     }
   }
   
-  if (totmult>pow(2*NTDRS, 2)) {//more than 2 clusters per ladder (24, not the ones really present...), per side: give up!
-    return false;
-  }
-  //  printf("Total multiplicy = %d\n", totmult);
-  
+  //let's use CombinatorialFit just for simplicity but the vector above are with at most one cluster per ladder
   std::vector<std::pair<int, std::pair<double, double> > > vecS;//actually used just for compatibility with the telescopic function
   std::vector<std::pair<int, std::pair<double, double> > > vecK;//actually used just for compatibility with the telescopic function
   double chisq = CombinatorialFit(v_cog_laddS, v_cog_laddK, NJINF, NTDRS, vecS, vecK, nptsS, nptsK, verbose);
@@ -834,7 +881,7 @@ struct sort_pred {
   }
 };
 
-double Event::RefineTrack(double nsigmaS, double nsigmaK, bool verbose){
+double Event::RefineTrack(double nsigmaS, int nptsS, double nsigmaK, int nptsK, bool verbose){
   
   std::vector<std::pair<int, std::pair<double, double> > > _v_trackS_tmp = _v_trackS;
   std::vector<std::pair<int, std::pair<double, double> > > _v_trackK_tmp = _v_trackK;
@@ -851,11 +898,15 @@ double Event::RefineTrack(double nsigmaS, double nsigmaK, bool verbose){
   }
   std::sort(_v_chilayK_tmp.begin(), _v_chilayK_tmp.end(), sort_pred());
 
-  if (sqrt(_v_chilayS_tmp.at(_v_chilayS_tmp.size()-1).second)>nsigmaS) {//if the worst residual is above threshold is removed
-    _v_trackS_tmp.erase(_v_trackS_tmp.begin()+_v_chilayS_tmp.at(_v_chilayS_tmp.size()-1).first);
+  if (_v_trackS_tmp.size()>nptsS+1) {//so that even removing one we have at least nptsS hits
+    if (sqrt(_v_chilayS_tmp.at(_v_chilayS_tmp.size()-1).second)>nsigmaS) {//if the worst residual is above threshold is removed
+      _v_trackS_tmp.erase(_v_trackS_tmp.begin()+_v_chilayS_tmp.at(_v_chilayS_tmp.size()-1).first);
+    }
   }
-  if (sqrt(_v_chilayK_tmp.at(_v_chilayK_tmp.size()-1).second)>nsigmaK) {//if the worst residual is above threshold is removed
-    _v_trackK_tmp.erase(_v_trackK_tmp.begin()+_v_chilayK_tmp.at(_v_chilayK_tmp.size()-1).first);
+  if (_v_trackK_tmp.size()>nptsK+1) {//so that even removing one we have at least nptsK hits
+    if (sqrt(_v_chilayK_tmp.at(_v_chilayK_tmp.size()-1).second)>nsigmaK) {//if the worst residual is above threshold is removed
+      _v_trackK_tmp.erase(_v_trackK_tmp.begin()+_v_chilayK_tmp.at(_v_chilayK_tmp.size()-1).first);
+    }
   }
 
   double ret = SingleFit(_v_trackS_tmp, _v_trackK_tmp, false);
