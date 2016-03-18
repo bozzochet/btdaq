@@ -283,7 +283,7 @@ int main(int argc,char** argv){
       }
       canvas->Update();
       
-      int entries=dd1->hmio[100*jj+hh]->GetEntries();
+      int entries = (int)(dd1->hmio[100*jj+hh]->GetEntries());
       canvas->Modified();
       canvas->Update();
       sprintf(title, "ladder %d %d", jj, hh);

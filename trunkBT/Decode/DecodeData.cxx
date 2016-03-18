@@ -709,11 +709,11 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
     }
 
     int bad=0;
-    int cluslen=0.0;//to fill
-    int Sig2NoiStatus=0.0;//boh
-    int clusadd=0.0;//to fill
-    int CNStatus=0.0;//boh
-    int PowBits=0.0;//boh
+    int cluslen=0;//to fill
+    int Sig2NoiStatus=0;//boh
+    int clusadd=0;//to fill
+    int CNStatus=0;//boh
+    int PowBits=0;//boh
     float sig[MAXLENGHT];
 
     bool firstfound=false;

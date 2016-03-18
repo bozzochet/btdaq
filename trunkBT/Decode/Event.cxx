@@ -7,6 +7,8 @@
 
 using namespace std;
 
+#include <cmath>
+
 //#define USEMINUIT
 
 ClassImp(Event);
@@ -827,7 +829,7 @@ void Event::StoreTrackClusterPatterns(){
       int jinfnum=cl->GetJinf();
       //      printf("JINF %d, TDR %d , %d cluster (%d) in track\n", jinfnum, tdrnum, index_cluster, i_side);
       
-      unsigned long long int tdr_index = pow(10, tdrnum);
+      unsigned long long int tdr_index = (int)(pow(10.0, (double)(tdrnum)));
       //      printf("TDR %d %d --> %lld\n", tdrnum, i_side, tdr_index);
       _track_cluster_pattern[jinfnum][i_side] +=  tdr_index;
     }
@@ -837,7 +839,7 @@ void Event::StoreTrackClusterPatterns(){
 }
 
 bool Event::IsTDRInTrack(int side, int tdrnum, int jinfnum) {
-  return ((bool)(((unsigned long long int)(_track_cluster_pattern[jinfnum][side]/pow(10, tdrnum)))%10));
+  return ((bool)(((unsigned long long int)(_track_cluster_pattern[jinfnum][side]/((int)(pow((double)10, (double)tdrnum)))))%10));
 }
 
 void Event::FillHitVector(){
@@ -898,12 +900,12 @@ double Event::RefineTrack(double nsigmaS, int nptsS, double nsigmaK, int nptsK, 
   }
   std::sort(_v_chilayK_tmp.begin(), _v_chilayK_tmp.end(), sort_pred());
 
-  if (_v_trackS_tmp.size()>nptsS+1) {//so that even removing one we have at least nptsS hits
+  if (((int)(_v_trackS_tmp.size()))>nptsS+1) {//so that even removing one we have at least nptsS hits
     if (sqrt(_v_chilayS_tmp.at(_v_chilayS_tmp.size()-1).second)>nsigmaS) {//if the worst residual is above threshold is removed
       _v_trackS_tmp.erase(_v_trackS_tmp.begin()+_v_chilayS_tmp.at(_v_chilayS_tmp.size()-1).first);
     }
   }
-  if (_v_trackK_tmp.size()>nptsK+1) {//so that even removing one we have at least nptsK hits
+  if (((int)(_v_trackK_tmp.size()))>nptsK+1) {//so that even removing one we have at least nptsK hits
     if (sqrt(_v_chilayK_tmp.at(_v_chilayK_tmp.size()-1).second)>nsigmaK) {//if the worst residual is above threshold is removed
       _v_trackK_tmp.erase(_v_trackK_tmp.begin()+_v_chilayK_tmp.at(_v_chilayK_tmp.size()-1).first);
     }
