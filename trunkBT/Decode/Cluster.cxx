@@ -188,13 +188,19 @@ float Cluster::GetCoG(){
   else return address+ee;
 }
 
+//everything I'm making here is based on the cog but should have been done on the single strip address and only then the cog should have been performed
 double Cluster::GetAlignedPosition(int mult){
   double align_shift = Event::GetAlignPar(GetJinf(), GetTDR(), side);
   float cog = GetCoG();
   float cog2=cog;
   double mult_shift = 0.0;
   float pitchcorr = 0.0;
-  if (side==1) {
+  if (side==0) {//S
+    // The gaps between 0 and 1 and 638 to 639 are doubled
+    if(cog2>=0.5) pitchcorr+=1.0;
+    if(cog2>=638.5) pitchcorr+=1.0;
+  }
+  else {// K (K5; K7 is not implemented)
     cog2 -= GetNChannels(0);//N channels of S --> cog in [0, 383]
     int sensor=(int)((cog2+mult*GetNChannels(1))/GetReadChannelK());//cast to int but essentially is also used as 'floor'
     bool multflip = Event::GetMultiplicityFlip(GetJinf(), GetTDR());

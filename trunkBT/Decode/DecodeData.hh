@@ -53,13 +53,16 @@ private:
   int FindCalPos(int tdrnum);
   int ReadFile(void *ptr, size_t size, size_t nitems, FILE * stream);
   void mysort(int* aa,int nel);
+
 public:
   Event * ev;
   RHClass *rh;
   
   int evenum;
-  TH1F* hmio[NJINF*NTDRS];
+  TH1F* hocc[NJINF*NTDRS];
   TH1F* hcharge[NJINF*NTDRS][2];
+  TH1F* hsignal[NJINF*NTDRS][2];
+  TH1F* hson[NJINF*NTDRS][2];
 
   double shighthreshold;
   double slowthreshold;
@@ -82,7 +85,11 @@ public:
   void AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float* sig);
   void Clusterize(int numnum, int Jinfnum, calib* cal);
   double ComputeCN(int size, short int* Signal, float* pede, float* SoN);
-
+  int GetNTDRRaw() { return ntdrRaw;}
+  int GetNTDRCmp() { return ntdrCmp;}
+  int GetIdTDRRaw(int pos);
+  int GetIdTDRCmp(int pos);
+  
   void CloseFile();
   int EndOfFile();
   void SetPrintOff(){pri=0;}
