@@ -21,11 +21,11 @@ using namespace std;
 AnyOption *opt;                //Handle the option input
 char progname[50];
 
+void CreatePdfWithPlots(DecodeData* dd1, char* pdf_filename);
+
 int main(int argc,char** argv){
 
   char filename[255], pdf_filename[1024];
-  char name[255];
-  char title[255], local_pdf_filename[255];
 
   char DirRaw[255];
   char DirCal[255];
@@ -178,7 +178,6 @@ int main(int argc,char** argv){
   sprintf(pdf_filename, "%s.pdf", filename);
   
   TFile* foutput = new TFile(filename,"RECREATE");
-  TCanvas* canvas;
   
   DecodeData *dd1= new DecodeData(DirRaw, DirCal, run, ancillary);
 
@@ -191,15 +190,41 @@ int main(int argc,char** argv){
   
   dd1->SetPrintOff();
   dd1->SetEvPrintOff();
-    
+
+  // printf("%d + %d\n", dd1->GetNTDRRaw(), dd1->GetNTDRCmp());
+  // for (int ii=0; ii<dd1->GetNTDRRaw(); ii++) {
+  //   printf("%d) %d\n", ii, dd1->GetIdTDRRaw(ii));
+  // }
+  // for (int ii=0; ii<dd1->GetNTDRCmp(); ii++) {
+  //   printf("%d) %d\n", ii, dd1->GetIdTDRCmp(ii));
+  // }
+  
   TTree* t4= new TTree("t4","My cluster tree");
   t4->Branch("cluster_branch","Event",&(dd1->ev),32000,2);
   double chaK[24];
   double chaS[24];
-  for (int ii=0; ii<24; ii++) {
-    t4->Branch(Form("ChargeK_Ladder%02d", ii), &chaK[ii], Form("ChargeK_Ladder%02d/D", ii));
-    t4->Branch(Form("ChargeS_Ladder%02d", ii), &chaS[ii], Form("ChargeS_Ladder%02d/D", ii));
+  double sigK[24];
+  double sigS[24];
+  double sonK[24];
+  double sonS[24];
+  for (int jj=0; jj<2; jj++) {
+    int NTDR=0;
+    if (jj==0) NTDR = dd1->GetNTDRRaw();
+    else if (jj==1) NTDR = dd1->GetNTDRCmp();
+    for (int ii=0; ii<NTDR; ii++) {
+      int IdTDR=-1;
+      if (jj==0) IdTDR = dd1->GetIdTDRRaw(ii);
+      else if (jj==1) IdTDR = dd1->GetIdTDRCmp(ii);
+      //      printf("%d\n", IdTDR);
+      t4->Branch(Form("SignalK_Ladder%02d", IdTDR), &sigK[IdTDR], Form("SignalK_Ladder%02d/D", IdTDR));
+      t4->Branch(Form("SignalS_Ladder%02d", IdTDR), &sigS[IdTDR], Form("SignalS_Ladder%02d/D", IdTDR));
+      t4->Branch(Form("ChargeK_Ladder%02d", IdTDR), &chaK[IdTDR], Form("ChargeK_Ladder%02d/D", IdTDR));
+      t4->Branch(Form("ChargeS_Ladder%02d", IdTDR), &chaS[IdTDR], Form("ChargeS_Ladder%02d/D", IdTDR));
+      t4->Branch(Form("SoNK_Ladder%02d", IdTDR), &sonK[IdTDR], Form("SoNK_Ladder%02d/D", IdTDR));
+      t4->Branch(Form("SoNS_Ladder%02d", IdTDR), &sonS[IdTDR], Form("SoNS_Ladder%02d/D", IdTDR));
+    }
   }
+  sleep(3);
   t4->GetUserInfo()->Add(dd1->rh);
     
   int ret1=0;
@@ -219,16 +244,31 @@ int main(int argc,char** argv){
       //      printf("This event has %d clusters\n", (dd1->ev)->GetNClusTot());
       memset(chaK, 0, 24*sizeof(chaK[0]));
       memset(chaS, 0, 24*sizeof(chaS[0]));
+      memset(sigK, 0, 24*sizeof(sigK[0]));
+      memset(sigS, 0, 24*sizeof(sigS[0]));
       for (int cc=0; cc<(dd1->ev)->GetNClusTot(); cc++) {
 	Cluster* cl = (dd1->ev)->GetCluster(cc);
-	double charge = sqrt(cl->GetCharge());
+	int ladder = cl->ladder;
+	//	printf("%d\n", ladder);
+	double signal = cl->GetTotSig();
+	double charge = cl->GetCharge();
+	double son = cl->GetTotSN();
 	if (cl->side==1) {
-	  if (charge>chaK[cl->ladder]) chaK[cl->ladder]=charge;
+	  if (charge>chaK[ladder]) {
+	    chaK[ladder]=charge;
+	    sigK[ladder]=signal;
+	    sonK[ladder]=son;
+	  }
 	}
 	else{
-	  if (charge>chaS[cl->ladder]) chaS[cl->ladder]=charge;
+	  if (charge>chaS[ladder]) {
+	    chaS[ladder]=charge;
+	    sigS[ladder]=signal;
+	    sonS[ladder]=son;
+	  }
 	}	
       }
+      //      printf("%f %f %f %f %f %f\n", sigS[0], sigK[0], sigS[1], sigK[1], sigS[4], sigK[4]);
       t4->Fill();
       if (processed%1000==0) printf("Processed %d events...\n", processed);
     }
@@ -250,63 +290,7 @@ int main(int argc,char** argv){
 
   }
 
-  bool first=true;
-  gStyle->SetOptStat(1);
-  gStyle->SetOptFit(1);
-  for (int jj=0; jj<NJINF; jj++){
-    for (int hh = 0; hh < NTDRS; hh++) {
-      canvas = new TCanvas(name, name, 1024, 1024);
-      sprintf(name, "ladder %d %d", jj, hh);
-      TF1 *fit_s = new TF1("fit_s", "gaus", 0, 639);
-      TF1 *fit_k = new TF1("fit_k", "gaus", 640, 1023);
-      fit_s->SetLineColor(kBlue);
-      fit_k->SetLineColor(kRed);
-      TH1F *clone_chartA = (TH1F *)dd1->hmio[jj*100+hh]->Clone("cloneA");
-      TH1F *clone_chartB = (TH1F *)dd1->hmio[jj*100+hh]->Clone("cloneB");
-      clone_chartA->Fit(fit_s, "R");
-      clone_chartB->Fit(fit_k, "R");
-      clone_chartA->Draw();
-      gPad->Modified();
-      gPad->Update();
-      TPaveStats *statA = (TPaveStats*)(clone_chartA->GetListOfFunctions()->FindObject("stats"));
-      clone_chartB->Draw("SAMES");
-      gPad->Modified();
-      gPad->Update();
-      TPaveStats *statB = (TPaveStats*)(clone_chartB->GetListOfFunctions()->FindObject("stats"));
-      if(statA && statB) {
-	statA->SetTextColor(kBlue);
-	statB->SetTextColor(kRed);
-	statA->SetX1NDC(0.12); statA->SetX2NDC(0.32); statA->SetY1NDC(0.75);
-	statB->SetX1NDC(0.72); statB->SetX2NDC(0.92); statB->SetY1NDC(0.78);
-	statA->Draw();
-	canvas->Update();
-      }
-      canvas->Update();
-      
-      int entries = (int)(dd1->hmio[100*jj+hh]->GetEntries());
-      canvas->Modified();
-      canvas->Update();
-      sprintf(title, "ladder %d %d", jj, hh);
-      canvas->SetTitle(title);
-      if (entries>1) {
-	if (!first) strcpy(local_pdf_filename, pdf_filename);
-	else {
-	  sprintf(local_pdf_filename, "%s(", pdf_filename);
-	  first=false;
-	}
-	canvas->Print(local_pdf_filename, "pdf");
-      }
-      delete canvas;
-      if (clone_chartA) delete clone_chartA;
-      if (clone_chartB) delete clone_chartB;
-      if (fit_s) delete fit_s;
-      if (fit_k) delete fit_k;
-    }
-  }
-  TCanvas* c_exit = new TCanvas("dummy", "dummy", 1024, 1024);
-  snprintf(local_pdf_filename, 255, "%s]", pdf_filename);
-  c_exit->Print(local_pdf_filename, "pdf");
-  delete c_exit; 
+  CreatePdfWithPlots(dd1, pdf_filename);
     
   t4->Write("",TObject::kOverwrite);
 
@@ -321,4 +305,71 @@ int main(int argc,char** argv){
   foutput->Close("R");
 
   return 0;
+}
+
+void CreatePdfWithPlots(DecodeData* dd1, char* pdf_filename){
+
+  TCanvas* canvas = NULL;
+  char local_pdf_filename[255];
+  char title[255];
+  char name[255];
+  
+  bool first=true;
+  gStyle->SetOptStat(1);
+  gStyle->SetOptFit(1);
+  for (int jj=0; jj<NJINF; jj++){
+    for (int hh = 0; hh < NTDRS; hh++) {
+      canvas = new TCanvas(name, name, 1024, 1024);
+      sprintf(name, "ladder %d %d", jj, hh);
+      TF1 *fit_s = new TF1("fit_s", "gaus", 0, 639);
+      TF1 *fit_k = new TF1("fit_k", "gaus", 640, 1023);
+      fit_s->SetLineColor(kBlue);
+      fit_k->SetLineColor(kRed);
+      int entries = (int)(dd1->hocc[100*jj+hh]->GetEntries());
+      if (entries>=1) {
+	TH1F *clone_chartA = (TH1F *)dd1->hocc[jj*100+hh]->Clone("cloneA");
+	TH1F *clone_chartB = (TH1F *)dd1->hocc[jj*100+hh]->Clone("cloneB");
+	clone_chartA->Fit(fit_s, "R");
+	clone_chartB->Fit(fit_k, "R");
+	clone_chartA->Draw();
+	gPad->Modified();
+	gPad->Update();
+	TPaveStats *statA = (TPaveStats*)(clone_chartA->GetListOfFunctions()->FindObject("stats"));
+	clone_chartB->Draw("SAMES");
+	gPad->Modified();
+	gPad->Update();
+	TPaveStats *statB = (TPaveStats*)(clone_chartB->GetListOfFunctions()->FindObject("stats"));
+	if(statA && statB) {
+	  statA->SetTextColor(kBlue);
+	  statB->SetTextColor(kRed);
+	  statA->SetX1NDC(0.12); statA->SetX2NDC(0.32); statA->SetY1NDC(0.75);
+	  statB->SetX1NDC(0.72); statB->SetX2NDC(0.92); statB->SetY1NDC(0.78);
+	  statA->Draw();
+	  canvas->Update();
+	}
+	canvas->Update();
+	canvas->Modified();
+	canvas->Update();
+	sprintf(title, "ladder %d %d", jj, hh);
+	canvas->SetTitle(title);
+	if (!first) strcpy(local_pdf_filename, pdf_filename);
+	else {
+	  sprintf(local_pdf_filename, "%s(", pdf_filename);
+	  first=false;
+	}
+	canvas->Print(local_pdf_filename, "pdf");
+	delete canvas;
+	if (clone_chartA) delete clone_chartA;
+	if (clone_chartB) delete clone_chartB;
+      }
+      if (fit_s) delete fit_s;
+      if (fit_k) delete fit_k;
+    }
+  }
+  TCanvas* c_exit = new TCanvas("dummy", "dummy", 1024, 1024);
+  snprintf(local_pdf_filename, 255, "%s]", pdf_filename);
+  c_exit->Print(local_pdf_filename, "pdf");
+  delete c_exit; 
+
+  return;
 }

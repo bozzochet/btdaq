@@ -128,11 +128,22 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
   for (int jj=0; jj<NJINF; jj++){
     for (int hh=0; hh<NTDRS; hh++){
       sprintf(name,"occ_%d_%d",jj, hh);
-      hmio[jj*100+hh]= new TH1F(name,name,1024,0,1024);
+      hocc[jj*100+hh]= new TH1F(name,name,1024,0,1024);
+      
       sprintf(name,"qS_%d_%d", jj, hh);
       hcharge[jj*100+hh][0]= new TH1F(name,name,1000,0,100);
       sprintf(name,"qK_%d_%d", jj, hh);
       hcharge[jj*100+hh][1]= new TH1F(name,name,1000,0,100);
+      
+      sprintf(name,"signalS_%d_%d", jj, hh);
+      hsignal[jj*100+hh][0]= new TH1F(name,name,4200,-100,4100);
+      sprintf(name,"signalK_%d_%d", jj, hh);
+      hsignal[jj*100+hh][1]= new TH1F(name,name,4200,-100,4100);
+      
+      sprintf(name,"sonS_%d_%d", jj, hh);
+      hson[jj*100+hh][0]= new TH1F(name,name,1000,0,100);
+      sprintf(name,"sonK_%d_%d", jj, hh);
+      hson[jj*100+hh][1]= new TH1F(name,name,1000,0,100);
     }
   }
 
@@ -143,16 +154,24 @@ DecodeData::~DecodeData(){
 
   for (int jj=0; jj<NJINF; jj++){
     for (int hh = 0; hh < NTDRS; hh++) {
-      //      printf("%d %d --> %f\n", jj, hh, hmio[jj*100+hh]->GetEntries());
-      if (hmio[jj*100+hh]->GetEntries()<1.0) {
-	//	printf("deleting hmio %d %d\n", jj, hh);
-	delete hmio[jj*100+hh];
+      //      printf("%d %d --> %f\n", jj, hh, hocc[jj*100+hh]->GetEntries());
+      if (hocc[jj*100+hh]->GetEntries()<1.0) {
+	//	printf("deleting hocc %d %d\n", jj, hh);
+	delete hocc[jj*100+hh];
       }
       for (int ss=0; ss<2; ss++) {
 	//	printf("%d %d %d --> %f\n", jj, hh, ss, hcharge[jj*100+hh][ss]->GetEntries());
 	if (hcharge[jj*100+hh][ss]->GetEntries()<1.0) {
 	  //	  printf("deleting hcharge %d %d %d\n", jj, hh, ss);
 	  delete hcharge[jj*100+hh][ss];
+	}
+	if (hsignal[jj*100+hh][ss]->GetEntries()<1.0) {
+	  //	  printf("deleting hsignal %d %d %d\n", jj, hh, ss);
+	  delete hsignal[jj*100+hh][ss];
+	}
+	if (hson[jj*100+hh][ss]->GetEntries()<1.0) {
+	  //	  printf("deleting hson %d %d %d\n", jj, hh, ss);
+	  delete hson[jj*100+hh][ss];
 	}
       }
     }
@@ -557,8 +576,10 @@ int DecodeData::ReadOneTDR(int Jinfnum){
 	  if (ev->SoN[tdrnumraw][cc]>threshold) {
 	    //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->rsig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc]);
 	    // printf("%04d) %f\n", cc, ev->SoN[tdrnumraw][cc]);
-	    hmio[numnum+100*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);
+	    hocc[numnum+100*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);
 	    // hcharge not filled in this case...
+	    // hsignal not filled in this case...
+	    // hson not filled in this case...
 	  }
 	}
       }
@@ -629,8 +650,10 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
 	    &(cal->status[clusadd]),Sig2NoiStatus, CNStatus, PowBits, bad);
   
-  hmio[numnum+100*Jinfnum]->Fill(clusadd);
+  hocc[numnum+100*Jinfnum]->Fill(clusadd);
   hcharge[numnum+100*Jinfnum][sid]->Fill(pp->GetCharge());
+  hsignal[numnum+100*Jinfnum][sid]->Fill(pp->GetTotSig());
+  hson[numnum+100*Jinfnum][sid]->Fill(pp->GetTotSN());
 
   if(pri) pp->Print();
   
@@ -1010,6 +1033,20 @@ int DecodeData::ReadOneJINF(){
   pri=old;
 }
 
+int DecodeData::GetIdTDRRaw(int pos){
+  if (pos > NJINF*NTDRS) {
+    printf("Pos %d not allowed. Max is %d\n", pos, NJINF*NTDRS);
+    return -9999;
+  }
+  return tdrRaw[pos];
+}
+int DecodeData::GetIdTDRCmp(int pos) {
+  if (pos > NJINF*NTDRS) {
+    printf("Pos %d not allowed. Max is %d\n", pos, NJINF*NTDRS);
+    return -9999;
+  }
+  return tdrCmp[pos];
+}
 
 //=============================================================================================
 
