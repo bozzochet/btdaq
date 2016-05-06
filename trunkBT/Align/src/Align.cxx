@@ -328,33 +328,27 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 
     PRINTDEBUG;
 
-    int nptsS=3;
-    int nptsK=3;
-
     //at least 3 points on S, and 3 points on K, not verbose
-    nptsS=3;
-    nptsK=3;
-    bool trackfitok = ev->FindTrackAndFit(nptsS, nptsK, false);
+    bool trackfitok = ev->FindTrackAndFit(3, 3, false);
     //    printf("%d\n", trackfitok);
+    if (trackfitok) {
+      //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
+      //(but only if removing them still we'll have more or equal than 3 (2 if 'HigherCharge') hits on S and 3 (2 if 'HigherCharge') hits on K)
+      //and perform the fit again
+      ev->RefineTrack(6.0, 2, 6.0, 2);
+    }
     /* better to waste these 2 hits events...
-    if (!trackfitok) {
+    else {
       //let's downscale to 2 (on S) and 2 (on K) hits but even in this no-chisq case
       //let's garantee a certain relaiability of the track fitting the one with the higher charge (this method can be used also for ions)
       //and requiring an higher S/N for the cluster
-      nptsS=2;
-      nptsK=2;
-      trackfitok = ev->FindHigherChargeTrackAndFit(nptsS, 5.0, nptsK, 5.0, false);
+      trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
     }
     */
     if (!trackfitok) continue;
     //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());    
     goodtracks++;
     
-    //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
-    //(but only if removing them still we'll have more or equal than 3 (2 if 'HigherCharge') hits on S and 3 (2 if 'HigherCharge') hits on K)
-    //and perform the fit again
-    ev->RefineTrack(6.0, nptsS, 6.0, nptsK);
-
     PRINTDEBUG;
     
     //    printf("S %024lld: %d %d %d %d %d\n", ev->GetTrackHitPattern(0), ev->IsTDRInTrack(0, 0), ev->IsTDRInTrack(0, 4), ev->IsTDRInTrack(0, 8), ev->IsTDRInTrack(0, 12), ev->IsTDRInTrack(0, 14));
@@ -581,7 +575,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
       if (kk==2) {
 	_smean = h2fitS->GetMean();
 	_kmean = h2fitK->GetMean();
-	printf("%d) %f %f\n", tt, _smean, _kmean);
+	//	printf("%d) %f %f\n", tt, _smean, _kmean);
       }
       else {
 	//----------
