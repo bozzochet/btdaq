@@ -1,6 +1,7 @@
-CXX= g++ 
-CC= gcc 
-F77= g77 
+CXX = $(shell root-config --cxx)
+CC  = $(shell root-config --cc)
+F77 = $(shell root-config --f77)
+
 TOP= ./
 
 ROOTCFLAGS    = $(shell root-config --cflags)
@@ -57,7 +58,7 @@ SUMMARY: $(TOP)/TakeData/summary.o
 
 %.o : %.cxx
 	@echo Compiling $< ...
-	$(CXX)  $< -c  -o $@ $(CFLAGS)  $(CPPFLAGS)
+	$(CXX)  $< -c  -o $@ $(CFLAGS) $(CPPFLAGS) $(ROOTCFLAGS)
 
 clean:
 	rm -fv */*.o test lib/lib*.a ./TESTpci ./TESTepp ./TakeJPCI ./TakeJEPP ./TakePCI ./TakeEPP ./SUMMARY
