@@ -288,24 +288,14 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   //  for (int index_event=14; index_event<15; index_event++) {
   for (int index_event=0; index_event<entries; index_event++) {
     //    printf("----- new event %d\n", index_event);
-    if (rh->ntdrCmp>5) {
-      printf("0) Troppi cluster...\n");
-    }
     PRINTDEBUG;
     chain->GetEntry(index_event);
 
     PRINTDEBUG;
-    if (rh->ntdrCmp>5) {
-      printf("1) Troppi cluster...\n");
-    }
 
     int NClusTot = ev->GetNClusTot();
     //    printf("\t\tnclusters = %d\n", NClusTot);
     PRINTDEBUG;
-
-    if (rh->ntdrCmp>5) {
-      printf("2) Troppi cluster...\n");
-    }
     
     //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
     //and at most 50 (to avoid too much noise around and too much combinatorial)
@@ -313,12 +303,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     bool cleanevent = CleanEvent(ev, rh, 4, 50, 6, 6, 0, 0);
     if (!cleanevent) continue;
     cleanevs++;
-    
-    if (rh->ntdrCmp>5) {
-      printf("3) Troppi cluster...\n");
-      sleep(300000);
-    }
-    
+        
     PRINTDEBUG;
     
     std::vector<double> v_cog_laddS[NJINF*NTDRS];
