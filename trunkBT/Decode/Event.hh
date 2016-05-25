@@ -7,6 +7,7 @@
 
 #define NTDRS 24
 #define NJINF 1
+#define NVAS  16
 
 //!  Tracker Event class. 
 /*!  Tracker Event class contains all the information about a Event
@@ -33,14 +34,20 @@ public:
 
   inline int GetNClusTot(){ return NClusTot;};
   
+  static int GetVAS() { return NVAS;};
   static int GetNTDRS() { return NTDRS;};
   static int GetNJINFS() { return NJINF;};  
 
   //  int NGoldenClus(int lad, int side);
-
-  static void ReadAlignment(TString filename);
+  //! Load Alignment parameter from an ASCII file 
+  static void ReadAlignment(TString filename, bool DEBUG=false);
+  //! Get Alignment parameter "component" for the tdrnum TDR of the jinfnum JINF
   static float GetAlignPar(int jinfnum, int tdrnum, int component);
   static float GetMultiplicityFlip(int jinfnum, int tdrnum);
+  //! Load VA Gain Correction from an ASCII file 
+  static void ReadGainCorrection(TString filename, bool DEBUG=false);
+  //! Get Gain Correction "component" for the vanum VA of the tdrnum TDR for the jinfnum JINF
+  static float GetGainCorrectionPar(int jinfnum, int tdrnum, int vanum, int component);
 
   bool FindTrackAndFit(int nptsS, int nptsK, bool verbose=false);
   bool FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, double threshK, bool verbose=false);
@@ -66,6 +73,9 @@ private:
   static bool alignmentnotread;
   static float alignpar[NJINF][NTDRS][3];
   static bool multflip[NJINF][NTDRS];
+
+  static bool gaincorrectionnotread;
+  static float gaincorrectionpar[NJINF][NTDRS][NVAS][2];
 
   double CombinatorialFit(
 			std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddS[NJINF][NTDRS],
@@ -110,7 +120,7 @@ private:
   //! Status word for the TDRs (  TDRStatus & 0x1f == TDR ID)
   int TDRStatus[NTDRS];
   //! Common Noise from Calibration
-  double CNoise[NTDRS][16];
+  double CNoise[NTDRS][NVAS];
   //! Cluster number for (side 0(S) 1(K))
   int NClus[NTDRS][2];
   //! Total number of clusters
@@ -174,8 +184,8 @@ public:
   int tdrRawMap[24];
   int ntdrCmp;
   int tdrCmpMap[24];
-  double CNMean[NTDRS][16];
-  double CNSigma[NTDRS][16];
+  double CNMean[NTDRS][NVAS];
+  double CNSigma[NTDRS][NVAS];
 
   
   //! default constructor

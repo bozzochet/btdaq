@@ -58,6 +58,10 @@ public:
   float Noise[MAXLENGHT];
   //! Vector of the status of the cluster strips
   int Status[MAXLENGHT];
+  //! Vector of the cluster signals after the VA equalization
+  float SignalVAEqualized[MAXLENGHT];
+  //! Vector of the noise of the cluster strips after the VA equalization
+  float NoiseVAEqualized[MAXLENGHT];
   //! Ladder (trdnum + 100*jinfnum)
   int ladder;
   //! side (0=S, 1=K)
@@ -77,6 +81,9 @@ public:
   static double GetNominalResolution(int side){ return (side==0)?SRESO:KRESO; };
   static int GetNChannels(int side){ return (side==0)?SCHANN:KCHANN; };
   
+  //! Get the VA a single strip belongs to from its address
+  static int GetVA(int strip_address);
+
   //! std constructor (create an empty cluster)
   Cluster();
   //! copy constructor 
@@ -113,6 +120,8 @@ public:
   float GetEtaRaw();
   //! printout the cluster infos
   void Print();
+  //! Apply VA Equalization from the file loaded by the function Event::ReadGainCorrection
+  void ApplyVAEqualization();
 
   //! Returns the position of the cluster (Cog), in mm units and after alignment
   double GetAlignedPosition(int mult=0);
