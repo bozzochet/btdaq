@@ -14,6 +14,8 @@ Cluster::Cluster(){
   memset(Signal,0,MAXLENGHT*sizeof(Signal[0]));
   memset(Noise,0,MAXLENGHT*sizeof(Noise[0]));
   memset(Status,0,MAXLENGHT*sizeof(Status[0]));
+  memset(SignalVAEqualized,0,MAXLENGHT*sizeof(SignalVAEqualized[0]));
+  memset(NoiseVAEqualized,0,MAXLENGHT*sizeof(NoiseVAEqualized[0]));
   bad=0;
   golden=0;
   ladder=-1;
@@ -30,6 +32,8 @@ Cluster::Cluster(Cluster & orig):TObject(orig){
     Signal[ii]=orig.Signal[ii];
     Noise[ii]=orig.Noise[ii];
     Status[ii]=orig.Status[ii];
+    SignalVAEqualized[ii]=orig.SignalVAEqualized[ii];
+    NoiseVAEqualized[ii]=orig.NoiseVAEqualized[ii];
   }
   bad=orig.bad;
   golden=orig.golden;
@@ -52,7 +56,9 @@ void Cluster::Build(int lad, int sid, int add, int len, float* sig, float* noi, 
   CNstatus=CNStatus;
   powbits=PowBits;
   bad=badin;
-  
+
+  this->ApplyVAEqualization();
+
   return;
 }
 
@@ -61,7 +67,9 @@ void Cluster::Clear(){
   length=0;
   memset(Signal,0,MAXLENGHT*sizeof(Signal[0]));
   memset(Noise,0,MAXLENGHT*sizeof(Noise[0]));
-  memset(Status,0,MAXLENGHT*sizeof(Status[0]));
+  memset(Status,0,MAXLENGHT*sizeof(Status[0])); 
+  memset(SignalVAEqualized,0,MAXLENGHT*sizeof(SignalVAEqualized[0]));
+  memset(NoiseVAEqualized,0,MAXLENGHT*sizeof(NoiseVAEqualized[0]));
   bad=0;
   ladder=-1;
   side=-1;
@@ -187,6 +195,29 @@ float Cluster::GetCoG(){
   if(ee<0) return address+se;
   else return address+ee;
 }
+
+
+int Cluster::GetVA(int strip_address){
+  int vanum=0;
+  
+  vanum=strip_address/64;
+
+  return vanum; 
+}
+
+void Cluster::ApplyVAEqualization(){
+
+  int jinfnum=GetJinf();
+  int tdrnum=GetTDR();
+  for(int ii=0;ii<length;ii++){
+    int vanum=GetVA(address+ii);
+    SignalVAEqualized[ii]= 
+      Signal[ii]*Event::GetGainCorrectionPar(jinfnum,tdrnum,vanum,0)
+      *Event::GetGainCorrectionPar(jinfnum,tdrnum,vanum,1);
+  }
+  return;
+}
+
 
 //everything I'm making here is based on the cog but should have been done on the single strip address and only then the cog should have been performed
 double Cluster::GetAlignedPosition(int mult){

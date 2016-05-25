@@ -3,6 +3,7 @@
 #include "TMinuit.h"
 #include "TH1F.h"
 #include "TMath.h"
+#include <unistd.h>
 #include <iostream>
 
 using namespace std;
@@ -16,6 +17,9 @@ ClassImp(Event);
 bool Event::alignmentnotread=true;
 float Event::alignpar[NJINF][NTDRS][3];
 bool Event::multflip[NJINF][NTDRS];
+
+bool Event::gaincorrectionnotread=true;
+float Event::gaincorrectionpar[NJINF][NTDRS][NVAS][2];
 
 //they store temporarily the result of the fit----------------------------
 double mX_sf, mXerr_sf;
@@ -52,7 +56,7 @@ Event::Event(){
   for(int ii=0;ii<NTDRS;ii++){ 
     ReadTDR[ii]=0;
     TDRStatus[ii]=31;
-    for(int jj=0;jj<16;jj++)    
+    for(int jj=0;jj<NVAS;jj++)    
       CNoise[ii][jj]=0;
     NClus[ii][0]=0;
     NClus[ii][1]=0;
@@ -71,6 +75,8 @@ Event::Event(){
   Cls->SetOwner();
 
   if (alignmentnotread) ReadAlignment("alignment.dat");
+
+  if (gaincorrectionnotread) ReadGainCorrection("gaincorrection.dat");
 
   ClearTrack();
   
@@ -91,7 +97,7 @@ void Event::Clear(){
   for(int ii=0;ii<NTDRS;ii++){ 
     ReadTDR[ii]=0;
     TDRStatus[ii]=31;
-    for(int jj=0;jj<16;jj++)    
+    for(int jj=0;jj<NVAS;jj++)    
       CNoise[ii][jj]=0;
     NClus[ii][0]=0;
     NClus[ii][1]=0; 
@@ -140,7 +146,7 @@ int Event::NGoldenClus(int lad, int side){
 }
 */
 
-void Event::ReadAlignment(TString filename){
+void Event::ReadAlignment(TString filename, bool DEBUG){
   
   printf("Reading alignment from %s:\n", filename.Data());
 
@@ -188,7 +194,10 @@ void Event::ReadAlignment(TString filename){
     }
   }
 
-  
+  alignmentnotread=false;
+
+  if(DEBUG==false) return;
+
   for (int jj=0; jj<NJINF; jj++) {
     for (int tt=0; tt<NTDRS; tt++) {
       for (int cc=0; cc<3; cc++) {
@@ -199,9 +208,102 @@ void Event::ReadAlignment(TString filename){
     }
   }
 
-  alignmentnotread=false;
+
   
   return;
+}
+void Event::ReadGainCorrection(TString filename, bool DEBUG){
+  
+  printf("Reading Gain Correction from %s:\n", filename.Data());
+
+  for (int jj=0; jj<NJINF; jj++) {
+    for (int tt=0; tt<NTDRS; tt++) {
+      for (int vv=0; vv<NVAS; vv++) {
+	for (int cc=0; cc<2; cc++) {
+	  gaincorrectionpar[jj][tt][vv][cc]=-9999.0;
+	}
+      }
+    }
+  }
+  
+  int const dimline=255;
+  char line[dimline];
+  int jinfnum=0;
+  int tdrnum=0;
+  int vanum=0;
+  float dummy=0.;
+  
+  FILE* ft = fopen(filename.Data(),"r");
+
+  if(ft==NULL){ 
+    printf("Error: cannot open %s \n", filename.Data());
+    return;
+  }
+  else {
+    while(1){
+      if (fgets(line, dimline, ft)!=NULL) {
+	if (*line == '#') continue; /* ignore comment line */
+	else {
+	  sscanf(line, "%d\t%d\t%d\t%f\t%f", 
+		 &jinfnum, &tdrnum, &vanum, &dummy, &dummy);
+	  if (jinfnum<NJINF && tdrnum<NTDRS && vanum<NVAS ) {
+	    sscanf(line,"%d \t %d \t %d \t %f \t %f", 
+		   &jinfnum, &tdrnum, &vanum, 
+		   &gaincorrectionpar[jinfnum][tdrnum][vanum][0],
+		   &gaincorrectionpar[jinfnum][tdrnum][vanum][1]);
+	  }
+	  else {
+	    printf("Wrong JINF/TDR/VA (%d, %d, %d): maximum is (%d,%d, %d)\n", jinfnum, tdrnum, vanum, NJINF, NTDRS, NVAS);
+	  }
+	}
+      }
+      else {
+	printf(" closing gain correction file \n");
+	fclose(ft);
+	  break;
+      }
+    }
+  }
+
+  gaincorrectionnotread=false;
+
+  if(DEBUG==false) return;
+  
+  for (int jj=0; jj<NJINF; jj++) {
+    for (int tt=0; tt<NTDRS; tt++) {
+      for (int vv=0; vv<NVAS; vv++) {
+	for (int cc=0; cc<2; cc++) {
+	  if(gaincorrectionpar[jj][tt][vv][cc] == -9999) continue;
+	  if (cc==0) printf("JINF %02d TDR %02d VA %02d)\t", jj, tt, vv);
+	  printf("%f\t", gaincorrectionpar[jj][tt][vv][cc]);
+	  if (cc==1) 	printf("\n");
+	}
+      }
+    }
+  }
+  
+  return;
+}
+
+float Event::GetGainCorrectionPar(int jinfnum, int tdrnum, int vanum, int component){
+  if (jinfnum>=NJINF || jinfnum<0) {
+    printf("Jinf %d: not possible, the maximum is %d...\n", jinfnum, NJINF-1);
+    return -9999;
+  }
+  if (tdrnum>=NTDRS || tdrnum<0) {
+    printf("TDR %d: not possible, the maximum is %d...\n", tdrnum, NTDRS-1);
+    return -9999;
+  }
+  if (vanum>=NVAS || vanum<0) {
+    printf("VA %d: not possible, the maximum is %d...\n", vanum, NVAS-1);
+    return -9999;
+  }
+  if (component<0 || component >=2) {
+    printf("Component %d not valid: it can be only up to 2\n", component);
+    return -9999;
+  }
+  
+  return gaincorrectionpar[jinfnum][tdrnum][vanum][component];
 }
 
 float Event::GetAlignPar(int jinfnum, int tdrnum, int component) {
@@ -959,7 +1061,7 @@ RHClass::RHClass(){
   memset(tdrCmpMap,-1,NTDRS*sizeof(tdrCmpMap[0]));
   
   for (int ii=0;ii<NTDRS;ii++)
-    for (int jj=0;jj<16;jj++){
+    for (int jj=0;jj<NVAS;jj++){
       CNMean[ii][jj]=0.;
       CNSigma[ii][jj]=0.;
     }
@@ -982,10 +1084,10 @@ void RHClass::Print(){
     printf("TDR CMP Map pos: %d tdrnum: %d\n", ii, tdrCmpMap[ii]);
   //   for (int ii=0;ii<NTDRS;ii++){
   //     printf("TDR: %d\n",ii);
-  //     for (int jj=0;jj<16;jj++)
+  //     for (int jj=0;jj<NVAS;jj++)
   //       printf(" %6.2f ",CNMean[ii][jj]);
   //     printf(" \n");
-  //     for (int jj=0;jj<16;jj++)
+  //     for (int jj=0;jj<NVAS;jj++)
   //       printf(" %6.2f ",CNSigma[ii][jj]);
   //     printf(" \n");
   //     printf(" \n");

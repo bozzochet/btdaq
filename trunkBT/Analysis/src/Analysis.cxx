@@ -46,10 +46,13 @@ int main(int argc, char* argv[]) {
   }
 
   TString align_filename = "alignment.dat";
+  TString gaincorrection_filename = "gaincorrection.dat";
   TString output_filename = argv[1];
 
   printf("---------------------------------------------\n");
   Event::ReadAlignment(align_filename.Data());
+  Event::ReadGainCorrection(gaincorrection_filename.Data());
+  //  exit(1);
   printf("---------------------------------------------\n");
   
   Event *ev;
