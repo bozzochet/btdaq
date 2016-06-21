@@ -236,7 +236,17 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG){
   FILE* ft = fopen(filename.Data(),"r");
 
   if(ft==NULL){ 
-    printf("Error: cannot open %s \n", filename.Data());
+    printf("Error: cannot open %s , setting all gain corrections to 1 \n", filename.Data());
+    for (int jj=0; jj<NJINF; jj++) {
+      for (int tt=0; tt<NTDRS; tt++) {
+	for (int vv=0; vv<NVAS; vv++) {
+	  for (int cc=0; cc<2; cc++) {
+	    gaincorrectionpar[jj][tt][vv][cc]=1;
+	  }
+	} 
+      }
+    }
+
     return;
   }
   else {
