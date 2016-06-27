@@ -76,6 +76,9 @@ void Cluster::Clear(){
 
 }
 
+int Cluster::GetAddress(){
+  return address;
+}
 
 int Cluster::GetSeed(){
   float max=-1000;
@@ -87,9 +90,7 @@ int Cluster::GetSeed(){
     }
   }
   return seed;
-
 }
-
 
 int Cluster::GetSeedAdd(){
   return address+GetSeed();

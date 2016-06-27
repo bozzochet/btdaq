@@ -94,6 +94,10 @@ public:
   void Build(int lad, int sid, int add, int len, float* sig, float* noi, int* stat, int Sig2NoiRatio, int CNStatus, int PowBits, int badin=0);
   //! reset the cluster object
   void Clear();
+  //! Returns the address of the first strip in the cluster
+  int GetAddress();
+    //! Returns the lenght of the cluster
+  int   GetLength();
   //! Returns the position of the seed in the Signal vector 
   int   GetSeed();
   //! Returns the strip number of the seed
@@ -104,8 +108,6 @@ public:
   float GetSeedSN();
   //! Returns the total CLe noise (sq. mean)
   float GetTotNoise();
-  //! Returns the lenght of the cluster
-  int   GetLength();
   //! Calculate the CoG of the cluster using 2 strips
   float GetCoG();
   //! Returns the Total Signal of the cluster using 2 strips
