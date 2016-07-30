@@ -1,0 +1,18 @@
+SigPos
+
+provides an analysis of the position of cluster and seed signal as function of the strip position
+
+Input: files produced by Decode in RootData
+Output: root file with histograms + pdf
+
+To compile
+make clean;
+make;
+
+Usage:
+./SigPos --help
+
+What to change in the code
+
+GoodSelection function 
+Histogram axes
