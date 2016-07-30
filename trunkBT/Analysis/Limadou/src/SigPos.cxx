@@ -30,6 +30,7 @@
 using namespace std;
 
 
+bool GoodSelection(int va);
 bool goodVA(int va);
 void SetStyle();
 
@@ -98,6 +99,7 @@ int main(int argc, char* argv[]) {
   int NSTRIPSS=10*64;
   int NSTRIPSK=6*64;
 
+  //Histogram axis
   Int_t seedsigbins=100;
   Float_t seedsigmin=-10;
   Float_t seedsigmax=+120;
@@ -148,77 +150,6 @@ int main(int argc, char* argv[]) {
     
     int NClusTot = ev->GetNClusTot();
  
-    // *** Clean Event if needed **
-    ////at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
-    ////and at most 50 (to avoid too much noise around and too much combinatorial)
-    ////at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
-    /* bool cleanevent = CleanEvent(ev, GetRH(chain), 4, 50, 6, 6, 0, 0);
-    if (!cleanevent) continue;
-    cleanevs++;
-    
-    //at least 3 points on S, and 3 points on K, not verbose
-    bool trackfitok = ev->FindTrackAndFit(3, 3, false);
-    //    printf("%d\n", trackfitok);
-    if (trackfitok) {
-      //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
-      //(but only if removing them still we'll have more or equal than 3 hits on S and 3 (2 if 'HigherCharge') hits on K)
-      //and perform the fit again
-      ev->RefineTrack(6.0, 2, 6.0, 2);
-    }
-    else {
-      //let's downscale to 2 (on S) and 2 (on K) hits but even in this no-chisq case
-      //let's garantee a certain relaiability of the track fitting the one with the higher charge (this method can be used also for ions)
-      //and requiring an higher S/N for the cluster
-      trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
-    }
-    if (!trackfitok) continue;
-    //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());    
-    tracks++;
-    
-    //    printf("S %024lld: %d %d %d %d %d\n", ev->GetTrackHitPattern(0), ev->IsTDRInTrack(0, 0), ev->IsTDRInTrack(0, 4), ev->IsTDRInTrack(0, 8), ev->IsTDRInTrack(0, 12), ev->IsTDRInTrack(0, 14));
-    //    printf("K %024lld: %d %d %d %d %d\n", ev->GetTrackHitPattern(1), ev->IsTDRInTrack(1, 0), ev->IsTDRInTrack(1, 4), ev->IsTDRInTrack(1, 8), ev->IsTDRInTrack(1, 12), ev->IsTDRInTrack(1, 14));
-    
-    // //                              321098765432109876543210
-    // if (ev->GetTrackHitPattern(0) <                100010001) continue;
-    // if (ev->GetTrackHitPattern(1) <                100010001) continue;
-    
-    double logchi = log10(ev->GetChiTrack());
-    if (logchi>2) continue;
-    goodtracks++;
-    
-    bool strackok = false;
-    bool ktrackok = false;
-    
-    // example of additional selection
-    if (
-	ev->IsTDRInTrack(0, 0) &&
-	ev->IsTDRInTrack(0, 4) &&
-	ev->IsTDRInTrack(0, 8) &&
-	(ev->IsTDRInTrack(0, 12) || ev->IsTDRInTrack(0, 14)) ) {
-      strackok=true;
-      goodStracks++;
-    }
-
-    if (
-	ev->IsTDRInTrack(1, 0) &&
-	ev->IsTDRInTrack(1, 4) &&
-	ev->IsTDRInTrack(1, 8) &&
-	(ev->IsTDRInTrack(1, 12) || ev->IsTDRInTrack(1, 14)) ) {
-      ktrackok=true;
-      goodKtracks++;
-    }
-    
-    strackok=true;
-    ktrackok=true;
-
-    // if (ev->GetNHitsTrack()>5) {
-    //   printf("Nhits: %u (S: %u, K: %u)\n", ev->GetNHitsTrack(), ev->GetNHitsSTrack(), ev->GetNHitsKTrack());
-    // }
-
-    chi->Fill(log10(ev->GetChiTrack()));
-    theta->Fill(ev->GetThetaTrack());
-    phi->Fill(ev->GetPhiTrack());
-    */
     for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
       
       cl = ev->GetCluster(index_cluster);
@@ -273,7 +204,7 @@ int main(int argc, char* argv[]) {
 
   for(int tdr=0; tdr<_maxtdr; tdr++)
     {
-      if(tdr!=0) break;
+      //if(tdr!=0) break;
 
       TCanvas *cseedsig = new TCanvas( Form("cseedsig_tdr%d",tdr), Form("cseedsig_tdr%d",tdr) );
       cseedsig->cd();
@@ -284,7 +215,7 @@ int main(int argc, char* argv[]) {
       cseedsig->SaveAs( Form("%s",pdfname.Data()) );
 
       for(int i=0; i<16; i++){ 
-	if(!goodVA(i)) continue;
+	if(!GoodSelection(i)) continue;
 	TCanvas *cseedsigVA = new TCanvas( Form("cseedsig_tdr%d_VA%02d",tdr,i), Form("cseedsig_tdr%d_VA%02d",tdr,i) );
 	cseedsigVA->cd()->SetLogy();
 	int side =  (i<10) ? 0 : 1;
@@ -306,7 +237,7 @@ int main(int argc, char* argv[]) {
       ctotsig->SaveAs( Form("%s",pdfname.Data()) );
 
       for(int i=0; i<16; i++){ 
-	if(!goodVA(i)) continue;
+	if(!GoodSelection(i)) continue;
 	TCanvas *ctotsigVA = new TCanvas( Form("ctotsig_tdr%d_VA%02d",tdr,i), Form("ctotsig_tdr%d_VA%02d",tdr,i) );
 	ctotsigVA->cd()->SetLogy();
 	int side =  (i<10) ? 0 : 1;
@@ -328,7 +259,7 @@ int main(int argc, char* argv[]) {
       ccllength->SaveAs( Form("%s",pdfname.Data()) );
 
       for(int i=0; i<16; i++){ 
-	if(!goodVA(i)) continue;
+	if(!GoodSelection(i)) continue;
 	TCanvas *ccllengthVA = new TCanvas( Form("ccllength_tdr%d_VA%02d",tdr,i), Form("ccllength_tdr%d_VA%02d",tdr,i) );
 	ccllengthVA->cd()->SetLogy();
 	int side =  (i<10) ? 0 : 1;
@@ -357,6 +288,11 @@ int main(int argc, char* argv[]) {
 bool goodVA(int va){
   if( va<=2 || (va>=5&&va<=7) || (va>=10&&va<=12) ) return true;
   else return false; 
+}
+
+bool GoodSelection( int va ){
+  //return true;
+  if( !goodVA(va) ) return false; else return true;
 }
 
 void SetStyle(){
