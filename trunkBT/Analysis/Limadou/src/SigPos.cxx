@@ -187,6 +187,8 @@ int main(int argc, char* argv[]) {
       float totsn = cl->GetTotSN();
       // the charge (using TotSig()) and dividing by a tempary 'MIP' sig
       double charge=cl->GetCharge();
+
+      if( !GoodSelection(VAseed) ) continue;
       
       hseedocc[side][tdr]->Fill( seedadd );
       hseedsig[side][tdr]->Fill( seedadd, seedsignal );
@@ -221,12 +223,27 @@ int main(int argc, char* argv[]) {
 	int side =  (i<10) ? 0 : 1;
 	TH2F* h2 = hseedsig[side][tdr];
 	TH1F* h = (TH1F*)h2->ProjectionY( Form("hseedsig_tdr_%d_VA%02d",tdr,i), 64*i, 64*(i+1));
-	h->GetYaxis()->SetTitle("Occurence");
+	h->GetYaxis()->SetTitle("Occurrence");
 	h->SetTitle(Form("%s - VA[%02d]", h2->GetTitle(), i));
 	h->SetLineColor( sscolor[side]  );
 	h->Draw("");
 	cseedsigVA->SaveAs( Form("%s",pdfname.Data()) );
       }
+
+      for(int i=0; i<3; i=i++){ 
+	int j=i*5;
+	TCanvas *cseedsig3VA = new TCanvas( Form("cseedsig_tdr%d_3VA%02d",tdr,i), Form("cseedsig_tdr%d_3VA%02d",tdr,i) );
+	cseedsig3VA->cd()->SetLogy();
+	int side =  (j<10) ? 0 : 1;
+	TH2F* h2 = hseedsig[side][tdr];
+	TH1F* h = (TH1F*)h2->ProjectionY( Form("hseedsig_tdr_%d_3VA%02d",tdr,i), 64*j, 64*(j+3));
+	h->GetYaxis()->SetTitle("Occurrence");
+	h->SetTitle(Form("%s - VA[%02d-%02d-%02d]", h2->GetTitle(), j, j+1, j+2));
+	h->SetLineColor( sscolor[side]  );
+	h->Draw("");
+	cseedsig3VA->SaveAs( Form("%s",pdfname.Data()) );
+      }
+
 
       TCanvas *ctotsig = new TCanvas( Form("ctotsig_tdr%d",tdr), Form("ctotsig_tdr%d",tdr) );
       ctotsig->cd();
@@ -243,12 +260,27 @@ int main(int argc, char* argv[]) {
 	int side =  (i<10) ? 0 : 1;
 	TH2F* h2 = htotsig[side][tdr];
 	TH1F* h = (TH1F*)h2->ProjectionY( Form("htotsig_tdr%d_VA%02d",tdr,i), 64*i, 64*(i+1));
-	h->GetYaxis()->SetTitle("Occurence");
+	h->GetYaxis()->SetTitle("Occurrence");
 	h->SetTitle(Form("%s - VA[%02d]", h2->GetTitle(), i));
 	h->SetLineColor( sscolor[side]  );
 	h->Draw("");
 	ctotsigVA->SaveAs( Form("%s",pdfname.Data()) );
       }
+
+      for(int i=0; i<3; i=i++){ 
+	int j=i*5;
+	TCanvas *ctotsig3VA = new TCanvas( Form("ctotsig_tdr%d_3VA%02d",tdr,i), Form("ctotsig_tdr%d_3VA%02d",tdr,i) );
+	ctotsig3VA->cd()->SetLogy();
+	int side =  (j<10) ? 0 : 1;
+	TH2F* h2 = htotsig[side][tdr];
+	TH1F* h = (TH1F*)h2->ProjectionY( Form("htotsig_tdr_%d_3VA%02d",tdr,i), 64*j, 64*(j+3));
+	h->GetYaxis()->SetTitle("Occurrence");
+	h->SetTitle(Form("%s - VA[%02d-%02d-%02d]", h2->GetTitle(), j, j+1, j+2));
+	h->SetLineColor( sscolor[side]  );
+	h->Draw("");
+	ctotsig3VA->SaveAs( Form("%s",pdfname.Data()) );
+      }
+
 
       TCanvas *ccllength = new TCanvas( Form("ccllength_tdr%d",tdr), Form("ccllength_tdr%d",tdr) );
       ccllength->cd();
@@ -265,12 +297,27 @@ int main(int argc, char* argv[]) {
 	int side =  (i<10) ? 0 : 1;
 	TH2F* h2 = hcllengthfirst[side][tdr];
 	TH1F* h = (TH1F*)h2->ProjectionY( Form("hcllength_tdr%d_VA%02d",tdr,i), 64*i, 64*(i+1));
-	h->GetYaxis()->SetTitle("Occurence");
+	h->GetYaxis()->SetTitle("Occurrence");
 	h->SetTitle(Form("%s - VA[%02d]", h2->GetTitle(), i));
 	h->SetLineColor( sscolor[side]  );
 	h->Draw("");
 	ccllengthVA->SaveAs( Form("%s",pdfname.Data()) );
       }
+
+      for(int i=0; i<3; i=i++){ 
+	int j=i*5;
+	TCanvas *ccllenght3VA = new TCanvas( Form("ccllenght_tdr%d_3VA%02d",tdr,i), Form("ccllenght_tdr%d_3VA%02d",tdr,i) );
+	ccllenght3VA->cd()->SetLogy();
+	int side =  (j<10) ? 0 : 1;
+	TH2F* h2 = hcllengthfirst[side][tdr];
+	TH1F* h = (TH1F*)h2->ProjectionY( Form("hcllenght_tdr_%d_3VA%02d",tdr,i), 64*j, 64*(j+3));
+	h->GetYaxis()->SetTitle("Occurrence");
+	h->SetTitle(Form("%s - VA[%02d-%02d-%02d]", h2->GetTitle(), j, j+1, j+2));
+	h->SetLineColor( sscolor[side]  );
+	h->Draw("");
+	ccllenght3VA->SaveAs( Form("%s",pdfname.Data()) );
+      }
+
   }
 
   cdummy->SaveAs( Form("%s)",pdfname.Data()) );
