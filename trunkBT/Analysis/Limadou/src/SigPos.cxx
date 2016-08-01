@@ -230,7 +230,7 @@ int main(int argc, char* argv[]) {
 	cseedsigVA->SaveAs( Form("%s",pdfname.Data()) );
       }
 
-      for(int i=0; i<3; i=i++){ 
+      for(int i=0; i<3; i++){ 
 	int j=i*5;
 	TCanvas *cseedsig3VA = new TCanvas( Form("cseedsig_tdr%d_3VA%02d",tdr,i), Form("cseedsig_tdr%d_3VA%02d",tdr,i) );
 	cseedsig3VA->cd()->SetLogy();
@@ -267,7 +267,7 @@ int main(int argc, char* argv[]) {
 	ctotsigVA->SaveAs( Form("%s",pdfname.Data()) );
       }
 
-      for(int i=0; i<3; i=i++){ 
+      for(int i=0; i<3; i++){ 
 	int j=i*5;
 	TCanvas *ctotsig3VA = new TCanvas( Form("ctotsig_tdr%d_3VA%02d",tdr,i), Form("ctotsig_tdr%d_3VA%02d",tdr,i) );
 	ctotsig3VA->cd()->SetLogy();
@@ -304,7 +304,7 @@ int main(int argc, char* argv[]) {
 	ccllengthVA->SaveAs( Form("%s",pdfname.Data()) );
       }
 
-      for(int i=0; i<3; i=i++){ 
+      for(int i=0; i<3; i++){ 
 	int j=i*5;
 	TCanvas *ccllenght3VA = new TCanvas( Form("ccllenght_tdr%d_3VA%02d",tdr,i), Form("ccllenght_tdr%d_3VA%02d",tdr,i) );
 	ccllenght3VA->cd()->SetLogy();
