@@ -842,18 +842,25 @@ void DecodeData::FindCalibs(){
     return;
   }
   
+  int tdrprobe = tdrCmp[0];
+  if(ntdrCmp<1){
+    tdrprobe = tdrRaw[0];
+  }
+
   for (runB=runn; runB>0 ;runB--){
-    sprintf(nameB, "%s/%06d_%04d.cal", rawCaldir, runB, tdrCmp[0]);
+    sprintf(nameB, "%s/%06d_%04d.cal", rawCaldir, runB, tdrprobe);
+    //    printf("%s\n", nameB);
     if(stat(nameB, &buf)==0){
-      //printf("First calib Found %s run %d\n", name1, run2);
+      //      printf("First calib Found %s run %d\n", name1, run2);
       break;
     }
   }
 
   for (runA=runn; runA<(runn+(runn-runB)) ;runA++){
-    sprintf(nameA, "%s/%06d_%04d.cal", rawCaldir, runA, tdrCmp[0]);
+    sprintf(nameA, "%s/%06d_%04d.cal", rawCaldir, runA, tdrprobe);
+    //    printf("%s\n", nameA);
     if(stat(nameA, &buf)==0){
-      //printf("First calib Found %s run %d\n", name1, run2);
+      //      printf("First calib Found %s run %d\n", name1, run2);
       afterclose=true;
       break;
     }
@@ -861,10 +868,10 @@ void DecodeData::FindCalibs(){
 
   if(afterclose){
     run2=runA;
-    sprintf(name1, "%s/%06d_%04d.cal", rawCaldir, runA, tdrCmp[0]);
+    sprintf(name1, "%s/%06d_%04d.cal", rawCaldir, runA, tdrprobe);
   }else{
     run2=runB;
-    sprintf(name1, "%s/%06d_%04d.cal", rawCaldir, runB, tdrCmp[0]);
+    sprintf(name1, "%s/%06d_%04d.cal", rawCaldir, runB, tdrprobe);
   }
 
   printf("Closest calib Found %s run %d\n", name1, run2);
