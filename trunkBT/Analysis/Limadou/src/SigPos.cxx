@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
   vector<TH2F*> htotsig[2];
   vector<TH2F*> hcllength[2];
   vector<TH2F*> hcllengthfirst[2];
-  vector<TH2F*> hcllengthtotsig[2];
+  vector<TH2F*> hcllengthtotsig[16];
   int NSTRIPSS=10*64;
   int NSTRIPSK=6*64;
 
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
 
   Int_t totsigbins=100;
   Float_t totsigmin=-150;
-  Float_t totsigmax=+700;
+  Float_t totsigmax=+500;
 
   Int_t cllengthbins=11;
   Float_t cllengthmin=-0.5;
@@ -137,12 +137,10 @@ int main(int argc, char* argv[]) {
 	hcllengthfirst[iside].push_back( new TH2F( Form("hcllengthfirst_%s_%02d", ss[iside], tdr), Form("Cluster Length - %s - [%02d];First strip ADC Channel;Cluster Length", ss[iside], tdr), NSTRIPSS+NSTRIPSK, -0.5, NSTRIPSS+NSTRIPSK-0.5, cllengthbins, cllengthmin, cllengthmax) );
 	hcllengthfirst[iside][tt]->SetLineColor( sscolor[iside] );
 
-	hcllengthtotsig[iside].push_back( new TH2F( Form("hcllengthtotsig_%s_%02d", ss[iside], tdr), Form("%s - [%02d];Cluster Length; Cluster ADC counts", ss[iside], tdr), cllengthbins, cllengthmin, cllengthmax, totsigbins, totsigmin, totsigmax) );
-	hcllengthtotsig[iside][tt]->SetLineColor( sscolor[iside] );
-	
-
-
-
+      }
+    for(int iva=0; iva<16; iva++)
+      {
+	hcllengthtotsig[iva].push_back( new TH2F( Form("hcllengthtotsig_VA%02d_%02d", iva, tdr), Form("seed VA[%02d] - [%02d];Cluster Length; Cluster ADC counts", iva, tdr), cllengthbins, cllengthmin, cllengthmax, totsigbins, totsigmin, totsigmax) );
       }
   }
   
@@ -158,7 +156,7 @@ int main(int argc, char* argv[]) {
       perc++;
     }
 
-    if(index_event==1000) break;
+    //if(index_event==1000) break;
 
     chain->GetEntry(index_event);
     
@@ -209,7 +207,7 @@ int main(int argc, char* argv[]) {
       htotsig[side][tdr]->Fill( seedadd, totsig );
       hcllength[side][tdr]->Fill( seedadd, length );
       hcllengthfirst[side][tdr]->Fill( first, length );
-      hcllengthtotsig[side][tdr]->Fill( length, totsig );
+      hcllengthtotsig[VAseed][tdr]->Fill( length, totsig );
     }
     
   }
@@ -339,14 +337,17 @@ int main(int argc, char* argv[]) {
 	ccllenght3VA->SaveAs( Form("%s",pdfname.Data()) );
       }
 
-      TCanvas *ccllengthtotsig = new TCanvas( Form("ccllengthtotsig_tdr%d",tdr), Form("ccllengthtotsig_tdr%d",tdr) );
-      ccllengthtotsig->cd(); ccllengthtotsig->cd()->SetGrid(); ccllengthtotsig->cd()->SetTicks();
-      hcllengthtotsig[0][tdr]->SetStats(0);
-      hcllengthtotsig[0][tdr]->Draw("COLZ");
-      hcllengthtotsig[1][tdr]->Draw("COL same");
-      for(int i=1; i<16; i++){ TLine *l = new TLine(64*i,totsigmin,64*i,totsigmax); l->SetLineStyle( i==10 ? 1 : 3); l->Draw("same"); }
-      ccllengthtotsig->SaveAs( Form("%s",pdfname.Data()) );
-
+      for( int i=0; i<3; i++){
+	TCanvas *ccllengthtotsig = new TCanvas( Form("ccllengthtotsig_VA%d_tdr%d",i,tdr), Form("ccllengthtotsig_VA%d_tdr%d",i,tdr) );
+	ccllengthtotsig->cd()->SetLogz(); ccllengthtotsig->cd()->SetGrid(); ccllengthtotsig->cd()->SetTicks();
+	TH2F *h3VA = (TH2F*)hcllengthtotsig[i*5][tdr]->Clone( Form("h3VA_%d",i ) );
+	h3VA->SetNameTitle( Form("hcllengthtotsig_3VA%02d_tdr%02d",i,GetRH(chain)->tdrCmpMap[tdr]), Form("seed VA [%02d-%02d-%02d] -- TDR[%02d]", i*5, i*5+1, i*5+2, GetRH(chain)->tdrCmpMap[tdr]) );
+	h3VA->Add( hcllengthtotsig[i*5+1][tdr] );
+	h3VA->Add( hcllengthtotsig[i*5+2][tdr] );
+	h3VA->SetStats(0);;
+	h3VA->Draw("COLZ");
+	ccllengthtotsig->SaveAs( Form("%s",pdfname.Data()) );
+      }
 
   }
 
