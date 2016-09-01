@@ -654,6 +654,8 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   hcharge[numnum+100*Jinfnum][sid]->Fill(pp->GetCharge());
   hsignal[numnum+100*Jinfnum][sid]->Fill(pp->GetTotSig());
   hson[numnum+100*Jinfnum][sid]->Fill(pp->GetTotSN());
+  // hsignal[numnum+100*Jinfnum][sid]->Fill(pp->GetSeedVal());
+  // hson[numnum+100*Jinfnum][sid]->Fill(pp->GetSeedSN());
 
   if(pri) pp->Print();
   
@@ -881,8 +883,8 @@ void DecodeData::FindCalibs(){
     printf("I give up. Bye.\n");
     exit(2);
   }
-  else 
-    printf ("Searching for other calib files\n");
+  else
+    printf ("Searching the calib files for the other TDRs, if any\n");
   
   for (int ii=0;ii<ntdrCmp;ii++){
     int Jinfnum=tdrCmp[ii]/100;
