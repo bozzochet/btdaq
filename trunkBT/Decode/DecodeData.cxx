@@ -576,6 +576,7 @@ int DecodeData::ReadOneTDR(int Jinfnum){
 	  if (ev->SoN[tdrnumraw][cc]>threshold) {
 	    //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->rsig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc]);
 	    // printf("%04d) %f\n", cc, ev->SoN[tdrnumraw][cc]);
+	    // this fills the histogram for the raw events when NOT clustering, if kClusterize anyhow, ALL the histos as for the compressed data, will be filled
 	    hocc[numnum+100*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);
 	    // hcharge not filled in this case...
 	    // hsignal not filled in this case...
@@ -619,7 +620,9 @@ int DecodeData::ReadOneTDR(int Jinfnum){
       }
       
       if(out_flag){
-	AddCluster(numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
+	if (!kClusterize) {//what happens if is mixed mode? I would write the same cluster twice... So let's NOT write the "on-line" clusters in the root file but only the "offline" ones...
+	  AddCluster(numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
+	}
       }
     }
     
