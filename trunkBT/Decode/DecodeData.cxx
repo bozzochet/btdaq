@@ -620,7 +620,7 @@ int DecodeData::ReadOneTDR(int Jinfnum){
       }
       
       if(out_flag){
-	if (!kClusterize) {//what happens if is mixed mode? I would write the same cluster twice... So let's NOT write the "on-line" clusters in the root file but only the "offline" ones...
+	if (!kClusterize) {//what happens if is mixed mode? I would write the same cluster twice... So let's NOT write the "on-line" clusters in the root file but only the "offline" ones... This remove the "online" clusters even if is not 'mixed' but only 'compressed' but I think is 'safer'...
 	  AddCluster(numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
 	}
       }
@@ -692,7 +692,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
   int shift=0;
 
   for (int side=0; side<2; side++) {
-
+    
     if (side==0) {
       nvas=nvasS;
       nchava=nchavaS;
