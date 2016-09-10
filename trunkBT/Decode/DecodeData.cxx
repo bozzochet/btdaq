@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "DecodeData.hh"
-
+#include "TString.h"
 
 using namespace std;
 
@@ -25,6 +25,8 @@ inline bool file_exists(const std::string& name) {
   struct stat buffer;
   return (stat (name.c_str(), &buffer) == 0);
 }
+
+TString stringtodump;
 
 //=============================================================================================
 DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
@@ -128,22 +130,22 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
   for (int jj=0; jj<NJINF; jj++){
     for (int hh=0; hh<NTDRS; hh++){
       sprintf(name,"occ_%d_%d",jj, hh);
-      hocc[jj*100+hh]= new TH1F(name,name,1024,0,1024);
+      hocc[jj*NTDRS+hh]= new TH1F(name,name,1024,0,1024);
       
       sprintf(name,"qS_%d_%d", jj, hh);
-      hcharge[jj*100+hh][0]= new TH1F(name,name,1000,0,100);
+      hcharge[jj*NTDRS+hh][0]= new TH1F(name,name,1000,0,100);
       sprintf(name,"qK_%d_%d", jj, hh);
-      hcharge[jj*100+hh][1]= new TH1F(name,name,1000,0,100);
+      hcharge[jj*NTDRS+hh][1]= new TH1F(name,name,1000,0,100);
       
       sprintf(name,"signalS_%d_%d", jj, hh);
-      hsignal[jj*100+hh][0]= new TH1F(name,name,4200,-100,4100);
+      hsignal[jj*NTDRS+hh][0]= new TH1F(name,name,4200,-100,4100);
       sprintf(name,"signalK_%d_%d", jj, hh);
-      hsignal[jj*100+hh][1]= new TH1F(name,name,4200,-100,4100);
+      hsignal[jj*NTDRS+hh][1]= new TH1F(name,name,4200,-100,4100);
       
       sprintf(name,"sonS_%d_%d", jj, hh);
-      hson[jj*100+hh][0]= new TH1F(name,name,1000,0,100);
+      hson[jj*NTDRS+hh][0]= new TH1F(name,name,1000,0,100);
       sprintf(name,"sonK_%d_%d", jj, hh);
-      hson[jj*100+hh][1]= new TH1F(name,name,1000,0,100);
+      hson[jj*NTDRS+hh][1]= new TH1F(name,name,1000,0,100);
     }
   }
 
@@ -154,24 +156,24 @@ DecodeData::~DecodeData(){
 
   for (int jj=0; jj<NJINF; jj++){
     for (int hh = 0; hh < NTDRS; hh++) {
-      //      printf("%d %d --> %f\n", jj, hh, hocc[jj*100+hh]->GetEntries());
-      if (hocc[jj*100+hh]->GetEntries()<1.0) {
+      //      printf("%d %d --> %f\n", jj, hh, hocc[jj*NTDRS+hh]->GetEntries());
+      if (hocc[jj*NTDRS+hh]->GetEntries()<1.0) {
 	//	printf("deleting hocc %d %d\n", jj, hh);
-	delete hocc[jj*100+hh];
+	delete hocc[jj*NTDRS+hh];
       }
       for (int ss=0; ss<2; ss++) {
-	//	printf("%d %d %d --> %f\n", jj, hh, ss, hcharge[jj*100+hh][ss]->GetEntries());
-	if (hcharge[jj*100+hh][ss]->GetEntries()<1.0) {
+	//	printf("%d %d %d --> %f\n", jj, hh, ss, hcharge[jj*NTDRS+hh][ss]->GetEntries());
+	if (hcharge[jj*NTDRS+hh][ss]->GetEntries()<1.0) {
 	  //	  printf("deleting hcharge %d %d %d\n", jj, hh, ss);
-	  delete hcharge[jj*100+hh][ss];
+	  delete hcharge[jj*NTDRS+hh][ss];
 	}
-	if (hsignal[jj*100+hh][ss]->GetEntries()<1.0) {
+	if (hsignal[jj*NTDRS+hh][ss]->GetEntries()<1.0) {
 	  //	  printf("deleting hsignal %d %d %d\n", jj, hh, ss);
-	  delete hsignal[jj*100+hh][ss];
+	  delete hsignal[jj*NTDRS+hh][ss];
 	}
-	if (hson[jj*100+hh][ss]->GetEntries()<1.0) {
+	if (hson[jj*NTDRS+hh][ss]->GetEntries()<1.0) {
 	  //	  printf("deleting hson %d %d %d\n", jj, hh, ss);
-	  delete hson[jj*100+hh][ss];
+	  delete hson[jj*NTDRS+hh][ss];
 	}
       }
     }
@@ -429,7 +431,7 @@ int DecodeData::ReadOneEvent(){
       if (tdrnoeventmask&(1<<ii)){
 	if (pri||evpri) printf("A tdr (%02d) replied with no event...\n", ii);
 	if (!out_flag) {
-	  tdrCmp[ntdrCmp++]=ii+100*0;
+	  tdrCmp[ntdrCmp++]=ii+100*0;//In ReadOneJinf is 100*(status&0x1f), I don't know why here is different
 	}
       }
       else if (pri||evpri) {
@@ -577,7 +579,7 @@ int DecodeData::ReadOneTDR(int Jinfnum){
 	    //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->rsig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc]);
 	    // printf("%04d) %f\n", cc, ev->SoN[tdrnumraw][cc]);
 	    // this fills the histogram for the raw events when NOT clustering, if kClusterize anyhow, ALL the histos as for the compressed data, will be filled
-	    hocc[numnum+100*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);
+	    hocc[numnum+NTDRS*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);
 	    // hcharge not filled in this case...
 	    // hsignal not filled in this case...
 	    // hson not filled in this case...
@@ -653,12 +655,30 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
 	    &(cal->status[clusadd]),Sig2NoiStatus, CNStatus, PowBits, bad);
   
-  hocc[numnum+100*Jinfnum]->Fill(clusadd);
-  hcharge[numnum+100*Jinfnum][sid]->Fill(pp->GetCharge());
-  hsignal[numnum+100*Jinfnum][sid]->Fill(pp->GetTotSig());
-  hson[numnum+100*Jinfnum][sid]->Fill(pp->GetTotSN());
-  // hsignal[numnum+100*Jinfnum][sid]->Fill(pp->GetSeedVal());
-  // hson[numnum+100*Jinfnum][sid]->Fill(pp->GetSeedSN());
+  hocc[numnum+NTDRS*Jinfnum]->Fill(clusadd);
+  hcharge[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetCharge());
+  // hsignal[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetTotSig());
+  // hson[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetTotSN());
+  hsignal[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetSeedVal());
+  hson[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetSeedSN());
+  // if (pp->GetSeedSN()<3.5) {
+  //   printf("%s", stringtodump.Data());
+  //   for (int ii=0; ii<cluslen; ii++) {
+  //     printf("AddCluster) %d %f\n", ii, sig[ii]);
+  //   }
+  //   printf("***** SoN: %f, Sig: %f, SeedAdd: %d\n", pp->GetSeedSN(), pp->GetSeedVal(), pp->GetSeed());
+  //   pp->Print();
+  //   sleep(3);
+  // }
+  // if (pp->GetSeedVal()<1.0) {
+  //   printf("%s", stringtodump.Data());
+  //   for (int ii=0; ii<cluslen; ii++) {
+  //     printf("AddCluster) %d %f\n", ii, sig[ii]);
+  //   }
+  //   printf("***** SoN: %f, Sig: %f, SeedAdd: %d\n", pp->GetSeedSN(), pp->GetSeedVal(), pp->GetSeed());
+  //   pp->Print();
+  //   sleep(3);
+  // }
 
   if(pri) pp->Print();
   
@@ -681,6 +701,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
   float arraySoN[1024];
   float pede[1024];
   float sigma[1024];
+  int status[1024];
   int arraysize=1024;
   
   int nvas=10;
@@ -690,6 +711,8 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
   double lowthreshold=1.0;
 
   int shift=0;
+
+  TString headerstringtodump = "New clusterize:\n";
 
   for (int side=0; side<2; side++) {
     
@@ -706,6 +729,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
 	  arraySoN[cc] = ev->SoN[tdrnumraw][cc*2];
 	  pede[cc] = cal->ped[cc*2];
 	  sigma[cc] = cal->sig[cc*2];
+	  status[cc] = cal->status[cc*2];
 	}
       }
       else {
@@ -714,6 +738,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
 	memcpy(arraySoN, ev->SoN[tdrnumraw], 640*sizeof(ev->SoN[tdrnumraw][0]));
 	memcpy(pede, cal->ped, 640*sizeof(cal->ped[0]));
 	memcpy(sigma, cal->sig, 640*sizeof(cal->sig[0]));
+	memcpy(status, cal->status, 640*sizeof(cal->status[0]));
       }
     }
     else {
@@ -727,6 +752,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
       memcpy(arraySoN, &(ev->SoN[tdrnumraw][640]), 384*sizeof(ev->SoN[tdrnumraw][0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
       memcpy(pede, &(cal->ped[640]), 384*sizeof(cal->ped[0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
       memcpy(sigma, &(cal->sig[640]), 384*sizeof(cal->sig[0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
+      memcpy(status, &(cal->status[640]), 384*sizeof(cal->sig[0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
     }
     
     double CN[nvas];
@@ -734,6 +760,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
     for (int va=0; va<nvas; va++) {
       CN[va] = ComputeCN(nchava, &(array[va*nchava]), &(pede[va*nchava]), &(arraySoN[va*nchava]));
       //      printf("%d) %f\n", va, CN[va]);
+      //      headerstringtodump += Form("CN[%d] = %f\n", va, CN[va]);
     }
 
     int bad=0;
@@ -747,60 +774,101 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
     bool firstfound=false;
     bool seedfound=false;
     
+    float ssonmax = -999;
+    int seedaddmax = -1;
+
+    TString clusterstringtodump = "--> New cluster\n";
+    //    printf("--> New cluster\n");
+
     for (int count=0; count<arraysize; count++) {
+      //      printf("count = %d\n", count);
+      //      clusterstringtodump += Form("count = %d\n", count);
 
       int va = (int)(count/nchava);
-    
+
       float ssun = (array[count]/8.0-pede[count]-CN[va])/sigma[count];
       //      if (ssun>highthreshold) printf("%d) %f %f %f %f -> %f\n", count, array[count]/8.0, pede[count], CN[va], sigma[count], ssun);
-      
-      if (ssun>highthreshold) {//the seed that can also be the first of the cluster
-	//	printf(">high\n");
+
+      //      clusterstringtodump += Form("%d) %f %f %f %f -> %f\n", count, array[count]/8.0, pede[count], CN[va], sigma[count], ssun);      
+
+      if (ssun>=highthreshold) {//the seed that can also be the first of the cluster
+	//	printf("%d) >high\n", count);
+	//	clusterstringtodump += Form("%d) >high\n", count);
+	//	clusterstringtodump += Form("%d) %f %f %f %f -> %f\n", count, array[count]/8.0, pede[count], CN[va], sigma[count], ssun);
+	
+	if (ssun>ssonmax) {
+	  seedaddmax = count;
+	  ssonmax = ssun;
+	  //	  printf("%d) New max %d %f\n", count, seedaddmax, ssonmax);
+	  //	  clusterstringtodump += Form("%d) New max %d %f\n", count, seedaddmax, ssonmax);
+	}
+	
 	if (firstfound) { //this is the seed (maybe there was another seed previously, but doesn't matter...)
-	  //	  printf("firstfound already \n");
 	  seedfound=true;
 	  cluslen++;
+	  //	  printf("%d) >high and first found already (cluslen=%d)\n", count, cluslen);
+	  //	  clusterstringtodump += Form("%d) >high and first found already (cluslen=%d)\n", count, cluslen);
 	}
 	else {//is the seed but also the first of the cluster...
 	  firstfound=true;
 	  seedfound=true;
 	  clusadd=count;
 	  cluslen=1;
+	  //	  printf("%d) >high, is the seed and also the first of the cluster (cluslen=%d)\n", count, cluslen);
+	  //	  clusterstringtodump += Form("%d) >high, is the seed and also the first of the cluster (cluslen=%d)\n", count, cluslen);
 	}
       }
-      else if (ssun>lowthreshold) { //potentially the start of a cluster, or maybe another neighbour...
-	//	printf(">low\n");
+      else if (ssun>=lowthreshold) { //potentially the start of a cluster, or maybe another neighbour...
+	//	clusterstringtodump += Form("%d) >low\n", count);
 	if (!firstfound) {//is the first of the potential cluster
 	  firstfound=true;
 	  clusadd=count;
 	  cluslen=1;
+	  //	  printf("%d) >low, is the first of the potential cluster (cluslen=%d)\n", count, cluslen);
+	  //	  clusterstringtodump += Form("%d) >low, is the first of the potential cluster (cluslen=%d)\n", count, cluslen);
 	}
 	else {//there was already a 'first' so this can be a neighbour between the first and the seed or a neighbour after
-	  //	  printf("firstfound already \n");
 	  cluslen++;
+	  //	  printf("%d) >low but firstfound already (cluslen=%d)\n", count, cluslen);
+	  //	  clusterstringtodump += Form("%d) >low but firstfound already (cluslen=%d)\n", count, cluslen);
 	}
       }
       else if (ssun<lowthreshold || count==(arraysize-1)) { //end of a cluster or end of a "potential" cluster or simply nothing
-	//	printf("<low\n");
+	//	printf("%d) <low (cluslen=%d)\n", count, cluslen);
+	//	clusterstringtodump += Form("%d) <low (cluslen=%d)\n", count, cluslen);
 	if (seedfound) {//the cluster is done, let's save it!
-	  //	  printf("seedfound already\n");
-	  if (pri) printf("Cluster: add=%d  lenght=%d\n", clusadd+shift, cluslen);
+	  //	  printf("%d) <low, seed found already: let's save the cluster (cluslen=%d)\n", count, cluslen);
+	  //	  clusterstringtodump += Form("%d) <low, seed found already: let's save the cluster (cluslen=%d)\n", count, cluslen);
+	  if (pri) printf("Cluster: add=%d  lenght=%d, seed=%d\n", clusadd+shift, cluslen, seedaddmax+shift);
+	  //	  clusterstringtodump += Form("Cluster: add=%d  lenght=%d, seed=%d\n", clusadd+shift, cluslen, seedaddmax+shift);
 	  for (int hh=clusadd; hh<(clusadd+cluslen); hh++){
 	    int _va = (int)(hh/nchava);
 	    float s = array[hh]/8.0-pede[hh]-CN[_va];
+	    //	    clusterstringtodump += Form("Sig=%f from Array = %d, Ped=%f, CN=%f\n", s, array[hh], pede[hh], CN[_va]);
 	    if (pri) printf("Signal: %d, Pos:%d\n", (int)(8*s), hh+shift);
-	    if (hh<MAXLENGHT){
+	    //	    clusterstringtodump += Form("Signal: %d, Pos:%d\n", (int)(8*s), hh+shift);
+	    if ((hh-clusadd)<MAXLENGHT){
 	      sig[hh-clusadd]=s;
 	      if (pri) printf("        %f, Pos: %d\n", sig[hh-clusadd], hh+shift);
+	      //	      clusterstringtodump += Form("        %f, Pos: %d\n", sig[hh-clusadd], hh+shift);
 	    }
 	    else bad=1;
 	  }
-	  AddCluster(numnum, Jinfnum, clusadd+shift, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
+	  //	  clusterstringtodump += Form("Status[%d] = %d\n", seedaddmax+shift, status[seedaddmax]);
+	  stringtodump = headerstringtodump + clusterstringtodump;
+	  if (!(status[seedaddmax]&(1<<3))) {//if is not a bad cluster
+	    AddCluster(numnum, Jinfnum, clusadd+shift, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
+	  }
+	  clusterstringtodump = "--> New cluster\n";
 	}
 	// there was no seed found: "potential" cluster not promoted or even "nothing"
 	seedfound=false;
 	firstfound=false;
 	memset(sig, 0, MAXLENGHT*sizeof(sig[0]));
+	ssonmax = -9999;
+	seedaddmax = -1;
+	stringtodump = headerstringtodump + clusterstringtodump;
+	clusterstringtodump = "--> New cluster\n";
       }
   
     }
@@ -809,19 +877,24 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
   return;
 }
 
-double DecodeData::ComputeCN(int size, short int* Signal, float* pede, float* SoN){
+double DecodeData::ComputeCN(int size, short int* Signal, float* pede, float* SoN, double threshold){
 
   double mean=0.0;
   int n=0;
   
   for (int ii=0; ii<size; ii++) {
-    if (SoN[ii]<3.0) {//to avoid real signal...
+    if (SoN[ii]<threshold) {//to avoid real signal...
       n++;
       //      printf("    %d) %f %f\n", ii, Signal[ii]/8.0, pede[ii]);
       mean+=(Signal[ii]/8.0-pede[ii]);
     }
   }
-  mean/=n;
+  if (n>1) {
+    mean/=n;
+  }
+  else { //let's try again with an higher threshold
+    mean = ComputeCN(size, Signal, pede, SoN, threshold+1.0);
+  }
   //  printf("    CN = %f\n", mean);
 
   return mean;

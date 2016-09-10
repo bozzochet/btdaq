@@ -319,16 +319,16 @@ void CreatePdfWithPlots(DecodeData* dd1, char* pdf_filename){
   gStyle->SetOptFit(1);
   for (int jj=0; jj<NJINF; jj++){
     for (int hh = 0; hh < NTDRS; hh++) {
-      canvas = new TCanvas(name, name, 1024, 1024);
       sprintf(name, "ladder %d %d", jj, hh);
+      canvas = new TCanvas(name, name, 1024, 1024);
       TF1 *fit_s = new TF1("fit_s", "gaus", 0, 639);
       TF1 *fit_k = new TF1("fit_k", "gaus", 640, 1023);
       fit_s->SetLineColor(kBlue);
       fit_k->SetLineColor(kRed);
-      int entries = (int)(dd1->hocc[100*jj+hh]->GetEntries());
+      int entries = (int)(dd1->hocc[NTDRS*jj+hh]->GetEntries());
       if (entries>=1) {
-	TH1F *clone_chartA = (TH1F *)dd1->hocc[jj*100+hh]->Clone("cloneA");
-	TH1F *clone_chartB = (TH1F *)dd1->hocc[jj*100+hh]->Clone("cloneB");
+	TH1F *clone_chartA = (TH1F *)dd1->hocc[jj*NTDRS+hh]->Clone("cloneA");
+	TH1F *clone_chartB = (TH1F *)dd1->hocc[jj*NTDRS+hh]->Clone("cloneB");
 	clone_chartA->Fit(fit_s, "R");
 	clone_chartB->Fit(fit_k, "R");
 	clone_chartA->Draw();
@@ -358,17 +358,63 @@ void CreatePdfWithPlots(DecodeData* dd1, char* pdf_filename){
 	  first=false;
 	}
 	canvas->Print(local_pdf_filename, "pdf");
-	delete canvas;
 	if (clone_chartA) delete clone_chartA;
 	if (clone_chartB) delete clone_chartB;
       }
+      delete canvas;
       if (fit_s) delete fit_s;
       if (fit_k) delete fit_k;
     }
   }
+
+  for (int jj=0; jj<NJINF; jj++){
+    for (int hh = 0; hh < NTDRS; hh++) {
+      for (int ss = 0; ss < 2; ss++) {
+	canvas = new TCanvas("dummy", "dummy", 1024, 1024);
+	canvas->SetLogy(true);
+	dd1->hsignal[jj*NTDRS+hh][ss]->Draw();
+	int entries = (int)(dd1->hsignal[NTDRS*jj+hh][ss]->GetEntries());
+	if (entries>=1) {
+	  double mean = (dd1->hsignal[NTDRS*jj+hh][ss]->GetMean());
+	  double rms = (dd1->hsignal[NTDRS*jj+hh][ss]->GetRMS());
+	  //	  printf("%f %f\n", mean, rms);
+	  (dd1->hsignal[NTDRS*jj+hh][ss])->GetXaxis()->SetRangeUser(mean-5.0*rms, mean+9.0*rms);
+	  canvas->Update();
+	  canvas->Modified();
+	  canvas->Update();
+	  canvas->Print(pdf_filename, "pdf");
+	}
+	delete canvas;
+      }
+    }
+  }
+
+  for (int jj=0; jj<NJINF; jj++){
+    for (int hh = 0; hh < NTDRS; hh++) {
+      for (int ss = 0; ss < 2; ss++) {
+	canvas = new TCanvas("dummy", "dummy", 1024, 1024);
+	canvas->SetLogy(true);
+	dd1->hson[jj*NTDRS+hh][ss]->Draw();
+	int entries = (int)(dd1->hson[NTDRS*jj+hh][ss]->GetEntries());
+	if (entries>=1) {
+	  double mean = (dd1->hson[NTDRS*jj+hh][ss]->GetMean());
+	  double rms = (dd1->hson[NTDRS*jj+hh][ss]->GetRMS());
+	  //	  printf("%f %f\n", mean, rms);
+	  (dd1->hson[NTDRS*jj+hh][ss])->GetXaxis()->SetRangeUser(0.0, mean+7.0*rms);
+	  canvas->Update();
+	  canvas->Modified();
+	  canvas->Update();
+	  canvas->Print(pdf_filename, "pdf");
+	}
+	delete canvas;
+      }
+    }
+  }
+
   TCanvas* c_exit = new TCanvas("dummy", "dummy", 1024, 1024);
   snprintf(local_pdf_filename, 255, "%s]", pdf_filename);
   c_exit->Print(local_pdf_filename, "pdf");
+
   delete c_exit; 
 
   return;
