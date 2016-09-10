@@ -84,7 +84,7 @@ int Cluster::GetSeed(){
   float max=-1000;
   int seed=-1;
   for (int ii=0;ii<length;ii++){
-    if (Signal[ii]/Noise[ii]>=max&&Status[ii]==0){
+    if (Noise[ii]!=0 && Signal[ii]/Noise[ii]>=max && Status[ii]==0){
       max=Signal[ii]/Noise[ii];
       seed=ii;
     }
@@ -278,6 +278,7 @@ void Cluster::Print(){
     printf("    %d      %f       %f       %d \n",
 	   ii, GetCSignal(ii), Noise[ii], Status[ii]);
   }
+
   return;
 }
 
