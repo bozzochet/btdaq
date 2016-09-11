@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
   
   if (GetRH(chain)) {
     GetRH(chain)->Print();
-    _maxtdr = GetRH(chain)->ntdrCmp;
+    _maxtdr = GetRH(chain)->ntdrCmp + GetRH(chain)->ntdrRaw;
   }
   else {
     printf("Not able to find the RHClass header in the UserInfo...\n");
@@ -123,6 +123,10 @@ int main(int argc, char* argv[]) {
 
   for (int tt=0; tt<_maxtdr; tt++) {
     int tdr=GetRH(chain)->tdrCmpMap[tt];
+    if (tdr<0) {
+      tdr=GetRH(chain)->tdrRawMap[tt];
+    }
+    //    printf("tdr = %d\n", tdr);
     for(int iside=0; iside<2; iside++)
       { 
 	hseedocc[iside].push_back( new TH1F( Form("hseedocc_%s_%02d", ss[iside], tdr), Form("Seed Occupancy - %s - [%02d];Seed ADC Channel;Occurrence", ss[iside], tdr), NSTRIPSS+NSTRIPSK, -0.5, NSTRIPSS+NSTRIPSK-0.5 ) );
@@ -159,17 +163,20 @@ int main(int argc, char* argv[]) {
     //if(index_event==1000) break;
 
     chain->GetEntry(index_event);
-    
+
     int NClusTot = ev->GetNClusTot();
- 
+    //    printf("Found %d clusters\n", NClusTot);
+
     for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
-      
+
       cl = ev->GetCluster(index_cluster);
 
       int ladder=cl->ladder;
       int side=cl->side;
       int tdr=GetRH(chain)->FindPos(ladder);
-      
+      if (tdr<0) tdr=GetRH(chain)->FindPosRaw(ladder);
+      //      printf("tdr = %d\n", tdr);
+
       // the lenght of the cluster
       int length = cl->GetLength();
       // the address of the first (not the seed!) strip in the cluster
@@ -178,7 +185,7 @@ int main(int argc, char* argv[]) {
       int seed = cl->GetSeed();
       // the strip number of the seed ([0-1024], seed+first)
       int seedadd = cl->GetSeedAdd();
-      
+
       int VAseed  = Cluster::GetVA(seedadd);
       int VAfirst = Cluster::GetVA(first);
       int VAlast  = Cluster::GetVA(first+length);
@@ -201,8 +208,8 @@ int main(int argc, char* argv[]) {
       double charge=cl->GetCharge();
 
       if( !GoodSelection(VAseed) ) continue;
-      
-      hseedocc[side][tdr]->Fill( seedadd );
+ 
+     hseedocc[side][tdr]->Fill( seedadd );
       hseedsig[side][tdr]->Fill( seedadd, seedsignal );
       htotsig[side][tdr]->Fill( seedadd, totsig );
       hcllength[side][tdr]->Fill( seedadd, length );
@@ -341,7 +348,7 @@ int main(int argc, char* argv[]) {
 	TCanvas *ccllengthtotsig = new TCanvas( Form("ccllengthtotsig_VA%d_tdr%d",i,tdr), Form("ccllengthtotsig_VA%d_tdr%d",i,tdr) );
 	ccllengthtotsig->cd()->SetLogz(); ccllengthtotsig->cd()->SetGrid(); ccllengthtotsig->cd()->SetTicks();
 	TH2F *h3VA = (TH2F*)hcllengthtotsig[i*5][tdr]->Clone( Form("h3VA_%d",i ) );
-	h3VA->SetNameTitle( Form("hcllengthtotsig_3VA%02d_tdr%02d",i,GetRH(chain)->tdrCmpMap[tdr]), Form("seed VA [%02d-%02d-%02d] -- TDR[%02d]", i*5, i*5+1, i*5+2, GetRH(chain)->tdrCmpMap[tdr]) );
+	h3VA->SetNameTitle( Form("hcllengthtotsig_3VA%02d_tdr%02d",i,GetRH(chain)->tdrCmpMap[tdr]), Form("seed VA [%02d-%02d-%02d] -- TDR[%02d]", i*5, i*5+1, i*5+2, GetRH(chain)->tdrCmpMap[tdr]>0?GetRH(chain)->tdrCmpMap[tdr]:GetRH(chain)->tdrRawMap[tdr]) );
 	h3VA->Add( hcllengthtotsig[i*5+1][tdr] );
 	h3VA->Add( hcllengthtotsig[i*5+2][tdr] );
 	h3VA->SetStats(0);;
