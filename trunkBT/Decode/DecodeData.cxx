@@ -131,6 +131,8 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
     for (int hh=0; hh<NTDRS; hh++){
       sprintf(name,"occ_%d_%d",jj, hh);
       hocc[jj*NTDRS+hh]= new TH1F(name,name,1024,0,1024);
+      sprintf(name,"occseed_%d_%d",jj, hh);
+      hoccseed[jj*NTDRS+hh]= new TH1F(name,name,1024,0,1024);
       
       sprintf(name,"qS_%d_%d", jj, hh);
       hcharge[jj*NTDRS+hh][0]= new TH1F(name,name,1000,0,100);
@@ -160,6 +162,10 @@ DecodeData::~DecodeData(){
       if (hocc[jj*NTDRS+hh]->GetEntries()<1.0) {
 	//	printf("deleting hocc %d %d\n", jj, hh);
 	delete hocc[jj*NTDRS+hh];
+      }
+      if (hoccseed[jj*NTDRS+hh]->GetEntries()<1.0) {
+	//	printf("deleting hoccseed %d %d\n", jj, hh);
+	delete hoccseed[jj*NTDRS+hh];
       }
       for (int ss=0; ss<2; ss++) {
 	//	printf("%d %d %d --> %f\n", jj, hh, ss, hcharge[jj*NTDRS+hh][ss]->GetEntries());
@@ -580,6 +586,7 @@ int DecodeData::ReadOneTDR(int Jinfnum){
 	    // printf("%04d) %f\n", cc, ev->SoN[tdrnumraw][cc]);
 	    // this fills the histogram for the raw events when NOT clustering, if kClusterize anyhow, ALL the histos as for the compressed data, will be filled
 	    hocc[numnum+NTDRS*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);
+	    // hoccseed not filled in this case...
 	    // hcharge not filled in this case...
 	    // hsignal not filled in this case...
 	    // hson not filled in this case...
@@ -655,7 +662,8 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
 	    &(cal->status[clusadd]),Sig2NoiStatus, CNStatus, PowBits, bad);
   
-  hocc[numnum+NTDRS*Jinfnum]->Fill(clusadd);
+  hocc[numnum+NTDRS*Jinfnum]->Fill(pp->GetCoG());
+  hoccseed[numnum+NTDRS*Jinfnum]->Fill(pp->GetSeedAdd());
   hcharge[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetCharge());
   // hsignal[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetTotSig());
   // hson[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetTotSN());
@@ -686,6 +694,15 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
 }
 
 void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
+
+  static bool printed=false;
+  if (!printed) {
+    printf("Clustering with:\n");
+    printf("    %f %f for S-side\n", shighthreshold, slowthreshold);
+    printf("    %f %f for S-side\n", shighthreshold, slowthreshold);
+    printf("    %d workaround\n", cworkaround);
+    printed=true;
+  }
 
   int tdrnumraw=FindPosRaw(numnum+100*Jinfnum);
   

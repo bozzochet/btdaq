@@ -21,7 +21,9 @@ using namespace std;
 AnyOption *opt;                //Handle the option input
 char progname[50];
 
+
 void CreatePdfWithPlots(DecodeData* dd1, char* pdf_filename);
+void PlotsWithFits(TH1* histo, char* name, char* title, char* pdf_filename);
 
 int main(int argc,char** argv){
 
@@ -307,70 +309,87 @@ int main(int argc,char** argv){
   return 0;
 }
 
+void PlotsWithFits(TH1* histo, char* name, char* title, char* pdf_filename) {  
+
+  static bool first=true;
+  char local_pdf_filename[255];
+
+  TCanvas* canvas = new TCanvas(name, name, 1024, 1024);
+  TF1 *fit_s = new TF1("fit_s", "gaus", 0, 639);
+  TF1 *fit_k = new TF1("fit_k", "gaus", 640, 1023);
+  fit_s->SetLineColor(kBlue);
+  fit_k->SetLineColor(kRed);
+  int entries = (int)(histo->GetEntries());
+  if (entries>=1) {
+    TH1F *clone_chartA = (TH1F *)histo->Clone("cloneA");
+    TH1F *clone_chartB = (TH1F *)histo->Clone("cloneB");
+    clone_chartA->Fit(fit_s, "R");
+    clone_chartB->Fit(fit_k, "R");
+    clone_chartA->Draw();
+    gPad->Modified();
+    gPad->Update();
+    TPaveStats *statA = (TPaveStats*)(clone_chartA->GetListOfFunctions()->FindObject("stats"));
+    clone_chartB->Draw("SAMES");
+    gPad->Modified();
+    gPad->Update();
+    TPaveStats *statB = (TPaveStats*)(clone_chartB->GetListOfFunctions()->FindObject("stats"));
+    if(statA && statB) {
+      statA->SetTextColor(kBlue);
+      statB->SetTextColor(kRed);
+      statA->SetX1NDC(0.12); statA->SetX2NDC(0.32); statA->SetY1NDC(0.75);
+      statB->SetX1NDC(0.72); statB->SetX2NDC(0.92); statB->SetY1NDC(0.78);
+      statA->Draw();
+      canvas->Update();
+    }
+    canvas->Update();
+    canvas->Modified();
+    canvas->Update();
+    canvas->SetTitle(title);
+    if (!first) strcpy(local_pdf_filename, pdf_filename);
+    else {
+      sprintf(local_pdf_filename, "%s(", pdf_filename);
+      first=false;
+    }
+    canvas->Print(local_pdf_filename, "pdf");
+    if (clone_chartA) delete clone_chartA;
+    if (clone_chartB) delete clone_chartB;
+  }
+  delete canvas;
+  if (fit_s) delete fit_s;
+  if (fit_k) delete fit_k;
+
+  return;
+}
+
 void CreatePdfWithPlots(DecodeData* dd1, char* pdf_filename){
 
-  TCanvas* canvas = NULL;
   char local_pdf_filename[255];
   char title[255];
   char name[255];
-  
-  bool first=true;
+
   gStyle->SetOptStat(1);
   gStyle->SetOptFit(1);
+
   for (int jj=0; jj<NJINF; jj++){
     for (int hh = 0; hh < NTDRS; hh++) {
       sprintf(name, "ladder %d %d", jj, hh);
-      canvas = new TCanvas(name, name, 1024, 1024);
-      TF1 *fit_s = new TF1("fit_s", "gaus", 0, 639);
-      TF1 *fit_k = new TF1("fit_k", "gaus", 640, 1023);
-      fit_s->SetLineColor(kBlue);
-      fit_k->SetLineColor(kRed);
-      int entries = (int)(dd1->hocc[NTDRS*jj+hh]->GetEntries());
-      if (entries>=1) {
-	TH1F *clone_chartA = (TH1F *)dd1->hocc[jj*NTDRS+hh]->Clone("cloneA");
-	TH1F *clone_chartB = (TH1F *)dd1->hocc[jj*NTDRS+hh]->Clone("cloneB");
-	clone_chartA->Fit(fit_s, "R");
-	clone_chartB->Fit(fit_k, "R");
-	clone_chartA->Draw();
-	gPad->Modified();
-	gPad->Update();
-	TPaveStats *statA = (TPaveStats*)(clone_chartA->GetListOfFunctions()->FindObject("stats"));
-	clone_chartB->Draw("SAMES");
-	gPad->Modified();
-	gPad->Update();
-	TPaveStats *statB = (TPaveStats*)(clone_chartB->GetListOfFunctions()->FindObject("stats"));
-	if(statA && statB) {
-	  statA->SetTextColor(kBlue);
-	  statB->SetTextColor(kRed);
-	  statA->SetX1NDC(0.12); statA->SetX2NDC(0.32); statA->SetY1NDC(0.75);
-	  statB->SetX1NDC(0.72); statB->SetX2NDC(0.92); statB->SetY1NDC(0.78);
-	  statA->Draw();
-	  canvas->Update();
-	}
-	canvas->Update();
-	canvas->Modified();
-	canvas->Update();
-	sprintf(title, "ladder %d %d", jj, hh);
-	canvas->SetTitle(title);
-	if (!first) strcpy(local_pdf_filename, pdf_filename);
-	else {
-	  sprintf(local_pdf_filename, "%s(", pdf_filename);
-	  first=false;
-	}
-	canvas->Print(local_pdf_filename, "pdf");
-	if (clone_chartA) delete clone_chartA;
-	if (clone_chartB) delete clone_chartB;
-      }
-      delete canvas;
-      if (fit_s) delete fit_s;
-      if (fit_k) delete fit_k;
+      sprintf(title, "ladder %d %d", jj, hh);
+      PlotsWithFits(dd1->hocc[NTDRS*jj+hh], name, title, pdf_filename);
+    }
+  }
+
+  for (int jj=0; jj<NJINF; jj++){
+    for (int hh = 0; hh < NTDRS; hh++) {
+      sprintf(name, "ladder %d %d", jj, hh);
+      sprintf(title, "ladder %d %d", jj, hh);
+      PlotsWithFits(dd1->hoccseed[NTDRS*jj+hh], name, title, pdf_filename);
     }
   }
 
   for (int jj=0; jj<NJINF; jj++){
     for (int hh = 0; hh < NTDRS; hh++) {
       for (int ss = 0; ss < 2; ss++) {
-	canvas = new TCanvas("dummy", "dummy", 1024, 1024);
+	TCanvas* canvas = new TCanvas("dummy", "dummy", 1024, 1024);
 	canvas->SetLogy(true);
 	dd1->hsignal[jj*NTDRS+hh][ss]->Draw();
 	int entries = (int)(dd1->hsignal[NTDRS*jj+hh][ss]->GetEntries());
@@ -392,7 +411,7 @@ void CreatePdfWithPlots(DecodeData* dd1, char* pdf_filename){
   for (int jj=0; jj<NJINF; jj++){
     for (int hh = 0; hh < NTDRS; hh++) {
       for (int ss = 0; ss < 2; ss++) {
-	canvas = new TCanvas("dummy", "dummy", 1024, 1024);
+	TCanvas* canvas = new TCanvas("dummy", "dummy", 1024, 1024);
 	canvas->SetLogy(true);
 	dd1->hson[jj*NTDRS+hh][ss]->Draw();
 	int entries = (int)(dd1->hson[NTDRS*jj+hh][ss]->GetEntries());
@@ -414,7 +433,6 @@ void CreatePdfWithPlots(DecodeData* dd1, char* pdf_filename){
   TCanvas* c_exit = new TCanvas("dummy", "dummy", 1024, 1024);
   snprintf(local_pdf_filename, 255, "%s]", pdf_filename);
   c_exit->Print(local_pdf_filename, "pdf");
-
   delete c_exit; 
 
   return;
