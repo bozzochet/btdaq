@@ -60,6 +60,7 @@ public:
   
   int evenum;
   TH1F* hocc[NJINF*NTDRS];
+  TH1F* hoccseed[NJINF*NTDRS];
   TH1F* hcharge[NJINF*NTDRS][2];
   TH1F* hsignal[NJINF*NTDRS][2];
   TH1F* hson[NJINF*NTDRS][2];
