@@ -589,8 +589,6 @@ double Event::CombinatorialFit(
     }
   }
   
-  //  sleep(1);
-  
   return _chisq;
 }
 
@@ -1107,17 +1105,12 @@ void RHClass::Print(){
 }
 
 int RHClass::FindPos(int tdrnum){
-
-  if (ntdrCmp>5) {
-    Print();
-    sleep(10);
-    printf("ntdrCmp = %d\n", ntdrCmp);
-    sleep(10);
-    for (int ii=0; ii<ntdrCmp; ii++) {
-      printf("CMP: %d -> %d\n", ii, tdrCmpMap[ii]);
-    }
-    sleep(10);
-  }
+  
+  // Print();
+  // printf("ntdrCmp = %d\n", ntdrCmp);
+  // for (int ii=0; ii<ntdrCmp; ii++) {
+  //   printf("CMP: %d -> %d\n", ii, tdrCmpMap[ii]);
+  // }
   
   for (int ii=0; ii<ntdrCmp; ii++)
     if (tdrCmpMap[ii]==tdrnum) return ii;
