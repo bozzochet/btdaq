@@ -59,6 +59,7 @@ int main(int argc, char* argv[]) {
   Cluster *cl;
   
   Long64_t entries = chain->GetEntries();
+  //  entries=10000;
   printf("This run has %lld entries\n", entries);
   
   ev = new Event();
@@ -125,8 +126,10 @@ int main(int argc, char* argv[]) {
   TH1F* hclusKladd = new TH1F("hclusKladd", "hclusKladd;Ladder;Clusters_{K}", 24, 0, 24);
   TH1F* hclusKladdtrack = new TH1F("hclusKladdtrack", "hclusKladdtrack;Ladder;Clusters_{K,OnTrack}", 24, 0, 24);
   TH1F* hclus = new TH1F("hclus", "hclus;Clusters;Entries", 1000, 0, 1000);
+  TH1F* hclus_aftersel = new TH1F("hclus_aftersel", "hclus_aftersel;Clusters;Entries", 1000, 0, 1000);
 
   Long64_t cleanevs=0;
+  Long64_t preselevs=0;
   Long64_t tracks=0;
   Long64_t goodtracks=0;
   Long64_t goodStracks=0;
@@ -149,26 +152,36 @@ int main(int argc, char* argv[]) {
     int NClusTot = ev->GetNClusTot();
     //    printf("\t\tnclusters = %d\n", NClusTot);
 
+    hclus->Fill(NClusTot);
+    
     //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
     //and at most 50 (to avoid too much noise around and too much combinatorial)
     //at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
-    bool cleanevent = CleanEvent(ev, GetRH(chain), 4, 50, 6, 6, 0, 0);
+    // CleanEvent(ev, GetRH(chain), 4, 50, 6, 6, 0, 0);
+    
+    bool cleanevent = CleanEvent(ev, GetRH(chain), 4, 9999, 9999, 9999, 9999, 9999);
     if (!cleanevent) continue;
-    cleanevs++;
+    cleanevs++;//in this way this number is giving the "complete reasonable sample"
+    
+    bool preselevent = CleanEvent(ev, GetRH(chain), 4, 50, 3, 3, 0, 0);
+    if (!preselevent) continue;
+    preselevs++;
     
     std::vector<double> v_cog_laddS[NJINF*NTDRS];
     std::vector<double> v_cog_laddK[NJINF*NTDRS];
     std::vector<double> v_cog_all_laddS[NJINF*NTDRS];
     std::vector<double> v_cog_all_laddK[NJINF*NTDRS];
 
-    //at least 3 points on S, and 3 points on K, not verbose
+    //at least 4 points on S, and 4 points on K, not verbose
+    // ev->FindTrackAndFit(4, 4, false);
     bool trackfitok = ev->FindTrackAndFit(3, 3, false);
     //    printf("%d\n", trackfitok);
     if (trackfitok) {
       //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
       //(but only if removing them still we'll have more or equal than 3 hits on S and 3 (2 if 'HigherCharge') hits on K)
       //and perform the fit again
-      ev->RefineTrack(6.0, 2, 6.0, 2);
+      // ev->RefineTrack(6.0, 3, 6.0, 3);
+      ev->RefineTrack(999999.0, 2, 999999.0, 2);
     }
     else {
       //let's downscale to 2 (on S) and 2 (on K) hits but even in this no-chisq case
@@ -231,7 +244,7 @@ int main(int argc, char* argv[]) {
     Y0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 1));
     X0Y0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 0), ev->ExtrapolateTrack(ZHERD, 1));
 
-    hclus->Fill(NClusTot);
+    hclus_aftersel->Fill(NClusTot);
     
     for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
 	
@@ -306,6 +319,7 @@ int main(int argc, char* argv[]) {
   printf("---------------------------------------------\n");
   printf("\t%lld events analyzed\n", entries);
   printf("\t\t%lld clean events\n", cleanevs);
+  printf("\t\t%lld preselected events\n", preselevs);
   printf("\t\t%lld tracks fitted\n", tracks);
   printf("\t\t%lld good tracks found\n", goodtracks);
   // printf("\t\t%lld good S tracks found\n", goodStracks);
