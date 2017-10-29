@@ -31,6 +31,7 @@
 using namespace std;
 
 float deltaalign[NJINF][NTDRS][3];
+bool toprint[NJINF][NTDRS];
 
 int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth=0, bool chisqcut=false, bool writealign=true);
 void ReadDeltaAlignment(TString filename="delta_alignment.dat");
@@ -57,6 +58,7 @@ int main(int argc, char* argv[]) {
 	  aligned[jj][tt][cc]=0.0;
 	  deltaalign[jj][tt][cc]=0.0;
 	}
+	toprint[jj][tt]=false;
       }
     }
 
@@ -90,15 +92,19 @@ int main(int argc, char* argv[]) {
 		//		!aligned[jj][tt][cc] &&
 		(fabs(deltaalign[jj][tt][cc])<0.001)
 		) {
-	      if (cc==0) printf("S ");
-	      else if (cc==1) printf("K ");
-	      printf("JINF %02d TDR %02d) OK!\n", jj, tt);
+	      if (toprint[jj][tt]) {
+		if (cc==0) printf("S ");
+		else if (cc==1) printf("K ");
+		printf("JINF %02d TDR %02d) OK!\n", jj, tt);
+	      }
 	      aligned[jj][tt][cc]=true;
 	    }
 	    else {
-	      if (cc==0) printf("S ");
-	      else if (cc==1) printf("K ");
-	      printf("JINF %02d TDR %02d) KO\n", jj, tt);
+	      if (toprint[jj][tt]) {
+		if (cc==0) printf("S ");
+		else if (cc==1) printf("K ");
+		printf("JINF %02d TDR %02d) KO\n", jj, tt);
+	      }
 	    }
 	  }
 	}
@@ -110,9 +116,11 @@ int main(int argc, char* argv[]) {
 	    if (!aligned[jj][tt][cc] &&
 		fabs(deltaalign_old[jj][tt][cc])>1.0e-5 && (fabs(deltaalign[jj][tt][cc])-fabs(deltaalign_old[jj][tt][cc]))>0.1
 		) {
-	      if (cc==0) printf("S ");
-	      else if (cc==1) printf("K ");
-	      printf("JINF %02d TDR %02d) alignment didn't converge...\n", jj, tt);
+	      if (toprint[jj][tt]) {
+		if (cc==0) printf("S ");
+		else if (cc==1) printf("K ");
+		printf("JINF %02d TDR %02d) alignment didn't converge...\n", jj, tt);
+	      }
 	      aligned[jj][tt][cc]=true;
 	    }
 	  }
@@ -684,6 +692,7 @@ void ReadDeltaAlignment(TString filename){
 	  sscanf(line, "%d\t%d\t%f\t%f\t%f", &jinfnum, &tdrnum, &dummy, &dummy, &dummy);
 	  if (jinfnum<NJINF && tdrnum<NTDRS) {
 	    sscanf(line,"%d\t%d\t%f\t%f\t%f", &jinfnum, &tdrnum, &deltaalign[jinfnum][tdrnum][0], &deltaalign[jinfnum][tdrnum][1], &deltaalign[jinfnum][tdrnum][2]);
+	    toprint[jinfnum][tdrnum]=true;
 	  }
 	  else {
 	    printf("Wrong JINF/TDR (%d, %d): maximum is (%d,%d)\n", jinfnum, tdrnum, NJINF, NTDRS);
