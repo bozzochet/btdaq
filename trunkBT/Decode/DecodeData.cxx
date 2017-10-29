@@ -143,6 +143,12 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
       hsignal[jj*NTDRS+hh][0]= new TH1F(name,name,4200,-100,4100);
       sprintf(name,"signalK_%d_%d", jj, hh);
       hsignal[jj*NTDRS+hh][1]= new TH1F(name,name,4200,-100,4100);
+
+      sprintf(name,"q_vs_occ_%d_%d", jj, hh);
+      hchargevsocc[jj*NTDRS+hh]= new TH2F(name,name,1024,0,1024,1000,0,100);
+      
+      sprintf(name,"signal_vs_occ_%d_%d", jj, hh);
+      hsignalvsocc[jj*NTDRS+hh]= new TH2F(name,name,1024,0,1024,4200,-100,4100);
       
       sprintf(name,"sonS_%d_%d", jj, hh);
       hson[jj*NTDRS+hh][0]= new TH1F(name,name,1000,0,100);
@@ -167,6 +173,15 @@ DecodeData::~DecodeData(){
 	//	printf("deleting hoccseed %d %d\n", jj, hh);
 	delete hoccseed[jj*NTDRS+hh];
       }
+      if (hchargevsocc[jj*NTDRS+hh]->GetEntries()<1.0) {
+	//	  printf("deleting hchargevsocc %d %d\n", jj, hh);
+	delete hchargevsocc[jj*NTDRS+hh];
+      }
+      if (hsignalvsocc[jj*NTDRS+hh]->GetEntries()<1.0) {
+	//	  printf("deleting hsignalvsocc %d %d\n", jj, hh);
+	delete hsignalvsocc[jj*NTDRS+hh];
+      }
+
       for (int ss=0; ss<2; ss++) {
 	//	printf("%d %d %d --> %f\n", jj, hh, ss, hcharge[jj*NTDRS+hh][ss]->GetEntries());
 	if (hcharge[jj*NTDRS+hh][ss]->GetEntries()<1.0) {
@@ -664,11 +679,21 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   
   hocc[numnum+NTDRS*Jinfnum]->Fill(pp->GetCoG());
   hoccseed[numnum+NTDRS*Jinfnum]->Fill(pp->GetSeedAdd());
-  hcharge[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetCharge());
-  // hsignal[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetTotSig());
-  // hson[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetTotSN());
+#define TOTCHARGE
+#ifndef TOTCHARGE
+  hcharge[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetSeedCharge());
   hsignal[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetSeedVal());
+  hchargevsocc[numnum+NTDRS*Jinfnum]->Fill(pp->GetCoG(), pp->GetSeedCharge());
+  hsignalvsocc[numnum+NTDRS*Jinfnum]->Fill(pp->GetCoG(), pp->GetSeedVal());
   hson[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetSeedSN());
+#else
+  hcharge[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetCharge());
+  hsignal[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetTotSig());
+  hchargevsocc[numnum+NTDRS*Jinfnum]->Fill(pp->GetCoG(), pp->GetCharge());
+  hsignalvsocc[numnum+NTDRS*Jinfnum]->Fill(pp->GetCoG(), pp->GetTotSig());
+  hson[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetTotSN());
+#endif
+
   // if (pp->GetSeedSN()<3.5) {
   //   printf("%s", stringtodump.Data());
   //   for (int ii=0; ii<cluslen; ii++) {
