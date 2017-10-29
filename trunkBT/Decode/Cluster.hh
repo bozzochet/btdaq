@@ -130,6 +130,7 @@ public:
   //! Returns the Z position
   double GetZPosition();
 
+  double GetSeedCharge() { return sqrt(GetSeedVal())/sqrt(MIPSIG[side]); };
   double GetCharge() { return sqrt(GetTotSig())/sqrt(MIPSIG[side]); };
   
   int GoldRegion();

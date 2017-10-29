@@ -2,6 +2,7 @@
 #define DecodeData_h
 #include "Event.hh"
 #include "TH1F.h"
+#include "TH2F.h"
 #include <cstdio>
 
 typedef struct calib{
@@ -63,6 +64,8 @@ public:
   TH1F* hoccseed[NJINF*NTDRS];
   TH1F* hcharge[NJINF*NTDRS][2];
   TH1F* hsignal[NJINF*NTDRS][2];
+  TH2F* hchargevsocc[NJINF*NTDRS];
+  TH2F* hsignalvsocc[NJINF*NTDRS];
   TH1F* hson[NJINF*NTDRS][2];
 
   double shighthreshold;
