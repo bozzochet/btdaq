@@ -514,11 +514,14 @@ int DecodeData::ReadOneTDR(int Jinfnum){
   //  printf("JINF=%d, NUMNUM=%d\n", Jinfnum, numnum);
   if(out_flag) {
     tdrnum=FindPos(numnum+100*Jinfnum);
-    //    printf("%d\n", tdrnum);
+    //    printf("JINF=%d TDR=%d -> POS=%d\n", Jinfnum, numnum, tdrnum);
     if(tdrnum<0) tdrnum=FindPosRaw(numnum+100*Jinfnum);
     if(tdrnum<0) {
+      printf("WARNING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+      printf("JINF=%d TDR=%d\n", Jinfnum, numnum);
       printf("DecodeData::ReadOneTDR::Cannot-Find-TDR-in-CMP-or-RAW\n");
-      exit(4);
+      //      exit(4);
+      return -1;
     }
   }
   
@@ -661,8 +664,7 @@ int DecodeData::ReadOneTDR(int Jinfnum){
   if(pri) printf("End of the TDR pos:%ld  \n",ftell(rawfile)/2);
   //free the memory for the next tdr
   free(array);
-  
-  
+    
   return 0;
 }
 
