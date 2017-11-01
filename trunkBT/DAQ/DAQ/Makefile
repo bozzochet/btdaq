@@ -55,6 +55,7 @@ SUMMARY: $(TOP)/TakeData/summary.o
 	@echo Linking $@ ...
 #	$(CXX) $(CFLAGS) $(ROOTCFLAGS) $(CPPFLAGS) -o $@ $(TOP)/TakeData/summary.o -L$(TOP)lib/ -lamswire $(ROOTLIBS)
 	$(CXX) $(CFLAGS) $(ROOTCFLAGS) $(CPPFLAGS) -o $@ $(TOP)/TakeData/summary.o $(ROOTLIBS)
+	ln -s SUMMARY SUMMARY_MUTE
 
 %.o : %.cxx
 	@echo Compiling $< ...
