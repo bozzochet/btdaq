@@ -152,7 +152,7 @@ int Jinf::SetDelay(){
   PRINTF("Main: setting delay to %d ns ...\n",CPars->delay*20);
   node->WriteDelay(selfaddress,CPars->delay); 
   TESTRXDONE(node);
-	return ret;
+  return ret;
 }
 
 int Jinf::WriteSlaveMask() {
