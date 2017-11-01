@@ -16,6 +16,7 @@
 #include "TLatex.h"
 #include "TStyle.h"
 #include "TROOT.h"
+#include "TString.h"
 
 #define NJINF 24 //maximum number of JINF
 
@@ -39,6 +40,8 @@ ConfPars::ConfPars() {
 
 ConfPars* CPars;
 
+bool mute=false;
+
 void ShowHelp(char *cmd);
 void RefMask(ConfPars *CPars, int run_number, int jinfnum, char *nameprefixin);
 Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, char *nameprefixin, char *nameout, char *outkind);
@@ -51,6 +54,9 @@ int SummaryComplete(char *dir, int run_number, int jinfnum, char *outkind, char 
 int main(int argc, char **argv) {
   
   int ret=0;
+
+  TString _name = argv[0];
+  if (_name.Contains("MUTE")) mute=true;
 
   CPars= new ConfPars();
   //-------------------------------------------------
@@ -169,7 +175,9 @@ int SummaryComplete(char *dir, int run_number, int jinfnum, char *outkind, char 
 		}
 	}
 	struct stat buff;
-	//if (stat(nameout,&buff)==0) system(systemcommand);
+	if (!mute) {
+	  if (stat(nameout,&buff)==0) system(systemcommand);
+	}
 	return ret;
 }
 
