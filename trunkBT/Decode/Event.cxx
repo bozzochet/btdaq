@@ -61,11 +61,15 @@ Event::Event(){
     NClus[ii][0]=0;
     NClus[ii][1]=0;
   }
-  for(int ii=0;ii<1024;ii++)
-    for(int kk=0;kk<8;kk++) {
-      Signal[kk][ii]=0;
-      SoN[kk][ii]=0.0;
+  
+  for(int kk=0;kk<8;kk++) {
+    for(int ii=0;ii<1024;ii++) {
+      CalSigma[kk][ii]=0.0;
+      CalPed[kk][ii]=0.0;
+      RawSignal[kk][ii]=0;
+      RawSoN[kk][ii]=0.0;
     }
+  }
   
   //  RawLadder = new TClonesArray("RawData", NJINF*8);//NJINFS*8 is the maximum number of ladder in raw mode that can me read by a single jinf.
   
@@ -105,11 +109,13 @@ void Event::Clear(){
 
   for(int ii=0;ii<8;ii++){ 
     for(int kk=0;kk<1024;kk++) {
-      Signal[ii][kk]=0;
-      SoN[ii][kk]=0.0;
+      CalSigma[ii][kk]=0.0;
+      CalPed[ii][kk]=0.0;
+      RawSignal[ii][kk]=0;
+      RawSoN[ii][kk]=0.0;
     }
   }
-
+  
   if(Cls) Cls->Delete();
   
   //   for (int ii=Cls->GetEntries();ii>-1;ii--){
@@ -1052,6 +1058,42 @@ double Event::GetChargeTrack(int side){
   charge/=npts;
 
   return charge;
+}
+
+double Event::GetCalPed_PosNum(int tdrnum, int channel, int Jinfnum){
+  return CalPed[tdrnum][channel];
+}
+
+double Event::GetCalSigma_PosNum(int tdrnum, int channel, int Jinfnum){
+  return CalSigma[tdrnum][channel];
+}
+
+double Event::GetRawSignal_PosNum(int tdrnum, int channel, int Jinfnum){
+  return RawSignal[tdrnum][channel]/8.0;
+}
+
+float Event::GetRawSoN_PosNum(int tdrnum, int channel, int Jinfnum) {
+  return (RawSignal[tdrnum][channel]/8.0-CalPed[tdrnum][channel])/CalSigma[tdrnum][channel];
+}
+
+double Event::GetCalPed(RHClass* rh, int tdrnum, int channel, int Jinfnum){
+  int tdrnumraw=rh->FindPosRaw(tdrnum+100*Jinfnum);
+  return GetCalPed_PosNum(tdrnumraw, channel, Jinfnum);
+}
+
+double Event::GetCalSigma(RHClass* rh, int tdrnum, int channel, int Jinfnum){
+  int tdrnumraw=rh->FindPosRaw(tdrnum+100*Jinfnum);
+  return GetCalSigma_PosNum(tdrnumraw, channel, Jinfnum);
+}
+
+double Event::GetRawSignal(RHClass* rh, int tdrnum, int channel, int Jinfnum){
+  int tdrnumraw=rh->FindPosRaw(tdrnum+100*Jinfnum);
+  return GetRawSignal_PosNum(tdrnumraw, channel, Jinfnum);
+}
+
+float Event::GetRawSoN(RHClass* rh, int tdrnum, int channel, int Jinfnum) {
+  int tdrnumraw=rh->FindPosRaw(tdrnum+100*Jinfnum);
+  return GetRawSoN_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
 //-------------------------------------------------------------------------------------

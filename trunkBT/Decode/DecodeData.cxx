@@ -575,23 +575,25 @@ int DecodeData::ReadOneTDR(int Jinfnum){
       if(tdrnumraw<0) { printf("DecodeData::ReadOneTDR::Cannot-Find-TDR-%d-RAW\n",numnum+100*Jinfnum); exit(4); }
       calib* cal=&(cals[numnum+100*Jinfnum]);
       for (int kk=0;kk<320;kk++){
-	ev->Signal[tdrnumraw][kk]=array[count];//first ADC on S
-	ev->Signal[tdrnumraw][320+kk]=array[count+1];//second ADC on S
-	ev->Signal[tdrnumraw][640+kk]=array[count+2];//ADC on K
-	//	printf("RAW %d %d  %d\n",kk,ev->Signal[FindTDRPos(tdrnum)][kk],array[count]);
+	ev->RawSignal[tdrnumraw][kk]=array[count];//first ADC on S
+	ev->RawSignal[tdrnumraw][320+kk]=array[count+1];//second ADC on S
+	ev->RawSignal[tdrnumraw][640+kk]=array[count+2];//ADC on K
+	//	printf("RAW %d %d  %d\n",kk,ev->RawSignal[FindTDRPos(tdrnum)][kk],array[count]);
 	count+=3;
       }
       for (int kk=960;kk<1024;kk++){//remaining (320->384) on ADC on K
-	ev->Signal[tdrnumraw][kk]=array[kk];
+	ev->RawSignal[tdrnumraw][kk]=array[kk];
       }
       for (int cc=0; cc<1024; cc++) {
-	//	printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->rsig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc]);
-	if (cal->rsig[cc]>0.125 && //not a dead channel
-	    cal->rsig[cc]<10.0) {//not a noisy channel
-	  ev->SoN[tdrnumraw][cc] = (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc];
+	//	printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->RawSignal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->sig[cc], (ev->RawSignal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
+	ev->CalPed[tdrnumraw][cc] = cal->ped[cc];
+	ev->CalSigma[tdrnumraw][cc] = cal->sig[cc];
+	if (cal->sig[cc]>0.125 && //not a dead channel
+	    cal->sig[cc]<10.0) {//not a noisy channel
+	  ev->RawSoN[tdrnumraw][cc] = (ev->RawSignal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc];
 	}
 	else {
-	  ev->SoN[tdrnumraw][cc] = 0.0;
+	  ev->RawSoN[tdrnumraw][cc] = 0.0;
 	}
       }
 
@@ -599,11 +601,11 @@ int DecodeData::ReadOneTDR(int Jinfnum){
 	if (!kClusterize) {//otherwise the histos will be filled better with the clusters
 	  double threshold = shighthreshold;
 	  if (cc>=640) threshold = khighthreshold;
-	  if (ev->SoN[tdrnumraw][cc]>threshold) {
-	    //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->Signal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->rsig[cc], (ev->Signal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->rsig[cc]);
-	    // printf("%04d) %f\n", cc, ev->SoN[tdrnumraw][cc]);
+	  if (ev->RawSoN[tdrnumraw][cc]>threshold) {
+	    //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->RawSignal[tdrnumraw][cc])/8.0, cal->ped[cc], cal->sig[cc], (ev->RawSignal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
+	    // printf("%04d) %f\n", cc, ev->RawSoN[tdrnumraw][cc]);
 	    // this fills the histogram for the raw events when NOT clustering, if kClusterize anyhow, ALL the histos as for the compressed data, will be filled
-	    hocc[numnum+NTDRS*Jinfnum]->Fill(cc, ev->SoN[tdrnumraw][cc]);
+	    hocc[numnum+NTDRS*Jinfnum]->Fill(cc, ev->RawSoN[tdrnumraw][cc]);
 	    // hoccseed not filled in this case...
 	    // hcharge not filled in this case...
 	    // hsignal not filled in this case...
@@ -769,8 +771,8 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
       if (cworkaround==1) {
 	arraysize=320;
 	for (int cc=0; cc<320; cc++) {
-	  array[cc] = ev->Signal[tdrnumraw][cc*2];
-	  arraySoN[cc] = ev->SoN[tdrnumraw][cc*2];
+	  array[cc] = ev->RawSignal[tdrnumraw][cc*2];
+	  arraySoN[cc] = ev->RawSoN[tdrnumraw][cc*2];
 	  pede[cc] = cal->ped[cc*2];
 	  sigma[cc] = cal->sig[cc*2];
 	  status[cc] = cal->status[cc*2];
@@ -778,8 +780,8 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
       }
       else {
 	arraysize=640;
-	memcpy(array, ev->Signal[tdrnumraw], 640*sizeof(ev->Signal[tdrnumraw][0]));
-	memcpy(arraySoN, ev->SoN[tdrnumraw], 640*sizeof(ev->SoN[tdrnumraw][0]));
+	memcpy(array, ev->RawSignal[tdrnumraw], 640*sizeof(ev->RawSignal[tdrnumraw][0]));
+	memcpy(arraySoN, ev->RawSoN[tdrnumraw], 640*sizeof(ev->RawSoN[tdrnumraw][0]));
 	memcpy(pede, cal->ped, 640*sizeof(cal->ped[0]));
 	memcpy(sigma, cal->sig, 640*sizeof(cal->sig[0]));
 	memcpy(status, cal->status, 640*sizeof(cal->status[0]));
@@ -792,8 +794,8 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
       lowthreshold=klowthreshold;
       shift=640;
       arraysize=384;
-      memcpy(array, &(ev->Signal[tdrnumraw][640]), 384*sizeof(ev->Signal[tdrnumraw][0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
-      memcpy(arraySoN, &(ev->SoN[tdrnumraw][640]), 384*sizeof(ev->SoN[tdrnumraw][0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
+      memcpy(array, &(ev->RawSignal[tdrnumraw][640]), 384*sizeof(ev->RawSignal[tdrnumraw][0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
+      memcpy(arraySoN, &(ev->RawSoN[tdrnumraw][640]), 384*sizeof(ev->RawSoN[tdrnumraw][0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
       memcpy(pede, &(cal->ped[640]), 384*sizeof(cal->ped[0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
       memcpy(sigma, &(cal->sig[640]), 384*sizeof(cal->sig[0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
       memcpy(status, &(cal->status[640]), 384*sizeof(cal->sig[0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
@@ -921,23 +923,23 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
   return;
 }
 
-double DecodeData::ComputeCN(int size, short int* Signal, float* pede, float* SoN, double threshold){
+double DecodeData::ComputeCN(int size, short int* RawSignal, float* pede, float* RawSoN, double threshold){
 
   double mean=0.0;
   int n=0;
   
   for (int ii=0; ii<size; ii++) {
-    if (SoN[ii]<threshold) {//to avoid real signal...
+    if (RawSoN[ii]<threshold) {//to avoid real signal...
       n++;
-      //      printf("    %d) %f %f\n", ii, Signal[ii]/8.0, pede[ii]);
-      mean+=(Signal[ii]/8.0-pede[ii]);
+      //      printf("    %d) %f %f\n", ii, RawSignal[ii]/8.0, pede[ii]);
+      mean+=(RawSignal[ii]/8.0-pede[ii]);
     }
   }
   if (n>1) {
     mean/=n;
   }
   else { //let's try again with an higher threshold
-    mean = ComputeCN(size, Signal, pede, SoN, threshold+1.0);
+    mean = ComputeCN(size, RawSignal, pede, RawSoN, threshold+1.0);
   }
   //  printf("    CN = %f\n", mean);
 

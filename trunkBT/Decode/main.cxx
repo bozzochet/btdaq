@@ -7,6 +7,7 @@
 #include "TF1.h"
 #include "TStyle.h"
 #include "TPaveStats.h"
+#include <Compression.h>
 
 #include "DecodeData.hh"
 #include "Event.hh"
@@ -178,8 +179,10 @@ int main(int argc,char** argv){
   else
     sprintf(filename,"%s/run_%06d_ANC_%d.root", DirRoot, run, ancillary);
   sprintf(pdf_filename, "%s.pdf", filename);
-  
-  TFile* foutput = new TFile(filename,"RECREATE");
+
+  int complevel=ROOT::CompressionSettings(ROOT::kLZMA, 2);
+  printf("The choosen compression level is %d\n", complevel);
+  TFile* foutput = new TFile(filename, "RECREATE", "File with the event tree", complevel);
   
   DecodeData *dd1= new DecodeData(DirRaw, DirCal, run, ancillary);
 
@@ -228,6 +231,12 @@ int main(int argc,char** argv){
   }
   sleep(3);
   t4->GetUserInfo()->Add(dd1->rh);
+
+  TObjArray* obj = t4->GetListOfBranches();
+  for (int ii=0; ii<obj->GetEntries(); ii++) {
+    TBranch* branch = (TBranch*)(obj->At(ii));
+    branch->SetCompressionLevel(6);
+  }
     
   int ret1=0;
   while (1) {
