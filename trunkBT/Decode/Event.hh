@@ -14,6 +14,7 @@
  */
 
 class DecodeData;
+class RHClass;
 
 class Event: public TObject{
   friend class DecodeData;
@@ -68,6 +69,16 @@ public:
   inline unsigned int GetNHitsXTrack(){ return (unsigned int)(_v_trackS.size()); }
   inline unsigned int GetNHitsYTrack(){ return (unsigned int)(_v_trackK.size()); }
   double GetChargeTrack(int side);
+
+  double GetCalPed_PosNum(int tdrposnum, int channel, int Jinfnum=0);
+  double GetCalSigma_PosNum(int tdrposnum, int channel, int Jinfnum=0);
+  double GetRawSignal_PosNum(int tdrposnum, int channel, int Jinfnum=0);
+  float GetRawSoN_PosNum(int tdrposnum, int channel, int Jinfnum=0);
+  
+  double GetCalPed(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
+  double GetCalSigma(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
+  double GetRawSignal(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
+  float GetRawSoN(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   
 private:
   static bool alignmentnotread;
@@ -131,9 +142,12 @@ private:
   TClonesArray *Cls;
   //! (TClones) Array of the recontructed hits
 
-  //! pointer to the data
-  short int Signal[8][1024];   //8 since more than 8 raw TDRs cannot be read by a single Jinf
-  float        SoN[8][1024];   //8 since more than 8 raw TDRs cannot be read by a single Jinf
+  //! pointer to the data (filled just when reading RAW data) and just for the first 8 TRDs (even when there're more Jinf's)
+  //8 since more than 8 raw TDRs cannot be read by a single Jinf
+  double     CalSigma[8][1024];   
+  double       CalPed[8][1024];
+  short int RawSignal[8][1024];
+  float        RawSoN[8][1024];//! (do not stream on file! Can be recomputed easily!)
 
   short int ReadTDR[NTDRS];
   
@@ -168,7 +182,7 @@ private:
   //! filled by StoreTrackClusterPatterns()
   unsigned long long int _track_cluster_pattern[NJINF][2];//!
   
-  ClassDef(Event,3)
+  ClassDef(Event,4)
 };
 
 //! Run Header Class
