@@ -180,7 +180,8 @@ int main(int argc,char** argv){
     sprintf(filename,"%s/run_%06d_ANC_%d.root", DirRoot, run, ancillary);
   sprintf(pdf_filename, "%s.pdf", filename);
 
-  int complevel=ROOT::CompressionSettings(ROOT::kLZMA, 2);
+  //  int complevel=ROOT::CompressionSettings(ROOT::kLZMA, 2);
+  int complevel=ROOT::CompressionSettings(ROOT::kZLIB, 2);
   printf("The choosen compression level is %d\n", complevel);
   TFile* foutput = new TFile(filename, "RECREATE", "File with the event tree", complevel);
   
