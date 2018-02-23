@@ -39,10 +39,18 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+
   string tempname = argv[3];
   int pos1 = tempname.find("run_");
   int pos2 = tempname.find(".root");
   string firstfile = tempname.substr(pos1,pos2-pos1);
+
+
+  TString output_filename = "viewer_out_"+firstfile+".root";
+  TFile* foutput = new TFile(output_filename.Data(), "RECREATE");
+  foutput->cd();
+
+
 
   
   TChain *chain = new TChain("t4");
@@ -94,16 +102,28 @@ int main(int argc, char* argv[]) {
 
     chain->GetEntry(eventnum);
     
+    int maxadc = -999;
+    int minadc = 0;
+    bool isevent= false;
+    
     for(int chan=0; chan< 1024; chan++){
       double testADC=ev->GetRawSignal_PosNum(atoi(argv[1]),chan,0);
       double calADC=ev->GetCalPed_PosNum(atoi(argv[1]),chan,0);
       double test=testADC-calADC;
-    
+
+      if(test > maxadc) maxadc=test;
+      if(test < minadc) minadc=test;
+
+      if(!isevent){
+	if(test > 20) isevent=true;
+      }
       gr_event->SetPoint(gr_event->GetN(),chan, test);
     }
     
+
+    if(isevent){
     TCanvas *c2 = new TCanvas("c2", "c2", 1920, 1080);
-    TH1F *frame = gPad->DrawFrame(0, 0,1024,150);
+    TH1F *frame = gPad->DrawFrame(0, minadc,1024-20,maxadc+20);
 
     frame->SetTitle("Event "+TString::Format("%02d",(int)eventnum));
     frame->GetXaxis()->SetNdivisions(-16);
@@ -111,55 +131,56 @@ int main(int argc, char* argv[]) {
     gr_event->SetMarkerSize(0.5);
     gr_event->Draw("*l");
    
-    TLine *line = new TLine(64,0,64,150);
+    TLine *line = new TLine(64,minadc-20,64,maxadc+20);
     line->SetLineColor(kRed);
     line->Draw();
-    TLine *line1 = new TLine(128,0,128,150);
+    TLine *line1 = new TLine(128,minadc-20,128,maxadc+20);
     line1->SetLineColor(kRed);
     line1->Draw();
-    TLine *line2 = new TLine(192,0,192,150);
+    TLine *line2 = new TLine(192,minadc-20,192,maxadc+20);
     line2->SetLineColor(kRed);
     line2->Draw();
-    TLine *line3 = new TLine(256,0,256,150);
+    TLine *line3 = new TLine(256,minadc-20,256,maxadc+20);
     line3->SetLineColor(kRed);
     line3->Draw();
-    TLine *line4 = new TLine(320,0,320,150);
+    TLine *line4 = new TLine(320,minadc-20,320,maxadc+20);
     line4->SetLineColor(kRed);
     line4->Draw();
-    TLine *line5 = new TLine(384,0,384,150);
+    TLine *line5 = new TLine(384,minadc-20,384,maxadc+20);
     line5->SetLineColor(kRed);
     line5->Draw();
-    TLine *line6 = new TLine(448,0,448,150);
+    TLine *line6 = new TLine(448,minadc-20,448,maxadc+20);
     line6->SetLineColor(kRed);
     line6->Draw();
-    TLine *line7 = new TLine(512,0,512,150);
+    TLine *line7 = new TLine(512,minadc-20,512,maxadc+20);
     line7->SetLineColor(kRed);
     line7->Draw();
-    TLine *line8 = new TLine(576,0,576,150);
+    TLine *line8 = new TLine(576,minadc-20,576,maxadc+20);
     line8->SetLineColor(kRed);
     line8->Draw();
-    TLine *line9 = new TLine(640,0,640,150);
+    TLine *line9 = new TLine(640,minadc-20,640,maxadc+20);
     line9->SetLineColor(kRed);
     line9->Draw();
-    TLine *line10 = new TLine(704,0,704,150);
+    TLine *line10 = new TLine(704,minadc-20,704,maxadc+20);
     line10->SetLineColor(kRed);
     line10->Draw();
-    TLine *line11 = new TLine(768,0,768,150);
+    TLine *line11 = new TLine(768,minadc-20,768,maxadc+20);
     line11->SetLineColor(kRed);
     line11->Draw();
-    TLine *line12 = new TLine(832,0,832,150);
+    TLine *line12 = new TLine(832,minadc-20,832,maxadc+20);
     line12->SetLineColor(kRed);
     line12->Draw();
-    TLine *line13 = new TLine(896,0,896,150);
+    TLine *line13 = new TLine(896,minadc-20,896,maxadc+20);
     line13->SetLineColor(kRed);
     line13->Draw();
-    TLine *line14 = new TLine(960,0,960,150);
+    TLine *line14 = new TLine(960,minadc-20,960,maxadc+20);
     line14->SetLineColor(kRed);
     line14->Draw();
 
     c2->SaveAs("ViewerFrames/"+firstfile+"_frame_"+TString::Format("%09d",(int)eventnum)+".png");
-   
-    
+    c2->Draw();
+    c2->Write();
+    }
 }
       
   sw.Stop(); 

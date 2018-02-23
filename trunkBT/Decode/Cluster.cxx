@@ -1,5 +1,4 @@
 #include "Cluster.hh"
-
 #include <cmath>
 #include <string.h>
 
@@ -57,7 +56,7 @@ void Cluster::Build(int lad, int sid, int add, int len, float* sig, float* noi, 
   powbits=PowBits;
   bad=badin;
 
-  this->ApplyVAEqualization();
+  //  this->ApplyVAEqualization();
 
   return;
 }
@@ -97,7 +96,7 @@ int Cluster::GetSeedAdd(){
 }
 
 float Cluster::GetCSignal(int aa){
- //  int stadd=address+aa;
+//  int stadd=address+aa;
 //   int vanum=stadd/64;
 //   float c1= Signal[aa];
 //   float corr=0.;
@@ -109,7 +108,14 @@ float Cluster::GetCSignal(int aa){
 //   }
 //   if (side==1) return c1-corr;
 //   else return c1;
-  return  Signal[aa];
+
+float par0=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 0);
+float par1=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 1);
+float par2=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 2);
+
+// float correctSignal = (Signal[aa]*par2*(1-par1)+par0*par2);
+
+ return  Signal[aa];
 }
 
 //why not simply 'return lenght'?
@@ -212,9 +218,7 @@ void Cluster::ApplyVAEqualization(){
   int tdrnum=GetTDR();
   for(int ii=0;ii<length;ii++){
     int vanum=GetVA(address+ii);
-    SignalVAEqualized[ii]= 
-      Signal[ii]*Event::GetGainCorrectionPar(jinfnum,tdrnum,vanum,0)
-      *Event::GetGainCorrectionPar(jinfnum,tdrnum,vanum,1);
+    Signal[ii]=(Signal[ii]+Event::GetGainCorrectionPar(jinfnum,tdrnum,vanum,0))*Event::GetGainCorrectionPar(jinfnum,tdrnum,vanum,1);
   }
   return;
 }
@@ -251,7 +255,7 @@ double Cluster::GetZPosition(){
 }
 
 float Cluster::GetSeedVal(){
-  return GetCSignal(GetSeed());
+  return (Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(GetSeed()), 0)+GetCSignal(GetSeed()))*Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(GetSeed()), 1);
 }
 
 float Cluster::GetSeedSN(){

@@ -12,11 +12,11 @@ LIB_OBJ=$(LIB_SOURCES:%.cxx=obj/%.o)
 
 ANYOPTION=AnyOption
 
-ROOTDYNAMICLIBS := $(shell root-config --glibs) -lMinuit
+ROOTDYNAMICLIBS := $(shell root-config --libs) -lMinuit
 
 ROOTINC := $(shell root-config --incdir)
 
-CFLAGS= -g -fPIC
+CFLAGS= -O -std=c++11 -g -fPIC
 DEFINES=
 
 UNAME_S := $(shell uname -s)

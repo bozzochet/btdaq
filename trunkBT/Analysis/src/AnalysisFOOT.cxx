@@ -7,6 +7,7 @@
 #include "TTree.h"
 #include "TChain.h"
 #include "TFile.h"
+#include "TLine.h"
 #include "TROOT.h"
 #include "TF1.h"
 #include "TMath.h"
@@ -32,13 +33,31 @@ int main(int argc, char* argv[]) {
   
   if (argc<3) {
     printf("Usage:\n");
-    printf("%s <output root-filename> <first input root-filename> [second input root-filename] ...\n", argv[0]);
+    printf("%s <output root-filename> <S/N cut on S> <S/N cut on K> <min cog S> <max cog S> <min cog K> <max cog K> <first input root-filename> [second input root-filename] ...\n", argv[0]);
     return 1;
   }
   
+
+  // Initialize variables for S/N ang cog cuts
+  int SNcutS = atoi(argv[2]);
+  int SNcutK = atoi(argv[3]);
+  int mincogS = atoi(argv[4]);
+  int maxcogS = atoi(argv[5]);
+  int mincogK = atoi(argv[6]);
+  int maxcogK = atoi(argv[7]);
+
+  if(SNcutS<0) SNcutS=0;
+  if(SNcutK<0) SNcutK=0;
+  if(mincogS <0) mincogS=0;
+  if(maxcogS >639) maxcogS=639;
+  if(mincogK <640) mincogK=640;
+  if(maxcogK >1023) maxcogS=1023;
+  //////////////////////////////////////////////
+
+
   TChain *chain = new TChain("t4");
      
-  for (int ii=2; ii<argc; ii++) {
+  for (int ii=8; ii<argc; ii++) {
     printf("Adding file %s to the chain...\n", argv[ii]);
     chain->Add(argv[ii]);
   }
@@ -71,94 +90,129 @@ int main(int argc, char* argv[]) {
   foutput->cd();
 
 
-
   //////////////////Histos                                                                                                                                    
-  TH1D *hEnergyCluster = new TH1D("hEnergyCluster","hEnergyCluster",1000,0,5000);
-  hEnergyCluster->GetXaxis()->SetTitle("ADC");
-  TH1D *hEnergyClusterS = new TH1D("hEnergyClusterS","hEnergyClusterS",1000,0,5000);
-  hEnergyCluster->GetXaxis()->SetTitle("ADC");
-  TH1D *hEnergyClusterK = new TH1D("hEnergyClusterK","hEnergyClusterK",1000,0,5000);
-  hEnergyCluster->GetXaxis()->SetTitle("ADC");
+  TH1D *hEnergyClusterS = new TH1D("hEnergyClusterS","hEnergyClusterS",1000,0,500);
+  hEnergyClusterS->GetXaxis()->SetTitle("ADC");
+  TH1D *hEnergyClusterK = new TH1D("hEnergyClusterK","hEnergyClusterK",1000,0,500);
+  hEnergyClusterK->GetXaxis()->SetTitle("ADC");
   TH2D *hEnergyCluster2D = new TH2D("hEnergyCluster2D","hEnergyCluster2D",1000,0,500,1000,0,500);
   hEnergyCluster2D->GetXaxis()->SetTitle("ADC S");
   hEnergyCluster2D->GetYaxis()->SetTitle("ADC K");
 
+  TH1D *hEnergyClusterSeedS = new TH1D("hEnergyClusterSeeedS","hEnergyClusterSeedS",1000,0,500);
+  hEnergyClusterSeedS->GetXaxis()->SetTitle("ADC");
+  TH1D *hEnergyClusterSeedK = new TH1D("hEnergyClusterSeeedK","hEnergyClusterSeedK",1000,0,500);
+  hEnergyClusterSeedK->GetXaxis()->SetTitle("ADC");
 
-  TH1D *hEnergyClusterSeed = new TH1D("hEnergyClusterSeeed","hEnergyClusterSeed",1000,0,5000);
-  hEnergyClusterSeed->GetXaxis()->SetTitle("ADC");
-  TH1D *hEnergyClusterSeedS = new TH1D("hEnergyClusterSeeedS","hEnergyClusterSeedS",1000,0,5000);
-  hEnergyClusterSeed->GetXaxis()->SetTitle("ADC");
-  TH1D *hEnergyClusterSeedK = new TH1D("hEnergyClusterSeeedK","hEnergyClusterSeedK",1000,0,5000);
-  hEnergyClusterSeed->GetXaxis()->SetTitle("ADC");
-
-  TH1D *hClusterCharge = new TH1D("hClusterCharge","hClusterCharge",200,0,20);
-  hClusterCharge->GetXaxis()->SetTitle("Charge");
-  TH1D *hClusterChargeS = new TH1D("hClusterChargeS","hClusterChargeS",200,0,20);
-  hClusterCharge->GetXaxis()->SetTitle("Charge");
-  TH1D *hClusterChargeK = new TH1D("hClusterChargeK","hClusterChargeK",200,0,20);
-  hClusterCharge->GetXaxis()->SetTitle("Charge");
+  TH1D *hClusterChargeS = new TH1D("hClusterChargeS","hClusterChargeS",1000,0,5);
+  hClusterChargeS->GetXaxis()->SetTitle("Charge");
+  TH1D *hClusterChargeK = new TH1D("hClusterChargeK","hClusterChargeK",1000,0,5);
+  hClusterChargeK->GetXaxis()->SetTitle("Charge");
   
+  TH1D *hClusterSNs = new TH1D("hClusterSNs","hClusterSNs",200,0,100);
+  hClusterSNs->GetXaxis()->SetTitle("S/N");
+  TH1D *hClusterSNk = new TH1D("hClusterSNk","hClusterSNk",200,0,100);
+  hClusterSNk->GetXaxis()->SetTitle("S/N");
 
-  TH1D *hClusterSN = new TH1D("hClusterSN","hClusterSN",200,0,20);
-  TH1D *hClusterSNs = new TH1D("hClusterSNs","hClusterSNs",200,0,20);
-  TH1D *hClusterSNk = new TH1D("hClusterSNk","hClusterSNk",200,0,20);
+  TH1D *hSeedSNs = new TH1D("hSeedSNs","hSeedSNs",200,0,100);
+  hSeedSNs->GetXaxis()->SetTitle("S/N");
+  TH1D *hSeedSNk = new TH1D("hSeedSNk","hSeedSNk",200,0,100);
+  hSeedSNk->GetXaxis()->SetTitle("S/N");
 
 
-  TH1D *hSeedCharge = new TH1D("hSeedCharge", "hSeedCharge",200,0,20);
-  hSeedCharge->GetXaxis()->SetTitle("Charge");
-  TH1D *hSeedChargeS = new TH1D("hSeedChargeS", "hSeedChargeS",200,0,20);
-  hSeedCharge->GetXaxis()->SetTitle("Charge");
-  TH1D *hSeedChargeK = new TH1D("hSeedChargeK", "hSeedChargeK",200,0,20);
-  hSeedCharge->GetXaxis()->SetTitle("Charge");
+  TH1D *hSeedSNs_1strip = new TH1D("hSeedSNs_1strip","hSeedSNs_1strip",200,0,100);
+  hSeedSNs_1strip->GetXaxis()->SetTitle("S/N");
+  TH1D *hSeedSNk_1strip = new TH1D("hSeedSNk_1strip","hSeedSNk_1strip",200,0,100);
+  hSeedSNk_1strip->GetXaxis()->SetTitle("S/N");
 
-  TH1D *hClusterCog = new TH1D("hClusterCog","hClusterCog",250,0,1024);
-  hClusterCog->GetXaxis()->SetTitle("cog");
+  TH1D *hSeedSNs_2strip = new TH1D("hSeedSNs_2strip","hSeedSNs_2strip",200,0,100);
+  hSeedSNs_2strip->GetXaxis()->SetTitle("S/N");
+  TH1D *hSeedSNk_2strip = new TH1D("hSeedSNk_2strip","hSeedSNk_2strip",200,0,100);
+  hSeedSNk_2strip->GetXaxis()->SetTitle("S/N");
+
+
+  TH1D *hSeedChargeS = new TH1D("hSeedChargeS", "hSeedChargeS",1000,0,5);
+  hSeedChargeS->GetXaxis()->SetTitle("Charge");
+  TH1D *hSeedChargeK = new TH1D("hSeedChargeK", "hSeedChargeK",1000,0,5);
+  hSeedChargeK->GetXaxis()->SetTitle("Charge");
+
+
+  TH1D *hEnergyClusterSeedS_1strip = new TH1D("hEnergyClusterSeedS_1strip", "hEnergyClusterSeedS_1strip",1000,0,500);
+  hEnergyClusterSeedS_1strip->GetXaxis()->SetTitle("ADC");
+  TH1D *hEnergyClusterSeedK_1strip = new TH1D("hEnergyClusterSeedK_1strip", "hEnergyClusterSeedK_1strip",1000,0,500);
+  hEnergyClusterSeedK_1strip->GetXaxis()->SetTitle("ADC");
+
+  TH1D *hEnergyClusterSeedS_2strip = new TH1D("hEnergyClusterSeedS_2strip", "hEnergyClusterSeedS_2strip",1000,0,500);
+  hEnergyClusterSeedS_2strip->GetXaxis()->SetTitle("ADC");
+  TH1D *hEnergyClusterSeedK_2strip = new TH1D("hEnergyClusterSeedK_2strip", "hEnergyClusterSeedK_2strip",1000,0,500);
+  hEnergyClusterSeedK_2strip->GetXaxis()->SetTitle("ADC");
+
+
   TH1D *hClusterCogS = new TH1D("hClusterCogS","hClusterCogS",250,0,1024);
-  hClusterCog->GetXaxis()->SetTitle("cog");
+  hClusterCogS->GetXaxis()->SetTitle("cog");
   TH1D *hClusterCogK = new TH1D("hClusterCogK","hClusterCogK",250,0,1024);
-  hClusterCog->GetXaxis()->SetTitle("cog");
+  hClusterCogK->GetXaxis()->SetTitle("cog");
 
-
-  TH1D *hSeedPos = new TH1D("hSeedPos","hSeedPos",250,0,1024);                                                                                     
-  hSeedPos->GetXaxis()->SetTitle("mm");  
   TH1D *hSeedPosS = new TH1D("hSeedPosS","hSeedPosS",250,0,1024);
-  hSeedPos->GetXaxis()->SetTitle("mm");
+  hSeedPosS->GetXaxis()->SetTitle("mm");
   TH1D *hSeedPosK = new TH1D("hSeedPosK","hSeedPosK",250,0,1024);
-  hSeedPos->GetXaxis()->SetTitle("mm");
+  hSeedPosK->GetXaxis()->SetTitle("mm");
 
   TH1F* hNclus = new TH1F("hclus", "hclus", 10, 0, 10);
   hNclus->GetXaxis()->SetTitle("n clusters");
   TH1F* hNclusS = new TH1F("hclusS", "hclusK", 10, 0, 10);
-  hNclus->GetXaxis()->SetTitle("n clusters");
+  hNclusS->GetXaxis()->SetTitle("n clusters");
   TH1F* hNclusK = new TH1F("hclusK", "hclusK", 10, 0, 10);
-  hNclus->GetXaxis()->SetTitle("n clusters");
+  hNclusK->GetXaxis()->SetTitle("n clusters");
   TH2F* hNclus2D = new TH2F("hclus2D", "hclus2D", 10, 0,10, 10, 0, 10);
   hNclus2D->GetXaxis()->SetTitle("n clusters S");
-  hNclus2D->GetYaxis()->SetTitle("n clusters K")
-;
-  TH1F* hNstrip = new TH1F("hstrip", "hstrip", 10, 0, 10);
-  hNstrip->GetXaxis()->SetTitle("n strips");
-  TH1F* hNstripS = new TH1F("hstripS", "hstripK", 10, 0, 10);
-  hNstrip->GetXaxis()->SetTitle("n strips");
-  TH1F* hNstripK = new TH1F("hstripK", "hstripK", 10, 0, 10);
-  hNstrip->GetXaxis()->SetTitle("n strips");
-
-
-  TH1F* hEta = new TH1F("hEta", "hEta", 100, 0, 1);
-  hEta->GetXaxis()->SetTitle("Eta"); 
-  TH1F* hEtaS = new TH1F("hEtaS", "hEtaS", 100, 0, 1);
-  hEta->GetXaxis()->SetTitle("Eta");
-  TH1F* hEtaK = new TH1F("hEtaK", "hEtaK", 100, 0, 1);
-  hEta->GetXaxis()->SetTitle("Eta");
-
-
-
-  TH2F* hADCvsWidth = new TH2F ("hADCvsWidth", "hADCvsWidth", 10, 0, 10, 5000, 0, 1000);
-  TH2F* hADCvsPos = new TH2F ("hADCvsPos", "hADCvsPos", 1024, 0, 1024, 1000, 0, 500);
-  TH2F* hADCvsEta = new TH2F ("hADCvsEta", "hADCvsEta", 100, -1, 1, 5000, 0, 1000);
-  TH2F* hADCvsEtaS = new TH2F ("hADCvsEtaS", "hADCvsEtaS", 100, 0, 1, 5000, 0, 1000);
-  TH2F* hADCvsEtaK = new TH2F ("hADCvsEtaK", "hADCvsEtaK", 100, 0, 1, 5000, 0, 1000);
+  hNclus2D->GetYaxis()->SetTitle("n clusters K");
   
+  TH1F* hNstrip = new TH1F("hstrip", "hstrip", 10, -0.5, 9.5);
+  hNstrip->GetXaxis()->SetTitle("n strips");
+  TH1F* hNstripS = new TH1F("hstripS", "hstripK", 10, -0.5, 9.5);
+  hNstripS->GetXaxis()->SetTitle("n strips");
+  TH1F* hNstripK = new TH1F("hstripK", "hstripK", 10, -0.5, 9.5);
+  hNstripK->GetXaxis()->SetTitle("n strips");
+
+  TH1F* hEtaS = new TH1F("hEtaS", "hEtaS", 100, 0, 1);
+  hEtaS->GetXaxis()->SetTitle("Eta");
+  TH1F* hEtaK = new TH1F("hEtaK", "hEtaK", 100, 0, 1);
+  hEtaK->GetXaxis()->SetTitle("Eta");
+
+
+
+  TH2F* hADCvsWidth = new TH2F ("hADCvsWidth", "hADCvsWidth", 10, 0, 10, 1000, 0, 500);
+  hADCvsWidth->GetXaxis()->SetTitle("# of strips");
+  hADCvsWidth->GetYaxis()->SetTitle("ADC");
+
+  TH2F* hADCvsPos = new TH2F ("hADCvsPos", "hADCvsPos", 1024, 0, 1024, 1000, 0, 500);
+  hADCvsPos->GetXaxis()->SetTitle("cog");
+  hADCvsPos->GetYaxis()->SetTitle("ADC");
+
+  TH2F* hADCvsEtaS = new TH2F ("hADCvsEtaS", "hADCvsEtaS", 100, 0, 1, 1000, 0, 500);
+  hADCvsEtaS->GetXaxis()->SetTitle("eta");
+  hADCvsEtaS->GetYaxis()->SetTitle("ADC");
+  
+  TH2F* hADCvsEtaK = new TH2F ("hADCvsEtaK", "hADCvsEtaK", 100, 0, 1, 1000, 0, 500);
+  hADCvsEtaK->GetXaxis()->SetTitle("eta");
+  hADCvsEtaK->GetYaxis()->SetTitle("ADC");
+
+  TH2F* hADCvsSNs = new TH2F ("hADCvsSNs", "hADCvsSNs", 500, 0, 50, 1000, 0, 500);
+  hADCvsSNs->GetXaxis()->SetTitle("S/N");
+  hADCvsSNs->GetYaxis()->SetTitle("ADC");
+
+  TH2F* hADCvsSNk = new TH2F ("hADCvsSNk", "hADCvsSNk", 500, 0, 50, 1000, 0, 500);
+  hADCvsSNk->GetXaxis()->SetTitle("S/N");
+  hADCvsSNk->GetYaxis()->SetTitle("ADC");
+
+  TH2F* hNStripvsSNs = new TH2F ("hNstripvsSNs", "hNstripvsSNs", 1000, 0, 50, 5, 0, 5);
+  hNStripvsSNs->GetXaxis()->SetTitle("S/N");
+  hNStripvsSNs->GetYaxis()->SetTitle("# of strips");
+  TH2F* hNStripvsSNk = new TH2F ("hNstripvsSNk", "hNstripvsSNk", 1000, 0, 50, 5, 0, 5);
+  hNStripvsSNk->GetXaxis()->SetTitle("S/N");
+  hNStripvsSNk->GetYaxis()->SetTitle("# of strips");
+
   TStopwatch sw;
   sw.Start();
 
@@ -173,12 +227,7 @@ int main(int argc, char* argv[]) {
     }
     chain->GetEntry(index_event);
 
-    //
-    //for(int i=0; i< 1024; i++){
-    //	double testADC=ev->GetRawSignal_PosNum(0,i,0);
-    //	double calADC=ev->GetCalPed_PosNum(0,i,0);
-    //}
-
+    //Skip events with no clusters
     int NClusTot = ev->GetNClusTot();
     hNclus->Fill(NClusTot);
     if(NClusTot==0){zeroclust++;}
@@ -187,19 +236,26 @@ int main(int argc, char* argv[]) {
     int clusOnS = 0;
     int clusOnK = 0;
     
+
+    //Calculate number of clusters on each side
     for(int i = 0; i<NClusTot; i++){
       cl = ev->GetCluster(i);                                                                                                     int ladder = cl->ladder;
-      //  if(ladder!=12) continue;
       int side = cl->side;
       if(side==0){ 
 	clusOnS++;}
       else{
 	clusOnK++;}
     }
-    
     hNclus2D->Fill(clusOnS,clusOnK);
-    
-    
+   
+
+
+    //Skip events with more than 1 cluster on either side
+    if(clusOnS != 1 || clusOnK != 1) continue;
+    if(clusOnS != clusOnK) continue;
+   
+
+    //Signal Correlation
     if(clusOnS == 1 &&  clusOnK==1){
       double clusS=-999;
       double clusK=-999;
@@ -207,7 +263,6 @@ int main(int argc, char* argv[]) {
       for(int i = 0; i<NClusTot;i++){
 	cl = ev->GetCluster(i);
 	int side = cl->side;
-		
 	if(side==0){
 	  clusS=cl->GetTotSig();	
 	}	  
@@ -215,52 +270,73 @@ int main(int argc, char* argv[]) {
 	  clusK=cl->GetTotSig();
 	}
       }
-
       hEnergyCluster2D->Fill(clusS,clusK);
     }
-    
-    if(clusOnS != clusOnK) continue;
-    
       
+   
     for(int i = 0; i<NClusTot; i++){
       cl = ev->GetCluster(i);
       int ladder = cl->ladder;
       int side = cl->side;
-      //if(ladder!=12) continue;
       
     double clusADC = cl->GetTotSig();
     double clusSN = cl->GetTotSN();
     double cog = cl->GetCoG();
     double seedADC = cl->GetSeedVal();
+    double seedSN = cl->GetSeedSN();
     double clusCharge = cl->GetCharge();
     double seedCharge = cl->GetSeedCharge();
     double seedPos = cl->GetSeedAdd();
     double eta = cl->GetEta();
     int nstrip = cl->GetLenght();
 
-    //if(clusADC < 250) continue;
-
-    hEnergyCluster->Fill(clusADC);
-    hEnergyClusterSeed->Fill(seedADC);
-    hClusterCharge->Fill(clusCharge);
-    hSeedCharge->Fill(seedCharge);
-    hClusterCog->Fill(cog);
-    hClusterSN->Fill(clusSN);
-    hSeedPos->Fill(seedPos);
-    if(nstrip==2){
-    hEta->Fill(eta);
-    hADCvsEta->Fill(eta,clusADC);
+    if(side == 0){
+      hClusterSNs->Fill(clusSN);
+      hSeedSNs->Fill(seedSN);
+      
+      if(nstrip == 1){    
+	hSeedSNs_1strip->Fill(seedSN);
+      }else if(nstrip == 2){
+      	hSeedSNs_2strip->Fill(seedSN);
+      }      
+    }else{
+      hClusterSNk->Fill(clusSN);
+      hSeedSNk->Fill(seedSN);
+      
+      if(nstrip == 1){  
+        hSeedSNk_1strip->Fill(seedSN);
+      }else if(nstrip == 2){
+        hSeedSNk_2strip->Fill(seedSN);
+      } 
+      
     }
-    hNstrip->Fill(nstrip);
 
+    //Cuts on S/N of cluster
+    if(side == 0){
+      if(clusSN < SNcutS) continue;
+    }else{
+      if(clusSN < SNcutK) continue;
+    }
+
+
+    //Cuts on cog of cluster
+    if(!((cog > mincogS && cog < maxcogS) || (cog > mincogK && cog < maxcogK))) continue;
+
+    hNstrip->Fill(nstrip);
     hADCvsWidth->Fill(nstrip,clusADC);
     hADCvsPos->Fill(cog,clusADC);
 
     if(side==0){
       hEnergyClusterS->Fill(clusADC); 
       hEnergyClusterSeedS->Fill(seedADC);
+      if(nstrip == 1){
+        hEnergyClusterSeedS_1strip->Fill(seedADC);
+      }else if(nstrip == 2){
+        hEnergyClusterSeedS_2strip->Fill(seedADC);
+      }
       hClusterChargeS->Fill(clusCharge);
-      hClusterSNs->Fill(clusSN);
+      hADCvsSNs->Fill(clusSN,clusADC);
+      hNStripvsSNs->Fill(clusSN,nstrip);
       hSeedChargeS->Fill(seedCharge); 
       hClusterCogS->Fill(cog);
       hSeedPosS->Fill(seedPos);
@@ -272,8 +348,15 @@ int main(int argc, char* argv[]) {
     }else{
       hEnergyClusterK->Fill(clusADC); 
       hEnergyClusterSeedK->Fill(seedADC);
+      if(nstrip == 1){
+        hEnergyClusterSeedK_1strip->Fill(seedADC);
+      }else if(nstrip == 2){
+        hEnergyClusterSeedK_2strip->Fill(seedADC);
+      }
       hClusterChargeK->Fill(clusCharge);
-      hClusterSNk->Fill(clusSN);
+      hADCvsSNk->Fill(clusSN,clusADC);
+      
+      hNStripvsSNk->Fill(clusSN,nstrip);      
       hSeedChargeK->Fill(seedCharge); 
       hClusterCogK->Fill(cog);
       hSeedPosK->Fill(seedPos);
@@ -283,25 +366,17 @@ int main(int argc, char* argv[]) {
 	hADCvsEtaK->Fill(eta,clusADC);
       }
     }
-    
-    
     }    
-    
   }
   
   sw.Stop();
   sw.Print();
  
-  hEnergyCluster->Write();
-  hEnergyClusterSeed->Write();
-  hClusterCharge->Write();
-  hSeedCharge->Write();
-  hClusterCog->Write();
-  hSeedPos->Write();
-  hEta->Write();
   hNstrip->Write();
   hEnergyClusterS->Write();
   hEnergyClusterSeedS->Write();
+  hEnergyClusterSeedS_1strip->Write();
+  hEnergyClusterSeedS_2strip->Write();
   hClusterChargeS->Write();
   hSeedChargeS->Write();
   hClusterCogS->Write();
@@ -310,6 +385,8 @@ int main(int argc, char* argv[]) {
   hNstripS->Write();
   hEnergyClusterK->Write();
   hEnergyClusterSeedK->Write();
+  hEnergyClusterSeedK_1strip->Write();
+  hEnergyClusterSeedK_2strip->Write();
   hClusterChargeK->Write();
   hSeedChargeK->Write();
   hClusterCogK->Write();
@@ -320,12 +397,25 @@ int main(int argc, char* argv[]) {
   hEnergyCluster2D->Write();
   hADCvsWidth->Write();
   hADCvsPos->Write();
-  hADCvsEta->Write();
+
   hADCvsEtaS->Write();
   hADCvsEtaK->Write();
-  hClusterSN->Write();
+
   hClusterSNs->Write();
   hClusterSNk->Write();
+
+  hSeedSNs->Write();
+  hSeedSNk->Write();
+  hSeedSNs_1strip->Write();
+  hSeedSNk_1strip->Write();
+  hSeedSNs_2strip->Write();
+  hSeedSNk_2strip->Write();
+
+  hADCvsSNs->Write();
+  hADCvsSNk->Write();
+  
+  hNStripvsSNs->Write();
+  hNStripvsSNk->Write();
   //foutput->Write();
   foutput->Close();
 

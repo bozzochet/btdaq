@@ -19,7 +19,7 @@ float Event::alignpar[NJINF][NTDRS][3];
 bool Event::multflip[NJINF][NTDRS];
 
 bool Event::gaincorrectionnotread=true;
-float Event::gaincorrectionpar[NJINF][NTDRS][NVAS][2];
+float Event::gaincorrectionpar[NJINF][NTDRS][NVAS][3];
 
 //they store temporarily the result of the fit----------------------------
 double mX_sf, mXerr_sf;
@@ -225,7 +225,7 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG){
   for (int jj=0; jj<NJINF; jj++) {
     for (int tt=0; tt<NTDRS; tt++) {
       for (int vv=0; vv<NVAS; vv++) {
-	for (int cc=0; cc<2; cc++) {
+	for (int cc=0; cc<3; cc++) {
 	  gaincorrectionpar[jj][tt][vv][cc]=-9999.0;
 	}
       }
@@ -246,7 +246,7 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG){
     for (int jj=0; jj<NJINF; jj++) {
       for (int tt=0; tt<NTDRS; tt++) {
 	for (int vv=0; vv<NVAS; vv++) {
-	  for (int cc=0; cc<2; cc++) {
+	  for (int cc=0; cc<3; cc++) {
 	    gaincorrectionpar[jj][tt][vv][cc]=1;
 	  }
 	} 
@@ -260,13 +260,14 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG){
       if (fgets(line, dimline, ft)!=NULL) {
 	if (*line == '#') continue; /* ignore comment line */
 	else {
-	  sscanf(line, "%d\t%d\t%d\t%f\t%f", 
-		 &jinfnum, &tdrnum, &vanum, &dummy, &dummy);
+	  sscanf(line, "%d\t%d\t%d\t%f\t%f\t%f", 
+		 &jinfnum, &tdrnum, &vanum, &dummy, &dummy, &dummy);
 	  if (jinfnum<NJINF && tdrnum<NTDRS && vanum<NVAS ) {
-	    sscanf(line,"%d \t %d \t %d \t %f \t %f", 
+	    sscanf(line,"%d \t %d \t %d \t %f \t %f \t %f", 
 		   &jinfnum, &tdrnum, &vanum, 
 		   &gaincorrectionpar[jinfnum][tdrnum][vanum][0],
-		   &gaincorrectionpar[jinfnum][tdrnum][vanum][1]);
+		   &gaincorrectionpar[jinfnum][tdrnum][vanum][1],
+		   &gaincorrectionpar[jinfnum][tdrnum][vanum][2]);
 	  }
 	  else {
 	    printf("Wrong JINF/TDR/VA (%d, %d, %d): maximum is (%d,%d, %d)\n", jinfnum, tdrnum, vanum, NJINF, NTDRS, NVAS);
@@ -288,7 +289,7 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG){
   for (int jj=0; jj<NJINF; jj++) {
     for (int tt=0; tt<NTDRS; tt++) {
       for (int vv=0; vv<NVAS; vv++) {
-	for (int cc=0; cc<2; cc++) {
+	for (int cc=0; cc<3; cc++) {
 	  if(gaincorrectionpar[jj][tt][vv][cc] == -9999) continue;
 	  if (cc==0) printf("JINF %02d TDR %02d VA %02d)\t", jj, tt, vv);
 	  printf("%f\t", gaincorrectionpar[jj][tt][vv][cc]);
@@ -314,7 +315,7 @@ float Event::GetGainCorrectionPar(int jinfnum, int tdrnum, int vanum, int compon
     printf("VA %d: not possible, the maximum is %d...\n", vanum, NVAS-1);
     return -9999;
   }
-  if (component<0 || component >=2) {
+  if (component<0 || component >=3) {
     printf("Component %d not valid: it can be only up to 2\n", component);
     return -9999;
   }

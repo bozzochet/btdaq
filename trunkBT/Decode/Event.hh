@@ -86,7 +86,7 @@ private:
   static bool multflip[NJINF][NTDRS];
 
   static bool gaincorrectionnotread;
-  static float gaincorrectionpar[NJINF][NTDRS][NVAS][2];
+  static float gaincorrectionpar[NJINF][NTDRS][NVAS][3];
 
   double CombinatorialFit(
 			std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddS[NJINF][NTDRS],
