@@ -728,7 +728,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
   if (!printed) {
     printf("Clustering with:\n");
     printf("    %f %f for S-side\n", shighthreshold, slowthreshold);
-    printf("    %f %f for S-side\n", shighthreshold, slowthreshold);
+    printf("    %f %f for K-side\n", khighthreshold, klowthreshold);
     printf("    %d workaround\n", cworkaround);
     printed=true;
   }

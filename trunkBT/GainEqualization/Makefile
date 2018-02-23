@@ -25,7 +25,7 @@ ifeq ($(UNAME), Darwin)
 ADDLDFLAGS =
 endif
 
-CFLAGS += $(shell root-config --auxcflags) -fPIC
+CFLAGS += $(shell root-config --auxcflags) -O -std=c++11 -fPIC
 
 ROOTDYNAMICLIBS := $(shell root-config --glibs) -lMinuit -lSpectrum
 ROOTINC := $(shell root-config --incdir)

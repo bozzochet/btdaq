@@ -7,13 +7,16 @@
 #include "TTree.h"
 #include "TChain.h"
 #include "TFile.h"
+#include "TLine.h"
 #include "TROOT.h"
 #include "TF1.h"
 #include "TMath.h"
 #include "TSpectrum.h"
 #include "TStopwatch.h"
+#include "TProfile.h"
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 /* from the 'Decode' API */
 #include "Cluster.hh"
@@ -27,30 +30,43 @@
 
 using namespace std;
 
+
 int main(int argc, char* argv[]) {
   
-  if (argc<3) {
+  if (argc<6) {
     printf("Usage:\n");
-    printf("%s <output root-filename> <first input root-filename> [second input root-filename] ...\n", argv[0]);
+    printf("%s <output root-filename> <target mean ADC on S> <target width on S> <target mean ADC on K> <target width on K> <first input root-filename> [second input root-filename] ...\n", argv[0]);
     return 1;
   }
   
+
+  // Initialize variables
+  int targetMeanS = atoi(argv[2]);
+  int targetSigmaS = atoi(argv[3]);
+  int targetMeanK = atoi(argv[4]);
+  int targetSigmaK = atoi(argv[5]);
+  //////////////////////////////////////////////
+
+
   TChain *chain = new TChain("t4");
      
-  for (int ii=2; ii<argc; ii++) {
+  for (int ii=6; ii<argc; ii++) {
     printf("Adding file %s to the chain...\n", argv[ii]);
     chain->Add(argv[ii]);
   }
 
-  TString align_filename = "alignment.dat";
+
   TString gaincorrection_filename = "gaincorrection.dat";
   TString output_filename = argv[1];
 
   printf("---------------------------------------------\n");
-  Event::ReadAlignment(align_filename.Data());
   Event::ReadGainCorrection(gaincorrection_filename.Data());
-  //  exit(1);
   printf("---------------------------------------------\n");
+
+  ofstream myfile;
+  myfile.open ("temp.txt");
+
+  myfile << "#JINF" << "\t"<< "TDR" << "\t"<<   "VA" << "\t"<< "par1" << "\t"<< "par2" << "\t" << "par3" << "\n";
   
   Event *ev;
   Cluster *cl;
@@ -77,184 +93,116 @@ int main(int argc, char* argv[]) {
   TFile* foutput = new TFile(output_filename.Data(), "RECREATE");
   foutput->cd();
 
-  TH1F* residual_S[NJINF*NTDRS];
-  TH1F* residual_K[NJINF*NTDRS];
-  int NSTRIPSS=640;
-  int NSTRIPSK=384;
-  for (int tt=0; tt<_maxtdr; tt++) {
-    residual_S[tt] = new TH1F(Form("residual_S_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", GetRH(chain)->tdrCmpMap[tt]), 
-			      2*NSTRIPSS, -float(NSTRIPSS)/100.*Cluster::GetPitch(0), float(NSTRIPSS)/100.*Cluster::GetPitch(0));
-    residual_K[tt] = new TH1F(Form("residual_K_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", GetRH(chain)->tdrCmpMap[tt]), 
-			      40*NSTRIPSK, -20*float(NSTRIPSK)/100.*Cluster::GetPitch(1), 20*float(NSTRIPSK)/100.*Cluster::GetPitch(1));
+
+
+  //Event::GetGainCorrectionPar(int jinfnum, int tdrnum, int vanum, int component);
+
+  int ntdrRaw = GetRH(chain)->ntdrRaw;
+  int ntdrCmp = GetRH(chain)->ntdrCmp;
+
+  struct info{
+    int JINF;
+    int TDR;
+    TH2F *histo;
+
+    bool operator()(const info& lhs, const info& rhs) const { lhs.TDR < rhs.TDR; }
+  };
+  
+  info ladderinfo[ntdrRaw+ntdrCmp];
+
+  for(int i=0; i<ntdrRaw+ntdrCmp; i++){
+    ladderinfo[i].histo=new TH2F ("hADCvsPos_"+TString::Format("%d",i), "hADCvsPos_"+TString::Format("%d",i), 1024, 0, 1024, 1000, 0, 500);
+    ladderinfo[i].histo->GetXaxis()->SetTitle("cog (mm)");
+    ladderinfo[i].histo->GetYaxis()->SetTitle("ADC");
   }
-  
-  TH1F* chi = new TH1F("chi", "chi;log10(#chi^{2});Entries", 1000, -5, 10);
-  TH1F* theta = new TH1F("theta", "theta;#theta (rad);Entries", 10000, -1.0, 1.0);
-  TH1F* phi = new TH1F("phi", "phi;#phi (rad);Entries", 1000, -TMath::Pi(), TMath::Pi());
-  
-  Long64_t cleanevs=0;
-  Long64_t tracks=0;
-  Long64_t goodtracks=0;
-  Long64_t goodStracks=0;
-  Long64_t goodKtracks=0;
-  
+
   TStopwatch sw;
   sw.Start();
 
   double perc=0;
-  
+  int zeroclust=0;  
+
   for (int index_event=0; index_event<entries; index_event++) {
     Double_t pperc=1000.0*((index_event+1.0)/entries);
     if (pperc>=perc) {
       printf("Processed %d out of %lld: %d%%\n", (index_event+1), entries, (int)(100.0*(index_event+1.0)/entries));
       perc++;
     }
-    //    printf("----- new event %d/%lld = %d%%\n", index_event, entries, (int)(100.0*(index_event+1.0)/entries));
     chain->GetEntry(index_event);
-    
+
     int NClusTot = ev->GetNClusTot();
-    //    printf("\t\tnclusters = %d\n", NClusTot);
-    
-    //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
-    //and at most 50 (to avoid too much noise around and too much combinatorial)
-    //at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
-    bool cleanevent = CleanEvent(ev, GetRH(chain), 4, 50, 6, 6, 0, 0);
-    if (!cleanevent) continue;
-    cleanevs++;
-    
-    //at least 3 points on S, and 3 points on K, not verbose
-    bool trackfitok = ev->FindTrackAndFit(3, 3, false);
-    //    printf("%d\n", trackfitok);
-    if (trackfitok) {
-      //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
-      //(but only if removing them still we'll have more or equal than 3 hits on S and 3 (2 if 'HigherCharge') hits on K)
-      //and perform the fit again
-      ev->RefineTrack(6.0, 2, 6.0, 2);
-    }
-    else {
-      //let's downscale to 2 (on S) and 2 (on K) hits but even in this no-chisq case
-      //let's garantee a certain relaiability of the track fitting the one with the higher charge (this method can be used also for ions)
-      //and requiring an higher S/N for the cluster
-      trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
-    }
-    if (!trackfitok) continue;
-    //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());    
-    tracks++;
-    
-    //    printf("S %024lld: %d %d %d %d %d\n", ev->GetTrackHitPattern(0), ev->IsTDRInTrack(0, 0), ev->IsTDRInTrack(0, 4), ev->IsTDRInTrack(0, 8), ev->IsTDRInTrack(0, 12), ev->IsTDRInTrack(0, 14));
-    //    printf("K %024lld: %d %d %d %d %d\n", ev->GetTrackHitPattern(1), ev->IsTDRInTrack(1, 0), ev->IsTDRInTrack(1, 4), ev->IsTDRInTrack(1, 8), ev->IsTDRInTrack(1, 12), ev->IsTDRInTrack(1, 14));
-    
-    // //                              321098765432109876543210
-    // if (ev->GetTrackHitPattern(0) <                100010001) continue;
-    // if (ev->GetTrackHitPattern(1) <                100010001) continue;
-    
-    double logchi = log10(ev->GetChiTrack());
-    if (logchi>2) continue;
-    goodtracks++;
-    
-    bool strackok = false;
-    bool ktrackok = false;
-    
-    /* example of additional selection
-    if (
-	ev->IsTDRInTrack(0, 0) &&
-	ev->IsTDRInTrack(0, 4) &&
-	ev->IsTDRInTrack(0, 8) &&
-	(ev->IsTDRInTrack(0, 12) || ev->IsTDRInTrack(0, 14)) ) {
-      strackok=true;
-      goodStracks++;
-    }
+    if(NClusTot==0){zeroclust++;}
+    if(NClusTot==0) continue;
+   
+    for(int i = 0; i<NClusTot; i++){
+      cl = ev->GetCluster(i);
 
-    if (
-	ev->IsTDRInTrack(1, 0) &&
-	ev->IsTDRInTrack(1, 4) &&
-	ev->IsTDRInTrack(1, 8) &&
-	(ev->IsTDRInTrack(1, 12) || ev->IsTDRInTrack(1, 14)) ) {
-      ktrackok=true;
-      goodKtracks++;
-    }
-    */
-    strackok=true;
-    ktrackok=true;
+      int clusJinf= cl->GetJinf();
+      int ladder = cl->ladder;
+      int side = cl->side;
+      int tdrrawpos= GetRH(chain)->FindPosRaw(ladder);      
+      int tdrcmppos= GetRH(chain)->FindPos(ladder);
+      double clusADC = cl->GetTotSig();
+      double cog = cl->GetCoG();
 
-    // if (ev->GetNHitsTrack()>5) {
-    //   printf("Nhits: %u (S: %u, K: %u)\n", ev->GetNHitsTrack(), ev->GetNHitsSTrack(), ev->GetNHitsKTrack());
-    // }
-
-    chi->Fill(log10(ev->GetChiTrack()));
-    theta->Fill(ev->GetThetaTrack());
-    phi->Fill(ev->GetPhiTrack());
-    
-    for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
+      //      cout << " ladder " << ladder << " tdrpos " << tdrrawpos << endl;
       
-      cl = ev->GetCluster(index_cluster);
-      
-      int ladder=cl->ladder;
-      //      printf("%d --> %d\n", ladder, GetRH(chain)->FindPos(ladder));
-      int side=cl->side;
-            
-      if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
-
-      // the lenght of the cluster
-      int lenght = cl->GetLength();
-      // the address of the first (not the seed!) strip in the cluster
-      int first = cl->GetAddress();
-      //! the position of the seed in the Signal vector ([0-lenght])
-      int seed = cl->GetSeed();
-      //! the strip number of the seed ([0-1024], seed+first)
-      int seedadd = cl->GetSeedAdd();
-      
-      int VAseed = Cluster::GetVA(seedadd);
-      int VAfirst = Cluster::GetVA(first);
-      int VAlast = Cluster::GetVA(first+lenght);
-      
-      //! the signal of the seed strip
-      float seedsignal = cl->GetSeedVal();
-      //! the SN of the seed strip
-      float seedSN = cl->GetSeedSN();
-      // the total CLe noise (sq. mean)
-      float totnoise = cl->GetTotNoise();
-      // the CoG of the cluster using 2 strips
-      float cog = cl->GetCoG();
-      // the Total Signal of the cluster using 2 strips
-      float sig = cl->GetSig();
-      // the Total Signal of the cluster
-      float totsig = cl->GetTotSig();
-      // the Cluster SN
-      float totsn = cl->GetTotSN();
-      // the charge (using TotSig()) and dividing by a tempary 'MIP' sig
-      double charge=cl->GetCharge();
-      
-      if (side==0) {
-	if (strackok) {
-	  residual_S[GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));
-	}
+      if(tdrcmppos == -1){
+	ladderinfo[tdrrawpos].histo->Fill(cog,clusADC);
+	ladderinfo[tdrrawpos].JINF = clusJinf;
+	ladderinfo[tdrrawpos].TDR = ladder;
+      }else{
+	ladderinfo[tdrrawpos].histo->Fill(cog,clusADC);
+	ladderinfo[tdrcmppos].JINF = clusJinf;
+        ladderinfo[tdrcmppos].TDR = ladder;	
       }
-      else {
-	if (ktrackok) {
-	  residual_K[GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));
-	}
-      }
-      
+    
     }
-        
-    //    printf(" \n ");
+  }
+
+  std::sort(ladderinfo,ladderinfo+(ntdrRaw+ntdrCmp), ladderinfo[0]);
+
+  
+
+
+  for(int i=0; i<ntdrRaw+ntdrCmp; i++){
+    for(int j=0; j < 16; j++){
+      ladderinfo[i].histo->GetXaxis()->SetRangeUser(j*64,(j+1)*64);
+      TH1D *projection = ladderinfo[i].histo->ProjectionY();
+      int mean = projection->GetMean();
+      int rms = projection->GetRMS();
+      
+      cout << "mean " << mean << " rms " << rms << endl;
+      
+      TF1 *f1 = new TF1("f1", "gaus", mean-0.5*rms, mean+0.5*rms);
+      projection->Fit("f1","R");
+      
+      double fitmean = f1->GetParameter(1);
+      double fitrms  = f1->GetParameter(2);
+
+      if(TMath::Abs(fitmean-mean) > 2*rms){
+	fitmean=mean;
+	fitrms=rms;
+      }
+
+      double par1 = targetSigmaS/fitrms;
+      double par2 = targetMeanS/fitmean;
+      
+      myfile << ladderinfo[i].JINF << "\t" << ladderinfo[i].TDR << "\t" << j << "\t" << Form("%.2f",par1) << "\t" << Form("%.2f",par2) << "\t" << targetMeanS << "\n";
+    }
   }
 
   sw.Stop();
   sw.Print();
-  
-  printf("---------------------------------------------\n");
-  printf("\t%lld events analyzed\n", entries);
-  printf("\t\t%lld clean events\n", cleanevs);
-  printf("\t\t%lld tracks fitted\n", tracks);
-  printf("\t\t%lld good tracks found\n", goodtracks);
-  // printf("\t\t%lld good S tracks found\n", goodStracks);
-  // printf("\t\t%lld good K tracks found\n", goodKtracks);
-  printf("---------------------------------------------\n");
-  
-  foutput->Write();
+ 
+  for(int i=0; i<ntdrRaw+ntdrCmp; i++){
+    ladderinfo[i].histo->Write();
+  }
+
   foutput->Close();
-  
+  myfile.close();
+
+  gSystem->Exec("mv temp.txt gaincorrection.dat");
+
   return 0;
 }
