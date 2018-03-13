@@ -67,7 +67,7 @@ libEvent:
 clean: 
 	rm -f ./obj/*.o
 	rm -f ./Viewer
-	rm -f ./Analysis
+	rm -f ./AnalysisFOOT
 
 cleanALL: clean
 	make -C ../Decode clean

@@ -110,12 +110,13 @@ float Cluster::GetCSignal(int aa){
 //   else return c1;
 
 float par0=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 0);
-float par1=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 1);
-float par2=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 2);
+//float par1=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 1);
+//float par2=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 2);
 
-// float correctSignal = (Signal[aa]*par2*(1-par1)+par0*par2);
+//float correctSignal = (Signal[aa]*par2*(1-par1)+par0*par2);
+float correctSignal = (Signal[aa]+par0);
 
- return  Signal[aa];
+ return  correctSignal;
 }
 
 //why not simply 'return lenght'?

@@ -161,12 +161,10 @@ int main(int argc, char* argv[]) {
   }
 
   std::sort(ladderinfo,ladderinfo+(ntdrRaw+ntdrCmp), ladderinfo[0]);
-
   
-
-
   for(int i=0; i<ntdrRaw+ntdrCmp; i++){
     for(int j=0; j < 16; j++){
+
       ladderinfo[i].histo->GetXaxis()->SetRangeUser(j*64,(j+1)*64);
       TH1D *projection = ladderinfo[i].histo->ProjectionY();
       int mean = projection->GetMean();
@@ -174,19 +172,21 @@ int main(int argc, char* argv[]) {
       
       cout << "mean " << mean << " rms " << rms << endl;
       
-      TF1 *f1 = new TF1("f1", "gaus", mean-0.5*rms, mean+0.5*rms);
-      projection->Fit("f1","R");
+      TF1 *f1 = new TF1("f1", "gaus", mean-10, mean+10);
+      projection->Fit("f1","QR");
       
       double fitmean = f1->GetParameter(1);
       double fitrms  = f1->GetParameter(2);
 
+      cout << "fit mean " << fitmean << " fit rms " << fitrms << endl;
+      
       if(TMath::Abs(fitmean-mean) > 2*rms){
 	fitmean=mean;
 	fitrms=rms;
       }
-
-      double par1 = targetSigmaS/fitrms;
-      double par2 = targetMeanS/fitmean;
+      
+      double par1 = targetMeanS-fitmean;
+      double par2 = targetSigmaS/fitrms;
       
       myfile << ladderinfo[i].JINF << "\t" << ladderinfo[i].TDR << "\t" << j << "\t" << Form("%.2f",par1) << "\t" << Form("%.2f",par2) << "\t" << targetMeanS << "\n";
     }
