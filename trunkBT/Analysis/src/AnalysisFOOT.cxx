@@ -29,11 +29,11 @@
 using namespace std;
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
   
-  if (argc<3) {
+  if (argc<5) {
     printf("Usage:\n");
-    printf("%s <output root-filename> <S/N cut on S> <S/N cut on K> <min cog S> <max cog S> <min cog K> <max cog K> <first input root-filename> [second input root-filename] ...\n", argv[0]);
+    printf("%s <output root-filename> <S/N cut on S> <S/N cut on K> <min cog> <max cog> <first input root-filename> [second input root-filename] ...\n", argv[0]);
     return 1;
   }
   
@@ -41,23 +41,19 @@ int main(int argc, char* argv[]) {
   // Initialize variables for S/N ang cog cuts
   int SNcutS = atoi(argv[2]);
   int SNcutK = atoi(argv[3]);
-  int mincogS = atoi(argv[4]);
-  int maxcogS = atoi(argv[5]);
-  int mincogK = atoi(argv[6]);
-  int maxcogK = atoi(argv[7]);
+  int mincog = atoi(argv[4]);
+  int maxcog = atoi(argv[5]);
 
   if(SNcutS<0) SNcutS=0;
   if(SNcutK<0) SNcutK=0;
-  if(mincogS <0) mincogS=0;
-  if(maxcogS >639) maxcogS=639;
-  if(mincogK <640) mincogK=640;
-  if(maxcogK >1023) maxcogS=1023;
+  if(mincog <0) mincog=0;
+  if(maxcog >1024) maxcog=1024;
   //////////////////////////////////////////////
 
 
   TChain *chain = new TChain("t4");
      
-  for (int ii=8; ii<argc; ii++) {
+  for (int ii=6; ii<argc; ii++) {
     printf("Adding file %s to the chain...\n", argv[ii]);
     chain->Add(argv[ii]);
   }
@@ -74,8 +70,10 @@ int main(int argc, char* argv[]) {
   chain->SetBranchAddress("cluster_branch", &ev);
   chain->GetEntry(0);
 
+
   int _maxtdr = NJINF*NTDRS;
-  
+
+
   if (GetRH(chain)) {
     GetRH(chain)->Print();
     _maxtdr = GetRH(chain)->ntdrCmp;
@@ -84,6 +82,7 @@ int main(int argc, char* argv[]) {
     printf("Not able to find the RHClass header in the UserInfo...\n");
     return -9;
   }
+
   //  printf("%d\n", _maxladd);
   
   TFile* foutput = new TFile(output_filename.Data(), "RECREATE");
@@ -104,6 +103,11 @@ int main(int argc, char* argv[]) {
   TH1D *hEnergyClusterSeedK = new TH1D("hEnergyClusterSeeedK","hEnergyClusterSeedK",1000,0,500);
   hEnergyClusterSeedK->GetXaxis()->SetTitle("ADC");
 
+  TH1D *hPercentageSeedS = new TH1D("hPercentageSeeedS","hPercentageSeedS",500,0,100);
+  hPercentageSeedS->GetXaxis()->SetTitle("percentage");
+  TH1D *hPercentageSeedK = new TH1D("hPercentageSeeedK","hPercentageSeedK",500,0,100);
+  hPercentageSeedK->GetXaxis()->SetTitle("percentage");
+  
   TH1D *hClusterChargeS = new TH1D("hClusterChargeS","hClusterChargeS",1000,0,5);
   hClusterChargeS->GetXaxis()->SetTitle("Charge");
   TH1D *hClusterChargeK = new TH1D("hClusterChargeK","hClusterChargeK",1000,0,5);
@@ -290,6 +294,7 @@ int main(int argc, char* argv[]) {
     double eta = cl->GetEta();
     int nstrip = cl->GetLenght();
 
+    double SeedPercentage = 100 * seedADC/clusADC;
     if(side == 0){
       hClusterSNs->Fill(clusSN);
       hSeedSNs->Fill(seedSN);
@@ -320,7 +325,9 @@ int main(int argc, char* argv[]) {
 
 
     //Cuts on cog of cluster
-    if(!((cog > mincogS && cog < maxcogS) || (cog > mincogK && cog < maxcogK))) continue;
+    //    if(!((cog > mincogS && cog < maxcogS) || (cog > mincogK && cog < maxcogK))) continue;
+
+    if(cog < mincog || cog > maxcog) continue;
 
     hNstrip->Fill(nstrip);
     hADCvsWidth->Fill(nstrip,clusADC);
@@ -333,6 +340,7 @@ int main(int argc, char* argv[]) {
         hEnergyClusterSeedS_1strip->Fill(seedADC);
       }else if(nstrip == 2){
         hEnergyClusterSeedS_2strip->Fill(seedADC);
+	hPercentageSeedS->Fill(SeedPercentage);
       }
       hClusterChargeS->Fill(clusCharge);
       hADCvsSNs->Fill(clusSN,clusADC);
@@ -352,6 +360,7 @@ int main(int argc, char* argv[]) {
         hEnergyClusterSeedK_1strip->Fill(seedADC);
       }else if(nstrip == 2){
         hEnergyClusterSeedK_2strip->Fill(seedADC);
+	hPercentageSeedK->Fill(SeedPercentage);
       }
       hClusterChargeK->Fill(clusCharge);
       hADCvsSNk->Fill(clusSN,clusADC);
@@ -416,6 +425,10 @@ int main(int argc, char* argv[]) {
   
   hNStripvsSNs->Write();
   hNStripvsSNk->Write();
+
+  hPercentageSeedS->Write();
+  hPercentageSeedK->Write();
+
   //foutput->Write();
   foutput->Close();
 
