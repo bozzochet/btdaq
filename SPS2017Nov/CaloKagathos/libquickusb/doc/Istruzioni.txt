@@ -1,0 +1,11 @@
+Installazione:
+
+1) In "lib" si trova la libreria libquickusb.so.2.0.0
+2) Eseguire i link simbolici
+	ln -s [INIZIO] [ARRIVO]
+   dove [INIZIO] è il percorso a cui si trova libquickusb.so.2.0.0
+   e [ARRIVO] è /usr/lib/libquickusb.so
+		/usr/lib/libquickusb.so.2
+		/usr/lib/libquickusb.so.2.0.0
+3) Per compilare un file usando le librerie: 
+	g++ FILE.cpp -o NOME_ESEGUIBILE -lusb -lquickusb
