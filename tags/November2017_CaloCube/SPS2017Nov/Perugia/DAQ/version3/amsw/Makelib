@@ -1,0 +1,61 @@
+#----------------------------------------------------
+# Makefile for HRDL6 device driver and debug programs
+#
+#   Created by X.Cai, on 17.09.2002
+#----------------------------------------------------
+
+include ./Rule.make
+
+#
+# Definitions
+#
+TARGET  =		  $(LIBDIR)/libamsw.a \
+		  $(BINDIR)/amsw_reg \
+		  $(BINDIR)/amsw_mem \
+                  $(BINDIR)/amsw_test
+
+OBJS	= amsw_mem.o amsw_reg.o amsw_test.o amsw_lib.o
+LIBOBJS = amsw_lib.o
+LIBRARY = $(LIBDIR)/libamsw.a $(LIBDIR)/libprod.a
+HDRS    = amsw_dev.h $(LIBDIR)/amsw_lib.h $(LIBDIR)/prod_lib.h
+
+#
+# Targets
+#
+all: $(TARGET)
+
+#
+# Device driver
+#
+#$(DRVDIR)/amswire.mod: amswire.c amsw_dev.h
+#	$(CC) -o $@ -c $(CFLAGS) $(CKFLAGS) $<
+
+
+#
+# Libraries
+#
+$(LIBDIR)/libamsw.a: $(LIBOBJS)
+	$(AR) cruv $@ $?
+	$(RANLIB) $@
+
+amsw_lib.o: amsw_lib.c $(HDRS)
+	$(CC) -o $@ -DINKERNEL $(CFLAGS) -c $<
+
+#
+# Debug programs
+#
+$(BINDIR)/amsw_mem: amsw_mem.c $(HDRS) $(LIBRARY)
+	$(CC) -o $@ $(CFLAGS) $< -lamsw -lprod
+
+$(BINDIR)/amsw_reg: amsw_reg.c $(HDRS) $(LIBRARY)
+	$(CC) -o $@ $(CFLAGS) $< -lamsw
+
+$(BINDIR)/amsw_test: amsw_test.c $(HDRS) $(LIBRARY)
+	$(CC) -o $@ $(CFLAGS) $< -lamsw -lprod 
+#-laal
+
+#
+# Clean
+#
+clean:
+	$(RM) $(OBJS) $(TARGET)

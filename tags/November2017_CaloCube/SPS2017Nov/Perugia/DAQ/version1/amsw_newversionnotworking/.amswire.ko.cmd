@@ -1,0 +1,1 @@
+cmd_/home/ams/drivers_v7/drivers/pci-amsw/amswire.ko := ld -r -m elf_i386  --build-id -o /home/ams/drivers_v7/drivers/pci-amsw/amswire.ko /home/ams/drivers_v7/drivers/pci-amsw/amswire.o /home/ams/drivers_v7/drivers/pci-amsw/amswire.mod.o

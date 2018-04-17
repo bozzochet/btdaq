@@ -1,0 +1,746 @@
+Program ./TakeEPP were called: using a fake Jinj class!
+Using EPP connection
+Creating a fake Jinj (using the first Jinf found in Jinj configuration file)!
+TestConnection: Cannot Open connection:SendCommand: Cannot Open connection
+SendCommand: Cannot Open connection
+SendCommand: Cannot Open connection
+There's no JLV1 card and no NI-USB! A manual trigger will be used...
+Please turn OFF the trigger production and then press RETURN!
+Main: setting delay to 2100 ns ...
+SetDelay results in 0
+
+=== Calocube Initialization ========================================
+Calocube:Calocube : Creating Calocube class
+Calocube:init : Calocube initialization
+Calocube:analyze_parameters : Data taking will start in the following configuration : 
+		 --- NOMINAL MODE
+		 --- FREE GAIN
+	 with the following acquisition parameters : 
+		 --- RSTH 0
+		 --- RSTS 0
+		 --- RESET 0
+		 --- REPEAT 0
+		 --- DELAY_COARSE 7
+		 --- DELAY_FINE 0
+Calocube:open_qusb : Found Qusb Device QUSB-0 
+Calocube:open_qusb : Open Qusb Device OK
+Calocube:conf_qusb : Read QUSB settings
+Calocube:read_qusb_settings : Read WORDWIDE = 1
+Calocube:read_qusb_settings : Read DATAADDRESS = 8000
+Calocube:read_qusb_settings : Read CPUCONFIG = 8010
+Calocube:read_qusb_settings : Read SPICONFIG = 8001
+Calocube:conf_qusb : Write QUSB settings
+Calocube:write_qusb_settings : Write WORDWIDE = 1
+Calocube:write_qusb_settings : Write DATAADDRESS = 8000
+Calocube:write_qusb_settings : Write CPUCONFIG = 8010
+Calocube:write_qusb_settings : Write SPICONFIG = 8001
+Calocube:conf_qusb : Check QUSB settings
+Calocube:read_qusb_settings : Read WORDWIDE = 1
+Calocube:read_qusb_settings : Read DATAADDRESS = 8000
+Calocube:read_qusb_settings : Read CPUCONFIG = 8010
+Calocube:read_qusb_settings : Read SPICONFIG = 8001
+Calocube:read_board_id : ROC ID = 4
+Calocube:read_board_version : ROC Version = 4.22
+====================================================================
+readed: ./numbers.ini
+[>>> Ancillary] DATA code -1
+Please turn OFF the trigger production and then press RETURN!
+
+=== Calocube Run Start ===============================================
+Opening Calocube File ./Data//CC20171016_163736.dat
+Configuring Calocube Acquisition
+Calocube:conf_roc : Executing reset
+Calocube:conf_roc : Configuration register is = 0 - 0
+Calocube:conf_roc : Setting Integration Time
+Calocube:conf_roc : Configuration register is = 1070 - 1070
+Calocube:conf_roc : Start acquisition in Normal mode with Free gain
+Calocube:conf_roc : Configuration register is = 8000 - 8000
+Starting Calocube Acquisition
+====================================================================
+Setting JINF 0xFFFF to mode 0...
+Resetting tdrs counters...
+Resetting Jinf 0xFFFF node counter...
+Resetting Jinj 0xFFFF node counter...
+Setting JINF 0xFFFF to mode 1...
+Please press RETURN and then turn ON the trigger production!
+
+=== Calocube Perform Initial Trigger Check ==========================
+Trigger was enabled both on Calocube and AMS
+If Trigger was turned on, press Enter to start data taking
+=====================================================================
+Entering into the Data Acquisition loop...
+Rate is 0.000000 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:    101 
+Jinf 00:    101
+Tdrs:
+12:    101| 13:    101| 16:    101| 
+
+----------------------------------------------------------------------------------
+
+Rate is 74.140966 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:    201 
+Jinf 00:    201
+Tdrs:
+12:    201| 13:    201| 16:    201| 
+
+----------------------------------------------------------------------------------
+
+Rate is 74.973759 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:    301 
+Jinf 00:    301
+Tdrs:
+12:    301| 13:    301| 16:    301| 
+
+----------------------------------------------------------------------------------
+
+Rate is 75.597104 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:    401 
+Jinf 00:    401
+Tdrs:
+12:    401| 13:    401| 16:    401| 
+
+----------------------------------------------------------------------------------
+
+Rate is 75.884222 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:    501 
+Jinf 00:    501
+Tdrs:
+12:    501| 13:    501| 16:    501| 
+
+----------------------------------------------------------------------------------
+
+Rate is 76.347301 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:    601 
+Jinf 00:    601
+Tdrs:
+12:    601| 13:    601| 16:    601| 
+
+----------------------------------------------------------------------------------
+
+Rate is 79.001110 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:    701 
+Jinf 00:    701
+Tdrs:
+12:    701| 13:    701| 16:    701| 
+
+----------------------------------------------------------------------------------
+
+Rate is 75.369537 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:    801 
+Jinf 00:    801
+Tdrs:
+12:    801| 13:    801| 16:    801| 
+
+----------------------------------------------------------------------------------
+
+Rate is 77.052881 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:    901 
+Jinf 00:    901
+Tdrs:
+12:    901| 13:    901| 16:    901| 
+
+----------------------------------------------------------------------------------
+
+Rate is 75.143336 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   1001 
+Jinf 00:   1001
+Tdrs:
+12:   1001| 13:   1001| 16:   1001| 
+
+----------------------------------------------------------------------------------
+
+Rate is 76.347417 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   1101 
+Jinf 00:   1101
+Tdrs:
+12:   1101| 13:   1101| 16:   1101| 
+
+----------------------------------------------------------------------------------
+
+Rate is 77.470735 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   1201 
+Jinf 00:   1201
+Tdrs:
+12:   1201| 13:   1201| 16:   1201| 
+
+----------------------------------------------------------------------------------
+
+Rate is 75.369537 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   1301 
+Jinf 00:   1301
+Tdrs:
+12:   1301| 13:   1301| 16:   1301| 
+
+----------------------------------------------------------------------------------
+
+Rate is 76.460900 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   1401 
+Jinf 00:   1401
+Tdrs:
+12:   1401| 13:   1401| 16:   1401| 
+
+----------------------------------------------------------------------------------
+
+Rate is 74.753109 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   1501 
+Jinf 00:   1501
+Tdrs:
+12:   1501| 13:   1501| 16:   1501| 
+
+----------------------------------------------------------------------------------
+
+Rate is 74.416057 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   1601 
+Jinf 00:   1601
+Tdrs:
+12:   1601| 13:   1601| 16:   1601| 
+
+----------------------------------------------------------------------------------
+
+Rate is 78.810591 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   1701 
+Jinf 00:   1701
+Tdrs:
+12:   1701| 13:   1701| 16:   1701| 
+
+----------------------------------------------------------------------------------
+
+Rate is 73.869701 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   1801 
+Jinf 00:   1801
+Tdrs:
+12:   1801| 13:   1801| 16:   1801| 
+
+----------------------------------------------------------------------------------
+
+Rate is 70.932751 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   1901 
+Jinf 00:   1901
+Tdrs:
+12:   1901| 13:   1901| 16:   1901| 
+
+----------------------------------------------------------------------------------
+
+Rate is 68.739010 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   2001 
+Jinf 00:   2001
+Tdrs:
+12:   2001| 13:   2001| 16:   2001| 
+
+----------------------------------------------------------------------------------
+
+Rate is 71.185169 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   2101 
+Jinf 00:   2101
+Tdrs:
+12:   2101| 13:   2101| 16:   2101| 
+
+----------------------------------------------------------------------------------
+
+Rate is 67.350317 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   2201 
+Jinf 00:   2201
+Tdrs:
+12:   2201| 13:   2201| 16:   2201| 
+
+----------------------------------------------------------------------------------
+
+Rate is 66.721200 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   2301 
+Jinf 00:   2301
+Tdrs:
+12:   2301| 13:   2301| 16:   2301| 
+
+----------------------------------------------------------------------------------
+
+Rate is 67.899034 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   2401 
+Jinf 00:   2401
+Tdrs:
+12:   2401| 13:   2401| 16:   2401| 
+
+----------------------------------------------------------------------------------
+
+Rate is 66.588048 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   2501 
+Jinf 00:   2501
+Tdrs:
+12:   2501| 13:   2501| 16:   2501| 
+
+----------------------------------------------------------------------------------
+
+Rate is 66.989377 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   2601 
+Jinf 00:   2601
+Tdrs:
+12:   2601| 13:   2601| 16:   2601| 
+
+----------------------------------------------------------------------------------
+
+Rate is 64.523747 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   2701 
+Jinf 00:   2701
+Tdrs:
+12:   2701| 13:   2701| 16:   2701| 
+
+----------------------------------------------------------------------------------
+
+Rate is 65.845095 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   2801 
+Jinf 00:   2801
+Tdrs:
+12:   2801| 13:   2801| 16:   2801| 
+
+----------------------------------------------------------------------------------
+
+Rate is 63.907523 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   2901 
+Jinf 00:   2901
+Tdrs:
+12:   2901| 13:   2901| 16:   2901| 
+
+----------------------------------------------------------------------------------
+
+Rate is 63.663247 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   3001 
+Jinf 00:   3001
+Tdrs:
+12:   3001| 13:   3001| 16:   3001| 
+
+----------------------------------------------------------------------------------
+
+Rate is 64.987308 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   3101 
+Jinf 00:   3101
+Tdrs:
+12:   3101| 13:   3101| 16:   3101| 
+
+----------------------------------------------------------------------------------
+
+Rate is 64.692845 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   3201 
+Jinf 00:   3201
+Tdrs:
+12:   3201| 13:   3201| 16:   3201| 
+
+----------------------------------------------------------------------------------
+
+Rate is 64.860686 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   3301 
+Jinf 00:   3301
+Tdrs:
+12:   3301| 13:   3301| 16:   3301| 
+
+----------------------------------------------------------------------------------
+
+Rate is 65.198909 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   3401 
+Jinf 00:   3401
+Tdrs:
+12:   3401| 13:   3401| 16:   3401| 
+
+----------------------------------------------------------------------------------
+
+Rate is 64.525954 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   3501 
+Jinf 00:   3501
+Tdrs:
+12:   3501| 13:   3501| 16:   3501| 
+
+----------------------------------------------------------------------------------
+
+Rate is 64.987224 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   3601 
+Jinf 00:   3601
+Tdrs:
+12:   3601| 13:   3601| 16:   3601| 
+
+----------------------------------------------------------------------------------
+
+Rate is 64.987097 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   3701 
+Jinf 00:   3701
+Tdrs:
+12:   3701| 13:   3701| 16:   3701| 
+
+----------------------------------------------------------------------------------
+
+Rate is 65.626659 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   3801 
+Jinf 00:   3801
+Tdrs:
+12:   3801| 13:   3801| 16:   3801| 
+
+----------------------------------------------------------------------------------
+
+Rate is 62.942288 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   3901 
+Jinf 00:   3901
+Tdrs:
+12:   3901| 13:   3901| 16:   3901| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.890610 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   4001 
+Jinf 00:   4001
+Tdrs:
+12:   4001| 13:   4001| 16:   4001| 
+
+----------------------------------------------------------------------------------
+
+Rate is 63.021503 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   4101 
+Jinf 00:   4101
+Tdrs:
+12:   4101| 13:   4101| 16:   4101| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.434458 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   4201 
+Jinf 00:   4201
+Tdrs:
+12:   4201| 13:   4201| 16:   4201| 
+
+----------------------------------------------------------------------------------
+
+Rate is 63.825822 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   4301 
+Jinf 00:   4301
+Tdrs:
+12:   4301| 13:   4301| 16:   4301| 
+
+----------------------------------------------------------------------------------
+
+Rate is 63.141000 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   4401 
+Jinf 00:   4401
+Tdrs:
+12:   4401| 13:   4401| 16:   4401| 
+
+----------------------------------------------------------------------------------
+
+Rate is 62.744783 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   4501 
+Jinf 00:   4501
+Tdrs:
+12:   4501| 13:   4501| 16:   4501| 
+
+----------------------------------------------------------------------------------
+
+Rate is 63.907442 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   4601 
+Jinf 00:   4601
+Tdrs:
+12:   4601| 13:   4601| 16:   4601| 
+
+----------------------------------------------------------------------------------
+
+Rate is 62.902735 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   4701 
+Jinf 00:   4701
+Tdrs:
+12:   4701| 13:   4701| 16:   4701| 
+
+----------------------------------------------------------------------------------
+
+Rate is 63.907360 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   4801 
+Jinf 00:   4801
+Tdrs:
+12:   4801| 13:   4801| 16:   4801| 
+
+----------------------------------------------------------------------------------
+
+Rate is 62.237320 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   4901 
+Jinf 00:   4901
+Tdrs:
+12:   4901| 13:   4901| 16:   4901| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.890571 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   5001 
+Jinf 00:   5001
+Tdrs:
+12:   5001| 13:   5001| 16:   5001| 
+
+----------------------------------------------------------------------------------
+
+Rate is 63.785192 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   5101 
+Jinf 00:   5101
+Tdrs:
+12:   5101| 13:   5101| 16:   5101| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.623635 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   5201 
+Jinf 00:   5201
+Tdrs:
+12:   5201| 13:   5201| 16:   5201| 
+
+----------------------------------------------------------------------------------
+
+Rate is 60.541923 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   5301 
+Jinf 00:   5301
+Tdrs:
+12:   5301| 13:   5301| 16:   5301| 
+
+----------------------------------------------------------------------------------
+
+Rate is 63.825822 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   5401 
+Jinf 00:   5401
+Tdrs:
+12:   5401| 13:   5401| 16:   5401| 
+
+----------------------------------------------------------------------------------
+
+Rate is 62.148202 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   5501 
+Jinf 00:   5501
+Tdrs:
+12:   5501| 13:   5501| 16:   5501| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.107961 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   5601 
+Jinf 00:   5601
+Tdrs:
+12:   5601| 13:   5601| 16:   5601| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.967313 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   5701 
+Jinf 00:   5701
+Tdrs:
+12:   5701| 13:   5701| 16:   5701| 
+
+----------------------------------------------------------------------------------
+
+Rate is 63.622824 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   5801 
+Jinf 00:   5801
+Tdrs:
+12:   5801| 13:   5801| 16:   5801| 
+
+----------------------------------------------------------------------------------
+
+Rate is 63.260710 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   5901 
+Jinf 00:   5901
+Tdrs:
+12:   5901| 13:   5901| 16:   5901| 
+
+----------------------------------------------------------------------------------
+
+Rate is 63.542131 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   6001 
+Jinf 00:   6001
+Tdrs:
+12:   6001| 13:   6001| 16:   6001| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.967313 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   6101 
+Jinf 00:   6101
+Tdrs:
+12:   6101| 13:   6101| 16:   6101| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.012813 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   6201 
+Jinf 00:   6201
+Tdrs:
+12:   6201| 13:   6201| 16:   6201| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.899996 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   6301 
+Jinf 00:   6301
+Tdrs:
+12:   6301| 13:   6301| 16:   6301| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.737923 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   6401 
+Jinf 00:   6401
+Tdrs:
+12:   6401| 13:   6401| 16:   6401| 
+
+----------------------------------------------------------------------------------
+
+Rate is 62.784137 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   6501 
+Jinf 00:   6501
+Tdrs:
+12:   6501| 13:   6501| 16:   6501| 
+
+----------------------------------------------------------------------------------
+
+Rate is 62.198415 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   6601 
+Jinf 00:   6601
+Tdrs:
+12:   6601| 13:   6601| 16:   6601| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.623597 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   6701 
+Jinf 00:   6701
+Tdrs:
+12:   6701| 13:   6701| 16:   6701| 
+
+----------------------------------------------------------------------------------
+
+Rate is 62.942367 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   6801 
+Jinf 00:   6801
+Tdrs:
+12:   6801| 13:   6801| 16:   6801| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.585759 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   6901 
+Jinf 00:   6901
+Tdrs:
+12:   6901| 13:   6901| 16:   6901| 
+
+----------------------------------------------------------------------------------
+
+Rate is 62.509533 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   7001 
+Jinf 00:   7001
+Tdrs:
+12:   7001| 13:   7001| 16:   7001| 
+
+----------------------------------------------------------------------------------
+
+Rate is 62.784216 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   7101 
+Jinf 00:   7101
+Tdrs:
+12:   7101| 13:   7101| 16:   7101| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.814057 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   7201 
+Jinf 00:   7201
+Tdrs:
+12:   7201| 13:   7201| 16:   7201| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.967160 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   7301 
+Jinf 00:   7301
+Tdrs:
+12:   7301| 13:   7301| 16:   7301| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.699792 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   7401 
+Jinf 00:   7401
+Tdrs:
+12:   7401| 13:   7401| 16:   7401| 
+
+----------------------------------------------------------------------------------
+
+Rate is 61.321403 Hz, Mean Event Size is 3082.000000 words
+Trigger:  -9999 
+Jinj:   7501 
+Jinf 00:   7501
+Tdrs:
+12:   7501| 13:   7501| 16:   7501| 
+
+----------------------------------------------------------------------------------
+

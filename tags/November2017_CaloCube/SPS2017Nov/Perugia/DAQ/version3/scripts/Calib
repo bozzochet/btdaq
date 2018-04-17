@@ -1,0 +1,10 @@
+#!/bin/sh
+
+CURDIR=`pwd`
+DIR=/home/testsys/DAQ/
+
+cd $DIR
+./rundt 135
+./rundt2 170
+
+cd $CURDIR
