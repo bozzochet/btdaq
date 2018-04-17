@@ -64,8 +64,10 @@ libEvent:
 	make -C $(DECODE)
 
 clean: 
-	rm -f ./obj/*.o
+	rm -Rf ./obj
 	rm -f ./Align
+	rm -f RunOnce
+	rm -f FirstStepAlign
 
 cleanALL: clean
 	make -C ../Decode clean

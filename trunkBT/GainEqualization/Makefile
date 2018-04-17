@@ -62,7 +62,7 @@ libEvent:
 	make -C $(DECODE)
 
 clean: 
-	rm -f ./obj/*.o
+	rm -Rf ./obj
 	rm -f ./Equalization
 
 cleanALL: clean
