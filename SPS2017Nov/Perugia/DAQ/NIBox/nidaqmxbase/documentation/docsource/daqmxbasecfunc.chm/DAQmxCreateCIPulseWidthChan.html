@@ -1,0 +1,155 @@
+
+<html>
+<head>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+<link rel="STYLESHEET" type="text/css" href="../daqmxbasecfunccommon/styles.css"></link>
+<title>DAQmxBaseCreateCIPulseWidthChan</title>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+</head>
+<body bgcolor="#ffffff">
+<h1>DAQmxBaseCreateCIPulseWidthChan</h1>
+<p class="syntax">int32 DAQmxBaseCreateCIPulseWidthChan (TaskHandle taskHandle, 
+const char counter[ ], const char
+nameToAssignToChannel[ ], float64 minVal, float64 maxVal, int32 units, int32 startingEdge, const char customScaleName[ ]);</p>
+<h2>Purpose</h2>
+<p class="body">Creates a channel to measure the width of a digital pulse and adds the channel to the task you specify with <strong>taskHandle</strong>. <strong>startingEdge</strong> determines whether to measure a high pulse or low pulse. You can create only one counter input channel at a time with this function because a task can include only one counter input channel. To read from multiple counters simultaneously, use a separate task for each counter.  Connect the input signal to the 
+default input terminal of the counter.</p>
+<h2>Parameters</h2>
+<table class="borderless">
+<tr>
+<td>
+<em>Input</em>
+</td>
+</tr>
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>taskHandle</strong>
+</td>
+<td valign="top">TaskHandle</td>
+<td valign="top">The task to which to add the channels that this function creates.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>counter</strong>
+</td>
+<td valign="top">
+<nobr>const char [ ]</nobr>
+</td>
+<td valign="top">The name of the counter to use to create virtual channels such as <span id="monospace">Dev1/ctr0</span>.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>nameToAssignToChannel</strong>
+</td>
+<td valign="top">
+<nobr>const char [ ]</nobr>
+</td>
+<td valign="top">Pass NULL for this parameter. NI-DAQmx Base currently ignores this parameter.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>minVal</strong>
+</td>
+<td valign="top">float64</td>
+<td valign="top">The minimum value, in <strong>units</strong>, that you expect to measure.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>maxVal</strong>
+</td>
+<td valign="top">float64</td>
+<td valign="top">The maximum value, in <strong>units</strong>, that you expect to measure.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>units</strong>
+</td>
+<td valign="top">int32</td>
+<td valign="top">The units to use to return the measurement.
+	<table class="Borderless">
+<tr>
+<th class="Left-Align">Value</th>
+<th width="20"></th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td>
+<span id="Monospace">DAQmx_Val_Seconds</span>
+</td>
+<td></td>
+<td>Seconds</td>
+</tr>
+<tr>
+<td>
+<span id="monospace">DAQmx_Val_Ticks</span>
+</td>
+<td></td>
+<td>Timebase ticks</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>startingEdge</strong>
+</td>
+<td valign="top">int32</td>
+<td valign="top">Specifies on which edge to begin measuring pulse width.
+	<enum id="DAQmx_CI_PulseWidth_StartingEdge">
+<table class="Borderless">
+<tr>
+<th class="Left-Align">Value</th>
+<th width="20"></th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td>
+<span id="Monospace">DAQmx_Val_Rising</span>
+</td>
+<td></td>
+<td>Rising edge(s)</td>
+</tr>
+<tr>
+<td>
+<span id="Monospace">DAQmx_Val_Falling</span>
+</td>
+<td></td>
+<td>Falling edge(s)</td>
+</tr>
+</table>
+</enum>
+</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>customScaleName</strong>
+</td>
+<td valign="top">
+<nobr>const char [ ]</nobr>
+</td>
+<td valign="top">Pass NULL for this parameter.</td>
+</tr>
+</table>
+<h2>Return Value</h2>
+<table class="borderless">
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>status</strong>
+</td>
+<td valign="top">int32</td>
+<td valign="top">The error code returned by the function in the event of an error or warning. A value of 0 indicates success. A positive value indicates a warning. A negative value indicates an error.</td>
+</tr>
+</table>
+</body>
+</html>
+

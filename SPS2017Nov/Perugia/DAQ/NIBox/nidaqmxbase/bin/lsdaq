@@ -1,0 +1,8 @@
+#!/bin/sh
+echo --------------------------------
+echo Detecting National Instruments DAQ Devices
+
+#lookup Dev1 style names, board models, and board locations
+echo Found the following DAQ Devices:
+/etc/natinst/nidaqmxbase/bin/daqmxbase_listdevices
+echo --------------------------------
