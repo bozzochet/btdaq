@@ -1,0 +1,7 @@
+# udev rules for QuickUSB Modules
+# will create:
+# /dev/qusb-
+
+#SUBSYSTEM=="usb", ACTION=="add", ENV{DEVTYPE}=="usb_device", NAME="bus/usb/$env{BUSNUM}/$env{DEVNUM}", MODE="0644"
+
+ATTRS{idVendor}=="0fbb", ATTRS{idProduct}=="0001", MODE="0664"
