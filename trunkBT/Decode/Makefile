@@ -52,6 +52,5 @@ rootElibdict.cxx: $(CLASSES) LinkDef.h
 	rootcint -f $@  -c -p $(CFLAGS) $(DEFINES) $^
 
 clean:
-	@rm -fv libEventa.a libEvent.so Decode rootElibdict.cxx rootElibdict.h obj/*.o 
-	@rm -frv obj
+	@rm -Rfv libEventa.a libEvent.so Decode rootElibdict.cxx rootElibdict.h obj
 	make -C $(ANYOPTION) clean
