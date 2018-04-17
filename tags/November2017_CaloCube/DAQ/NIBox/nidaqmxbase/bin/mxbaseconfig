@@ -1,0 +1,7 @@
+#!/bin/sh
+#Shell script to launch the NI-DAQmx Base Configuration Tool.
+ 
+#Set LANG to C so that the config tool launches without issue.
+LANG=C
+
+/etc/natinst/nidaqmxbase/bin/mxbaseconfiglv
