@@ -1,0 +1,63 @@
+#!/bin/sh
+#
+# /etc/udev/agents.d/usb/nidaqmxbase_usb650x
+# /etc/hotplug/usb/nidaqmxbase_usb650x
+#
+# Gives all users access to all NI USB-650x devices.
+#
+# For this script to work, you will need the following:
+# 1) A Linux kernel that supports "usbfs"
+#    (formerly known as usbdevfs).
+# 2) Either "udev" support
+#    (http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html)
+#    or "hotplug" support (http://linux-hotplug.sourceforge.net/).
+# 3) For "udev" systems, a line in the file "/etc/udev/rules.d/nidaqmxbase_650x.rules"
+#    that corresponds to the USB-650x device.
+#    For "hotplug systems, a line in the file "/etc/hotplug/usb.usermap"
+#    that corresponds to the USB-650x device.
+#
+# In the "usb.usermap" file, the first field (usb module) should be
+# "nivisa_usbraw" to link the device to this script.
+# For this script to work, you will need the following:
+# 1) A Linux kernel that supports both "hotplug" and "usbfs"
+#    (formerly known as usbdevfs).
+# 2) The "hotplug" package (http://linux-hotplug.sourceforge.net/)
+# 3) A line in the file "/etc/hotplug/usb.usermap" that corresponds
+#    to the USB-650x device.
+#
+# In the "usb.usermap" file, the first field (usb module) should be
+# "nidaqmxbase_usb650x" to link the device to this script.
+#
+
+# $1: Path to the device
+# returns: nothing
+DeviceInsertion()
+{
+   # Currently, we give all users access to the device.
+   # This may be changed if stricter security for the 
+   # device is required.
+   # Change the user to the owner of the console lock
+   
+   USER=
+   if [ -f /var/run/console.lock ] ; then
+      USER=`cat /var/run/console.lock`
+   elif [ -f /var/run/console/console.lock ] ; then
+      USER=`cat /var/run/console/console.lock`
+   elif [ -f /var/lock/console.lock ] ; then
+      USER=`cat /var/lock/console.lock`
+   fi
+
+   [ -z ${USER} ] && USER=root
+
+   chown ${USER} "${1}"
+   chmod 0666 "${1}"
+}
+
+if [ "${ACTION}" = "add" ] ; then
+   if [ -n "${DEVICE}" ] && [ -e "${DEVICE}" ] ; then
+      DeviceInsertion "${DEVICE}"
+   fi
+   if [ -n "${DEVNAME}" ] && [ -e "${DEVNAME}" ] ; then
+      DeviceInsertion "${DEVNAME}"
+   fi
+fi

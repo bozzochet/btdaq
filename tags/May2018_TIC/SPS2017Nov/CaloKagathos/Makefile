@@ -1,0 +1,68 @@
+CXX = g++
+CXX32 = g++ -m32
+CXX64 = g++ -m64
+ROOTFLAGS = `root-config --libs --cflags`
+QUSBFLAGS = -lusb -lquickusb
+#DEFFLAGS = -DSPS2017Nov -DDRIVER
+DEFFLAGS = -DSPS2017Nov
+ACQUIRE_CC = acquire_calocube
+ANALYZE_ALONE = analyze_alone
+ANALYZE = analyze
+DRAW_ALONE = draw_alone
+DRAW = draw
+GENCOM = gencom
+ENRES_PION = EnRes_pion
+ENRES_ELECTRON = EnRes_electron
+INC = inc
+SRC = src
+BIN = bin
+
+#AMS stuff
+AMSDIR=/home/testsys/CaloCube/SPS2017Nov/Perugia
+DECODE =$(AMSDIR)/Decode/
+COMMON =$(AMSDIR)/CommonTool/
+DECODELIBS = -Wl,-rpath,$(DECODE) -L$(DECODE) -lEvent
+
+all: iofile acquire_calocube analyze_alone analyze draw_alone draw link
+
+bin/%.o: src/%.cpp
+	$(CXX) $(CXXFLAGS) -I$(INC) $(DEFFLAGS) $(ROOTFLAGS) -c -o $@ $<
+
+iofile: $(INC)/IOfile.h $(INC)/IOfile.cc
+	$(CXX) -c $(INC)/IOfile.cc -o $(BIN)/IOfile.o $(DEFFLAGS) -DAMS $(ROOTFLAGS) -g -Wall
+	
+acquire_calocube: $(SRC)/acquire_calocube.cpp	
+	$(CXX) $(SRC)/acquire_calocube.cpp -o $(BIN)/$(ACQUIRE_CC) -I$(INC) $(DEFFLAGS) $(QUSBFLAGS) -g -Wall -lrt
+		
+analyze_alone: $(SRC)/analyze.cpp $(BIN)/IOfile.o
+	$(CXX) $(SRC)/analyze.cpp -o $(BIN)/$(ANALYZE_ALONE) $(BIN)/IOfile.o -I$(INC) $(DEFFLAGS) $(ROOTFLAGS) -g -Wall
+
+analyze: $(SRC)/analyze.cpp $(BIN)/IOfile.o
+	$(CXX) $(SRC)/analyze.cpp -o $(BIN)/$(ANALYZE) $(BIN)/IOfile.o -DAMS -I$(INC) $(DEFFLAGS) $(ROOTFLAGS) -g -Wall
+
+draw_alone: $(SRC)/draw.cpp
+	$(CXX) $(SRC)/draw.cpp -o $(BIN)/$(DRAW_ALONE) -I$(INC) $(DEFFLAGS) $(ROOTFLAGS) -g -Wall
+
+draw: $(SRC)/draw.cpp
+	$(CXX) $(SRC)/draw.cpp -o $(BIN)/$(DRAW) -I$(INC) -I$(DECODE) -I$(COMMON) -DAMS $(DEFFLAGS) $(ROOTFLAGS) $(DECODELIBS) -g -Wall
+
+#EnRes_pion: $(SRC)/EnRes_pion.cpp
+#	$(CXX) $(SRC)/EnRes_pion.cpp -o $(BIN)/$(ENRES_PION) $(ROOTFLAGS) -g -Wall
+	
+#EnRes_electron: $(SRC)/EnRes_electron.cpp
+#	$(CXX) $(SRC)/EnRes_electron.cpp -o $(BIN)/$(ENRES_ELECTRON) $(ROOTFLAGS) -g -Wall
+	
+link:
+	@rm -f $(ACQUIRE_CC) $(ANALYZE) $(ANALYZE_ALONE) $(DRAW) $(DRAW_ALONE) $(ENRES_PION) $(ENRES_ELECTRON) $(GENCOM)
+	ln -sf $(BIN)/$(ACQUIRE_CC) $(ACQUIRE_CC)
+	ln -sf $(BIN)/$(ANALYZE_ALONE) $(ANALYZE_ALONE)		
+	ln -sf $(BIN)/$(ANALYZE) $(ANALYZE)		
+	ln -sf $(BIN)/$(DRAW_ALONE) $(DRAW_ALONE)
+	ln -sf $(BIN)/$(DRAW) $(DRAW)
+#	ln -sf $(BIN)/$(ENRES_PION) $(ENRES_PION)		
+#	ln -sf $(BIN)/$(ENRES_ELECTRON) $(ENRES_ELECTRON)  
+#	ln -sf $(BIN)/$(GENCOM) $(GENCOM)	
+	
+clean:
+	@rm -f *.o *~ $(ACQUIRE_CC) $(ANALYZE_ALONE) $(ANALYZE) $(DRAW) $(DRAW_ALONE) $(ENRES_PION) $(ENRES_ELECTRON) $(GENCOM)
+	@rm -f $(BIN)/$(ACQUIRE_CC) $(BIN)/$(ANALYZE_ALONE) $(BIN)/$(ANALYZE) $(BIN)/$(DRAW) $(BIN)/$(DRAW_ALONE) $(BIN)/$(ENRES_PION) $(BIN)/$(ENRES_ELECTRON) $(BIN)/$(GENCOM) $(BIN)/IOfile.o

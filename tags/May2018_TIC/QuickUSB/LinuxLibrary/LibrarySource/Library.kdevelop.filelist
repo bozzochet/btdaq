@@ -1,0 +1,12 @@
+# KDevelop Custom Project File List
+Makefile
+QuickUSB.h
+QuickUSBEeprom.h
+QuickUSBVersion.h
+QuickUsb.cpp
+ezusb.h
+ezusbsys.h
+resource.h
+usb.h
+usb100.h
+usb200.h

@@ -1,0 +1,7 @@
+- quando lo uso senza JINJ credo che ci sia un baco (introdotto dalla modifica per pilotare anche DAMPE): funziona bene solamente nel caso in cui il JINF.conf voluto sta sulla prima riga del JINJ.conf. Fixando questo si potrebeb fare la modifica del punto sotto
+
+- quando si usa senza JINJ si potrebbe usare il numero di porta per scegliere quale riga di JINJ.conf considerare per il JINF (+ va letto tutto per eventuali DAMPE). In questo modo usandolo con due istanze, con due JINF su due porte, non servirebbe sdoppiare tutta la dir
+
+- togliere la roba di ANC da SUMMARY e dalle cal in genere (credo di averlo fatto: dannato Andrea!)
+
+- c'è un baco (abbastanza minor): il programma chiede di fare RETURN e poi far partire il trigger. In attesa del return la modalità di acquisizione dovrebbe essere su 0 e i contatori vuoti (i.e. anche se arriva un trigger dovrebbe essere ignorato). In realtà non è così. Provare a correggere, se possibile
