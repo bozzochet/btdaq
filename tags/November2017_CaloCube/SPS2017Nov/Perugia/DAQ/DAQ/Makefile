@@ -8,8 +8,8 @@ ROOTCFLAGS    = $(shell root-config --cflags)
 ROOTLIBS      = $(shell root-config --libs)
 ROOTGLIBS     = $(shell root-config --libs)
 
-LIBSOURCES= $(TOP)PeCpIp/amswcom.cxx $(TOP)SlowControl/QList.cxx $(TOP)amsw/amsw_lib.cxx
-LIBINCLUDE= -I$(ROOTSYS)/include -I $(TOP)PeCpIp/ -I  $(TOP)SlowControl/ -I $(TOP)amsw/
+LIBSOURCES= $(TOP)PeCpIp/amswcom.cxx $(TOP)SlowControl/QList.cxx $(TOP)amsw/amsw_lib.cxx $(TOP)/quickusb/CQuickUsb.cxx
+LIBINCLUDE= -I$(ROOTSYS)/include -I $(TOP)PeCpIp/ -I  $(TOP)SlowControl/ -I $(TOP)amsw/ -I $(TOP)quickusb/
 
 LIBOBJ:=$(LIBSOURCES:%.cxx=%.o)
 
@@ -17,7 +17,7 @@ LIBOBJ:=$(LIBSOURCES:%.cxx=%.o)
 CFLAGS= -g
 CPPFLAGS+= $(LIBINCLUDE) 
 
-OBJECTS=$(TOP)/TakeData/takeJinj.o $(TOP)/TakeData/JinjSlave.o $(TOP)/TakeData/dampe.o $(TOP)/TakeData/JLV1.o $(TOP)/TakeData/CommClass.o $(TOP)/TakeData/TrigClass.o $(TOP)/TakeData/Jinj.o $(TOP)/TakeData/Jinf.o $(TOP)/TakeData/PUtil.o
+OBJECTS=$(TOP)/TakeData/takeJinj.o $(TOP)/TakeData/JinjSlave.o $(TOP)/TakeData/dampe.o $(TOP)/TakeData/Calocube.o $(TOP)/TakeData/JLV1.o $(TOP)/TakeData/CommClass.o $(TOP)/TakeData/TrigClass.o $(TOP)/TakeData/Jinj.o $(TOP)/TakeData/Jinf.o $(TOP)/TakeData/PUtil.o
 
 all: lib TESTpci TakeJPCI SUMMARY
 
@@ -39,7 +39,7 @@ TESTpci: $(TOP)/Tests/test.o $(TOP)lib/libamswire.a
 
 TakeJPCI: $(OBJECTS)  $(TOP)lib/libamswire.a
 	@echo Linking $@ ...
-	$(CXX) $(CFLAGS)  $(CPPFLAGS) -o $@ $(OBJECTS) -L$(TOP)lib/ -lamswire $(ROOTLIBS)
+	$(CXX) $(CFLAGS)  $(CPPFLAGS) -o $@ $(OBJECTS) -L$(TOP)lib/ -lamswire -lusb -lquickusb -lrt $(ROOTLIBS)
 	@echo "------ for using through EPP and without Jinf (it depends on the program's name) ------"
 	rm -f ./TakeJEPP
 	ln -s ./$@ ./TakeJEPP
@@ -56,6 +56,7 @@ SUMMARY: $(TOP)/TakeData/summary.o
 #	$(CXX) $(CFLAGS) $(ROOTCFLAGS) $(CPPFLAGS) -o $@ $(TOP)/TakeData/summary.o -L$(TOP)lib/ -lamswire $(ROOTLIBS)
 	$(CXX) $(CFLAGS) $(ROOTCFLAGS) $(CPPFLAGS) -o $@ $(TOP)/TakeData/summary.o $(ROOTLIBS)
 	ln -fs SUMMARY SUMMARY_MUTE
+
 
 %.o : %.cxx
 	@echo Compiling $< ...
