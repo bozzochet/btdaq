@@ -35,6 +35,8 @@ int Calocube::init() {
 		dixit(0, true, "%s : Failed QUSB intialization: Force Exit\n", __func__);
 		return -3;
 	}
+
+	return 0;
 }
 
 int Calocube::analyze_parameters () {//GET ACQUISITION PARAMETERS
