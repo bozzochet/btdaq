@@ -1,4 +1,7 @@
 #!/bin/bash
+unix_time=$(date +%s)
+echo "Time = $unix_time"
+
 nfile=$1
 nevent=$2
 

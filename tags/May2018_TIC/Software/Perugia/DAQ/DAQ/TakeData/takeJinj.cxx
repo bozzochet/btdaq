@@ -37,6 +37,9 @@ Jinj* JJ=0;
 
 timeval unixtime;
 
+bool apply_trigger=true;
+bool delay_trigger=false;
+
 //--- Calocube ---
 Calocube *calocube=NULL;
 const char *calocube_conf="CALOCUBE.conf";
@@ -91,8 +94,8 @@ struct wholeheader {//for file writing in ASMBlock
 int StartUp(AMSWcom *node);
 void ShowHelp(char *cmd);
 void PreExit();
-int StartRun(AMSWcom *node, int nevents=0, int fake=0);
-void StopRun(int dum);
+int StartRun(AMSWcom *node, int nevents=0, long int unix_time=0);
+void StopRun(int dummy=0);
 int Calibrate(AMSWcom* node);
 int SaveCalibration(AMSWcom* node, int runnum);
 void PrintAllEventNumber(int evtcnt, int sumsize);
@@ -179,6 +182,21 @@ int main(int argc, char **argv) {
 	//set the time out
 	Main->SetTimeOut(10000);
 
+	if (!strcmp(argv[2],"CALIB")){
+		if (argc>3) apply_trigger = atoi(argv[3])==0? false : true;
+		if (argc>4) delay_trigger = atoi(argv[4])==0? false : true;
+	} else if (!strcmp(argv[2],"TAKEDATA")) {
+		if (argc>4) apply_trigger = atoi(argv[4])==0? false : true;
+		if (argc>5) delay_trigger = atoi(argv[5])==0? false : true;
+	}
+
+	PRINTF("\nThe acquisition trigger is handled in the following way\n");
+	PRINTF("\tThe acquisition (w/ or w/o NI) is waiting for external trigger enable/disable? ");
+	PRINTF(apply_trigger? "Yes\n" : "No\n");
+	PRINTF("\tThe acquisition (w/ or w/o NI) is sleeping for %d seconds if enabled/disabled? ", TrigClass::wait_nsec);
+	PRINTF(delay_trigger? "Yes\n" : "No\n");
+	PRINTF("\n");
+
 	//create a new JINJ object
 	JJ= new Jinj("JINJ", "JINJ.conf", 0xffff, Main, FakeFlag);
 
@@ -200,7 +218,7 @@ int main(int argc, char **argv) {
 		else{
 			PRINTF("There's no JLV1 card! The NI-USB will be used as trigger...\n");
 		}
-		trig->TriggerOff();
+		if(trig->TriggerOff(apply_trigger, delay_trigger)) return 1;
 	}
 
 	TDatime *StartProgTime=new TDatime();//there's was in an old version of this DAQ software (maybe is needed only by the "standard" file writing and not when writing in AMSBlock)
@@ -250,8 +268,8 @@ int main(int argc, char **argv) {
 	}
 	else if (!strcmp(argv[2],"TAKEDATA")) {
 		if (argc==3) ret=StartRun(Main);
-		else if (argc==4) ret=StartRun(Main, atoi(argv[3]));
-		else if (argc>4) ret=StartRun(Main, atoi(argv[3]), atoi(argv[4]));
+		else if (argc>3 && argc<7) ret=StartRun(Main, atoi(argv[3]));
+		else ret=StartRun(Main, atoi(argv[3]), atol(argv[6]));
 	}
 	else if (!strcmp(argv[2],"COMPLETERUN")) {
 		if (argc==3) {
@@ -351,8 +369,21 @@ int StartUp(AMSWcom* node){
 
 
 int Calibrate(AMSWcom* node) {
+
+	//These lines are necessary to reset Calocube busy signal in case of acquisition crash
+	printf("\n=== Calocube Reset ================================================\n");
+	calocube = NULL;
+	calocube = new Calocube(calocube_conf);
+	calocube->init();
+	if(calocube->is_enabled())
+		calocube->close();
+	delete calocube;
+	calocube =NULL;
+	printf("====================================================================\n");
+
 	int ret = 0, runnum = time(NULL);
-	trig->TriggerOff();
+
+	if(trig->TriggerOff(apply_trigger, delay_trigger)) return 1;
 	printf("node is %p\n", node);
 	TESTRXDONE(node);
 	sleep(1);
@@ -400,7 +431,7 @@ int Calibrate(AMSWcom* node) {
 
 	SLPRINTF("CALIBRATION %d\n", runnum);
 
-	if(trig->CalibTriggerOn()) return 1;
+	if(trig->CalibTriggerOn(apply_trigger, delay_trigger)) return 1;
 	TESTRXDONE(node);
 
 	unsigned short usize=0;
@@ -446,7 +477,7 @@ int Calibrate(AMSWcom* node) {
 		}
 	}
 
-	if(trig->CalibTriggerOff()) return 1;
+	if(trig->CalibTriggerOff(apply_trigger, delay_trigger)) return 1;
 	TESTRXDONE(node);
 
 	//Stopping calibration
@@ -633,27 +664,27 @@ int EventReset(AMSWcom *node) {
 	return ret;
 }
 
-void StopRun(int dum) {
+void StopRun(int dummy) {
 
-	// 	printf("StopRun(%d): %d \n", dum, eventsinbuffer);/only for debug
+	printf("StopRun(%d) Enter : %d \n", dummy, eventsinbuffer);//only for debug
 
 	if (eventsinbuffer==MAXEVENTSINBUFFER){
-		trig->TriggerOff();
+		if(trig->TriggerOff(apply_trigger, delay_trigger)) return;
+		printf("\nNow switching trigger off\n");
 	}
 	else if (eventsinbuffer==0){
 		ControlOn=0;
-		//  	printf("I'm stopping the data taking: %d\n",ControlOn);//only for debug
+		printf("\nNow switching control off\n");
 	}
 
 	eventsinbuffer=eventsinbuffer-1;
 
-
-	//	printf("StopRun(%d): %d \n", dum, eventsinbuffer);//only for debug
+	printf("StopRun(%d) Leave : %d \n", dummy, eventsinbuffer);//only for debug
 
 	return;
 }
 
-void PrintNumbers(int dum) {
+void PrintNumbers(int dummy) {
 
 	printevent=1;
 	//  PRINTF("PrintEvent: %d\n", printevent);//only for debug
@@ -662,7 +693,7 @@ void PrintNumbers(int dum) {
 }
 
 //=========================================================================================================
-int StartRun(AMSWcom *node, int nevents, int fake) {
+int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 
 	printf("\n=== Calocube Initialization ========================================\n");
 	calocube = NULL;
@@ -721,7 +752,7 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
 	else
 		printf("404 - Ancillary's configuration file missing\n");
 
-	if(trig->TriggerOff()) return 1;
+	if(trig->TriggerOff(apply_trigger, delay_trigger)) return 1;
 	TESTRXDONE(node);
 
 	if (!nevents) nevents=-1;
@@ -739,7 +770,7 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
 	//----------------opening data file for writing-----------------
 	char datafilename[256];
 
-	time_t t_start = time(0);   // get time now
+	time_t t_start = unix_time==0? time(0) : unix_time;   // get time now
 	struct tm * now = localtime( & t_start );
 
 	if (ancillary_code<0) {
@@ -761,7 +792,7 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
 		if(calocube) {
 			char newfilename[256];
 			sprintf(newfilename,"%s/%s_ANC_%d.dat", JJ->CPars->DATAPATH, runnumname, ancillary_code);
-		
+
 			char systemcommand[256];
 			sprintf(systemcommand, "ln -s %s_ANC_%d.dat %s", runnumname, ancillary_code, newfilename);
 			printf("%s\n", systemcommand);
@@ -869,7 +900,6 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
 		sprintf(systemcommand, "ln -s CC%d.dat %s", runnum, (calocube->compose_name(runnumname)).c_str());
 		printf("%s\n", systemcommand);
 		system(systemcommand);
-		
 	}
 
 	int evtcnt=0;//counts the number of data collected
@@ -883,7 +913,7 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
 
 	sleep(3);
 
-	if(trig->TriggerOn()) return 1;
+	if(trig->TriggerOn(apply_trigger, delay_trigger)) return 1;
 	TESTRXDONE(node);
 
 #ifdef INITIALIZATION
@@ -1118,10 +1148,12 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
 			//ret=+StatusJinj(node, evtnumoffset, usize, evtcnt);//The control is yet no working properly...
 		}
 		if (evtcnt==nevents || eventsinbuffer<MAXEVENTSINBUFFER) {
-			StopRun(0);//if ControlOn becomes 0 we exit from the data taking loop, if nevents is 0, the condition is false even the first time
+			printf("\nNow stopping run with %d/%d events acquired and %d/%d buffered events\n", evtcnt, nevents, eventsinbuffer, MAXEVENTSINBUFFER);
+			StopRun();//if ControlOn becomes 0 we exit from the data taking loop, if nevents is 0, the condition is false even the first time
 			if(calocube) is_calocube_enabled=false;
 		} else if (calocube && !is_calocube_enabled) {
-			StopRun(0);//if Calocube is in the DAQ but we had an error regarding Calocube data taking, we force exit in this way
+			printf("\nNow stopping run because of Calocube error\n");
+			StopRun();//if Calocube is in the DAQ but we had an error regarding Calocube data taking, we force exit in this way
 			if(calocube) is_calocube_enabled=false;
 		}
 	}

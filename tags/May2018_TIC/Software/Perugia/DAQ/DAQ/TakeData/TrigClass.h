@@ -5,6 +5,13 @@
 #include "JLV1.h"//JLV1 case
 #include "CommClass.hh"//NI-USB case
 
+/* C++98 <-> C++11 portability */
+#if __cplusplus > 199711
+#define STATIC_CONST static constexpr
+#else
+#define STATIC_CONST static const
+#endif
+
 class TrigClass: public CommClass {
 
 private:
@@ -19,7 +26,7 @@ private:
   int fake;
   int Read(int noclose=0);
   int Write(int bit2modify,int value2write);
-	
+
 public:
 
   //JLV1 case & fake case
@@ -34,14 +41,16 @@ public:
 
   int ReadCounter();
   int ResetCounter();
-  int TriggerOn();
-  int TriggerOff();
-  int CalibTriggerOn();
-  int CalibTriggerOff();
+  int TriggerOn(bool apply=true, bool delay=false);
+  int TriggerOff(bool apply=true, bool delay=false);
+  int CalibTriggerOn(bool apply=true, bool delay=false);
+  int CalibTriggerOff(bool apply=true, bool delay=false);
 
   //only NI-USB case
   int ReadInput();
   int Init();
+
+  STATIC_CONST int wait_nsec=60; //s
 
 };
 
