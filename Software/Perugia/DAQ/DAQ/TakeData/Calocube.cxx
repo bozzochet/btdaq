@@ -614,7 +614,7 @@ int Calocube::take_data_with_ams (timeval time_zero, char *ams_header, int ams_h
 	bool ready=false;
 	int iterations=0;
 
-	char log_iter[128][256];
+	vector <string> log_iter;
 
 	while(!ready) {
 		if(check_data_ready(ready)!=0)
@@ -626,7 +626,9 @@ int Calocube::take_data_with_ams (timeval time_zero, char *ams_header, int ams_h
 		double elapsed = (((double)(sdiff))*1000.) + (((double)(udiff))/1000.); //ms
 		dixit(-2, false, "%d iteration : %.2f ms elapsed\n", iterations, elapsed);
 
-		sprintf(log_iter[iterations], "%d iteration : %.2f ms elapsed", iterations, elapsed);
+		char dummy[256];
+		sprintf(dummy, "%d iteration : %.2f ms elapsed", iterations, elapsed);
+		log_iter.push_back(dummy);
 		++iterations;
 
 		if(ready) {
@@ -644,15 +646,17 @@ int Calocube::take_data_with_ams (timeval time_zero, char *ams_header, int ams_h
 			//if(enable_trigger()!=0) return -6; //This has been moved outside this funvtion
 
 			dixit(-1, true, "%s : Event acquired after %.2f ms from AMS (%d iterations)\n", __func__, elapsed, iterations);
-			if(elapsed>diff_time_out || iterations>max_niter) { 
+			if((elapsed>warning_diff_time || iterations>warning_niter) || (elapsed>diff_time_out || iterations>max_niter)) {
 				for(int iter=0; iter<iterations; ++iter)
-					dixit(0, true, "%s : %s\n", __func__, log_iter[iter]);
+					dixit(0, true, "%s : %s\n", __func__, log_iter[iter].c_str());
 				printf("\n");
 			}
 		} else {
 			if(elapsed>diff_time_out && iterations>max_niter) {
 				dixit(0, true, "%s : There is no trigger after %.2f ms from AMS (%d iterations) : Force Exit\n",
 						__func__, elapsed, iterations);
+				for(int iter=0; iter<iterations; ++iter)
+					dixit(0, true, "%s : %s\n", __func__, log_iter[iter].c_str());
 				return -6;
 			}
 		}

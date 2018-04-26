@@ -14,6 +14,7 @@
 #include <iomanip>
 #include <unistd.h>
 #include <bitset>
+#include <vector>
 #include "CQuickUsb.h"
 
 // QuickUSB settings
@@ -109,9 +110,11 @@ public:
 	}
 
 	STATIC_CONST int max_niter = 3;
+	STATIC_CONST int warning_niter = 1;
 	STATIC_CONST double init_time_out = 3.;//s
-	STATIC_CONST double loop_time_out = 1000.;//s
-	STATIC_CONST double diff_time_out = 10.;//ms
+	STATIC_CONST double loop_time_out = 60.;//s
+	STATIC_CONST double diff_time_out = 1000.;//ms
+	STATIC_CONST double warning_diff_time = 10.;//ms
 
 private:
 	STATIC_CONST int verbose_level=0;

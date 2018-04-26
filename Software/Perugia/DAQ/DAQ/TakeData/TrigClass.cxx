@@ -62,14 +62,26 @@ int TrigClass::ResetCounter(){
   return ret;
 }
 
-int TrigClass::TriggerOn(){
+int TrigClass::TriggerOn(bool apply, bool delay){
   LPRINTF("TriggerOn...\n");
+  if(delay) {
+	  for(int isec=wait_nsec; isec>=0; --isec) {
+          PRINTF("Sleeping %d seconds\r", isec);
+          sleep(1);
+	  }
+	  PRINTF("\n");
+  }
   int ret=0;
+  if(!apply)
+	  return ret;
   if(!_PJLV1) {
     if (!fake){
       ret=Write(1,0);//switching off calibration trigger for precaution
       ret+=Write(0,1);
-      if (ret<0) return ret;
+      if (ret<0) {
+          PRINTF("Error in TriggerOn : return is %d\n", ret);
+    	  return ret;
+      }
       else ret=0;
     }
     else{
@@ -86,14 +98,26 @@ int TrigClass::TriggerOn(){
   return ret;
 }
 
-int TrigClass::TriggerOff(){
+int TrigClass::TriggerOff(bool apply, bool delay){
   LPRINTF("TriggerOff...\n");
+  if(delay) {
+	  for(int isec=wait_nsec; isec>=0; --isec) {
+          PRINTF("Sleeping %d seconds\r", isec);
+          sleep(1);
+	  }
+	  PRINTF("\n");
+  }
   int ret=0;
+  if(!apply)
+	  return ret;
   if(!_PJLV1) {
     if (!fake){
       ret=Write(1,0);//switching off calibration trigger for precaution
       ret+=Write(0,0);
-      if (ret<0) return ret;
+      if (ret<0) {
+          PRINTF("Error in TriggerOff : return is %d\n", ret);
+    	  return ret;
+      }
       else ret=0;
     }
     else{
@@ -110,14 +134,26 @@ int TrigClass::TriggerOff(){
   return ret;
 }
 
-int TrigClass::CalibTriggerOn(){
+int TrigClass::CalibTriggerOn(bool apply, bool delay){
   LPRINTF("CalibTriggerOn...\n");
+  if(delay) {
+	  for(int isec=wait_nsec; isec>=0; --isec) {
+          PRINTF("Sleeping %d seconds\r", isec);
+          sleep(1);
+	  }
+	  PRINTF("\n");
+  }
   int ret=0;
+  if(!apply)
+	  return ret;
   if(!_PJLV1) {
     if (!fake){
       ret=Write(0,0);//switching off data trigger for precaution
       ret+=Write(1,1);
-      if (ret<0) return ret;
+      if (ret<0) {
+          PRINTF("Error in CalibTriggerOn : return is %d\n", ret);
+    	  return ret;
+      }
       else ret=0;
     }
     else{
@@ -134,14 +170,26 @@ int TrigClass::CalibTriggerOn(){
   return ret;
 }
 
-int TrigClass::CalibTriggerOff(){
+int TrigClass::CalibTriggerOff(bool apply, bool delay){
   LPRINTF("CalibTriggerOff...\n");
+  if(delay) {
+	  for(int isec=wait_nsec; isec>=0; --isec) {
+          PRINTF("Sleeping %d seconds\r", isec);
+          sleep(1);
+	  }
+	  PRINTF("\n");
+  }
   int ret=0;
+  if(!apply)
+	  return ret;
   if(!_PJLV1) {
     if (!fake){
       ret=Write(0,0);//switching off data trigger for precaution
       ret+=Write(1,0);
-      if (ret<0) return ret;
+      if (ret<0) {
+          PRINTF("Error in CalibTriggerOff : return is %d\n", ret);
+    	  return ret;
+      }
       else ret=0;
     }
     else{
