@@ -50,7 +50,7 @@ public:
   int ReadInput();
   int Init();
 
-  STATIC_CONST int wait_nsec=60; //s
+  STATIC_CONST int wait_nsec=3; //s
 
 };
 
