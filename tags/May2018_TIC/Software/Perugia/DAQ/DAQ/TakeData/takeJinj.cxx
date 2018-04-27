@@ -19,6 +19,7 @@
 #include "JLV1.h"
 
 //#define INITIALIZATION
+#define MASTER
 
 #define MAXEVENTSINBUFFER 99999
 int eventsinbuffer=MAXEVENTSINBUFFER;
@@ -207,9 +208,15 @@ int main(int argc, char **argv) {
 		PRINTF("There's a JLV1 card! It will be the trigger of the DAQ...\n");
 	}
 	else {
+#ifdef MASTER
 		trig= new TrigClass("localhost",1700);//NI-USB
 		trig->PrintOff();
 		int ni=trig->Init();
+#else //SLAVE
+		trig= new TrigClass("localhost",-1);//NI-USB
+		trig->PrintOff();
+		int ni=1;
+#endif
 		if (ni) {
 			if (trig) delete trig;
 			PRINTF("There's no JLV1 card and no NI-USB! A manual trigger will be used...\n");
@@ -669,12 +676,12 @@ void StopRun(int dummy) {
 	printf("StopRun(%d) Enter : %d \n", dummy, eventsinbuffer);//only for debug
 
 	if (eventsinbuffer==MAXEVENTSINBUFFER){
-		if(trig->TriggerOff(apply_trigger, delay_trigger)) return;
 		printf("\nNow switching trigger off\n");
+		if(trig->TriggerOff(apply_trigger, delay_trigger)) printf("\nSwitching trigger off failed\n");
 	}
 	else if (eventsinbuffer==0){
-		ControlOn=0;
 		printf("\nNow switching control off\n");
+		ControlOn=0;
 	}
 
 	eventsinbuffer=eventsinbuffer-1;
@@ -718,7 +725,7 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 	printf("====================================================================\n");
 
 	int ret = 0;
-	time_t runnum = time(NULL);
+	time_t runnum = unix_time==0? time(NULL) : unix_time;
 	struct tm * runnumstruct = localtime( & runnum );
 
 	char runnumname[256];
@@ -1029,7 +1036,7 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 		//		Head.DSPSIZE=usize*2+4;
 		//		Head.SIZE=(ushort)(8+2+Head.JMDCSIZE+2+Head.DSPSIZE);
 
-		if (usize>0) {
+		if ((evtcnt<nevents) && (usize>0)) {
 			gettimeofday(&unixtime, NULL);
 
 			Head.DSPSIZE=usize*2+4;

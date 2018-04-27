@@ -18,13 +18,14 @@ TrigClass::TrigClass(JLV1* pointer):CommClass(NULL,0){
 //NI_USB case
 TrigClass::TrigClass(char* address, int port):CommClass(address,port){
   //initializing...
-  this->TestConnection();
   _PJLV1 = NULL;
   number1=0;
   number2=0;
   number3=0;
   counter=0;
-  fake=0;
+  fake=port>0 ? 0 : 1;
+  if(!fake) 
+	this->TestConnection();
 }
 
 int TrigClass::ReadCounter(){
@@ -66,7 +67,7 @@ int TrigClass::TriggerOn(bool apply, bool delay){
   LPRINTF("TriggerOn...\n");
   if(delay) {
 	  for(int isec=wait_nsec; isec>=0; --isec) {
-          PRINTF("Sleeping %d seconds\r", isec);
+          PRINTF("Sleeping %2d seconds\r", isec);
           sleep(1);
 	  }
 	  PRINTF("\n");
@@ -102,7 +103,7 @@ int TrigClass::TriggerOff(bool apply, bool delay){
   LPRINTF("TriggerOff...\n");
   if(delay) {
 	  for(int isec=wait_nsec; isec>=0; --isec) {
-          PRINTF("Sleeping %d seconds\r", isec);
+          PRINTF("Sleeping %2d seconds\r", isec);
           sleep(1);
 	  }
 	  PRINTF("\n");
@@ -138,7 +139,7 @@ int TrigClass::CalibTriggerOn(bool apply, bool delay){
   LPRINTF("CalibTriggerOn...\n");
   if(delay) {
 	  for(int isec=wait_nsec; isec>=0; --isec) {
-          PRINTF("Sleeping %d seconds\r", isec);
+          PRINTF("Sleeping %2d seconds\r", isec);
           sleep(1);
 	  }
 	  PRINTF("\n");
@@ -174,7 +175,7 @@ int TrigClass::CalibTriggerOff(bool apply, bool delay){
   LPRINTF("CalibTriggerOff...\n");
   if(delay) {
 	  for(int isec=wait_nsec; isec>=0; --isec) {
-          PRINTF("Sleeping %d seconds\r", isec);
+          PRINTF("Sleeping %2d seconds\r", isec);
           sleep(1);
 	  }
 	  PRINTF("\n");
