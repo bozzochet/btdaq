@@ -17,16 +17,18 @@ for i in `seq 0 $nfile`; do
         echo "Starting CALIB: " >> launch_acq_log.txt
 	command="./TakeEPP 0 CALIB"
 	echo $command
-	#$command
+	$command
         date >> launch_acq_log.txt
         echo "CALIB is completed: " >> launch_acq_log.txt
 	sleep 30
 
+	unixtime=$(date +%s)
+
         date >> launch_acq_log.txt
         echo "Starting TAKEDATA: " >> launch_acq_log.txt
-	command="./TakeEPP 0 TAKEDATA $nevent"
+	command="./TakeEPP 0 TAKEDATA $nevent 1 0 $unixtime"
 	echo $command
-	$command
+	$command |& tee ./log/$unixtime.log
         date >> launch_acq_log.txt
         echo "TAKEDATA is completed: " >> launch_acq_log.txt
 	sleep 30
