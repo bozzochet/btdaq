@@ -16,8 +16,8 @@ ROOTDYNAMICLIBS := $(shell root-config --libs) -lMinuit
 
 ROOTINC := $(shell root-config --incdir)
 
-CFLAGS= -O -std=c++11 -g -fPIC
-#CFLAGS= -O -g -fPIC
+#CFLAGS= -O -std=c++11 -g -fPIC
+CFLAGS= -O -g -fPIC
 DEFINES=
 
 UNAME_S := $(shell uname -s)
