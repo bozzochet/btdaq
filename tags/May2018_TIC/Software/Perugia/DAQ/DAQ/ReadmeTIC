@@ -1,0 +1,47 @@
+The code "takeJinj.cxx" was modified for TIC operations
+
+=== ARGUMENTS
+
+Now usage is with options
+	PORT "CALIB" APPLY_TRIGGER DELAY_TRIGGER
+	PORT "TAKEDATA" NEVENTS APPLY_TRIGGER DELAY_TRIGGER POSIXTIME
+where
+	PORT=0
+	NEVENTS=number of events to be acquired
+	APPLY_TRIGGER=
+		1 - true use of NI box (it actually changes output level) 
+		0 - fake use of NI box (it does nothing on trigger on/off operations)
+	DELAY_TRIGGER= (this option was not finally used in "launch_TIC.sh" script and it must be always 0 for TIC operations)
+		1 - wait n seconds before trigger on/off ("nsec" in "Calocube.h")
+		0 - no wait is needed (always default)
+	POSIXTIME=seconds from 01/01/1970 used to give the same name to the two different files
+
+=== TIME OUT
+
+Inside the code there are three time out:
+	- loop_time_out (in "Calocube.h") is the maximum allowed distance in seconds between two consecutive triggers
+	- diff_time_out (in "Calocube.h") is the maximum allowed distance in milliseconds between AMS and Calocube trigger on the same event
+	- stop_run_time_out (in "takeJinj.cxx") is the maximum allowed distance in seconds between the first and last call of the stop run functioItn
+Note that it is important to check if one of these errors occured grepping the following string in the log file, respectively:
+	- "Loop over event: Time out of xxx seconds reached : Print Status and Force Exit"
+	- "There is no trigger after xxx ms from AMS (xxx iterations) : Force Exit" 
+	- "StopRun: Time out of xxx seconds reached (xxx/xxx): force control off£
+
+=== MASTER/SLAVE
+
+The value APPLY_TRIGGER must be always 1 except for the "slave" in "TAKEDATA" mode.
+Here we define "master" as Calocube+DAMPE (TIC), "slave" as external AMS (tracker).
+Note that "master" and "slave" must have two different directories at least in DAQ.
+*NB*: Otherwise, the two binary outputs are saved in same directory with same name!
+
+=== AMS/DAMPE RECONSTRUCTION
+
+The event header inserted in case of Calocube is present both in "master" and in "slave" and can be disabled using "write_calocube_header" in "takeJinj.cxx".
+This solution allows to analyze DAMPE and AMS data using the same version of Decode (note that the CALOCUBE flag must be defined in "DecodeData.hh").
+Data is reconstructed using "./generate_roots.herd.sh ../RawData" in Decode.
+
+=== CALOCUBE RECONSTRUCTION
+
+Data is reconstructed using "./script/analyze_calocube_ams.sh -d acquired_files -p analysed_files" in CaloKagathos.
+Note that in order to integrate Calocube, DAMPE and AMS, the ".root" DAMPE and AMS file must be copied here.
+Generally, the DAMPE and AMS files are reconstructed on a different machine.

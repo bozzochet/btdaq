@@ -19,7 +19,7 @@
 #include "JLV1.h"
 
 //#define INITIALIZATION
-#define MASTER
+//#define MASTER
 
 #define MAXEVENTSINBUFFER 99999
 int eventsinbuffer=MAXEVENTSINBUFFER;
@@ -41,12 +41,18 @@ timeval unixtime;
 bool apply_trigger=true;
 bool delay_trigger=false;
 
+const double stop_run_time_out = 60.;//s
+const bool write_calocube_header = true;
+
 //--- Calocube ---
 Calocube *calocube=NULL;
 const char *calocube_conf="CALOCUBE.conf";
 
 time_t t_past;
 time_t t_pres;
+
+time_t t_on;
+time_t t_off;
 //----------------
 
 #pragma pack(push,1)
@@ -208,15 +214,9 @@ int main(int argc, char **argv) {
 		PRINTF("There's a JLV1 card! It will be the trigger of the DAQ...\n");
 	}
 	else {
-#ifdef MASTER
-		trig= new TrigClass("localhost",1700);//NI-USB
+		trig= new TrigClass("localhost", apply_trigger? 1700 : -1);//NI-USB
 		trig->PrintOff();
-		int ni=trig->Init();
-#else //SLAVE
-		trig= new TrigClass("localhost",-1);//NI-USB
-		trig->PrintOff();
-		int ni=1;
-#endif
+		int ni= apply_trigger? trig->Init() : 1;
 		if (ni) {
 			if (trig) delete trig;
 			PRINTF("There's no JLV1 card and no NI-USB! A manual trigger will be used...\n");
@@ -673,20 +673,26 @@ int EventReset(AMSWcom *node) {
 
 void StopRun(int dummy) {
 
-	printf("StopRun(%d) Enter : %d \n", dummy, eventsinbuffer);//only for debug
+	//printf("StopRun(%d) Enter : %d \n", dummy, eventsinbuffer);//only for debug
 
 	if (eventsinbuffer==MAXEVENTSINBUFFER){
 		printf("\nNow switching trigger off\n");
-		if(trig->TriggerOff(apply_trigger, delay_trigger)) printf("\nSwitching trigger off failed\n");
-	}
-	else if (eventsinbuffer==0){
+		if(trig->TriggerOff(apply_trigger, delay_trigger))
+			printf("\nSwitching trigger off failed\n");
+		t_off = time(0);   // get final time
+	} else if (eventsinbuffer==0){
 		printf("\nNow switching control off\n");
 		ControlOn=0;
+	} else {
+		if(difftime(t_pres, t_off)>stop_run_time_out) {
+			printf("StopRun: Time out of %.0f seconds reached (%d/%d): force control off\n", stop_run_time_out, eventsinbuffer, MAXEVENTSINBUFFER);
+			ControlOn=0;
+		}
 	}
 
 	eventsinbuffer=eventsinbuffer-1;
 
-	printf("StopRun(%d) Leave : %d \n", dummy, eventsinbuffer);//only for debug
+	//printf("StopRun(%d) Leave : %d \n", dummy, eventsinbuffer);//only for debug
 
 	return;
 }
@@ -920,6 +926,7 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 
 	sleep(3);
 
+	t_on = time(0);   // get initial time
 	if(trig->TriggerOn(apply_trigger, delay_trigger)) return 1;
 	TESTRXDONE(node);
 
@@ -1090,7 +1097,7 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 						t_past = time(NULL);
 				}
 				else if (WritingMode==1){
-					if(is_calocube_enabled) {
+					if(is_calocube_enabled || write_calocube_header) {
 						//					gettimeofday(&unixtime, NULL); //Eugenio
 						Head.TIMEMSB=(ushort)(unixtime.tv_sec>>16&0xffff);
 						Head.TIMELSB=(ushort) (unixtime.tv_sec&0xffff);
@@ -1103,10 +1110,11 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 						Head.EVTNUMLSB=evtcnt&0xffff;
 
 						int header_size=sizeof(struct wholeheader);
-						if(calocube->take_data_with_ams(unixtime, (char *)&Head, header_size)!=0) {
-							++errcnt;
-							is_calocube_enabled=false;
-						}
+						if(is_calocube_enabled)
+							if(calocube->take_data_with_ams(unixtime, (char *)&Head, header_size)!=0) {
+								++errcnt;
+								is_calocube_enabled=false;
+							}
 						/*cout << "EvtCnt " << evtcnt << " " << usize << endl;
 						unsigned short inizio=usize;
 						for(int i=0; i<10; ++i) {
@@ -1155,7 +1163,7 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 			//ret=+StatusJinj(node, evtnumoffset, usize, evtcnt);//The control is yet no working properly...
 		}
 		if (evtcnt==nevents || eventsinbuffer<MAXEVENTSINBUFFER) {
-			printf("\nNow stopping run with %d/%d events acquired and %d/%d buffered events\n", evtcnt, nevents, eventsinbuffer, MAXEVENTSINBUFFER);
+			if(evtcnt==nevents && eventsinbuffer==MAXEVENTSINBUFFER) printf("\nNow stopping run with %d/%d events acquired and %d/%d buffered events\n", evtcnt, nevents, eventsinbuffer, MAXEVENTSINBUFFER);
 			StopRun();//if ControlOn becomes 0 we exit from the data taking loop, if nevents is 0, the condition is false even the first time
 			if(calocube) is_calocube_enabled=false;
 		} else if (calocube && !is_calocube_enabled) {
@@ -1205,6 +1213,12 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 		calocube=NULL;
 		printf("====================================================================\n");
 	}
+
+	double trun = difftime(t_off, t_on);
+	double nev = (double)evtcnt;
+	double rate = nev/trun;
+
+	PRINTF("\nRun of %.0f events completed in %.0f sec with a trigger rate of %.3f Hz\n", nev, trun, rate);
 
 	return ret;
 }

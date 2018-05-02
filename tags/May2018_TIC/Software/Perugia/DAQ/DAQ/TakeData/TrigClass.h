@@ -51,7 +51,7 @@ public:
   int Init();
 
   STATIC_CONST int wait_nsec=3; //s
-
+  STATIC_CONST int ntry=60; //attempt one per s
 };
 
 #endif

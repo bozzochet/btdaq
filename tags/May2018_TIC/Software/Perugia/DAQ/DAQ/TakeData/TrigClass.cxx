@@ -24,8 +24,12 @@ TrigClass::TrigClass(char* address, int port):CommClass(address,port){
   number3=0;
   counter=0;
   fake=port>0 ? 0 : 1;
-  if(!fake) 
-	this->TestConnection();
+  if(!fake)
+	  for(int itry=0; itry<ntry; ++itry) {
+          PRINTF("Test Connection %d/%d\n", 1+itry, ntry);
+		  if(this->TestConnection()==1) break;
+		  sleep(1);
+	  }
 }
 
 int TrigClass::ReadCounter(){
