@@ -29,7 +29,7 @@ int WritingMode=1;//0 is the AMSBlock mode, 1 the "standard mode"
 int ControlOn=1;
 int printevent=0;
 int daq=1;
-int step=500;//5000;
+int step=1;//500;//5000;
 
 using namespace std;
 TrigClass* trig;
@@ -38,11 +38,14 @@ Jinj* JJ=0;
 
 timeval unixtime;
 
+bool TriggerOn=false;
+
 bool apply_trigger=true;
 bool delay_trigger=false;
 
 const double stop_run_time_out = 60.;//s
-const bool write_calocube_header = true;
+const double print_time = 60.;//s
+//const bool write_calocube_header = true;
 
 //--- Calocube ---
 Calocube *calocube=NULL;
@@ -50,6 +53,8 @@ const char *calocube_conf="CALOCUBE.conf";
 
 time_t t_past;
 time_t t_pres;
+
+time_t t_print;
 
 time_t t_on;
 time_t t_off;
@@ -680,11 +685,13 @@ void StopRun(int dummy) {
 		if(trig->TriggerOff(apply_trigger, delay_trigger))
 			printf("\nSwitching trigger off failed\n");
 		t_off = time(0);   // get final time
+		TriggerOn=false;
 	} else if (eventsinbuffer==0){
 		printf("\nNow switching control off\n");
 		ControlOn=0;
 	} else {
-		if(difftime(t_pres, t_off)>stop_run_time_out) {
+		if(difftime(t_pres, t_off)>stop_run_time_out) 
+		{
 			printf("StopRun: Time out of %.0f seconds reached (%d/%d): force control off\n", stop_run_time_out, eventsinbuffer, MAXEVENTSINBUFFER);
 			ControlOn=0;
 		}
@@ -928,6 +935,7 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 
 	t_on = time(0);   // get initial time
 	if(trig->TriggerOn(apply_trigger, delay_trigger)) return 1;
+	TriggerOn=true;
 	TESTRXDONE(node);
 
 #ifdef INITIALIZATION
@@ -1000,10 +1008,10 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 	printevent=0;
 	bool is_calocube_enabled = calocube? true : false;
 	while(ControlOn) {
-
+		t_pres = time(NULL);
+	
 		//Check that the system did not hang up for some reason from last event
 		if(is_calocube_enabled) {
-			t_pres = time(NULL);
 			double elapsed = difftime(t_pres, t_past);
 			if(elapsed>calocube->loop_time_out) {
 				printf("\n=====================================================================\n");
@@ -1028,12 +1036,14 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 		}
 
 		//    PrintAllEventNumber(evtcnt, sumsize);//only for debug
-		if((evtcnt%step==0&&evtcnt!=0)||printevent)  {
+		//if((TriggerOn && evtcnt%step==0 && evtcnt!=0)||printevent)  {
+		if((TriggerOn && (difftime(t_pres, t_print)>print_time)) || printevent) {
 			//      PRINTF("PrintEvent: %d\n", printevent);//only for debug
 			printevent=0;
 			usleep(50000);
 			PrintAllEventNumber(evtcnt, sumsize);
 			sumsize=0;
+			t_print = t_pres;
 		}
 
 		usize=0;
@@ -1043,7 +1053,8 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 		//		Head.DSPSIZE=usize*2+4;
 		//		Head.SIZE=(ushort)(8+2+Head.JMDCSIZE+2+Head.DSPSIZE);
 
-		if ((evtcnt<nevents) && (usize>0)) {
+		//if (TriggerOn && (usize>0)) {
+		if (usize>0) {
 			gettimeofday(&unixtime, NULL);
 
 			Head.DSPSIZE=usize*2+4;
@@ -1097,7 +1108,8 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 						t_past = time(NULL);
 				}
 				else if (WritingMode==1){
-					if(is_calocube_enabled || write_calocube_header) {
+					//if(is_calocube_enabled || write_calocube_header) {
+					if(is_calocube_enabled) {
 						//					gettimeofday(&unixtime, NULL); //Eugenio
 						Head.TIMEMSB=(ushort)(unixtime.tv_sec>>16&0xffff);
 						Head.TIMELSB=(ushort) (unixtime.tv_sec&0xffff);
@@ -1110,7 +1122,7 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 						Head.EVTNUMLSB=evtcnt&0xffff;
 
 						int header_size=sizeof(struct wholeheader);
-						if(is_calocube_enabled)
+						//if(is_calocube_enabled)
 							if(calocube->take_data_with_ams(unixtime, (char *)&Head, header_size)!=0) {
 								++errcnt;
 								is_calocube_enabled=false;
@@ -1165,11 +1177,17 @@ int StartRun(AMSWcom *node, int nevents, long int unix_time) {
 		if (evtcnt==nevents || eventsinbuffer<MAXEVENTSINBUFFER) {
 			if(evtcnt==nevents && eventsinbuffer==MAXEVENTSINBUFFER) printf("\nNow stopping run with %d/%d events acquired and %d/%d buffered events\n", evtcnt, nevents, eventsinbuffer, MAXEVENTSINBUFFER);
 			StopRun();//if ControlOn becomes 0 we exit from the data taking loop, if nevents is 0, the condition is false even the first time
-			if(calocube) is_calocube_enabled=false;
+			//if(calocube) is_calocube_enabled=false;
 		} else if (calocube && !is_calocube_enabled) {
 			printf("\nNow stopping run because of Calocube error\n");
 			StopRun();//if Calocube is in the DAQ but we had an error regarding Calocube data taking, we force exit in this way
 			if(calocube) is_calocube_enabled=false;
+		}
+	
+		if(!TriggerOn && (difftime(t_pres, t_off)>stop_run_time_out)) 
+		{
+			printf("Loop: Time out of %.0f seconds reached (%d/%d): force control off\n", stop_run_time_out, eventsinbuffer, MAXEVENTSINBUFFER);
+			ControlOn=0;
 		}
 	}
 
@@ -1253,8 +1271,9 @@ void PrintAllEventNumber(int evtcnt, int sumsize) {
 	int cc=0;
 	if(!(JJ->GetJLV1Pointer()))  cc=trig->ReadCounter();//ReadCounter works only with NI-USB (so not with JLV1)
 	else cc=evtcnt;
-
+	
 	PRINTF("Rate is %f Hz, Mean Event Size is %f words\n", rate, meansize);
+	PRINTF("Event Count: %d\n", evtcnt);
 	PRINTF("Trigger: %6d \n%s\n----------------------------------------------------------------------------------\n\n", cc, reply);
 	FILE* nlog=fopen("nlog.txt","a");
 	fprintf(nlog,"Rate is %f Hz, Mean Event Size is %f words\n", rate, meansize);
