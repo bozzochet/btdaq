@@ -113,7 +113,7 @@ public:
 	STATIC_CONST int warning_niter = 1;
 	STATIC_CONST double init_time_out = 3.;//s
 	STATIC_CONST double loop_time_out = 60.;//s
-	STATIC_CONST double diff_time_out = 1000.;//ms
+	STATIC_CONST double diff_time_out = 10.;//ms
 	STATIC_CONST double warning_diff_time = 10.;//ms
 
 private:
