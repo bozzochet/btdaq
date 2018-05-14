@@ -4,7 +4,7 @@ struct A {
 	static const int CASIS_ID[];
 };
 
-#if defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 const int A::CASIS_ID[] = {0x0401, 0x0402, 0x0403,
 		0x0404, 0x0405, 0x0406,
 		0x0407, 0x0408, 0x0409,
@@ -284,7 +284,7 @@ int IOfile::ReadEvent()
 			cout << "Wrong CASIS ID [" << iChip << "]!" << endl;
 			return -2;
 		}
-#if defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 		if (aux.gain[iChip][1] & 0XF000)
 		{
 			cout << "Wrong CASIS Gain [" << iChip << "]!" << endl;
@@ -408,7 +408,7 @@ unsigned short int IOfile::GetCCTrigger()
 	return (mask & (this->casis.trg_type));
 }
 
-#if defined(SPS2015) || defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2015) || defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 unsigned short int IOfile::GetCCTime()
 {
 	return this->casis.trg_time;

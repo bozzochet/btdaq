@@ -27,7 +27,7 @@
 
 using namespace std;
 
-#define CALIBRATION
+//#define CALIBRATION
 #define PEDESTAL
 
 // Open input file and perform some checks
@@ -228,7 +228,7 @@ int main(int argc, char **argv) {
 	/// Read ADC-t-MIP conversion parameters
 	///
 	/////////////////////////////////////////////////////////////////////
-#if defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 	TString filePar = "./tables/ADC2MIP-Muons50-SPS2017.dat";
 	TString filePar2 = "./tables/L2SHistos_eALL.root-parameters-final-2017";//large/small
 #else
@@ -241,7 +241,7 @@ int main(int argc, char **argv) {
 	for(int ir=0; ir<NROWS; ir++){
 		for(int ic=0; ic<NCOLS; ic++){
 			for(int il=0; il<NLAYERS; il++){
-#if defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 				MIP2ADCNorm[ir][ic][il]= 1./551.6;
 				S2LNorm[ir][ic][il]=97.7;
 				CalFlag[ir][ic][il]=0;
@@ -394,7 +394,7 @@ int main(int argc, char **argv) {
 		fAlphaSmall[iHisto] = new TF1(Form("fAlphaSmall_%d", iHisto),"x*[0]",-1000,1000);
 		fAlphaLarge[iHisto]->SetParameter(0,2.);
 		fAlphaSmall[iHisto]->SetParameter(0,1.);
-#if defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 		if(iHisto==49) { //Chip 24 CNb broken
 			fAlphaLarge[iHisto]->SetParameter(0,-2.);
 			fAlphaSmall[iHisto]->SetParameter(0,-1.);
@@ -518,7 +518,7 @@ int main(int argc, char **argv) {
 				++i; //increment check counter
 				///////////////////////////////////////////////
 
-#if defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 				if (inputFile->GetLACTrigger() != RANDOMTRIGGER || isCalibration) //32-64
 					continue;
 				//				if (inputFile->GetCCTrigger() != GOODEVENTFLAG) //2-4
@@ -919,7 +919,7 @@ int main(int argc, char **argv) {
 		// save event info
 		// ----------------------------------
 		eventInfo->Reset();
-#if defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 		if (inputFileCheck->GetLACTrigger() != RANDOMTRIGGER || isCalibration) //32-64
 			continue;
 		//		if (inputFileCheck->GetCCTrigger() != GOODEVENTFLAG) //2-4
@@ -1049,7 +1049,7 @@ int main(int argc, char **argv) {
 		// save event info
 		// ----------------------------------
 		eventInfo->Reset();
-#if defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 		eventInfo->trigger = inputFile->GetLACTrigger();
 		eventInfo->good    = inputFile->GetCCTrigger();
 #else

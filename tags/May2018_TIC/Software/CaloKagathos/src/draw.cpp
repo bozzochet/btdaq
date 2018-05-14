@@ -80,13 +80,13 @@ const char *dir="./";
 //General variables
 TFile *histogramFile;
 TCanvas *cc;
-#if defined (SPS2016) || defined (SPS2017Aug) || defined(SPS2017Nov)
+#if defined (SPS2016) || defined (SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 const int ncols=NCOLS;
 const int nrows=NCOLS;
 #endif
 
 //Tree variables
-#if defined (SPS2016) || defined (SPS2017Aug) || defined(SPS2017Nov)
+#if defined (SPS2016) || defined (SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 EventInfo eventInfo;
 Int_t casisTime;
 Float_t tCorr;
@@ -131,7 +131,7 @@ Float_t ADAMO_Cluster[NLAYER_ADAMO][NXY_ADAMO];
 
 //Calrimeter Tree Construction
 void ConstructCalTree(TChain *tree) {
-#if defined (SPS2016) || defined (SPS2017Aug) || defined(SPS2017Nov)
+#if defined (SPS2016) || defined (SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 	tree->SetBranchStatus("*",0); //disable all branches
 
 	tree->SetBranchStatus("eventInfo", 1);
@@ -627,10 +627,10 @@ int main(int argc, char** argv){
 
 	//Configure graphics
 
-	gROOT->Reset();
-
 	int tmp=1;
 	TApplication theApp("App",&tmp,argv); //TApplication
+
+	gROOT->Reset();
 
 	gStyle->SetOptStat("neMuRo");
 	gStyle->SetStatFormat("6.3f");
@@ -790,7 +790,7 @@ int main(int argc, char** argv){
 
 	if(look_cn)
 	{
-#if defined (SPS2016) || defined (SPS2017Aug) || defined(SPS2017Nov)
+#if defined (SPS2016) || defined (SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 		cc = new TCanvas("commmonNoise","commonNoise", x,y,w,h);
 		cc->Divide(3,4);
 
@@ -946,7 +946,7 @@ int main(int argc, char** argv){
 			cc = new TCanvas("canvas","canvas", x,y,w,h);
 			cc->Divide(6,5);
 
-			for(int k=chipbegin; k<=chipend; k++) {
+			for(int k=chipbegin; k<chipend; k++) {
 				if (view_pedestal) {
 					cc->SetTitle(Form("PedestalOnChip_%d", k));
 					cc->SetName(Form("PedestalOnChip_%d", k));
@@ -1024,7 +1024,7 @@ int main(int argc, char** argv){
 				//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 				//========================================================
 
-#if defined (SPS2016) || defined (SPS2017Aug) || defined(SPS2017Nov)
+#if defined (SPS2016) || defined (SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 				//========================================================
 				// create histos
 				//========================================================
@@ -1101,7 +1101,7 @@ int main(int argc, char** argv){
 
 			if(view_pedestal || view_cn_pedestal)
 			{
-#if defined (SPS2016) || defined (SPS2017Aug) || defined(SPS2017Nov)
+#if defined (SPS2016) || defined (SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 				//========================================================
 				// create histos
 				//========================================================
@@ -1333,7 +1333,7 @@ int main(int argc, char** argv){
 
 			if(view_data)
 			{
-#if defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 				//========================================================
 				// create histos
 				//========================================================
@@ -1670,7 +1670,7 @@ int main(int argc, char** argv){
 
 	if(view_nello || view_cn_nello)
 	{
-#if defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 		//========================================================
 		// create histos
 		//========================================================
@@ -2052,7 +2052,7 @@ int main(int argc, char** argv){
 
 			if(CC_flag==NCUBES)
 			{
-#if defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 				Hits hits;
 				if(muon)
 					hits = LMIP;
@@ -2107,7 +2107,7 @@ int main(int argc, char** argv){
 					exit(1);
 				}
 
-#if defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 				Hits hits;
 				if(muon)
 					hits = LMIP;
