@@ -323,7 +323,7 @@ int read_data (CQuickUsb * fQusb, ofstream *ofs)
   {
     int result;
    
-#if defined(SPS2016) || defined (SPS2017Aug) || defined (SPS2017Nov)
+#if defined(SPS2016) || defined (SPS2017Aug) || defined (SPS2017Nov) || defined (TIC)
     unsigned long int length=1735;
 #else
     unsigned long int length=178;
