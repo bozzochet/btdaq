@@ -12,7 +12,7 @@
 /*
  * Calocube
  */
-#if defined(SPS2015) || defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2015) || defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
 #define ROC_HEADER 0xA5A5
 #else
 #define ROC_HEADER 0x5A5A
@@ -20,7 +20,19 @@
 
 #define CASIS_HEADER 0xF0F0
 
-#if defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(TIC)
+const int NCASIS_CHIPS_X_BOARD = 3;
+const int NCASISCHIPS = 54; //3*18
+const int NCASISCHANNELS = 28;
+const int NCASISCHIPS4CN = NCASISCHIPS * 2;
+const int NCASISCHANNELS4CN = NCASISCHANNELS/2;
+const int NGAINWORDS = 2;
+const int NROWS = 6;
+const int NCOLS = 5;
+const int NINSTRUMCASISCHANNELS = 24;
+const int NLAYERS = 17;
+const int NSENSORS = 2;
+#elif defined(SPS2017Aug) || defined(SPS2017Nov)
 const int NCASIS_CHIPS_X_BOARD = 3;
 const int NCASISCHIPS = 54; //3*18
 const int NCASISCHANNELS = 28;

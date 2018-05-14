@@ -48,7 +48,7 @@ class IOfile{
   unsigned short int Get00Trigger0();
   unsigned short int GetLACTrigger();
   unsigned short int GetCCTrigger();
-#if defined(SPS2015) || defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov)
+#if defined(SPS2015) || defined(SPS2016) || defined(SPS2017Aug) || defined(SPS2017Nov) || defined(TIC)
   unsigned short int GetCCTime();
 #else  
   unsigned short int GetCasisTime();
