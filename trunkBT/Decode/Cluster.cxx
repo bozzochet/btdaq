@@ -1,7 +1,6 @@
 #include "Cluster.hh"
 #include <cmath>
 #include <string.h>
-
 #include "Event.hh"
 
 ClassImp(Cluster);
@@ -256,7 +255,7 @@ double Cluster::GetZPosition(){
 }
 
 float Cluster::GetSeedVal(){
-  return (Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(GetSeed()), 0)+GetCSignal(GetSeed()))*Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(GetSeed()), 1);
+  return GetCSignal(GetSeed());
 }
 
 float Cluster::GetSeedSN(){

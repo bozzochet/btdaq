@@ -38,7 +38,8 @@ public:
   static int GetVAS() { return NVAS;};
   static int GetNTDRS() { return NTDRS;};
   static int GetNJINFS() { return NJINF;};  
-
+  static double ComputeCN(int size, short int* Signal, float* pede, float* SoN, double threshold=3.0);
+  
   //  int NGoldenClus(int lad, int side);
   //! Load Alignment parameter from an ASCII file 
   static void ReadAlignment(TString filename, bool DEBUG=false);
@@ -73,11 +74,14 @@ public:
   double GetCalPed_PosNum(int tdrposnum, int channel, int Jinfnum=0);
   double GetCalSigma_PosNum(int tdrposnum, int channel, int Jinfnum=0);
   double GetRawSignal_PosNum(int tdrposnum, int channel, int Jinfnum=0);
+  double GetCN_PosNum(int tdrposnum, int va, int Jinfnum=0);
   float GetRawSoN_PosNum(int tdrposnum, int channel, int Jinfnum=0);
+  
   
   double GetCalPed(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetCalSigma(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetRawSignal(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
+  double GetCN(RHClass* rh, int tdrnum, int va, int Jinfnum=0);
   float GetRawSoN(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   
 private:

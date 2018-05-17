@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
   
   if (argc<3) {
     printf("Usage:\n");
-    printf("%s <tdrposnum> <events to display> <first input root-filename> [second input root-filename] ...\n", argv[0]);
+    printf("%s <tdrposnum> <event to display> <first input root-filename> [second input root-filename] ...\n", argv[0]);
     return 1;
   }
 
@@ -45,9 +45,8 @@ int main(int argc, char* argv[]) {
   int pos2 = tempname.find(".root");
   string firstfile = tempname.substr(pos1,pos2-pos1);
 
-
   TString output_filename = "viewer_out_"+firstfile+".root";
-  TFile* foutput = new TFile(output_filename.Data(), "RECREATE");
+  TFile* foutput = new TFile(output_filename.Data(), "UPDATE");
   foutput->cd();
 
 
@@ -72,7 +71,7 @@ int main(int argc, char* argv[]) {
   gr_event->SetMarkerStyle(23);
   gr_event->SetMarkerColor(kBlue);
   gr_event->SetLineColor(kBlue);
-
+  gr_event->GetXaxis()->SetNdivisions(16,false);
 
   
   ev = new Event();
@@ -95,16 +94,14 @@ int main(int argc, char* argv[]) {
 
   double perc=0;
 
-
-  for(int eventnum=0; eventnum< atoi(argv[2]); eventnum++){
-
+  {
     gr_event->Set(0);
 
-    chain->GetEntry(eventnum);
+    chain->GetEntry(atoi(argv[2]));
     
     int maxadc = -999;
     int minadc = 0;
-    bool isevent= false;
+    bool isevent= true;
     
     for(int chan=0; chan< 1024; chan++){
       double testADC=ev->GetRawSignal_PosNum(atoi(argv[1]),chan,0);
@@ -114,18 +111,14 @@ int main(int argc, char* argv[]) {
       if(test > maxadc) maxadc=test;
       if(test < minadc) minadc=test;
 
-      if(!isevent){
-	if(test > 20) isevent=true;
-      }
       gr_event->SetPoint(gr_event->GetN(),chan, test);
     }
-    
 
     if(isevent){
     TCanvas *c2 = new TCanvas("c2", "c2", 1920, 1080);
-    TH1F *frame = gPad->DrawFrame(0, minadc,1024-20,maxadc+20);
+    TH1F *frame = gPad->DrawFrame(0, minadc-20,1024,maxadc+20);
 
-    frame->SetTitle("Event "+TString::Format("%02d",(int)eventnum));
+    frame->SetTitle("Event "+TString::Format("%02d",(int)atoi(argv[2])));
     frame->GetXaxis()->SetNdivisions(-16);
     frame->GetXaxis()->SetTitle("Strip number");
     gr_event->SetMarkerSize(0.5);
@@ -177,9 +170,9 @@ int main(int argc, char* argv[]) {
     line14->SetLineColor(kRed);
     line14->Draw();
 
-    c2->SaveAs("ViewerFrames/"+firstfile+"_frame_"+TString::Format("%09d",(int)eventnum)+".png");
     c2->Draw();
     c2->Write();
+    c2->SaveAs("Viewer/"+firstfile+"_frame_"+TString::Format("%09d",(int)atoi(argv[2]))+".png");
     }
 }
       

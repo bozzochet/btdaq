@@ -89,7 +89,14 @@ int main(int argc, const char* argv[]) {
   foutput->cd();
 
 
-  //////////////////Histos                                                                                                                                    
+  //////////////////Histos
+
+  TH1D *hfluctS = new TH1D("hfluctS","hfluctS",1000,-20,20);
+  hfluctS->GetXaxis()->SetTitle("ADC");
+
+  TH1D *hfluctK = new TH1D("hfluctK","hfluctK",1000,-20,20);
+  hfluctK->GetXaxis()->SetTitle("ADC");
+  
   TH1D *hEnergyClusterS = new TH1D("hEnergyClusterS","hEnergyClusterS",1000,0,500);
   hEnergyClusterS->GetXaxis()->SetTitle("ADC");
   TH1D *hEnergyClusterK = new TH1D("hEnergyClusterK","hEnergyClusterK",1000,0,500);
@@ -103,10 +110,16 @@ int main(int argc, const char* argv[]) {
   TH1D *hEnergyClusterSeedK = new TH1D("hEnergyClusterSeeedK","hEnergyClusterSeedK",1000,0,500);
   hEnergyClusterSeedK->GetXaxis()->SetTitle("ADC");
 
-  TH1D *hPercentageSeedS = new TH1D("hPercentageSeeedS","hPercentageSeedS",500,0,100);
+  TH1D *hPercentageSeedS = new TH1D("hPercentageSeeedS","hPercentageSeedS",200,20,100);
   hPercentageSeedS->GetXaxis()->SetTitle("percentage");
-  TH1D *hPercentageSeedK = new TH1D("hPercentageSeeedK","hPercentageSeedK",500,0,100);
+  TH1D *hPercentageSeedK = new TH1D("hPercentageSeeedK","hPercentageSeedK",200,20,100);
   hPercentageSeedK->GetXaxis()->SetTitle("percentage");
+
+  TH1D *hPercSeedSintegral = new TH1D("hPercSeeedSintegral","hPercSeedSintegral",200,20,100);
+  hPercSeedSintegral->GetXaxis()->SetTitle("percentage");
+  TH1D *hPercSeedKintegral = new TH1D("hPercSeeedKintegral","hPercSeedKintegral",200,20,100);
+  hPercSeedKintegral->GetXaxis()->SetTitle("percentage");
+  
   
   TH1D *hClusterChargeS = new TH1D("hClusterChargeS","hClusterChargeS",1000,0,5);
   hClusterChargeS->GetXaxis()->SetTitle("Charge");
@@ -234,8 +247,25 @@ int main(int argc, const char* argv[]) {
     //Skip events with no clusters
     int NClusTot = ev->GetNClusTot();
     hNclus->Fill(NClusTot);
-    if(NClusTot==0){zeroclust++;}
-    if(NClusTot==0) continue;
+    if(NClusTot==0){
+
+      for(int chan=0; chan<640; chan++){
+	//cout << ev->GetCN_PosNum(0,(int)chan/64,0) << endl;
+	double fluctS=ev->GetRawSignal_PosNum(0,chan,0)-ev->GetCalPed_PosNum(0,chan,0)-ev->GetCN_PosNum(0,(int)chan/64,0);
+	hfluctS->Fill(fluctS);
+      }
+
+      for(int chan=640; chan<1024; chan++){
+	
+	//cout << ev->GetCN_PosNum(0,(int)chan/64,0) << endl;
+	double fluctK=ev->GetRawSignal_PosNum(0,chan,0)-ev->GetCalPed_PosNum(0,chan,0)-ev->GetCN_PosNum(0,(int)chan/64,0);
+	hfluctK->Fill(fluctK);
+      }
+      
+      
+	zeroclust++;}
+      if(NClusTot==0) continue;
+    
     
     int clusOnS = 0;
     int clusOnK = 0;
@@ -243,7 +273,10 @@ int main(int argc, const char* argv[]) {
 
     //Calculate number of clusters on each side
     for(int i = 0; i<NClusTot; i++){
-      cl = ev->GetCluster(i);                                                                                                     int ladder = cl->ladder;
+      cl = ev->GetCluster(i);                                                                                                     int ladder= cl->ladder;
+
+      if(ladder != 12) continue;
+
       int side = cl->side;
       if(side==0){ 
 	clusOnS++;}
@@ -255,8 +288,8 @@ int main(int argc, const char* argv[]) {
 
 
     //Skip events with more than 1 cluster on either side
-    if(clusOnS != 1 || clusOnK != 1) continue;
-    if(clusOnS != clusOnK) continue;
+    //    if(clusOnS != 1 || clusOnK != 1) continue;
+    //    if(clusOnS != clusOnK) continue;
    
 
     //Signal Correlation
@@ -375,12 +408,14 @@ int main(int argc, const char* argv[]) {
 	hADCvsEtaK->Fill(eta,clusADC);
       }
     }
-    }    
+    }
   }
   
   sw.Stop();
   sw.Print();
- 
+
+  hfluctS->Write();
+  hfluctK->Write();
   hNstrip->Write();
   hEnergyClusterS->Write();
   hEnergyClusterSeedS->Write();
@@ -425,9 +460,23 @@ int main(int argc, const char* argv[]) {
   
   hNStripvsSNs->Write();
   hNStripvsSNk->Write();
-
+    
   hPercentageSeedS->Write();
   hPercentageSeedK->Write();
+
+  Float_t sumS = 0;
+  Float_t sumK = 0;
+  for (Int_t i=1;i<=200;i++) {
+    sumS += hPercentageSeedS->GetBinContent(i);
+    sumK += hPercentageSeedK->GetBinContent(i);
+    hPercSeedSintegral->SetBinContent(i,sumS);
+    hPercSeedKintegral->SetBinContent(i,sumK);
+  }
+  
+
+  
+  hPercSeedSintegral->Write();
+  hPercSeedKintegral->Write();
 
   //foutput->Write();
   foutput->Close();

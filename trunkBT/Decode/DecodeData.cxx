@@ -804,7 +804,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
     double CN[nvas];
     
     for (int va=0; va<nvas; va++) {
-      CN[va] = ComputeCN(nchava, &(array[va*nchava]), &(pede[va*nchava]), &(arraySoN[va*nchava]));
+      CN[va] = Event::ComputeCN(nchava, &(array[va*nchava]), &(pede[va*nchava]), &(arraySoN[va*nchava]));
       //      printf("%d) %f\n", va, CN[va]);
       //      headerstringtodump += Form("CN[%d] = %f\n", va, CN[va]);
     }
@@ -923,6 +923,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
   return;
 }
 
+/*
 double DecodeData::ComputeCN(int size, short int* RawSignal, float* pede, float* RawSoN, double threshold){
 
   double mean=0.0;
@@ -944,7 +945,7 @@ double DecodeData::ComputeCN(int size, short int* RawSignal, float* pede, float*
   //  printf("    CN = %f\n", mean);
 
   return mean;
-}
+}*/
 
 //=============================================================================================
 
