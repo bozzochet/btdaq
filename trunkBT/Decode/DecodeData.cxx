@@ -49,7 +49,7 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
 	sprintf(rawname, "%s/%06d_ANC_%d.dat", ifname, runn, ii);
 	if (file_exists(rawname)) break;
       }
-    }
+   }
   }
   sprintf(rawdir,"%s",ifname);
   sprintf(rawCaldir,"%s",caldir);
@@ -805,6 +805,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
     
     for (int va=0; va<nvas; va++) {
       CN[va] = Event::ComputeCN(nchava, &(array[va*nchava]), &(pede[va*nchava]), &(arraySoN[va*nchava]));
+      //      CN[va] = ComputeCN(nchava, &(array[va*nchava]), &(pede[va*nchava]), &(arraySoN[va*nchava]));
       //      printf("%d) %f\n", va, CN[va]);
       //      headerstringtodump += Form("CN[%d] = %f\n", va, CN[va]);
     }

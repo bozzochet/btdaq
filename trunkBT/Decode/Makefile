@@ -12,18 +12,19 @@ LIB_OBJ=$(LIB_SOURCES:%.cxx=obj/%.o)
 
 ANYOPTION=AnyOption
 
+ROOTINC = $(shell root-config --incdir)
 ROOTDYNAMICLIBS := $(shell root-config --libs) -lMinuit
 
-ROOTINC := $(shell root-config --incdir)
-
-CFLAGS= -O -std=c++11 -g -fPIC
-DEFINES=
+#CFLAGS= -O -std=c++11 -g -fPIC
+CFLAGS = $(shell root-config --cflags) -g -fPIC
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 	SOFLAGS = -dynamic -shared -dynamiclib -undefined dynamic_lookup
+        CFLAGSFORCINT=$(subst -stdlib=libc++ -std=c++11,,$(CFLAGS))	
 else
         SOFLAGS = -shared
+        CFLAGSFORCINT=$(CFLAGS)
 endif
 
 all: Decode lib
@@ -31,25 +32,25 @@ all: Decode lib
 lib: libEvent.so libEventa.a
 
 libEvent.so:$(LIB_OBJ)
-	$(CXX) $(CFLAGS) $(DEFINES) $(SOFLAGS) -o $@ $^ 
+	$(CXX) $(CFLAGS) $(SOFLAGS) -o $@ $^ 
 
 libEventa.a:$(LIB_OBJ)
 	ar rv $@ $^ 
 
 Decode: $(ANYOPTION)/anyoption.o $(DEC_OBJ)
-	$(CXX) $(CFLAGS) -o$@ $^ -I$(ROOTINC) -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
+	$(CXX) $(CFLAGS) -o$@ $^ -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
 
 obj/%.o:%.cxx 
 	@echo Compiling $< ...; 
 	@ if ! [ -d ./obj ] ; then  mkdir -p obj; fi
-	@$(CXX) $(CFLAGS) $(DEFINES) -c -Wall -Wno-overloaded-virtual $< -o$@  -I$(ROOTINC) -I$(ANYOPTION)
+	@$(CXX) $(CFLAGS) -c -Wall -Wno-overloaded-virtual $< -o$@ -I$(ROOTINC) -I$(ANYOPTION)
 
 $(ANYOPTION)/anyoption.o :
 	make -C $(ANYOPTION)
 
 rootElibdict.cxx: $(CLASSES) LinkDef.h
 	@echo Creating ROOT dictionary
-	rootcint -f $@  -c -p $(CFLAGS) $(DEFINES) $^
+	rootcint -f $@ -c -p $(CFLAGSFORCINT) $^
 
 clean:
 	@rm -Rfv libEventa.a libEvent.so Decode rootElibdict.cxx rootElibdict.h obj
