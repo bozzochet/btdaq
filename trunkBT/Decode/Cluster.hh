@@ -9,18 +9,18 @@
 
 //110mum and 208mum
 #define SPITCH 0.110
-#define KPITCH 0.104
+#define KPITCH 0.208
 
 //10mum and 30mum
 #define SRESO 0.010
-#define KRESO 0.015
+#define KRESO 0.030
 
 //640 and 384 channels
 #define SCHANN 640
 #define KCHANN 384
 
-#define KREADCHANN 384
-#define KSENSPITCH 20.7
+#define KREADCHANN 192
+#define KSENSPITCH 41.40
 
 // 715 + 40 + 715 = 1470μm - this is the gap between two sensor on S
 // (the strip conceptually is just one but is the particle passes in this gap is not detected, both on K but also on S)

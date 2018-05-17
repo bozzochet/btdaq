@@ -1084,7 +1084,7 @@ double Event::GetCN_PosNum(int tdrnum, int va, int Jinfnum){
     arraySoN[chan]=RawSoN[tdrnum][chan];
     pede[chan]=CalPed[tdrnum][chan];
   }
-  
+
   return ComputeCN(64, &(array[va*64]), &(pede[va*64]), &(arraySoN[va*64]));
 }
 
@@ -1117,12 +1117,11 @@ float Event::GetRawSoN(RHClass* rh, int tdrnum, int channel, int Jinfnum) {
   return GetRawSoN_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
-
 double Event::ComputeCN(int size, short int* RawSignal, float* pede, float* RawSoN, double threshold){
-
+  
   double mean=0.0;
   int n=0;
-
+  
   for (int ii=0; ii<size; ii++) {
     if (RawSoN[ii]<threshold) {//to avoid real signal...
       n++;
@@ -1137,11 +1136,9 @@ double Event::ComputeCN(int size, short int* RawSignal, float* pede, float* RawS
     mean = ComputeCN(size, RawSignal, pede, RawSoN, threshold+1.0);
   }
   //  printf("    CN = %f\n", mean);
-
+  
   return mean;
 }
-
-
 
 //-------------------------------------------------------------------------------------
 

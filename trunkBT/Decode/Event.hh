@@ -9,6 +9,8 @@
 #define NJINF 1
 #define NVAS  16
 
+typedef short int shortint;
+
 //!  Tracker Event class. 
 /*!  Tracker Event class contains all the information about a Event
  */
@@ -38,7 +40,7 @@ public:
   static int GetVAS() { return NVAS;};
   static int GetNTDRS() { return NTDRS;};
   static int GetNJINFS() { return NJINF;};  
-  static double ComputeCN(int size, short int* Signal, float* pede, float* SoN, double threshold=3.0);
+  static double ComputeCN(int size, shortint * RawSignal, float* pede, float* RawSoN, double threshold=3.0);
   
   //  int NGoldenClus(int lad, int side);
   //! Load Alignment parameter from an ASCII file 
