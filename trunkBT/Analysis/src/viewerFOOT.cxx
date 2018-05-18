@@ -35,12 +35,12 @@ int main(int argc, char* argv[]) {
   
   if (argc<3) {
     printf("Usage:\n");
-    printf("%s <tdrposnum> <event to display> <first input root-filename> [second input root-filename] ...\n", argv[0]);
+    printf("%s <tdrposnum> <event(s) to display> <0: single event, 1: cumulate event> <first input root-filename> [second input root-filename] ...\n", argv[0]);
     return 1;
   }
 
 
-  string tempname = argv[3];
+  string tempname = argv[4];
   int pos1 = tempname.find("run_");
   int pos2 = tempname.find(".root");
   string firstfile = tempname.substr(pos1,pos2-pos1);
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
   
   TChain *chain = new TChain("t4");
      
-  for (int ii=3; ii<argc; ii++) {
+  for (int ii=4; ii<argc; ii++) {
     printf("Adding file %s to the chain...\n", argv[ii]);
     chain->Add(argv[ii]);
   }
@@ -93,37 +93,46 @@ int main(int argc, char* argv[]) {
   sw.Start();
 
   double perc=0;
+  int maxadc=-999;
+  int minadc=0;
 
+  TCanvas *c2 = new TCanvas("c2", "c2", 1920, 1080);
+
+  
+  for(int evt=0; evt < atoi(argv[2]); evt++)
   {
-    gr_event->Set(0);
+    //    gr_event->Set(0);
 
-    chain->GetEntry(atoi(argv[2]));
+    if(atoi(argv[3])==0){
+      chain->GetEntry(atoi(argv[2]));
+      evt=atoi(argv[2]);
+    } else{
+      chain->GetEntry(evt);
+    }
     
-    int maxadc = -999;
-    int minadc = 0;
     bool isevent= true;
     
     for(int chan=0; chan< 1024; chan++){
       double testADC=ev->GetRawSignal_PosNum(atoi(argv[1]),chan,0);
       double calADC=ev->GetCalPed_PosNum(atoi(argv[1]),chan,0);
-      double test=testADC-calADC;
+      double cnADC=ev->GetCN_PosNum(atoi(argv[1]),(int)chan/64,0);
+      double test=testADC-calADC-cnADC;
 
       if(test > maxadc) maxadc=test;
       if(test < minadc) minadc=test;
-
+      //if(test > 20){isevent=true;}else{isevent=false;}
       gr_event->SetPoint(gr_event->GetN(),chan, test);
     }
 
     if(isevent){
-    TCanvas *c2 = new TCanvas("c2", "c2", 1920, 1080);
+      
     TH1F *frame = gPad->DrawFrame(0, minadc-20,1024,maxadc+20);
-
-    frame->SetTitle("Event "+TString::Format("%02d",(int)atoi(argv[2])));
+    frame->SetTitle("Number of events: "+TString::Format("%02d",(int)atoi(argv[2])));
     frame->GetXaxis()->SetNdivisions(-16);
     frame->GetXaxis()->SetTitle("Strip number");
     gr_event->SetMarkerSize(0.5);
-    gr_event->Draw("*l");
-   
+    gr_event->Draw("*lSAME");
+	 
     TLine *line = new TLine(64,minadc-20,64,maxadc+20);
     line->SetLineColor(kRed);
     line->Draw();
@@ -169,12 +178,11 @@ int main(int argc, char* argv[]) {
     TLine *line14 = new TLine(960,minadc-20,960,maxadc+20);
     line14->SetLineColor(kRed);
     line14->Draw();
-
+    }
+  }
     c2->Draw();
     c2->Write();
     c2->SaveAs("Viewer/"+firstfile+"_frame_"+TString::Format("%09d",(int)atoi(argv[2]))+".png");
-    }
-}
       
   sw.Stop(); 
   sw.Print();  
