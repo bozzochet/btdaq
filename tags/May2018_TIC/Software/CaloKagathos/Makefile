@@ -22,20 +22,20 @@ DECODE =$(AMSDIR)/Decode/
 COMMON =$(AMSDIR)/CommonTool/
 DECODELIBS = -Wl,-rpath,$(DECODE) -L$(DECODE) -lEvent
 
-all: iofile_alone iofile acquire_calocube analyze_alone analyze draw_alone draw viewer test link
+all: iofile_alone iofile analyze_alone analyze draw_alone draw viewer test link
 
 bin/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) -I$(INC) $(DEFFLAGS) $(ROOTFLAGS) -c -o $@ $<
 
 iofile_alone: $(INC)/IOfile.h $(INC)/IOfile.cc
 	$(CXX) -c $(INC)/IOfile.cc -o $(BIN)/IOfile_alone.o $(DEFFLAGS) $(ROOTFLAGS) -g -Wall
-	
+
 iofile: $(INC)/IOfile.h $(INC)/IOfile.cc
 	$(CXX) -c $(INC)/IOfile.cc -o $(BIN)/IOfile.o $(DEFFLAGS) -DAMS $(ROOTFLAGS) -g -Wall
 
 acquire_calocube: $(SRC)/acquire_calocube.cpp	
 	$(CXX) $(SRC)/acquire_calocube.cpp -o $(BIN)/$(ACQUIRE_CC) -I$(INC) $(DEFFLAGS) $(QUSBFLAGS) -g -Wall -lrt
-		
+
 analyze_alone: $(SRC)/analyze.cpp $(BIN)/IOfile_alone.o
 	$(CXX) $(SRC)/analyze.cpp -o $(BIN)/$(ANALYZE_ALONE) $(BIN)/IOfile_alone.o -I$(INC) $(DEFFLAGS) $(ROOTFLAGS) -g -Wall
 
@@ -63,7 +63,7 @@ link:
 	ln -sf $(BIN)/$(DRAW) $(DRAW)
 	ln -sf $(BIN)/$(VIEWER) $(VIEWER)			
 	ln -sf $(BIN)/$(TEST) $(TEST)			
-	
+
 clean:
 	@rm -f *.o *~ $(ACQUIRE_CC) $(ANALYZE_ALONE) $(ANALYZE) $(DRAW) $(DRAW_ALONE) $(VIEWER) $(TEST)
 	@rm -f $(BIN)/$(ACQUIRE_CC) $(BIN)/$(ANALYZE_ALONE) $(BIN)/$(ANALYZE) $(BIN)/$(DRAW) $(BIN)/$(DRAW_ALONE) $(BIN)/$(VIEWER) $(BIN)/$(TEST) $(BIN)/IOfile_alone.o $(BIN)/IOfile.o
