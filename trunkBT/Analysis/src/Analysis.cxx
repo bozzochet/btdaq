@@ -138,10 +138,10 @@ int main(int argc, char* argv[]) {
   TStopwatch sw;
   sw.Start();
 
-  double perc=0;
+  int perc=0;
   
   for (int index_event=0; index_event<entries; index_event++) {
-    Double_t pperc=1000.0*((index_event+1.0)/entries);
+    Double_t pperc=100.0*((index_event+1.0)/entries);
     if (pperc>=perc) {
       printf("Processed %d out of %lld: %d%%\n", (index_event+1), entries, (int)(100.0*(index_event+1.0)/entries));
       perc++;
@@ -163,7 +163,7 @@ int main(int argc, char* argv[]) {
     if (!cleanevent) continue;
     cleanevs++;//in this way this number is giving the "complete reasonable sample"
     
-    bool preselevent = CleanEvent(ev, GetRH(chain), 4, 50, 3, 3, 0, 0);
+    bool preselevent = CleanEvent(ev, GetRH(chain), 6, 50, 3, 3, 0, 0);
     if (!preselevent) continue;
     preselevs++;
     
@@ -174,19 +174,27 @@ int main(int argc, char* argv[]) {
 
     //at least 4 points on S, and 4 points on K, not verbose
     // ev->FindTrackAndFit(4, 4, false);
-    bool trackfitok = ev->FindTrackAndFit(3, 3, false);
+    
+    bool trackfitok = ev->FindTrackAndFit(4, 4, false);
     //    printf("%d\n", trackfitok);
     if (trackfitok) {
       //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
       //(but only if removing them still we'll have more or equal than 3 hits on S and 3 (2 if 'HigherCharge') hits on K)
       //and perform the fit again
       // ev->RefineTrack(6.0, 3, 6.0, 3);
-      ev->RefineTrack(999999.0, 2, 999999.0, 2);
+
+      int minSclus=3;
+      int minKclus=3;
+      for (int ii=0; ii<_maxtdr-std::min(minSclus, minKclus); ii++) {
+	ev->RefineTrack(6.0, minSclus, 6.0, minKclus);
+      }
     }
     else {
       //let's downscale to 2 (on S) and 2 (on K) hits but even in this no-chisq case
       //let's garantee a certain relaiability of the track fitting the one with the higher charge (this method can be used also for ions)
-      //and requiring an higher S/N for the cluster
+      //and requiring an higher S/N (>5.0) for the cluster
+      // trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
+
       trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
     }
     if (!trackfitok) continue;
@@ -201,7 +209,7 @@ int main(int argc, char* argv[]) {
     // if (ev->GetTrackHitPattern(1) <                100010001) continue;
 
     double logchi = log10(ev->GetChiTrack());
-    if (logchi>2) continue;
+    //    if (logchi>2) continue;
     goodtracks++;
     
     bool strackok = false;

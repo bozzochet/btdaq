@@ -23,6 +23,7 @@
 
 /* from the CommonTool dir */
 #include "TrackSelection.hh"
+#include "Utilities.hh"
 /* end */
 
 //#define PRINTDEBUG printf("%s) This is the line number %d\n", __FILE__, __LINE__);
@@ -291,10 +292,18 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   PRINTDEBUG;
 
   int cleanevs=0;
+  int preselevs=0;
   int goodtracks=0;
+
+  int perc=0;
   
   //  for (int index_event=14; index_event<15; index_event++) {
   for (int index_event=0; index_event<entries; index_event++) {
+    Double_t pperc=100.0*((index_event+1.0)/entries);
+    if (pperc>=perc) {
+      printf("Processed %d out of %lld: %d%%\n", (index_event+1), entries, (int)(100.0*(index_event+1.0)/entries));
+      perc+=10;
+    }
     //    printf("----- new event %d\n", index_event);
     PRINTDEBUG;
     chain->GetEntry(index_event);
@@ -304,14 +313,20 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     int NClusTot = ev->GetNClusTot();
     //    printf("\t\tnclusters = %d\n", NClusTot);
     PRINTDEBUG;
-    
+
     //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
     //and at most 50 (to avoid too much noise around and too much combinatorial)
     //at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
-    bool cleanevent = CleanEvent(ev, rh, 4, 50, 6, 6, 0, 0);
+    // CleanEvent(ev, GetRH(chain), 4, 50, 6, 6, 0, 0);
+
+    bool cleanevent = CleanEvent(ev, GetRH(chain), 6, 9999, 9999, 9999, 9999, 9999);
     if (!cleanevent) continue;
-    cleanevs++;
-        
+    cleanevs++;//in this way this number is giving the "complete reasonable sample"
+
+    bool preselevent = CleanEvent(ev, GetRH(chain), 6, 30, 2, 2, 2, 2);
+    if (!preselevent) continue;
+    preselevs++;
+    
     PRINTDEBUG;
     
     std::vector<double> v_cog_laddS[NJINF*NTDRS];
@@ -321,20 +336,26 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 
     PRINTDEBUG;
 
-    //at least 3 points on S, and 3 points on K, not verbose
+    //at least 4 points on S, and 4 points on K, not verbose
+    // ev->FindTrackAndFit(4, 4, false);
+    
     bool trackfitok = ev->FindTrackAndFit(3, 3, false);
     //    printf("%d\n", trackfitok);
+    /* we do not need to "recover" efficiency during alignment
     if (trackfitok) {
       //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
-      //(but only if removing them still we'll have more or equal than 3 (2 if 'HigherCharge') hits on S and 3 (2 if 'HigherCharge') hits on K)
+      //(but only if removing them still we'll have more or equal than 3 hits on S and 3 (2 if 'HigherCharge') hits on K)
       //and perform the fit again
+      // ev->RefineTrack(6.0, 3, 6.0, 3);
+
       ev->RefineTrack(6.0, 2, 6.0, 2);
     }
-    /* better to waste these 2 hits events...
     else {
       //let's downscale to 2 (on S) and 2 (on K) hits but even in this no-chisq case
       //let's garantee a certain relaiability of the track fitting the one with the higher charge (this method can be used also for ions)
-      //and requiring an higher S/N for the cluster
+      //and requiring an higher S/N (>5.0) for the cluster
+      // trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
+
       trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
     }
     */
@@ -509,8 +530,9 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   }
 
   printf("This run has %lld entries\n", entries);
-  printf("    --> %d clean events\n", cleanevs);
-  printf("    --> %d good tracks\n", goodtracks);
+  printf("    --> %d       clean events\n", cleanevs);
+  printf("    --> %d preselected events\n", preselevs);
+  printf("    --> %d        good tracks\n", goodtracks);
     
   PRINTDEBUG;
 

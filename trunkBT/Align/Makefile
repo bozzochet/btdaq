@@ -39,8 +39,8 @@ INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE) -I$(
 
 default: Align
 
-Align: ./obj/Align.o $(COMMON)/obj/TrackSelection.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(DECODELIBS) -o$@
+Align: ./obj/Align.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
 	ln -sfv Align RunOnce
 	ln -sfv Align FirstStepAlign
 
