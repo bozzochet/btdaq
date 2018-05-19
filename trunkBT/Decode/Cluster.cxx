@@ -65,7 +65,7 @@ void Cluster::Clear(){
   length=0;
   memset(Signal,0,MAXLENGHT*sizeof(Signal[0]));
   memset(Noise,0,MAXLENGHT*sizeof(Noise[0]));
-  memset(Status,0,MAXLENGHT*sizeof(Status[0])); 
+  memset(Status,0,MAXLENGHT*sizeof(Status[0]));
   memset(SignalVAEqualized,0,MAXLENGHT*sizeof(SignalVAEqualized[0]));
   memset(NoiseVAEqualized,0,MAXLENGHT*sizeof(NoiseVAEqualized[0]));
   bad=0;
@@ -128,7 +128,7 @@ int Cluster::GetLenght(float val){
   for (int ii=se+1;ii<length;ii++)
     if(GetCSignal(ii)/Noise[ii]>val) myle++;
     else break;
-  return myle;  
+  return myle;
 }
 
 
@@ -206,11 +206,30 @@ float Cluster::GetCoG(){
 
 int Cluster::GetVA(int strip_address){
   int vanum=0;
-  
+
   vanum=strip_address/64;
 
-  return vanum; 
+  return vanum;
 }
+
+double Cluster::GetPitch(int side){
+  return GetPitch(GetJinf(), GetTDR(), side);
+};
+
+double Cluster::GetNominalResolution(int side){
+  return GetNominalResolution(GetJinf(), GetTDR(), side);
+};
+
+double Cluster::GetPitch(int jinfnum, int tdrnum, int side){
+  // printf("Called Cluster::GetPitch(%d, %d, %d) = %lf\n", jinfnum, tdrnum, side, Event::GetLadderConf()->GetPitch(jinfnum, tdrnum, side));
+  return Event::GetLadderConf()->GetPitch(jinfnum, tdrnum, side);
+};
+
+double Cluster::GetNominalResolution(int jinfnum, int tdrnum, int side){
+  // printf("Called Cluster::GetNominalResolution(%d, %d, %d) = %lf\n", jinfnum, tdrnum, side, Event::GetLadderConf()->GetResolution(jinfnum, tdrnum, side));
+  return Event::GetLadderConf()->GetResolution(jinfnum, tdrnum, side);
+};
+
 
 void Cluster::ApplyVAEqualization(){
 
@@ -218,7 +237,9 @@ void Cluster::ApplyVAEqualization(){
   int tdrnum=GetTDR();
   for(int ii=0;ii<length;ii++){
     int vanum=GetVA(address+ii);
-    Signal[ii]=(Signal[ii]+Event::GetGainCorrectionPar(jinfnum,tdrnum,vanum,0))*Event::GetGainCorrectionPar(jinfnum,tdrnum,vanum,1);
+    SignalVAEqualized[ii]=
+      Signal[ii]*Event::GetGainCorrectionPar(jinfnum,tdrnum,vanum,0)
+      *Event::GetGainCorrectionPar(jinfnum,tdrnum,vanum,1);
   }
   return;
 }
@@ -235,17 +256,24 @@ double Cluster::GetAlignedPosition(int mult){
     // The gaps between 0 and 1 and 638 to 639 are doubled
     if(cog2>=0.5) pitchcorr+=1.0;
     if(cog2>=638.5) pitchcorr+=1.0;
+    if( Event::GetLadderConf()->GetStripMirroring(GetJinf(), GetTDR(), side) ){
+      cog2 = 639-cog2; //If the ladder is mirrored, reverse position
+    }
   }
   else {// K (K5; K7 is not implemented)
     cog2 -= GetNChannels(0);//N channels of S --> cog in [0, 383]
     int sensor=(int)((cog2+mult*GetNChannels(1))/GetReadChannelK());//cast to int but essentially is also used as 'floor'
     bool multflip = Event::GetMultiplicityFlip(GetJinf(), GetTDR());
+    // printf("VF: multflip = %d\n", multflip);
     if (multflip && sensor%2) {//if sensor is odd (DISPARO)
       sensor-=2;//move 'back' of two sensors...
     }
     mult_shift = GetSensPitchK()*sensor;
     if(cog2>191.5) cog2-=192.0;//--> cog in [0, 191]
     if (cog2>190.5) pitchcorr = 0.5;//last strip of the sensor is half pitch more far
+    if( Event::GetLadderConf()->GetStripMirroring(GetJinf(), GetTDR(), side) ){
+      cog2 = 383-cog2; //If the ladder is mirrored, reverse position
+    }
   }
   return (cog2+pitchcorr)*GetPitch(side)+mult_shift-align_shift;
 }
