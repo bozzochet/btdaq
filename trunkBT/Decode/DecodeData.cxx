@@ -465,10 +465,12 @@ int DecodeData::ReadOneEvent_data(){
   
   if(out_flag) ev->JINJStatus=status;
   
-  //  if((status&0x400)>0){
-  if((status&0x200)>0||(status&0x400)>0){
+  if((status&0x400)>0){
+  // if((status&0x200)>0||(status&0x400)>0){
+    printf("TEST\n");
     printf("=======================> %s Error!!! Status %hx\n", type, status); 
     if (out_flag) printf("=======================> %s Error!!!  Skip this event: %d\n",type, ev->Evtnum); 
+    printf("TEST\n");
     count=5;
     for (int dase=32;dase<0x8000;dase*=2){
       if((status&dase)>0)
