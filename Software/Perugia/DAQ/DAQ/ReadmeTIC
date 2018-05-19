@@ -19,7 +19,6 @@ where
 === TIME OUT
 
 Inside the code there are three time out:
-	- loop_time_out (in "Calocube.h") is the maximum allowed distance in seconds between two consecutive triggers
 	- diff_time_out (in "Calocube.h") is the maximum allowed distance in milliseconds between AMS and Calocube trigger on the same event
 	- stop_run_time_out (in "takeJinj.cxx") is the maximum allowed distance in seconds between the first and last call of the stop run functioItn
 Note that it is important to check if one of these errors occured grepping the following string in the log file, respectively:
@@ -33,6 +32,8 @@ The value APPLY_TRIGGER must be always 1 except for the "slave" in "TAKEDATA" mo
 Here we define "master" as Calocube+DAMPE (TIC), "slave" as external AMS (tracker).
 Note that "master" and "slave" must have two different directories at least in DAQ.
 *NB*: Otherwise, the two binary outputs are saved in same directory with same name!
+
+IMPORTANT: In latest version we have only one acquisition "master" without "slave".
 
 === AMS/DAMPE RECONSTRUCTION
 
