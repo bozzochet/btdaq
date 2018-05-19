@@ -95,26 +95,27 @@ int Cluster::GetSeedAdd(){
 }
 
 float Cluster::GetCSignal(int aa){
-//  int stadd=address+aa;
-//   int vanum=stadd/64;
-//   float c1= Signal[aa];
-//   float corr=0.;
-//   if(aa>0){
-//     int stadd2=address+aa-1;
-//     int vanum2=stadd2/64;
-//     float c2= Signal[aa-1];
-//     corr=c2*0.;
-//   }
-//   if (side==1) return c1-corr;
-//   else return c1;
 
-float par0=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 0);
-//float par1=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 1);
-//float par2=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 2);
-
-//float correctSignal = (Signal[aa]*par2*(1-par1)+par0*par2);
-float correctSignal = (Signal[aa]+par0);
-
+  //  int stadd=address+aa;
+  //   int vanum=stadd/64;
+  //   float c1= Signal[aa];
+  //   float corr=0.;
+  //   if(aa>0){
+  //     int stadd2=address+aa-1;
+  //     int vanum2=stadd2/64;
+  //     float c2= Signal[aa-1];
+  //     corr=c2*0.;
+  //   }
+  //   if (side==1) return c1-corr;
+  //   else return c1;
+  
+  float par0=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 0);
+  float par1=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 1);
+  //float par2=Event::GetGainCorrectionPar(GetJinf(), GetTDR(), GetVA(aa), 2);//PER ADESSO CE NE SONO SOLO 2!!!
+  
+  //float correctSignal = (Signal[aa]*par2*(1-par1)+par0*par2);
+  float correctSignal = (par1*Signal[aa]+par0);
+  
  return  correctSignal;
 }
 

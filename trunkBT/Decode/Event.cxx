@@ -242,9 +242,8 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG){
   for (int jj=0; jj<NJINF; jj++) {
     for (int tt=0; tt<NTDRS; tt++) {
       for (int vv=0; vv<NVAS; vv++) {
-	for (int cc=0; cc<2; cc++) {
-	  gaincorrectionpar[jj][tt][vv][cc]=-9999.0;
-	}
+	gaincorrectionpar[jj][tt][vv][0]=0.0;
+	gaincorrectionpar[jj][tt][vv][1]=1.0;
       }
     }
   }
@@ -259,12 +258,13 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG){
   FILE* ft = fopen(filename.Data(),"r");
 
   if(ft==NULL){
-    printf("Error: cannot open %s , setting all gain corrections to 1 \n", filename.Data());
+    printf("Error: cannot open %s , setting all gain corrections to default \n", filename.Data());
     for (int jj=0; jj<NJINF; jj++) {
       for (int tt=0; tt<NTDRS; tt++) {
 	for (int vv=0; vv<NVAS; vv++) {
 	  for (int cc=0; cc<2; cc++) {
-	    gaincorrectionpar[jj][tt][vv][cc]=1;
+	    gaincorrectionpar[jj][tt][vv][0]=0.0;
+	    gaincorrectionpar[jj][tt][vv][1]=1.0;
 	  }
 	}
       }
@@ -280,10 +280,12 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG){
 	  sscanf(line, "%d\t%d\t%d\t%f\t%f",
 		 &jinfnum, &tdrnum, &vanum, &dummy, &dummy);
 	  if (jinfnum<NJINF && tdrnum<NTDRS && vanum<NVAS ) {
-	    sscanf(line,"%d \t %d \t %d \t %f \t %f",
+	    sscanf(
+		   line,"%d \t %d \t %d \t %f \t %f",
 		   &jinfnum, &tdrnum, &vanum,
 		   &gaincorrectionpar[jinfnum][tdrnum][vanum][0],
-		   &gaincorrectionpar[jinfnum][tdrnum][vanum][1]);
+		   &gaincorrectionpar[jinfnum][tdrnum][vanum][1]
+		   );
 	  }
 	  else {
 	    printf("Wrong JINF/TDR/VA (%d, %d, %d): maximum is (%d,%d, %d)\n", jinfnum, tdrnum, vanum, NJINF, NTDRS, NVAS);
@@ -293,26 +295,38 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG){
       else {
 	printf(" closing gain correction file \n");
 	fclose(ft);
-	  break;
+	break;
       }
     }
   }
-
+  
   gaincorrectionnotread=false;
-
-  if(DEBUG==false) return;
-
+  
+  //  if(DEBUG==false) return;
+  // per ora (finche' il lavoro non e' finito) utile mostrare la tabellina dei TDR  con valori non di default, perchè NON dovrebbero esserci!
+  bool first=true;
+  bool everdone=false;
   for (int jj=0; jj<NJINF; jj++) {
     for (int tt=0; tt<NTDRS; tt++) {
       for (int vv=0; vv<NVAS; vv++) {
-	for (int cc=0; cc<2; cc++) {
-	  if(gaincorrectionpar[jj][tt][vv][cc] == -9999) continue;
-	  if (cc==0) printf("JINF %02d TDR %02d VA %02d)\t", jj, tt, vv);
-	  printf("%f\t", gaincorrectionpar[jj][tt][vv][cc]);
-	  if (cc==1) 	printf("\n");
+	if (gaincorrectionpar[jj][tt][vv][0] == 0.0 && gaincorrectionpar[jj][tt][vv][1] == 1.0) continue;
+	if (first) {
+	  printf("***************************************\n");
+	  printf("***************************************\n");
+	  printf("Non-default gain correction parameters:\n");
 	}
+	first=false;
+	everdone=true;
+	printf("JINF %02d TDR %02d VA %02d)\t", jj, tt, vv);
+	printf("%f\t", gaincorrectionpar[jj][tt][vv][0]);
+	printf("%f\t", gaincorrectionpar[jj][tt][vv][1]);
+	printf("\n");
       }
     }
+  }
+  if (everdone) {
+    printf("***************************************\n");
+    printf("***************************************\n");
   }
 
   return;
