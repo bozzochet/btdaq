@@ -340,10 +340,10 @@ int DecodeData::SkipOneEvent(int evskip){
   int ret;
   
   if (kMC) {
-    ret = SkipOneEvent_data(evskip);
+    ret = SkipOneEvent_mc(evskip);
   }
   else {
-    ret = SkipOneEvent_mc(evskip);
+    ret = SkipOneEvent_data(evskip);
   }
 
   return ret;
@@ -385,10 +385,10 @@ int DecodeData::ReadOneEvent(){
   int ret;
   
   if (kMC) {
-    ret = ReadOneEvent_data();
+    ret = ReadOneEvent_mc();
   }
   else {
-    ret = ReadOneEvent_mc();
+    ret = ReadOneEvent_data();
   }
 
   return ret;
