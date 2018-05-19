@@ -55,6 +55,8 @@ private:
   int ReadFile(void *ptr, size_t size, size_t nitems, FILE * stream);
   void mysort(int* aa,int nel);
 
+  bool kMC;
+  
 public:
   Event * ev;
   RHClass *rh;
@@ -79,24 +81,39 @@ public:
   void DumpRunHeader();
   
 public:
-  DecodeData( char * ifname,char* caldir,int run,int ancillary);
+  DecodeData(char * ifname, char* caldir, int run, int ancillary, bool _kMC=false);
   ~DecodeData();
-  
-  int SkipOneEvent(int evskip=1);
-  int ReadOneEvent();
-  int ReadOneTDR(int jinf=0);
-  int ReadOneJINF();
+
+  //generic
   void AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float* sig);
   void Clusterize(int numnum, int Jinfnum, calib* cal);
   //moved to Event class
   //  double ComputeCN(int size, short int* Signal, float* pede, float* SoN, double threshold=3.0);
+
   int GetNTDRRaw() { return ntdrRaw;}
   int GetNTDRCmp() { return ntdrCmp;}
   int GetIdTDRRaw(int pos);
   int GetIdTDRCmp(int pos);
   
+  int SkipOneEvent(int evskip=1);
+  int ReadOneEvent();
+
+  void OpenFile(char* ifname, char* caldir, int run, int ancillary);
   void CloseFile();
   int EndOfFile();
+
+  //data
+  void OpenFile_data(char* ifname, char* caldir, int run, int ancillary);
+  int ReadOneEvent_data();
+  int ReadOneTDR(int jinf=0);
+  int ReadOneJINF();
+  int SkipOneEvent_data(int evskip=1);
+  
+  //mc
+  void OpenFile_mc(char* ifname, char* caldir, int run, int ancillary);
+  int ReadOneEvent_mc();
+  int SkipOneEvent_mc(int evskip=1);
+  
   void SetPrintOff(){pri=0;}
   void SetPrintOn(){pri=1;}
   void SetEvPrintOff(){evpri=0;}

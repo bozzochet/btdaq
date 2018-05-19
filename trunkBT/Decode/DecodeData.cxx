@@ -29,36 +29,23 @@ inline bool file_exists(const std::string& name) {
 TString stringtodump;
 
 //=============================================================================================
-DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary){
+DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary, bool _kMC){
+
+  kMC=_kMC;
   
   runn=run;
+
   ntdrRaw=0;
   memset(tdrRaw,-1,NTDRS*sizeof(tdrRaw[0]));
   ntdrCmp=0;
   memset(tdrCmp,-1,NTDRS*sizeof(tdrCmp[0]));
+
   pri=0;
   evpri=0;
+  
   sprintf(type,"Jinf");
-  if (ancillary>=0) {
-    sprintf(rawname, "%s/%06d_ANC_%d.dat", ifname, runn, ancillary);
-  }
-  else {
-    sprintf(rawname, "%s/%06d.dat", ifname, runn);
-    if (!file_exists(rawname)) {
-      for (int ii=0; ii<10000; ii++) {
-	sprintf(rawname, "%s/%06d_ANC_%d.dat", ifname, runn, ii);
-	if (file_exists(rawname)) break;
-      }
-   }
-  }
-  sprintf(rawdir,"%s",ifname);
-  sprintf(rawCaldir,"%s",caldir);
 
-  rawfile = fopen(rawname,"r");
-  if (rawfile == NULL) {
-    printf ("Error file %s not found \n", rawname);
-    exit(2);
-  }
+  OpenFile(ifname, caldir, run, ancillary);
   
   tdroffset=0;
   evenum=0;
@@ -207,6 +194,7 @@ DecodeData::~DecodeData(){
 
   return;
 }
+
 //=============================================================================================
 
 int DecodeData::FindPos(int tdrnum){
@@ -235,37 +223,84 @@ int DecodeData::FindPosRaw(int tdrnum){
 
 int DecodeData::FindCalPos(int tdrnum){
 
-	for (int ii=0;ii<ntdrCmp;ii++)
-		if(tdrCmp[ii]==tdrnum)  return ii;
-	printf("DecodeData::FindCalPos:  Fatal Error can't find postion for TDR %d\n",tdrnum);
-	exit(4);
+  for (int ii=0;ii<ntdrCmp;ii++)
+    if(tdrCmp[ii]==tdrnum)  return ii;
+  printf("DecodeData::FindCalPos:  Fatal Error can't find postion for TDR %d\n",tdrnum);
+  exit(4);
 }
 //=============================================================================================
 
+void DecodeData::OpenFile(char* ifname, char* caldir, int run, int ancillary){
+  
+  if (kMC) {
+    OpenFile_mc(ifname, caldir, run, ancillary);
+  }
+  else {
+    OpenFile_data(ifname, caldir, run, ancillary);
+  }
+  
+  sprintf(rawdir,"%s",ifname);
+  sprintf(rawCaldir,"%s",caldir);
+  
+  rawfile = fopen(rawname,"r");
+  if (rawfile == NULL) {
+    printf ("Error file %s not found \n", rawname);
+    exit(2);
+  }
+
+  return;
+}
+
+void DecodeData::OpenFile_data(char* ifname, char* caldir, int run, int ancillary){
+  
+  if (ancillary>=0) {
+    sprintf(rawname, "%s/%06d_ANC_%d.dat", ifname, runn, ancillary);
+  }
+  else {
+    sprintf(rawname, "%s/%06d.dat", ifname, runn);
+    if (!file_exists(rawname)) {
+      for (int ii=0; ii<10000; ii++) {
+	sprintf(rawname, "%s/%06d_ANC_%d.dat", ifname, runn, ii);
+	if (file_exists(rawname)) break;
+      }
+    }
+  }
+  
+  return;
+}
+
+void DecodeData::OpenFile_mc(char* ifname, char* caldir, int run, int ancillary){
+  
+  //to be implemented
+  
+  return;
+}
 
 void DecodeData::CloseFile(){
-	if(rawfile) fclose(rawfile);
-	rawfile=NULL;
-	return;
+
+  if(rawfile) fclose(rawfile);
+  rawfile=NULL;
+  
+  return;
 }
-//=============================================================================================
 
 int DecodeData::EndOfFile(){
-	int eff=0;
-	unsigned short int dummy;
-
-	if(rawfile) {
-		dummy=0;//without the declaration of this variable it's not working (not finding the end of the file!!!!!)
-		eff= feof(rawfile);
-		if (eff) printf("EndOfFile: end of file !\n" ); 
-		if (pri) printf("End of file? -> %d\n", eff);
-	}
-	else {
-		printf("Error file pointer is NULL \n");
-		exit(3);
-	}
-
-	return eff;
+  
+  int eff=0;
+  unsigned short int dummy;
+  
+  if(rawfile) {
+    dummy=0;//without the declaration of this variable it's not working (not finding the end of the file!!!!!)
+    eff= feof(rawfile);
+    if (eff) printf("EndOfFile: end of file !\n" ); 
+    if (pri) printf("End of file? -> %d\n", eff);
+  }
+  else {
+    printf("Error file pointer is NULL \n");
+    exit(3);
+  }
+  
+  return eff;
 }
 
 //=============================================================================================
@@ -301,28 +336,65 @@ void DecodeData::DumpRunHeader(){
 //=============================================================================================
 
 int DecodeData::SkipOneEvent(int evskip){
-	unsigned short int size;
-	unsigned short int junk;
 
-	printf (" Run %d SKIPPING %d events on DAQ %s\n",runn,evskip,type);
-	for (int kk=0;kk<evskip;kk++){
-		//Read The Event Size
-		if(pri) printf("pos:%ld  ",ftell(rawfile)/2);
-		ReadFile(&size,sizeof(size),1,rawfile);
+  int ret;
+  
+  if (kMC) {
+    ret = SkipOneEvent_data(evskip);
+  }
+  else {
+    ret = SkipOneEvent_mc(evskip);
+  }
 
-		if(pri) printf("%s size    %d \n",type,size);
-		for (int ii=0;ii<size;ii++)  {
-			ReadFile(&junk,sizeof(junk),1,rawfile);
-			if(pri)printf("%d:  %d\n",ii, junk);
-			//printf("pos:%ld  ",ftell(rawfile)/2);
-		}
-	}
-	return 0;
+  return ret;
+}
+
+int DecodeData::SkipOneEvent_data(int evskip){
+  
+  unsigned short int size;
+  unsigned short int junk;
+  
+  printf (" Run %d SKIPPING %d events on DAQ %s\n",runn,evskip,type);
+  for (int kk=0;kk<evskip;kk++){
+    //Read The Event Size
+    if(pri) printf("pos:%ld  ",ftell(rawfile)/2);
+    ReadFile(&size,sizeof(size),1,rawfile);
+    
+    if(pri) printf("%s size    %d \n",type,size);
+    for (int ii=0;ii<size;ii++)  {
+      ReadFile(&junk,sizeof(junk),1,rawfile);
+      if(pri)printf("%d:  %d\n",ii, junk);
+      //printf("pos:%ld  ",ftell(rawfile)/2);
+    }
+  }
+  
+  return 0;
+}
+
+int DecodeData::SkipOneEvent_mc(int evskip){
+
+  //TO BE IMPLEMENTED
+  
+  return 0;
 }
 
 //=============================================================================================
 
 int DecodeData::ReadOneEvent(){
+
+  int ret;
+  
+  if (kMC) {
+    ret = ReadOneEvent_data();
+  }
+  else {
+    ret = ReadOneEvent_mc();
+  }
+
+  return ret;
+}
+
+int DecodeData::ReadOneEvent_data(){
 
   unsigned short int size;
   unsigned int tdrnoeventmask;//two words before status
@@ -475,10 +547,17 @@ int DecodeData::ReadOneEvent(){
   fstat=ReadFile(&status,sizeof(status),1,rawfile);
   if (fstat==-1) return 1;
   
-  if(pri||evpri) printf("%s status: %d\n",type,status); 
+  if(pri||evpri) printf("%s status: %d\n",type,status);
+  
   return 0;
 }
 
+int DecodeData::ReadOneEvent_mc(){
+
+  //TO BE IMPLEMENTED
+  
+  return 0;
+}
 
 //=============================================================================================
 
