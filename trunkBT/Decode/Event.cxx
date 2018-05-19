@@ -719,8 +719,8 @@ double Event::SingleFit(
   v_trackS_sf = vS;
   v_trackK_sf = vK;
 
-  for(int ic=0; ic<vS.size(); ic++) v_trackErrS_sf.push_back( GetCluster(vS.at(ic).first)->GetNominalResolution(0) );
-  for(int ic=0; ic<vK.size(); ic++) v_trackErrK_sf.push_back( GetCluster(vK.at(ic).first)->GetNominalResolution(1) );
+  for(int ic=0; ic<(int)vS.size(); ic++) v_trackErrS_sf.push_back( GetCluster(vS.at(ic).first)->GetNominalResolution(0) );
+  for(int ic=0; ic<(int)vK.size(); ic++) v_trackErrK_sf.push_back( GetCluster(vK.at(ic).first)->GetNominalResolution(1) );
 
   Double_t corrXmX, corrYmY;
 
