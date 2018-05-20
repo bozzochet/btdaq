@@ -162,7 +162,7 @@ int Event::NGoldenClus(int lad, int side){
 
 void Event::ReadLadderConf(TString filename, bool DEBUG){
 
-  printf("Reading alignment from %s:\n", filename.Data());
+  printf("Reading ladder configuration from %s:\n", filename.Data());
 
   if( !ladderconf ) ladderconf = new LadderConf();
   ladderconf->Init( filename, DEBUG );

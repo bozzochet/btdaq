@@ -65,13 +65,18 @@ int main(int argc,char** argv){
   opt->addUsage(Form("  --caldata <path/to/dir/with/cal> ............ Directory with cal data (%s is the default)", DirCal));
   opt->addUsage(Form("  --rootdata <path/to/dir/for/root> ........... Directory where to put ROOT file (%s is the default)", DirRoot));
   opt->addUsage(     "  -c, --clusterize ............................ To perform an offline clusterization to the RAW event");
+  opt->addUsage(     "                                                    (the bonding type is defined in ladderconf.dat");
+  opt->addUsage(     "                                                     with the same codes as for --cworkaround)");
   opt->addUsage(     "  --shighthreshold <X> ........................ S-side S/N high threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (3.5 is the default)");
   opt->addUsage(     "  --slowthreshold  <X> ........................ S-side S/N low threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (1.0 is the default)");
   opt->addUsage(     "  --khighthreshold <X> ........................ K-side S/N high threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (3.5 is the default)");
   opt->addUsage(     "  --klowthreshold  <X> ........................ K-side S/N low threshold. Used in the offline clusterization if option -c or to fill the plots for the ladders with raw events (1.0 is the default)");
   opt->addUsage(     "  --cworkaround <N> ........................... To choose the workaround clusterization:");
+  opt->addUsage(     "                                                    FOR ALL THE LADDERS, IGNORING THE ONE DEFINED IN ladderconf.dat:");
+  opt->addUsage(     "                                                    (option kept just for interface compatibility and to have the list of codes)");
   opt->addUsage(     "                                                    0 is the standard one (default)");
   opt->addUsage(     "                                                    1 for the Limadou monster. On S-side only even channels are bonded");
+  opt->addUsage(     "                                                    2 for the DAMPE ladders read-out by AMS TDR. Only S-side, [0-191]+[320-511]");
   opt->addUsage(     "  -m, --montecarlo ............................ To decode MonteCarlo simulation files (default is OFF)");
   opt->addUsage("" );
   opt->addUsage("Arguments: " );

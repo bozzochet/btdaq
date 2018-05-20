@@ -9,6 +9,10 @@
 #include "math.h"
 
 struct LadderParams {
+  // HwId is the combination of 2 elements in ladder conf
+  // Ladderconf version 0 has  9 _nelements
+  // Ladderconf version 1 has 10 _nelements
+  const int _nelements = 10;
   int    _HwId;
   double _spitch;
   double _kpitch;
@@ -17,6 +21,7 @@ struct LadderParams {
   bool   _kmultiflip;
   bool   _smirror;
   bool   _kmirror;
+  int    _bondtype;
 
   void Dump(){
     std::cout << "HwID       = " << _HwId << std::endl;
@@ -27,6 +32,7 @@ struct LadderParams {
     std::cout << "kmultiflip = " << _kmultiflip << std::endl;
     std::cout << "smirror    = " << _smirror << std::endl;
     std::cout << "kmirror    = " << _kmirror << std::endl;
+    std::cout << "bondtype   = " << _bondtype << std::endl;
   }
 };
 
@@ -41,6 +47,10 @@ public:
   bool GetStripMirroring(int jinfnum, int tdrnum, int side);
   double GetPitch(int jinfnum, int tdrnum, int side);
   double GetResolution(int jinfnum, int tdrnum, int side);
+  int GetBondingType(int jinfnum, int tdrnum);
+
+  bool IsTDRConfigured(int jinfnum, int tdrnum);
+  bool IsTDRConfigured(int HwId);
 
   void PrintLadderParams(int jinfnum, int tdrnum);
 
