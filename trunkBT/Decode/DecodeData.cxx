@@ -805,22 +805,41 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
 
 void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
 
+  //  printf("numnum = %d\n", numnum);
+
+  int _bondingtype=0;
+  
+  static LadderConf* ladderconf = Event::GetLadderConf();
+  
   static bool printed=false;
   if (!printed) {
     printf("Clustering with:\n");
     printf("    %f %f for S-side\n", shighthreshold, slowthreshold);
     printf("    %f %f for K-side\n", khighthreshold, klowthreshold);
-    printf("    %d workaround\n", cworkaround);
+    if (cworkaround!=0) {
+      printf("    %d as workaround FOR ALL THE LADDERS\n", cworkaround);
+      _bondingtype = cworkaround;
+    }
+    else {
+      for (int jj=0; jj<NJINF; jj++) {
+	for (int tt=0; tt<NTDRS; tt++) {
+	  if (ladderconf->GetBondingType(jj, tt)!=0)
+	    printf("    %d as workaround for JINF=%d, TDR=%d\n", ladderconf->GetBondingType(jj, tt), jj, tt);
+	}
+      }
+    }
     printed=true;
   }
 
+  _bondingtype = ladderconf->GetBondingType(Jinfnum, numnum);
+  
   int tdrnumraw=FindPosRaw(numnum+100*Jinfnum);
   
   int nvasS=10;
   int nvasK= 6;
   int nchavaS=64;
   int nchavaK=64;
-  if (cworkaround==1) {
+  if (_bondingtype==1) {
     nchavaS=32;
   }
 
@@ -849,9 +868,9 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
       highthreshold=shighthreshold;
       lowthreshold=slowthreshold;
       shift=0;
-      if (cworkaround==1) {
+      if (_bondingtype==1) {
 	arraysize=320;
-	for (int cc=0; cc<320; cc++) {
+	for (int cc=0; cc<arraysize; cc++) {
 	  array[cc] = ev->RawSignal[tdrnumraw][cc*2];
 	  arraySoN[cc] = ev->RawSoN[tdrnumraw][cc*2];
 	  pede[cc] = cal->ped[cc*2];
@@ -859,27 +878,51 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
 	  status[cc] = cal->status[cc*2];
 	}
       }
+      else if (_bondingtype==2) {
+	arraysize=384;
+	int halfarraysize=((int)(arraysize/2));
+	int shift=((int)(640/2));
+	for (int cc=0; cc<halfarraysize; cc++) {
+	  //	  printf("%d %d %d\n", cc, cc+halfarraysize, cc+shift);
+	  array[cc] = ev->RawSignal[tdrnumraw][cc];
+	  arraySoN[cc] = ev->RawSoN[tdrnumraw][cc];
+	  pede[cc] = cal->ped[cc];
+	  sigma[cc] = cal->sig[cc];
+	  status[cc] = cal->status[cc];
+	  array[cc+halfarraysize]    = ev->RawSignal[tdrnumraw][cc+shift];
+	  arraySoN[cc+halfarraysize] = ev->RawSoN[tdrnumraw][cc+shift];
+	  pede[cc+halfarraysize]     = cal->ped[cc+shift];
+	  sigma[cc+halfarraysize]    = cal->sig[cc+shift];
+	  status[cc+halfarraysize]   = cal->status[cc+shift];
+	}
+      }
       else {
 	arraysize=640;
-	memcpy(array, ev->RawSignal[tdrnumraw], 640*sizeof(ev->RawSignal[tdrnumraw][0]));
-	memcpy(arraySoN, ev->RawSoN[tdrnumraw], 640*sizeof(ev->RawSoN[tdrnumraw][0]));
-	memcpy(pede, cal->ped, 640*sizeof(cal->ped[0]));
-	memcpy(sigma, cal->sig, 640*sizeof(cal->sig[0]));
-	memcpy(status, cal->status, 640*sizeof(cal->status[0]));
+	memcpy(array, ev->RawSignal[tdrnumraw], arraysize*sizeof(ev->RawSignal[tdrnumraw][0]));
+	memcpy(arraySoN, ev->RawSoN[tdrnumraw], arraysize*sizeof(ev->RawSoN[tdrnumraw][0]));
+	memcpy(pede, cal->ped, arraysize*sizeof(cal->ped[0]));
+	memcpy(sigma, cal->sig, arraysize*sizeof(cal->sig[0]));
+	memcpy(status, cal->status, arraysize*sizeof(cal->status[0]));
       }
     }
     else {
-      nvas=nvasK;
-      nchava=nchavaK;
-      highthreshold=khighthreshold;
-      lowthreshold=klowthreshold;
-      shift=640;
-      arraysize=384;
-      memcpy(array, &(ev->RawSignal[tdrnumraw][640]), 384*sizeof(ev->RawSignal[tdrnumraw][0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
-      memcpy(arraySoN, &(ev->RawSoN[tdrnumraw][640]), 384*sizeof(ev->RawSoN[tdrnumraw][0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
-      memcpy(pede, &(cal->ped[640]), 384*sizeof(cal->ped[0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
-      memcpy(sigma, &(cal->sig[640]), 384*sizeof(cal->sig[0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
-      memcpy(status, &(cal->status[640]), 384*sizeof(cal->sig[0]));//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
+      if (_bondingtype==2) {
+	continue;
+      }
+      else {
+	nvas=nvasK;
+	nchava=nchavaK;
+	highthreshold=khighthreshold;
+	lowthreshold=klowthreshold;
+	shift=640;
+	arraysize=384;
+	//the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
+	memcpy(array, &(ev->RawSignal[tdrnumraw][640]), 384*sizeof(ev->RawSignal[tdrnumraw][0]));
+	memcpy(arraySoN, &(ev->RawSoN[tdrnumraw][640]), 384*sizeof(ev->RawSoN[tdrnumraw][0]));
+	memcpy(pede, &(cal->ped[640]), 384*sizeof(cal->ped[0]));
+	memcpy(sigma, &(cal->sig[640]), 384*sizeof(cal->sig[0]));
+	memcpy(status, &(cal->status[640]), 384*sizeof(cal->sig[0]));
+      }
     }
     
     double CN[nvas];
@@ -985,6 +1028,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
 	  //	  clusterstringtodump += Form("Status[%d] = %d\n", seedaddmax+shift, status[seedaddmax]);
 	  stringtodump = headerstringtodump + clusterstringtodump;
 	  if (!(status[seedaddmax]&(1<<3))) {//if is not a bad cluster
+	    //	    printf("numnum = %d\n", numnum);
 	    AddCluster(numnum, Jinfnum, clusadd+shift, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
 	  }
 	  clusterstringtodump = "--> New cluster\n";
