@@ -12,7 +12,7 @@ struct LadderParams {
   // HwId is the combination of 2 elements in ladder conf
   // Ladderconf version 0 has  9 _nelements
   // Ladderconf version 1 has 10 _nelements
-  const int _nelements = 10;
+  static const int _nelements = 10;
   int    _HwId;
   double _spitch;
   double _kpitch;
