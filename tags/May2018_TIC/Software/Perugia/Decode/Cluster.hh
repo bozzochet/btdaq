@@ -33,7 +33,7 @@
 
 static double MIPSIG[2] = {40.0, 40.0};
 
-//!  Tracker Cluster class. 
+//!  Tracker Cluster class.
 /*!  Tracker Cluser class contains all the information about a Cluster
  */
 
@@ -46,11 +46,11 @@ private:
 
   int GetReadChannelK() { return KREADCHANN; };
   float GetSensPitchK() { return KSENSPITCH; };
-  
+
 public:
   //! Adress of the first strip of the cluster
   int address;
-  //! Nstrips of the clusters 
+  //! Nstrips of the clusters
   int length;
   //! Vector of the cluster signals
   float Signal[MAXLENGHT];
@@ -77,16 +77,20 @@ public:
   // Power bits
   int powbits;
 
-  static double GetPitch(int side){ return (side==0)?SPITCH:KPITCH; };
-  static double GetNominalResolution(int side){ return (side==0)?SRESO:KRESO; };
+  double GetPitch(int side);
+  double GetNominalResolution(int side);
+  static double GetPitch(int jinfnum, int tdrnum, int side);
+  static double GetNominalResolution(int jinfnum, int tdrnum, int side);
+  // static double GetPitch(int side){ return (side==0)?SPITCH:KPITCH; };
+  // static double GetNominalResolution(int side){ return (side==0)?SRESO:KRESO; };
   static int GetNChannels(int side){ return (side==0)?SCHANN:KCHANN; };
-  
+
   //! Get the VA a single strip belongs to from its address
   static int GetVA(int strip_address);
 
   //! std constructor (create an empty cluster)
   Cluster();
-  //! copy constructor 
+  //! copy constructor
   Cluster(Cluster & orig);
   //! std destructor
   virtual  ~Cluster() {};
@@ -98,7 +102,7 @@ public:
   int GetAddress();
     //! Returns the lenght of the cluster
   int   GetLength();
-  //! Returns the position of the seed in the Signal vector 
+  //! Returns the position of the seed in the Signal vector
   int   GetSeed();
   //! Returns the strip number of the seed
   int   GetSeedAdd();
@@ -132,14 +136,14 @@ public:
 
   double GetSeedCharge() { return sqrt(GetSeedVal())/sqrt(MIPSIG[side]); };
   double GetCharge() { return sqrt(GetTotSig())/sqrt(MIPSIG[side]); };
-  
+
   int GoldRegion();
 
   int GetLenght(float val=1.);
 
   int GetTDR() { return ladder%100;};
   int GetJinf() { return (int)(ladder/100);};
-  
+
   ClassDef(Cluster,2)
 };
 
