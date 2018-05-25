@@ -2,14 +2,17 @@
 #define Event_hh
 
 #include "TObject.h"
-#include "TClonesArray.h" 
+#include "TClonesArray.h"
 #include "Cluster.hh"
+
+#include "LadderConf.hh"
 
 #define NTDRS 24
 #define NJINF 1
 #define NVAS  16
 
-//!  Tracker Event class. 
+typedef short int shortint;
+
 /*!  Tracker Event class contains all the information about a Event
  */
 
@@ -18,8 +21,8 @@ class RHClass;
 
 class Event: public TObject{
   friend class DecodeData;
-  
-public:  
+
+public:
   //! Default contructor
   Event();
   //! Default destructor
@@ -27,25 +30,30 @@ public:
 
   //! Clear the event
   void Clear();
- 
+
   //! Add an Cluster to the array
   Cluster* AddCluster(int lad,int side);
   //! Get the Cluster in the postion ii of the array
   Cluster* GetCluster(int ii);
 
   inline int GetNClusTot(){ return NClusTot;};
-  
+
   static int GetVAS() { return NVAS;};
   static int GetNTDRS() { return NTDRS;};
-  static int GetNJINFS() { return NJINF;};  
-
+  static int GetNJINFS() { return NJINF;};
+  static double ComputeCN(int size, shortint * RawSignal, float* pede, float* RawSoN, double threshold=3.0);
+  
   //  int NGoldenClus(int lad, int side);
-  //! Load Alignment parameter from an ASCII file 
+  //! Load LadderConf parameter from an ASCII file
+  static void ReadLadderConf(TString filename, bool DEBUG=false);
+  //! Get Gain Correction "component" for the vanum VA of the tdrnum TDR for the jinfnum JINF
+  static LadderConf* GetLadderConf(){ return ladderconf; };
+  //! Load Alignment parameter from an ASCII file
   static void ReadAlignment(TString filename, bool DEBUG=false);
   //! Get Alignment parameter "component" for the tdrnum TDR of the jinfnum JINF
   static float GetAlignPar(int jinfnum, int tdrnum, int component);
   static float GetMultiplicityFlip(int jinfnum, int tdrnum);
-  //! Load VA Gain Correction from an ASCII file 
+  //! Load VA Gain Correction from an ASCII file
   static void ReadGainCorrection(TString filename, bool DEBUG=false);
   //! Get Gain Correction "component" for the vanum VA of the tdrnum TDR for the jinfnum JINF
   static float GetGainCorrectionPar(int jinfnum, int tdrnum, int vanum, int component);
@@ -73,20 +81,24 @@ public:
   double GetCalPed_PosNum(int tdrposnum, int channel, int Jinfnum=0);
   double GetCalSigma_PosNum(int tdrposnum, int channel, int Jinfnum=0);
   double GetRawSignal_PosNum(int tdrposnum, int channel, int Jinfnum=0);
+  double GetCN_PosNum(int tdrposnum, int va, int Jinfnum=0);
   float GetRawSoN_PosNum(int tdrposnum, int channel, int Jinfnum=0);
   
   double GetCalPed(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetCalSigma(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetRawSignal(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
+  double GetCN(RHClass* rh, int tdrnum, int va, int Jinfnum=0);
   float GetRawSoN(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   
 private:
+  static bool ladderconfnotread;
+  static LadderConf* ladderconf;
   static bool alignmentnotread;
   static float alignpar[NJINF][NTDRS][3];
   static bool multflip[NJINF][NTDRS];
 
   static bool gaincorrectionnotread;
-  static float gaincorrectionpar[NJINF][NTDRS][NVAS][3];
+  static float gaincorrectionpar[NJINF][NTDRS][NVAS][2];
 
   double CombinatorialFit(
 			std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddS[NJINF][NTDRS],
@@ -94,7 +106,7 @@ private:
 			int ijinf, int itdr,
 			std::vector<std::pair<int, std::pair<double, double> > > v_cog_trackS,
 			std::vector<std::pair<int, std::pair<double, double> > > v_cog_trackK,
-			int nptsS, int nptsK, 
+			int nptsS, int nptsK,
 			bool verbose=false
 			);
   double SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS,
@@ -118,15 +130,15 @@ private:
   void AssignAsBestTrackFit();
   void ClearTrack();
   void ClearTrack_sf();
-  
+
   void StoreTrackClusterPatterns();
   void FillHitVector();
-  
+
   //! Progressive Event number
   int Evtnum;
-  //! Jinj Status 
+  //! Jinj Status
   int JINJStatus;
-  //! Jinf Status 
+  //! Jinf Status
   int JINFStatus[NJINF];
   //! Status word for the TDRs (  TDRStatus & 0x1f == TDR ID)
   int TDRStatus[NTDRS];
@@ -150,7 +162,7 @@ private:
   float        RawSoN[8][1024];//! (do not stream on file! Can be recomputed easily!)
 
   short int ReadTDR[NTDRS];
-  
+
   //track parameters and points
   double _chisq;//!
   double _chisqy;//!
@@ -181,7 +193,7 @@ private:
   std::vector<std::pair<int, std::pair<int, int> > > _v_trackhit;//!
   //! filled by StoreTrackClusterPatterns()
   unsigned long long int _track_cluster_pattern[NJINF][2];//!
-  
+
   ClassDef(Event,4)
 };
 
@@ -201,7 +213,7 @@ public:
   double CNMean[NTDRS][NVAS];
   double CNSigma[NTDRS][NVAS];
 
-  
+
   //! default constructor
   RHClass();
   //! default destructor
@@ -217,4 +229,3 @@ public:
 
 
 #endif
- 
