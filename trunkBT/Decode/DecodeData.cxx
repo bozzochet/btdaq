@@ -679,7 +679,12 @@ int DecodeData::ReadOneTDR(int Jinfnum){
       }
 
       for (int cc=0; cc<1024; cc++) {
-	if (!kClusterize) {//otherwise the histos will be filled better with the clusters
+	//	if (!kClusterize) {//otherwise the histos will be filled better with the clusters
+	if (!(//reverse the following conditions/staments
+	      TESTBIT(array[size-1],7) ||//if we're purely RAW is better to fill the histograms also in this "naive" way (weighting of strip by signal). But if we're also in CMP (-> we're in MIXED), the compressed ones would be better
+	      kClusterize //if we're clusterizing the RAW event is better to fill the histograms with the clusters
+	      )
+	    ){
 	  double threshold = shighthreshold;
 	  if (cc>=640) threshold = khighthreshold;
 	  if (ev->RawSoN[tdrnumraw][cc]>threshold) {
@@ -730,7 +735,11 @@ int DecodeData::ReadOneTDR(int Jinfnum){
       }
       
       if(out_flag){
-	if (!kClusterize) {//what happens if is mixed mode? I would write the same cluster twice... So let's NOT write the "on-line" clusters in the root file but only the "offline" ones... This remove the "online" clusters even if is not 'mixed' but only 'compressed' but I think is 'safer'...
+	//	if (!kClusterize) {//what happens if is mixed mode? I would write the same cluster twice... So let's NOT write the "on-line" clusters in the root file but only the "offline" ones... This remove the "online" clusters even if is not 'mixed' but only 'compressed' but I think is 'safer'...
+	if (
+	    TESTBIT(array[size-1],6) && //we're ALSO in RAW mode --> mixed. There's also the raw event, so this cluster would be potentially found also by the offline clusterization. This would cause a 'double counting' 
+	    !kClusterize //we're not clusterizing offline, so is safe to AddCluster and is needed otherwise the cluster would be not present at all in the Tree
+	    ) { 
 	  AddCluster(numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
 	}
       }
@@ -761,21 +770,41 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   
   pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
 	    &(cal->status[clusadd]),Sig2NoiStatus, CNStatus, PowBits, bad);
+
+  static LadderConf* ladderconf = Event::GetLadderConf();
+  int _bondingtype=0;
   
-  hocc[numnum+NTDRS*Jinfnum]->Fill(pp->GetCoG());
-  hoccseed[numnum+NTDRS*Jinfnum]->Fill(pp->GetSeedAdd());
-#define TOTCHARGE
+  if (cworkaround!=0) {
+    _bondingtype = cworkaround;
+  }
+  else {
+    _bondingtype = ladderconf->GetBondingType(Jinfnum, numnum);
+  }
+
+  double cog = pp->GetCoG();
+  double seedadd = pp->GetSeedAdd();
+
+  if (_bondingtype==2) {
+    if (pp->GetCoG()>=(3*64) && pp->GetCoG()<(5*64)) cog+=5*64;
+    if (pp->GetCoG()>=(5*64) && pp->GetCoG()<(8*64)) cog-=5*64;
+    if (pp->GetSeedAdd()>=(3*64) && pp->GetSeedAdd()<(5*64)) seedadd+=5*64;
+    if (pp->GetSeedAdd()>=(5*64) && pp->GetSeedAdd()<(8*64)) seedadd-=5*64;
+  }
+  
+  hocc[numnum+NTDRS*Jinfnum]->Fill(cog);
+  hoccseed[numnum+NTDRS*Jinfnum]->Fill(seedadd);
+  //#define TOTCHARGE
 #ifndef TOTCHARGE
   hcharge[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetSeedCharge());
   hsignal[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetSeedVal());
-  hchargevsocc[numnum+NTDRS*Jinfnum]->Fill(pp->GetCoG(), pp->GetSeedCharge());
-  hsignalvsocc[numnum+NTDRS*Jinfnum]->Fill(pp->GetCoG(), pp->GetSeedVal());
+  hchargevsocc[numnum+NTDRS*Jinfnum]->Fill(cog, pp->GetSeedCharge());
+  hsignalvsocc[numnum+NTDRS*Jinfnum]->Fill(cog, pp->GetSeedVal());
   hson[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetSeedSN());
 #else
   hcharge[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetCharge());
   hsignal[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetTotSig());
-  hchargevsocc[numnum+NTDRS*Jinfnum]->Fill(pp->GetCoG(), pp->GetCharge());
-  hsignalvsocc[numnum+NTDRS*Jinfnum]->Fill(pp->GetCoG(), pp->GetTotSig());
+  hchargevsocc[numnum+NTDRS*Jinfnum]->Fill(cog, pp->GetCharge());
+  hsignalvsocc[numnum+NTDRS*Jinfnum]->Fill(cog, pp->GetTotSig());
   hson[numnum+NTDRS*Jinfnum][sid]->Fill(pp->GetTotSN());
 #endif
 
