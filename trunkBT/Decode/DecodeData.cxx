@@ -766,15 +766,6 @@ int DecodeData::ReadOneTDR(int Jinfnum){
 
 void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float* sig) {
 
-  int sid=0;
-  if (clusadd>=640) sid=1;
-  
-  Cluster* pp= ev->AddCluster(numnum+100*Jinfnum,sid);
-  calib* cal=&(cals[numnum+100*Jinfnum]);
-  
-  pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
-	    &(cal->status[clusadd]),Sig2NoiStatus, CNStatus, PowBits, bad);
-
   static LadderConf* ladderconf = Event::GetLadderConf();
   int _bondingtype=0;
   
@@ -784,16 +775,34 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   else {
     _bondingtype = ladderconf->GetBondingType(Jinfnum, numnum);
   }
-
+  
+  //  printf("bondingtype = %d\n", _bondingtype);
+  
+  double newclusadd = clusadd;
+  
+  if (!kClusterize) { //otherwise the swap has been already done
+    if (_bondingtype==2) {
+      if (clusadd>=(3*64) && clusadd<(5*64)) newclusadd+=3*64;
+      if (clusadd>=(5*64) && clusadd<(8*64)) newclusadd-=2*64;
+    }
+  }
+  
+  int sid=0;
+  if (clusadd>=640) sid=1;
+  
+  Cluster* pp= ev->AddCluster(numnum+100*Jinfnum,sid);
+  calib* cal=&(cals[numnum+100*Jinfnum]);
+  
+  //  pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
+  //        &(cal->status[clusadd]),Sig2NoiStatus, CNStatus, PowBits, bad);
+  // ONLY the 3rd field should be changed (clusadd->newclusadd) to move the cluster.
+  // The 'clusadd' passed to the array should be left as it is to read the same signal values
+  // for the 'sig' array there's no problem since already starting from 0
+  pp->Build(numnum+100*Jinfnum,sid,newclusadd,cluslen,sig,&(cal->sig[clusadd]),
+            &(cal->status[clusadd]),Sig2NoiStatus, CNStatus, PowBits, bad);
+  
   double cog = pp->GetCoG();
   double seedadd = pp->GetSeedAdd();
-
-  if (_bondingtype==2) {
-    if (pp->GetCoG()>=(3*64) && pp->GetCoG()<(5*64)) cog+=5*64;
-    if (pp->GetCoG()>=(5*64) && pp->GetCoG()<(8*64)) cog-=5*64;
-    if (pp->GetSeedAdd()>=(3*64) && pp->GetSeedAdd()<(5*64)) seedadd+=5*64;
-    if (pp->GetSeedAdd()>=(5*64) && pp->GetSeedAdd()<(8*64)) seedadd-=5*64;
-  }
   
   hocc[numnum+NTDRS*Jinfnum]->Fill(cog);
   hoccseed[numnum+NTDRS*Jinfnum]->Fill(seedadd);
