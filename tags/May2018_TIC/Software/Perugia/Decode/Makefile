@@ -1,4 +1,4 @@
-CXX := $(shell root-config --cxx) -std=c++11
+CXX := $(shell root-config --cxx)
 
 CLASSES = Cluster.hh LadderConf.hh Event.hh
 
