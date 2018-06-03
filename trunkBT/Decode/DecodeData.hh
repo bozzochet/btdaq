@@ -85,7 +85,7 @@ public:
   ~DecodeData();
 
   //generic
-  void AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float* sig);
+  void AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float* sig, bool kRaw=false);
   void Clusterize(int numnum, int Jinfnum, calib* cal);
   //moved to Event class
   //  double ComputeCN(int size, short int* Signal, float* pede, float* SoN, double threshold=3.0);
