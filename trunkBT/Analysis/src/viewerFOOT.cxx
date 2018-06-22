@@ -2,7 +2,6 @@
 #include "TCanvas.h"
 #include "TPad.h"
 #include "TH1F.h"
-#include "TH2F.h"
 #include "TStyle.h"
 #include "TTree.h"
 #include "TChain.h"
@@ -11,22 +10,14 @@
 #include "TF1.h"
 #include "TGraph.h"
 #include "TMath.h"
-#include "TSpectrum.h"
 #include "TStopwatch.h"
 #include "TLine.h"
 #include <fstream>
 #include <vector>
 #include <string>
 
-/* from the 'Decode' API */
-#include "Cluster.hh"
 #include "Event.hh"
-/* end */
-
-/* from the CommonTool dir */
-#include "TrackSelection.hh"
 #include "Utilities.hh"
-/* end */
 
 using namespace std;
 
@@ -35,25 +26,24 @@ int main(int argc, char* argv[]) {
   
   if (argc<3) {
     printf("Usage:\n");
-    printf("%s <tdrposnum> <event(s) to display> <0: single event, 1: cumulate event> <first input root-filename> [second input root-filename] ...\n", argv[0]);
+    printf("%s <tdrposnum> <event(s) to display> <0: single event, 1:many events, 2: cumulate event> <first input root-filename> [second input root-filename] ...\n", argv[0]);
     return 1;
   }
 
-
   string tempname = argv[4];
+
   int pos1 = tempname.find("run_");
   int pos2 = tempname.find(".root");
   string firstfile = tempname.substr(pos1,pos2-pos1);
-
-  TString output_filename = "viewer_out_"+firstfile+".root";
+  
+  TString output_filename = "Viewer/viewer_out_"+firstfile+".root";
   TFile* foutput = new TFile(output_filename.Data(), "UPDATE");
   foutput->cd();
 
 
 
   
-  TChain *chain = new TChain("t4");
-     
+  TChain *chain = new TChain("t4");     
   for (int ii=4; ii<argc; ii++) {
     printf("Adding file %s to the chain...\n", argv[ii]);
     chain->Add(argv[ii]);
@@ -98,11 +88,14 @@ int main(int argc, char* argv[]) {
 
   TCanvas *c2 = new TCanvas("c2", "c2", 1920, 1080);
 
+  if(atoi(argv[3])==1){
+    c2->Print("viewer_tmp.pdf(","pdf");
+  }
+  
   
   for(int evt=0; evt < atoi(argv[2]); evt++)
   {
-    //    gr_event->Set(0);
-
+    
     if(atoi(argv[3])==0){
       chain->GetEntry(atoi(argv[2]));
       evt=atoi(argv[2]);
@@ -111,8 +104,15 @@ int main(int argc, char* argv[]) {
     }
     
     bool isevent= true;
+
+
     
-    for(int chan=0; chan< 1024; chan++){
+    if(atoi(argv[3])==1){
+      gr_event->Set(0);
+    }
+      
+
+      for(int chan=0; chan< 1024; chan++){
       double testADC=ev->GetRawSignal_PosNum(atoi(argv[1]),chan,0);
       double calADC=ev->GetCalPed_PosNum(atoi(argv[1]),chan,0);
       double cnADC=ev->GetCN_PosNum(atoi(argv[1]),(int)chan/64,0);
@@ -127,7 +127,15 @@ int main(int argc, char* argv[]) {
     if(isevent){
       
     TH1F *frame = gPad->DrawFrame(0, minadc-20,1024,maxadc+20);
-    frame->SetTitle("Number of events: "+TString::Format("%02d",(int)atoi(argv[2])));
+
+    if(atoi(argv[3])==1){
+      frame->SetTitle("Event number: "+TString::Format("%02d",(int)evt));
+    }else if(atoi(argv[3])==0){
+      frame->SetTitle("Event number: "+TString::Format("%02d",(int)atoi(argv[2])));
+    }else{
+      frame->SetTitle("Number of events: "+TString::Format("%02d",(int)atoi(argv[2])));
+    }
+    
     frame->GetXaxis()->SetNdivisions(-16);
     frame->GetXaxis()->SetTitle("Strip number");
     gr_event->SetMarkerSize(0.5);
@@ -179,11 +187,28 @@ int main(int argc, char* argv[]) {
     line14->SetLineColor(kRed);
     line14->Draw();
     }
+    if(atoi(argv[3])==1){
+      c2->Print("viewer_tmp.pdf");
+    }
+    
   }
     c2->Draw();
     c2->Write();
-    c2->SaveAs("Viewer/"+firstfile+"_frame_"+TString::Format("%09d",(int)atoi(argv[2]))+".png");
-      
+
+    if(atoi(argv[3])==1){
+      c2->Clear();
+      c2->Print("viewer_tmp.pdf)","pdf");
+    }else{
+      c2->Print("viewer_tmp.pdf","pdf");
+    }
+
+    TString term_cmd = "mv viewer_tmp.pdf Viewer/"+firstfile+"_evt_"+argv[2]+"_"+argv[3]+".pdf";
+    system(term_cmd.Data());
+
+    cout << endl;
+    cout << "Results in file " << firstfile+"_event_"+argv[2]+"_"+argv[3]+".pdf" << endl;
+    cout << endl;
+    
   sw.Stop(); 
   sw.Print();  
   return 0;

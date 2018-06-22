@@ -66,7 +66,7 @@ libEvent:
 
 clean: 
 	rm -f ./obj/*.o
-	rm -f ./Viewer
+	rm -f ./ViewerFOOT
 	rm -f ./AnalysisFOOT
 
 cleanALL: clean
