@@ -66,7 +66,6 @@ libEvent:
 
 clean: 
 	rm -Rf ./obj
-	rm -f ./Viewer
 	rm -f ./Analysis
 
 cleanALL: clean
