@@ -95,16 +95,18 @@ int main(int argc, char* argv[]) {
   int NSTRIPSS=640;
   int NSTRIPSK=384;
   for (int tt=0; tt<_maxtdr; tt++) {
-    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("occupancy_0_%02d;Channel number;Occupancy", GetRH(chain)->tdrCmpMap[tt]), 1024, 0, 1024);
-    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", GetRH(chain)->tdrCmpMap[tt]), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0), NSTRIPSS*Cluster::GetPitch(0));
-    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", GetRH(chain)->tdrCmpMap[tt]), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(1), NSTRIPSK*Cluster::GetPitch(1));
-    residual_S[tt] = new TH1F(Form("residual_S_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", GetRH(chain)->tdrCmpMap[tt]), 
-				 2*NSTRIPSS, -float(NSTRIPSS)/100.*Cluster::GetPitch(0), float(NSTRIPSS)/100.*Cluster::GetPitch(0));
-    residual_K[tt] = new TH1F(Form("residual_K_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", GetRH(chain)->tdrCmpMap[tt]), 
-				 40*NSTRIPSK, -20*float(NSTRIPSK)/100.*Cluster::GetPitch(1), 20*float(NSTRIPSK)/100.*Cluster::GetPitch(1));
-    chargeS[tt] = new TH1F(Form("chargeS_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", GetRH(chain)->tdrCmpMap[tt]), 1000, 0, 100);
-    chargeK[tt] = new TH1F(Form("chargeK_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", GetRH(chain)->tdrCmpMap[tt]), 1000, 0, 100);
-    charge2D[tt] = new TH2F(Form("charge_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("charge_0_%02d;Q_{S} (c.u.);Q_{K} (c.u.);Entries", GetRH(chain)->tdrCmpMap[tt]), 1000, 0, 100, 1000, 0, 100);
+    int jinfnum = 0;
+    int tdrnum = GetRH(chain)->tdrCmpMap[tt];
+    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", tdrnum), Form("occupancy_0_%02d;Channel number;Occupancy", tdrnum), 1024, 0, 1024);
+    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", tdrnum), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", tdrnum), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(jinfnum, tdrnum, 0), NSTRIPSS*Cluster::GetPitch(jinfnum, tdrnum, 0));
+    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", tdrnum), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", tdrnum), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(jinfnum, tdrnum, 1), NSTRIPSK*Cluster::GetPitch(jinfnum, tdrnum, 1));
+    residual_S[tt] = new TH1F(Form("residual_S_0_%02d", tdrnum), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", tdrnum), 
+				 2*NSTRIPSS, -float(NSTRIPSS)/100.*Cluster::GetPitch(jinfnum, tdrnum, 0), float(NSTRIPSS)/100.*Cluster::GetPitch(jinfnum, tdrnum, 0));
+    residual_K[tt] = new TH1F(Form("residual_K_0_%02d", tdrnum), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", tdrnum), 
+			      40*NSTRIPSK, -20*float(NSTRIPSK)/100.*Cluster::GetPitch(jinfnum, tdrnum, 1), 20*float(NSTRIPSK)/100.*Cluster::GetPitch(jinfnum, tdrnum, 1));
+    chargeS[tt] = new TH1F(Form("chargeS_0_%02d", tdrnum), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", tdrnum), 1000, 0, 100);
+    chargeK[tt] = new TH1F(Form("chargeK_0_%02d", tdrnum), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", tdrnum), 1000, 0, 100);
+    charge2D[tt] = new TH2F(Form("charge_0_%02d", tdrnum), Form("charge_0_%02d;Q_{S} (c.u.);Q_{K} (c.u.);Entries", tdrnum), 1000, 0, 100, 1000, 0, 100);
   }
   chargeS_ave = new TH1F("chargeS", "chargeS;Q_{S} (c.u.);Entries", 1000, 0, 100);
   chargeK_ave = new TH1F("chargeK", "chargeK;Q_{K} (c.u.);Entries", 1000, 0, 100);
