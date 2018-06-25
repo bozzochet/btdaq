@@ -28,21 +28,21 @@
 
 using namespace std;
 
-
 int main(int argc, const char* argv[]) {
   
-  if (argc<5) {
+  if (argc<6) {
     printf("Usage:\n");
-    printf("%s <output root-filename> <S/N cut on S> <S/N cut on K> <min cog> <max cog> <first input root-filename> [second input root-filename] ...\n", argv[0]);
+    printf("%s <output root-filename> <TDR number> <S/N cut on S> <S/N cut on K> <min cog> <max cog> <first input root-filename> [second input root-filename] ...\n", argv[0]);
     return 1;
   }
   
 
   // Initialize variables for S/N ang cog cuts
-  int SNcutS = atoi(argv[2]);
-  int SNcutK = atoi(argv[3]);
-  int mincog = atoi(argv[4]);
-  int maxcog = atoi(argv[5]);
+  int tdrnum = atoi(argv[2]);
+  int SNcutS = atoi(argv[3]);
+  int SNcutK = atoi(argv[4]);
+  int mincog = atoi(argv[5]);
+  int maxcog = atoi(argv[6]);
 
   if(SNcutS<0) SNcutS=0;
   if(SNcutK<0) SNcutK=0;
@@ -53,7 +53,7 @@ int main(int argc, const char* argv[]) {
 
   TChain *chain = new TChain("t4");
      
-  for (int ii=6; ii<argc; ii++) {
+  for (int ii=7; ii<argc; ii++) {
     printf("Adding file %s to the chain...\n", argv[ii]);
     chain->Add(argv[ii]);
   }
@@ -93,7 +93,6 @@ int main(int argc, const char* argv[]) {
 
   TH1D *hfluctS = new TH1D("hfluctS","hfluctS",1000,-20,20);
   hfluctS->GetXaxis()->SetTitle("ADC");
-
   TH1D *hfluctK = new TH1D("hfluctK","hfluctK",1000,-20,20);
   hfluctK->GetXaxis()->SetTitle("ADC");
   
@@ -274,9 +273,6 @@ int main(int argc, const char* argv[]) {
     //Calculate number of clusters on each side
     for(int i = 0; i<NClusTot; i++){
       cl = ev->GetCluster(i);                                                                                                     int ladder= cl->ladder;
-
-      if(ladder != 12) continue;
-
       int side = cl->side;
       if(side==0){ 
 	clusOnS++;}
@@ -314,6 +310,8 @@ int main(int argc, const char* argv[]) {
     for(int i = 0; i<NClusTot; i++){
       cl = ev->GetCluster(i);
       int ladder = cl->ladder;
+      if(ladder != tdrnum) continue;
+      
       int side = cl->side;
       
     double clusADC = cl->GetTotSig();
