@@ -206,7 +206,7 @@ int main(int argc, char* argv[]) {
     system(term_cmd.Data());
 
     cout << endl;
-    cout << "Results in file " << firstfile+"_event_"+argv[2]+"_"+argv[3]+".pdf" << endl;
+    cout << "Results in file " << firstfile+"_evt_"+argv[2]+"_"+argv[3]+".pdf" << endl;
     cout << endl;
     
   sw.Stop(); 

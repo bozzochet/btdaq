@@ -324,3 +324,17 @@ int Cluster::GoldRegion(){
      GetCoG()<=upgold[ladder][side]) return 1;
   else return 0;
 }
+
+bool Cluster::BorderRegion(){
+  int width = 5;
+  bool onborder= false;
+  int border = 64;
+  
+  while(!onborder && border<1024){
+    if(GetCoG() > border-width && GetCoG() < border+width){
+      onborder = true;
+    }
+    border+=64;
+  }
+  return onborder;
+}

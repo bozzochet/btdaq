@@ -138,7 +138,7 @@ public:
   double GetCharge() { return sqrt(GetTotSig())/sqrt(MIPSIG[side]); };
 
   int GoldRegion();
-
+  bool BorderRegion();
   int GetLenght(float val=1.);
 
   int GetTDR() { return ladder%100;};

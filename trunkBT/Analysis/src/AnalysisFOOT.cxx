@@ -314,17 +314,29 @@ int main(int argc, const char* argv[]) {
       
       int side = cl->side;
       
-    double clusADC = cl->GetTotSig();
-    double clusSN = cl->GetTotSN();
-    double cog = cl->GetCoG();
-    double seedADC = cl->GetSeedVal();
-    double seedSN = cl->GetSeedSN();
-    double clusCharge = cl->GetCharge();
-    double seedCharge = cl->GetSeedCharge();
-    double seedPos = cl->GetSeedAdd();
-    double eta = cl->GetEta();
-    int nstrip = cl->GetLenght();
+      double clusADC = cl->GetTotSig();
+      double clusSN = cl->GetTotSN();
+      double cog = cl->GetCoG();
+      double seedADC = cl->GetSeedVal();
+      double seedSN = cl->GetSeedSN();
+      double clusCharge = cl->GetCharge();
+      double seedCharge = cl->GetSeedCharge();
+      double seedPos = cl->GetSeedAdd();
+      double eta = cl->GetEta();
+      int nstrip = cl->GetLenght();
+      bool onborder = cl->BorderRegion();
 
+
+      //      if(onborder) continue;
+      
+    /*
+    if(onborder){
+    cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
+    cout << "Cluster COG " << cog << endl;
+    cout << "Cluster on border " << onborder << endl;
+    }
+    */
+    
     double SeedPercentage = 100 * seedADC/clusADC;
     if(side == 0){
       hClusterSNs->Fill(clusSN);
