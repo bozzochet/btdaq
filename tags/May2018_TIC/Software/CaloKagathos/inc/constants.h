@@ -99,7 +99,7 @@ const float CsI_GAP = 0.4;  //cm
 const float RATIO_THR = 25./100.; //% tolerance
 
 const float mipCutHit = MIPCUTHIT_CMB;
-const float tCutHit = 2; // cut for hit finding: |ADC-PED| > tCutHit * SIG //2015
+const float tCutHit = 3; // cut for hit finding: |ADC-PED| > tCutHit * SIG //2015
 const double tCut = 10.; //cut for CN and PED-SIG computation: NB |ADC-PED| < tCut * SIG
 
 /*
