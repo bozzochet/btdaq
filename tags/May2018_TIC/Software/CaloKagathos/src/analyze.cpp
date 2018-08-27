@@ -28,7 +28,7 @@
 using namespace std;
 
 //#define CALIBRATION
-#define PEDESTAL
+//define PEDESTAL
 
 // Open input file and perform some checks
 IOfile *OpenIOfile(const char *fileName) {

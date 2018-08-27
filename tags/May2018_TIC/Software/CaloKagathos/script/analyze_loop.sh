@@ -1,4 +1,7 @@
 #!/bin/bash
+# Automatic execution of CaloCube analyze
+# To be launched from the Software/CaloKagathos/ folder
+
 usage() { echo "Usage: $0 [inDIR] [outDIR]
 " 1>&2; exit 1; }
 
@@ -13,31 +16,29 @@ fi
 
 indir=$1       
 outdir=$2       
-sleep_time=1 
+sleep_time=30
 
 filenumber=0
 
-#while true
-#do
+while true
+do
 
 	echo "Check if there is some new file to process..."
 	filenumber=0
 
 	for file in $indir/*;
 	do
-		#if [[ $file == CC*dat ]]; then
-		if [[ $file == *dat ]]; then
-
-		    input_name=$file
-		    complete_path=$(basename $input_name)
-		    output_name=$outdir/${complete_path%.dat}.root	
-
-		    if [ ! -f $output_name ]; then	
+		file_name=$(basename $file)
+		if [[ $file_name == CC*_*.dat ]]; then
+		    output_name=$outdir/${file_name%.dat}.root
+                 
+		    if [[ $file -nt $output_name ]]; then  # Reprocess if a data file is newer than its output file
+		    #if [ ! -f $output_name ]]; then	
 		    	let "filenumber += 1"
 			
 			echo "Processing file n°$filenumber = $file"
 			#com="./analyze $input_name $output_name"
-		    	com="./analyze_alone $input_name $output_name"
+		    	com="./analyze $file $output_name"
 	    		echo "$com"
 	    		$com
 			#echo "Plotting file n°$filenumber = $output_name"
@@ -57,4 +58,4 @@ filenumber=0
 	echo "Now sleeping $sleep_time minute"
 	sleep ${sleep_time}m;
 
-#done
+done
