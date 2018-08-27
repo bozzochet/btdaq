@@ -1413,6 +1413,7 @@ int main(int argc, char** argv){
 										continue;
 
 									cube = row*NCOLS + col;
+									//cout << iCasis << " " << iCasisChannel << " " << layer << " " << col << " " << row << " " << sensor << endl;
 
 									double signal = cn_correction? Signal[iCasis][iCasisChannel] : Signal_cn[iCasis][iCasisChannel];
 									if(time_corr) signal *= tCorr;
