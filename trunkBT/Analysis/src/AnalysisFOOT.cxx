@@ -326,8 +326,7 @@ int main(int argc, const char* argv[]) {
       int nstrip = cl->GetLenght();
       bool onborder = cl->BorderRegion();
 
-
-      //      if(onborder) continue;
+      if(onborder) continue;
       
     /*
     if(onborder){

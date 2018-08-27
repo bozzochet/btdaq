@@ -12,6 +12,7 @@
 #include "TMath.h"
 #include "TStopwatch.h"
 #include "TLine.h"
+#include "TError.h"
 #include <fstream>
 #include <vector>
 #include <string>
@@ -23,7 +24,10 @@ using namespace std;
 
 
 int main(int argc, char* argv[]) {
-  
+
+  gErrorIgnoreLevel = kWarning;
+
+ 
   if (argc<3) {
     printf("Usage:\n");
     printf("%s <tdrposnum> <event(s) to display> <0: single event, 1:many events, 2: cumulate event> <first input root-filename> [second input root-filename] ...\n", argv[0]);
@@ -37,6 +41,7 @@ int main(int argc, char* argv[]) {
   string firstfile = tempname.substr(pos1,pos2-pos1);
   
   TString output_filename = "Viewer/viewer_out_"+firstfile+".root";
+  TString output_pdf = "Viewer/"+firstfile+"_evt_"+argv[2]+"_"+argv[3]+".pdf";
   TFile* foutput = new TFile(output_filename.Data(), "UPDATE");
   foutput->cd();
 
@@ -86,10 +91,14 @@ int main(int argc, char* argv[]) {
   int maxadc=-999;
   int minadc=0;
 
+  TString pdf_open = output_pdf+"(";
+  TString pdf_close = output_pdf+")";
+  
+
   TCanvas *c2 = new TCanvas("c2", "c2", 1920, 1080);
 
   if(atoi(argv[3])==1){
-    c2->Print("viewer_tmp.pdf(","pdf");
+    c2->Print(pdf_open,"pdf");
   }
   
   
@@ -102,7 +111,8 @@ int main(int argc, char* argv[]) {
     } else{
       chain->GetEntry(evt);
     }
-    
+
+    cout << "Processed event " << evt << " of " << entries << endl;
     bool isevent= true;
 
 
@@ -120,7 +130,7 @@ int main(int argc, char* argv[]) {
 
       if(test > maxadc) maxadc=test;
       if(test < minadc) minadc=test;
-      //if(test > 20){isevent=true;}else{isevent=false;}
+      //if(test > 60){isevent=true;}else{isevent=false;}
       gr_event->SetPoint(gr_event->GetN(),chan, test);
     }
 
@@ -188,7 +198,7 @@ int main(int argc, char* argv[]) {
     line14->Draw();
     }
     if(atoi(argv[3])==1){
-      c2->Print("viewer_tmp.pdf");
+      c2->Print(output_pdf);
     }
     
   }
@@ -197,16 +207,13 @@ int main(int argc, char* argv[]) {
 
     if(atoi(argv[3])==1){
       c2->Clear();
-      c2->Print("viewer_tmp.pdf)","pdf");
+      c2->Print(pdf_close,"pdf");
     }else{
-      c2->Print("viewer_tmp.pdf","pdf");
+      c2->Print(output_pdf,"pdf");
     }
 
-    TString term_cmd = "mv viewer_tmp.pdf Viewer/"+firstfile+"_evt_"+argv[2]+"_"+argv[3]+".pdf";
-    system(term_cmd.Data());
-
     cout << endl;
-    cout << "Results in file " << firstfile+"_evt_"+argv[2]+"_"+argv[3]+".pdf" << endl;
+    cout << "Results in file " << output_pdf << endl;
     cout << endl;
     
   sw.Stop(); 
