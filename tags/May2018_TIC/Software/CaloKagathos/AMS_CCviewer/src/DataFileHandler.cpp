@@ -31,11 +31,29 @@ DataFileHandler::DataFileHandler() {
 	fTCC=NULL;
 	fTAMS=NULL;
 	fNev=-1;
+	fCCFile=NULL;
 	//fTDRStatus=NULL;
 }
 
-DataFileHandler::~DataFileHandler() {
+DataFileHandler::~DataFileHandler() { 
 
+}
+
+void DataFileHandler::Reset() {
+  if (fTCC!=NULL) {
+    delete fTCC;
+    fTCC=NULL;
+  } 
+  if (fCCFile!=NULL) {
+    fCCFile->Close();
+    delete fCCFile;
+    fCCFile=NULL;
+  } 
+  if (fTAMS!=NULL) {
+    delete fTAMS;
+    fTAMS=NULL;
+  } 
+  fNev=-1;
 }
 
 bool DataFileHandler::ReadCCFile(string inputCCFileName, bool adc_mip) {

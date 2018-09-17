@@ -56,6 +56,7 @@ public:
 	bool IsAMSPresent();
 	bool IsPed();
 	bool IsGood();
+	void Reset();
 
 	// CC var.
 	// Read calocube variables
@@ -87,6 +88,7 @@ private:
 	DataFileHandler();
 	DataFileHandler(const DataFileHandler&);
 	TTree *fTCC;
+	TFile *fCCFile;
 
 public:
 	TChain *fTAMS;
