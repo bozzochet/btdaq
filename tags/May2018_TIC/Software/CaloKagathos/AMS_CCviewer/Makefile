@@ -12,7 +12,7 @@ COMMON =$(AMSDIR)/CommonTool/
 DECODELIBS = -Wl,-rpath,$(DECODE) -L$(DECODE) -lEvent
 INCLUDEGLOBAL = -I../inc -Iinclude -I$(DECODE) -I$(COMMON)
 
-all: $(BIN)/AMS-CCviewer $(BIN)/PedMonitor 
+all: $(BIN)/AMS-CCviewer $(BIN)/PedMonitor $(BIN)/EventCounter
 
 $(BIN)/libCalo3DViewer.so: src/Calo3DViewer.cpp include/Calo3DViewer.h
 	$(CXX) -fPIC -c src/Calo3DViewer.cpp -o $(BIN)/Calo3DViewer.o $(INCLUDEGLOBAL) $(DEFFLAGS) $(ROOTFLAGS) -g -Wall
@@ -41,7 +41,10 @@ $(BIN)/AMS-CCviewer: $(AMS-CCVIEWER-DEP)
 	$(CXX) AMS-CCviewer.cpp src/ViewerGUIDict.cpp -o $(BIN)/AMS-CCviewer -L$(BIN)/ -lCalo3DViewer -lCaloAMS2DViewer -lDataFileHandler -lViewerGUI  -lViewerCore $(INCLUDEGLOBAL) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(ROOTFLAGS) $(DECODELIBS) -g -Wall $(DEFFLAGS)
 
 $(BIN)/PedMonitor:  PedMonitor.cpp  $(BIN)/libDataFileHandler.so
-	$(CXX) PedMonitor.cpp -o $(BIN)/PedMonitor -L$(BIN)/ -lDataFileHandler $(INCLUDEGLOBAL) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(ROOTFLAGS) $(DECODELIBS) -g -Wall $(DEFFLAGS) 
+	$(CXX) PedMonitor.cpp -o $(BIN)/PedMonitor -L$(BIN)/ -lDataFileHandler $(INCLUDEGLOBAL) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(ROOTFLAGS) $(DECODELIBS) -g -Wall $(DEFFLAGS)
+ 
+$(BIN)/EventCounter:  EventCounter.cpp  $(BIN)/libDataFileHandler.so
+	$(CXX) EventCounter.cpp -o $(BIN)/EventCounter -L$(BIN)/ -lDataFileHandler $(INCLUDEGLOBAL) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(ROOTFLAGS) $(DECODELIBS) -g -Wall $(DEFFLAGS) 
 
 clean:
 	@rm -f  $(BIN)/AMS-CCviewer $(BIN)/PedMonitor $(BIN)/Calo3DViewer.o $(BIN)/libCalo3DViewer.so $(BIN)/CaloAMS2DViewer.o $(BIN)/libCaloAMS2DViewer.so $(BIN)/libCaloAMS2DViewer.so $(BIN)/ViewerGUI.o $(BIN)/libViewerGUI.so $(BIN)/DataFileHandler.o $(BIN)/libDataFileHandler.so $(BIN)/ViewerCore.o $(BIN)/libViewerCore.so

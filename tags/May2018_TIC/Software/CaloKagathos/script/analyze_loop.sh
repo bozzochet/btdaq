@@ -31,8 +31,12 @@ do
 		file_name=$(basename $file)
 		if [[ $file_name == CC*_*.dat ]]; then
 		    output_name=$outdir/${file_name%.dat}.root
-                 
-		    if [[ $file -nt $output_name ]]; then  # Reprocess if a data file is newer than its output file
+                    dateRaw=`date -r $file +%s`
+                    dateProcessed=`date -r $output_name +%s 2>/dev/null`
+                    if [[ $? != 0 ]]; then
+                      dateProcessed=0
+                    fi		    
+                    if [[ $dateRaw -gt $(($dateProcessed - 180)) ]]; then  # Reprocess if a data file is newer than its output file
 		    #if [ ! -f $output_name ]]; then	
 		    	let "filenumber += 1"
 			
