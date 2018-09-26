@@ -19,6 +19,8 @@
 #define SCHANN 640
 #define KCHANN 384
 
+//https://twiki.cern.ch/twiki/pub/Sandbox/HerdBT/HERDBT_Silicon_detector_details.pdf
+
 #define KREADCHANN 192
 #define KSENSPITCH 41.40
 
