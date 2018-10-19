@@ -1,0 +1,45 @@
+Thu Apr 19 21:29:59 2018: Program ./TakeEPP were called: using a fake Jinj class!
+Thu Apr 19 21:29:59 2018: Using EPP connection
+Thu Apr 19 21:29:59 2018: Creating a fake Jinj (using the first Jinf found in Jinj configuration file)!
+Thu Apr 19 21:29:59 2018: JINJ program: 0x2902
+Thu Apr 19 21:29:59 2018: TDR program: 0x3e43
+Thu Apr 19 21:29:59 2018: JINF program: 0x3a42
+Thu Apr 19 21:29:59 2018: TDR program: 0x3e43
+Thu Apr 19 21:29:59 2018: JINF program: 0x3a42
+Thu Apr 19 21:29:59 2018: WRITE 0 0
+Thu Apr 19 21:29:59 2018: There's no JLV1 card and no NI-USB! A manual trigger will be used...
+Thu Apr 19 21:29:59 2018: TriggerOff...
+Thu Apr 19 21:29:59 2018: Please turn OFF the trigger production and then press RETURN!
+Thu Apr 19 21:29:59 2018: Main: setting delay to 5000 ns ...
+Thu Apr 19 21:30:09 2018: EPP rxdone = 0180
+Thu Apr 19 21:30:09 2018: ERROR
+Thu Apr 19 21:35:29 2018: Program ./TakeEPP were called: using a fake Jinj class!
+Thu Apr 19 21:35:29 2018: Using EPP connection
+Thu Apr 19 21:35:29 2018: Creating a fake Jinj (using the first Jinf found in Jinj configuration file)!
+Thu Apr 19 21:35:29 2018: JINJ program: 0x2902
+Thu Apr 19 21:35:29 2018: TDR program: 0x3e43
+Thu Apr 19 21:35:29 2018: JINF program: 0x3a42
+Thu Apr 19 21:35:29 2018: TDR program: 0x3e43
+Thu Apr 19 21:35:29 2018: JINF program: 0x3a42
+Thu Apr 19 21:35:29 2018: WRITE 0 0
+Thu Apr 19 21:35:29 2018: There's no JLV1 card and no NI-USB! A manual trigger will be used...
+Thu Apr 19 21:35:29 2018: TriggerOff...
+Thu Apr 19 21:35:29 2018: Please turn OFF the trigger production and then press RETURN!
+Thu Apr 19 21:35:29 2018: Main: setting delay to 5000 ns ...
+Thu Apr 19 21:35:39 2018: EPP rxdone = 0180
+Thu Apr 19 21:35:39 2018: ERROR
+Thu Apr 19 21:56:37 2018: Program ./TakeEPP were called: using a fake Jinj class!
+Thu Apr 19 21:56:37 2018: Using EPP connection
+Thu Apr 19 21:56:37 2018: Creating a fake Jinj (using the first Jinf found in Jinj configuration file)!
+Thu Apr 19 21:56:37 2018: JINJ program: 0x2902
+Thu Apr 19 21:56:37 2018: TDR program: 0x3e43
+Thu Apr 19 21:56:37 2018: JINF program: 0x3a42
+Thu Apr 19 21:56:37 2018: TDR program: 0x3e43
+Thu Apr 19 21:56:37 2018: JINF program: 0x3a42
+Thu Apr 19 21:56:37 2018: WRITE 0 0
+Thu Apr 19 21:56:37 2018: There's no JLV1 card and no NI-USB! A manual trigger will be used...
+Thu Apr 19 21:56:37 2018: TriggerOff...
+Thu Apr 19 21:56:37 2018: Please turn OFF the trigger production and then press RETURN!
+Thu Apr 19 21:56:37 2018: Main: setting delay to 5000 ns ...
+Thu Apr 19 21:56:47 2018: EPP rxdone = 0180
+Thu Apr 19 21:56:47 2018: ERROR

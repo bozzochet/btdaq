@@ -27,6 +27,7 @@ int ControlOn=1;
 int printevent=0;
 int daq=1;
 int step=5000;
+int timestep=10;
 
 using namespace std;
 TrigClass* trig;
@@ -86,6 +87,7 @@ void StopRun(int dum);
 int Calibrate(AMSWcom* node);
 int SaveCalibration(AMSWcom* node, int runnum);
 void PrintAllEventNumber(int evtcnt, int sumsize);
+void PrintEventNumberTime(int evtcnt, int sumsize);
 int StatusJinj(AMSWcom *node, int start, int datasize, int evtnum);
 int StatusJinf(AMSWcom *node, int start, int datasize, int evtnum);
 int CheckStatus(const char* nodetype, unsigned short status, int evtnum, unsigned short Jinfnum); // gcc 4.3: added 'const'
@@ -102,7 +104,7 @@ int main(int argc, char **argv) {
   int NodeType=0;
   char logfilename[255];
   char shortlogfilename[255];
-  char LOGPATH[255]="./";
+  char LOGPATH[255]="./log/";
   bool FakeFlag=0;//0 means there's a Jinj, if 1 a fake Jinj class will be used (it depends on the program name used [J->Jinj]) 
   
   if (argc<3) {
@@ -797,7 +799,7 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
   FILE* pid_file=fopen("./TakeJPCI.pid","w+");
   fprintf(pid_file,"%d\n",pid);
   fclose(pid_file);
-  
+  int starttime;
   //---------------------Entering into the Data Acquisition loop...---------------
   if(daq) {
     PRINTF("Entering into the Data Acquisition loop...\n");
@@ -806,18 +808,46 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
     PRINTF("Entering into the (Fake) Data Acquisition loop...\n");
   }
   
+  FILE* nlog=fopen("./log/nlog.txt","w");
+  FILE* tlog=fopen("./log/tlog.txt","w");
+
+  int timecounter = 1;
   eventsinbuffer=MAXEVENTSINBUFFER;
   printevent=0;
+  
+  int logtime;
+  starttime = time(NULL);
+  printf("DAQ start time %i\n",starttime);
+  printf("\n");
+
+ fprintf(tlog,"DAQ start time: %i",starttime);
+ fprintf(nlog,"DAQ start time: %i",starttime);
+
+ fclose(nlog);
+ fclose(tlog);
+
   while(ControlOn) {
     //    PrintAllEventNumber(evtcnt, sumsize);//only for debug
-    if((evtcnt%step==0&&evtcnt!=0)||printevent)  {
+    
+    logtime = time(NULL);
+
+    if((logtime-starttime==timecounter*timestep)||printevent)  {
       //      PRINTF("PrintEvent: %d\n", printevent);//only for debug
+      printevent=0;
+      // usleep(50000);
+      //printf("Unix Time %i\n",logtime);
+      PrintEventNumberTime(evtcnt, sumsize);
+      sumsize=0;
+      ++timecounter;
+    }else if((evtcnt%step==0&&evtcnt!=0)||printevent)  {
+      //      PRINTF("PrintEvent: %d\n", printevent);//only for debug                                                                          
       printevent=0;
       usleep(50000);
       PrintAllEventNumber(evtcnt, sumsize);
-      sumsize=0; 
+      sumsize=0;
     }
-    
+
+
     usize=0;
     
     usize=node->GetEvent(0xffff);//The real data taking from main node!! This give back the size of the event (in unit of 16 bit words)
@@ -945,12 +975,44 @@ void PrintAllEventNumber(int evtcnt, int sumsize) {
 
 	PRINTF("Rate is %f Hz, Mean Event Size is %f words\n", rate, meansize);
 	PRINTF("Trigger: %6d \n%s\n----------------------------------------------------------------------------------\n\n", cc, reply);
-	FILE* nlog=fopen("nlog.txt","a");
+	FILE* nlog=fopen("./log/nlog.txt","a");
+	fprintf(nlog,"\nUnixTime: %i\n",newtimes);
 	fprintf(nlog,"Rate is %f Hz, Mean Event Size is %f words\n", rate, meansize);
 	fprintf(nlog,"Trigger: %6d \n%s\n----------------------------------------------------------------------------------\n\n", cc, reply);
 	fclose(nlog);
 	return;
 }
+
+void PrintEventNumberTime(int evtcnt, int sumsize) {
+  char reply[2048];
+  static int oldtimes=0;
+  static int oldtimeu=0;
+  static int oldcount=0;
+  timeval unixtime;
+  gettimeofday(&unixtime, NULL);
+
+  int newtimes=unixtime.tv_sec;
+  int newtimeu=unixtime.tv_usec;
+
+  oldcount=evtcnt;
+  oldtimes=newtimes;
+  oldtimeu=newtimeu;
+
+  JJ->GetEventNumber();
+  sprintf(reply,"%s", JJ->PrintAllEventNumber());
+
+  int cc=0;
+  if(!(JJ->GetJLV1Pointer()))  cc=trig->ReadCounter();//ReadCounter works only with NI-USB (so not with JLV1)                                                    
+  else cc=evtcnt;
+
+  FILE* tlog=fopen("./log/tlog.txt","a");
+  fprintf(tlog,"\nUnixTime: %i\n",newtimes);
+  fprintf(tlog,"Trigger: %6d \n%s\n----------------------------------------------------------------------------------\n\n", cc, reply);
+  fclose(tlog);
+  return;
+}
+
+
 
 int StatusJinj(AMSWcom *node, int start, int datasize, int evtnum) {
 	int ret=0;

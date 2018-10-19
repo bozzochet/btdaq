@@ -62,5 +62,6 @@ MODULE_INFO(srcversion, "2453E767C777C15F0C1A0DC");
 static const struct rheldata _rheldata __used
 __attribute__((section(".rheldata"))) = {
 	.rhel_major = 6,
-	.rhel_minor = 6,
+	.rhel_minor = 9,
+	.rhel_release = 695,
 };
