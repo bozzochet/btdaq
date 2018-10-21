@@ -62,4 +62,4 @@ SUMMARY: $(TOP)/TakeData/summary.o
 	$(CXX)  $< -c  -o $@ $(CFLAGS) $(CPPFLAGS) $(ROOTCFLAGS)
 
 clean:
-	rm -fv */*.o test lib/lib*.a ./TESTpci ./TESTepp ./TakeJPCI ./TakeJEPP ./TakePCI ./TakeEPP ./SUMMARY
+	rm -fv */*.o test lib/lib*.a ./TESTpci ./TESTepp ./TakeJPCI ./TakeJEPP ./TakePCI ./TakeEPP ./SUMMARY ./SUMMARY_MUTE
