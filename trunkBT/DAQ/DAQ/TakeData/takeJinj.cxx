@@ -831,7 +831,7 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
     
     logtime = time(NULL);
 
-    if((logtime-starttime==timecounter*timestep)||printevent)  {
+    if((logtime-starttime)==timecounter*timestep)  {
       //      PRINTF("PrintEvent: %d\n", printevent);//only for debug
       printevent=0;
       // usleep(50000);
