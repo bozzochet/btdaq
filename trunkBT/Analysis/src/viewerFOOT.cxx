@@ -1,16 +1,10 @@
-#include "TSystem.h"
 #include "TCanvas.h"
-#include "TPad.h"
 #include "TH1F.h"
-#include "TStyle.h"
-#include "TTree.h"
 #include "TChain.h"
 #include "TFile.h"
 #include "TROOT.h"
-#include "TF1.h"
 #include "TGraph.h"
 #include "TMath.h"
-#include "TStopwatch.h"
 #include "TLine.h"
 #include "TError.h"
 #include <fstream>
@@ -28,26 +22,30 @@ int main(int argc, char* argv[]) {
   gErrorIgnoreLevel = kWarning;
 
  
-  if (argc<3) {
+  if (argc<4) {
     printf("Usage:\n");
-    printf("%s <tdrposnum> <event(s) to display> <0: single event, 1:many events, 2: cumulate event> <first input root-filename> [second input root-filename] ...\n", argv[0]);
+    printf("%s <tdrposnum> <first event> <last event> <first input root-filename> [second input root-filename] ...\n", argv[0]);
     return 1;
   }
 
   string tempname = argv[4];
-
   int pos1 = tempname.find("run_");
   int pos2 = tempname.find(".root");
   string firstfile = tempname.substr(pos1,pos2-pos1);
   
   TString output_filename = "Viewer/viewer_out_"+firstfile+".root";
-  TString output_pdf = "Viewer/"+firstfile+"_evt_"+argv[2]+"_"+argv[3]+".pdf";
+  TString output_pdf;
+  
+  if(atoi(argv[2])!=atoi(argv[3])){
+      output_pdf = "Viewer/"+firstfile+"_evt_from_"+argv[2]+"_to_"+argv[3]+".pdf";
+    } else{
+      output_pdf = "Viewer/"+firstfile+"_evt_"+argv[2]+".pdf";
+    }
   TFile* foutput = new TFile(output_filename.Data(), "UPDATE");
   foutput->cd();
 
 
 
-  
   TChain *chain = new TChain("t4");     
   for (int ii=4; ii<argc; ii++) {
     printf("Adding file %s to the chain...\n", argv[ii]);
@@ -60,14 +58,11 @@ int main(int argc, char* argv[]) {
   Long64_t entries = chain->GetEntries();
   printf("This run has %lld entries\n", entries);
 
-
-
   TGraph *gr_event=new TGraph();
   gr_event->SetMarkerStyle(23);
   gr_event->SetMarkerColor(kBlue);
   gr_event->SetLineColor(kBlue);
   gr_event->GetXaxis()->SetNdivisions(16,false);
-
   
   ev = new Event();
   chain->SetBranchAddress("cluster_branch", &ev);
@@ -84,9 +79,6 @@ int main(int argc, char* argv[]) {
     return -9;
   }
   
-  TStopwatch sw;
-  sw.Start();
-
   double perc=0;
   int maxadc=-999;
   int minadc=0;
@@ -97,57 +89,39 @@ int main(int argc, char* argv[]) {
 
   TCanvas *c2 = new TCanvas("c2", "c2", 1920, 1080);
 
-  if(atoi(argv[3])==1){
-    c2->Print(pdf_open,"pdf");
-  }
+  c2->Print(pdf_open,"pdf");
   
-  
-  for(int evt=0; evt < atoi(argv[2]); evt++)
-  {
-    
-    if(atoi(argv[3])==0){
-      chain->GetEntry(atoi(argv[2]));
-      evt=atoi(argv[2]);
-    } else{
+  for(int evt=atoi(argv[2]); evt <= atoi(argv[3]); evt++)
+    {
       chain->GetEntry(evt);
-    }
-
-    cout << "Processed event " << evt << " of " << entries << endl;
-    bool isevent= true;
-
-
-    
-    if(atoi(argv[3])==1){
-      gr_event->Set(0);
-    }
       
+      cout << "Processed event " << evt << " of " << entries << endl;
+      bool isevent= true;
 
+      gr_event->Set(0);
+      maxadc=0;
+      minadc=0;
+      
       for(int chan=0; chan< 1024; chan++){
-      double testADC=ev->GetRawSignal_PosNum(atoi(argv[1]),chan,0);
+      double ADC=ev->GetRawSignal_PosNum(atoi(argv[1]),chan,0);
       double calADC=ev->GetCalPed_PosNum(atoi(argv[1]),chan,0);
       double cnADC=ev->GetCN_PosNum(atoi(argv[1]),(int)chan/64,0);
-      double test=testADC-calADC-cnADC;
+      double signal=ADC-calADC-cnADC;
 
-      if(test > maxadc) maxadc=test;
-      if(test < minadc) minadc=test;
-      //if(test > 60){isevent=true;}else{isevent=false;}
-      gr_event->SetPoint(gr_event->GetN(),chan, test);
-    }
+      if(signal > maxadc) maxadc=signal;
+      if(signal < minadc) minadc=signal;
+      //if(signal > 60){isevent=true;}else{isevent=false;}
+      gr_event->SetPoint(gr_event->GetN(),chan, signal);
+      }
 
     if(isevent){
       
     TH1F *frame = gPad->DrawFrame(0, minadc-20,1024,maxadc+20);
 
-    if(atoi(argv[3])==1){
-      frame->SetTitle("Event number: "+TString::Format("%02d",(int)evt));
-    }else if(atoi(argv[3])==0){
-      frame->SetTitle("Event number: "+TString::Format("%02d",(int)atoi(argv[2])));
-    }else{
-      frame->SetTitle("Number of events: "+TString::Format("%02d",(int)atoi(argv[2])));
-    }
-    
+    frame->SetTitle("Event number: "+TString::Format("%02d",(int)evt));
     frame->GetXaxis()->SetNdivisions(-16);
     frame->GetXaxis()->SetTitle("Strip number");
+
     gr_event->SetMarkerSize(0.5);
     gr_event->Draw("*lSAME");
 	 
@@ -197,26 +171,18 @@ int main(int argc, char* argv[]) {
     line14->SetLineColor(kRed);
     line14->Draw();
     }
-    if(atoi(argv[3])==1){
-      c2->Print(output_pdf);
-    }
     
-  }
-    c2->Draw();
-    c2->Write();
-
-    if(atoi(argv[3])==1){
-      c2->Clear();
-      c2->Print(pdf_close,"pdf");
-    }else{
-      c2->Print(output_pdf,"pdf");
+    c2->Print(output_pdf);
     }
-
-    cout << endl;
-    cout << "Results in file " << output_pdf << endl;
-    cout << endl;
-    
-  sw.Stop(); 
-  sw.Print();  
+  
+  c2->Draw();
+  c2->Write();
+  c2->Clear();
+  c2->Print(pdf_close,"pdf");
+  
+  cout << endl;
+  cout << "Results in file " << output_pdf << endl;
+  cout << endl;
+  
   return 0;
 }
