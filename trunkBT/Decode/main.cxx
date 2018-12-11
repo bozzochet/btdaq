@@ -46,7 +46,7 @@ int main(int argc,char** argv){
 
   int run=110;
   int ancillary=-1;
-
+  int eventstoprocess=-1;
   int processed=0;
   int jinffailed=0;
   int readfailed=0;
@@ -61,6 +61,7 @@ int main(int argc,char** argv){
   opt->addUsage("" );
   opt->addUsage("Options: ");
   opt->addUsage(     "  -h, --help  ................................. Print this help " );
+  opt->addUsage(     "  --events  ................................... Number of events to decode (default is all events)" );
   opt->addUsage(Form("  --rawdata <path/to/dir/with/raw> ............ Directory with raw data (%s is the default)", DirRaw));
   opt->addUsage(Form("  --caldata <path/to/dir/with/cal> ............ Directory with cal data (%s is the default)", DirCal));
   opt->addUsage(Form("  --rootdata <path/to/dir/for/root> ........... Directory where to put ROOT file (%s is the default)", DirRoot));
@@ -100,6 +101,7 @@ int main(int argc,char** argv){
   opt->setOption("khighthreshold");
   opt->setOption("klowthreshold");
   opt->setOption("cworkaround");
+  opt->setOption("events");
   
   //****************
   //Get Line Command
@@ -155,6 +157,11 @@ int main(int argc,char** argv){
 
   if (opt->getValue("cworkaround")) {
     cworkaround = atoi(opt->getValue("cworkaround"));
+  }
+  
+  //  eventstoprocess
+  if (opt->getValue("events")) {
+    eventstoprocess  = atoi(opt->getValue("events"));
   }
   
   //  printf("%d %f %f %f %f\n", kClusterize, shighthreshold, slowthreshold, khighthreshold, klowthreshold);
@@ -254,6 +261,8 @@ int main(int argc,char** argv){
     
   int ret1=0;
   while (1) {
+
+    if(eventstoprocess!=-1 && processed==eventstoprocess) break;
     
     ret1=dd1->EndOfFile();    
     if (ret1) break;
