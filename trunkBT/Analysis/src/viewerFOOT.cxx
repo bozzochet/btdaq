@@ -33,13 +33,13 @@ int main(int argc, char* argv[]) {
   int pos2 = tempname.find(".root");
   string firstfile = tempname.substr(pos1,pos2-pos1);
   
-  TString output_filename = "Viewer/viewer_out_"+firstfile+".root";
+  TString output_filename = "ViewerOutput/viewer_out_"+firstfile+".root";
   TString output_pdf;
   
   if(atoi(argv[2])!=atoi(argv[3])){
-      output_pdf = "Viewer/"+firstfile+"_evt_from_"+argv[2]+"_to_"+argv[3]+".pdf";
+      output_pdf = "ViewerOutput/"+firstfile+"_evt_from_"+argv[2]+"_to_"+argv[3]+".pdf";
     } else{
-      output_pdf = "Viewer/"+firstfile+"_evt_"+argv[2]+".pdf";
+      output_pdf = "ViewerOutput/"+firstfile+"_evt_"+argv[2]+".pdf";
     }
   TFile* foutput = new TFile(output_filename.Data(), "UPDATE");
   foutput->cd();
@@ -83,6 +83,9 @@ int main(int argc, char* argv[]) {
   int maxadc=-999;
   int minadc=0;
 
+  int firstevent=atoi(argv[2]);
+  int lastevent;
+  
   TString pdf_open = output_pdf+"(";
   TString pdf_close = output_pdf+")";
   
@@ -90,8 +93,16 @@ int main(int argc, char* argv[]) {
   TCanvas *c2 = new TCanvas("c2", "c2", 1920, 1080);
 
   c2->Print(pdf_open,"pdf");
+
+
+  if(atoi(argv[3])>entries){
+    lastevent=entries;
+  }else{
+    lastevent=atoi(argv[3]);
+  }
+    
   
-  for(int evt=atoi(argv[2]); evt <= atoi(argv[3]); evt++)
+  for(int evt=firstevent; evt <= lastevent; evt++)
     {
       chain->GetEntry(evt);
       
@@ -107,6 +118,7 @@ int main(int argc, char* argv[]) {
       double calADC=ev->GetCalPed_PosNum(atoi(argv[1]),chan,0);
       double cnADC=ev->GetCN_PosNum(atoi(argv[1]),(int)chan/64,0);
       double signal=ADC-calADC-cnADC;
+      //double signal=ADC;
 
       if(signal > maxadc) maxadc=signal;
       if(signal < minadc) minadc=signal;
