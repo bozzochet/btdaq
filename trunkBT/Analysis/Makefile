@@ -1,4 +1,5 @@
 CXX := `root-config --cxx`
+ROOTCLING=rootcling
 MARCH := `root-config --arch`
 LD:=$(CXX)
 
@@ -29,6 +30,7 @@ endif
 CFLAGS += $(shell root-config --auxcflags) -fPIC
 
 ROOTDYNAMICLIBS := $(shell root-config --libs) -lMinuit -lSpectrum
+ROOTVIEWERLIBS := $(shell root-config --cflags --glibs)
 ROOTINC := $(shell root-config --incdir)
 
 DECODE = ../Decode/
@@ -41,13 +43,17 @@ INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE) -I$(
 default: Analysis
 
 Viewer: ./obj/viewer.o
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) -o$@ 
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) -o$@
 
-ViewerFOOT: ./obj/viewerFOOT.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@ 
+ViewerGUI:
+	$(ROOTCLING) -f guiDict.cxx $(DECODE)/Event.cxx $(DECODE)/Cluster.cxx $(DECODE)/LadderConf.cxx -c $(SRC)/viewerGUI.hh $(SRC)/guiLinkDef.h
+	$(CXX) $(SRC)/viewerGUI.cxx guiDict.cxx $(INCLUDES) $(ROOTVIEWERLIBS) -o$@
+
+ViewerFOOT: ./obj/viewerFOOT.o $(COMMON)/obj/Utilities.o libEvent
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
 
 Analysis: ./obj/Analysis.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@ 
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
 
 AnalysisFOOT: ./obj/AnalysisFOOT.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
@@ -71,9 +77,12 @@ $(COMMON)/obj/%.o: $(COMMON)/%.cxx
 libEvent:
 	make -C $(DECODE)
 
-clean: 
+clean:
 	rm -Rf ./obj
 	rm -f ./Analysis
+	rm -f ./AnalysisFOOT
+	rm -f ./ViewerGUI
+	rm -f ./ViewerFOOT
 
 cleanALL: clean
 	make -C ../Decode clean

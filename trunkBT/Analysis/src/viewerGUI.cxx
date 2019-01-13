@@ -123,11 +123,19 @@ void viewer(int tdr, int evt, char filename[200]) {
   Event *ev;
   Cluster *cl;
 
-  TGraph *gr_event=new TGraph();
-  gr_event->SetMarkerStyle(23);
-  gr_event->SetMarkerColor(kBlue);
-  gr_event->SetLineColor(kBlue);
-  gr_event->GetXaxis()->SetNdivisions(16,false);
+  TGraph *gr_eventS=new TGraph();
+  TGraph *gr_eventK=new TGraph();
+
+  gr_eventS->SetMarkerColor(kRed+1);
+  gr_eventS->SetLineColor(kRed+1);
+  gr_eventK->SetMarkerColor(kBlue+2);
+  gr_eventK->SetLineColor(kBlue+2);
+
+
+  gr_eventS->SetMarkerStyle(23);
+  gr_eventK->SetMarkerStyle(23);
+  gr_eventS->GetXaxis()->SetNdivisions(16,false);
+  gr_eventK->GetXaxis()->SetNdivisions(16,false);
 
   ev = new Event();
 
@@ -139,7 +147,9 @@ void viewer(int tdr, int evt, char filename[200]) {
 
   chain->GetEntry(evt);
 
-  gr_event->Set(0);
+  gr_eventS->Set(0);
+  gr_eventK->Set(0);
+
   maxadc=0;
   minadc=0;
 
@@ -151,66 +161,35 @@ void viewer(int tdr, int evt, char filename[200]) {
 
     if(signal > maxadc) maxadc=signal;
     if(signal < minadc) minadc=signal;
-    gr_event->SetPoint(gr_event->GetN(),chan, signal);
+    if(chan<640){
+      gr_eventS->SetPoint(gr_eventS->GetN(),chan, signal);
+    } else{
+      gr_eventK->SetPoint(gr_eventK->GetN(),chan, signal);
+    }
   }
 
   TH1F *frame = gPad->DrawFrame(0, minadc-20,1024,maxadc+20);
 
-  frame->SetTitle("Event number "+TString::Format("%d",(int)evt)+" on TDR "+TString::Format("%02d",(int)rh->tdrRawMap[tdr]));
+  frame->SetTitle("Event number "+TString::Format("%0d",(int)evt)+" on TDR "+TString::Format("%02d",(int)rh->tdrRawMap[tdr]));
   frame->GetXaxis()->SetNdivisions(-16);
   frame->GetXaxis()->SetTitle("Strip number");
   frame->GetYaxis()->SetTitle("ADC");
 
-  gr_event->SetMarkerSize(0.5);
-  gr_event->Draw("*lSAME");
+  gr_eventS->SetMarkerSize(0.5);
+  gr_eventS->Draw("*lSAME");
+  gr_eventK->SetMarkerSize(0.5);
+  gr_eventK->Draw("*lSAME");
 
-  TLine *line = new TLine(64,minadc-20,64,maxadc+20);
-  line->SetLineColor(kRed);
-  line->Draw();
-  TLine *line1 = new TLine(128,minadc-20,128,maxadc+20);
-  line1->SetLineColor(kRed);
-  line1->Draw();
-  TLine *line2 = new TLine(192,minadc-20,192,maxadc+20);
-  line2->SetLineColor(kRed);
-  line2->Draw();
-  TLine *line3 = new TLine(256,minadc-20,256,maxadc+20);
-  line3->SetLineColor(kRed);
-  line3->Draw();
-  TLine *line4 = new TLine(320,minadc-20,320,maxadc+20);
-  line4->SetLineColor(kRed);
-  line4->Draw();
-  TLine *line5 = new TLine(384,minadc-20,384,maxadc+20);
-  line5->SetLineColor(kRed);
-  line5->Draw();
-  TLine *line6 = new TLine(448,minadc-20,448,maxadc+20);
-  line6->SetLineColor(kRed);
-  line6->Draw();
-  TLine *line7 = new TLine(512,minadc-20,512,maxadc+20);
-  line7->SetLineColor(kRed);
-  line7->Draw();
-  TLine *line8 = new TLine(576,minadc-20,576,maxadc+20);
-  line8->SetLineColor(kRed);
-  line8->Draw();
-  TLine *line9 = new TLine(640,minadc-20,640,maxadc+20);
-  line9->SetLineColor(kRed);
-  line9->Draw();
-  TLine *line10 = new TLine(704,minadc-20,704,maxadc+20);
-  line10->SetLineColor(kRed);
-  line10->Draw();
-  TLine *line11 = new TLine(768,minadc-20,768,maxadc+20);
-  line11->SetLineColor(kRed);
-  line11->Draw();
-  TLine *line12 = new TLine(832,minadc-20,832,maxadc+20);
-  line12->SetLineColor(kRed);
-  line12->Draw();
-  TLine *line13 = new TLine(896,minadc-20,896,maxadc+20);
-  line13->SetLineColor(kRed);
-  line13->Draw();
-  TLine *line14 = new TLine(960,minadc-20,960,maxadc+20);
-  line14->SetLineColor(kRed);
-  line14->Draw();
+  TLine *line[14];
+  for(int iline=0; iline<15; iline++){
+    line[iline] = new TLine((iline+1)*64,minadc-20,(iline+1)*64,maxadc+20);
+    line[iline]->SetLineColor(kGray+2);
+    line[iline]->Draw();
+  }
 
-  gr_event->Draw();
+  gr_eventS->Draw();
+  gr_eventK->Draw();
+
 }
 
 void MyMainFrame::DoDraw() {
