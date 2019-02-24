@@ -19,21 +19,20 @@
 #include <TGFileDialog.h>
 #include <TGClient.h>
 
-#include"viewerGUI.hh"
+#include "viewerGUI.hh"
 
 #include "Event.hh"
 #include "Utilities.hh"
 #include "DecodeData.hh"
 
-MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h)
+MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h)
 {
   // Create a main frame
-  fMain = new TGMainFrame(p,w,h);
+  fMain = new TGMainFrame(p, w, h);
 
   // Create canvas widget
-  fEcanvas = new TRootEmbeddedCanvas("Ecanvas",fMain,1024,500);
-  fMain->AddFrame(fEcanvas, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10,10,10,1));
-
+  fEcanvas = new TRootEmbeddedCanvas("Ecanvas", fMain, 1024, 500);
+  fMain->AddFrame(fEcanvas, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 10, 1));
 
   fHor0 = new TGHorizontalFrame(fMain, 1024, 20);
   fHor0b = new TGHorizontalFrame(fMain, 1024, 20);
@@ -43,7 +42,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h)
 
   //  fStatusBar = new TGStatusBar(fVer1,1024,100,kHorizontalFrame);
   //  fStatusBar = new TGLabel(fVer1,"Test",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kSunkenFrame);
-  fStatusBar = new TGTextView(fVer1,500,150);
+  fStatusBar = new TGTextView(fVer1, 500, 150);
   fStatusBar->LoadBuffer("Event viewer for AMS raw data .root files.");
   fStatusBar->AddLine("");
   fStatusBar->AddLine("Files must have been acquired in raw (non compressed) mode.");
@@ -59,25 +58,25 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h)
   fHor3 = new TGHorizontalFrame(fMain, 1024, 20);
 
   fOpen = new TGTextButton(fHor0, "&Open");
-  fOpen->Connect("Clicked()","MyMainFrame",this,"DoOpen()");
+  fOpen->Connect("Clicked()", "MyMainFrame", this, "DoOpen()");
 
   fDraw = new TGTextButton(fHor0, "&Draw");
-  fDraw->Connect("Clicked()","MyMainFrame",this,"DoDraw()");
+  fDraw->Connect("Clicked()", "MyMainFrame", this, "DoDraw()");
 
   fExit = new TGTextButton(fHor0, "&Exit", "gApplication->Terminate(0)");
 
   evtLabel = new TGLabel(fHor1, "Event Number:");
-  fHor1->AddFrame(evtLabel, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 5, 2, 2, 2));
-  fNumber = new TGNumberEntry(fHor1, 0, 9,999, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative, TGNumberFormat::kNELLimitMinMax, 0, 99999);
-  fNumber->GetNumberEntry()->Connect("ReturnPressed()", "MyMainFrame", this,"DoDraw()");
+  fHor1->AddFrame(evtLabel, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 5, 2, 2, 2));
+  fNumber = new TGNumberEntry(fHor1, 0, 9, 999, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative, TGNumberFormat::kNELLimitMinMax, 0, 99999);
+  fNumber->GetNumberEntry()->Connect("ReturnPressed()", "MyMainFrame", this, "DoDraw()");
 
   tdrLabel = new TGLabel(fHor2, "TDR PosNum:  ");
-  fHor2->AddFrame(tdrLabel, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 5, 2, 2, 2));
-  fNumber2 = new TGNumberEntry(fHor2, 0, 9,999, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative, TGNumberFormat::kNELLimitMinMax, 0, 24);
-  fNumber2->GetNumberEntry()->Connect("ReturnPressed()", "MyMainFrame", this,"DoDraw()");
+  fHor2->AddFrame(tdrLabel, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 5, 2, 2, 2));
+  fNumber2 = new TGNumberEntry(fHor2, 0, 9, 999, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative, TGNumberFormat::kNELLimitMinMax, 0, 24);
+  fNumber2->GetNumberEntry()->Connect("ReturnPressed()", "MyMainFrame", this, "DoDraw()");
 
   fileLabel = new TGLabel(fHor3, "No rootfile opened");
-  fHor3->AddFrame(fileLabel, new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsCenterY,5, 2, 2, 2));
+  fHor3->AddFrame(fileLabel, new TGLayoutHints(kLHintsExpandX | kLHintsLeft | kLHintsCenterY, 5, 2, 2, 2));
 
   fHor1->AddFrame(fNumber, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
   fHor2->AddFrame(fNumber2, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
@@ -86,18 +85,18 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h)
   fHor0->AddFrame(fDraw, new TGLayoutHints(kLHintsCenterX, 5, 5, 3, 4));
   fHor0->AddFrame(fExit, new TGLayoutHints(kLHintsCenterX, 5, 5, 3, 4));
 
-  fHor0b-> AddFrame(fVer0,new TGLayoutHints(kLHintsCenterX|kLHintsExpandX|kLHintsExpandY, 2, 2, 5, 1));
-  fHor0b-> AddFrame(fVer1,new TGLayoutHints(kLHintsCenterX|kLHintsExpandX|kLHintsExpandY, 2, 2, 5, 1));
+  fHor0b->AddFrame(fVer0, new TGLayoutHints(kLHintsCenterX | kLHintsExpandX | kLHintsExpandY, 2, 2, 5, 1));
+  fHor0b->AddFrame(fVer1, new TGLayoutHints(kLHintsCenterX | kLHintsExpandX | kLHintsExpandY, 2, 2, 5, 1));
 
-  fMain->AddFrame(fHor0,new TGLayoutHints(kLHintsCenterX, 2, 2, 5, 1));
-  fMain->AddFrame(fHor0b,new TGLayoutHints(kLHintsExpandX|kLHintsCenterX, 2, 2, 5, 1));
+  fMain->AddFrame(fHor0, new TGLayoutHints(kLHintsCenterX, 2, 2, 5, 1));
+  fMain->AddFrame(fHor0b, new TGLayoutHints(kLHintsExpandX | kLHintsCenterX, 2, 2, 5, 1));
 
-  fVer0->AddFrame(fHor1,new TGLayoutHints(kLHintsCenterX|kLHintsCenterY, 2, 2, 5, 1));
-  fVer0->AddFrame(fHor2,new TGLayoutHints(kLHintsCenterX|kLHintsCenterY, 2, 2, 5, 1));
-  fMain->AddFrame(fHor3,new TGLayoutHints(kLHintsExpandX|kLHintsCenterX, 2, 2, 5, 1));
+  fVer0->AddFrame(fHor1, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY, 2, 2, 5, 1));
+  fVer0->AddFrame(fHor2, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY, 2, 2, 5, 1));
+  fMain->AddFrame(fHor3, new TGLayoutHints(kLHintsExpandX | kLHintsCenterX, 2, 2, 5, 1));
 
   //  fStatusBar->Resize(0,200);
-  fVer1->AddFrame(fStatusBar, new TGLayoutHints(kLHintsCenterX| kLHintsBottom |kLHintsLeft |kLHintsExpandY, 5, 5, 2, 2));
+  fVer1->AddFrame(fStatusBar, new TGLayoutHints(kLHintsCenterX | kLHintsBottom | kLHintsLeft | kLHintsExpandY, 5, 5, 2, 2));
 
   fMain->SetCleanup(kDeepCleanup);
   fMain->SetWindowName("AMS Raw Event Viewer");
@@ -107,70 +106,75 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h)
 }
 
 const char *filetypes[] = {
-  "ROOT files",    "*.root",
-  "All files",     "*",
-  0,               0
-};
+    "ROOT files", "*.root",
+    "All files", "*",
+    0, 0};
 
-void viewer(int tdr, int evt, char filename[200]) {
+void MyMainFrame::viewer(int tdr, int evt, char filename[200])
+{
 
   TChain *chain = new TChain("t4");
   chain->Add(filename);
   Long64_t entries = chain->GetEntries();
 
-  RHClass* rh = (RHClass*)chain->GetTree()->GetUserInfo()->At(0);
+  RHClass *rh = (RHClass *)chain->GetTree()->GetUserInfo()->At(0);
 
   Event *ev;
   Cluster *cl;
 
-  TGraph *gr_eventS=new TGraph();
-  TGraph *gr_eventK=new TGraph();
+  TGraph *gr_eventS = new TGraph();
+  TGraph *gr_eventK = new TGraph();
 
-  gr_eventS->SetMarkerColor(kRed+1);
-  gr_eventS->SetLineColor(kRed+1);
-  gr_eventK->SetMarkerColor(kBlue+2);
-  gr_eventK->SetLineColor(kBlue+2);
-
+  gr_eventS->SetMarkerColor(kRed + 1);
+  gr_eventS->SetLineColor(kRed + 1);
+  gr_eventK->SetMarkerColor(kBlue + 2);
+  gr_eventK->SetLineColor(kBlue + 2);
 
   gr_eventS->SetMarkerStyle(23);
   gr_eventK->SetMarkerStyle(23);
-  gr_eventS->GetXaxis()->SetNdivisions(16,false);
-  gr_eventK->GetXaxis()->SetNdivisions(16,false);
+  gr_eventS->GetXaxis()->SetNdivisions(16, false);
+  gr_eventK->GetXaxis()->SetNdivisions(16, false);
 
   ev = new Event();
 
   chain->SetBranchAddress("cluster_branch", &ev);
   chain->GetEntry(0);
 
-  int maxadc=-999;
-  int minadc=0;
+  int maxadc = -999;
+  int minadc = 0;
 
   chain->GetEntry(evt);
 
   gr_eventS->Set(0);
   gr_eventK->Set(0);
 
-  maxadc=0;
-  minadc=0;
+  maxadc = 0;
+  minadc = 0;
 
-  for(int chan=0; chan< 1024; chan++){
-    double ADC=ev->GetRawSignal_PosNum(tdr,chan,0);
-    double calADC=ev->GetCalPed_PosNum(tdr,chan,0);
-    double cnADC=ev->GetCN_PosNum(tdr,(int)chan/64,0);
-    double signal=ADC-calADC-cnADC;
+  for (int chan = 0; chan < 1024; chan++)
+  {
+    double ADC = ev->GetRawSignal_PosNum(tdr, chan, 0);
+    double calADC = ev->GetCalPed_PosNum(tdr, chan, 0);
+    double cnADC = ev->GetCN_PosNum(tdr, (int)chan / 64, 0);
+    double signal = ADC - calADC - cnADC;
 
-    if(signal > maxadc) maxadc=signal;
-    if(signal < minadc) minadc=signal;
-    if(chan<640){
-      gr_eventS->SetPoint(gr_eventS->GetN(),chan, signal);
-    } else{
-      gr_eventK->SetPoint(gr_eventK->GetN(),chan, signal);
+    if (signal > maxadc)
+      maxadc = signal;
+    if (signal < minadc)
+      minadc = signal;
+    if (chan < 640)
+    {
+      gr_eventS->SetPoint(gr_eventS->GetN(), chan, signal);
+    }
+    else
+    {
+      gr_eventK->SetPoint(gr_eventK->GetN(), chan, signal);
     }
   }
 
-  TH1F *frame = gPad->DrawFrame(0, minadc-20,1024,maxadc+20);
+  TH1F *frame = gPad->DrawFrame(0, minadc - 20, 1024, maxadc + 20);
 
-  frame->SetTitle("Event number "+TString::Format("%0d",(int)evt)+" on TDR "+TString::Format("%02d",(int)rh->tdrRawMap[tdr]));
+  frame->SetTitle("Event number " + TString::Format("%0d", (int)evt) + " on TDR " + TString::Format("%02d", (int)rh->tdrRawMap[tdr]));
   frame->GetXaxis()->SetNdivisions(-16);
   frame->GetXaxis()->SetTitle("Strip number");
   frame->GetYaxis()->SetTitle("ADC");
@@ -181,66 +185,86 @@ void viewer(int tdr, int evt, char filename[200]) {
   gr_eventK->Draw("*lSAME");
 
   TLine *line[14];
-  for(int iline=0; iline<15; iline++){
-    line[iline] = new TLine((iline+1)*64,minadc-20,(iline+1)*64,maxadc+20);
-    line[iline]->SetLineColor(kGray+2);
+  for (int iline = 0; iline < 15; iline++)
+  {
+    line[iline] = new TLine((iline + 1) * 64, minadc - 20, (iline + 1) * 64, maxadc + 20);
+    line[iline]->SetLineColor(kGray + 2);
     line[iline]->Draw();
   }
 
   gr_eventS->Draw();
   gr_eventK->Draw();
 
-}
+  TCanvas *fCanvas = fEcanvas->GetCanvas();
+  fCanvas->cd();
+  fCanvas->Update();
 
-void MyMainFrame::DoDraw() {
-  if(gROOT->GetListOfFiles()->FindObject((char*)(fileLabel->GetText())->GetString())){
-  viewer(fNumber2->GetNumberEntry()->GetIntNumber(), fNumber->GetNumberEntry()->GetIntNumber(), (char*)(fileLabel->GetText())->GetString());
-    TCanvas *fCanvas = fEcanvas->GetCanvas();
-    fCanvas->cd();
-    fCanvas->Update();
+  delete chain;
+  delete ev;
+  delete gr_eventS;
+  delete gr_eventK;
+  for (int iline = 0; iline < 15; iline++)
+  {
+    delete line[iline];
   }
 }
 
-void MyMainFrame::DoOpen() {
+void MyMainFrame::DoDraw()
+{
+  if (gROOT->GetListOfFiles()->FindObject((char *)(fileLabel->GetText())->GetString()))
+  {
+    viewer(fNumber2->GetNumberEntry()->GetIntNumber(), fNumber->GetNumberEntry()->GetIntNumber(), (char *)(fileLabel->GetText())->GetString());
+  }
+}
+
+void MyMainFrame::DoOpen()
+{
   static TString dir(".");
   TGFileInfo fi;
   fi.fFileTypes = filetypes;
-  fi.fIniDir    = StrDup(dir);
+  fi.fIniDir = StrDup(dir);
   printf("fIniDir = %s\n", fi.fIniDir);
   new TGFileDialog(gClient->GetRoot(), fMain, kFDOpen, &fi);
   printf("Open file: %s (dir: %s)\n", fi.fFilename, fi.fIniDir);
 
-  if(fi.fFilename){
+  if (fi.fFilename)
+  {
     TFile *f = TFile::Open(fi.fFilename);
-    bool ISt4=f->GetListOfKeys()->Contains("t4");
-    if(ISt4){
-      TTree* t =(TTree*)f->Get("t4");
-      int entries  = t->GetEntries();
-      RHClass* rh = (RHClass*)t->GetUserInfo()->At(0);
+    bool ISt4 = f->GetListOfKeys()->Contains("t4");
+    if (ISt4)
+    {
+      TTree *t = (TTree *)f->Get("t4");
+      int entries = t->GetEntries();
+      RHClass *rh = (RHClass *)t->GetUserInfo()->At(0);
 
       fStatusBar->Clear();
-      fStatusBar->LoadBuffer("Run: "+TGString(rh->Run)+" - Date "+TString(rh->date));
-      fStatusBar->AddLine("Number of events: "+TGString(entries));
-      fStatusBar->AddLine("# Jinf = "+TGString(rh->nJinf));
+      fStatusBar->LoadBuffer("Run: " + TGString(rh->Run) + " - Date " + TString(rh->date));
+      fStatusBar->AddLine("Number of events: " + TGString(entries));
+      fStatusBar->AddLine("# Jinf = " + TGString(rh->nJinf));
 
-      for (int ii=0;ii<rh->nJinf;ii++){
-        fStatusBar->AddLine("Jinf Map pos: "+TGString(ii)+" Jinf num: "+TGString(rh->JinfMap[ii]));
+      for (int ii = 0; ii < rh->nJinf; ii++)
+      {
+        fStatusBar->AddLine("Jinf Map pos: " + TGString(ii) + " Jinf num: " + TGString(rh->JinfMap[ii]));
       }
 
-      fStatusBar->AddLine("# TDR RAW = "+TGString(rh->ntdrRaw));
-      for (int ii=0;ii<rh->ntdrRaw;ii++){
-        fStatusBar->AddLine("TDR RAW Map pos: "+TGString(ii)+" tdrnum: "+TGString(rh->tdrRawMap[ii]));
+      fStatusBar->AddLine("# TDR RAW = " + TGString(rh->ntdrRaw));
+      for (int ii = 0; ii < rh->ntdrRaw; ii++)
+      {
+        fStatusBar->AddLine("TDR RAW Map pos: " + TGString(ii) + " tdrnum: " + TGString(rh->tdrRawMap[ii]));
       }
 
-      fStatusBar->AddLine("# TDR CMP = "+TGString(rh->ntdrCmp));
-      for (int ii=0;ii<rh->ntdrCmp;ii++){
-        fStatusBar->AddLine("TDR CMP Map pos: "+TGString(ii)+" tdrnum: "+TGString(rh->tdrCmpMap[ii]));
+      fStatusBar->AddLine("# TDR CMP = " + TGString(rh->ntdrCmp));
+      for (int ii = 0; ii < rh->ntdrCmp; ii++)
+      {
+        fStatusBar->AddLine("TDR CMP Map pos: " + TGString(ii) + " tdrnum: " + TGString(rh->tdrCmpMap[ii]));
       }
 
       fileLabel->SetText(fi.fFilename);
       fNumber->SetText("0");
       DoDraw();
-    }else{
+    }
+    else
+    {
       fStatusBar->Clear();
       fStatusBar->AddLine("ERROR: the file does not contain t4 TTree");
       return;
@@ -249,20 +273,23 @@ void MyMainFrame::DoOpen() {
   dir = fi.fIniDir;
 }
 
-MyMainFrame::~MyMainFrame() {
+MyMainFrame::~MyMainFrame()
+{
   // Clean up used widgets: frames, buttons, layout hints
   fMain->Cleanup();
   delete fMain;
 }
 
-void viewerGUI() {
+void viewerGUI()
+{
   // Popup the GUI...
-  new MyMainFrame(gClient->GetRoot(),500,500);
+  new MyMainFrame(gClient->GetRoot(), 500, 500);
 }
 
-int main(int argc, char **argv) {
-   TApplication theApp("App",&argc,argv);
-   viewerGUI();
-   theApp.Run();
-   return 0;
+int main(int argc, char **argv)
+{
+  TApplication theApp("App", &argc, argv);
+  viewerGUI();
+  theApp.Run();
+  return 0;
 }

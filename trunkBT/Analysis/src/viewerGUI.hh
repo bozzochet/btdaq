@@ -14,22 +14,24 @@ class TGLayout;
 class TGFrame;
 class TGFileDialog;
 
-class MyMainFrame {
+class MyMainFrame
+{
   RQ_OBJECT("MyMainFrame")
 private:
-  TGMainFrame         *fMain;
+  TGMainFrame *fMain;
   TRootEmbeddedCanvas *fEcanvas;
-  TGNumberEntry       *fNumber, *fNumber2;
-  TGHorizontalFrame   *fHor0, *fHor0b, *fHor1, *fHor2,*fHor3;
-  TGVerticalFrame     *fVer0, *fVer1;
-  TGTextButton        *fExit, *fDraw, *fOpen;
-  TGLabel             *evtLabel, *tdrLabel, *fileLabel;
-  TGTextView          *fStatusBar;
+  TGNumberEntry *fNumber, *fNumber2;
+  TGHorizontalFrame *fHor0, *fHor0b, *fHor1, *fHor2, *fHor3;
+  TGVerticalFrame *fVer0, *fVer1;
+  TGTextButton *fExit, *fDraw, *fOpen;
+  TGLabel *evtLabel, *tdrLabel, *fileLabel;
+  TGTextView *fStatusBar;
 
 public:
-  MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h);
+  MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h);
   virtual ~MyMainFrame();
   void DoDraw();
   void DoOpen();
-//  ClassDef(MyMainFrame, 0)
+  void viewer(int tdr, int evt, char filename[200]);
+  ClassDef(MyMainFrame, 0)
 };
