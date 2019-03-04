@@ -412,6 +412,49 @@ int DecodeData::ReadOneEvent_data(){
   //Read The Event Size
   if(pri) printf("ReadOneEvent) pos:%ld\n ",ftell(rawfile)/2);
   
+#ifdef CALOCUBE
+  int header_size;
+  fstat=ReadFile(&header_size,sizeof(int),1,rawfile);
+  if(fstat!=1) 
+	return 1;
+  if(header_size != (int)sizeof(wholeheader)) {//not clear to me why he's always reading this kind of header: TIC data where collected with the other header...
+	  printf("Warning : the size of wholeheader is %d instead of the expected value %d\n", header_size, (int)sizeof(wholeheader));
+	  return 1;
+  }
+
+  wholeheader calocube_header;
+  fstat=ReadFile(&calocube_header,sizeof(wholeheader),1,rawfile);
+  if (fstat==-1) return 1;
+  /*
+  cout << hex << endl;
+  cout << "Header SIZE = " << calocube_header.SIZE << endl;
+  cout << "Header RRRWNODETYPE = " << calocube_header.RRRWNODETYPE << endl;
+  cout << "Header FBITAG = " << calocube_header.FBITAG << endl;
+  cout << "Header TIMEMSB = " << calocube_header.TIMEMSB << endl;
+  cout << "Header TIMELSB = " << calocube_header.TIMELSB << endl;
+  cout << "Header JMDCSIZE = " << calocube_header.JMDCSIZE << endl;
+  cout << "Header JMDCRRRWNODETYPE = " << calocube_header.JMDCRRRWNODETYPE << endl;
+  cout << "Header RUNNUMMSB = " << calocube_header.RUNNUMMSB << endl;
+  cout << "Header RUNNUMLSB = " << calocube_header.RUNNUMLSB << endl;
+  cout << "Header RUNTAGMSB = " << calocube_header.RUNTAGMSB << endl;
+  cout << "Header RUNTAGLSB = " << calocube_header.RUNTAGLSB << endl;
+  cout << "Header EVTNUMMSB = " << calocube_header.EVTNUMMSB << endl;
+  cout << "Header EVTNUMLSB = " << calocube_header.EVTNUMLSB << endl;
+  cout << "Header JMDCTIMEMSB = " << calocube_header.JMDCTIMEMSB << endl;
+  cout << "Header JMDCTIMELSB = " << calocube_header.JMDCTIMELSB << endl;
+  cout << "Header JMDCTIMEFINEMSB = " << calocube_header.JMDCTIMEFINEMSB << endl;
+  cout << "Header JMDCTIMEFINELSB = " << calocube_header.JMDCTIMEFINELSB << endl;
+  int time_s = (int)(calocube_header.JMDCTIMEMSB*pow(2, 16)+calocube_header.JMDCTIMELSB);
+  int time_u = (int)(calocube_header.JMDCTIMEFINEMSB*pow(2, 16)+calocube_header.JMDCTIMEFINELSB);
+  time_t date_time = time_s;
+  cout << "Equivalent to \n\t" << dec << asctime(localtime(&date_time)) <<
+		  "\t\t and " << time_u << " usec " << hex << endl;
+  cout << "Header GReservedGroups = " << calocube_header.GReservedGroups << endl;
+  cout << "Header DSPSIZE = " << calocube_header.DSPSIZE << endl;
+  cout << "Header DSPRRRWNODETYPE = " << calocube_header.DSPRRRWNODETYPE << endl;
+  */
+#endif
+
   fstat=ReadFile(&size,sizeof(size),1,rawfile);
   if (fstat==-1) return 1; 
   

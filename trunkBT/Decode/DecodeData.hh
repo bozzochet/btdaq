@@ -5,6 +5,8 @@
 #include "TH2F.h"
 #include <cstdio>
 
+//#define CALOCUBE
+
 typedef struct calib{
   float ped[1024];
   float rsig[1024];
@@ -22,6 +24,38 @@ struct header {			//for file writing NOT in AMSBlock
   double gonpar[4];		// goniometer parameters
   unsigned int refmaskjj;//16/08/2014 - On Mac this is seen as long 8 (instead of 4) and the reader is read wrongly
   unsigned int refmask[24];
+};
+
+#pragma pack(pop)
+
+//this kind of header has been put by E. Berti, in the CALOCUBE "flavour" but just for a misunderstanding of the DAQ code: there we write files with the other WritingMethod, unused since years, and so this is header is useless: for sure in this Decode is not needed.
+#pragma pack(push, 1)
+
+struct wholeheader {
+	//---- Primary and secondary header ---------------------//
+	unsigned short SIZE;
+	unsigned short RRRWNODETYPE;
+	unsigned short FBITAG;
+	unsigned short TIMEMSB;
+	unsigned short TIMELSB;
+	//---- JMDC data block ----------------------------------//
+	unsigned short JMDCSIZE;
+	unsigned short JMDCRRRWNODETYPE;
+
+	unsigned short RUNNUMMSB;
+	unsigned short RUNNUMLSB;
+	unsigned short RUNTAGMSB;
+	unsigned short RUNTAGLSB;
+	unsigned short EVTNUMMSB;
+	unsigned short EVTNUMLSB;
+	unsigned short JMDCTIMEMSB;
+	unsigned short JMDCTIMELSB;
+	unsigned short JMDCTIMEFINEMSB;
+	unsigned short JMDCTIMEFINELSB;
+	unsigned short GReservedGroups;
+	//---- DSP Slave Format ----------------------------------//
+	unsigned short DSPSIZE;
+	unsigned short DSPRRRWNODETYPE;
 };
 
 #pragma pack(pop)
