@@ -58,6 +58,7 @@ public:
   //! Get Gain Correction "component" for the vanum VA of the tdrnum TDR for the jinfnum JINF
   static float GetGainCorrectionPar(int jinfnum, int tdrnum, int vanum, int component);
 
+  void ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side);//to be called just one, before event loop
   bool FindTrackAndFit(int nptsS, int nptsK, bool verbose=false);
   bool FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, double threshK, bool verbose=false);
   double RefineTrack(double nsigmaS=5.0, int nptsS=3, double nsigmaK=5.0, int nptsK=3, bool verbose=false);
@@ -70,12 +71,12 @@ public:
   double GetChiTrackY() { return _chisqy; };
   double ExtrapolateTrack(double z, int component);
   bool IsClusterUsedInTrack(int index_cluster);
-  inline unsigned long long int GetTrackHitPattern(int side, int jinfnum=0){ return _track_cluster_pattern[jinfnum][side];};
+  inline unsigned int GetTrackHitPattern(int side, int jinfnum=0){ return _track_cluster_pattern[jinfnum][side];};//is in binary format! Use std::bitset to show!
   bool IsTDRInTrack(int side, int tdrnum, int jinfnum=0);
   inline std::vector<std::pair<int, std::pair<int, int> > > GetHitVector(){ return _v_trackhit; }
   inline unsigned int GetNHitsTrack(){ return (unsigned int)(_v_trackhit.size()); }
-  inline unsigned int GetNHitsXTrack(){ return (unsigned int)(_v_trackS.size()); }
-  inline unsigned int GetNHitsYTrack(){ return (unsigned int)(_v_trackK.size()); }
+  inline unsigned int GetNHitsSTrack(){ return (unsigned int)(_v_trackS.size()); }
+  inline unsigned int GetNHitsKTrack(){ return (unsigned int)(_v_trackK.size()); }
   double GetChargeTrack(int side);
 
   double GetCalPed_PosNum(int tdrposnum, int channel, int Jinfnum=0);
@@ -192,7 +193,11 @@ private:
   //! filled by FillHitVector(). Here the int is the ladder number and the second pair is <cluster index X, cluster index Y>
   std::vector<std::pair<int, std::pair<int, int> > > _v_trackhit;//!
   //! filled by StoreTrackClusterPatterns()
-  unsigned long long int _track_cluster_pattern[NJINF][2];//!
+  unsigned int _track_cluster_pattern[NJINF][2];//!
+
+  // int is jinfnum*100+tdrnum
+  std::vector<int> _v_ladderS_to_ignore;//!
+  std::vector<int> _v_ladderK_to_ignore;//!
 
   ClassDef(Event,4)
 };

@@ -5,6 +5,7 @@
 #include "TMath.h"
 #include <unistd.h>
 #include <iostream>
+#include <bitset>
 
 using namespace std;
 
@@ -422,6 +423,10 @@ void Event::ClearTrack(){
 
   _v_trackhit.clear();
 
+  // not to be cleared since ExcludeTDRFromTrack must be called before the event loop!
+  //  _v_ladderS_to_ignore.clear();
+  //  _v_ladderK_to_ignore.clear();
+
   for (int ii=0; ii<NJINF; ii++) {;
     for (int ss=0; ss<2; ss++) {
       _track_cluster_pattern[ii][ss]=0;
@@ -471,6 +476,20 @@ void Event::ClearTrack_sf(){
   return;
 }
 
+void Event::ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side) {
+
+  int item = jinfnum*100+tdrnum;
+
+  if (side==0) {
+    _v_ladderS_to_ignore.push_back(item);
+  }
+  else {
+    _v_ladderK_to_ignore.push_back(item);
+  }
+
+      return;
+}
+
 bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
 
   ClearTrack();
@@ -484,13 +503,18 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
 
     int jinfnum = current_cluster->GetJinf();
     int tdrnum = current_cluster->GetTDR();
+    int item = jinfnum*100+tdrnum;
 
     int side=current_cluster->side;
     if (side==0) {
-      v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+      if (!(std::find(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item)!=_v_ladderS_to_ignore.end())) {
+	v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+      }
     }
     else {
-      v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+      if (!(std::find(_v_ladderK_to_ignore.begin(), _v_ladderK_to_ignore.end(), item)!=_v_ladderK_to_ignore.end())) {
+	v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+      }
     }
 
   }
@@ -523,32 +547,37 @@ bool Event::FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, do
 
     int jinfnum = current_cluster->GetJinf();
     int tdrnum = current_cluster->GetTDR();
+    int item = jinfnum*100+tdrnum;
 
     int side=current_cluster->side;
     if (side==0) {
-      if (current_cluster->GetTotSN()>threshS) {
-	if (v_q_laddS[jinfnum][tdrnum].size()==0) {
-	  v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
-	  v_q_laddS[jinfnum][tdrnum].push_back(current_cluster->GetCharge());
-	}
-	else {
-	  if (current_cluster->GetCharge()>v_q_laddS[jinfnum][tdrnum][0]) {
-	    v_cog_laddS[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2)));
-	    v_q_laddS[jinfnum][tdrnum][0] = current_cluster->GetCharge();
+      if (!(std::find(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item)!=_v_ladderS_to_ignore.end())) {
+	if (current_cluster->GetTotSN()>threshS) {
+	  if (v_q_laddS[jinfnum][tdrnum].size()==0) {
+	    v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+	    v_q_laddS[jinfnum][tdrnum].push_back(current_cluster->GetCharge());
+	  }
+	  else {
+	    if (current_cluster->GetCharge()>v_q_laddS[jinfnum][tdrnum][0]) {
+	      v_cog_laddS[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2)));
+	      v_q_laddS[jinfnum][tdrnum][0] = current_cluster->GetCharge();
+	    }
 	  }
 	}
       }
     }
     else {
-      if (current_cluster->GetTotSN()>threshK) {
-	if (v_q_laddK[jinfnum][tdrnum].size()==0) {
-	  v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
-	  v_q_laddK[jinfnum][tdrnum].push_back(current_cluster->GetCharge());
-	}
-	else {
-	  if (current_cluster->GetCharge()>v_q_laddK[jinfnum][tdrnum][0]) {
-	    v_cog_laddK[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2)));
-	    v_q_laddK[jinfnum][tdrnum][0] = current_cluster->GetCharge();
+      if (!(std::find(_v_ladderK_to_ignore.begin(), _v_ladderK_to_ignore.end(), item)!=_v_ladderK_to_ignore.end())) {
+	if (current_cluster->GetTotSN()>threshK) {
+	  if (v_q_laddK[jinfnum][tdrnum].size()==0) {
+	    v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+	    v_q_laddK[jinfnum][tdrnum].push_back(current_cluster->GetCharge());
+	  }
+	  else {
+	    if (current_cluster->GetCharge()>v_q_laddK[jinfnum][tdrnum][0]) {
+	      v_cog_laddK[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2)));
+	      v_q_laddK[jinfnum][tdrnum][0] = current_cluster->GetCharge();
+	    }
 	  }
 	}
       }
@@ -1023,8 +1052,9 @@ void Event::StoreTrackClusterPatterns(){
       int jinfnum=cl->GetJinf();
       //      printf("JINF %d, TDR %d , %d cluster (%d) in track\n", jinfnum, tdrnum, index_cluster, i_side);
 
-      unsigned long long int tdr_index = (int)(pow(10.0, (double)(tdrnum)));
-      //      printf("TDR %d %d --> %lld\n", tdrnum, i_side, tdr_index);
+      //      unsigned long long int tdr_index = (int)(pow(10.0, (double)(tdrnum)));
+      int tdr_index = 1<<tdrnum;
+      //      printf("TDR %d %d --> %s\n", tdrnum, i_side, std::bitset<NTDRS>(tdr_index).to_string().c_str());
       _track_cluster_pattern[jinfnum][i_side] +=  tdr_index;
     }
   }
@@ -1033,7 +1063,8 @@ void Event::StoreTrackClusterPatterns(){
 }
 
 bool Event::IsTDRInTrack(int side, int tdrnum, int jinfnum) {
-  return ((bool)(((unsigned long long int)(_track_cluster_pattern[jinfnum][side]/((int)(pow((double)10, (double)tdrnum)))))%10));
+  //  return ((bool)(((unsigned long long int)(_track_cluster_pattern[jinfnum][side]/((int)(pow((double)10, (double)tdrnum)))))%10));
+  return ((bool)(_track_cluster_pattern[jinfnum][side] & (1<<tdrnum)));
 }
 
 void Event::FillHitVector(){
