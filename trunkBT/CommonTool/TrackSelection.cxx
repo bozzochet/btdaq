@@ -1,16 +1,38 @@
 #include "TrackSelection.hh"
+#include <algorithm>
 
 //#define PRINTDEBUG printf("%s) This is the line number %d\n", __FILE__, __LINE__);
 #define PRINTDEBUG
 
 using namespace std;
 
+// int is jinfnum*100+tdrnum
+std::vector<int> _v_ladderS_to_ignore;//!
+std::vector<int> _v_ladderK_to_ignore;//! 
+
+void ExcludeTDR(Event* ev, int jinfnum, int tdrnum, int side){
+  
+  ev->ExcludeTDRFromTrack(jinfnum, tdrnum, side);
+
+  int item = jinfnum*100+tdrnum;
+  
+  if (side==0) {
+    _v_ladderS_to_ignore.push_back(item);
+  }
+  else {
+    _v_ladderK_to_ignore.push_back(item);
+  }
+  
+  return;
+}
+
 bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS, int safetyK){
 
   PRINTDEBUG;
   
   int NClusTot = ev->GetNClusTot();
-  if(NClusTot<(minclus-1) ||  NClusTot>(maxclus+1)) return false;
+  //  if(NClusTot<(minclus-1) || NClusTot>(maxclus+1)) return false; //we have to count just the one not excluded
+  int NClusTot_notexcl = 0;
 
   PRINTDEBUG;
   
@@ -37,9 +59,28 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
     int ladder = cl->ladder;
     //    printf("%d --> %d\n", ladder, rh->FindPos(ladder));
 
+    int jinfnum = cl->GetJinf();
+    int tdrnum = cl->GetTDR();
+    int item = jinfnum*100+tdrnum;
+
     PRINTDEBUG;
     
     int side=cl->side;
+
+    //    printf("%d %d %d %d\n", ladder, jinfnum, tdrnum, side);
+
+    PRINTDEBUG;
+
+    if (side==0) {
+      if (std::find(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item)!=_v_ladderS_to_ignore.end()) continue;
+    }
+    else {
+      if (std::find(_v_ladderK_to_ignore.begin(), _v_ladderK_to_ignore.end(), item)!=_v_ladderK_to_ignore.end()) continue;
+    }
+
+    NClusTot_notexcl++;
+
+    //    printf("AFTER: %d %d %d %d\n", ladder, jinfnum, tdrnum, side);
 
     PRINTDEBUG;
     
@@ -71,6 +112,10 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
     PRINTDEBUG;
     
   }
+
+  //  if(NClusTot<(minclus-1) || NClusTot>(maxclus+1)) printf("%d -> %d\n", NClusTot, NClusTot_notexcl);
+  //  if(NClusTot>(maxclus+1)) printf("%d -> %d\n", NClusTot, NClusTot_notexcl);
+  if(NClusTot_notexcl<(minclus-1) || NClusTot_notexcl>(maxclus+1)) return false;
 
   PRINTDEBUG;
   
