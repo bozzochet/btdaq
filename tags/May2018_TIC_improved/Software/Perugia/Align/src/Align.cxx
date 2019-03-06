@@ -65,8 +65,12 @@ int main(int argc, char* argv[]) {
 
     int indexalignment = 0;
 
+    printf("qui\n");
+    
     ret = SingleAlign(argc, argv, indexalignment++, 1);//first alignment with the 'Bruna's method'
     if (ret) return ret;
+
+    printf("qui2\n");
     
     bool allaligned=false;
     while (!allaligned) {
