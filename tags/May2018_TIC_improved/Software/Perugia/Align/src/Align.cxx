@@ -26,8 +26,8 @@
 #include "Utilities.hh"
 /* end */
 
-//#define PRINTDEBUG printf("%s) This is the line number %d\n", __FILE__, __LINE__);
-#define PRINTDEBUG
+#define PRINTDEBUG printf("%s) This is the line number %d\n", __FILE__, __LINE__);
+//#define PRINTDEBUG
 
 using namespace std;
 
@@ -64,13 +64,17 @@ int main(int argc, char* argv[]) {
     }
 
     int indexalignment = 0;
-
-    printf("qui\n");
     
     ret = SingleAlign(argc, argv, indexalignment++, 1);//first alignment with the 'Bruna's method'
     if (ret) return ret;
 
+    printf("\n");
+    printf("\n");
+    printf("\n");
     printf("qui2\n");
+    printf("\n");
+    printf("\n");
+    printf("\n");
     
     bool allaligned=false;
     while (!allaligned) {
