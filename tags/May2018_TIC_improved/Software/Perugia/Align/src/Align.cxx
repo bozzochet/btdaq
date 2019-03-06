@@ -305,26 +305,30 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   int goldStracks=0;
   int goldKtracks=0;
 
-  ExcludeTDR(ev, 0, 2, 0);
-  ExcludeTDR(ev, 0, 2, 1);
-  ExcludeTDR(ev, 0, 3, 0);
-  ExcludeTDR(ev, 0, 3, 1);
-  ExcludeTDR(ev, 0, 6, 0);
-  ExcludeTDR(ev, 0, 6, 1);
-  ExcludeTDR(ev, 0, 7, 0);
-  ExcludeTDR(ev, 0, 7, 1);
-  ExcludeTDR(ev, 0, 10, 0);
-  ExcludeTDR(ev, 0, 10, 1);
-  ExcludeTDR(ev, 0, 11, 0);
-  ExcludeTDR(ev, 0, 11, 1);
-  ExcludeTDR(ev, 0, 14, 0);
-  ExcludeTDR(ev, 0, 14, 1);
-  ExcludeTDR(ev, 0, 15, 0);
-  ExcludeTDR(ev, 0, 15, 1);
-  ExcludeTDR(ev, 0, 18, 0);
-  ExcludeTDR(ev, 0, 18, 1);
-  ExcludeTDR(ev, 0, 19, 0);
-  ExcludeTDR(ev, 0, 19, 1);
+  static exclusiondone=false;
+  if (!exclusiondone) {
+    ExcludeTDR(ev, 0, 2, 0);
+    ExcludeTDR(ev, 0, 2, 1);
+    ExcludeTDR(ev, 0, 3, 0);
+    ExcludeTDR(ev, 0, 3, 1);
+    ExcludeTDR(ev, 0, 6, 0);
+    ExcludeTDR(ev, 0, 6, 1);
+    ExcludeTDR(ev, 0, 7, 0);
+    ExcludeTDR(ev, 0, 7, 1);
+    ExcludeTDR(ev, 0, 10, 0);
+    ExcludeTDR(ev, 0, 10, 1);
+    ExcludeTDR(ev, 0, 11, 0);
+    ExcludeTDR(ev, 0, 11, 1);
+    ExcludeTDR(ev, 0, 14, 0);
+    ExcludeTDR(ev, 0, 14, 1);
+    ExcludeTDR(ev, 0, 15, 0);
+    ExcludeTDR(ev, 0, 15, 1);
+    ExcludeTDR(ev, 0, 18, 0);
+    ExcludeTDR(ev, 0, 18, 1);
+    ExcludeTDR(ev, 0, 19, 0);
+    ExcludeTDR(ev, 0, 19, 1);
+    exclusiondone=true;
+  }
   
   //  for (int index_event=14; index_event<15; index_event++) {
   for (int index_event=0; index_event<entries; index_event++) {
