@@ -305,7 +305,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   int goldStracks=0;
   int goldKtracks=0;
 
-  static exclusiondone=false;
+  static bool exclusiondone=false;
   if (!exclusiondone) {
     ExcludeTDR(ev, 0, 2, 0);
     ExcludeTDR(ev, 0, 2, 1);
