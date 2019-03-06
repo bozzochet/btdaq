@@ -202,6 +202,9 @@ int main(int argc, char* argv[]) {
 
 int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool chisqcut, bool writealign){
   
+  printf("*********************\n");
+  sleep(10);
+  
   TChain *chain = new TChain("t4");
      
   for (int ii=1; ii<argc; ii++) {
@@ -328,8 +331,6 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     ExcludeTDR(ev, 0, 19, 0);
     ExcludeTDR(ev, 0, 19, 1);
     exclusiondone=true;
-    printf("*********************\n");
-    sleep(10);
   }
   
   //  for (int index_event=14; index_event<15; index_event++) {
