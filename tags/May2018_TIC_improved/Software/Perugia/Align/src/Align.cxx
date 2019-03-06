@@ -421,8 +421,8 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     if (strackok & ktrackok) goldtracks++;
 
     nhits->Fill(ev->GetNHitsTrack());
-    nhitsx->Fill(ev->GetNHitsXTrack());
-    nhitsy->Fill(ev->GetNHitsYTrack());
+    nhitsx->Fill(ev->GetNHitsSTrack());
+    nhitsy->Fill(ev->GetNHitsKTrack());
     chi->Fill(log10(ev->GetChiTrack()));
     chix->Fill(log10(ev->GetChiTrackX()));
     chiy->Fill(log10(ev->GetChiTrackY()));
