@@ -83,12 +83,19 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
     //    printf("AFTER: %d %d %d %d\n", ladder, jinfnum, tdrnum, side);
 
     PRINTDEBUG;
+
+    int ladder_pos=rh->FindPos(ladder);
+    if (ladder_pos>NJINF*NTDRS) {
+      printf("WTF? ladder_pos is %d out of %d\n", ladder_pos, NJINF*NTDRS);
+    }
+    
+    PRINTDEBUG;
     
     if (side==0) {
       PRINTDEBUG;
-      nclusS[rh->FindPos(ladder)]++;
+      nclusS[ladder_pos]++;
       PRINTDEBUG;
-      if (nclusS[rh->FindPos(ladder)]>=(perladdS+safetyS)) {
+      if (nclusS[ladder_pos]>=(perladdS+safetyS)) {
 	PRINTDEBUG;
 	safetySspent--;
 	PRINTDEBUG;
@@ -98,9 +105,9 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
     }
     else {
       PRINTDEBUG;
-      nclusK[rh->FindPos(ladder)]++;
+      nclusK[ladder_pos]++;
       PRINTDEBUG;
-      if (nclusK[rh->FindPos(ladder)]>=(perladdK+safetyK)) {
+      if (nclusK[ladder_pos]>=(perladdK+safetyK)) {
 	PRINTDEBUG;
 	safetyKspent--;
 	PRINTDEBUG;
