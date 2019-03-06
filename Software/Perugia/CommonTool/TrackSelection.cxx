@@ -84,6 +84,7 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
 
     PRINTDEBUG;
 
+    printf("FindPos:\n");
     int ladder_pos=rh->FindPos(ladder);
     if (ladder_pos>NJINF*NTDRS) {
       printf("WTF? ladder_pos is %d out of %d\n", ladder_pos, NJINF*NTDRS);
