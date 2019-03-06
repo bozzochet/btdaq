@@ -1,0 +1,2031 @@
+%!PS-Adobe-3.0
+%%Title: Align.hh
+%%For: William Burger
+%%Creator: a2ps version 4.13
+%%CreationDate: Sun Jul 19 14:41:02 2009
+%%BoundingBox: 24 24 588 768
+%%DocumentData: Clean7Bit
+%%Orientation: Landscape
+%%Pages: 4
+%%PageOrder: Ascend
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: font Courier
+%%+ font Courier-Bold
+%%+ font Courier-BoldOblique
+%%+ font Courier-Oblique
+%%+ font Helvetica
+%%+ font Helvetica-Bold
+%%+ font Symbol
+%%+ font Times-Bold
+%%+ font Times-Roman
+%%DocumentProcessColors: Black 
+%%DocumentSuppliedResources: procset a2ps-a2ps-hdr
+%%+ procset a2ps-black+white-Prolog
+%%+ encoding ISO-8859-1Encoding
+%%EndComments
+/a2psdict 200 dict def
+a2psdict begin
+%%BeginProlog
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+
+% EPSF import as in the Red Book
+/BeginInclude {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack 
+  userdict begin
+    0 setgray 0 setlinecap
+    1 setlinewidth 0 setlinejoin
+    10 setmiterlimit [ ] 0 setdash newpath
+    gs_languagelevel 1 ne {
+      false setstrokeadjust false setoverprint 
+    } if
+} bind def
+
+/EndInclude {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+/BeginEPSF {
+  BeginInclude
+  /showpage { } def
+} bind def
+
+/EndEPSF {
+  EndInclude
+} bind def
+
+% Page prefeed
+/page_prefeed {         % bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} bind def
+
+/deffont {
+  findfont exch scalefont def
+} bind def
+
+/reencode_font {
+  findfont reencode 2 copy definefont pop def
+} bind def
+
+% Function c-show (str => -)
+% centers text only according to x axis.
+/c-show { 
+  dup stringwidth pop
+  2 div neg 0 rmoveto
+  show
+} bind def
+
+% Function l-show (str => -)
+% prints texts so that it ends at currentpoint
+/l-show {
+  dup stringwidth pop neg 
+  0 
+  rmoveto show
+} bind def
+
+% center-fit show (str w => -)
+% show centered, and scale currentfont so that the width is less than w
+/cfshow {
+  exch dup stringwidth pop
+  % If the title is too big, try to make it smaller
+  3 2 roll 2 copy
+  gt
+  { % if, i.e. too big
+    exch div
+    currentfont exch scalefont setfont
+  } { % ifelse
+    pop pop 
+  }
+  ifelse
+  c-show			% center title
+} bind def
+
+% Return the y size of the current font
+% - => fontsize
+/currentfontsize {
+  currentfont /FontType get 0 eq {
+    currentfont /FontMatrix get 3 get
+  }{
+    currentfont /FontMatrix get 3 get 1000 mul
+  } ifelse
+} bind def
+
+% reencode the font
+% <encoding-vector> <fontdict> -> <newfontdict>
+/reencode { %def
+  dup length 5 add dict begin
+    { %forall
+      1 index /FID ne 
+      { def }{ pop pop } ifelse
+    } forall
+    /Encoding exch def
+
+    % Use the font's bounding box to determine the ascent, descent,
+    % and overall height; don't forget that these values have to be
+    % transformed using the font's matrix.
+    % We use `load' because sometimes BBox is executable, sometimes not.
+    % Since we need 4 numbers an not an array avoid BBox from being executed
+    /FontBBox load aload pop
+    FontMatrix transform /Ascent exch def pop
+    FontMatrix transform /Descent exch def pop
+    /FontHeight Ascent Descent sub def
+
+    % Define these in case they're not in the FontInfo (also, here
+    % they're easier to get to.
+    /UnderlinePosition 1 def
+    /UnderlineThickness 1 def
+    
+    % Get the underline position and thickness if they're defined.
+    currentdict /FontInfo known {
+      FontInfo
+      
+      dup /UnderlinePosition known {
+	dup /UnderlinePosition get
+	0 exch FontMatrix transform exch pop
+	/UnderlinePosition exch def
+      } if
+      
+      dup /UnderlineThickness known {
+	/UnderlineThickness get
+	0 exch FontMatrix transform exch pop
+	/UnderlineThickness exch def
+      } if
+      
+    } if
+    currentdict 
+  end 
+} bind def
+
+% composite fonts for ASCII-EUC mixed string
+% Version 1.2 1/31/1990
+% Orignal Ken'ichi HANDA (handa@etl.go.jp)
+% Modified Norio Katayama (katayama@rd.nacsis.ac.jp),1998
+% Extend & Fix Koji Nakamaru (maru@on.cs.keio.ac.jp), 1999
+% Anyone can freely copy, modify, distribute this program.
+
+/copyfont {	% font-dic extra-entry-count  copyfont  font-dic
+	1 index maxlength add dict begin
+	{	1 index /FID ne 2 index /UniqueID ne and
+		{def} {pop pop} ifelse
+	} forall
+	currentdict
+	end
+} bind def
+
+/compositefont { % ASCIIFontName EUCFontName RomanScale RomanOffset Rot(T/F) compositefont font
+    /RomanRotation exch def
+    /RomanOffset exch def
+    /RomanScale exch def
+    userdict /fixeucfont_dict known not {
+	userdict begin
+	    /fixeucfont_dict 2 dict begin
+		/UpperByteEncoding [
+		    16#00 1 16#20 { pop 0 } for
+		    16#21 1 16#28 { 16#20 sub } for
+		    16#29 1 16#2F { pop 0 } for
+		    16#30 1 16#74 { 16#27 sub } for
+		    16#75 1 16#FF { pop 0 } for
+		] def
+	        /LowerByteEncoding [
+		    16#00 1 16#A0 { pop /.notdef } for
+		    16#A1 1 16#FE { 16#80 sub 16 2 string cvrs
+				    (cXX) dup 1 4 -1 roll
+				    putinterval cvn } for
+		    /.notdef
+		] def
+		currentdict
+	    end def
+	end
+    } if
+    findfont dup /FontType get 0 eq {
+	14 dict begin
+	    %
+	    % 7+8 bit EUC font
+	    %
+	    12 dict begin
+		/EUCFont exch def
+		/FontInfo (7+8 bit EUC font) readonly def
+		/PaintType 0 def
+		/FontType 0 def
+		/FontMatrix matrix def
+		% /FontName
+		/Encoding fixeucfont_dict /UpperByteEncoding get def
+		/FMapType 2 def
+		EUCFont /WMode known
+		{ EUCFont /WMode get /WMode exch def }
+		{ /WMode 0 def } ifelse
+		/FDepVector [
+		    EUCFont /FDepVector get 0 get
+		    [ 16#21 1 16#28 {} for 16#30 1 16#74 {} for ]
+		    {
+			13 dict begin
+			    /EUCFont EUCFont def
+			    /UpperByte exch 16#80 add def	
+			    % /FontName
+			    /FontInfo (EUC lower byte font) readonly def
+			    /PaintType 0 def
+			    /FontType 3 def
+			    /FontMatrix matrix def
+			    /FontBBox {0 0 0 0} def
+			    /Encoding
+				fixeucfont_dict /LowerByteEncoding get def
+			    % /UniqueID
+			    % /WMode
+			    /BuildChar {
+				gsave
+				exch dup /EUCFont get setfont
+				/UpperByte get
+				2 string
+				dup 0 4 -1 roll put
+				dup 1 4 -1 roll put
+				dup stringwidth setcharwidth
+				0 0 moveto show
+				grestore
+			    } bind def
+			    currentdict
+			end
+			/lowerbytefont exch definefont
+		    } forall
+		] def
+		currentdict
+	    end
+	    /eucfont exch definefont
+	    exch
+	    findfont 1 copyfont dup begin
+		RomanRotation {
+			/FontMatrix FontMatrix
+			[ 0 RomanScale neg RomanScale 0 RomanOffset neg 0 ]
+			matrix concatmatrix def
+		}{
+			/FontMatrix FontMatrix
+			[ RomanScale 0 0 RomanScale 0 RomanOffset ] matrix concatmatrix
+			def
+			/CDevProc
+			    {pop pop pop pop 0 exch -1000 exch 2 div 880} def
+		} ifelse
+	    end
+	    /asciifont exch definefont
+	    exch
+	    /FDepVector [ 4 2 roll ] def
+	    /FontType 0 def
+	    /WMode 0 def
+	    /FMapType 4 def
+	    /FontMatrix matrix def
+	    /Encoding [0 1] def
+	    /FontBBox {0 0 0 0} def
+%	    /FontHeight 1.0 def % XXXX
+	    /FontHeight RomanScale 1.0 ge { RomanScale }{ 1.0 } ifelse def
+	    /Descent -0.3 def   % XXXX
+	    currentdict
+	end
+	/tmpfont exch definefont
+	pop
+	/tmpfont findfont
+    }{
+	pop findfont 0 copyfont
+    } ifelse
+} def	
+
+/slantfont {	% FontName slant-degree  slantfont  font'
+    exch findfont 1 copyfont begin
+    [ 1 0 4 -1 roll 1 0 0 ] FontMatrix exch matrix concatmatrix
+    /FontMatrix exch def
+    currentdict
+    end
+} def
+
+% Function print line number (<string> # -)
+/# {
+  gsave
+    sx cw mul neg 2 div 0 rmoveto
+    f# setfont
+    c-show
+  grestore
+} bind def
+
+% -------- Some routines to enlight plain b/w printings ---------
+
+% Underline
+% width --
+/dounderline {
+  currentpoint
+  gsave
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    0 rlineto
+    stroke
+  grestore
+} bind def
+
+% Underline a string
+% string --
+/dounderlinestring {
+  stringwidth pop
+  dounderline
+} bind def
+
+/UL {
+  /ul exch store
+} bind def
+
+% Draw a box of WIDTH wrt current font
+% width --
+/dobox {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    stroke
+  grestore
+} bind def
+
+/BX {
+  /bx exch store
+} bind def
+
+% Box a string
+% string --
+/doboxstring {
+  stringwidth pop
+  dobox
+} bind def
+
+%
+% ------------- Color routines ---------------
+%
+/FG /setrgbcolor load def
+
+% Draw the background
+% width --
+/dobackground {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    bgcolor aload pop setrgbcolor
+    fill
+  grestore
+} bind def
+
+% Draw bg for a string
+% string --
+/dobackgroundstring {
+  stringwidth pop
+  dobackground
+} bind def
+
+
+/BG {
+  dup /bg exch store
+  { mark 4 1 roll ] /bgcolor exch store } if
+} bind def
+
+
+/Show {
+  bg { dup dobackgroundstring } if
+  ul { dup dounderlinestring } if
+  bx { dup doboxstring } if
+  show
+} bind def
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T {
+  cw mul x0 add
+  bg { dup currentpoint pop sub dobackground } if
+  ul { dup currentpoint pop sub dounderline } if
+  bx { dup currentpoint pop sub dobox } if
+  y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n {
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+/S {
+  Show
+} bind def
+
+%%BeginResource: procset a2ps-a2ps-hdr 2.0 2
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Function title: prints page header.
+% <ct> <rt> <lt> are passed as argument
+/title { 
+  % 1. Draw the background
+  x v get y v get moveto
+  gsave
+    0 th 2 div neg rmoveto 
+    th setlinewidth
+    0.95 setgray
+    pw 0 rlineto stroke
+  grestore
+  % 2. Border it
+  gsave
+    0.7 setlinewidth
+    pw 0 rlineto
+    0 th neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+  % stk: ct rt lt
+  x v get y v get th sub 1 add moveto
+%%IncludeResource: font Helvetica
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  % 3. The left title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    fnfs 0.8 mul hm rmoveto
+    show			% left title
+  grestore
+  exch
+  % stk: ct ltw rt
+  % 4. the right title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    dup
+    pw exch stringwidth pop fnfs 0.8 mul add sub
+    hm
+    rmoveto
+    show			% right title
+  grestore
+  % stk: ct ltw rtw
+  % 5. the center title
+  gsave
+    pw 3 1 roll
+    % stk: ct pw ltw rtw
+    3 copy 
+    % Move to the center of the left room
+    sub add 2 div hm rmoveto
+    % What is the available space in here?
+    add sub fnfs 0.8 mul sub fnfs 0.8 mul sub
+    % stk: ct space_left
+%%IncludeResource: font Helvetica-Bold
+  fHelvetica-Bold fnfs scalefont setfont
+    cfshow
+  grestore
+} bind def
+
+% Function border: prints virtual page border
+/border { %def
+  gsave				% print four sides
+    0 setgray
+    x v get y v get moveto
+    0.7 setlinewidth		% of the square
+    pw 0 rlineto
+    0 ph neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+} bind def
+
+% Function water: prints a water mark in background
+/water { %def
+  gsave
+    scx scy moveto rotate
+%%IncludeResource: font Times-Bold
+  fTimes-Bold 100 scalefont setfont
+    .97 setgray
+    dup stringwidth pop 2 div neg -50 rmoveto
+    show
+  grestore
+} bind def
+
+% Function rhead: prints the right header
+/rhead {  %def
+  lx ly moveto
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  l-show
+} bind def
+
+% Function footer (cf rf lf -> -)
+/footer {
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  dx dy moveto
+  show
+
+  snx sny moveto
+  l-show
+  
+  fnx fny moveto
+  c-show
+} bind def
+%%EndResource
+%%BeginResource: procset a2ps-black+white-Prolog 2.0 1
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T { 
+  cw mul x0 add y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n { %def
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+}  bind def
+
+/S {
+  Show
+} bind def
+
+/p {
+  false UL
+  false BX
+  fCourier bfs scalefont setfont
+  Show
+} bind def
+
+/sy {
+  false UL
+  false BX
+  fSymbol bfs scalefont setfont
+  Show
+} bind def
+
+/k {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/K {
+  false UL
+  false BX
+  fCourier-Bold bfs scalefont setfont
+  Show
+} bind def
+
+/c {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/C {
+  false UL
+  false BX
+  fCourier-BoldOblique bfs scalefont setfont
+  Show 
+} bind def
+
+/l {
+  false UL
+  false BX
+  fHelvetica bfs scalefont setfont
+  Show
+} bind def
+
+/L {
+  false UL
+  false BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show 
+} bind def
+
+/str{
+  false UL
+  false BX
+  fTimes-Roman bfs scalefont setfont
+  Show
+} bind def
+
+/e{
+  false UL
+  true BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show
+} bind def
+
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier
+%%IncludeResource: font Courier-Oblique
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Symbol
+%%IncludeResource: font Courier-BoldOblique
+%%BeginResource: encoding ISO-8859-1Encoding
+/ISO-8859-1Encoding [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclam /quotedbl /numbersign /dollar /percent /ampersand /quoteright 
+/parenleft /parenright /asterisk /plus /comma /minus /period /slash 
+/zero /one /two /three /four /five /six /seven 
+/eight /nine /colon /semicolon /less /equal /greater /question 
+/at /A /B /C /D /E /F /G 
+/H /I /J /K /L /M /N /O 
+/P /Q /R /S /T /U /V /W 
+/X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore 
+/quoteleft /a /b /c /d /e /f /g 
+/h /i /j /k /l /m /n /o 
+/p /q /r /s /t /u /v /w 
+/x /y /z /braceleft /bar /braceright /asciitilde /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclamdown /cent /sterling /currency /yen /brokenbar /section 
+/dieresis /copyright /ordfeminine /guillemotleft /logicalnot /hyphen /registered /macron 
+/degree /plusminus /twosuperior /threesuperior /acute /mu /paragraph /bullet 
+/cedilla /onesuperior /ordmasculine /guillemotright /onequarter /onehalf /threequarters /questiondown 
+/Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla 
+/Egrave /Eacute /Ecircumflex /Edieresis /Igrave /Iacute /Icircumflex /Idieresis 
+/Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde /Odieresis /multiply 
+/Oslash /Ugrave /Uacute /Ucircumflex /Udieresis /Yacute /Thorn /germandbls 
+/agrave /aacute /acircumflex /atilde /adieresis /aring /ae /ccedilla 
+/egrave /eacute /ecircumflex /edieresis /igrave /iacute /icircumflex /idieresis 
+/eth /ntilde /ograve /oacute /ocircumflex /otilde /odieresis /divide 
+/oslash /ugrave /uacute /ucircumflex /udieresis /yacute /thorn /ydieresis 
+] def
+%%EndResource
+% Initialize page description variables.
+/sh 612 def
+/sw 792 def
+/llx 24 def
+/urx 768 def
+/ury 588 def
+/lly 24 def
+/#copies 1 def
+/th 15.000000 def
+/fnfs 11 def
+/bfs 7.493857 def
+/cw 4.496314 def
+
+% Dictionary for ISO-8859-1 support
+/iso1dict 8 dict begin
+  /fCourier ISO-8859-1Encoding /Courier reencode_font
+  /fCourier-Bold ISO-8859-1Encoding /Courier-Bold reencode_font
+  /fCourier-BoldOblique ISO-8859-1Encoding /Courier-BoldOblique reencode_font
+  /fCourier-Oblique ISO-8859-1Encoding /Courier-Oblique reencode_font
+  /fHelvetica ISO-8859-1Encoding /Helvetica reencode_font
+  /fHelvetica-Bold ISO-8859-1Encoding /Helvetica-Bold reencode_font
+  /fTimes-Bold ISO-8859-1Encoding /Times-Bold reencode_font
+  /fTimes-Roman ISO-8859-1Encoding /Times-Roman reencode_font
+currentdict end def
+/bgcolor [ 0 0 0 ] def
+/bg false def
+/ul false def
+/bx false def
+% The font for line numbering
+/f# /Helvetica findfont bfs .6 mul scalefont def
+/fSymbol /Symbol findfont def
+/hm fnfs 0.25 mul def
+/pw
+   cw 81.400000 mul
+def
+/ph
+   522.321860 th add
+def
+/pmw urx llx sub pw 2 mul sub 1 div def
+/pmh 0 def
+/v 0 def
+/x [
+  0
+  dup pmw add pw add
+] def
+/y [
+  pmh ph add 0 mul ph add
+  dup
+] def
+/scx sw 2 div def
+/scy sh 2 div def
+/snx urx def
+/sny lly 2 add def
+/dx llx def
+/dy sny def
+/fnx scx def
+/fny dy def
+/lx snx def
+/ly ury fnfs 0.8 mul sub def
+/sx 0 def
+/tab 8 def
+/x0 0 def
+/y0 0 def
+%%EndSetup
+
+%%Page: (1-2) 1
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(#ifndef) K
+( Align_hh) p n
+(#define) K
+( Align_hh) p n
+(  ) N
+(#include) K
+( ") p
+(TVectorD.h) str
+(") p n
+(#include) K
+( ") p
+(TMatrixD.h) str
+(") p n
+(#include) K
+( ") p
+(TFormula.h) str
+(") p n
+(#include) K
+( ") p
+(TH1.h) str
+(") p n
+(#include) K
+( ") p
+(TFile.h) str
+(") p n
+(#include) K
+( ") p
+(TLinearFitter.h) str
+(") p n
+(#include) K
+( ") p
+(TObject.h) str
+(") p n
+(#include) K
+( ") p
+(TClonesArray.h) str
+(") p n
+(#include) K
+( ") p
+(Trace.hh) str
+(") p n
+() N
+() N
+(class) K
+( Align:) p
+(public) K
+( TObject{) p n
+() N
+(public) K
+(:) p n
+() N
+(   TLinearFitter *fitxz;) N
+(   TLinearFitter *fityz;) N
+(   Double_t *xp;) N
+(   Double_t *yp;) N
+(   Double_t *zp;) N
+(   Double_t *e;) N
+() N
+(  ) S
+(int) k
+( npts,ntrace;) p n
+(  ) S
+(float) k
+( ntrace_eff[2][6];) p n
+(  ) S
+(int) k
+( nfit1, nfit2, nfit2_2, nfit3, nfit4;) p n
+(  ) S
+(int) k
+( nfit5, nfit6, nfit7, nfit8;) p n
+(  ) S
+(float) k
+( xval1[5000];) p n
+(  ) S
+(float) k
+( yval1[5000];) p n
+(  ) S
+(float) k
+( xval2[5000];) p n
+(  ) S
+(float) k
+( yval2[5000];) p n
+(  ) S
+(float) k
+( xval2_2[5000];) p n
+(  ) S
+(float) k
+( yval2_2[5000];) p n
+(  ) S
+(float) k
+( xval3[5000];) p n
+(  ) S
+(float) k
+( yval3[5000];) p n
+(  ) S
+(float) k
+( xval4[5000];) p n
+(  ) S
+(float) k
+( yval4[5000];) p n
+(  ) S
+(float) k
+( xval5[5000];) p n
+(  ) S
+(float) k
+( yval5[5000];) p n
+(  ) S
+(float) k
+( xval6[5000];) p n
+(  ) S
+(float) k
+( yval6[5000];) p n
+(  ) S
+(float) k
+( xval7[5000];) p n
+(  ) S
+(float) k
+( yval7[5000];) p n
+(  ) S
+(float) k
+( xval8[5000];) p n
+(  ) S
+(float) k
+( yval8[5000];) p n
+(  ) S
+(float) k
+( depz;) p n
+(  ) S
+(float) k
+( resx[6],resex[6];) p n
+(  ) S
+(float) k
+( resy[6],resey[6];) p n
+(  ) S
+(float) k
+( reseffx[6],reseffy[6];) p n
+(  ) S
+(float) k
+( resxech[4],resexech[4];) p n
+(  ) S
+(float) k
+( resyech[4],reseyech[4];) p n
+(  ) S
+(float) k
+( ressx[4],ressy[4]; ) p
+(// residus pour scan va) c n
+(  ) p
+(float) k
+( resx_pos0[2],resy_pos0[2];) p n
+(  ) S
+(float) k
+( resx_pos4[2],resy_pos4[2];) p n
+(  ) S
+(float) k
+( ppiste_n[6];) p n
+(  ) S
+(int) k
+( deux_plaq_n[6];) p n
+(  ) S
+(double) k
+( xdx[6],ydy[6]; ) p
+(// coordonnees x/y avant les corrections dxy et dyx) c n
+(  ) p
+(double) k
+( xpospred[6];) p n
+(  ) S
+(double) k
+( ypospred[6];) p n
+(  ) S
+(int) k
+( ztdr[6]; ) p
+(// ordre des tdrs par rapport a la direction du faisceau) c n
+(  ) p
+(int) k
+( ref1,ref2; ) p
+(// detecteurs reference pour l'alignement - position dans la le) c n
+(cture) N
+(  ) p
+(int) k
+( ind3,ind4; ) p
+(// les deux autres echelles AMS02) c n
+(  ) p
+(int) k
+( indp1,indp2; ) p
+(// les deux petits detecteurs ) c n
+() p n
+(  ) S
+(int) k
+( mauvais[6][1024]; ) p
+(// signalisation des canaux chauds) c n
+() p n
+(Align.hh) (Page 1/8) (Jul 19, 09 14:40) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(  ) p
+(int) k
+( align; ) p
+(// pour la gestion de l'alignement) c n
+(  ) p
+(/*  align = 0 rien fait) c n
+(            = 1 determine la position du faisceau -> algpar.dat) N
+(            = 2 <- algpar.dat, dxy et dxy entre detecteurs ref. -> algpar.dat) N
+(            = 3 <- algpar.dat, dxx et dyy entre detecteurs non-ref -> algpar.dat) N
+(    ) N
+(            = 4 <- algpar.dat, dxy et dyx entre detecteurs non-ref -> algpar.dat) N
+(    ) N
+(            = 5 <- algpar.dat, mis-a-jour de la position du faisceau -> algpar.d) N
+(at) N
+(  */) N
+() p n
+(  ) S
+(double) k
+( algpar[15][6];) p n
+(  ) S
+(double) k
+( algpar_2[15][6]; ) p
+(// si une deuxieme plaquette) c n
+(  ) p
+(/* parametres d'alignement) c n
+(     0 - decalage en x \(centre de la distribution du faisceau a 0 cm\)) N
+(     1 - decalage en y) N
+(     2 - pente dxx) N
+(     3 - intersection dxx) N
+(     4 - pente dyy) N
+(     5 - intersection dyy) N
+(     6 - pente dxy) N
+(     7 - intersection dxy) N
+(     8 - pente dyx) N
+(     9 - intersection dyx) N
+(    10 - angle dxdz) N
+(    11 - le centre de la rotation dans le plan xz) N
+(    12 - angle dydz) N
+(    13 - le centre de la rotation dans le plan yz) N
+(    14 - position nominale en z */) N
+() p n
+(  ) S
+(/* alignement 0 scan 50296) c n
+(     alignement 1 run 60067) N
+(     alignement 2 run 60625 ) N
+(     alignement 3 run 60592 \(a\)*/) N
+(  ) p
+(double) k
+( algpar_fich[8][11][6];) p n
+(  ) S
+(/* deplacement en y entre les deux senseurs run 1237 */) c
+( ) p n
+(  ) S
+(double) k
+( delta_y_ind4;) p n
+() N
+(  ) S
+(/* dimensions x et y des plaquettes aux silicium \(cm\) */) c n
+(  ) p
+(float) k
+( plaq_dim[2];) p n
+(  ) S
+(float) k
+( plaq_dim_active[2];) p n
+(  ) S
+(/* l'ecart nominal entre deux plaquettes \(cm\) */) c n
+(  ) p
+(float) k
+( ecart;) p n
+() N
+(  ) S
+(/* parametres pour les amas: maximum nombre des pistes utitlise pour la positi) c n
+(on) N
+(     des amas */) S
+( ) p n
+(  ) S
+(int) k
+( amaspar[2][6];) p n
+() N
+(  ) S
+(/* fonctions eta */) c n
+(  TH1D *feta_p[6],*feta_n[6];) p n
+(  ) S
+(/* fonctions eta avec trois pistes */) c n
+(  TH1D *feta3_p[6],*feta3_n[6];) p n
+(  ) S
+(float) k
+( bord_eta3_p[6],bord_eta3_n[6];) p n
+(  ) N
+(  ) S
+(//! Default contructor) c n
+() p n
+(  Align\() S
+(int) k
+( ival, ) p
+(int) k
+( run\);) p n
+(  ) S
+(//! Default destructor) c n
+(  ~Align\(\){};) p n
+(  ) S
+(// mise-a-jour des centres du faisceau) c n
+(  ) p
+(void) k
+( MaJXYpos\() p
+(int) k
+( mode,) p
+(double) k
+( x00,) p
+(double) k
+( y00,) p
+(double) k
+( x01,) p
+(double) k
+( y01,) p
+(double) k
+( x02,) p
+() k n
+(double) S
+( y02,) p
+(double) k
+( x03,) p
+(double) k
+( y03,) p n
+(               ) S
+(double) k
+( x04, ) p
+(double) k
+( y04, ) p
+(double) k
+( x05, ) p
+(double) k
+( y05\) {) p n
+(  ) S
+(// en cm) c n
+(    ) p
+(if) K
+( \(mode==0\) {) p n
+(      algpar[0][0] = x00;) N
+(      algpar[1][0] = y00;) N
+(Align.hh) (Page 2/8) (Jul 19, 09 14:40) title
+border
+grestore
+(Printed by William Burger) rhead
+(Align.hh) (1/4) (Sunday July 19, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (3-4) 2
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(      algpar[0][1] = x01;) p n
+(      algpar[1][1] = y01;) N
+(      algpar[0][2] = x02;) N
+(      algpar[1][2] = y02;) N
+(      algpar[0][3] = x03;) N
+(      ) S
+(if) K
+( \(deux_plaq\(\)\) algpar[1][3]+=y03;) p n
+(      ) S
+(else) K
+( algpar[1][3] = y03;) p n
+(      algpar[0][4] = x04;) N
+(      algpar[1][4] = y04;) N
+(      algpar[0][5] = x05;) N
+(      algpar[1][5] = y05;) N
+(    }) N
+(    ) S
+(if) K
+( \(mode==1\) {) p n
+(      algpar[0][0]+=x00;) N
+(      algpar[1][0]+=y00;) N
+(      algpar[0][1]+=x01;) N
+(      algpar[1][1]+=y01;) N
+(      algpar[0][2]+=x02;) N
+(      algpar[1][2]+=y02;) N
+(      algpar[0][3]+=x03;) N
+(      algpar[1][3]+=y03;) N
+(      algpar[0][4]+= x04;) N
+(      algpar[1][4]+= y04;) N
+(      algpar[0][5]+= x05;) N
+(      algpar[1][5]+= y05;) N
+(    }) N
+(    ) S
+(if) K
+( \(deux_plaq\(\)\) {) p n
+(      algpar_2[0][3] = algpar[0][3];) N
+(      ) S
+(if) K
+( \(mode==0\) algpar_2[1][3]=y03;) p n
+(      ) S
+(else) K
+( ) p
+(if) K
+( \(mode==1\) algpar_2[1][3]+=y03;) p n
+(    }) N
+(    ) S
+(return) K
+(;) p n
+(}) N
+(  ) S
+(// mise-a-jour de la correction pour l'angle entre les axes des detecteurs ref) c n
+(1 et ref2) N
+(  ) p
+(void) k
+( MaJRotRef1\() p
+(double) k
+( pente1,) p
+(double) k
+( inter1, ) p
+(double) k
+( pente2, ) p
+(double) k
+( inter2\) {) p n
+(    algpar[6][ref1] = pente1;) N
+(    algpar[7][ref1] = inter1;) N
+(    algpar[8][ref1] = pente2;) N
+(    algpar[9][ref1] = inter2;) N
+(    ) S
+(return) K
+(;) p n
+(  }) N
+(  ) S
+(// mise-a-jour de la correction pour l'angle entre les axes parelleles des det) c n
+(ecteurs 3 et 4) N
+(  ) p
+(void) k
+( MaJRotxxyy\() p
+(double) k
+( pente1,) p
+(double) k
+( inter1, ) p
+(double) k
+( pente2, ) p
+(double) k
+( inter2,) p n
+(                         ) S
+(double) k
+( pente3,) p
+(double) k
+( inter3, ) p
+(double) k
+( pente4, ) p
+(double) k
+( inte) p n
+(r4,) N
+(                  ) S
+(double) k
+( pente5,) p
+(double) k
+( inter5, ) p
+(double) k
+( pente6, ) p
+(double) k
+( inter6,) p n
+(    ) S
+(double) k
+( pente7,) p
+(double) k
+( inter7, ) p
+(double) k
+( pente8, ) p
+(double) k
+( inter8, ) p
+(double) k
+( pente2_2, ) p
+() k n
+(double) S
+( inter2_2\) {) p n
+(    algpar[2][ind3] = pente1;) N
+(    algpar[3][ind3] = inter1;) N
+(    algpar[4][ind3] = pente2;) N
+(    algpar[5][ind3] = inter2;) N
+(    algpar_2[4][ind3] = pente2_2;) N
+(    algpar_2[5][ind3] = inter2_2;) N
+(    algpar[2][ind4] = pente3;) N
+(    algpar[3][ind4] = inter3;) N
+(    algpar[4][ind4] = pente4;) N
+(    algpar[5][ind4] = inter4;) N
+(    algpar[2][indp1] = pente5;) N
+(    algpar[3][indp1] = inter5;) N
+(    algpar[4][indp1] = pente6;) N
+(    algpar[5][indp1] = inter6;) N
+(    algpar[2][indp2] = pente7;) N
+(    algpar[3][indp2] = inter7;) N
+(    algpar[4][indp2] = pente8;) N
+(    algpar[5][indp2] = inter8;) N
+(    ) S
+(return) K
+(;) p n
+(Align.hh) (Page 3/8) (Jul 19, 09 14:40) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(  }) p n
+(  ) S
+(// mise-a-jour de la correction pour l'angle entre les axes dans le plan xy po) c n
+(ur 3 et 4) N
+(  ) p
+(void) k
+( MaJRotxyyx\() p
+(double) k
+( pente1,) p
+(double) k
+( inter1, ) p
+(double) k
+( pente2, ) p
+(double) k
+( inter2,) p n
+(                         ) S
+(double) k
+( pente3,) p
+(double) k
+( inter3, ) p
+(double) k
+( pente4, ) p
+(double) k
+( inte) p n
+(r4,) N
+(                  ) S
+(double) k
+( pente5,) p
+(double) k
+( inter5, ) p
+(double) k
+( pente6, ) p
+(double) k
+( inter6,) p n
+(                         ) S
+(double) k
+( pente7, ) p
+(double) k
+( inter7, ) p
+(double) k
+( pente8, ) p
+(double) k
+( int) p n
+(er8\) {) N
+(    algpar[6][ind3] = pente1;) N
+(    algpar[7][ind3] = inter1;) N
+(    algpar[8][ind3] = pente2;) N
+(    algpar[9][ind3] = inter2;) N
+(    algpar[6][ind4] = pente3;) N
+(    algpar[7][ind4] = inter3;) N
+(    algpar[8][ind4] = pente4;) N
+(    algpar[9][ind4] = inter4;) N
+(    algpar[6][indp1] = pente5;) N
+(    algpar[7][indp1] = inter5;) N
+(    algpar[8][indp1] = pente6;) N
+(    algpar[9][indp1] = inter6;) N
+(    algpar[6][indp2] = pente7;) N
+(    algpar[7][indp2] = inter7;) N
+(    algpar[8][indp2] = pente8;) N
+(    algpar[9][indp2] = inter8;) N
+(    ) S
+(return) K
+(;) p n
+(  }) N
+() N
+(  ) S
+(// si besoin des parametres d'une deuxieme plaquette) c n
+(  ) p
+(int) k
+( deux_plaq\(\) {) p n
+(    ) S
+(for) K
+( \() p
+(int) k
+( i=0; i<6; i++\) {) p n
+(      ) S
+(if) K
+( \(deux_plaq_n[i] == 1\) ) p
+(return) K
+(\(1\);) p n
+(    }) N
+(    ) S
+(return) K
+(\(0\);) p n
+(  }) N
+() N
+(  ) S
+(// obtenir coordonnees \(cm\) des traces 0 \(unique amas\) 1 \(haut signal\)) c n
+(  ) p
+(void) k
+( coord\(Trace* tra\) {) p n
+(    ) S
+(//    printf\("coord\\n"\);) c n
+(    ) p
+(for) K
+( \() p
+(int) k
+( ii=0; ii<6; ii++\) {) p n
+(      ) S
+(int) k
+( ax = 0;) p n
+(      ) S
+(int) k
+( ay = 0; ) p n
+(      ) S
+(if) K
+( \(ii < 4\) {) p n
+() S 8 T () S
+(if) K
+( \(tra->xp[ii] == -999.\) tra->x[ii] = tra->xp[ii];) p n
+(        ) S
+(else) K
+( {) p n
+(          tra->x[ii] = \(tra->xp[ii]-1.\)*0.0110;) N
+(          ax++;) N
+(        }) N
+(        ) S
+(if) K
+( \(tra->yp[ii] == -999.\) tra->y[ii] = tra->yp[ii];) p n
+(        ) S
+(else) K
+( {) p n
+(          ) S
+(if) K
+( \(deux_plaq_n[ii] == 0\)) p n
+(            tra->y[ii] = \(tra->yp[ii]-ppiste_n[ii]\)*0.0208;) N
+(          ) S
+(else) K
+( {) p n
+(            ) S
+(if) K
+( \(tra->yp[ii] < 833.\) {) p n
+() S 8 T (      ) S
+(if) K
+( \(tra->yp[ii] < 642.\) ) p n
+(               tra->y[ii] = \(tra->yp[ii]-641.\)*1.5*0.0208;) N
+(              ) S
+(else) K
+( ) p n
+(               tra->y[ii] = \(tra->yp[ii]-642.\)*0.0208 + 0.0208*1.5;) N
+() S 8 T (       tra->y[ii]-=delta_y_ind4;) N
+() S 8 T (      ) S
+(//              printf\("yp %f y %f\\n",tra->yp[ii],tra->y[ii]\);) c n
+(            }) p n
+(            ) S
+(else) K
+( {) p n
+() S 8 T (      ) S
+(if) K
+( \(tra->yp[ii] <= 1023.\) {) p n
+() S 8 T () S 16 T () S
+(if) K
+( \(tra->yp[ii] < 834.\)) p n
+(                  tra->y[ii] = \(tra->yp[ii]-ppiste_n[ii]\)*1.5*0.0208;) N
+(                ) S
+(else) K n
+(                  tra->y[ii] = \(tra->yp[ii]-ppiste_n[ii]+1\)*0.0208 + 1.5*0.0208;) p n
+() S 8 T (        }) N
+(              ) S
+(else) K
+( ) p n
+(Align.hh) (Page 4/8) (Jul 19, 09 14:40) title
+border
+grestore
+(Printed by William Burger) rhead
+(Align.hh) (2/4) (Sunday July 19, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (5-6) 3
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(               tra->y[ii] = \(1023.-ppiste_n[ii]+1\)*0.0208 + 1.5*0.0208) p n
+() S 8 T () S 16 T ( + \(tra->yp[ii]-1023.\)*0.0208*1.5;) N
+(            }) N
+(          }) N
+(          ay++;) N
+(        }) N
+(      } ) S
+(else) K
+( {) p n
+(         ) S
+(if) K
+( \(tra->xp[ii] == -999.\) tra->x[ii] = tra->xp[ii];) p n
+(         ) S
+(else) K
+( {) p n
+(           tra->x[ii] = \(tra->xp[ii]-1.\)*0.0050;) N
+(           ax++;) N
+(         }) N
+(         ) S
+(if) K
+( \(tra->yp[ii] == -999.\) tra->y[ii] = tra->yp[ii];) p n
+(         ) S
+(else) K
+( {) p n
+(           tra->y[ii] = \(tra->yp[ii]-ppiste_n[ii]\)*0.0050;) N
+(           ay++;) N
+(         }) N
+(      }) N
+(      tra->z[ii]=algpar[14][ii];) N
+() N
+(      ) S
+(// si seulement amas y) c n
+(      ) p
+(if) K
+( \(ax == 0 && ay == 1\) {) p n
+(         apos\(ii,1,tra\);) N
+(         apos\(ii,2,tra\);) N
+(         ) S
+(break) K
+(;) p n
+(      }) N
+(      ) S
+(// si seulement amas x) c n
+(      ) p
+(if) K
+( \(ax == 1 && ay == 0\) {) p n
+(         apos\(ii,0,tra\);) N
+(         apos\(ii,2,tra\);) N
+(         ) S
+(break) K
+(;) p n
+(      }) N
+() N
+(      ) S
+(// correction z pour les angles d'inclinaision en les plans xz et yz) c n
+(      ) p
+(//      printf\(" ii %d dxdz %f sin %f\\n",ii,algpar[10][ii],sind\(algpar[10]) c n
+([ii]\)\);) N
+(      ) p
+(float) k
+( dzdx = \(tra->x[ii]-plaq_dim[0]*algpar[11][ii]\)*sind\(algpar[10][ii]\);) p n
+(      ) S
+(float) k
+( pivoty = algpar[13][ii];) p n
+(      ) S
+(if) K
+( \(deux_plaq_n[ii] && tra->yp[ii] > 832. \) pivoty = algpar_2[13][ii];) p n
+(      ) S
+(float) k
+( dzdy = \(tra->y[ii]-plaq_dim[1]*pivoty\)*sind\(algpar[11][ii]\);) p n
+(      ) S
+(float) k
+( dz = \(dzdx*dzdx\) + \(dzdy*dzdy\);) p n
+(      ) S
+(if) K
+( \(dz > 0.\) dz=sqrt\(dz\);) p n
+(      tra->z[ii]-=dz;) N
+(      ) S
+(if) K
+( \(ii == 3\) depz = dz;) p n
+(      apos\(ii,0,tra\);) N
+(      apos\(ii,1,tra\);) N
+(      apos\(ii,2,tra\);) N
+(      ) S
+(if) K
+( \(ii!=ref2\) apos_dxy_dyx\(ii,tra\);) p n
+(      ) S
+(//      printf\("i %d x %f y %f z %f\\n",ii,tra->x[ii],tra->y[ii],tra->z[ii]) c n
+(\);) N
+(    }) p n
+(  }) N
+() N
+(  ) S
+(// retourne positions apres alignement i-detecteur\(0-3\), j-0\(x\),1\(y\),2\(z\)) c n
+(  ) p
+(// pour x/y apres au niveau des corrections dxx, dyy) c n
+(  ) p
+(void) k
+( apos\() p
+(int) k
+( i, ) p
+(int) k
+( j, Trace* tra\) {) p n
+(    ) S
+(// en cm) c n
+(    ) p
+(if) K
+( \(j==0\) {) p n
+(       tra->x[i]-=algpar[j][i];) N
+(       tra->xsa[i] = tra->x[i];) N
+(      ) S
+(//       printf\("even %d i %d  y % e y0 %e diff %e\\n",nevent,i,x[i],algpar) c n
+([0][i],val\);) N
+(       ) p
+(//       if \(i==3\) val-=\(algpar[2][i]*\(x[i]-algpar[0][i]\)+algpar[3][i]\);) c n
+(       ) p
+(//       if \(i==3\) val-=\(algpar[2][i]*\(x[i]-algpar[0][i]\)+algpar[3][i]\);) c n
+(       ) p
+(if) K
+( \(i==ind3 || i==ind4 || i==indp1 || i==indp2\) {) p n
+(          tra->x[i]-=\(algpar[2][i]*tra->x[i]+algpar[3][i]\);) N
+(          xdx[i] = tra->x[i];) N
+(       }) N
+(       ) S
+(return) K
+(;) p n
+(Align.hh) (Page 5/8) (Jul 19, 09 14:40) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(    }) p n
+(    ) S
+(if) K
+( \(j==1\) {) p n
+(      ) S
+(if) K
+( \(deux_plaq_n[i] == 0\)) p n
+(         tra->y[i]-=algpar[j][i];) N
+(      ) S
+(else) K
+( {) p n
+(        ) S
+(if) K
+( \(tra->yp[i] < 833.\)) p n
+() S 8 T (  tra->y[i]-=algpar[j][i];) N
+(        ) S
+(else) K n
+(         tra->y[i]-=algpar_2[j][i];) p n
+(      }) N
+(      tra->ysa[i] = tra->y[i];) N
+(      ) S
+(//      printf\("i %d  y % e y0 %e diff %e\\n",i,y[i],algpar[1][i],val\);) c n
+(       ) p
+(if) K
+( \(i==ind4 || i==indp1 || i==indp2\) {) p n
+(          tra->y[i]-=\(algpar[4][i]*tra->y[i]+algpar[5][i]\);) N
+(          ydy[i] = tra->y[i];) N
+(       }) N
+(       ) S
+(if) K
+( \(i==ind3\) {) p n
+() S 8 T ( ) S
+(if) K
+( \(deux_plaq_n[i] == 0\) {) p n
+(           tra->y[i]-=\(algpar[4][i]*tra->y[i]+algpar[5][i]\);) N
+(           ydy[i] = tra->y[i];) N
+(         }) N
+(         ) S
+(else) K
+( {) p n
+() S 8 T (   ) S
+(if) K
+( \(tra->yp[i] < 833\) {) p n
+(             tra->y[i]-=\(algpar[4][i]*tra->y[i]+algpar[5][i]\);) N
+(             ydy[i] = tra->y[i];) N
+(           }) N
+(           ) S
+(else) K
+( {) p n
+(             tra->y[i]-=\(algpar_2[4][i]*tra->y[i]+algpar_2[5][i]\);) N
+(             ydy[i] = tra->y[i];) N
+(           }) N
+(         }) N
+(       }) N
+(       ) N
+(       ) S
+(return) K
+(;) p n
+(    }) N
+(    ) S
+(return) K
+(;) p n
+(  }) N
+() N
+(  ) S
+(// retourne positons x/y apres les corrections dxy et dyx) c n
+(  ) p
+(void) k
+( apos_dxy_dyx\() p
+(int) k
+( i, Trace* tra\) {) p n
+(    ) S
+(// en cm) c n
+(    ) p
+(if) K
+( \(i==ref1\) {) p n
+(      xdx[i] = tra->x[i];) N
+(      ydy[i] = tra->y[i];) N
+(      tra->x[i]-=\(algpar[6][i]*ydy[i]+algpar[7][i]\);) N
+(      tra->y[i]-=\(algpar[8][i]*xdx[i]+algpar[9][i]\);) N
+(    }) N
+(    ) S
+(if) K
+( \(i==ind3 || i==ind4 || i==indp1 || i==indp2\) {) p n
+(      tra->x[i]-=\(algpar[6][i]*ydy[i]+algpar[7][i]\);) N
+(      tra->y[i]-=\(algpar[8][i]*xdx[i]+algpar[9][i]\);) N
+(    }  ) N
+(    ) S
+(return) K
+(;) p n
+(  }) N
+() N
+(  ) S
+(// retourne la position predite pour la trace dans l'intervalle entre les pist) c n
+(es de lecture) N
+(  ) p
+(float) k
+( ipred\() p
+(int) k
+( i, ) p
+(int) k
+( j, Trace* tra\) {) p n
+(    ) S
+(// en cm) c n
+(    ) p
+(if) K
+( \(j==0\) {) p n
+(      ) S
+(float) k
+( val = xpospred[i];) p n
+(      ) S
+(if) K
+( \(i==ref1\) val+=\(algpar[6][i]*ydy[i]+algpar[7][i]\);) p n
+(      ) S
+(if) K
+( \(i==ind3 || i==ind4 || i==indp1 || i==indp2\) {) p n
+(        val+=\(algpar[6][i]*ydy[i]+algpar[7][i]\);) N
+(        val+=\(algpar[2][i]*val+algpar[3][i]\);) N
+(      }) N
+(      val+=algpar[j][i];) N
+(      ) S
+(if) K
+( \(i==indp1  || i==indp2\)) p n
+(         val = \(val/0.0050+1.\);) N
+(      ) S
+(else) K n
+(Align.hh) (Page 6/8) (Jul 19, 09 14:40) title
+border
+grestore
+(Printed by William Burger) rhead
+(Align.hh) (3/4) (Sunday July 19, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (7-8) 4
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(         val = \(val/0.0110+1.\);) p n
+(      ) S
+(return) K
+(\(val\);) p n
+(    }) N
+(    ) S
+(if) K
+( \(j==1\) {) p n
+(      ) S
+(float) k
+( val = ypospred[i];) p n
+(      ) S
+(if) K
+( \(i==ref1\) val+=\(algpar[8][i]*xdx[i]+algpar[9][i]\);) p n
+(      ) S
+(if) K
+( \(i==ind3 || i==ind4 || i==indp1 || i==indp2\) {) p n
+(        val+=\(algpar[8][i]*xdx[i]+algpar[9][i]\);) N
+(        val+=\(algpar[4][i]*val+algpar[5][i]\);) N
+(      }) N
+(      val+=algpar[j][i];) N
+(      ) S
+(if) K
+( \(i==indp1 || i==indp2\)) p n
+(         val = \(val/0.0050+ppiste_n[i]\);) N
+(      ) S
+(else) K n
+(         val = \(val/0.0208+ppiste_n[i]\);) p n
+(      ) S
+(return) K
+(\(val\);) p n
+(    }) N
+(    ) S
+(return) K
+(\(-1.\);) p n
+(  }) N
+() N
+(  ) S
+(// retourne positons apres alignement i-detecteur\(0-3\), j-0\(x\),1\(y\),2\(z\)) c n
+(  ) p
+(double) k
+( apos\() p
+(int) k
+( h, ) p
+(int) k
+( i, ) p
+(int) k
+( j, Trace* tra\) {) p n
+(    ) S
+(// en cm) c n
+(    ) p
+(//    printf\("j %d\\n",j\);) c n
+(    ) p
+(if) K
+( \(j==0\) {) p n
+(       ) S
+(double) k
+( val = tra->x[i]-algpar_fich[h][0][i];) p n
+(      ) S
+(//       printf\("even %d i %d  y % e y0 %e diff %e\\n",nevent,i,x[i],algpar) c n
+(_fich[h][0][i],val\);) N
+(       ) p
+(if) K
+( \(i==3\) val-=\(algpar_fich[h][2][i]*\(tra->x[i]-algpar_fich[h][0][i]\)+alg) p n
+(par_fich[h][3][i]\);) N
+(       ) S
+(if) K
+( \(i==3\) val-=\(algpar_fich[h][6][i]*\(tra->y[i]-algpar_fich[h][1][i]\)+alg) p n
+(par_fich[h][7][i]\);) N
+(       ) S
+(if) K
+( \(h==2 && i==2\) val-=\(algpar_fich[h][6][i]*\(tra->y[i]-algpar_fich[h][1]) p n
+([i]\)+algpar_fich[h][7][i]\);) N
+(       ) S
+(if) K
+( \(i==0\) val-=\(algpar_fich[h][6][i]*\(tra->y[i]-algpar_fich[h][1][i]\)+alg) p n
+(par_fich[h][7][i]\);) N
+(       ) S
+(return) K
+( \(val\);) p n
+(    }) N
+(    ) S
+(if) K
+( \(j==1\) {) p n
+(      ) S
+(//      printf\("gy %f\\n",val\);) c n
+(      ) p
+(double) k
+( val = tra->y[i]-algpar_fich[h][1][i];) p n
+(      ) S
+(//      printf\("i %d  y % e y0 %e diff %e\\n",i,y[i],algpar_fich[h][1][i],v) c n
+(al\);) N
+(      ) p
+(return) K
+( \(val\);) p n
+(    }) N
+(    ) S
+(if) K
+( \(j==2\) ) p
+(return) K
+(\(algpar[10][i]\);) p n
+(    ) S
+(return) K
+(\(-1.\);) p n
+(  }) N
+() N
+(  ) S
+(void) k
+( EcrireAlgPar\(\);) p n
+() N
+(  ) S
+(void) k
+( LireAlgPar\(\);) p n
+() N
+(  ) S
+(void) k
+( LireFichAlgPar\() p
+(int) k
+( run\);) p n
+() N
+(  ) S
+(void) k
+( LireFichAmasPar\() p
+(int) k
+( run\);) p n
+() N
+(  ) S
+(void) k
+( LireFonctionEta\() p
+(int) k
+( run\);) p n
+() N
+(  ) S
+(void) k
+( LireFonctionEta3\() p
+(int) k
+( run\);) p n
+(  ) N
+(  ) S
+(// position x a 'k' du ligne entre 'i' and 'j') c n
+(  ) p
+(double) k
+( ligne_projx\() p
+(int) k
+( i, ) p
+(int) k
+( j, ) p
+(int) k
+( k, Trace* tra\);) p n
+(  ) S
+(// position y a 'k' du ligne entre 'i' and 'j') c n
+(  ) p
+(double) k
+( ligne_projy\() p
+(int) k
+( i, ) p
+(int) k
+( j, ) p
+(int) k
+( k, Trace* tra\);) p n
+() N
+(  ) S
+(// position x a z du ligne entre 'i' and 'j') c n
+(  ) p
+(double) k
+( ligne_projxz\() p
+(int) k
+( i, ) p
+(int) k
+( j, ) p
+(float) k
+( z, Trace* tra\);) p n
+(  ) S
+(// position y a z du ligne entre 'i' and 'j') c n
+(Align.hh) (Page 7/8) (Jul 19, 09 14:40) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(  ) p
+(double) k
+( ligne_projyz\() p
+(int) k
+( i, ) p
+(int) k
+( j, ) p
+(float) k
+( z, Trace* tra\);) p n
+() N
+(  ) S
+(// divergence dx/dz entre positions i,j) c n
+(  ) p
+(double) k
+( div_dxdz\() p
+(int) k
+( i, ) p
+(int) k
+( j, Trace* tra\);) p n
+(  ) S
+(// divergence dy/dz entre positions i,j) c n
+(  ) p
+(double) k
+( div_dydz\() p
+(int) k
+( i, ) p
+(int) k
+( j, Trace* tra\);) p n
+() N
+(  ) S
+(// divergence dx/dz pour toutes les position avec fit) c n
+(  ) p
+(double) k
+( div_dxdz_lin\(Trace* tra, ) p
+(int) k
+( exclu\);) p n
+(  ) S
+(// divergence dx/dz avec les reference et une echelle) c n
+(  ) p
+(void) k
+( div_dxdz_lin_ref\(Trace* tra\);) p n
+(  ) S
+(// divergence dx/dz entre les positions 1-3 avec fit) c n
+(  ) p
+(double) k
+( div_dxdz_lin_pos123\(Trace* tra, ) p
+(int) k
+( exclu\);) p n
+(  ) S
+(// residus en x pour le petit a la position 0) c n
+(  ) p
+(double) k
+( div_dxdz_lin_proj_pos0\(Trace* tra\);) p n
+(  ) S
+(// residus en x pour le petit a la position 4) c n
+(  ) p
+(double) k
+( div_dxdz_lin_proj_pos4\(Trace* tra\);) p n
+(  ) S
+(// residus en x pour l'efficacite) c n
+(  ) p
+(int) k
+( div_dxdz_lin_eff\(Trace* tra, ) p
+(int) k
+( exclu\);) p n
+(  ) S
+(// divergence dy/dz pour toutes les positions avec fit) c n
+(  ) p
+(double) k
+( div_dydz_lin\(Trace* tra, ) p
+(int) k
+( exclu\);) p n
+(  ) S
+(// divergence dy/dz avec les reference et une echelle) c n
+(  ) p
+(void) k
+( div_dydz_lin_ref\(Trace* tra\);) p n
+(  ) S
+(// divergence dy/dz entre positions 1-3 avec fit) c n
+(  ) p
+(double) k
+( div_dydz_lin_pos123\(Trace* tra, ) p
+(int) k
+( exclu\);) p n
+(  ) S
+(// residus en y pour le petit a la position 0) c n
+(  ) p
+(double) k
+( div_dydz_lin_proj_pos0\(Trace* tra\);) p n
+(  ) S
+(// residus en y pour le petit a la position 4) c n
+(  ) p
+(double) k
+( div_dydz_lin_proj_pos4\(Trace* tra\);) p n
+(  ) S
+(// residus en y pour l'efficacite) c n
+(  ) p
+(int) k
+( div_dydz_lin_eff\(Trace* tra, ) p
+(int) k
+( exclu\);) p n
+(  ) S
+(// conversion deg->grad per sin\(x\)) c n
+(  ) p
+(float) k
+( sind\() p
+(float) k
+( deg\) { ) p n
+(    ) S
+(return) K
+(\(sin\(3.14159*deg/180.\)\);}) p n
+() N
+(  ClassDef\(Align,1\)) N
+(};) N
+() N
+() N
+(#endif) K n
+(Align.hh) (Page 8/8) (Jul 19, 09 14:40) title
+border
+grestore
+(Printed by William Burger) rhead
+(Align.hh) (4/4) (Sunday July 19, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+
+%%Trailer
+end
+%%EOF

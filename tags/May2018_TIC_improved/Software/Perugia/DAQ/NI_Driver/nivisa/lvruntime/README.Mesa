@@ -1,0 +1,33 @@
+Mesa library
+------------
+
+The LabVIEW Run-time Engine is dynamically linked with the Mesa
+OpenGL-compatible* 3-D graphics library (libOSMesa.so.4), which must be
+installed on the system in order to run LabVIEW built executables.
+
+The library filename is slightly renamed from the original Mesa library
+name (libMesaGL.so.*) for the following reasons:
+
+1) The Mesa library is included by some Linux distributions and not
+ others.  The distributions which provide Mesa use different versions
+ compiled with different options -- some include it as part of XFree86 4.0,
+ others as a standalone package.  The library location and version numbering
+ scheme has not been standardized across distributions.  For this reason,
+ relying on distribution-provided Mesa libraries would have been
+ very difficult to support.
+
+2) By default Mesa allocates a large amount of memory for
+ stencil buffers and accumulation buffers regardless of whether
+ the application needs these features, and has a fairly large
+ maximum render context size.  The LabVIEW version of Mesa
+ has been compiled with a smaller render context and certain
+ features disabled in order to use less memory.  In addition,
+ Phong shading support has been added to the library.
+
+In compliance with the GNU Library Public License (LGPL), the source
+code to Mesa including these modifications, and the text of the
+license,  are available at ftp://ftp.ni.com/support/misc/thirdparty/mesa-src/
+These files may be freely redistributed and modified under the terms of
+this license.
+
+* OpenGL(R) is a registered trademark of Silicon Graphics, Inc.

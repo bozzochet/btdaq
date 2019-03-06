@@ -1,0 +1,14 @@
+#!/bin/sh
+
+for dtime in `cat timelist2`; do
+
+
+./TakeJEPP 0 INIT
+sleep 1
+echo ./rundt $dtime
+./rundt $dtime
+sleep 1
+
+./TakeJEPP 0  TAKEDATA 100000
+
+done
