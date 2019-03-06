@@ -339,7 +339,8 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     PRINTDEBUG;
 
     int NClusTot = ev->GetNClusTot();
-    printf("\t\tnclusters = %d\n", NClusTot);
+    //    printf("\t\tnclusters = %d\n", NClusTot);
+    if (NClusTot==1) printf("\t\tnclusters = %d\n", NClusTot);
     PRINTDEBUG;
     
     //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
