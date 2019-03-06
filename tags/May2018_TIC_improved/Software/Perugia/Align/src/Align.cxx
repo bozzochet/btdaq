@@ -293,6 +293,30 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 
   int cleanevs=0;
   int goodtracks=0;
+  int goldtracks=0;
+  int goldStracks=0;
+  int goldKtracks=0;
+
+  ExcludeTDR(ev, 0, 2, 0);
+  ExcludeTDR(ev, 0, 2, 1);
+  ExcludeTDR(ev, 0, 3, 0);
+  ExcludeTDR(ev, 0, 3, 1);
+  ExcludeTDR(ev, 0, 6, 0);
+  ExcludeTDR(ev, 0, 6, 1);
+  ExcludeTDR(ev, 0, 7, 0);
+  ExcludeTDR(ev, 0, 7, 1);
+  ExcludeTDR(ev, 0, 10, 0);
+  ExcludeTDR(ev, 0, 10, 1);
+  ExcludeTDR(ev, 0, 11, 0);
+  ExcludeTDR(ev, 0, 11, 1);
+  ExcludeTDR(ev, 0, 14, 0);
+  ExcludeTDR(ev, 0, 14, 1);
+  ExcludeTDR(ev, 0, 15, 0);
+  ExcludeTDR(ev, 0, 15, 1);
+  ExcludeTDR(ev, 0, 18, 0);
+  ExcludeTDR(ev, 0, 18, 1);
+  ExcludeTDR(ev, 0, 19, 0);
+  ExcludeTDR(ev, 0, 19, 1);
   
   //  for (int index_event=14; index_event<15; index_event++) {
   for (int index_event=0; index_event<entries; index_event++) {
@@ -322,14 +346,14 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 
     PRINTDEBUG;
 
-    //at least 3 points on S, and 3 points on K, not verbose
-    bool trackfitok = ev->FindTrackAndFit(3, 3, false);
+    //at least 2 points on S, and 2 points on K, not verbose
+    bool trackfitok = ev->FindTrackAndFit(2, 2, false);
     //    printf("%d\n", trackfitok);
     if (trackfitok) {
       //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
       //(but only if removing them still we'll have more or equal than 3 (2 if 'HigherCharge') hits on S and 3 (2 if 'HigherCharge') hits on K)
       //and perform the fit again
-      ev->RefineTrack(6.0, 2, 6.0, 2);
+      ev->RefineTrack(1.0, 2, 1.0, 2);
     }
     /* better to waste these 2 hits events...
     else {
@@ -356,7 +380,8 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     double logchix = log10(ev->GetChiTrackX());
     double logchiy = log10(ev->GetChiTrackY());
     //    printf("%d %f (%f)\n", indexalignment, logchi, fiftycent);
-    if (chisqcut && logchi>2) continue;
+    //    if (chisqcut && logchi>2) continue;
+    if (chisqcut && logchi>6) continue;
 
     PRINTDEBUG;
     
@@ -378,8 +403,22 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	ev->IsTDRInTrack(1, 8) &&
 	(ev->IsTDRInTrack(1, 12) || ev->IsTDRInTrack(1, 14)) ) ktrackok=true;
     */
-    strackok=true;
-    ktrackok=true;
+        int snhits=ev->GetNHitsSTrack();
+    if (snhits>=3) {
+      strackok=true;
+      goldStracks++;
+    }
+    
+    int knhits= ev->GetNHitsKTrack();
+    if (knhits>=3) {
+      ktrackok=true;
+      goldKtracks++;
+    }
+
+    // printf("S -> %d %d\n", snhits, strackok);
+    // printf("K -> %d %d\n", knhits, ktrackok);
+
+    if (strackok & ktrackok) goldtracks++;
 
     nhits->Fill(ev->GetNHitsTrack());
     nhitsx->Fill(ev->GetNHitsXTrack());
