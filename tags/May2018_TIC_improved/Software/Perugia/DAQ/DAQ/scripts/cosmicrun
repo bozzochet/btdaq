@@ -1,0 +1,21 @@
+#!/bin/sh
+
+
+cont=0
+max=1
+events=200000
+
+
+while [ $cont -le $max ]; do
+
+echo ./Calib 
+./Calib
+
+echo ./TakeJEPP  0 TAKEDATA $events 
+./TakeJEPP  0 TAKEDATA $events
+
+sleep 2
+
+#cont=`expr $cont + 1`
+
+done
