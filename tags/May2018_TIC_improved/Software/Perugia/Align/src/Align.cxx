@@ -201,10 +201,7 @@ int main(int argc, char* argv[]) {
 }
 
 int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool chisqcut, bool writealign){
-  
-  printf("*********************\n");
-  sleep(10);
-  
+    
   TChain *chain = new TChain("t4");
      
   for (int ii=1; ii<argc; ii++) {
@@ -335,7 +332,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   
   //  for (int index_event=14; index_event<15; index_event++) {
   for (int index_event=0; index_event<entries; index_event++) {
-    //    printf("----- new event %d\n", index_event);
+    printf("----- new event %d (out of %d)\n", index_event, entries);
     PRINTDEBUG;
     chain->GetEntry(index_event);
 
