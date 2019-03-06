@@ -31,6 +31,10 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
   PRINTDEBUG;
   
   int NClusTot = ev->GetNClusTot();
+  if (rh->ntdrCmp<1 && (rh->ntdrRaw!=0 || NClusTot!=0)) {
+    printf("%d = %d + %d\n", NClusTot, rh->ntdrCmp, rh->ntdrRaw);
+    sleep(10);
+  }
   if (NClusTot<1) return false;
   //  if(NClusTot<(minclus-1) || NClusTot>(maxclus+1)) return false; //we have to count just the one not excluded
   int NClusTot_notexcl = 0;
