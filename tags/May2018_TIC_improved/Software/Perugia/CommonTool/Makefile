@@ -28,8 +28,8 @@ ifeq ($(UNAME), Darwin)
 ADDLDFLAGS =
 endif
 
-CFLAGS += $(shell root-config --auxcflags) -O -std=c++11 -fPIC
-#CFLAGS += $(shell root-config --auxcflags) -O -fPIC
+#CFLAGS += $(shell root-config --auxcflags) -O -std=c++11 -fPIC
+CFLAGS += $(shell root-config --auxcflags) -O -fPIC
 
 ROOTDYNAMICLIBS := $(shell root-config --libs) -lMinuit -lSpectrum
 ROOTINC := $(shell root-config --incdir)
