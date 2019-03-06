@@ -339,13 +339,13 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     PRINTDEBUG;
 
     int NClusTot = ev->GetNClusTot();
-    //    printf("\t\tnclusters = %d\n", NClusTot);
+    printf("\t\tnclusters = %d\n", NClusTot);
     PRINTDEBUG;
     
     //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
     //and at most 50 (to avoid too much noise around and too much combinatorial)
     //at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
-    bool cleanevent = true;//CleanEvent(ev, rh, 4, 50, 6, 6, 0, 0);
+    bool cleanevent = CleanEvent(ev, rh, 4, 50, 6, 6, 0, 0);
     if (!cleanevent) continue;
     cleanevs++;
         
