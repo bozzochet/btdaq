@@ -214,7 +214,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 
   PRINTDEBUG;
   
-  //  Event::ReadAlignment(align_filename.Data());
+  Event::ReadAlignment(align_filename.Data());
   
   PRINTDEBUG;
   
@@ -237,6 +237,11 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   if (rh) {
     rh->Print();
     _maxtdr = rh->ntdrCmp;
+    int NClusTot = ev->GetNClusTot();
+    if (rh->ntdrCmp<1 && (rh->ntdrRaw!=0 || NClusTot!=0)) {
+      printf("Align) %d = %d + %d\n", NClusTot, rh->ntdrCmp, rh->ntdrRaw);
+      sleep(10);
+    }
   }
   //  printf("%d\n", _maxladd);
   
