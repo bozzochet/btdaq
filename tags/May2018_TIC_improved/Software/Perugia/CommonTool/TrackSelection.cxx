@@ -53,6 +53,8 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
   int safetyKspent = safetyK;
 
   PRINTDEBUG;
+
+  printf("%d = %d + %d\n", NClusTot, rh->GetNTdrsCmp(), rh->GetNTdrsRaw());
   
   for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
 
@@ -89,8 +91,6 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
     //    printf("AFTER: %d %d %d %d\n", ladder, jinfnum, tdrnum, side);
 
     PRINTDEBUG;
-
-    printf("%d = %d + %d\n", NClusTot, rh->GetNTdrsCmp(), rh->GetNTdrsRaw());
     
     int ladder_pos=rh->FindPosCmp(ladder);
     if (ladder_pos>NJINF*NTDRS) {
