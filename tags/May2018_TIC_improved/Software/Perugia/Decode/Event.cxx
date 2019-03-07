@@ -137,14 +137,12 @@ void Event::Clear(){
   return;
 }
 
-Cluster* Event::AddCluster(int lad,int side){
+Cluster* Event::AddCluster(int lad, int side){
   Cluster* pp=(Cluster*)Cls->New(NClusTot);
-
   NClus[lad][side]++;
   NClusTot++;
   return pp;
 }
-
 
 Cluster* Event::GetCluster(int ii){
   return (Cluster*)Cls->At(ii);
