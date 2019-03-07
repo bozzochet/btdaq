@@ -26,8 +26,8 @@
 #include "Utilities.hh"
 /* end */
 
-//#define PRINTDEBUG printf("%s) This is the line number %d\n", __FILE__, __LINE__);
-#define PRINTDEBUG
+#define PRINTDEBUG printf("%s) This is the line number %d\n", __FILE__, __LINE__);
+//#define PRINTDEBUG
 
 using namespace std;
 
