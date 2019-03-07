@@ -306,19 +306,15 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 
   int perc=0;
   
-  static bool exclusiondone=false;
-  if (!exclusiondone) {
-    for (int jj=0; jj<NJINF; jj++) {
-      for (int i_tt=0; i_tt<ladderS_to_ignore[jj].size(); i_tt++) {
-	int tt = ladderS_to_ignore[jj].at(i_tt);
-	ExcludeTDR(ev, jj, tt, 0);
-      }
-      for (int i_tt=0; i_tt<ladderK_to_ignore[jj].size(); i_tt++) {
-	int tt = ladderK_to_ignore[jj].at(i_tt);
-	ExcludeTDR(ev, jj, tt, 1);
-      }
+  for (int jj=0; jj<NJINF; jj++) {
+    for (int i_tt=0; i_tt<ladderS_to_ignore[jj].size(); i_tt++) {
+      int tt = ladderS_to_ignore[jj].at(i_tt);
+      ExcludeTDR(ev, jj, tt, 0);
     }
-    exclusiondone=true;
+    for (int i_tt=0; i_tt<ladderK_to_ignore[jj].size(); i_tt++) {
+      int tt = ladderK_to_ignore[jj].at(i_tt);
+      ExcludeTDR(ev, jj, tt, 1);
+    }
   }
   
   //  for (int index_event=14; index_event<15; index_event++) {
