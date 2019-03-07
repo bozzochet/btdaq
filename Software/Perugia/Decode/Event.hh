@@ -212,9 +212,9 @@ public:
   int nJinf;
   int JinfMap[NJINF];
   int ntdrRaw;
-  int tdrRawMap[24];
+  int tdrRawMap[NTDRS];
   int ntdrCmp;
-  int tdrCmpMap[24];
+  int tdrCmpMap[NTDRS];
   double CNMean[NTDRS][NVAS];
   double CNSigma[NTDRS][NVAS];
 
