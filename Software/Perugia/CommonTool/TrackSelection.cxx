@@ -1,5 +1,6 @@
 #include "TrackSelection.hh"
 #include <algorithm>
+#include <unistd.h>
 
 //#define PRINTDEBUG printf("%s) This is the line number %d\n", __FILE__, __LINE__);
 #define PRINTDEBUG
@@ -31,8 +32,8 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
   PRINTDEBUG;
   
   int NClusTot = ev->GetNClusTot();
-  if (rh->ntdrCmp<1 && (rh->ntdrRaw!=0 || NClusTot!=0)) {
-    printf("%d = %d + %d\n", NClusTot, rh->ntdrCmp, rh->ntdrRaw);
+  if (rh->GetNTdrsCmp()<1 && (rh->GetNTdrsRaw()!=0 || NClusTot!=0)) {
+    printf("%d = %d + %d\n", NClusTot, rh->GetNTdrsCmp(), rh->GetNTdrsRaw());
     //    sleep(10);
   }
   if (NClusTot<1) return false;
@@ -62,7 +63,7 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
     PRINTDEBUG;
     
     int ladder = cl->ladder;
-    //    printf("%d --> %d\n", ladder, rh->FindPos(ladder));
+    //    printf("%d --> %d\n", ladder, rh->FindPosCmp(ladder));
 
     int jinfnum = cl->GetJinf();
     int tdrnum = cl->GetTDR();
@@ -89,7 +90,7 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
 
     PRINTDEBUG;
 
-    int ladder_pos=rh->FindPos(ladder);
+    int ladder_pos=rh->FindPosCmp(ladder);
     if (ladder_pos>NJINF*NTDRS) {
       printf("WTF? ladder_pos is %d out of %d\n", ladder_pos, NJINF*NTDRS);
       sleep(10);
@@ -160,7 +161,7 @@ bool ChargeSelection(Event *ev, RHClass *_rh, float charge_center, float lower_l
     int ladder = _cl->ladder;
     
     //    printf("%d --> %d\n", ladder, _rh->tdrCmpMap[ladder]);
-    // printf("%d --> %d\n", ladder, _rh->FindPos(ladder));
+    // printf("%d --> %d\n", ladder, _rh->FindPosCmp(ladder));
     charge[ladder]=_cl->GetCharge();
   }
   if(    ((charge[0] > (charge_center-lower_limit)) && (charge[0] < (charge_center+higher_limit)))
