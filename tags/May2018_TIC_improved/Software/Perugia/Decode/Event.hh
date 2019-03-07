@@ -205,7 +205,7 @@ private:
 //! Run Header Class
 class RHClass: public TObject{
 
-public:
+private:
   //! Run number
   int Run;
   char date[30];
@@ -218,7 +218,7 @@ public:
   double CNMean[NTDRS][NVAS];
   double CNSigma[NTDRS][NVAS];
 
-
+public:
   //! default constructor
   RHClass();
   //! default destructor
@@ -226,10 +226,32 @@ public:
   //! Prints the Header infos
   void Print();
 
-  int FindPos(int tdrnum);
+  inline void SetRun(int _run) { Run=_run; return;}
+  inline int GetRun() { return Run;}
+
+  inline void SetDate(char* _date) { sprintf(date, "%s", _date); return;}
+  inline const char* GetDate() { return date;}
+  
+  inline int GetNJinfs() { return nJinf; }
+  inline void SetNJinfs(int _nJinf) { nJinf=_nJinf; return; }
+    
+  inline int GetNTdrs() { return ntdrRaw+ntdrCmp; }
+  inline int GetNTdrsCmp() { return ntdrCmp; }
+  inline int GetNTdrsRaw() { return ntdrRaw; }
+  inline void SetNTdrsCmp(int _nTdrCmp) { ntdrCmp=_nTdrCmp; return; }
+  inline void SetNTdrsRaw(int _nTdrRaw) { ntdrRaw=_nTdrRaw; return; }
+
+  void SetJinfMap(int* _JinfMap);
+  void SetTdrRawMap(int* _TdrRawMap);
+  void SetTdrCmpMap(int* _TdrCmpMap);
+  
+  inline int FindLadderNumCmp(int tdrpos) { return tdrCmpMap[tdrpos]; }
+  inline int FindLadderNumRaw(int tdrpos) { return tdrRawMap[tdrpos]; }
+  
+  int FindPosCmp(int tdrnum);
   int FindPosRaw(int tdrnum);
 
-  ClassDef(RHClass,1)
+  ClassDef(RHClass,2)
 };
 
 
