@@ -476,6 +476,8 @@ void Event::ClearTrack_sf(){
 
 void Event::ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side) {
 
+  printf("From now on excluding JINF=%d, TDR=%d, Side=%d\n", jinfnum, tdrnum, side);
+  
   int item = jinfnum*100+tdrnum;
 
   if (side==0) {
@@ -485,7 +487,7 @@ void Event::ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side) {
     _v_ladderK_to_ignore.push_back(item);
   }
 
-      return;
+  return;
 }
 
 bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
