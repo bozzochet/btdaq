@@ -1055,7 +1055,7 @@ void Event::StoreTrackClusterPatterns(){
       //      unsigned long long int tdr_index = (int)(pow(10.0, (double)(tdrnum)));
       int tdr_index = 1<<tdrnum;
       //      printf("TDR %d %d --> %s\n", tdrnum, i_side, std::bitset<NTDRS>(tdr_index).to_string().c_str());
-      if (jinfnum>NJINF || i_side>2) _track_cluster_pattern[jinfnum][i_side] +=  tdr_index;
+      if (jinfnum<NJINF && i_side<2) _track_cluster_pattern[jinfnum][i_side] +=  tdr_index;
       else printf("Problem: Jinf %d out of %d and side %d out of %d\n", jinfnum, NJINF, i_side, 2);
     }
   }
