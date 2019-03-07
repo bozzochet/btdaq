@@ -1309,32 +1309,9 @@ int RHClass::FindPosCmp(int tdrnum){
   //   printf("CMP: %d -> %d\n", ii, tdrCmpMap[ii]);
   // }
 
-  if (ntdrCmp>NTDRS) {
-    printf("Eh? There are %d tdrs?!\n", ntdrCmp);
-  }
-  
   for (int ii=0; ii<ntdrCmp; ii++)
-    if (tdrCmpMap[ii]==tdrnum) {
-      if (ii>NTDRS) {
-	printf("going to return %d...\n", ii);
-      }
-      return ii;
-    }
+    if (tdrCmpMap[ii]==tdrnum) return ii;
 
-  //  if (ntdrCmp!=0) {
-  if (nJinf>1) {
-    printf("Run: %d Date: %s\n", Run, date);
-    printf("# Jinf = %d\n", nJinf);
-    sleep(10);
-  }
-  //  Print();
-  printf("ntdrCmp = %d\n", ntdrCmp);
-  for (int ii=0; ii<ntdrCmp; ii++) {
-    printf("CMP: %d -> %d\n", ii, tdrCmpMap[ii]);
-  }
-  //   sleep(10);
-  // }
-  
   return -1;
 }
 
@@ -1346,6 +1323,7 @@ int RHClass::FindPosRaw(int tdrnum){
 
   for (int ii=0;ii<ntdrRaw;ii++)
     if(tdrRawMap[ii]==tdrnum)  return ii;
+  
   return -1;
 }
 
