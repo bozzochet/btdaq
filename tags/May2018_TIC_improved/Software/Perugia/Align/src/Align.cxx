@@ -475,24 +475,27 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
       PRINTDEBUG;
       
       int ladder = cl->ladder;
-      //printf("ladder %d --> %d\n", ladder, rh->FindPos(ladder));
-      PRINTDEBUG;
-      
-      occupancy[rh->FindPos(ladder)]->Fill(cl->GetCoG());
-      PRINTDEBUG;
-      
       int side=cl->side;
+      int ladder_pos = rh->FindPos(ladder);
+      if (ladder<0 || ladder>=24 || ladder_pos<0 || ladder_pos>=24) {
+	printf("Ladder %d --> %d. Side = %d\n", ladder, rh->FindPos(ladder), side);
+      }
+      //printf("Ladder %d --> %d. Side = %d\n", ladder, rh->FindPos(ladder), side);
 
       PRINTDEBUG;
       
+      occupancy[ladder_pos]->Fill(cl->GetCoG());
+      
+      PRINTDEBUG;
+      
       if (side==0) {
-	occupancy_posS[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
-	//	if (cl->GetAlignedPosition()>NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 0)) printf("%d) %f\n", rh->FindPos(ladder), cl->GetCoG());
-	v_cog_all_laddS[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	occupancy_posS[ladder_pos]->Fill(cl->GetAlignedPosition());
+	//	if (cl->GetAlignedPosition()>NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 0)) printf("%d) %f\n", ladder_pos, cl->GetCoG());
+	v_cog_all_laddS[ladder_pos].push_back(cl->GetAlignedPosition());
       }
       else {
-	occupancy_posK[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
-	v_cog_all_laddK[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	occupancy_posK[ladder_pos]->Fill(cl->GetAlignedPosition());
+	v_cog_all_laddK[ladder_pos].push_back(cl->GetAlignedPosition());
       }
 
       PRINTDEBUG;
@@ -503,15 +506,15 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
       
       if (side==0) {
 	if (strackok) {
-	  residual_S[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));
-	  v_cog_laddS[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	  residual_S[ladder_pos]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));
+	  v_cog_laddS[ladder_pos].push_back(cl->GetAlignedPosition());
 	  hclusSladdtrack->Fill(ladder);
 	}
       }
       else {
 	if (ktrackok) {
-	  residual_K[rh->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));
-	  v_cog_laddK[rh->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	  residual_K[ladder_pos]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));
+	  v_cog_laddK[ladder_pos].push_back(cl->GetAlignedPosition());
 	  hclusKladdtrack->Fill(ladder);
 	}
       }
@@ -552,17 +555,17 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	cl_S = ev->GetCluster(index_cluster_S);
 	posS = cl_S->GetAlignedPosition();
 	resS = posS-ev->ExtrapolateTrack(cl_S->GetZPosition(), 0);
-	residualS_vs_posS[rh->FindPos(ladder)]->Fill(posS, resS);
+	residualS_vs_posS[ladder_pos]->Fill(posS, resS);
       }
       if (index_cluster_K>=0) {
 	cl_K = ev->GetCluster(index_cluster_K);
 	posK = cl_K->GetAlignedPosition();
 	resK = posK-ev->ExtrapolateTrack(cl_K->GetZPosition(), 1);
-	residualK_vs_posK[rh->FindPos(ladder)]->Fill(posK, resK);
+	residualK_vs_posK[ladder_pos]->Fill(posK, resK);
       }
       if (index_cluster_S>=0 && index_cluster_K>=0) {
-	residualS_vs_posK[rh->FindPos(ladder)]->Fill(posK, resS);
-	residualK_vs_posS[rh->FindPos(ladder)]->Fill(posS, resK);
+	residualS_vs_posK[ladder_pos]->Fill(posK, resS);
+	residualK_vs_posS[ladder_pos]->Fill(posS, resK);
       }
     }
     
