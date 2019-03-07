@@ -36,11 +36,6 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
   //  if(NClusTot<(minclus-1) || NClusTot>(maxclus+1)) return false; //we have to count just the one not excluded
   int NClusTot_notexcl = 0;
 
-  if ((rh->GetNTdrsCmp()+rh->GetNTdrsRaw())!=NClusTot) {
-    printf("%d = %d + %d\n", NClusTot, rh->GetNTdrsCmp(), rh->GetNTdrsRaw());
-    sleep(10);
-  }
-
   PRINTDEBUG;
   
   int nclusS[NJINF*NTDRS];
