@@ -66,7 +66,8 @@ int main(int argc, char* argv[]) {
     int indexalignment = 0;
     
     ret = SingleAlign(argc, argv, indexalignment++, 1);//first alignment with the 'Bruna's method'
-    if (ret) return ret;
+    return -1;
+    //    if (ret) return ret;
 
     printf("\n");
     printf("\n");
