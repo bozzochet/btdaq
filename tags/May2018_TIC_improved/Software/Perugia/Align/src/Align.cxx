@@ -344,7 +344,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
       int NClusTot = ev->GetNClusTot();
       if (rh->ntdrCmp<1 && (rh->ntdrRaw!=0 || NClusTot!=0)) {
 	printf("Align) %d = %d + %d\n", NClusTot, rh->ntdrCmp, rh->ntdrRaw);
-	sleep(10);
+	//	sleep(10);
       }
       if (_maxtdr>NJINF*NTDRS) {
 	printf("%d %d\n", _maxtdr, NJINF*NTDRS);
