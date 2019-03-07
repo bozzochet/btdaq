@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
       if (progname.Contains("FirstStepAlign")) return 0;
     }
 
-    ret = SingleAlign(argc, argv, indexalignment++, 2);//last alignment just to shift all the ladder of the same quantity to have <X0>=0 and <Y0>=0 
+    ret = SingleAlign(argc, argv, indexalignment++, 2);//last alignment just to shift all the ladder of the same quantity to have <S0>=0 and <K0>=0 
     if (ret) return ret;
     ret = SingleAlign(argc, argv, indexalignment++, 0, true, false);//let's run again to have the plots with the final alignment
     if (ret) return ret;
@@ -280,14 +280,14 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   TH1F* nhitsx = new TH1F("nhitsx", "nhitsx;# of hits_{x};Entries", 6, -0.5, 5.5);
   TH1F* nhitsy = new TH1F("nhitsy", "nhitsy;# of hits_{y};Entries", 6, -0.5, 5.5);
   TH1F* chi = new TH1F("chi", "chi;log10(#chi^{2});Entries", 1000, -5, 10);
-  TH1F* chix = new TH1F("chix", "chix;log10(#chi^{2}_{x});Entries", 1000, -5, 10);
-  TH1F* chiy = new TH1F("chiy", "chiy;log10(#chi^{2}_{y});Entries", 1000, -5, 10);
+  TH1F* chiS = new TH1F("chiS", "chiS;log10(#chi^{2}_{S});Entries", 1000, -5, 10);
+  TH1F* chiK = new TH1F("chiK", "chiK;log10(#chi^{2}_{K});Entries", 1000, -5, 10);
   TH1F* theta = new TH1F("theta", "theta;#theta (rad);Entries", 10000, -1.0, 1.0);
   TH1F* phi = new TH1F("phi", "phi;#phi (rad);Entries", 1000, -TMath::Pi(), TMath::Pi());
   TH2F* thetaphi = new TH2F("thetaphi", "thetaphi;#theta (rad);#phi (rad);Entries", 10000, -1.0, 1.0, 1000, -TMath::Pi(), TMath::Pi());
-  TH1F* X0 = new TH1F("X0", "X0;X_{Z=0} (mm);Entries", 1000, -100, 100);
-  TH1F* Y0 = new TH1F("Y0", "Y0;Y_{Z=0} (mm);Entries", 1000, -100, 100);
-  TH2F* X0Y0 = new TH2F("X0Y0", "X0Y0;X_{Z=0} (mm);Y_{Z=0} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
+  TH1F* S0 = new TH1F("S0", "S0;S_{Z=0} (mm);Entries", 1000, -100, 100);
+  TH1F* K0 = new TH1F("K0", "K0;K_{Z=0} (mm);Entries", 1000, -100, 100);
+  TH2F* S0K0 = new TH2F("S0K0", "S0K0;S_{Z=0} (mm);K_{Z=0} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
 
   TH1F* hclusSladd = new TH1F("hclusSladd", "hclusSladd;Ladder;Clusters", 24, 0, 24);
   TH1F* hclusSladdtrack = new TH1F("hclusSladdtrack", "hclusSladdtrack;Ladder;Clusters", 24, 0, 24);
@@ -381,7 +381,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     }
     */
     if (!trackfitok) continue;
-    //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());    
+    //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetS0Track(), ev->GetK0Track());    
     goodtracks++;
     
     PRINTDEBUG;
@@ -394,8 +394,8 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     // if (ev->GetTrackHitPattern(1) <                100010001) continue;
     
     double logchi = log10(ev->GetChiTrack());
-    double logchix = log10(ev->GetChiTrackX());
-    double logchiy = log10(ev->GetChiTrackY());
+    double logchiS = log10(ev->GetChiTrackS());
+    double logchiK = log10(ev->GetChiTrackK());
     //    printf("%d %f (%f)\n", indexalignment, logchi, fiftycent);
     //    if (chisqcut && logchi>2) continue;
     if (chisqcut && logchi>6) continue;
@@ -441,14 +441,14 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     nhitsx->Fill(ev->GetNHitsSTrack());
     nhitsy->Fill(ev->GetNHitsKTrack());
     chi->Fill(log10(ev->GetChiTrack()));
-    chix->Fill(log10(ev->GetChiTrackX()));
-    chiy->Fill(log10(ev->GetChiTrackY()));
+    chiS->Fill(log10(ev->GetChiTrackS()));
+    chiK->Fill(log10(ev->GetChiTrackK()));
     theta->Fill(ev->GetThetaTrack());
     phi->Fill(ev->GetPhiTrack());
     thetaphi->Fill(ev->GetThetaTrack(), ev->GetPhiTrack());
-    X0->Fill(ev->GetX0Track());
-    Y0->Fill(ev->GetY0Track());
-    X0Y0->Fill(ev->GetX0Track(), ev->GetY0Track());
+    S0->Fill(ev->GetS0Track());
+    K0->Fill(ev->GetK0Track());
+    S0K0->Fill(ev->GetS0Track(), ev->GetK0Track());
 
     PRINTDEBUG;
     
@@ -602,7 +602,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   
   for (int tt=0; tt<_maxtdr; tt++) {
 
-    for (int kk=0; kk<3; kk++) {//0 is Residuals, 1 is Bruna's, 2 X0/Y0 shift
+    for (int kk=0; kk<3; kk++) {//0 is Residuals, 1 is Bruna's, 2 S0/K0 shift
 
       if (kk==0) {
 	h2fitS = residual_S[tt];
@@ -613,8 +613,8 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	h2fitK = hcooreldiff_K[tt];
       }
       else {
-	h2fitS = X0;
-	h2fitK = Y0;
+	h2fitS = S0;
+	h2fitK = K0;
       }
       
       // printf("%d) %d %d\n", tt, h2fitS->GetNbinsX(), h2fitK->GetNbinsX());
