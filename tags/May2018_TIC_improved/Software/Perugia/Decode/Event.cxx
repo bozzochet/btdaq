@@ -1272,8 +1272,8 @@ RHClass::RHClass(){
 void RHClass::Print(){
   printf("---------------------------------------------\n");
   printf("The header says:\n");
-  printf("Run: %d Date: %s\n",Run,date);
-  printf("# Jinf = %d\n",nJinf);
+  printf("Run: %d Date: %s\n", Run, date);
+  printf("# Jinf = %d\n", nJinf);
   for (int ii=0;ii<nJinf;ii++)
     printf("Jinf Map pos: %d Jinf num: %d\n", ii, JinfMap[ii]);
 
@@ -1310,11 +1310,16 @@ int RHClass::FindPos(int tdrnum){
     if (tdrCmpMap[ii]==tdrnum) return ii;
 
   //  if (ntdrCmp!=0) {
-    Print();
-    printf("ntdrCmp = %d\n", ntdrCmp);
-    for (int ii=0; ii<ntdrCmp; ii++) {
-      printf("CMP: %d -> %d\n", ii, tdrCmpMap[ii]);
-    }
+  if (nJinf>1) {
+    printf("Run: %d Date: %s\n", Run, date);
+    printf("# Jinf = %d\n", nJinf);
+    sleep(10);
+  }
+  Print();
+  printf("ntdrCmp = %d\n", ntdrCmp);
+  for (int ii=0; ii<ntdrCmp; ii++) {
+    printf("CMP: %d -> %d\n", ii, tdrCmpMap[ii]);
+  }
   //   sleep(10);
   // }
   
