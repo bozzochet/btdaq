@@ -242,6 +242,10 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
       printf("Align) %d = %d + %d\n", NClusTot, rh->ntdrCmp, rh->ntdrRaw);
       sleep(10);
     }
+    if (_maxtdr>NJINF*NTDRS) {
+      printf("%d %d\n", _maxtdr, NJINF*NTDRS);
+      sleep(10);
+    }
   }
   //  printf("%d\n", _maxladd);
   
