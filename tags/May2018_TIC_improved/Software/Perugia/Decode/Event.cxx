@@ -1315,7 +1315,7 @@ int RHClass::FindPos(int tdrnum){
     printf("# Jinf = %d\n", nJinf);
     sleep(10);
   }
-  Print();
+  //  Print();
   printf("ntdrCmp = %d\n", ntdrCmp);
   for (int ii=0; ii<ntdrCmp; ii++) {
     printf("CMP: %d -> %d\n", ii, tdrCmpMap[ii]);
