@@ -90,6 +90,8 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
 
     PRINTDEBUG;
 
+    printf("%d = %d + %d\n", NClusTot, rh->GetNTdrsCmp(), rh->GetNTdrsRaw());
+    
     int ladder_pos=rh->FindPosCmp(ladder);
     if (ladder_pos>NJINF*NTDRS) {
       printf("WTF? ladder_pos is %d out of %d\n", ladder_pos, NJINF*NTDRS);
