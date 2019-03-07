@@ -335,6 +335,9 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   for (int index_event=0; index_event<entries; index_event++) {
     //    printf("----- new event %d (out of %d)\n", index_event, entries);
 
+    PRINTDEBUG;
+    chain->GetEntry(index_event);
+    
     {
       int NClusTot = ev->GetNClusTot();
       if (rh->ntdrCmp<1 && (rh->ntdrRaw!=0 || NClusTot!=0)) {
@@ -347,9 +350,6 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
       }
     }
     
-    PRINTDEBUG;
-    chain->GetEntry(index_event);
-
     PRINTDEBUG;
 
     int NClusTot = ev->GetNClusTot();
