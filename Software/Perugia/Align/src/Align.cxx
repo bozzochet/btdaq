@@ -27,8 +27,8 @@
 #include "Utilities.hh"
 /* end */
 
-std::vector<int> ladderS_to_ignore = {0, 1};
-std::vector<int> ladderK_to_ignore;
+std::vector<int> ladderS_to_ignore[NJINF] = {{2, 3, 6, 7, 10, 11, 14, 15, 18, 19}};
+std::vector<int> ladderK_to_ignore[NJINF] = {{2, 3, 6, 7, 10, 11, 14, 15, 18, 19}};
 
 //#define PRINTDEBUG printf("%s) This is the line number %d\n", __FILE__, __LINE__);
 #define PRINTDEBUG
@@ -60,8 +60,14 @@ int main(int argc, char* argv[]) {
     for (int jj=0; jj<NJINF; jj++) {
       for (int tt=0; tt<NTDRS; tt++) {
 	for (int cc=0; cc<2; cc++) {
-	  aligned[jj][tt][cc]=0.0;
+	  aligned[jj][tt][cc]=false;
 	  deltaalign[jj][tt][cc]=0.0;
+	}
+	if (std::find(ladderS_to_ignore[jj].begin(), ladderS_to_ignore[jj].end(), tt) != ladderS_to_ignore[jj].end()) {
+	  aligned[jj][tt][0]=true;
+	}
+	if (std::find(ladderK_to_ignore[jj].begin(), ladderK_to_ignore[jj].end(), tt) != ladderK_to_ignore[jj].end()) {
+	  aligned[jj][tt][1]=true;
 	}
 	toprint[jj][tt]=false;
       }
@@ -93,6 +99,8 @@ int main(int argc, char* argv[]) {
       for (int jj=0; jj<NJINF; jj++) {
 	for (int tt=0; tt<NTDRS; tt++) {
 	  for (int cc=0; cc<2; cc++) {
+	    if (cc==0 && (std::find(ladderS_to_ignore[jj].begin(), ladderS_to_ignore[jj].end(), tt) != ladderS_to_ignore[jj].end())) continue;
+	    if (cc==1 && (std::find(ladderK_to_ignore[jj].begin(), ladderK_to_ignore[jj].end(), tt) != ladderK_to_ignore[jj].end())) continue;
 	    if (
 		//		!aligned[jj][tt][cc] &&
 		(fabs(deltaalign[jj][tt][cc])<0.001)
@@ -298,32 +306,20 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 
   int perc=0;
   
-  /*
   static bool exclusiondone=false;
   if (!exclusiondone) {
-    ExcludeTDR(ev, 0, 2, 0);
-    ExcludeTDR(ev, 0, 2, 1);
-    ExcludeTDR(ev, 0, 3, 0);
-    ExcludeTDR(ev, 0, 3, 1);
-    ExcludeTDR(ev, 0, 6, 0);
-    ExcludeTDR(ev, 0, 6, 1);
-    ExcludeTDR(ev, 0, 7, 0);
-    ExcludeTDR(ev, 0, 7, 1);
-    ExcludeTDR(ev, 0, 10, 0);
-    ExcludeTDR(ev, 0, 10, 1);
-    ExcludeTDR(ev, 0, 11, 0);
-    ExcludeTDR(ev, 0, 11, 1);
-    ExcludeTDR(ev, 0, 14, 0);
-    ExcludeTDR(ev, 0, 14, 1);
-    ExcludeTDR(ev, 0, 15, 0);
-    ExcludeTDR(ev, 0, 15, 1);
-    ExcludeTDR(ev, 0, 18, 0);
-    ExcludeTDR(ev, 0, 18, 1);
-    ExcludeTDR(ev, 0, 19, 0);
-    ExcludeTDR(ev, 0, 19, 1);
+    for (int jj=0; jj<NJINF; jj++) {
+      for (int i_tt=0; i_tt<ladderS_to_ignore[jj].size(); i_tt++) {
+	int tt = ladderS_to_ignore[jj].at(i_tt);
+	ExcludeTDR(ev, jj, tt, 0);
+      }
+      for (int i_tt=0; i_tt<ladderK_to_ignore[jj].size(); i_tt++) {
+	int tt = ladderK_to_ignore[jj].at(i_tt);
+	ExcludeTDR(ev, jj, tt, 1);
+      }
+    }
     exclusiondone=true;
   }
-  */
   
   //  for (int index_event=14; index_event<15; index_event++) {
   for (int index_event=0; index_event<entries; index_event++) {
@@ -766,6 +762,12 @@ void ReadDeltaAlignment(TString filename){
 	  if (jinfnum<NJINF && tdrnum<NTDRS) {
 	    sscanf(line,"%d\t%d\t%f\t%f\t%f", &jinfnum, &tdrnum, &deltaalign[jinfnum][tdrnum][0], &deltaalign[jinfnum][tdrnum][1], &deltaalign[jinfnum][tdrnum][2]);
 	    toprint[jinfnum][tdrnum]=true;
+	    if (
+		(std::find(ladderS_to_ignore[jinfnum].begin(), ladderS_to_ignore[jinfnum].end(), tdrnum) != ladderS_to_ignore[jinfnum].end()) &&
+		(std::find(ladderK_to_ignore[jinfnum].begin(), ladderK_to_ignore[jinfnum].end(), tdrnum) != ladderK_to_ignore[jinfnum].end())
+		) {
+	      toprint[jinfnum][tdrnum]=false;
+	    } 
 	  }
 	  else {
 	    printf("Wrong JINF/TDR (%d, %d): maximum is (%d,%d)\n", jinfnum, tdrnum, NJINF, NTDRS);
