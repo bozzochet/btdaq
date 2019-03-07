@@ -15,6 +15,7 @@
 #include "TSpectrum.h"
 #include <fstream>
 #include <vector>
+#include <initializer_list>
 
 /* from the 'Decode' API */
 #include "Cluster.hh"
