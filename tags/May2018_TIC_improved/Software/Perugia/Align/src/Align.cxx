@@ -237,15 +237,6 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   if (rh) {
     rh->Print();
     _maxtdr = rh->ntdrCmp;
-    int NClusTot = ev->GetNClusTot();
-    if (rh->ntdrCmp<1 && (rh->ntdrRaw!=0 || NClusTot!=0)) {
-      printf("Align) %d = %d + %d\n", NClusTot, rh->ntdrCmp, rh->ntdrRaw);
-      sleep(10);
-    }
-    if (_maxtdr>NJINF*NTDRS) {
-      printf("%d %d\n", _maxtdr, NJINF*NTDRS);
-      sleep(10);
-    }
   }
   //  printf("%d\n", _maxladd);
   
@@ -339,6 +330,10 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     ExcludeTDR(ev, 0, 19, 1);
     exclusiondone=true;
   }
+  
+  //  for (int index_event=14; index_event<15; index_event++) {
+  for (int index_event=0; index_event<entries; index_event++) {
+    //    printf("----- new event %d (out of %d)\n", index_event, entries);
 
   {
     int NClusTot = ev->GetNClusTot();
@@ -351,10 +346,8 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
       sleep(10);
     }
   }
-  
-  //  for (int index_event=14; index_event<15; index_event++) {
-  for (int index_event=0; index_event<entries; index_event++) {
-    //    printf("----- new event %d (out of %d)\n", index_event, entries);
+
+    
     PRINTDEBUG;
     chain->GetEntry(index_event);
 
