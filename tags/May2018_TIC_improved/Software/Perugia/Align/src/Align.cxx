@@ -285,18 +285,6 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     hcooreldiff_S[tt] = new TH1F(Form("hcooreldiff_S_%02d", rh->tdrCmpMap[tt]), Form("RelDiffWRTprevplane;Pos_{S}[%d]-Pos_{S}[%d] (mm);Occupancy", rh->tdrCmpMap[tt], rh->tdrCmpMap[0]), 30*2*NSTRIPSS, -2.0*float(NSTRIPSS)*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 0), 2.0*float(NSTRIPSS)*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 0));
     hcooreldiff_K[tt] = new TH1F(Form("hcooreldiff_K_%02d", rh->tdrCmpMap[tt]), Form("RelDiffWRTprevplane;Pos_{K}[%d]-Pos_{K}[%d] (mm);Occupancy", rh->tdrCmpMap[tt], rh->tdrCmpMap[0]), 30*40*NSTRIPSK, -2.0*float(NSTRIPSK)*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 1), 2.0*float(NSTRIPSK)*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 1));
   }
-
-  {
-    int NClusTot = ev->GetNClusTot();
-    if (rh->ntdrCmp<1 && (rh->ntdrRaw!=0 || NClusTot!=0)) {
-      printf("Align) %d = %d + %d\n", NClusTot, rh->ntdrCmp, rh->ntdrRaw);
-      sleep(10);
-    }
-    if (_maxtdr>NJINF*NTDRS) {
-      printf("%d %d\n", _maxtdr, NJINF*NTDRS);
-      sleep(10);
-    }
-  }
   
   PRINTDEBUG;
 
@@ -350,6 +338,18 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     ExcludeTDR(ev, 0, 19, 0);
     ExcludeTDR(ev, 0, 19, 1);
     exclusiondone=true;
+  }
+
+  {
+    int NClusTot = ev->GetNClusTot();
+    if (rh->ntdrCmp<1 && (rh->ntdrRaw!=0 || NClusTot!=0)) {
+      printf("Align) %d = %d + %d\n", NClusTot, rh->ntdrCmp, rh->ntdrRaw);
+      sleep(10);
+    }
+    if (_maxtdr>NJINF*NTDRS) {
+      printf("%d %d\n", _maxtdr, NJINF*NTDRS);
+      sleep(10);
+    }
   }
   
   //  for (int index_event=14; index_event<15; index_event++) {
