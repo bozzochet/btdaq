@@ -66,16 +66,7 @@ int main(int argc, char* argv[]) {
     int indexalignment = 0;
     
     ret = SingleAlign(argc, argv, indexalignment++, 1);//first alignment with the 'Bruna's method'
-    return -1;
-    //    if (ret) return ret;
-
-    printf("\n");
-    printf("\n");
-    printf("\n");
-    printf("qui2\n");
-    printf("\n");
-    printf("\n");
-    printf("\n");
+    if (ret) return ret;
     
     bool allaligned=false;
     while (!allaligned) {
@@ -295,11 +286,14 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   PRINTDEBUG;
 
   int cleanevs=0;
+  int preselevs=0;
   int goodtracks=0;
   int goldtracks=0;
   int goldStracks=0;
   int goldKtracks=0;
 
+  int perc=0;
+  
   /*
   static bool exclusiondone=false;
   if (!exclusiondone) {
@@ -329,23 +323,19 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   
   //  for (int index_event=14; index_event<15; index_event++) {
   for (int index_event=0; index_event<entries; index_event++) {
+    
     //    printf("----- new event %d (out of %d)\n", index_event, entries);
 
+    Double_t pperc=100.0*((index_event+1.0)/entries);
+    if (pperc>=perc) {
+      printf("Processed %d out of %lld: %d%%\n", (index_event+1), entries, (int)(100.0*(index_event+1.0)/entries));
+      perc+=10;
+    }
+    //    printf("----- new event %d\n", index_event);
+    
     PRINTDEBUG;
     chain->GetEntry(index_event);
-    
-    {
-      int NClusTot = ev->GetNClusTot();
-      if (GetRH(chain)->GetNTdrsCmp()<1 && (GetRH(chain)->GetNTdrsRaw()!=0 || NClusTot!=0)) {
-	printf("Align) %d = %d + %d\n", NClusTot, GetRH(chain)->GetNTdrsCmp(), GetRH(chain)->GetNTdrsRaw());
-	//	sleep(10);
-      }
-      if (_maxtdr>NJINF*NTDRS) {
-	printf("%d %d\n", _maxtdr, NJINF*NTDRS);
-	sleep(10);
-      }
-    }
-    
+        
     PRINTDEBUG;
 
     int NClusTot = ev->GetNClusTot();
@@ -355,10 +345,16 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
     //and at most 50 (to avoid too much noise around and too much combinatorial)
     //at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
-    bool cleanevent = CleanEvent(ev, GetRH(chain), 4, 50, 6, 6, 0, 0);
+    // CleanEvent(ev, GetRH(chain), 4, 50, 6, 6, 0, 0);
+
+    bool cleanevent = CleanEvent(ev, GetRH(chain), 2, 9999, 9999, 9999, 9999, 9999);
     if (!cleanevent) continue;
-    cleanevs++;
-        
+    cleanevs++;//in this way this number is giving the "complete reasonable sample"
+
+    bool preselevent = CleanEvent(ev, GetRH(chain), 4, 100, 6, 6, 0, 0);
+    if (!preselevent) continue;
+    preselevs++;
+
     PRINTDEBUG;
     
     std::vector<double> v_cog_laddS[NJINF*NTDRS];
@@ -371,13 +367,16 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     //at least 2 points on S, and 2 points on K, not verbose
     bool trackfitok = ev->FindTrackAndFit(2, 2, false);
     //    printf("%d\n", trackfitok);
+
+    PRINTDEBUG;
+    
+    /* we do not need to "recover" efficiency during alignment
     if (trackfitok) {
       //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
       //(but only if removing them still we'll have more or equal than 3 (2 if 'HigherCharge') hits on S and 3 (2 if 'HigherCharge') hits on K)
       //and perform the fit again
       ev->RefineTrack(1.0, 2, 1.0, 2);
     }
-    /* better to waste these 2 hits events...
     else {
       //let's downscale to 2 (on S) and 2 (on K) hits but even in this no-chisq case
       //let's garantee a certain relaiability of the track fitting the one with the higher charge (this method can be used also for ions)
@@ -475,7 +474,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	printf("Ladder %d --> %d. Side = %d\n", ladder, ladder_pos, side);
       }
       //printf("Ladder %d --> %d. Side = %d\n", ladder, ladder_pos, side);
-
+      
       PRINTDEBUG;
       
       occupancy[ladder_pos]->Fill(cl->GetCoG());
