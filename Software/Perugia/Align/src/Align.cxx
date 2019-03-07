@@ -335,18 +335,17 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   for (int index_event=0; index_event<entries; index_event++) {
     //    printf("----- new event %d (out of %d)\n", index_event, entries);
 
-  {
-    int NClusTot = ev->GetNClusTot();
-    if (rh->ntdrCmp<1 && (rh->ntdrRaw!=0 || NClusTot!=0)) {
-      printf("Align) %d = %d + %d\n", NClusTot, rh->ntdrCmp, rh->ntdrRaw);
-      sleep(10);
+    {
+      int NClusTot = ev->GetNClusTot();
+      if (rh->ntdrCmp<1 && (rh->ntdrRaw!=0 || NClusTot!=0)) {
+	printf("Align) %d = %d + %d\n", NClusTot, rh->ntdrCmp, rh->ntdrRaw);
+	sleep(10);
+      }
+      if (_maxtdr>NJINF*NTDRS) {
+	printf("%d %d\n", _maxtdr, NJINF*NTDRS);
+	sleep(10);
+      }
     }
-    if (_maxtdr>NJINF*NTDRS) {
-      printf("%d %d\n", _maxtdr, NJINF*NTDRS);
-      sleep(10);
-    }
-  }
-
     
     PRINTDEBUG;
     chain->GetEntry(index_event);
