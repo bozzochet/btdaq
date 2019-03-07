@@ -2,8 +2,8 @@
 #include <algorithm>
 #include <unistd.h>
 
-#define PRINTDEBUG printf("%s) This is the line number %d\n", __FILE__, __LINE__);
-//#define PRINTDEBUG
+//#define PRINTDEBUG printf("%s) This is the line number %d\n", __FILE__, __LINE__);
+#define PRINTDEBUG
 
 using namespace std;
 
@@ -53,8 +53,6 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
   int safetyKspent = safetyK;
 
   PRINTDEBUG;
-
-  printf("%d = %d + %d\n", NClusTot, rh->GetNTdrsCmp(), rh->GetNTdrsRaw());
   
   for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
 
