@@ -1303,7 +1303,7 @@ void RHClass::Print(){
   return;
 }
 
-int RHClass::FindPos(int tdrnum){
+int RHClass::FindPosCmp(int tdrnum){
 
   // Print();
   // printf("ntdrCmp = %d\n", ntdrCmp);
@@ -1340,4 +1340,34 @@ int RHClass::FindPosRaw(int tdrnum){
   for (int ii=0;ii<ntdrRaw;ii++)
     if(tdrRawMap[ii]==tdrnum)  return ii;
   return -1;
+}
+
+void RHClass::SetJinfMap(int* _JinfMap) {
+  
+  // for (int ii=0;ii<NJINF;ii++) {
+  //   JinfMap[ii]=_JinfMap[ii];
+  // }
+  memcpy(JinfMap, _JinfMap, NJINF*sizeof(JinfMap[0]));
+  
+  return;
+}
+
+void RHClass::SetTdrRawMap(int* _TdrRawMap) {
+
+  // for (int ii=0;ii<NTDRS;ii++) {
+  //   tdrRawMap[ii]=_TdrRawMap[ii];
+  // }
+  memcpy(tdrRawMap, _TdrRawMap, NTDRS*sizeof(tdrRawMap[0]));
+
+  return;
+}
+
+void RHClass::SetTdrCmpMap(int* _TdrCmpMap) {
+  
+  // for (int ii=0;ii<NTDRS;ii++) {
+  //   tdrCmpMap[ii]=_TdrCmpMap[ii];
+  // }
+  memcpy(tdrCmpMap, _TdrCmpMap, NTDRS*sizeof(tdrCmpMap[0]));
+  
+  return;
 }

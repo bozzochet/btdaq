@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
   
   if (GetRH(chain)) {
     GetRH(chain)->Print();
-    _maxtdr = GetRH(chain)->ntdrCmp;
+    _maxtdr = GetRH(chain)->GetNTdrsCmp();
   }
   else {
     printf("Not able to find the RHClass header in the UserInfo...\n");
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
   //  printf("%d\n", _maxladd);
   
   // for (int tt=0; tt<_maxtdr; tt++) {
-  //   printf("%d %d %f %f\n", tt, GetRH(chain)->tdrCmpMap[tt], Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 0), Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 1));
+  //   printf("%d %d %f %f\n", tt, GetRH(chain)->FindLadderNumCmp(tt), Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
   // }
 
   TFile* foutput = new TFile(output_filename.Data(), "RECREATE");
@@ -100,20 +100,20 @@ int main(int argc, char* argv[]) {
   int NSTRIPSS=640;
   int NSTRIPSK=384;
   for (int tt=0; tt<_maxtdr; tt++) {
-    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("occupancy_0_%02d;Channel number;Occupancy", GetRH(chain)->tdrCmpMap[tt]), 1024, 0, 1024);
-    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", GetRH(chain)->tdrCmpMap[tt]), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 0), NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 0));
-    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", GetRH(chain)->tdrCmpMap[tt]), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 1), NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 1));
-    // residual_S[tt] = new TH1F(Form("residual_S_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", GetRH(chain)->tdrCmpMap[tt]), 
-    // 			      20*NSTRIPSS, -10.0*float(NSTRIPSS)/100.*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 0), 10.0*float(NSTRIPSS)/100.*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 0));
-    // residual_K[tt] = new TH1F(Form("residual_K_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", GetRH(chain)->tdrCmpMap[tt]), 
-    // 			      400*NSTRIPSK, -200*float(NSTRIPSK)/100.*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 1), 200*float(NSTRIPSK)/100.*Cluster::GetPitch(0, GetRH(chain)->tdrCmpMap[tt], 1));
-    residual_S[tt] = new TH1F(Form("residual_S_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", GetRH(chain)->tdrCmpMap[tt]), 
-			      1000, -1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->tdrCmpMap[tt], 0), 1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->tdrCmpMap[tt], 0));
-    residual_K[tt] = new TH1F(Form("residual_K_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", GetRH(chain)->tdrCmpMap[tt]), 
-			      1000, -1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->tdrCmpMap[tt], 1), 1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->tdrCmpMap[tt], 1));
-    chargeS[tt] = new TH1F(Form("chargeS_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", GetRH(chain)->tdrCmpMap[tt]), 1000, 0, 100);
-    chargeK[tt] = new TH1F(Form("chargeK_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", GetRH(chain)->tdrCmpMap[tt]), 1000, 0, 100);
-    charge2D[tt] = new TH2F(Form("charge_0_%02d", GetRH(chain)->tdrCmpMap[tt]), Form("charge_0_%02d;Q_{S} (c.u.);Q_{K} (c.u.);Entries", GetRH(chain)->tdrCmpMap[tt]), 1000, 0, 100, 1000, 0, 100);
+    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("occupancy_0_%02d;Channel number;Occupancy", GetRH(chain)->FindLadderNumCmp(tt)), 1024, 0, 1024);
+    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
+    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1), NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
+    // residual_S[tt] = new TH1F(Form("residual_S_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
+    // 			      20*NSTRIPSS, -10.0*float(NSTRIPSS)/100.*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), 10.0*float(NSTRIPSS)/100.*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
+    // residual_K[tt] = new TH1F(Form("residual_K_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
+    // 			      400*NSTRIPSK, -200*float(NSTRIPSK)/100.*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1), 200*float(NSTRIPSK)/100.*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
+    residual_S[tt] = new TH1F(Form("residual_S_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
+			      1000, -1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0), 1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
+    residual_K[tt] = new TH1F(Form("residual_K_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
+			      1000, -1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1), 1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
+    chargeS[tt] = new TH1F(Form("chargeS_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 1000, 0, 100);
+    chargeK[tt] = new TH1F(Form("chargeK_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 1000, 0, 100);
+    charge2D[tt] = new TH2F(Form("charge_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("charge_0_%02d;Q_{S} (c.u.);Q_{K} (c.u.);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 1000, 0, 100, 1000, 0, 100);
   }
   chargeS_ave = new TH1F("chargeS", "chargeS;Q_{S} (c.u.);Entries", 1000, 0, 100);
   chargeK_ave = new TH1F("chargeK", "chargeK;Q_{K} (c.u.);Entries", 1000, 0, 100);

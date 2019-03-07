@@ -83,21 +83,13 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary, bool 
   mysort(tdrRaw,ntdrRaw);
   mysort(tdrCmp,ntdrCmp);
   // Update the ROOT run header
-  rh->nJinf=nJinf;
-  for (int ii=0;ii<nJinf;ii++) {
-    rh->JinfMap[ii]=JinfMap[ii];
-  }
-
-  rh->ntdrRaw=ntdrRaw;
-  for (int ii=0;ii<ntdrRaw;ii++) {
-    rh->tdrRawMap[ii]=tdrRaw[ii];
-  }
-
-  rh->ntdrCmp=ntdrCmp;
-  for (int ii=0;ii<ntdrCmp;ii++) {
-    rh->tdrCmpMap[ii]=tdrCmp[ii];
-  }
-
+  rh->SetNJinfs(nJinf);
+  rh->SetJinfMap(JinfMap);
+  rh->SetNTdrsRaw(ntdrRaw);
+  rh->SetTdrRawMap(tdrRaw);
+  rh->SetNTdrsCmp(ntdrCmp);
+  rh->SetTdrCmpMap(tdrCmp);
+  
   if(pri) printf("Dumping the file headers that are going to be written in the ROOT files...\n");
   rh->Print();
   
@@ -320,10 +312,10 @@ void DecodeData::DumpRunHeader(){
   //	ReadFile(&hh, sizeof(header), 1, rawfile);//this should be fine also
   ReadFile(&hh, size, 1, rawfile);
   
-  rh->Run=hh.run;
-  sprintf(rh->date, "%s", hh.date);
+  rh->SetRun(hh.run);
+  rh->SetDate(hh.date);
   
-  printf("Run: %d   Date: %s\n",hh.run,hh.date);
+  printf("Run: %d   Date: %s\n", hh.run, hh.date);
   if (pri) {
     for (int ii=0;ii<4;ii++)
       printf("Angle (%d) = %f\n", ii, hh.gonpar[ii]);
@@ -354,7 +346,7 @@ int DecodeData::SkipOneEvent_data(int evskip){
   unsigned short int size;
   unsigned short int junk;
   
-  printf (" Run %d SKIPPING %d events on DAQ %s\n",runn,evskip,type);
+  printf (" Run %d SKIPPING %d events on DAQ %s\n", runn, evskip, type);
   for (int kk=0;kk<evskip;kk++){
     //Read The Event Size
     if(pri) printf("pos:%ld  ",ftell(rawfile)/2);
@@ -416,10 +408,10 @@ int DecodeData::ReadOneEvent_data(){
   int header_size;
   fstat=ReadFile(&header_size,sizeof(int),1,rawfile);
   if(fstat!=1) 
-	return 1;
-  if(header_size != (int)sizeof(wholeheader)) {
-	  printf("Warning : the size of wholeheader is %d instead of the expected value %d\n", header_size, (int)sizeof(wholeheader));
-	  return 1;
+    return 1;
+  if(header_size != (int)sizeof(wholeheader)) {//not clear to me why he's always reading this kind of header: TIC data where collected with the other header...
+    printf("Warning : the size of wholeheader is %d instead of the expected value %d\n", header_size, (int)sizeof(wholeheader));
+    return 1;
   }
 
   wholeheader calocube_header;
