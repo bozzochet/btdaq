@@ -71,5 +71,6 @@ clean:
 	rm -f ./Analysis
 
 cleanALL: clean
-	make -C ../Decode clean
-	rm -f $(COMMON)/$(OBJ)/*.o
+	make -C $(COMMON) clean
+	make -C $(DECODE) clean
+#	rm -f $(COMMON)/$(OBJ)/*.o
