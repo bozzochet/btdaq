@@ -20,7 +20,7 @@ typedef struct calib{
 //typedef struct header { // gcc 4.3, considers 'typedef' useless // (what??)
 struct header {			//for file writing NOT in AMSBlock
   int run;    			// run number
-  char date[50];        	// date
+  char date[50];        	// date // why we put 50! In the RHClass is 30! Should be shorter, but anyhow it will be truncated when passed to RHClass
   double gonpar[4];		// goniometer parameters
   unsigned int refmaskjj;//16/08/2014 - On Mac this is seen as long 8 (instead of 4) and the reader is read wrongly
   unsigned int refmask[24];

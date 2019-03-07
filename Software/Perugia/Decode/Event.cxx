@@ -1371,3 +1371,18 @@ void RHClass::SetTdrCmpMap(int* _TdrCmpMap) {
   
   return;
 }
+
+int RHClass::FindLadderNumCmp(int tdrpos) {
+  if (tdrpos<NTDRS) {
+    return tdrCmpMap[tdrpos];
+  }
+  return -1;
+}
+
+int RHClass::FindLadderNumRaw(int tdrpos) {
+  if (tdrpos<NTDRS) {
+    return tdrRawMap[tdrpos];
+  }
+  return -1;
+}
+
