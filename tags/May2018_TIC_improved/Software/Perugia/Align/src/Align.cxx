@@ -214,7 +214,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 
   PRINTDEBUG;
   
-  Event::ReadAlignment(align_filename.Data());
+  //  Event::ReadAlignment(align_filename.Data());
   
   PRINTDEBUG;
   
