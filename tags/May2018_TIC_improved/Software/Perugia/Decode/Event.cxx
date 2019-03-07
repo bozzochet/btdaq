@@ -1317,7 +1317,9 @@ int RHClass::FindPosCmp(int tdrnum){
   
   for (int ii=0; ii<ntdrCmp; ii++)
     if (tdrCmpMap[ii]==tdrnum) {
-      printf("going to return %d...\n", ii);
+      if (ii>NTDRS) {
+	printf("going to return %d...\n", ii);
+      }
       return ii;
     }
 
