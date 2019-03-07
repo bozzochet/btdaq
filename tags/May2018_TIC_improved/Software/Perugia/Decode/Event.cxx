@@ -1312,7 +1312,10 @@ int RHClass::FindPosCmp(int tdrnum){
   // }
 
   for (int ii=0; ii<ntdrCmp; ii++)
-    if (tdrCmpMap[ii]==tdrnum) return ii;
+    if (tdrCmpMap[ii]==tdrnum) {
+      printf("going to return %d...\n", ii);
+      return ii;
+    }
 
   //  if (ntdrCmp!=0) {
   if (nJinf>1) {
