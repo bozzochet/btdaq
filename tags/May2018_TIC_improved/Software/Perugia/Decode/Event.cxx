@@ -1263,11 +1263,15 @@ RHClass::RHClass(){
   memset(tdrRawMap,-1,NTDRS*sizeof(tdrRawMap[0]));
   memset(tdrCmpMap,-1,NTDRS*sizeof(tdrCmpMap[0]));
 
-  for (int ii=0;ii<NTDRS;ii++)
-    for (int jj=0;jj<NVAS;jj++){
-      CNMean[ii][jj]=0.;
-      CNSigma[ii][jj]=0.;
-    }
+  // for (int ii=0;ii<NTDRS;ii++) {
+  //   for (int jj=0;jj<NVAS;jj++){
+  //     CNMean[ii][jj]=0.;
+  //     CNSigma[ii][jj]=0.;
+  //   }
+  // }
+  memset(CNMean,0,NTDRS*NVAS*sizeof(CNMean[0][0]));
+
+  return;
 }
 
 void RHClass::Print(){
