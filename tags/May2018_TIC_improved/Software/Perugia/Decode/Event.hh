@@ -229,7 +229,7 @@ public:
   inline void SetRun(int _run) { Run=_run; return;}
   inline int GetRun() { return Run;}
 
-  inline void SetDate(char* _date) { sprintf(date, "%s", _date); return;}
+  inline void SetDate(char* _date) { snprintf(date, 30, "%s", _date); return;}
   inline const char* GetDate() { return date;}
   
   inline int GetNJinfs() { return nJinf; }
@@ -245,8 +245,8 @@ public:
   void SetTdrRawMap(int* _TdrRawMap);
   void SetTdrCmpMap(int* _TdrCmpMap);
   
-  inline int FindLadderNumCmp(int tdrpos) { return tdrCmpMap[tdrpos]; }
-  inline int FindLadderNumRaw(int tdrpos) { return tdrRawMap[tdrpos]; }
+  int FindLadderNumCmp(int tdrpos);
+  int FindLadderNumRaw(int tdrpos);
   
   int FindPosCmp(int tdrnum);
   int FindPosRaw(int tdrnum);
