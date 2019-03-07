@@ -545,7 +545,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
       int ladder = vec_charge.at(tt).first;
       int ladder_pos = rh->FindPos(ladder);
       if (ladder<0 || ladder>=24 || ladder_pos<0 || ladder_pos>=24) {
-	printf("Ladder %d --> %d. Side = %d\n", ladder, ladder_pos, side);
+	printf("Ladder %d --> %d\n", ladder, ladder_pos);
       }
       int index_cluster_S = vec_charge.at(tt).second.first;
       int index_cluster_K = vec_charge.at(tt).second.second;
