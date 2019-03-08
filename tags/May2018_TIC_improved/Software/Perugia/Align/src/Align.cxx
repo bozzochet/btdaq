@@ -261,9 +261,9 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
     occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1), NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
     residual_S[tt] = new TH1F(Form("residual_S_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
-			      400000, -20000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0), 2000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
+			      400000, -20000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0), 20000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
     residual_K[tt] = new TH1F(Form("residual_K_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
-			      400000, -20000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1), 2000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
+			      400000, -20000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1), 20000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
     TrackS[tt] = new TH1F(Form("TrackS_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("TrackS;X_{Z%02d} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 1000, -100, 100);
     TrackK[tt] = new TH1F(Form("TrackK_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("TrackK;Y_{Z%02d} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 1000, -100, 100);
     residualS_vs_posS[tt] = new TProfile(Form("residualS_vs_posS_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residualS_vs_posS_%02d", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
@@ -271,9 +271,9 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     residualK_vs_posK[tt] = new TProfile(Form("residualK_vs_posK_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residualK_vs_posK_%02d", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1), NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
     residualK_vs_posS[tt] = new TProfile(Form("residualK_vs_posS_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residualK_vs_posS_%02d", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
     hcooreldiff_S[tt] = new TH1F(Form("hcooreldiff_S_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("RelDiffWRTprevplane;Pos_{S}[%d]-Pos_{S}[%d] (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(0)),
-				 400000, -20000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0), 2000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
+				 400000, -20000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0), 20000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
     hcooreldiff_K[tt] = new TH1F(Form("hcooreldiff_K_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("RelDiffWRTprevplane;Pos_{K}[%d]-Pos_{K}[%d] (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(0)),
-				 400000, -20000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1), 2000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
+				 400000, -20000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1), 20000*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
   }
   
   PRINTDEBUG;
