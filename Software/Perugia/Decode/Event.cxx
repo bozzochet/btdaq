@@ -682,7 +682,7 @@ void Event::AssignAsBestTrackFit(){
   _phi = phi_sf;
   _thetaerr = thetaerr_sf;
   _phierr = phierr_sf;
-  _S0 = K0_sf;
+  _S0 = S0_sf;
   _K0 = K0_sf;
   _S0err = S0err_sf;
   _K0err = K0err_sf;
@@ -929,7 +929,7 @@ double Event::SingleFit(
   double chisq = 0.0;
 
   if (ndofS>=0) {
-    chisqS_nored = _compchisq(vS, v_chilayS, mS, K0, v_trackErrS_sf);
+    chisqS_nored = _compchisq(vS, v_chilayS, mS, S0, v_trackErrS_sf);
     chisq += chisqS_nored;
   }
   if (ndofK>=0) {
