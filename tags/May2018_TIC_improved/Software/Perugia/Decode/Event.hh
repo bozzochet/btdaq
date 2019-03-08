@@ -121,8 +121,8 @@ private:
 		   double& iDirZ, double& iDirZerr,
 		   double& mS, double& mSerr,
 		   double& mK, double& mKerr,
-		   double& s0, double& s0err,
-		   double& k0, double& k0err,
+		   double& S0, double& S0err,
+		   double& K0, double& K0err,
 		   double& chisqS, double& chisqK,
 		   bool verbose=false);
   double SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS,
