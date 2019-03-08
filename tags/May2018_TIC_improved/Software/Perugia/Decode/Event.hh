@@ -212,11 +212,11 @@ private:
   int nJinf;
   int JinfMap[NJINF];
   int ntdrRaw;
-  int tdrRawMap[NTDRS];
+  int tdrRawMap[NTDRS];//is wrong! ot has another index, for the Jinf, or must be NJINF*NTDRS
   int ntdrCmp;
-  int tdrCmpMap[NTDRS];
-  double CNMean[NTDRS][NVAS];
-  double CNSigma[NTDRS][NVAS];
+  int tdrCmpMap[NTDRS];//is wrong! ot has another index, for the Jinf, or must be NJINF*NTDRS
+  double CNMean[NTDRS][NVAS];//is wrong! ot has another index, for the Jinf, or must be NJINF*NTDRS
+  double CNSigma[NTDRS][NVAS];//is wrong! ot has another index, for the Jinf, or must be NJINF*NTDRS
 
 public:
   //! default constructor

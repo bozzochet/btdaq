@@ -398,7 +398,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     double logchiK = log10(ev->GetChiTrackK());
     //    printf("%d %f (%f)\n", indexalignment, logchi, fiftycent);
     //    if (chisqcut && logchi>2) continue;
-    if (chisqcut && logchi>6) continue;
+    if (chisqcut && logchi>9) continue;
 
     PRINTDEBUG;
     
@@ -575,7 +575,11 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 
   printf("This run has %lld entries\n", entries);
   printf("    --> %d clean events\n", cleanevs);
+  printf("    --> %d preselected events\n", preselevs);
   printf("    --> %d good tracks\n", goodtracks);
+  printf("    --> %d goldS tracks\n", goldStracks);
+  printf("    --> %d goldK tracks\n", goldKtracks);
+  printf("    --> %d gold tracks\n", goldtracks);
     
   PRINTDEBUG;
 
@@ -599,7 +603,8 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   TH1* h2fitK = NULL;
 
   TCanvas c;
-  
+
+  int jj=0; //FIX ME: HARD-CODED "only one Jinf"
   for (int tt=0; tt<_maxtdr; tt++) {
 
     for (int kk=0; kk<3; kk++) {//0 is Residuals, 1 is Bruna's, 2 S0/K0 shift
@@ -637,48 +642,55 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
       }
       else {
 	//----------
-	
-	_smean = h2fitS->GetBinCenter(h2fitS->GetMaximumBin());
-	fit_limit[0]=_smean-0.3;
-	fit_limit[1]=_smean+0.3;
-	
-	h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	
-	fit_limit[0]=gauss->GetParameter(1)-1.0*gauss->GetParameter(2);
-	fit_limit[1]=gauss->GetParameter(1)+1.0*gauss->GetParameter(2);
-	
-	h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	
-	_smean = gauss->GetParameter(1);
-	if (fabs(_smean)<3.0*gauss->GetParError(1) || fabs(_smean)<0.1*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0)) _smean=0.0;
-	// cout<<" Fit between "<<fit_limit[0]
-	//     <<" and "<<	   fit_limit[1]
-	//     <<endl;
-	// printf("S align par = %f (old = %f)\n", _smean+ev->GetAlignPar(0, GetRH(chain)->FindLadderNumCmp(tt), 0), ev->GetAlignPar(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
-	
+
+	if (!(std::find(ladderS_to_ignore[jj].begin(), ladderS_to_ignore[jj].end(), GetRH(chain)->FindLadderNumCmp(tt)) != ladderS_to_ignore[jj].end())) {
+	  
+	  _smean = h2fitS->GetBinCenter(h2fitS->GetMaximumBin());
+	  fit_limit[0]=_smean-0.3;
+	  fit_limit[1]=_smean+0.3;
+	  
+	  h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	  h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	  
+	  fit_limit[0]=gauss->GetParameter(1)-1.0*gauss->GetParameter(2);
+	  fit_limit[1]=gauss->GetParameter(1)+1.0*gauss->GetParameter(2);
+	  
+	  h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	  h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	  
+	  _smean = gauss->GetParameter(1);
+	  if (fabs(_smean)<3.0*gauss->GetParError(1) || fabs(_smean)<0.1*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0)) _smean=0.0;
+	  // cout<<" Fit between "<<fit_limit[0]
+	  //     <<" and "<<	   fit_limit[1]
+	  //     <<endl;
+	  // printf("S align par = %f (old = %f)\n", _smean+ev->GetAlignPar(0, GetRH(chain)->FindLadderNumCmp(tt), 0), ev->GetAlignPar(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
+
+	}
 	//----------
-	
-	_kmean = h2fitK->GetBinCenter(h2fitK->GetMaximumBin());
-	fit_limit[0]=_kmean-0.3;
-	fit_limit[1]=_kmean+0.3;
-	
-	h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	
-	fit_limit[0]=gauss->GetParameter(1)-1.0*gauss->GetParameter(2);
-	fit_limit[1]=gauss->GetParameter(1)+1.0*gauss->GetParameter(2);
-	
-	h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	
-	_kmean = gauss->GetParameter(1);
-	if (fabs(_kmean)<3.0*gauss->GetParError(1) || fabs(_smean)<0.1*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1)) _kmean=0.0;
-	// cout<<" Fit between "<<fit_limit[0]
-	//     <<" and "<<	   fit_limit[1]
-	//     <<endl;    
-	// printf("K align par = %f (old = %f)\n", _kmean+ev->GetAlignPar(0, GetRH(chain)->FindLadderNumCmp(tt), 1), ev->GetAlignPar(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
+	if (!(std::find(ladderK_to_ignore[jj].begin(), ladderK_to_ignore[jj].end(), GetRH(chain)->FindLadderNumCmp(tt)) != ladderK_to_ignore[jj].end())) {
+	  
+	  _kmean = h2fitK->GetBinCenter(h2fitK->GetMaximumBin());
+	  fit_limit[0]=_kmean-0.3;
+	  fit_limit[1]=_kmean+0.3;
+	  
+	  h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	  h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	  
+	  fit_limit[0]=gauss->GetParameter(1)-1.0*gauss->GetParameter(2);
+	  fit_limit[1]=gauss->GetParameter(1)+1.0*gauss->GetParameter(2);
+	  
+	  h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	  h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	  
+	  _kmean = gauss->GetParameter(1);
+	  if (fabs(_kmean)<3.0*gauss->GetParError(1) || fabs(_smean)<0.1*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1)) _kmean=0.0;
+	  // cout<<" Fit between "<<fit_limit[0]
+	  //     <<" and "<<	   fit_limit[1]
+	  //     <<endl;    
+	  // printf("K align par = %f (old = %f)\n", _kmean+ev->GetAlignPar(0, GetRH(chain)->FindLadderNumCmp(tt), 1), ev->GetAlignPar(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
+	  
+	}
+
       }
       
       if (alignmeth==kk) {//only for the choosen align method
