@@ -680,14 +680,14 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	  fit_limit[1]=_smean+1.0;
 
 	  
-	  h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	  h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	  h2fitS->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
+	  h2fitS->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
 	  
 	  fit_limit[0]=gauss->GetParameter(1)-1.0*gauss->GetParameter(2);
 	  fit_limit[1]=gauss->GetParameter(1)+1.0*gauss->GetParameter(2);
 	  
-	  h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	  h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	  h2fitS->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
+	  h2fitS->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
 	  
 	  _smean = gauss->GetParameter(1);
 	  if (fabs(_smean)<3.0*gauss->GetParError(1) || fabs(_smean)<0.1*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0)) _smean=0.0;
@@ -707,14 +707,14 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	  fit_limit[1]=_kmean+1.0;
 
 	  
-	  h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	  h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	  h2fitK->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
+	  h2fitK->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
 	  
 	  fit_limit[0]=gauss->GetParameter(1)-1.0*gauss->GetParameter(2);
 	  fit_limit[1]=gauss->GetParameter(1)+1.0*gauss->GetParameter(2);
 	  
-	  h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	  h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
+	  h2fitK->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
+	  h2fitK->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
 	  
 	  _kmean = gauss->GetParameter(1);
 	  if (fabs(_kmean)<3.0*gauss->GetParError(1) || fabs(_smean)<0.1*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1)) _kmean=0.0;
