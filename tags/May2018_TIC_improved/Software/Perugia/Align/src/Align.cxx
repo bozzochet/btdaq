@@ -543,7 +543,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     //Relative Disalignment
     for(int tt=0; tt<_maxtdr; tt++) {
       for(int ihit=0; ihit<(int)v_cog_all_laddS[tt].size(); ihit++) {
-	for(int jhit=0; jhit<(int)v_cog_all_laddS[fisrtS].size(); jhit++) {
+	for(int jhit=0; jhit<(int)v_cog_all_laddS[firstS].size(); jhit++) {
 	  hcooreldiff_S[tt]->Fill(v_cog_all_laddS[tt].at(ihit) - v_cog_all_laddS[firstS].at(jhit)); 
 	}
       }
