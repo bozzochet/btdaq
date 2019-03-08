@@ -533,8 +533,8 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	}
       }
     }
-    printf("FirstS is %d\n", firstS);
-    printf("FirstK is %d\n", firstK);
+    printf("FirstS is %d (pos: %d)\n", GetRH(chain)->FindLadderNumCmp(firstS), firstS);
+    printf("FirstK is %d (pos: %d)\n", GetRH(chain)->FindLadderNumCmp(firstK), firstK);
     sleep(10);
     for (int jj=0; jj<NJINF; jj++) {
       for(int tt=0; tt<_maxtdr; tt++) {
