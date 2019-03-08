@@ -519,33 +519,37 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 
     int firstS=0;
     int firstK=0;
-    for(int tt=0; jj<_maxtdr; jj++) {
-      if (!(std::find(ladderS_to_ignore[jj].begin(), ladderS_to_ignore[jj].end(), GetRH(chain)->FindLadderNumCmp(tt)) != ladderS_to_ignore[jj].end())) {
-	firstS=tt;
-	break;
+    for (int jj=0; jj<NJINF; jj++) {
+      for(int tt=0; tt<_maxtdr; tt++) {
+	if (!(std::find(ladderS_to_ignore[jj].begin(), ladderS_to_ignore[jj].end(), GetRH(chain)->FindLadderNumCmp(tt)) != ladderS_to_ignore[jj].end())) {
+	  firstS=tt;
+	  break;
+	}
+      }
+      for(int tt=0; tt<_maxtdr; tt++) {
+	if (!(std::find(ladderK_to_ignore[jj].begin(), ladderK_to_ignore[jj].end(), GetRH(chain)->FindLadderNumCmp(tt)) != ladderK_to_ignore[jj].end())) {
+	  firstK=tt;
+	  break;
+	}
       }
     }
-    for(int tt=0; jj<_maxtdr; jj++) {
-      if (!(std::find(ladderK_to_ignore[jj].begin(), ladderK_to_ignore[jj].end(), GetRH(chain)->FindLadderNumCmp(tt)) != ladderK_to_ignore[jj].end())) {
-	firstK=tt;
-	break;
+    for (int jj=0; jj<NJINF; jj++) {
+      for(int tt=0; tt<_maxtdr; tt++) {
+	hcooreldiff_S[jj]->GetXaxis()->SetTitle(Form("Pos_{S}[%d]-Pos_{S}[%d] (mm)", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(firstS)));
+	hcooreldiff_K[jj]->GetXaxis()->SetTitle(Form("Pos_{K}[%d]-Pos_{K}[%d] (mm)", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(firstK)));
       }
-    }
-    for(int tt=0; jj<_maxtdr; jj++) {
-      hcooreldiff_S[jj]->GetXaxis()->SetTitle(Form("Pos_{S}[%d]-Pos_{S}[%d] (mm)", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(firstS)));
-      hcooreldiff_K[jj]->GetXaxis()->SetTitle(Form("Pos_{K}[%d]-Pos_{K}[%d] (mm)", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(firstK)));
     }
     
     //Relative Disalignment
-    for(int jj=0; jj<_maxtdr; jj++) {
-      for(int ihit=0; ihit<(int)v_cog_all_laddS[jj].size(); ihit++) {
+    for(int tt=0; tt<_maxtdr; tt++) {
+      for(int ihit=0; ihit<(int)v_cog_all_laddS[tt].size(); ihit++) {
 	for(int jhit=0; jhit<(int)v_cog_all_laddS[fisrtS].size(); jhit++) {
-	  hcooreldiff_S[jj]->Fill(v_cog_all_laddS[jj].at(ihit) - v_cog_all_laddS[firstS].at(jhit)); 
+	  hcooreldiff_S[tt]->Fill(v_cog_all_laddS[tt].at(ihit) - v_cog_all_laddS[firstS].at(jhit)); 
 	}
       }
-      for(int ihit=0; ihit<(int)v_cog_all_laddK[jj].size(); ihit++) {
+      for(int ihit=0; ihit<(int)v_cog_all_laddK[tt].size(); ihit++) {
 	for(int jhit=0; jhit<(int)v_cog_all_laddK[firstK].size(); jhit++) {
-	  hcooreldiff_K[jj]->Fill(v_cog_all_laddK[jj].at(ihit) - v_cog_all_laddK[firstK].at(jhit));
+	  hcooreldiff_K[tt]->Fill(v_cog_all_laddK[tt].at(ihit) - v_cog_all_laddK[firstK].at(jhit));
 	}
       }
     }
