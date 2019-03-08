@@ -270,8 +270,10 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     residualS_vs_posK[tt] = new TProfile(Form("residualS_vs_posK_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residualS_vs_posK_%02d", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1), NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
     residualK_vs_posK[tt] = new TProfile(Form("residualK_vs_posK_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residualK_vs_posK_%02d", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1), NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
     residualK_vs_posS[tt] = new TProfile(Form("residualK_vs_posS_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residualK_vs_posS_%02d", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
-    hcooreldiff_S[tt] = new TH1F(Form("hcooreldiff_S_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("RelDiffWRTprevplane;Pos_{S}[%d]-Pos_{S}[%d] (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(0)), 3*2*NSTRIPSS, -2.0*float(NSTRIPSS)*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), 2.0*float(NSTRIPSS)*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
-    hcooreldiff_K[tt] = new TH1F(Form("hcooreldiff_K_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("RelDiffWRTprevplane;Pos_{K}[%d]-Pos_{K}[%d] (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(0)), 3*2*NSTRIPSK, -2.0*float(NSTRIPSK)*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1), 2.0*float(NSTRIPSK)*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
+    hcooreldiff_S[tt] = new TH1F(Form("hcooreldiff_S_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("RelDiffWRTprevplane;Pos_{S}[%d]-Pos_{S}[%d] (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(0)),
+				 4000, -20*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0), 20*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
+    hcooreldiff_K[tt] = new TH1F(Form("hcooreldiff_K_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("RelDiffWRTprevplane;Pos_{K}[%d]-Pos_{K}[%d] (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(0)),
+				 4000, -20*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1), 20*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
   }
   
   PRINTDEBUG;
@@ -646,8 +648,11 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	if (!(std::find(ladderS_to_ignore[jj].begin(), ladderS_to_ignore[jj].end(), GetRH(chain)->FindLadderNumCmp(tt)) != ladderS_to_ignore[jj].end())) {
 	  
 	  _smean = h2fitS->GetBinCenter(h2fitS->GetMaximumBin());
-	  fit_limit[0]=_smean-0.3;
-	  fit_limit[1]=_smean+0.3;
+	  // fit_limit[0]=_smean-0.3;
+	  // fit_limit[1]=_smean+0.3;
+	  fit_limit[0]=_smean-1.0;
+	  fit_limit[1]=_smean+1.0;
+
 	  
 	  h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
 	  h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
@@ -670,8 +675,11 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	if (!(std::find(ladderK_to_ignore[jj].begin(), ladderK_to_ignore[jj].end(), GetRH(chain)->FindLadderNumCmp(tt)) != ladderK_to_ignore[jj].end())) {
 	  
 	  _kmean = h2fitK->GetBinCenter(h2fitK->GetMaximumBin());
-	  fit_limit[0]=_kmean-0.3;
-	  fit_limit[1]=_kmean+0.3;
+	  // fit_limit[0]=_kmean-0.3;
+	  // fit_limit[1]=_kmean+0.3;
+	  fit_limit[0]=_kmean-1.0;
+	  fit_limit[1]=_kmean+1.0;
+
 	  
 	  h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
 	  h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
