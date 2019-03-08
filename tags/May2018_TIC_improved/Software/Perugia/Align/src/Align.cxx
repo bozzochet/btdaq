@@ -538,8 +538,8 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     sleep(10);
     for (int jj=0; jj<NJINF; jj++) {
       for(int tt=0; tt<_maxtdr; tt++) {
-	hcooreldiff_S[jj]->GetXaxis()->SetTitle(Form("Pos_{S}[%d]-Pos_{S}[%d] (mm)", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(firstS)));
-	hcooreldiff_K[jj]->GetXaxis()->SetTitle(Form("Pos_{K}[%d]-Pos_{K}[%d] (mm)", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(firstK)));
+	hcooreldiff_S[tt]->GetXaxis()->SetTitle(Form("Pos_{S}[%d]-Pos_{S}[%d] (mm)", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(firstS)));
+	hcooreldiff_K[tt]->GetXaxis()->SetTitle(Form("Pos_{K}[%d]-Pos_{K}[%d] (mm)", GetRH(chain)->FindLadderNumCmp(tt), GetRH(chain)->FindLadderNumCmp(firstK)));
       }
     }
     
