@@ -683,8 +683,8 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	  h2fitS->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
 	  h2fitS->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
 	  
-	  fit_limit[0]=gauss->GetParameter(1)-1.0*gauss->GetParameter(2);
-	  fit_limit[1]=gauss->GetParameter(1)+1.0*gauss->GetParameter(2);
+	  fit_limit[0]=gauss->GetParameter(1)-5.0*gauss->GetParameter(2);
+	  fit_limit[1]=gauss->GetParameter(1)+5.0*gauss->GetParameter(2);
 	  
 	  h2fitS->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
 	  h2fitS->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
@@ -710,8 +710,8 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	  h2fitK->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
 	  h2fitK->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
 	  
-	  fit_limit[0]=gauss->GetParameter(1)-1.0*gauss->GetParameter(2);
-	  fit_limit[1]=gauss->GetParameter(1)+1.0*gauss->GetParameter(2);
+	  fit_limit[0]=gauss->GetParameter(1)-5.0*gauss->GetParameter(2);
+	  fit_limit[1]=gauss->GetParameter(1)+5.0*gauss->GetParameter(2);
 	  
 	  h2fitK->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
 	  h2fitK->Fit("gauss", "QL", "", fit_limit[0], fit_limit[1]);
