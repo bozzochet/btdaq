@@ -64,11 +64,11 @@ public:
   double RefineTrack(double nsigmaS=5.0, int nptsS=3, double nsigmaK=5.0, int nptsK=3, bool verbose=false);
   double GetThetaTrack() { return _theta; };
   double GetPhiTrack() { return _phi; };
-  double GetX0Track() { return _X0; };
-  double GetY0Track() { return _Y0; };
+  double GetS0Track() { return _S0; };
+  double GetK0Track() { return _K0; };
   double GetChiTrack() { return _chisq; };
-  double GetChiTrackX() { return _chisqx; };
-  double GetChiTrackY() { return _chisqy; };
+  double GetChiTrackS() { return _chisqS; };
+  double GetChiTrackK() { return _chisqK; };
   double ExtrapolateTrack(double z, int component);
   bool IsClusterUsedInTrack(int index_cluster);
   inline unsigned int GetTrackHitPattern(int side, int jinfnum=0){ return _track_cluster_pattern[jinfnum][side];};//is in binary format! Use std::bitset to show!
@@ -116,14 +116,14 @@ private:
 		   std::vector<double>& v_chilayK,
 		   double& theta, double& thetaerr,
 		   double& phi, double& phierr,
-		   double& iDirX, double& iDirXerr,
-		   double& iDirY, double& iDirYerr,
+		   double& iDirS, double& iDirSerr,
+		   double& iDirK, double& iDirKerr,
 		   double& iDirZ, double& iDirZerr,
-		   double& mX, double& mXerr,
-		   double& mY, double& mYerr,
-		   double& x0, double& x0err,
-		   double& y0, double& y0err,
-		   double& chisqx, double& chisqy,
+		   double& mS, double& mSerr,
+		   double& mK, double& mKerr,
+		   double& S0, double& S0err,
+		   double& K0, double& K0err,
+		   double& chisqS, double& chisqK,
 		   bool verbose=false);
   double SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS,
 		   std::vector<std::pair<int, std::pair<double, double> > > vK,
@@ -166,31 +166,31 @@ private:
 
   //track parameters and points
   double _chisq;//!
-  double _chisqy;//!
-  double _chisqx;//!
-  double _mX;//! angular coefficient in the X-Z view (mX = iDirX/iDirZ)
-  double _mY;//! angular coefficient in the Y-Z view (mX = iDirY/iDirZ)
-  double _mXerr;//!
-  double _mYerr;//!
-  double _iDirX;//! cosine director X
-  double _iDirY;//! cosine director X
-  double _iDirZ;//! cosine director Z (DirX*DirX+DirY*DirY+DirZ*DirZ=1)
-  double _iDirXerr;//!
-  double _iDirYerr;//!
+  double _chisqS;//!
+  double _chisqK;//!
+  double _mS;//! angular coefficient in the S-Z view (mX = iDirS/iDirZ)
+  double _mK;//! angular coefficient in the K-Z view (mX = iDirK/iDirZ)
+  double _mSerr;//!
+  double _mKerr;//!
+  double _iDirS;//! cosine director S
+  double _iDirK;//! cosine director K
+  double _iDirZ;//! cosine director Z (DirS*DirS+DirK*DirK+DirZ*DirZ=1)
+  double _iDirSerr;//!
+  double _iDirKerr;//!
   double _iDirZerr;//!
   double _theta;//!
   double _phi;//!
   double _thetaerr;//!
   double _phierr;//!
-  double _X0;//!
-  double _Y0;//!
-  double _X0err;//!
-  double _Y0err;//!
+  double _S0;//!
+  double _K0;//!
+  double _S0err;//!
+  double _K0err;//!
   std::vector<std::pair<int, std::pair<double, double> > > _v_trackS;//!
   std::vector<std::pair<int, std::pair<double, double> > > _v_trackK;//!
   std::vector<double> _v_chilayS;//!
   std::vector<double> _v_chilayK;//!
-  //! filled by FillHitVector(). Here the int is the ladder number and the second pair is <cluster index X, cluster index Y>
+  //! filled by FillHitVector(). Here the int is the ladder number and the second pair is <cluster index S, cluster index K>
   std::vector<std::pair<int, std::pair<int, int> > > _v_trackhit;//!
   //! filled by StoreTrackClusterPatterns()
   unsigned int _track_cluster_pattern[NJINF][2];//!
@@ -205,20 +205,20 @@ private:
 //! Run Header Class
 class RHClass: public TObject{
 
-public:
+private:
   //! Run number
   int Run;
   char date[30];
   int nJinf;
   int JinfMap[NJINF];
   int ntdrRaw;
-  int tdrRawMap[24];
+  int tdrRawMap[NTDRS];//is wrong! ot has another index, for the Jinf, or must be NJINF*NTDRS
   int ntdrCmp;
-  int tdrCmpMap[24];
-  double CNMean[NTDRS][NVAS];
-  double CNSigma[NTDRS][NVAS];
+  int tdrCmpMap[NTDRS];//is wrong! ot has another index, for the Jinf, or must be NJINF*NTDRS
+  double CNMean[NTDRS][NVAS];//is wrong! ot has another index, for the Jinf, or must be NJINF*NTDRS
+  double CNSigma[NTDRS][NVAS];//is wrong! ot has another index, for the Jinf, or must be NJINF*NTDRS
 
-
+public:
   //! default constructor
   RHClass();
   //! default destructor
@@ -226,10 +226,32 @@ public:
   //! Prints the Header infos
   void Print();
 
-  int FindPos(int tdrnum);
+  inline void SetRun(int _run) { Run=_run; return;}
+  inline int GetRun() { return Run;}
+
+  inline void SetDate(char* _date) { snprintf(date, 30, "%s", _date); return;}
+  inline const char* GetDate() { return date;}
+  
+  inline int GetNJinfs() { return nJinf; }
+  inline void SetNJinfs(int _nJinf) { nJinf=_nJinf; return; }
+    
+  inline int GetNTdrs() { return ntdrRaw+ntdrCmp; }
+  inline int GetNTdrsCmp() { return ntdrCmp; }
+  inline int GetNTdrsRaw() { return ntdrRaw; }
+  inline void SetNTdrsCmp(int _nTdrCmp) { ntdrCmp=_nTdrCmp; return; }
+  inline void SetNTdrsRaw(int _nTdrRaw) { ntdrRaw=_nTdrRaw; return; }
+
+  void SetJinfMap(int* _JinfMap);
+  void SetTdrRawMap(int* _TdrRawMap);
+  void SetTdrCmpMap(int* _TdrCmpMap);
+  
+  int FindLadderNumCmp(int tdrpos);
+  int FindLadderNumRaw(int tdrpos);
+  
+  int FindPosCmp(int tdrnum);
   int FindPosRaw(int tdrnum);
 
-  ClassDef(RHClass,1)
+  ClassDef(RHClass,2)
 };
 
 
