@@ -17,7 +17,6 @@ ROOTDYNAMICLIBS := $(shell root-config --libs) -lMinuit
 
 #CFLAGS= -O -std=c++11 -g -fPIC
 CFLAGS = $(shell root-config --cflags) -g -fPIC
-
 LDFLAGS = $(shell root-config --ldflags)
 
 UNAME_S := $(shell uname -s)

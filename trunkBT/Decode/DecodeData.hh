@@ -5,7 +5,7 @@
 #include "TH2F.h"
 #include <cstdio>
 
-//#define CALOCUBE
+#define CALOCUBE
 
 typedef struct calib{
   float ped[1024];
@@ -20,7 +20,7 @@ typedef struct calib{
 //typedef struct header { // gcc 4.3, considers 'typedef' useless // (what??)
 struct header {			//for file writing NOT in AMSBlock
   int run;    			// run number
-  char date[50];        	// date
+  char date[50];        	// date // why we put 50! In the RHClass is 30! Should be shorter, but anyhow it will be truncated when passed to RHClass
   double gonpar[4];		// goniometer parameters
   unsigned int refmaskjj;//16/08/2014 - On Mac this is seen as long 8 (instead of 4) and the reader is read wrongly
   unsigned int refmask[24];
@@ -28,7 +28,6 @@ struct header {			//for file writing NOT in AMSBlock
 
 #pragma pack(pop)
 
-//this kind of header has been put by E. Berti, in the CALOCUBE "flavour" but just for a misunderstanding of the DAQ code: there we write files with the other WritingMethod, unused since years, and so this is header is useless: for sure in this Decode is not needed.
 #pragma pack(push, 1)
 
 struct wholeheader {
