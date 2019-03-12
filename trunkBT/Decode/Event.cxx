@@ -1210,32 +1210,32 @@ float Event::GetRawSoN_PosNum(int tdrnum, int channel, int Jinfnum) {
 }
 
 double Event::GetCalPed(RHClass* rh, int tdrnum, int channel, int Jinfnum){
-  int tdrnumraw=rh->FindPosRaw(tdrnum+100*Jinfnum);
+  int tdrnumraw=rh->FindPos(tdrnum+100*Jinfnum);
   return GetCalPed_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
 double Event::GetCalSigma(RHClass* rh, int tdrnum, int channel, int Jinfnum){
-  int tdrnumraw=rh->FindPosRaw(tdrnum+100*Jinfnum);
+  int tdrnumraw=rh->FindPos(tdrnum+100*Jinfnum);
   return GetCalSigma_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
 double Event::GetRawSignal(RHClass* rh, int tdrnum, int channel, int Jinfnum){
-  int tdrnumraw=rh->FindPosRaw(tdrnum+100*Jinfnum);
+  int tdrnumraw=rh->FindPos(tdrnum+100*Jinfnum);
   return GetRawSignal_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
 double Event::GetCN(RHClass* rh, int tdrnum, int va, int Jinfnum){
-  int tdrnumraw=rh->FindPosRaw(tdrnum+100*Jinfnum);
+  int tdrnumraw=rh->FindPos(tdrnum+100*Jinfnum);
   return GetCN_PosNum(tdrnumraw, va, Jinfnum);
 }
 
 double Event::GetCalStatus(RHClass* rh, int tdrnum, int va, int Jinfnum){
-  int tdrnumraw=rh->FindPosRaw(tdrnum+100*Jinfnum);
+  int tdrnumraw=rh->FindPos(tdrnum+100*Jinfnum);
   return GetCalStatus_PosNum(tdrnumraw, va, Jinfnum);
 }
 
 float Event::GetRawSoN(RHClass* rh, int tdrnum, int channel, int Jinfnum) {
-  int tdrnumraw=rh->FindPosRaw(tdrnum+100*Jinfnum);
+  int tdrnumraw=rh->FindPos(tdrnum+100*Jinfnum);
   return GetRawSoN_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
@@ -1273,16 +1273,7 @@ RHClass::RHClass(){
   nJinf=0;
   sprintf(date," ");
   memset(JinfMap,-1,NJINF*sizeof(JinfMap[0]));
-  memset(tdrRawMap,-1,NTDRS*sizeof(tdrRawMap[0]));
-  memset(tdrCmpMap,-1,NTDRS*sizeof(tdrCmpMap[0]));
-
-  // for (int ii=0;ii<NTDRS;ii++) {
-  //   for (int jj=0;jj<NVAS;jj++){
-  //     CNMean[ii][jj]=0.;
-  //     CNSigma[ii][jj]=0.;
-  //   }
-  // }
-  memset(CNMean,0,NTDRS*NVAS*sizeof(CNMean[0][0]));
+  memset(tdrMap,0,NTDRS*NJINF*sizeof(tdrMap[0]));
 
   return;
 }
@@ -1296,48 +1287,28 @@ void RHClass::Print(){
     printf("Jinf Map pos: %d Jinf num: %d\n", ii, JinfMap[ii]);
 
   printf("# TDR RAW = %d\n",ntdrRaw);
-  for (int ii=0;ii<ntdrRaw;ii++)
-    printf("TDR RAW Map pos: %d tdrnum: %d\n", ii, tdrRawMap[ii]);
+  for (int ii=0;ii<ntdrRaw;ii++) {
+    if (tdrMap[ii].second == 0) {
+      printf("TDR RAW Map pos: %d tdrnum: %d\n", ii, tdrMap[ii].first);
+    }
+  }
 
   printf("# TDR CMP = %d\n",ntdrCmp);
-  for (int ii=0;ii<ntdrCmp;ii++)
-    printf("TDR CMP Map pos: %d tdrnum: %d\n", ii, tdrCmpMap[ii]);
-  //   for (int ii=0;ii<NTDRS;ii++){
-  //     printf("TDR: %d\n",ii);
-  //     for (int jj=0;jj<NVAS;jj++)
-  //       printf(" %6.2f ",CNMean[ii][jj]);
-  //     printf(" \n");
-  //     for (int jj=0;jj<NVAS;jj++)
-  //       printf(" %6.2f ",CNSigma[ii][jj]);
-  //     printf(" \n");
-  //     printf(" \n");
-  //   }
+  for (int ii=0;ii<ntdrCmp;ii++) {
+    if (tdrMap[ii].second == 1) {
+      printf("TDR CMP Map pos: %d tdrnum: %d\n", ii, tdrMap[ii].first);
+    }
+  }
   printf("---------------------------------------------\n");
   return;
 }
 
-int RHClass::FindPosCmp(int tdrnum){
+int RHClass::FindPos(int tdrnum){
 
   // Print();
-  // printf("ntdrCmp = %d\n", ntdrCmp);
-  // for (int ii=0; ii<ntdrCmp; ii++) {
-  //   printf("CMP: %d -> %d\n", ii, tdrCmpMap[ii]);
-  // }
 
-  for (int ii=0; ii<ntdrCmp; ii++)
-    if (tdrCmpMap[ii]==tdrnum) return ii;
-
-  return -1;
-}
-
-int RHClass::FindPosRaw(int tdrnum){
-
-  // for (int ii=0;ii<ntdrRaw;ii++) {
-  //   printf("RAW: %d -> %d\n", ii, tdrRaw[ii]);
-  // }
-
-  for (int ii=0;ii<ntdrRaw;ii++)
-    if(tdrRawMap[ii]==tdrnum)  return ii;
+  for (int ii=0;ii<GetNTdrs();ii++)
+    if(tdrMap[ii].first==tdrnum)  return ii;
   
   return -1;
 }
@@ -1352,36 +1323,26 @@ void RHClass::SetJinfMap(int* _JinfMap) {
   return;
 }
 
-void RHClass::SetTdrRawMap(int* _TdrRawMap) {
-
+void RHClass::SetTdrMap(laddernumtype* _TdrMap) {
+  
   // for (int ii=0;ii<NTDRS;ii++) {
-  //   tdrRawMap[ii]=_TdrRawMap[ii];
+  //   tdrMap[ii]=_TdrMap[ii];
   // }
-  memcpy(tdrRawMap, _TdrRawMap, NTDRS*sizeof(tdrRawMap[0]));
+  memcpy(tdrMap, _TdrMap, NTDRS*sizeof(tdrMap[0]));
 
   return;
 }
 
-void RHClass::SetTdrCmpMap(int* _TdrCmpMap) {
-  
-  // for (int ii=0;ii<NTDRS;ii++) {
-  //   tdrCmpMap[ii]=_TdrCmpMap[ii];
-  // }
-  memcpy(tdrCmpMap, _TdrCmpMap, NTDRS*sizeof(tdrCmpMap[0]));
-  
-  return;
-}
-
-int RHClass::FindLadderNumCmp(int tdrpos) {
+int RHClass::GetTdrNum(int tdrpos) {
   if (tdrpos<NTDRS) {
-    return tdrCmpMap[tdrpos];
+    return tdrMap[tdrpos].first;
   }
   return -1;
 }
 
-int RHClass::FindLadderNumRaw(int tdrpos) {
+int RHClass::GetTdrType(int tdrpos) {
   if (tdrpos<NTDRS) {
-    return tdrRawMap[tdrpos];
+    return tdrMap[tdrpos].second;
   }
   return -1;
 }

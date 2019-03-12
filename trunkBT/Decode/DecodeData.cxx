@@ -38,9 +38,8 @@ DecodeData::DecodeData(char *ifname, char *caldir, int run, int ancillary, bool 
   runn = run;
 
   ntdrRaw = 0;
-  memset(tdrRaw, -1, NTDRS * sizeof(tdrRaw[0]));
   ntdrCmp = 0;
-  memset(tdrCmp, -1, NTDRS * sizeof(tdrCmp[0]));
+  memset(tdrMap, -1, NTDRS * sizeof(tdrMap[0]));
 
   pri = 0;
   evpri = 0;
@@ -84,15 +83,13 @@ DecodeData::DecodeData(char *ifname, char *caldir, int run, int ancillary, bool 
   //  // Create the ROOT Classes for the ROOT data format
   ev = new Event();
 
-  mysort(tdrRaw, ntdrRaw);
-  mysort(tdrCmp, ntdrCmp);
+  mysort(tdrMap, ntdrRaw+ntdrCmp);
   // Update the ROOT run header
   rh->SetNJinfs(nJinf);
   rh->SetJinfMap(JinfMap);
   rh->SetNTdrsRaw(ntdrRaw);
-  rh->SetTdrRawMap(tdrRaw);
   rh->SetNTdrsCmp(ntdrCmp);
-  rh->SetTdrCmpMap(tdrCmp);
+  rh->SetTdrMap(tdrMap);
   
   if (pri)
     printf("Dumping the file headers that are going to be written in the ROOT files...\n");
@@ -102,14 +99,6 @@ DecodeData::DecodeData(char *ifname, char *caldir, int run, int ancillary, bool 
   if (pri)
     printf("Finding a valid calibration...\n");
   FindCalibs();
-
-  // for (int ii=0;ii<ntdrRaw;ii++) {
-  //   printf("RAW: %d -> %d\n", ii, tdrRaw[ii]);
-  // }
-
-  // for (int ii=0;ii<ntdrCmp;ii++) {
-  //   printf("CMP: %d -> %d\n", ii, tdrCmp[ii]);
-  // }
 
   char name[255];
   for (int jj = 0; jj < NJINF; jj++)
@@ -211,41 +200,24 @@ DecodeData::~DecodeData()
 
 //=============================================================================================
 
-int DecodeData::FindPos(int tdrnum)
-{
+int DecodeData::FindPos(int tdrnum) {
 
-  // for (int ii=0;ii<ntdrCmp;ii++) {
-  //   printf("CMP: %d -> %d\n", ii, tdrCmp[ii]);
-  // }
-
-  for (int ii = 0; ii < ntdrCmp; ii++)
-    if (tdrCmp[ii] == tdrnum)
+  for (int ii = 0; ii < ntdrCmp+ntdrRaw; ii++)
+    if (tdrMap[ii].first == tdrnum)
       return ii;
+  
   return -1;
 }
 //=============================================================================================
 
-int DecodeData::FindPosRaw(int tdrnum)
-{
+int DecodeData::FindCalPos(int tdrnum){
 
-  // for (int ii=0;ii<ntdrRaw;ii++) {
-  //   printf("RAW: %d -> %d\n", ii, tdrRaw[ii]);
-  // }
-
-  for (int ii = 0; ii < ntdrRaw; ii++)
-    if (tdrRaw[ii] == tdrnum)
+  for (int ii = 0; ii<ntdrCmp+ntdrRaw; ii++)
+    if (tdrMap[ii].first == tdrnum)
       return ii;
-  return -1;
-}
-//=============================================================================================
-
-int DecodeData::FindCalPos(int tdrnum)
-{
-
-  for (int ii = 0; ii < ntdrCmp; ii++)
-    if (tdrCmp[ii] == tdrnum)
-      return ii;
+  
   printf("DecodeData::FindCalPos:  Fatal Error can't find postion for TDR %d\n", tdrnum);
+  
   exit(4);
 }
 //=============================================================================================
@@ -278,24 +250,20 @@ void DecodeData::OpenFile(char *ifname, char *caldir, int run, int ancillary)
 void DecodeData::OpenFile_data(char *ifname, char *caldir, int run, int ancillary)
 {
 
-  if (ancillary >= 0)
-  {
+  if (ancillary >= 0) {
     sprintf(rawname, "%s/%06d_ANC_%d.dat", ifname, runn, ancillary);
   }
-  else
-  {
+  else {
     sprintf(rawname, "%s/%06d.dat", ifname, runn);
-    if (!file_exists(rawname))
-    {
-      for (int ii = 0; ii < 10000; ii++)
-      {
-        sprintf(rawname, "%s/%06d_ANC_%d.dat", ifname, runn, ii);
-        if (file_exists(rawname))
-          break;
+    if (!file_exists(rawname)) {
+      for (int ii = 0; ii < 10000; ii++) {
+	sprintf(rawname, "%s/%06d_ANC_%d.dat", ifname, runn, ii);
+	if (file_exists(rawname))
+	  break;
       }
     }
   }
-
+  
   return;
 }
 
@@ -327,8 +295,8 @@ int DecodeData::EndOfFile()
   {
     dummy = 0; //without the declaration of this variable it's not working (not finding the end of the file!!!!!)
     eff = feof(rawfile);
-    if (eff)
-      printf("EndOfFile: end of file !\n");
+    // if (eff)
+    //   printf("EndOfFile: end of file !\n");
     if (pri)
       printf("End of file? -> %d\n", eff);
   }
@@ -631,15 +599,6 @@ int DecodeData::ReadOneEvent_data()
       ReadOneTDR(0);
     }
 
-    // if (pri) {
-    //   for (int ii=0;ii<ntdrCmp;ii++) {
-    // 	printf("CMP: %d -> %d\n", ii, tdrCmp[ii]);
-    //   }
-    //   for (int ii=0;ii<ntdrRaw;ii++) {
-    // 	printf("RAW: %d -> %d\n", ii, tdrRaw[ii]);
-    //   }
-    // }
-
     // Read the last 2 words before status
     unsigned short int dummy;
     fstat = ReadFile(&dummy, sizeof(dummy), 1, rawfile);
@@ -652,34 +611,21 @@ int DecodeData::ReadOneEvent_data()
       return 1;
     if (pri || evpri)
       printf("Tdrs with no event Mask: %d\n", tdrnoeventmask);
-    for (int ii = 0; ii < NTDRS; ii++)
-    {
-      if (tdrnoeventmask & (1 << ii))
-      {
-        if (pri || evpri)
-          printf("A tdr (%02d) replied with no event...\n", ii);
-        if (!out_flag)
-        {
-          tdrCmp[ntdrCmp++] = ii + 100 * 0; //In ReadOneJinf is 100*(status&0x1f), I don't know why here is different
-        }
+    for (int ii = 0; ii < NTDRS; ii++) {
+      if (tdrnoeventmask & (1 << ii)) {
+	if (pri || evpri)
+	  printf("A tdr (%02d) replied with no event...\n", ii);
+	if (!out_flag) {
+	  tdrMap[ntdrRaw+ntdrCmp++].first = ii + 100 * 0; //In ReadOneJinf is 100*(status&0x1f), I don't know why here is different
+	}
       }
-      else if (pri || evpri)
-      {
+      else if (pri || evpri) {
         int tdrnum = FindPos(ii);
         //	  printf("%d\n", tdrnum);
         if (tdrnum >= 0)
-          printf("A tdr (%02d) is CMP...\n", ii);
-        else
-        {
-          tdrnum = FindPosRaw(ii);
-          //	    printf("%d\n", tdrnum);
-          if (tdrnum >= 0)
-            printf("A tdr (%02d) is RAW...\n", ii);
-          else
-          {
-            printf("A tdr (%02d) didn't replied...\n", ii);
-          }
-        }
+          printf("A tdr (%02d) replied...\n", ii);
+	else
+	  printf("A tdr (%02d) didn't replied...\n", ii);
       }
     }
   }
@@ -727,14 +673,6 @@ int DecodeData::ReadOneTDR(int Jinfnum)
 
   ReadFile(array, size * sizeof(short int), 1, rawfile);
 
-  // for (int ii=0;ii<ntdrRaw;ii++) {
-  //   printf("RAW: %d -> %d\n", ii, tdrRaw[ii]);
-  // }
-
-  // for (int ii=0;ii<ntdrCmp;ii++) {
-  //   printf("CMP: %d -> %d\n", ii, tdrCmp[ii]);
-  // }
-
   //Decode the tdr number (the order of tdrs in the file may change event by event!!!)
   int tdrnum = -1;
   int numnum = ((unsigned int)array[size - 1]) & 0x1f;
@@ -743,8 +681,6 @@ int DecodeData::ReadOneTDR(int Jinfnum)
   {
     tdrnum = FindPos(numnum + 100 * Jinfnum);
     //    printf("JINF=%d TDR=%d -> POS=%d\n", Jinfnum, numnum, tdrnum);
-    if (tdrnum < 0)
-      tdrnum = FindPosRaw(numnum + 100 * Jinfnum);
     if (tdrnum < 0)
     {
       printf("WARNING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
@@ -757,13 +693,21 @@ int DecodeData::ReadOneTDR(int Jinfnum)
 
   if (pri)
     printf("==========> TDR %02d, Jinf %02d, Size=%4d, TDR Status=%04hx: ", numnum, Jinfnum, size, array[size - 1]);
-  if (!out_flag)
-    if ((array[size - 1] & 64) > 0)
-      tdrRaw[ntdrRaw++] = numnum + 100 * Jinfnum;
-  if (!out_flag)
-    if ((array[size - 1] & 128) > 0)
-      tdrCmp[ntdrCmp++] = numnum + 100 * Jinfnum;
-
+  if (!out_flag) {
+    if ((array[size - 1] & 64) > 0) {
+      //      printf("RAW) numnum=%d, Jinfnum=%d, ntdrRaw=%d, ntdrCmp=%d\n", numnum, Jinfnum, ntdrRaw, ntdrCmp);
+      tdrMap[ntdrCmp+ntdrRaw].first = numnum + 100 * Jinfnum;
+      tdrMap[ntdrCmp+ntdrRaw].second = 0;
+      ntdrRaw++;
+    }
+    if ((array[size - 1] & 128) > 0) {
+      //      printf("CMP) numnum=%d, Jinfnum=%d, ntdrRaw=%d, ntdrCmp=%d\n", numnum, Jinfnum, ntdrRaw, ntdrCmp);
+      tdrMap[ntdrRaw+ntdrCmp].first = numnum + 100 * Jinfnum;
+      tdrMap[ntdrRaw+ntdrCmp].second = 1;
+      ntdrCmp++;
+    }
+  }
+    
   int count = 5;
   for (int base = 32; base < 0x8000; base *= 2)
     if (pri || evpri)
@@ -816,7 +760,7 @@ int DecodeData::ReadOneTDR(int Jinfnum)
     int count = 0;
     if (out_flag)
     {
-      tdrnumraw = FindPosRaw(numnum + 100 * Jinfnum);
+      tdrnumraw = FindPos(numnum + 100 * Jinfnum);
       if (tdrnumraw < 0)
       {
         printf("DecodeData::ReadOneTDR::Cannot-Find-TDR-%d-RAW\n", numnum + 100 * Jinfnum);
@@ -1083,7 +1027,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal)
 
   _bondingtype = ladderconf->GetBondingType(Jinfnum, numnum);
 
-  int tdrnumraw = FindPosRaw(numnum + 100 * Jinfnum);
+  int tdrnumraw = FindPos(numnum + 100 * Jinfnum);
 
   int nvasS = 10;
   int nvasK = 6;
@@ -1376,11 +1320,7 @@ void DecodeData::FindCalibs()
     return;
   }
 
-  int tdrprobe = tdrCmp[0];
-  if (ntdrCmp < 1)
-  {
-    tdrprobe = tdrRaw[0];
-  }
+  int tdrprobe = tdrMap[0].first;
 
   for (runB = runn; runB > 0; runB--)
   {
@@ -1427,28 +1367,10 @@ void DecodeData::FindCalibs()
   else
     printf("Searching the calib files for the other TDRs, if any\n");
 
-  for (int ii = 0; ii < ntdrCmp; ii++)
+  for (int ii = 0; ii < ntdrCmp+ntdrRaw; ii++)
   {
-    int Jinfnum = tdrCmp[ii] / 100;
-    int tdrnum = tdrCmp[ii] - Jinfnum * 100;
-    int index = Jinfnum * 100 + tdrnum;
-    sprintf(name1, "%s/%06d_%02d%02d.cal", rawCaldir, run2, Jinfnum, tdrnum);
-    calfile[index] = fopen(name1, "r");
-    if (!calfile[index])
-    {
-      printf("Cannot find the calib %s for the requested calib run %d\n", name1, run2);
-      printf("I give up. Bye.\n");
-      exit(2);
-    }
-    printf("Found file %s\n", name1);
-    //    printf("---- %d\n", index);
-    ReadCalib(calfile[index], &(cals[index]));
-  }
-
-  for (int ii = 0; ii < ntdrRaw; ii++)
-  {
-    int Jinfnum = tdrRaw[ii] / 100;
-    int tdrnum = tdrRaw[ii] - Jinfnum * 100;
+    int Jinfnum = tdrMap[ii].first / 100;
+    int tdrnum = tdrMap[ii].first - Jinfnum * 100;
     int index = Jinfnum * 100 + tdrnum;
     sprintf(name1, "%s/%06d_%02d%02d.cal", rawCaldir, run2, Jinfnum, tdrnum);
     calfile[index] = fopen(name1, "r");
@@ -1597,7 +1519,7 @@ int DecodeData::ReadOneJINF()
       if (pri || evpri)
         printf("A tdr (%d) replied with no event...\n", ii);
       if (!out_flag)
-        tdrCmp[ntdrCmp++] = ii + 100 * (status & 0x1f);
+        tdrMap[ntdrRaw+ntdrCmp++].first = ii + 100 * (status & 0x1f);
     }
   }
   // Reread the last word
@@ -1609,23 +1531,23 @@ int DecodeData::ReadOneJINF()
   pri = old;
 }
 
-int DecodeData::GetIdTDRRaw(int pos)
+int DecodeData::GetTdrNum(int pos)
 {
   if (pos > NJINF * NTDRS)
   {
     printf("Pos %d not allowed. Max is %d\n", pos, NJINF * NTDRS);
     return -9999;
   }
-  return tdrRaw[pos];
+  return tdrMap[pos].first;
 }
-int DecodeData::GetIdTDRCmp(int pos)
+int DecodeData::GetTdrType(int pos)
 {
   if (pos > NJINF * NTDRS)
   {
     printf("Pos %d not allowed. Max is %d\n", pos, NJINF * NTDRS);
     return -9999;
   }
-  return tdrCmp[pos];
+  return tdrMap[pos].second;
 }
 
 //=============================================================================================
@@ -1648,10 +1570,10 @@ int DecodeData::ReadFile(void *ptr, size_t size, size_t nitems, FILE *stream)
   return ret;
 }
 
-void DecodeData::mysort(int *aa, int nel)
+void DecodeData::mysort(laddernumtype *aa, int nel)
 {
 
-  int *bb = new int[nel];
+  laddernumtype* bb = new laddernumtype[nel];
 
   int min = 10000;
   int max = -1;
@@ -1659,17 +1581,18 @@ void DecodeData::mysort(int *aa, int nel)
   {
     for (int ii = 0; ii < nel; ii++)
     {
-      if (aa[ii] < min && aa[ii] > max)
+      if (aa[ii].first < min && aa[ii].first > max)
       {
-        min = aa[ii];
+        min = aa[ii].first;
         bb[count] = aa[ii];
       }
     }
-    max = bb[count];
+    max = bb[count].first;
     min = 10000;
   }
 
   for (int count = 0; count < nel; count++)
     aa[count] = bb[count];
+  
   delete[] bb;
 }

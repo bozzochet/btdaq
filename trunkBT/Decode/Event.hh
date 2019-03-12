@@ -12,6 +12,7 @@
 #define NVAS  16
 
 typedef short int shortint;
+typedef std::pair<int, int> laddernumtype;
 
 /*!  Tracker Event class contains all the information about a Event
  */
@@ -214,11 +215,8 @@ private:
   int nJinf;
   int JinfMap[NJINF];
   int ntdrRaw;
-  int tdrRawMap[NTDRS];//is wrong! ot has another index, for the Jinf, or must be NJINF*NTDRS
   int ntdrCmp;
-  int tdrCmpMap[NTDRS];//is wrong! ot has another index, for the Jinf, or must be NJINF*NTDRS
-  double CNMean[NTDRS][NVAS];//is wrong! ot has another index, for the Jinf, or must be NJINF*NTDRS
-  double CNSigma[NTDRS][NVAS];//is wrong! ot has another index, for the Jinf, or must be NJINF*NTDRS
+  laddernumtype tdrMap[NJINF*NTDRS];
 
 public:
   //! default constructor
@@ -244,16 +242,17 @@ public:
   inline void SetNTdrsRaw(int _nTdrRaw) { ntdrRaw=_nTdrRaw; return; }
 
   void SetJinfMap(int* _JinfMap);
-  void SetTdrRawMap(int* _TdrRawMap);
-  void SetTdrCmpMap(int* _TdrCmpMap);
-  
-  int FindLadderNumCmp(int tdrpos);
-  int FindLadderNumRaw(int tdrpos);
-  
-  int FindPosCmp(int tdrnum);
-  int FindPosRaw(int tdrnum);
+  void SetTdrMap(laddernumtype* _TdrMap);
 
-  ClassDef(RHClass,2)
+  // FIXME: the methods below must include also the jinfnum
+  // sometims infact I use tdrnum+100*jinfnum that CANNOT WORK (see above)!
+  
+  int GetTdrNum(int tdrpos);
+  int GetTdrType(int tdrpos);
+  
+  int FindPos(int tdrnum);
+
+  ClassDef(RHClass,3)
 };
 
 
