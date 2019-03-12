@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sstream>
+//#include <unistd.h> //needed to compile with Root6
 
 //Definition of AMSWcom class
 #include "amswcom.h"

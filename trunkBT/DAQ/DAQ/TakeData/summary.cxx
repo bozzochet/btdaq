@@ -288,20 +288,20 @@ Int_t Summary(char *filename, char *nameout, char *outkind) {
 
 	c->cd(4);
 	gPad->SetFillStyle(0);
-	TH2F *fram4=new TH2F("fram4",Form("%s: common noise",filename),1024,1,1024,61,0,60);
+	TH2F *fram4=new TH2F("fram4",Form("%s: strip status",filename),1024,1,1024,11,0,10);
 	fram4->SetStats(0);
 	fram4->Draw();
-	TH1F *isto4=new TH1F("isto4",Form("%s: common noise",filename),1024,1,1024);	
-	int chip=0;
-	int channelofchip=0;
+	TH1F *isto4=new TH1F("isto4",Form("%s: strip status",filename),1024,1,1024);	
+	// int chip=0;
+	// int channelofchip=0;
 	for (int jj=0;jj<1024;jj++) {
-		isto4->SetBinContent(jj,CN[chip]);
+		isto4->SetBinContent(jj,status[jj]);
 		//printf("canale: %d, chip: %d, CN: %lf\n",jj,chip,CN[chip]);
-		channelofchip++;
-		if (channelofchip==64) {
-			chip++;
-			channelofchip=0;//change the CN value every 16 bins (channels)
-		}
+		// channelofchip++;
+		// if (channelofchip==64) {
+		// 	chip++;
+		// 	channelofchip=0;//change the CN value every 16 bins (channels)
+		// }
 	}
 	isto4->Draw("same");	
 	gPad->Update();
