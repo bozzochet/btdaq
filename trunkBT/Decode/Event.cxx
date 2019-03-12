@@ -68,16 +68,17 @@ Event::Event(){
     NClus[ii][0]=0;
     NClus[ii][1]=0;
   }
-  
+
   for(int kk=0;kk<8;kk++) {
     for(int ii=0;ii<1024;ii++) {
       CalSigma[kk][ii]=0.0;
       CalPed[kk][ii]=0.0;
       RawSignal[kk][ii]=0;
       RawSoN[kk][ii]=0.0;
+      CalStatus[kk][ii]=0.0;
     }
   }
-  
+
   //  RawLadder = new TClonesArray("RawData", NJINF*8);//NJINFS*8 is the maximum number of ladder in raw mode that can me read by a single jinf.
 
   NClusTot=0;
@@ -122,9 +123,10 @@ void Event::Clear(){
       CalPed[ii][kk]=0.0;
       RawSignal[ii][kk]=0;
       RawSoN[ii][kk]=0.0;
+      CalStatus[ii][kk]=0.0;
     }
   }
-  
+
   if(Cls) Cls->Delete();
 
   //   for (int ii=Cls->GetEntries();ii>-1;ii--){
@@ -298,9 +300,9 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG){
       }
     }
   }
-  
+
   gaincorrectionnotread=false;
-  
+
   //  if(DEBUG==false) return;
   // per ora (finche' il lavoro non e' finito) utile mostrare la tabellina dei TDR  con valori non di default, perchè NON dovrebbero esserci!
   bool first=true;
@@ -1182,19 +1184,25 @@ double Event::GetRawSignal_PosNum(int tdrnum, int channel, int Jinfnum){
   return RawSignal[tdrnum][channel]/8.0;
 }
 
+double Event::GetCalStatus_PosNum(int tdrnum, int channel, int Jinfnum){
+  return CalStatus[tdrnum][channel];
+}
+
 double Event::GetCN_PosNum(int tdrnum, int va, int Jinfnum){
-  
+
   short int array[1024];
   float arraySoN[1024];
   float pede[1024];
+  int status[1024];
 
   for(int chan=0; chan <1024; chan++){
     array[chan]=RawSignal[tdrnum][chan];
     arraySoN[chan]=RawSoN[tdrnum][chan];
     pede[chan]=CalPed[tdrnum][chan];
+    status[chan]=CalStatus[tdrnum][chan];
   }
 
-  return ComputeCN(64, &(array[va*64]), &(pede[va*64]), &(arraySoN[va*64]));
+  return ComputeCN(64, &(array[va*64]), &(pede[va*64]), &(arraySoN[va*64]), &(status[va*64]));
 }
 
 float Event::GetRawSoN_PosNum(int tdrnum, int channel, int Jinfnum) {
@@ -1221,18 +1229,23 @@ double Event::GetCN(RHClass* rh, int tdrnum, int va, int Jinfnum){
   return GetCN_PosNum(tdrnumraw, va, Jinfnum);
 }
 
+double Event::GetCalStatus(RHClass* rh, int tdrnum, int va, int Jinfnum){
+  int tdrnumraw=rh->FindPosRaw(tdrnum+100*Jinfnum);
+  return GetCalStatus_PosNum(tdrnumraw, va, Jinfnum);
+}
+
 float Event::GetRawSoN(RHClass* rh, int tdrnum, int channel, int Jinfnum) {
   int tdrnumraw=rh->FindPosRaw(tdrnum+100*Jinfnum);
   return GetRawSoN_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
-double Event::ComputeCN(int size, short int* RawSignal, float* pede, float* RawSoN, double threshold){
-  
+double Event::ComputeCN(int size, short int* RawSignal, float* pede, float* RawSoN, int* status, double threshold){
+
   double mean=0.0;
   int n=0;
-  
-  for (int ii=0; ii<size; ii++) {
-    if (RawSoN[ii]<threshold) {//to avoid real signal...
+
+  for (int ii=0; ii<size; ii++){
+    if (RawSoN[ii]<threshold && status[ii]==0) {//to avoid real signal...
       n++;
       //      printf("    %d) %f %f\n", ii, RawSignal[ii]/8.0, pede[ii]);
       mean+=(RawSignal[ii]/8.0-pede[ii]);
@@ -1242,10 +1255,10 @@ double Event::ComputeCN(int size, short int* RawSignal, float* pede, float* RawS
     mean/=n;
   }
   else { //let's try again with an higher threshold
-    mean = ComputeCN(size, RawSignal, pede, RawSoN, threshold+1.0);
+    mean = ComputeCN(size, RawSignal, pede, RawSoN, status, threshold+1.0);
   }
   //  printf("    CN = %f\n", mean);
-  
+
   return mean;
 }
 

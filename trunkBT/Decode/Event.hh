@@ -41,7 +41,7 @@ public:
   static int GetVAS() { return NVAS;};
   static int GetNTDRS() { return NTDRS;};
   static int GetNJINFS() { return NJINF;};
-  static double ComputeCN(int size, shortint * RawSignal, float* pede, float* RawSoN, double threshold=3.0);
+  static double ComputeCN(int size, shortint * RawSignal, float* pede, float* RawSoN, int* status, double threshold=3.0);
   
   //  int NGoldenClus(int lad, int side);
   //! Load LadderConf parameter from an ASCII file
@@ -84,13 +84,15 @@ public:
   double GetRawSignal_PosNum(int tdrposnum, int channel, int Jinfnum=0);
   double GetCN_PosNum(int tdrposnum, int va, int Jinfnum=0);
   float GetRawSoN_PosNum(int tdrposnum, int channel, int Jinfnum=0);
-  
+  double GetCalStatus_PosNum(int tdrposnum, int va, int Jinfnum=0);
+
   double GetCalPed(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetCalSigma(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetRawSignal(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetCN(RHClass* rh, int tdrnum, int va, int Jinfnum=0);
   float GetRawSoN(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
-  
+  double GetCalStatus(RHClass* rh, int tdrposnum, int va, int Jinfnum=0);
+
 private:
   static bool ladderconfnotread;
   static LadderConf* ladderconf;
@@ -161,7 +163,7 @@ private:
   double       CalPed[8][1024];
   short int RawSignal[8][1024];
   float        RawSoN[8][1024];//! (do not stream on file! Can be recomputed easily!)
-
+  int       CalStatus[8][1024];
   short int ReadTDR[NTDRS];
 
   //track parameters and points
@@ -199,7 +201,7 @@ private:
   std::vector<int> _v_ladderS_to_ignore;//!
   std::vector<int> _v_ladderK_to_ignore;//!
 
-  ClassDef(Event,4)
+  ClassDef(Event,5)
 };
 
 //! Run Header Class
