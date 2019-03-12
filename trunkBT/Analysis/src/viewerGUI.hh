@@ -1,5 +1,6 @@
 #include <TQObject.h>
 #include <RQ_OBJECT.h>
+#include "TGraph.h"
 
 class TGWindow;
 class TGMainFrame;
@@ -26,6 +27,9 @@ private:
   TGTextButton *fExit, *fDraw, *fOpen;
   TGLabel *evtLabel, *tdrLabel, *fileLabel;
   TGTextView *fStatusBar;
+  TGraph *gr_eventS = new TGraph();
+  TGraph *gr_eventK = new TGraph();
+  TGraph *line[14];
 
 public:
   MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h);

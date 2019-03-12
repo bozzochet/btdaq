@@ -122,9 +122,6 @@ void MyMainFrame::viewer(int tdr, int evt, char filename[200])
   Event *ev;
   Cluster *cl;
 
-  TGraph *gr_eventS = new TGraph();
-  TGraph *gr_eventK = new TGraph();
-
   gr_eventS->SetMarkerColor(kRed + 1);
   gr_eventS->SetLineColor(kRed + 1);
   gr_eventK->SetMarkerColor(kBlue + 2);
@@ -156,8 +153,12 @@ void MyMainFrame::viewer(int tdr, int evt, char filename[200])
     double ADC = ev->GetRawSignal_PosNum(tdr, chan, 0);
     double calADC = ev->GetCalPed_PosNum(tdr, chan, 0);
     double cnADC = ev->GetCN_PosNum(tdr, (int)chan / 64, 0);
-    double signal = ADC - calADC - cnADC;
+    int status = ev->GetCalStatus_PosNum(tdr, chan, 0);
+    
+    if (status!=0) continue;
 
+    double signal = ADC - calADC - cnADC;
+    
     if (signal > maxadc)
       maxadc = signal;
     if (signal < minadc)
@@ -184,10 +185,13 @@ void MyMainFrame::viewer(int tdr, int evt, char filename[200])
   gr_eventK->SetMarkerSize(0.5);
   gr_eventK->Draw("*lSAME");
 
-  TLine *line[14];
+  // TLine *line[14];
   for (int iline = 0; iline < 15; iline++)
   {
-    line[iline] = new TLine((iline + 1) * 64, minadc - 20, (iline + 1) * 64, maxadc + 20);
+    line[iline] = new TGraph(2);
+    //line[iline] = new TLine((iline + 1) * 64, minadc - 20, (iline + 1) * 64, maxadc + 20);
+    line[iline]->SetPoint(0,(iline + 1) * 64,minadc-20);
+    line[iline]->SetPoint(1,(iline + 1) * 64,maxadc+20);
     line[iline]->SetLineColor(kGray + 2);
     line[iline]->Draw();
   }
@@ -201,19 +205,13 @@ void MyMainFrame::viewer(int tdr, int evt, char filename[200])
 
   delete chain;
   delete ev;
-  delete gr_eventS;
-  delete gr_eventK;
-  for (int iline = 0; iline < 15; iline++)
-  {
-    delete line[iline];
-  }
 }
 
 void MyMainFrame::DoDraw()
 {
   if (gROOT->GetListOfFiles()->FindObject((char *)(fileLabel->GetText())->GetString()))
   {
-    viewer(fNumber2->GetNumberEntry()->GetIntNumber(), fNumber->GetNumberEntry()->GetIntNumber(), (char *)(fileLabel->GetText())->GetString());
+    viewer(fNumber2->GetNumberEntry()->GetIntNumber(), fNumber->GetNumberEntry()->GetIntNumber(), (char *)(fileLabel->GetText())->GetString());  
   }
 }
 
