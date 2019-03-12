@@ -5,7 +5,7 @@
 #include "TH2F.h"
 #include <cstdio>
 
-#define CALOCUBE
+//#define CALOCUBE
 
 typedef struct calib{
   float ped[1024];
@@ -75,18 +75,16 @@ private:
   int nJinf;
   int JinfMap[NJINF];
   int ntdrRaw;
-  int tdrRaw[NJINF*NTDRS];
   int ntdrCmp;
-  int tdrCmp[NJINF*NTDRS];
+  laddernumtype tdrMap[NJINF*NTDRS];
   int out_flag;
   char type[10]; //JinF or JinJ
   void FindCalibs ();
   int  ReadCalib(FILE * fil,calib* cal);
   int FindPos(int tdrnum);
-  int FindPosRaw(int tdrnum);
   int FindCalPos(int tdrnum);
   int ReadFile(void *ptr, size_t size, size_t nitems, FILE * stream);
-  void mysort(int* aa,int nel);
+  void mysort(laddernumtype* aa,int nel);
 
   bool kMC;
   
@@ -123,10 +121,10 @@ public:
   //moved to Event class
   //  double ComputeCN(int size, short int* Signal, float* pede, float* SoN, double threshold=3.0);
 
-  int GetNTDRRaw() { return ntdrRaw;}
-  int GetNTDRCmp() { return ntdrCmp;}
-  int GetIdTDRRaw(int pos);
-  int GetIdTDRCmp(int pos);
+  inline int GetNTdrRaw() { return ntdrRaw;}
+  inline int GetNTdrCmp() { return ntdrCmp;}
+  int GetTdrNum(int pos);
+  int GetTdrType(int pos);
   
   int SkipOneEvent(int evskip=1);
   int ReadOneEvent();
