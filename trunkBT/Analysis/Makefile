@@ -40,6 +40,8 @@ COMMON = ../CommonTool/
 
 INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE) -I$(COMMON)
 
+.PHONY: ViewerGUI
+
 default: Analysis
 
 Viewer: ./obj/viewer.o
