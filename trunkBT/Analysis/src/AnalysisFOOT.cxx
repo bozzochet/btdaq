@@ -76,7 +76,7 @@ int main(int argc, const char* argv[]) {
 
   if (GetRH(chain)) {
     GetRH(chain)->Print();
-    _maxtdr = GetRH(chain)->ntdrCmp;
+    _maxtdr = GetRH(chain)->GetNTdrs();
   }
   else {
     printf("Not able to find the RHClass header in the UserInfo...\n");
@@ -289,7 +289,7 @@ int main(int argc, const char* argv[]) {
    
 
     //Signal Correlation
-    if(clusOnS == 1 &&  clusOnK==1){
+    if(clusOnS == clusOnK){
       double clusS=-999;
       double clusK=-999;
       
@@ -326,7 +326,7 @@ int main(int argc, const char* argv[]) {
       int nstrip = cl->GetLenght();
       bool onborder = cl->BorderRegion();
 
-      if(onborder) continue;
+      //      if(onborder) continue;
       
     /*
     if(onborder){

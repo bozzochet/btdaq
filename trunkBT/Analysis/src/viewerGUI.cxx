@@ -175,7 +175,7 @@ void MyMainFrame::viewer(int tdr, int evt, char filename[200])
 
   TH1F *frame = gPad->DrawFrame(0, minadc - 20, 1024, maxadc + 20);
 
-  frame->SetTitle("Event number " + TString::Format("%0d", (int)evt) + " on TDR " + TString::Format("%02d", (int)rh->tdrRawMap[tdr]));
+  frame->SetTitle("Event number " + TString::Format("%0d", (int)evt) + " on TDR " + TString::Format("%02d", (int)rh->GetTdrNum(tdr)));
   frame->GetXaxis()->SetNdivisions(-16);
   frame->GetXaxis()->SetTitle("Strip number");
   frame->GetYaxis()->SetTitle("ADC");
@@ -236,25 +236,25 @@ void MyMainFrame::DoOpen()
       RHClass *rh = (RHClass *)t->GetUserInfo()->At(0);
 
       fStatusBar->Clear();
-      fStatusBar->LoadBuffer("Run: " + TGString(rh->Run) + " - Date " + TString(rh->date));
+      fStatusBar->LoadBuffer("Run: " + TGString(rh->GetRun()) + " - Date " + TString(rh->GetDate()));
       fStatusBar->AddLine("Number of events: " + TGString(entries));
-      fStatusBar->AddLine("# Jinf = " + TGString(rh->nJinf));
+      fStatusBar->AddLine("# Jinf = " + TGString(rh->GetNJinfs()));
 
-      for (int ii = 0; ii < rh->nJinf; ii++)
+      for (int ii = 0; ii < rh->GetNJinfs(); ii++)
       {
-        fStatusBar->AddLine("Jinf Map pos: " + TGString(ii) + " Jinf num: " + TGString(rh->JinfMap[ii]));
+        fStatusBar->AddLine("Jinf Map pos: " + TGString(ii) + " Jinf num: " + ii);
       }
 
-      fStatusBar->AddLine("# TDR RAW = " + TGString(rh->ntdrRaw));
-      for (int ii = 0; ii < rh->ntdrRaw; ii++)
+      fStatusBar->AddLine("# TDR RAW = " + TGString(rh->GetNTdrsRaw()));
+      for (int ii = 0; ii < rh->GetNTdrsRaw(); ii++)
       {
-        fStatusBar->AddLine("TDR RAW Map pos: " + TGString(ii) + " tdrnum: " + TGString(rh->tdrRawMap[ii]));
+        fStatusBar->AddLine("TDR RAW Map pos: " + TGString(ii) + " tdrnum: " + TGString(rh->GetTdrNum(ii)));
       }
 
-      fStatusBar->AddLine("# TDR CMP = " + TGString(rh->ntdrCmp));
-      for (int ii = 0; ii < rh->ntdrCmp; ii++)
+      fStatusBar->AddLine("# TDR CMP = " + TGString(rh->GetNTdrsCmp()));
+      for (int ii = 0; ii < rh->GetNTdrsCmp(); ii++)
       {
-        fStatusBar->AddLine("TDR CMP Map pos: " + TGString(ii) + " tdrnum: " + TGString(rh->tdrCmpMap[ii]));
+        fStatusBar->AddLine("TDR CMP Map pos: " + TGString(ii) + " tdrnum: " + TGString(rh->GetTdrNum(ii)));
       }
 
       fileLabel->SetText(fi.fFilename);
