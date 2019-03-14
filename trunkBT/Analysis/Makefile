@@ -26,8 +26,8 @@ ifeq ($(UNAME), Darwin)
 ADDLDFLAGS =
 endif
 
-#CFLAGS += $(shell root-config --auxcflags) -std=c++11 -fPIC
-CFLAGS += $(shell root-config --auxcflags) -fPIC
+#CFLAGS += $(shell root-config --auxcflags) -O -std=c++11 -fPIC
+CFLAGS += $(shell root-config --auxcflags) -O -fPIC
 
 ROOTDYNAMICLIBS := $(shell root-config --libs) -lMinuit -lSpectrum
 ROOTVIEWERLIBS := $(shell root-config --cflags --glibs)
@@ -87,5 +87,5 @@ clean:
 	rm -f ./ViewerFOOT
 
 cleanALL: clean
-	make -C ../Decode clean
-	rm -f $(COMMON)/$(OBJ)/*.o
+	make -C $(DECODE) clean
+	make -C $(COMMON) clean
