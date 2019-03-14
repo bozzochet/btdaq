@@ -14,7 +14,6 @@
 #include "TStopwatch.h"
 #include <fstream>
 #include <vector>
-#include <bitset>
 
 /* from the 'Decode' API */
 #include "Cluster.hh"
@@ -28,8 +27,8 @@
 
 using namespace std;
 
-//raw value. To put the real distance from the most upward AMS ladder to the desired position in the CaloCube
-#define ZCALOCUBE 0
+//raw value. To put the real distance from the most upward AMS ladder to the desired position in the ICC
+#define ZHERD 1500
 
 int main(int argc, char* argv[]) {
   
@@ -66,12 +65,12 @@ int main(int argc, char* argv[]) {
   ev = new Event();
   chain->SetBranchAddress("cluster_branch", &ev);
   chain->GetEntry(0);
-  
+
   int _maxtdr = NJINF*NTDRS;
   
   if (GetRH(chain)) {
     GetRH(chain)->Print();
-    _maxtdr = GetRH(chain)->GetNTdrs();
+    _maxtdr = GetRH(chain)->ntdrCmp;
   }
   else {
     printf("Not able to find the RHClass header in the UserInfo...\n");
@@ -97,10 +96,7 @@ int main(int argc, char* argv[]) {
   int NSTRIPSK=384;
   for (int tt=0; tt<_maxtdr; tt++) {
     int jinfnum = 0;
-    int tdrnum = GetRH(chain)->FindLadderNumCmp(tt);
-    if (tdrnum<0) {
-      tdrnum = GetRH(chain)->FindLadderNumRaw(tt-_maxtdrcmp);
-    }
+    int tdrnum = GetRH(chain)->tdrCmpMap[tt];
     occupancy[tt] = new TH1F(Form("occupancy_0_%02d", tdrnum), Form("occupancy_0_%02d;Channel number;Occupancy", tdrnum), 1024, 0, 1024);
     occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", tdrnum), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", tdrnum), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(jinfnum, tdrnum, 0), NSTRIPSS*Cluster::GetPitch(jinfnum, tdrnum, 0));
     occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", tdrnum), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", tdrnum), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(jinfnum, tdrnum, 1), NSTRIPSK*Cluster::GetPitch(jinfnum, tdrnum, 1));
@@ -168,15 +164,20 @@ int main(int argc, char* argv[]) {
     bool cleanevent = CleanEvent(ev, GetRH(chain), 4, 9999, 9999, 9999, 9999, 9999);
     if (!cleanevent) continue;
     cleanevs++;//in this way this number is giving the "complete reasonable sample"
-
-    bool preselevent = CleanEvent(ev, GetRH(chain), 2, 500, 30, 30, 0, 0);
+    
+    bool preselevent = CleanEvent(ev, GetRH(chain), 6, 50, 3, 3, 0, 0);
     if (!preselevent) continue;
     preselevs++;
     
+    std::vector<double> v_cog_laddS[NJINF*NTDRS];
+    std::vector<double> v_cog_laddK[NJINF*NTDRS];
+    std::vector<double> v_cog_all_laddS[NJINF*NTDRS];
+    std::vector<double> v_cog_all_laddK[NJINF*NTDRS];
+
     //at least 4 points on S, and 4 points on K, not verbose
     // ev->FindTrackAndFit(4, 4, false);
     
-    bool trackfitok = ev->FindTrackAndFit(2, 2, false);
+    bool trackfitok = ev->FindTrackAndFit(4, 4, false);
     //    printf("%d\n", trackfitok);
     if (trackfitok) {
       //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
@@ -184,13 +185,11 @@ int main(int argc, char* argv[]) {
       //and perform the fit again
       // ev->RefineTrack(6.0, 3, 6.0, 3);
 
-      /*
       int minSclus=3;
       int minKclus=3;
       for (int ii=0; ii<_maxtdr-std::min(minSclus, minKclus); ii++) {
 	ev->RefineTrack(6.0, minSclus, 6.0, minKclus);
       }
-      */
     }
     else {
       //let's downscale to 2 (on S) and 2 (on K) hits but even in this no-chisq case
@@ -198,10 +197,10 @@ int main(int argc, char* argv[]) {
       //and requiring an higher S/N (>5.0) for the cluster
       // trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
 
-      //      trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
+      trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
     }
     if (!trackfitok) continue;
-    //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetS0Track(), ev->GetS0Track());    
+    //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());    
     tracks++;
 
     //ATTENZIONE
@@ -254,22 +253,17 @@ int main(int argc, char* argv[]) {
     theta->Fill(ev->GetThetaTrack());
     phi->Fill(ev->GetPhiTrack());
     thetaphi->Fill(ev->GetThetaTrack(), ev->GetPhiTrack());
-    X0->Fill(ev->GetS0Track());
-    Y0->Fill(ev->GetK0Track());
-    X0Y0->Fill(ev->GetS0Track(), ev->GetK0Track());
+    X0->Fill(ev->GetX0Track());
+    Y0->Fill(ev->GetY0Track());
+    X0Y0->Fill(ev->GetX0Track(), ev->GetY0Track());
     X0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 0));
     Y0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 1));
     X0Y0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 0), ev->ExtrapolateTrack(ZHERD, 1));
 
     hclus_aftersel->Fill(NClusTot);
-
-    std::vector<double> v_cog_laddS[NJINF*NTDRS];
-    std::vector<double> v_cog_laddK[NJINF*NTDRS];
-    std::vector<double> v_cog_all_laddS[NJINF*NTDRS];
-    std::vector<double> v_cog_all_laddK[NJINF*NTDRS];
     
     for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
-      
+	
       cl = ev->GetCluster(index_cluster);
       
       int ladder = cl->ladder;
@@ -328,8 +322,8 @@ int main(int argc, char* argv[]) {
     charge2D_ave->Fill(ev->GetChargeTrack(0), ev->GetChargeTrack(1));
     
     for (int ll=0; ll<NJINF*NTDRS; ll++) {
-      hclusSladd->Fill(GetRH(chain)->FindLadderNumCmp(ll), v_cog_all_laddS[ll].size());
-      hclusKladd->Fill(GetRH(chain)->FindLadderNumCmp(ll), v_cog_all_laddK[ll].size());
+      hclusSladd->Fill(GetRH(chain)->tdrCmpMap[ll], v_cog_all_laddS[ll].size());
+      hclusKladd->Fill(GetRH(chain)->tdrCmpMap[ll], v_cog_all_laddK[ll].size());
     }
     
     //    printf(" \n ");
