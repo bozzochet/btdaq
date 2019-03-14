@@ -217,14 +217,6 @@ int main(int argc,char** argv){
   dd1->SetPrintOff();
   dd1->SetEvPrintOff();
 
-  // printf("%d + %d\n", dd1->GetNTDRRaw(), dd1->GetNTDRCmp());
-  // for (int ii=0; ii<dd1->GetNTDRRaw(); ii++) {
-  //   printf("%d) %d\n", ii, dd1->GetIdTDRRaw(ii));
-  // }
-  // for (int ii=0; ii<dd1->GetNTDRCmp(); ii++) {
-  //   printf("%d) %d\n", ii, dd1->GetIdTDRCmp(ii));
-  // }
-  
   TTree* t4= new TTree("t4","My cluster tree");
   t4->Branch("cluster_branch","Event",&(dd1->ev),32000,2);
   double chaK[24];
@@ -233,22 +225,16 @@ int main(int argc,char** argv){
   double sigS[24];
   double sonK[24];
   double sonS[24];
-  for (int jj=0; jj<2; jj++) {
-    int NTDR=0;
-    if (jj==0) NTDR = dd1->GetNTDRRaw();
-    else if (jj==1) NTDR = dd1->GetNTDRCmp();
-    for (int ii=0; ii<NTDR; ii++) {
-      int IdTDR=-1;
-      if (jj==0) IdTDR = dd1->GetIdTDRRaw(ii);
-      else if (jj==1) IdTDR = dd1->GetIdTDRCmp(ii);
-      //      printf("%d\n", IdTDR);
-      t4->Branch(Form("SignalK_Ladder%02d", IdTDR), &sigK[IdTDR], Form("SignalK_Ladder%02d/D", IdTDR));
-      t4->Branch(Form("SignalS_Ladder%02d", IdTDR), &sigS[IdTDR], Form("SignalS_Ladder%02d/D", IdTDR));
-      t4->Branch(Form("ChargeK_Ladder%02d", IdTDR), &chaK[IdTDR], Form("ChargeK_Ladder%02d/D", IdTDR));
-      t4->Branch(Form("ChargeS_Ladder%02d", IdTDR), &chaS[IdTDR], Form("ChargeS_Ladder%02d/D", IdTDR));
-      t4->Branch(Form("SoNK_Ladder%02d", IdTDR), &sonK[IdTDR], Form("SoNK_Ladder%02d/D", IdTDR));
-      t4->Branch(Form("SoNS_Ladder%02d", IdTDR), &sonS[IdTDR], Form("SoNS_Ladder%02d/D", IdTDR));
-    }
+  int NTDR = dd1->GetNTdrRaw()+dd1->GetNTdrCmp();
+  for (int ii=0; ii<NTDR; ii++) {
+    int IdTDR = dd1->GetTdrNum(ii);
+    //      printf("%d\n", IdTDR);
+    t4->Branch(Form("SignalK_Ladder%02d", IdTDR), &sigK[IdTDR], Form("SignalK_Ladder%02d/D", IdTDR));
+    t4->Branch(Form("SignalS_Ladder%02d", IdTDR), &sigS[IdTDR], Form("SignalS_Ladder%02d/D", IdTDR));
+    t4->Branch(Form("ChargeK_Ladder%02d", IdTDR), &chaK[IdTDR], Form("ChargeK_Ladder%02d/D", IdTDR));
+    t4->Branch(Form("ChargeS_Ladder%02d", IdTDR), &chaS[IdTDR], Form("ChargeS_Ladder%02d/D", IdTDR));
+    t4->Branch(Form("SoNK_Ladder%02d", IdTDR), &sonK[IdTDR], Form("SoNK_Ladder%02d/D", IdTDR));
+    t4->Branch(Form("SoNS_Ladder%02d", IdTDR), &sonS[IdTDR], Form("SoNS_Ladder%02d/D", IdTDR));
   }
   sleep(3);
   t4->GetUserInfo()->Add(dd1->rh);
