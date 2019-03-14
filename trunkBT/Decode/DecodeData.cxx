@@ -606,7 +606,6 @@ int DecodeData::ReadOneEvent_data()
     dummy = 0;
     fstat = ReadFile(&dummy, sizeof(dummy), 1, rawfile);
     tdrnoeventmask += dummy;
-    ;
     if (fstat == -1)
       return 1;
     if (pri || evpri)
@@ -616,7 +615,10 @@ int DecodeData::ReadOneEvent_data()
 	if (pri || evpri)
 	  printf("A tdr (%02d) replied with no event...\n", ii);
 	if (!out_flag) {
-	  tdrMap[ntdrRaw+ntdrCmp++].first = ii + 100 * 0; //In ReadOneJinf is 100*(status&0x1f), I don't know why here is different
+	  //	  printf("tdrMap[%d].first = %d\n", ntdrRaw+ntdrCmp, ii+100*0);
+	  tdrMap[ntdrRaw+ntdrCmp].first = ii + 100 * 0; //In ReadOneJinf is 100*(status&0x1f) but here is in the case with just one Jinf...
+	  tdrMap[ntdrRaw+ntdrCmp].second = 1;
+	  ntdrCmp++;
 	}
       }
       else if (pri || evpri) {
@@ -1512,14 +1514,15 @@ int DecodeData::ReadOneJINF()
   ReadFile(&tdrnoeventmask, sizeof(tdrnoeventmask), 1, rawfile);
   if (pri || evpri)
     printf("Tdrs with no event Mask: %d\n", tdrnoeventmask);
-  for (int ii = 0; ii < NTDRS; ii++)
-  {
-    if (tdrnoeventmask & (1 << ii))
-    {
+  for (int ii = 0; ii < NTDRS; ii++) {
+    if (tdrnoeventmask & (1 << ii)) {
       if (pri || evpri)
         printf("A tdr (%d) replied with no event...\n", ii);
-      if (!out_flag)
-        tdrMap[ntdrRaw+ntdrCmp++].first = ii + 100 * (status & 0x1f);
+      if (!out_flag) {
+        tdrMap[ntdrRaw+ntdrCmp].first = ii + 100 * (status & 0x1f);
+	tdrMap[ntdrRaw+ntdrCmp].second = 1;
+	ntdrCmp++;
+      }
     }
   }
   // Reread the last word
