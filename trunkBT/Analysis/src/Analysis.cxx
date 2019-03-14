@@ -14,6 +14,7 @@
 #include "TStopwatch.h"
 #include <fstream>
 #include <vector>
+#include <bitset>
 
 /* from the 'Decode' API */
 #include "Cluster.hh"
@@ -27,8 +28,8 @@
 
 using namespace std;
 
-//raw value. To put the real distance from the most upward AMS ladder to the desired position in the ICC
-#define ZHERD 1500
+//raw value. To put the real distance from the most upward AMS ladder to the desired position in the CaloCube
+#define ZCALOCUBE 0
 
 int main(int argc, char* argv[]) {
   
@@ -70,7 +71,7 @@ int main(int argc, char* argv[]) {
   
   if (GetRH(chain)) {
     GetRH(chain)->Print();
-    _maxtdr = GetRH(chain)->ntdrCmp;
+    _maxtdr = GetRH(chain)->GetNTdrs();
   }
   else {
     printf("Not able to find the RHClass header in the UserInfo...\n");
@@ -78,6 +79,10 @@ int main(int argc, char* argv[]) {
   }
   //  printf("%d\n", _maxladd);
   
+  // for (int tt=0; tt<_maxtdr; tt++) {
+  //   printf("%d %d %f %f\n", tt, GetRH(chain)->FindLadderNumCmp(tt), Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
+  // }
+
   TFile* foutput = new TFile(output_filename.Data(), "RECREATE");
   foutput->cd();
   
@@ -95,18 +100,20 @@ int main(int argc, char* argv[]) {
   int NSTRIPSS=640;
   int NSTRIPSK=384;
   for (int tt=0; tt<_maxtdr; tt++) {
-    int jinfnum = 0;
-    int tdrnum = GetRH(chain)->tdrCmpMap[tt];
-    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", tdrnum), Form("occupancy_0_%02d;Channel number;Occupancy", tdrnum), 1024, 0, 1024);
-    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", tdrnum), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", tdrnum), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(jinfnum, tdrnum, 0), NSTRIPSS*Cluster::GetPitch(jinfnum, tdrnum, 0));
-    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", tdrnum), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", tdrnum), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(jinfnum, tdrnum, 1), NSTRIPSK*Cluster::GetPitch(jinfnum, tdrnum, 1));
-    residual_S[tt] = new TH1F(Form("residual_S_0_%02d", tdrnum), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", tdrnum), 
-				 2*NSTRIPSS, -float(NSTRIPSS)/100.*Cluster::GetPitch(jinfnum, tdrnum, 0), float(NSTRIPSS)/100.*Cluster::GetPitch(jinfnum, tdrnum, 0));
-    residual_K[tt] = new TH1F(Form("residual_K_0_%02d", tdrnum), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", tdrnum), 
-			      40*NSTRIPSK, -20*float(NSTRIPSK)/100.*Cluster::GetPitch(jinfnum, tdrnum, 1), 20*float(NSTRIPSK)/100.*Cluster::GetPitch(jinfnum, tdrnum, 1));
-    chargeS[tt] = new TH1F(Form("chargeS_0_%02d", tdrnum), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", tdrnum), 1000, 0, 100);
-    chargeK[tt] = new TH1F(Form("chargeK_0_%02d", tdrnum), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", tdrnum), 1000, 0, 100);
-    charge2D[tt] = new TH2F(Form("charge_0_%02d", tdrnum), Form("charge_0_%02d;Q_{S} (c.u.);Q_{K} (c.u.);Entries", tdrnum), 1000, 0, 100, 1000, 0, 100);
+    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("occupancy_0_%02d;Channel number;Occupancy", GetRH(chain)->FindLadderNumCmp(tt)), 1024, 0, 1024);
+    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
+    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1), NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
+    // residual_S[tt] = new TH1F(Form("residual_S_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
+    // 			      20*NSTRIPSS, -10.0*float(NSTRIPSS)/100.*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), 10.0*float(NSTRIPSS)/100.*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
+    // residual_K[tt] = new TH1F(Form("residual_K_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
+    // 			      400*NSTRIPSK, -200*float(NSTRIPSK)/100.*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1), 200*float(NSTRIPSK)/100.*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
+    residual_S[tt] = new TH1F(Form("residual_S_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
+			      1000, -1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0), 1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
+    residual_K[tt] = new TH1F(Form("residual_K_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
+			      1000, -1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1), 1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
+    chargeS[tt] = new TH1F(Form("chargeS_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 1000, 0, 100);
+    chargeK[tt] = new TH1F(Form("chargeK_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 1000, 0, 100);
+    charge2D[tt] = new TH2F(Form("charge_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("charge_0_%02d;Q_{S} (c.u.);Q_{K} (c.u.);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 1000, 0, 100, 1000, 0, 100);
   }
   chargeS_ave = new TH1F("chargeS", "chargeS;Q_{S} (c.u.);Entries", 1000, 0, 100);
   chargeK_ave = new TH1F("chargeK", "chargeK;Q_{K} (c.u.);Entries", 1000, 0, 100);
@@ -119,9 +126,9 @@ int main(int argc, char* argv[]) {
   TH1F* X0 = new TH1F("X0", "X0;X_{Z=0} (mm);Entries", 1000, -100, 100);
   TH1F* Y0 = new TH1F("Y0", "Y0;Y_{Z=0} (mm);Entries", 1000, -100, 100);
   TH2F* X0Y0 = new TH2F("X0Y0", "X0Y0;X_{Z=0} (mm);Y_{Z=0} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
-  TH1F* X0HERD = new TH1F("X0HERD", "X0HERD;X_{Z=HERD} (mm);Entries", 1000, -100, 100);
-  TH1F* Y0HERD = new TH1F("Y0HERD", "Y0HERD;Y_{Z=HERD} (mm);Entries", 1000, -100, 100);
-  TH2F* X0Y0HERD = new TH2F("X0Y0HERD", "X0Y0HERD;X_{Z=HERD} (mm);Y_{Z=HERD} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
+  TH1F* X0CALOCUBE = new TH1F("X0CALOCUBE", "X0CALOCUBE;X_{Z=CALOCUBE} (mm);Entries", 1000, -100, 100);
+  TH1F* Y0CALOCUBE = new TH1F("Y0CALOCUBE", "Y0CALOCUBE;Y_{Z=CALOCUBE} (mm);Entries", 1000, -100, 100);
+  TH2F* X0Y0CALOCUBE = new TH2F("X0Y0CALOCUBE", "X0Y0CALOCUBE;X_{Z=CALOCUBE} (mm);Y_{Z=CALOCUBE} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
 
   TH1F* hclusSladd = new TH1F("hclusSladd", "hclusSladd;Ladder;Clusters_{S}", 24, 0, 24);
   TH1F* hclusSladdtrack = new TH1F("hclusSladdtrack", "hclusSladdtrack;Ladder;Clusters_{S,OnTrack}", 24, 0, 24);
@@ -134,16 +141,38 @@ int main(int argc, char* argv[]) {
   Long64_t preselevs=0;
   Long64_t tracks=0;
   Long64_t goodtracks=0;
-  Long64_t goodStracks=0;
-  Long64_t goodKtracks=0;
+  Long64_t goldtracks=0;
+  Long64_t goldStracks=0;
+  Long64_t goldKtracks=0;
 
   TStopwatch sw;
   sw.Start();
 
-  int perc=0;
+  double perc=0;
+
+  ExcludeTDR(ev, 0, 2, 0);
+  ExcludeTDR(ev, 0, 2, 1);
+  ExcludeTDR(ev, 0, 3, 0);
+  ExcludeTDR(ev, 0, 3, 1);
+  ExcludeTDR(ev, 0, 6, 0);
+  ExcludeTDR(ev, 0, 6, 1);
+  ExcludeTDR(ev, 0, 7, 0);
+  ExcludeTDR(ev, 0, 7, 1);
+  ExcludeTDR(ev, 0, 10, 0);
+  ExcludeTDR(ev, 0, 10, 1);
+  ExcludeTDR(ev, 0, 11, 0);
+  ExcludeTDR(ev, 0, 11, 1);
+  ExcludeTDR(ev, 0, 14, 0);
+  ExcludeTDR(ev, 0, 14, 1);
+  ExcludeTDR(ev, 0, 15, 0);
+  ExcludeTDR(ev, 0, 15, 1);
+  ExcludeTDR(ev, 0, 18, 0);
+  ExcludeTDR(ev, 0, 18, 1);
+  ExcludeTDR(ev, 0, 19, 0);
+  ExcludeTDR(ev, 0, 19, 1);
   
   for (int index_event=0; index_event<entries; index_event++) {
-    Double_t pperc=100.0*((index_event+1.0)/entries);
+    Double_t pperc=1000.0*((index_event+1.0)/entries);
     if (pperc>=perc) {
       printf("Processed %d out of %lld: %d%%\n", (index_event+1), entries, (int)(100.0*(index_event+1.0)/entries));
       perc++;
@@ -155,9 +184,9 @@ int main(int argc, char* argv[]) {
     //    printf("\t\tnclusters = %d\n", NClusTot);
 
     hclus->Fill(NClusTot);
-    
+
     //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
-    //and at most 50 (to avoid too much noise around and too much combinatorial)
+    //and at most 100 (to avoid too much noise around and too much combinatorial)
     //at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
     // CleanEvent(ev, GetRH(chain), 4, 50, 6, 6, 0, 0);
     
@@ -165,7 +194,7 @@ int main(int argc, char* argv[]) {
     if (!cleanevent) continue;
     cleanevs++;//in this way this number is giving the "complete reasonable sample"
     
-    bool preselevent = CleanEvent(ev, GetRH(chain), 6, 50, 3, 3, 0, 0);
+    bool preselevent = CleanEvent(ev, GetRH(chain), 4, 100, 3, 3, 0, 0);
     if (!preselevent) continue;
     preselevs++;
     
@@ -176,38 +205,25 @@ int main(int argc, char* argv[]) {
 
     //at least 4 points on S, and 4 points on K, not verbose
     // ev->FindTrackAndFit(4, 4, false);
-    
-    bool trackfitok = ev->FindTrackAndFit(4, 4, false);
+    bool trackfitok = ev->FindTrackAndFit(2, 2, false);
     //    printf("%d\n", trackfitok);
     if (trackfitok) {
       //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
       //(but only if removing them still we'll have more or equal than 3 hits on S and 3 (2 if 'HigherCharge') hits on K)
       //and perform the fit again
       // ev->RefineTrack(6.0, 3, 6.0, 3);
-
-      int minSclus=3;
-      int minKclus=3;
-      for (int ii=0; ii<_maxtdr-std::min(minSclus, minKclus); ii++) {
-	ev->RefineTrack(6.0, minSclus, 6.0, minKclus);
-      }
+      //      ev->RefineTrack(999999.0, 2, 999999.0, 2);
+      ev->RefineTrack(1.0, 2, 1.0, 2);
     }
     else {
       //let's downscale to 2 (on S) and 2 (on K) hits but even in this no-chisq case
       //let's garantee a certain relaiability of the track fitting the one with the higher charge (this method can be used also for ions)
-      //and requiring an higher S/N (>5.0) for the cluster
-      // trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
-
+      //and requiring an higher S/N for the cluster
       trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
     }
     if (!trackfitok) continue;
     //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());    
     tracks++;
-
-    //ATTENZIONE
-    //PATTERN CAMBIATO
-    //IL CODICE SOTTO NON FUNZIONA PIU'. ORA E' BINARIO IL PATTERN E SI PUO' MOSTRARE CON
-    // printf("S %s\n", std::bitset<NTDRS>(ev->GetTrackHitPattern(0)).to_string().c_str());
-    // printf("K %s\n", std::bitset<NTDRS>(ev->GetTrackHitPattern(1)).to_string().c_str());
 
     //    printf("S %024lld: %d %d %d %d %d\n", ev->GetTrackHitPattern(0), ev->IsTDRInTrack(0, 0), ev->IsTDRInTrack(0, 4), ev->IsTDRInTrack(0, 8), ev->IsTDRInTrack(0, 12), ev->IsTDRInTrack(0, 14));
     //    printf("K %024lld: %d %d %d %d %d\n", ev->GetTrackHitPattern(1), ev->IsTDRInTrack(1, 0), ev->IsTDRInTrack(1, 4), ev->IsTDRInTrack(1, 8), ev->IsTDRInTrack(1, 12), ev->IsTDRInTrack(1, 14));
@@ -216,8 +232,14 @@ int main(int argc, char* argv[]) {
     // if (ev->GetTrackHitPattern(0) <                100010001) continue;
     // if (ev->GetTrackHitPattern(1) <                100010001) continue;
 
+    // printf("S %s\n", std::bitset<NTDRS>(ev->GetTrackHitPattern(0)).to_string().c_str());
+    // printf("K %s\n", std::bitset<NTDRS>(ev->GetTrackHitPattern(1)).to_string().c_str());
+
+    // printf("S %d %d %d %d\n", ev->IsTDRInTrack(0, 20)?1:0, ev->IsTDRInTrack(0, 22)?1:0, ev->IsTDRInTrack(0, 22)?1:0, ev->IsTDRInTrack(0, 23)?1:0);
+    // printf("K %d %d %d %d\n", ev->IsTDRInTrack(1, 20)?1:0, ev->IsTDRInTrack(1, 22)?1:0, ev->IsTDRInTrack(1, 22)?1:0, ev->IsTDRInTrack(1, 23)?1:0);
+
     double logchi = log10(ev->GetChiTrack());
-    //    if (logchi>2) continue;
+    if (logchi>6) continue;
     goodtracks++;
     
     bool strackok = false;
@@ -230,7 +252,7 @@ int main(int argc, char* argv[]) {
 	ev->IsTDRInTrack(0, 8) &&
 	(ev->IsTDRInTrack(0, 12) || ev->IsTDRInTrack(0, 14)) ) {
       strackok=true;
-      goodStracks++;
+      goldStracks++;
     }
 
     if (
@@ -239,11 +261,28 @@ int main(int argc, char* argv[]) {
 	ev->IsTDRInTrack(1, 8) &&
 	(ev->IsTDRInTrack(1, 12) || ev->IsTDRInTrack(1, 14)) ) {
       ktrackok=true;
-      goodKtracks++;
+      goldKtracks++;
     }
     */
-    strackok=true;
-    ktrackok=true;
+    int snhits=ev->GetNHitsSTrack();
+    if (snhits>=3) {
+      strackok=true;
+      goldStracks++;
+    }
+    
+    int knhits= ev->GetNHitsKTrack();
+    if (knhits>=3) {
+      ktrackok=true;
+      goldKtracks++;
+    }
+
+    // printf("S -> %d %d\n", snhits, strackok);
+    // printf("K -> %d %d\n", knhits, ktrackok);
+
+    if (strackok & ktrackok) goldtracks++;
+
+    // printf("S %d %d %d %d -> %d %d\n", ev->IsTDRInTrack(0, 20)?1:0, ev->IsTDRInTrack(0, 22)?1:0, ev->IsTDRInTrack(0, 22)?1:0, ev->IsTDRInTrack(0, 23)?1:0, snhits, strackok);
+    // printf("K %d %d %d %d -> %d %d\n", ev->IsTDRInTrack(1, 20)?1:0, ev->IsTDRInTrack(1, 22)?1:0, ev->IsTDRInTrack(1, 22)?1:0, ev->IsTDRInTrack(1, 23)?1:0, knhits, ktrackok);
 
     // if (ev->GetNHitsTrack()>5) {
     //   printf("Nhits: %u (S: %u, K: %u)\n", ev->GetNHitsTrack(), ev->GetNHitsSTrack(), ev->GetNHitsKTrack());
@@ -256,9 +295,9 @@ int main(int argc, char* argv[]) {
     X0->Fill(ev->GetX0Track());
     Y0->Fill(ev->GetY0Track());
     X0Y0->Fill(ev->GetX0Track(), ev->GetY0Track());
-    X0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 0));
-    Y0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 1));
-    X0Y0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 0), ev->ExtrapolateTrack(ZHERD, 1));
+    X0CALOCUBE->Fill(ev->ExtrapolateTrack(ZCALOCUBE, 0));
+    Y0CALOCUBE->Fill(ev->ExtrapolateTrack(ZCALOCUBE, 1));
+    X0Y0CALOCUBE->Fill(ev->ExtrapolateTrack(ZCALOCUBE, 0), ev->ExtrapolateTrack(ZCALOCUBE, 1));
 
     hclus_aftersel->Fill(NClusTot);
     
@@ -338,8 +377,9 @@ int main(int argc, char* argv[]) {
   printf("\t\t%lld preselected events\n", preselevs);
   printf("\t\t%lld tracks fitted\n", tracks);
   printf("\t\t%lld good tracks found\n", goodtracks);
-  // printf("\t\t%lld good S tracks found\n", goodStracks);
-  // printf("\t\t%lld good K tracks found\n", goodKtracks);
+  printf("\t\t%lld gold S tracks found\n", goldStracks);
+  printf("\t\t%lld gold K tracks found\n", goldKtracks);
+  printf("\t\t%lld gold tracks found\n", goldtracks);
   printf("---------------------------------------------\n");
   
   foutput->Write();
