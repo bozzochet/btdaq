@@ -14,6 +14,7 @@
 #include "TStopwatch.h"
 #include <fstream>
 #include <vector>
+#include <bitset>
 
 /* from the 'Decode' API */
 #include "Cluster.hh"
@@ -27,8 +28,8 @@
 
 using namespace std;
 
-//raw value. To put the real distance from the most upward AMS ladder to the desired position in the ICC
-#define ZHERD 1500
+//raw value. To put the real distance from the most upward AMS ladder to the desired position in the CaloCube
+#define ZCALOCUBE 0
 
 int main(int argc, char* argv[]) {
   
@@ -67,16 +68,10 @@ int main(int argc, char* argv[]) {
   chain->GetEntry(0);
   
   int _maxtdr = NJINF*NTDRS;
-  int _maxtdrcmp = 0;
-  int _maxtdrraw = 0;
   
   if (GetRH(chain)) {
     GetRH(chain)->Print();
-    // SINCE HERE WE PUT THE CMP ones BEFORE: WE HAVE TO KEEP THIS ORDER FOR THE FULL PROGRAM (for example in "GetRH(chain)->FindLadderNumRaw(tt-_maxtdrcmp)")
-    int _maxtdrcmp = GetRH(chain)->GetNTdrsCmp();
-    int _maxtdrraw = GetRH(chain)->GetNTdrsRaw();
-    _maxtdr = _maxtdrcmp;
-    _maxtdr += _maxtdrraw;
+    _maxtdr = GetRH(chain)->GetNTdrs();
   }
   else {
     printf("Not able to find the RHClass header in the UserInfo...\n");
