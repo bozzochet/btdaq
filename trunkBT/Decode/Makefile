@@ -56,3 +56,4 @@ rootElibdict.cxx: $(CLASSES) LinkDef.h
 clean:
 	@rm -Rfv libEventa.a libEvent.so Decode rootElibdict.cxx rootElibdict.h obj
 	make -C $(ANYOPTION) clean
+	@rm -f rootElibdict_rdict.pcm
