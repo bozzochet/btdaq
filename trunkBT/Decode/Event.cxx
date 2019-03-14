@@ -1286,19 +1286,26 @@ void RHClass::Print(){
   for (int ii=0;ii<nJinf;ii++)
     printf("Jinf Map pos: %d Jinf num: %d\n", ii, JinfMap[ii]);
 
-  printf("# TDR RAW = %d\n",ntdrRaw);
-  for (int ii=0;ii<ntdrRaw;ii++) {
+  printf("# TDR RAW = %d\n", ntdrRaw);
+  for (int ii=0;ii<ntdrRaw+ntdrCmp;ii++) {
     if (tdrMap[ii].second == 0) {
-      printf("TDR RAW Map pos: %d tdrnum: %d\n", ii, tdrMap[ii].first);
+      printf("TDR RAW:    Map pos: %d tdrnum: %d\n", ii, tdrMap[ii].first);
     }
   }
 
-  printf("# TDR CMP = %d\n",ntdrCmp);
-  for (int ii=0;ii<ntdrCmp;ii++) {
+  printf("# TDR CMP = %d\n", ntdrCmp);  
+  for (int ii=0;ii<ntdrRaw+ntdrCmp;ii++) {
     if (tdrMap[ii].second == 1) {
-      printf("TDR CMP Map pos: %d tdrnum: %d\n", ii, tdrMap[ii].first);
+      printf("TDR CMP:    Map pos: %d tdrnum: %d\n", ii, tdrMap[ii].first);
     }
   }
+  printf("# TDR    = %d\n", ntdrCmp+ntdrRaw);
+  for (int ii=0;ii<ntdrRaw+ntdrCmp;ii++) {
+    if (!(tdrMap[ii].second == 0 || tdrMap[ii].second == 1)) {
+      printf("TDR %2d???: Map pos: %d tdrnum: %d\n", tdrMap[ii].second, ii, tdrMap[ii].first);
+    }
+  }
+  
   printf("---------------------------------------------\n");
   return;
 }
