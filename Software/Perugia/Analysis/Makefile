@@ -1,4 +1,5 @@
 CXX := `root-config --cxx`
+ROOTCLING=rootcling
 MARCH := `root-config --arch`
 LD:=$(CXX)
 
@@ -29,6 +30,7 @@ endif
 CFLAGS += $(shell root-config --auxcflags) -O -fPIC
 
 ROOTDYNAMICLIBS := $(shell root-config --libs) -lMinuit -lSpectrum
+ROOTVIEWERLIBS := $(shell root-config --cflags --glibs)
 ROOTINC := $(shell root-config --incdir)
 
 DECODE = ../Decode/
@@ -38,13 +40,25 @@ COMMON = ../CommonTool/
 
 INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE) -I$(COMMON)
 
+.PHONY: ViewerGUI
+
 default: Analysis
 
 Viewer: ./obj/viewer.o
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) -o$@ 
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) -o$@
+
+ViewerGUI:
+	$(ROOTCLING) -f guiDict.cxx $(DECODE)/Event.cxx $(DECODE)/Cluster.cxx $(DECODE)/LadderConf.cxx -c $(SRC)/viewerGUI.hh $(SRC)/guiLinkDef.h
+	$(CXX) $(SRC)/viewerGUI.cxx guiDict.cxx $(INCLUDES) $(ROOTVIEWERLIBS) -o$@
+
+ViewerFOOT: ./obj/viewerFOOT.o $(COMMON)/obj/Utilities.o libEvent
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
 
 Analysis: ./obj/Analysis.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@ 
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
+
+AnalysisFOOT: ./obj/AnalysisFOOT.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
 
 ./obj/%.o: ./src/%.C
 	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
@@ -65,12 +79,13 @@ $(COMMON)/obj/%.o: $(COMMON)/%.cxx
 libEvent:
 	make -C $(DECODE)
 
-clean: 
+clean:
 	rm -Rf ./obj
-	rm -f ./Viewer
 	rm -f ./Analysis
+	rm -f ./AnalysisFOOT
+	rm -f ./ViewerGUI
+	rm -f ./ViewerFOOT
 
 cleanALL: clean
-	make -C $(COMMON) clean
 	make -C $(DECODE) clean
-#	rm -f $(COMMON)/$(OBJ)/*.o
+	make -C $(COMMON) clean
