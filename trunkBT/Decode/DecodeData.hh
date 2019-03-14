@@ -5,7 +5,8 @@
 #include "TH2F.h"
 #include <cstdio>
 
-//#define CALOCUBE
+//(could be defined by Makefile)
+//#define CALOCUBE 
 
 typedef struct calib{
   float ped[1024];
