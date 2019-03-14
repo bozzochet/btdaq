@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
   ev = new Event();
   chain->SetBranchAddress("cluster_branch", &ev);
   chain->GetEntry(0);
-
+  
   int _maxtdr = NJINF*NTDRS;
   
   if (GetRH(chain)) {
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
   //  printf("%d\n", _maxladd);
   
   // for (int tt=0; tt<_maxtdr; tt++) {
-  //   printf("%d %d %f %f\n", tt, GetRH(chain)->FindLadderNumCmp(tt), Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
+  //   printf("%d %d %f %f\n", tt, GetRH(chain)->GetTdrNum(tt), Cluster::GetPitch(0, GetRH(chain)->GetTdrNum(tt), 0), Cluster::GetPitch(0, GetRH(chain)->GetTdrNum(tt), 1));
   // }
 
   TFile* foutput = new TFile(output_filename.Data(), "RECREATE");
@@ -100,20 +100,18 @@ int main(int argc, char* argv[]) {
   int NSTRIPSS=640;
   int NSTRIPSK=384;
   for (int tt=0; tt<_maxtdr; tt++) {
-    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("occupancy_0_%02d;Channel number;Occupancy", GetRH(chain)->FindLadderNumCmp(tt)), 1024, 0, 1024);
-    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), NSTRIPSS*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
-    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", GetRH(chain)->FindLadderNumCmp(tt)), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1), NSTRIPSK*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
-    // residual_S[tt] = new TH1F(Form("residual_S_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
-    // 			      20*NSTRIPSS, -10.0*float(NSTRIPSS)/100.*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0), 10.0*float(NSTRIPSS)/100.*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
-    // residual_K[tt] = new TH1F(Form("residual_K_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
-    // 			      400*NSTRIPSK, -200*float(NSTRIPSK)/100.*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1), 200*float(NSTRIPSK)/100.*Cluster::GetPitch(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
-    residual_S[tt] = new TH1F(Form("residual_S_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
-			      1000, -1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0), 1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 0));
-    residual_K[tt] = new TH1F(Form("residual_K_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 
-			      1000, -1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1), 1000.0*Cluster::GetNominalResolution(0, GetRH(chain)->FindLadderNumCmp(tt), 1));
-    chargeS[tt] = new TH1F(Form("chargeS_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 1000, 0, 100);
-    chargeK[tt] = new TH1F(Form("chargeK_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 1000, 0, 100);
-    charge2D[tt] = new TH2F(Form("charge_0_%02d", GetRH(chain)->FindLadderNumCmp(tt)), Form("charge_0_%02d;Q_{S} (c.u.);Q_{K} (c.u.);Entries", GetRH(chain)->FindLadderNumCmp(tt)), 1000, 0, 100, 1000, 0, 100);
+    int jinfnum = 0;
+    int tdrnum = GetRH(chain)->GetTdrNum(tt);
+    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", tdrnum), Form("occupancy_0_%02d;Channel number;Occupancy", tdrnum), 1024, 0, 1024);
+    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", tdrnum), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", tdrnum), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(jinfnum, tdrnum, 0), NSTRIPSS*Cluster::GetPitch(jinfnum, tdrnum, 0));
+    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", tdrnum), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", tdrnum), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(jinfnum, tdrnum, 1), NSTRIPSK*Cluster::GetPitch(jinfnum, tdrnum, 1));
+    residual_S[tt] = new TH1F(Form("residual_S_0_%02d", tdrnum), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", tdrnum), 
+			      2*NSTRIPSS, -float(NSTRIPSS)/100.*Cluster::GetPitch(jinfnum, tdrnum, 0), float(NSTRIPSS)/100.*Cluster::GetPitch(jinfnum, tdrnum, 0));
+    residual_K[tt] = new TH1F(Form("residual_K_0_%02d", tdrnum), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", tdrnum), 
+			      40*NSTRIPSK, -20*float(NSTRIPSK)/100.*Cluster::GetPitch(jinfnum, tdrnum, 1), 20*float(NSTRIPSK)/100.*Cluster::GetPitch(jinfnum, tdrnum, 1));
+    chargeS[tt] = new TH1F(Form("chargeS_0_%02d", tdrnum), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", tdrnum), 1000, 0, 100);
+    chargeK[tt] = new TH1F(Form("chargeK_0_%02d", tdrnum), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", tdrnum), 1000, 0, 100);
+    charge2D[tt] = new TH2F(Form("charge_0_%02d", tdrnum), Form("charge_0_%02d;Q_{S} (c.u.);Q_{K} (c.u.);Entries", tdrnum), 1000, 0, 100, 1000, 0, 100);
   }
   chargeS_ave = new TH1F("chargeS", "chargeS;Q_{S} (c.u.);Entries", 1000, 0, 100);
   chargeK_ave = new TH1F("chargeK", "chargeK;Q_{K} (c.u.);Entries", 1000, 0, 100);
@@ -198,31 +196,31 @@ int main(int argc, char* argv[]) {
     if (!preselevent) continue;
     preselevs++;
     
-    std::vector<double> v_cog_laddS[NJINF*NTDRS];
-    std::vector<double> v_cog_laddK[NJINF*NTDRS];
-    std::vector<double> v_cog_all_laddS[NJINF*NTDRS];
-    std::vector<double> v_cog_all_laddK[NJINF*NTDRS];
-
     //at least 4 points on S, and 4 points on K, not verbose
     // ev->FindTrackAndFit(4, 4, false);
+    
     bool trackfitok = ev->FindTrackAndFit(2, 2, false);
     //    printf("%d\n", trackfitok);
     if (trackfitok) {
+      //      ev->RefineTrack(999999.0, 2, 999999.0, 2);
       //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
       //(but only if removing them still we'll have more or equal than 3 hits on S and 3 (2 if 'HigherCharge') hits on K)
       //and perform the fit again
-      // ev->RefineTrack(6.0, 3, 6.0, 3);
-      //      ev->RefineTrack(999999.0, 2, 999999.0, 2);
-      ev->RefineTrack(1.0, 2, 1.0, 2);
+      int minSclus=3;
+      int minKclus=3;
+      for (int ii=0; ii<_maxtdr-std::min(minSclus, minKclus); ii++) {
+	ev->RefineTrack(6.0, minSclus, 6.0, minKclus);
+      }
+      //      ev->RefineTrack(1.0, 2, 1.0, 2);
     }
     else {
       //let's downscale to 2 (on S) and 2 (on K) hits but even in this no-chisq case
       //let's garantee a certain relaiability of the track fitting the one with the higher charge (this method can be used also for ions)
       //and requiring an higher S/N for the cluster
-      trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
+      //      trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
     }
     if (!trackfitok) continue;
-    //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());    
+    //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetS0Track(), ev->GetS0Track());    
     tracks++;
 
     //    printf("S %024lld: %d %d %d %d %d\n", ev->GetTrackHitPattern(0), ev->IsTDRInTrack(0, 0), ev->IsTDRInTrack(0, 4), ev->IsTDRInTrack(0, 8), ev->IsTDRInTrack(0, 12), ev->IsTDRInTrack(0, 14));
@@ -292,17 +290,22 @@ int main(int argc, char* argv[]) {
     theta->Fill(ev->GetThetaTrack());
     phi->Fill(ev->GetPhiTrack());
     thetaphi->Fill(ev->GetThetaTrack(), ev->GetPhiTrack());
-    X0->Fill(ev->GetX0Track());
-    Y0->Fill(ev->GetY0Track());
-    X0Y0->Fill(ev->GetX0Track(), ev->GetY0Track());
+    X0->Fill(ev->GetS0Track());
+    Y0->Fill(ev->GetK0Track());
+    X0Y0->Fill(ev->GetS0Track(), ev->GetK0Track());
     X0CALOCUBE->Fill(ev->ExtrapolateTrack(ZCALOCUBE, 0));
     Y0CALOCUBE->Fill(ev->ExtrapolateTrack(ZCALOCUBE, 1));
     X0Y0CALOCUBE->Fill(ev->ExtrapolateTrack(ZCALOCUBE, 0), ev->ExtrapolateTrack(ZCALOCUBE, 1));
 
     hclus_aftersel->Fill(NClusTot);
+
+    std::vector<double> v_cog_laddS[NJINF*NTDRS];
+    std::vector<double> v_cog_laddK[NJINF*NTDRS];
+    std::vector<double> v_cog_all_laddS[NJINF*NTDRS];
+    std::vector<double> v_cog_all_laddK[NJINF*NTDRS];
     
     for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
-	
+      
       cl = ev->GetCluster(index_cluster);
       
       int ladder = cl->ladder;
@@ -361,8 +364,8 @@ int main(int argc, char* argv[]) {
     charge2D_ave->Fill(ev->GetChargeTrack(0), ev->GetChargeTrack(1));
     
     for (int ll=0; ll<NJINF*NTDRS; ll++) {
-      hclusSladd->Fill(GetRH(chain)->tdrCmpMap[ll], v_cog_all_laddS[ll].size());
-      hclusKladd->Fill(GetRH(chain)->tdrCmpMap[ll], v_cog_all_laddK[ll].size());
+      hclusSladd->Fill(GetRH(chain)->GetTdrNum(ll), v_cog_all_laddS[ll].size());
+      hclusKladd->Fill(GetRH(chain)->GetTdrNum(ll), v_cog_all_laddK[ll].size());
     }
     
     //    printf(" \n ");
