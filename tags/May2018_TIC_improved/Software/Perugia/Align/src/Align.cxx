@@ -389,18 +389,18 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     PRINTDEBUG;
 
     //at least 2 points on S, and 2 points on K, not verbose
-    bool trackfitok = ev->FindTrackAndFit(2, 2, false);
+    bool trackfitok = ev->FindTrackAndFit(3, 3, false);
     //    printf("%d\n", trackfitok);
 
     PRINTDEBUG;
     
-    /* we do not need to "recover" efficiency during alignment
     if (trackfitok) {
       //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
       //(but only if removing them still we'll have more or equal than 3 (2 if 'HigherCharge') hits on S and 3 (2 if 'HigherCharge') hits on K)
       //and perform the fit again
-      ev->RefineTrack(1.0, 2, 1.0, 2);
+      ev->RefineTrack(6.0, 2, 6.0, 2);
     }
+    /* we do not need to "recover" efficiency during alignment
     else {
       //let's downscale to 2 (on S) and 2 (on K) hits but even in this no-chisq case
       //let's garantee a certain relaiability of the track fitting the one with the higher charge (this method can be used also for ions)
