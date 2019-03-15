@@ -102,13 +102,15 @@ int main(int argc, char* argv[]) {
   for (int tt=0; tt<_maxtdr; tt++) {
     int jinfnum = 0;
     int tdrnum = GetRH(chain)->GetTdrNum(tt);
+    double pitchS = std::max(Cluster::GetPitch(jinfnum, tdrnum, 0), 0.01);
+    double pitchK = std::max(Cluster::GetPitch(jinfnum, tdrnum, 1), 0.01);
     occupancy[tt] = new TH1F(Form("occupancy_0_%02d", tdrnum), Form("occupancy_0_%02d;Channel number;Occupancy", tdrnum), 1024, 0, 1024);
-    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", tdrnum), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", tdrnum), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(jinfnum, tdrnum, 0), NSTRIPSS*Cluster::GetPitch(jinfnum, tdrnum, 0));
-    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", tdrnum), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", tdrnum), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(jinfnum, tdrnum, 1), NSTRIPSK*Cluster::GetPitch(jinfnum, tdrnum, 1));
+    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", tdrnum), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", tdrnum), 2*NSTRIPSS, -NSTRIPSS*pitchS, NSTRIPSS*pitchS);
+    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", tdrnum), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", tdrnum), 2*NSTRIPSK, -NSTRIPSK*pitchK, NSTRIPSK*pitchK);
     residual_S[tt] = new TH1F(Form("residual_S_0_%02d", tdrnum), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", tdrnum), 
-			      2*NSTRIPSS, -float(NSTRIPSS)/100.*Cluster::GetPitch(jinfnum, tdrnum, 0), float(NSTRIPSS)/100.*Cluster::GetPitch(jinfnum, tdrnum, 0));
+			      2*NSTRIPSS, -float(NSTRIPSS)/100.*pitchS, float(NSTRIPSS)/100.*pitchS);
     residual_K[tt] = new TH1F(Form("residual_K_0_%02d", tdrnum), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", tdrnum), 
-			      40*NSTRIPSK, -20*float(NSTRIPSK)/100.*Cluster::GetPitch(jinfnum, tdrnum, 1), 20*float(NSTRIPSK)/100.*Cluster::GetPitch(jinfnum, tdrnum, 1));
+			      40*NSTRIPSK, -20*float(NSTRIPSK)/100.*pitchK, 20*float(NSTRIPSK)/100.*pitchK);
     chargeS[tt] = new TH1F(Form("chargeS_0_%02d", tdrnum), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", tdrnum), 1000, 0, 100);
     chargeK[tt] = new TH1F(Form("chargeK_0_%02d", tdrnum), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", tdrnum), 1000, 0, 100);
     charge2D[tt] = new TH2F(Form("charge_0_%02d", tdrnum), Form("charge_0_%02d;Q_{S} (c.u.);Q_{K} (c.u.);Entries", tdrnum), 1000, 0, 100, 1000, 0, 100);
