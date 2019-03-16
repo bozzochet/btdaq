@@ -55,15 +55,15 @@ void LadderConf::Init(TString filename, bool DEBUG){
 		params->_bondtype = 0;
 		params->_shithresh = 3.5;
 		params->_khithresh = 3.5;
-		params->_slothresh = 3.5;
-		params->_klothresh = 3.5;
+		params->_slothresh = 1.0;
+		params->_klothresh = 1.0;
 	      }
 	      else if (params->_nelements - n == 4) {
                 printf("the difference is 4, so is the version 1 of ladderconf, setting thresholds to default...\n");
                 params->_shithresh = 3.5;
                 params->_khithresh = 3.5;
-                params->_slothresh = 3.5;
-                params->_klothresh = 3.5;
+                params->_slothresh = 1.0;
+                params->_klothresh = 1.0;
               }
 	      else printf("the difference is %d, SO THIS IS WRONG. PLEASE CHECK THE %s file! **************\n", params->_nelements - n, filename.Data());
 	    }
