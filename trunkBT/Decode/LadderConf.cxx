@@ -29,10 +29,10 @@ void LadderConf::Init(TString filename, bool DEBUG){
         } else {
           LadderParams* params = new LadderParams;
 
-          sscanf(line, "%d\t%d\t%lf\t%lf\t%lf\t%lf\t%d\t%d\t%d", &jinfnum, &tdrnum, &dummy, &dummy, &dummy, &dummy, &dummyint, &dummyint, &dummyint);
+          sscanf(line, "%d\t%d\t%lf\t%lf\t%lf\t%lf\t%d\t%d\t%d\t%lf\t%lf\t%lf\t%lf", &jinfnum, &tdrnum, &dummy, &dummy, &dummy, &dummy, &dummyint, &dummyint, &dummyint, &dummy, &dummy, &dummy, &dummy);
           if( jinfnum<NJINF && tdrnum<NTDRS ){
             int n = sscanf(
-			   line, "%d\t%d\t%lf\t%lf\t%lf\t%lf\t%d\t%d\t%d\t%d",
+			   line, "%d\t%d\t%lf\t%lf\t%lf\t%lf\t%d\t%d\t%d\t%d\t%lf\t%lf\t%lf\t%lf",
 			   &jinfnum,
 			   &tdrnum,
 			   &params->_spitch,
@@ -42,15 +42,30 @@ void LadderConf::Init(TString filename, bool DEBUG){
 			   (int*) &params->_kmultiflip,
 			   (int*) &params->_smirror,
 			   (int*) &params->_kmirror,
-			   (int*) &params->_bondtype
+			   (int*) &params->_bondtype,
+			   &params->_shithresh,
+			   &params->_slothresh,
+			   &params->_khithresh,
+                           &params->_klothresh
 			   );
 	    if (n < params->_nelements) {
 	      printf("JINF=%d, TDR=%02d: %d elements found, while %d expected: ", jinfnum, tdrnum, n, params->_nelements);
-	      if (params->_nelements - n == 1) {
-		printf("the difference is 1, so is the version 0 of ladderconf, setting the bonding type to default...\n");
+	      if (params->_nelements - n == 5) {
+		printf("the difference is 5, so is the version 0 of ladderconf, setting the bonding type and thresholds to default...\n");
 		params->_bondtype = 0;
+		params->_shithresh = 3.5;
+		params->_khithresh = 3.5;
+		params->_slothresh = 3.5;
+		params->_klothresh = 3.5;
 	      }
-	      else printf("the difference is %d, SO THIS IS WRONG. PLEASE CHECK THE %s file! **************\n", params->_nelements, filename.Data());
+	      else if (params->_nelements - n == 4) {
+                printf("the difference is 4, so is the version 1 of ladderconf, setting thresholds to default...\n");
+                params->_shithresh = 3.5;
+                params->_khithresh = 3.5;
+                params->_slothresh = 3.5;
+                params->_klothresh = 3.5;
+              }
+	      else printf("the difference is %d, SO THIS IS WRONG. PLEASE CHECK THE %s file! **************\n", params->_nelements - n, filename.Data());
 	    }
 	    params->_HwId = 100*jinfnum + tdrnum;
             // params->Dump();
@@ -121,6 +136,45 @@ int LadderConf::GetBondingType(int jinfnum, int tdrnum){
 
   return 0;
 }
+
+double LadderConf::GetSHiThreshold(int jinfnum, int tdrnum){
+
+  int HwId = 100*jinfnum + tdrnum;
+
+  if(IsTDRConfigured(jinfnum, tdrnum)) return _ladders[HwId]->_shithresh;
+
+  return 0;
+}
+
+
+double LadderConf::GetKHiThreshold(int jinfnum, int tdrnum){
+
+  int HwId = 100*jinfnum + tdrnum;
+  
+  if(IsTDRConfigured(jinfnum, tdrnum)) return _ladders[HwId]->_khithresh;
+
+  return 0;
+}
+
+double LadderConf::GetSLoThreshold(int jinfnum, int tdrnum){
+
+  int HwId = 100*jinfnum + tdrnum;
+  
+  if(IsTDRConfigured(jinfnum, tdrnum)) return _ladders[HwId]->_slothresh;
+
+  return 0;
+}
+
+
+double LadderConf::GetKLoThreshold(int jinfnum, int tdrnum){
+
+  int HwId = 100*jinfnum + tdrnum;
+  
+  if(IsTDRConfigured(jinfnum, tdrnum)) return _ladders[HwId]->_klothresh;
+  
+  return 0;
+}
+
 
 void LadderConf::PrintLadderParams(int jinfnum, int tdrnum){
 

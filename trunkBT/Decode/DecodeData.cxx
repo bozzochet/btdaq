@@ -999,35 +999,66 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal)
   //  printf("numnum = %d\n", numnum);
 
   int _bondingtype = 0;
+  bool defaultThresholds = (shighthreshold == 3.5 && khighthreshold && 3.5 && slowthreshold == 1.0 && klowthreshold == 1.0);
 
   static LadderConf *ladderconf = Event::GetLadderConf();
 
   static bool printed = false;
   if (!printed)
   {
-    printf("Clustering with:\n");
+    printf("\nClustering with:\n");
     printf("    %f %f for S-side\n", shighthreshold, slowthreshold);
+    
     printf("    %f %f for K-side\n", khighthreshold, klowthreshold);
-    if (cworkaround != 0)
-    {
-      printf("    %d as workaround FOR ALL THE LADDERS\n", cworkaround);
-      _bondingtype = cworkaround;
-    }
-    else
-    {
+    if(!defaultThresholds){
+      printf("    thresholds used FOR ALL THE LADDERS\n");
+    }    
+
+
+    if(defaultThresholds){
+      printf("Except for: \n");
+
       for (int jj = 0; jj < NJINF; jj++)
-      {
-        for (int tt = 0; tt < NTDRS; tt++)
-        {
-          if (ladderconf->GetBondingType(jj, tt) != 0)
-            printf("    %d as workaround for JINF=%d, TDR=%d\n", ladderconf->GetBondingType(jj, tt), jj, tt);
-        }
-      }
+	{ 
+	  for (int tt = 0; tt < NTDRS; tt++)
+	    { 	    
+	      double shithresh = ladderconf->GetSHiThreshold(jj,tt);
+	      double khithresh = ladderconf->GetKHiThreshold(jj,tt);
+	      double slothresh = ladderconf->GetSLoThreshold(jj,tt);
+	      double klothresh = ladderconf->GetKLoThreshold(jj,tt);
+	      
+	      if(shithresh != 3.5 || khithresh != 3.5 || slothresh != 1.0 || klothresh != 1.0){
+		printf("    JINF=%d, TDR=%d\n", jj, tt);
+		printf("    %f %f for S-side\n", shithresh, slothresh);
+		printf("    %f %f for K-side\n", shithresh, slothresh);
+	      }
+	    }
+	}
     }
+    
+
+    if (cworkaround != 0)
+      {
+	printf("\n    %d as workaround FOR ALL THE LADDERS\n", cworkaround);
+	_bondingtype = cworkaround;
+      }
+    else
+      {
+	printf("\n");
+	for (int jj = 0; jj < NJINF; jj++)
+	  {
+	    for (int tt = 0; tt < NTDRS; tt++)
+	      {
+		if (ladderconf->GetBondingType(jj, tt) != 0)
+		  printf("    %d as workaround for JINF=%d, TDR=%d\n", ladderconf->GetBondingType(jj, tt), jj, tt);
+	      }
+	  }
+      }
     printed = true;
   }
-
+  
   _bondingtype = ladderconf->GetBondingType(Jinfnum, numnum);
+
 
   int tdrnumraw = FindPos(numnum + 100 * Jinfnum);
 
@@ -1064,8 +1095,17 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal)
     {
       nvas = nvasS;
       nchava = nchavaS;
-      highthreshold = shighthreshold;
-      lowthreshold = slowthreshold;
+      
+      if(defaultThresholds){
+	highthreshold = ladderconf->GetSHiThreshold(Jinfnum,numnum);
+	lowthreshold = ladderconf->GetSLoThreshold(Jinfnum,numnum);
+      }
+      else
+	{
+	  highthreshold = shighthreshold;
+	  lowthreshold = slowthreshold;
+	}
+
       shift = 0;
       if (_bondingtype == 1)
       {
@@ -1119,9 +1159,18 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal)
       {
         nvas = nvasK;
         nchava = nchavaK;
-        highthreshold = khighthreshold;
-        lowthreshold = klowthreshold;
-        shift = 640;
+	
+	if(defaultThresholds){
+	  highthreshold = ladderconf->GetKHiThreshold(Jinfnum,numnum);
+	  lowthreshold = ladderconf->GetKLoThreshold(Jinfnum,numnum);
+	}
+	else
+	  {        
+	    highthreshold = khighthreshold;
+	    lowthreshold = klowthreshold;
+	  }
+	
+	shift = 640;
         arraysize = 384;
         //the src is the same array as in the S-side case but passing the reference to the first element of K-side (640)
         memcpy(array, &(ev->RawSignal[tdrnumraw][640]), 384 * sizeof(ev->RawSignal[tdrnumraw][0]));

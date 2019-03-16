@@ -12,7 +12,8 @@ struct LadderParams {
   // HwId is the combination of 2 elements in ladder conf
   // Ladderconf version 0 has  9 _nelements
   // Ladderconf version 1 has 10 _nelements
-  static const int _nelements = 10;
+  // Ladderconf version 2 has 14 _nelements 
+  static const int _nelements = 14;
   int    _HwId;
   double _spitch;
   double _kpitch;
@@ -22,6 +23,10 @@ struct LadderParams {
   bool   _smirror;
   bool   _kmirror;
   int    _bondtype;
+  double _shithresh;
+  double _khithresh;
+  double _slothresh;
+  double _klothresh;
 
   void Dump(){
     std::cout << "HwID       = " << _HwId << std::endl;
@@ -33,6 +38,10 @@ struct LadderParams {
     std::cout << "smirror    = " << _smirror << std::endl;
     std::cout << "kmirror    = " << _kmirror << std::endl;
     std::cout << "bondtype   = " << _bondtype << std::endl;
+    std::cout << "shithresh  = " << _shithresh << std::endl;
+    std::cout << "khithresh  = " << _shithresh << std::endl;
+    std::cout << "slothresh  = " << _slothresh << std::endl;
+    std::cout << "klothresh  = " << _slothresh << std::endl;
   }
 };
 
@@ -48,6 +57,10 @@ public:
   double GetPitch(int jinfnum, int tdrnum, int side);
   double GetResolution(int jinfnum, int tdrnum, int side);
   int GetBondingType(int jinfnum, int tdrnum);
+  double GetSHiThreshold(int jinfnum, int tdrnum);
+  double GetKHiThreshold(int jinfnum, int tdrnum);
+  double GetSLoThreshold(int jinfnum, int tdrnum);
+  double GetKLoThreshold(int jinfnum, int tdrnum);
 
   bool IsTDRConfigured(int jinfnum, int tdrnum);
   bool IsTDRConfigured(int HwId);
