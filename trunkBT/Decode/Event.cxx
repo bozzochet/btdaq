@@ -737,13 +737,13 @@ double Event::SingleFit(
 			std::vector<double>& v_chilayK,
 			double& theta, double& thetaerr,
 			double& phi, double& phierr,
-			double& iDirS, double& iDirSerr,
-			double& iDirK, double& iDirKerr,
+			double& iDirX, double& iDirXerr,
+			double& iDirY, double& iDirYerr,
 			double& iDirZ, double& iDirZerr,
-			double& mS, double& mSerr,
-			double& mK, double& mKerr,
-			double& S0, double& S0err,
-			double& K0, double& K0err,
+			double& mX, double& mXerr,
+			double& mY, double& mYerr,
+			double& X0, double& X0err,
+			double& Y0, double& Y0err,
 			double& chisqS, double& chisqK,
 			bool verbose){
 
@@ -753,7 +753,7 @@ double Event::SingleFit(
   for(int ic=0; ic<(int)vS.size(); ic++) v_trackErrS_sf.push_back( GetCluster(vS.at(ic).first)->GetNominalResolution(0) );
   for(int ic=0; ic<(int)vK.size(); ic++) v_trackErrK_sf.push_back( GetCluster(vK.at(ic).first)->GetNominalResolution(1) );
 
-  Double_t corrSmS, corrKmK;
+  Double_t corrXmX, corrYmY;
 
   //The fit is done independently in the two X and Y views
   //The fit returns X0 and mX (the angular coefficient)
@@ -803,15 +803,15 @@ double Event::SingleFit(
   // minuit->mnstat(amin, edm, errdef, nvpar, nparx, icstat);
   // minuit->mnprin(3,amin);
 
-  minuit->GetParameter (0, mS, mSerr);
-  minuit->GetParameter (1, mK, mKerr);
-  minuit->GetParameter (2, S0, S0err);
-  minuit->GetParameter (3, K0, K0err);
+  minuit->GetParameter (0, mX, mXerr);
+  minuit->GetParameter (1, mY, mYerr);
+  minuit->GetParameter (2, X0, X0err);
+  minuit->GetParameter (3, Y0, Y0err);
 
   Double_t covmat[4][4];
   minuit->mnemat(&covmat[0][0],4);
-  corrSmS=-covmat[0][2]/(sqrt(covmat[0][0]*covmat[2][2])); //minus is because they shold be anticorrelated
-  corrKmK=-covmat[1][3]/(sqrt(covmat[1][1]*covmat[3][3]));
+  corrXmX=-covmat[0][2]/(sqrt(covmat[0][0]*covmat[2][2])); //minus is because they shold be anticorrelated
+  corrYmY=-covmat[1][3]/(sqrt(covmat[1][1]*covmat[3][3]));
 #else
   //Analytical Fit
 
@@ -833,13 +833,13 @@ double Event::SingleFit(
   }
 
   Double_t Dx = S1*Szz - Sz*Sz;
-  S0 = (Sx*Szz-Sz*Szx)/Dx;
-  //iDirS = (S1*Szx-Sz*Sx)/Dx; iDirS=-iDirS;
-  mS = (S1*Szx-Sz*Sx)/Dx; //mS=-mS;
-  S0err = sqrt(Szz/Dx);
-  //iDirSerr = sqrt(S1/Dx);
-  mSerr = sqrt(S1/Dx);
-  corrSmS = -Sz/sqrt(Szz*S1);
+  X0 = (Sx*Szz-Sz*Szx)/Dx;
+  //iDirX = (S1*Szx-Sz*Sx)/Dx; iDirX=-iDirX;
+  mX = (S1*Szx-Sz*Sx)/Dx; //mX=-mX;
+  X0err = sqrt(Szz/Dx);
+  //iDirXerr = sqrt(S1/Dx);
+  mXerr = sqrt(S1/Dx);
+  corrXmX = -Sz/sqrt(Szz*S1);
 
   //Fit Y
   int ny = (int)(vK.size());
@@ -858,16 +858,16 @@ double Event::SingleFit(
     Szy += (vK.at(i).second.first*vK.at(i).second.second)/pow(GetCluster(vK.at(i).first)->GetNominalResolution(1),2);
   }
   Double_t Dy = S1*Szz - Sz*Sz;
-  K0 = (Sy*Szz-Sz*Szy)/Dy;
-  //iDirK = (S1*Szy-Sz*Sy)/Dy; iDirK=-iDirK;
-  mK = (S1*Szy-Sz*Sy)/Dy; //mK=-mK;
-  K0err = sqrt(Szz/Dy);
-  //iDirKerr = sqrt(S1/Dy);
-  mKerr = sqrt(S1/Dy);
-  corrKmK = -Sz/sqrt(Szz*S1);
+  Y0 = (Sy*Szz-Sz*Szy)/Dy;
+  //iDirY = (S1*Szy-Sz*Sy)/Dy; iDirY=-iDirY;
+  mY = (S1*Szy-Sz*Sy)/Dy; //mY=-mY;
+  Y0err = sqrt(Szz/Dy);
+  //iDirYerr = sqrt(S1/Dy);
+  mYerr = sqrt(S1/Dy);
+  corrYmY = -Sz/sqrt(Szz*S1);
 #endif
 
-  //  printf("%f %f %f %f\n", mS, mK, S0, K0);
+  //  printf("%f %f %f %f\n", mX, mY, X0, Y0);
 
   //    dirX = mX * dirZ                 -->       dirX = mX / sqrt(1 + mX^2 + mY^2)
   //    dirY = mY * dirZ                 -->       dirX = mY / sqrt(1 + mX^2 + mY^2)
@@ -877,23 +877,23 @@ double Event::SingleFit(
   //    ∂dirX/∂mY = -dirZ^3 * mX * mY         ∂dirY/∂mY = +dirZ^3 * (1+mX^2)      ∂dirZ/∂mY = -dirZ^3 * mY
   //    corr(mX,mY)=0  since they come from independent fits
 
-  iDirZ = 1./sqrt(1 + mS*mS + mK*mK);
-  iDirS = mS * iDirZ;
-  iDirK = mK * iDirZ;
-  Double_t dDirSdmS = +iDirZ*iDirZ*iDirZ * (1+mK*mK);
-  Double_t dDirSdmK = -iDirZ*iDirZ*iDirZ * mS * mK;
-  Double_t dDirKdmS = -iDirZ*iDirZ*iDirZ * mS * mK;
-  Double_t dDirKdmK = +iDirZ*iDirZ*iDirZ * (1+mS*mS);
-  Double_t dDirZdmS = -iDirZ*iDirZ*iDirZ * mS;
-  Double_t dDirZdmK = -iDirZ*iDirZ*iDirZ * mK;
-  iDirSerr = sqrt( pow(dDirSdmS * mSerr, 2) + pow(dDirSdmK * mKerr, 2) );
-  iDirKerr = sqrt( pow(dDirKdmS * mSerr, 2) + pow(dDirKdmK * mKerr, 2) );
-  iDirZerr = sqrt( pow(dDirZdmS * mSerr, 2) + pow(dDirZdmK * mKerr, 2) );
+  iDirZ = 1./sqrt(1 + mX*mX + mY*mY);
+  iDirX = mX * iDirZ;
+  iDirY = mY * iDirZ;
+  Double_t dDirXdmX = +iDirZ*iDirZ*iDirZ * (1+mY*mY);
+  Double_t dDirXdmY = -iDirZ*iDirZ*iDirZ * mX * mY;
+  Double_t dDirYdmX = -iDirZ*iDirZ*iDirZ * mX * mY;
+  Double_t dDirYdmY = +iDirZ*iDirZ*iDirZ * (1+mX*mX);
+  Double_t dDirZdmX = -iDirZ*iDirZ*iDirZ * mX;
+  Double_t dDirZdmY = -iDirZ*iDirZ*iDirZ * mY;
+  iDirXerr = sqrt( pow(dDirXdmX * mXerr, 2) + pow(dDirXdmY * mYerr, 2) );
+  iDirYerr = sqrt( pow(dDirYdmX * mXerr, 2) + pow(dDirYdmY * mYerr, 2) );
+  iDirZerr = sqrt( pow(dDirZdmX * mXerr, 2) + pow(dDirZdmY * mYerr, 2) );
 
   //------------------------------------------------------------------------------------------
 
   theta = std::acos(iDirZ);
-  phi = std::atan2(iDirK, iDirS);
+  phi = std::atan2(iDirY, iDirX);
 
   //should not happen ------------
   if (theta<0) {
@@ -914,12 +914,12 @@ double Event::SingleFit(
   //∂phi/∂mX = -mY / (mX^2 + mY^2)                            ∂phi/∂mY = +mX / (mX^2 + mY^2)
   //∂theta/∂mX = [(1+mX^2+mY^2)*sqrt(mX^2+mY^2)]^{-1}         ∂theta/∂mY = ∂theta/∂mX
 
-  double dthetadmS = 1./( (1 + mS*mS * mK*mK) * sqrt(mS*mS + mK*mK) );
-  double dthetadmK = 1./( (1 + mS*mS * mK*mK) * sqrt(mS*mS + mK*mK) );
-  double dphidmS   = -mK / (mS*mS + mK*mK);
-  double dphidmK   = +mS / (mS*mS + mK*mK);
-  thetaerr = sqrt( pow(dthetadmS*mSerr,2) + pow(dthetadmK*mKerr,2) );
-  phierr   = sqrt( pow(dphidmS*mSerr,2)   + pow(dphidmK*mKerr,2) );
+  double dthetadmX = 1./( (1 + mX*mX * mY*mY) * sqrt(mX*mX + mY*mY) );
+  double dthetadmY = 1./( (1 + mX*mX * mY*mY) * sqrt(mX*mX + mY*mY) );
+  double dphidmX   = -mY / (mX*mX + mY*mY);
+  double dphidmY   = +mX / (mX*mX + mY*mY);
+  thetaerr = sqrt( pow(dthetadmX*mXerr,2) + pow(dthetadmY*mYerr,2) );
+  phierr   = sqrt( pow(dphidmX*mXerr,2)   + pow(dphidmY*mYerr,2) );
 
   //------------------------------------------------------------------------------------------
 
@@ -931,11 +931,11 @@ double Event::SingleFit(
   double chisq = 0.0;
 
   if (ndofS>=0) {
-    chisqS_nored = _compchisq(vS, v_chilayS, mS, S0, v_trackErrS_sf);
+    chisqS_nored = _compchisq(vS, v_chilayS, mX, X0, v_trackErrS_sf);
     chisq += chisqS_nored;
   }
   if (ndofK>=0) {
-    chisqK_nored = _compchisq(vK, v_chilayK, mK, K0, v_trackErrK_sf);
+    chisqK_nored = _compchisq(vK, v_chilayK, mY, Y0, v_trackErrK_sf);
     chisq += chisqK_nored;
   }
 
