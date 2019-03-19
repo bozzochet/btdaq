@@ -999,7 +999,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal)
   //  printf("numnum = %d\n", numnum);
 
   int _bondingtype = 0;
-  bool defaultThresholds = (shighthreshold == 3.5 && khighthreshold && 3.5 && slowthreshold == 1.0 && klowthreshold == 1.0);
+  bool defaultThresholds = (shighthreshold == 3.5 && khighthreshold == 3.5 && slowthreshold == 1.0 && klowthreshold == 1.0);
 
   static LadderConf *ladderconf = Event::GetLadderConf();
 
@@ -1030,7 +1030,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal)
 	      if(shithresh != 3.5 || khithresh != 3.5 || slothresh != 1.0 || klothresh != 1.0){
 		printf("    JINF=%d, TDR=%d\n", jj, tt);
 		printf("    %f %f for S-side\n", shithresh, slothresh);
-		printf("    %f %f for K-side\n", shithresh, slothresh);
+		printf("    %f %f for K-side\n", khithresh, klothresh);
 	      }
 	    }
 	}
