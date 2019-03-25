@@ -81,6 +81,7 @@ int main(int argc,char** argv){
   opt->addUsage(     "                                                    0 is the standard one (default)");
   opt->addUsage(     "                                                    1 for the Limadou monster. On S-side only even channels are bonded");
   opt->addUsage(     "                                                    2 for the DAMPE ladders read-out by AMS TDR. Only S-side, [0-191]+[320-511]");
+  opt->addUsage(     "                                                    3 for the GSI ladders read-out by AMS TDR. K side has all 384 channels bonded to a single sensor");
   opt->addUsage(     "  -m, --montecarlo ............................ To decode MonteCarlo simulation files (default is OFF)");
   opt->addUsage("" );
   opt->addUsage("Arguments: " );

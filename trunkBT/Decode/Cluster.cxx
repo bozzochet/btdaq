@@ -264,18 +264,24 @@ double Cluster::GetAlignedPosition(int mult){
   else {// K (K5; K7 is not implemented)
     cog2 -= GetNChannels(0);//N channels of S --> cog in [0, 383]
     int sensor=(int)((cog2+mult*GetNChannels(1))/GetReadChannelK());//cast to int but essentially is also used as 'floor'
+    if( Event::GetLadderConf()->GetBondingType(GetJinf(), GetTDR()) == 3){
+      sensor=0;
+    }
     bool multflip = Event::GetMultiplicityFlip(GetJinf(), GetTDR());
     // printf("VF: multflip = %d\n", multflip);
     if (multflip && sensor%2) {//if sensor is odd (DISPARO)
       sensor-=2;//move 'back' of two sensors...
     }
     mult_shift = GetSensPitchK()*sensor;
-    if(cog2>191.5) cog2-=192.0;//--> cog in [0, 191]
-    if (cog2>190.5) pitchcorr = 0.5;//last strip of the sensor is half pitch more far
+    if( Event::GetLadderConf()->GetBondingType(GetJinf(), GetTDR()) != 3){
+      if(cog2>191.5) cog2-=192.0;//--> cog in [0, 191]
+      if (cog2>190.5) pitchcorr = 0.5;//last strip of the sensor is half pitch more far
+    }
     if( Event::GetLadderConf()->GetStripMirroring(GetJinf(), GetTDR(), side) ){
-      cog2 = 383-cog2; //If the ladder is mirrored, reverse position
+      cog2 = 383-cog2;
     }
   }
+  
   return (cog2+pitchcorr)*GetPitch(side)+mult_shift-align_shift;
 }
 
