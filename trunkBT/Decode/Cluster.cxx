@@ -278,7 +278,7 @@ double Cluster::GetAlignedPosition(int mult){
       if (cog2>190.5) pitchcorr = 0.5;//last strip of the sensor is half pitch more far
     }
     if( Event::GetLadderConf()->GetStripMirroring(GetJinf(), GetTDR(), side) ){
-      cog2 = 383-cog2;
+      cog2 = 383-cog2; //If the ladder is mirrored, reverse position
     }
   }
   
