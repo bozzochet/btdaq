@@ -119,20 +119,6 @@ float Cluster::GetCSignal(int aa){
  return  correctSignal;
 }
 
-//why not simply 'return lenght'?
-int Cluster::GetLenght(float val){
-  int se=GetSeed();
-  int myle=1;
-  for (int ii=se-1;ii>=0;ii--)
-    if(GetCSignal(ii)/Noise[ii]>val) myle++;
-    else break;
-  for (int ii=se+1;ii<length;ii++)
-    if(GetCSignal(ii)/Noise[ii]>val) myle++;
-    else break;
-  return myle;
-}
-
-
 float Cluster::GetTotNoise(){
   int se=GetSeed();
   int se_r=se+1;
@@ -248,11 +234,13 @@ void Cluster::ApplyVAEqualization(){
 
 //everything I'm making here is based on the cog but should have been done on the single strip address and only then the cog should have been performed
 double Cluster::GetAlignedPosition(int mult){
-  double align_shift = Event::GetAlignPar(GetJinf(), GetTDR(), side);
+  
   float cog = GetCoG();
   float cog2=cog;
+  
   double mult_shift = 0.0;
   float pitchcorr = 0.0;
+  
   if (side==0) {//S
     // The gaps between 0 and 1 and 638 to 639 are doubled
     if(cog2>=0.5) pitchcorr+=1.0;
@@ -281,7 +269,8 @@ double Cluster::GetAlignedPosition(int mult){
       cog2 = 383-cog2; //If the ladder is mirrored, reverse position
     }
   }
-  
+
+  double align_shift = Event::GetAlignPar(GetJinf(), GetTDR(), side);
   return (cog2+pitchcorr)*GetPitch(side)+mult_shift-align_shift;
 }
 
@@ -306,6 +295,18 @@ int Cluster::GetLength(){
   return length;
 }
 
+//length above a passed threshold
+int Cluster::GetLength(float val){
+  int se=GetSeed();
+  int myle=1;
+  for (int ii=se-1;ii>=0;ii--)
+    if(GetCSignal(ii)/Noise[ii]>val) myle++;
+    else break;
+  for (int ii=se+1;ii<length;ii++)
+    if(GetCSignal(ii)/Noise[ii]>val) myle++;
+    else break;
+  return myle;
+}
 
 void Cluster::Print(){
 

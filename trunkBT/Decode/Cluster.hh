@@ -104,6 +104,7 @@ public:
   int GetAddress();
     //! Returns the lenght of the cluster
   int   GetLength();
+  int   GetLength(float val);
   //! Returns the position of the seed in the Signal vector
   int   GetSeed();
   //! Returns the strip number of the seed
@@ -141,7 +142,6 @@ public:
 
   int GoldRegion();
   bool BorderRegion();
-  int GetLenght(float val=1.);
 
   int GetTDR() { return ladder%100;};
   int GetJinf() { return (int)(ladder/100);};
