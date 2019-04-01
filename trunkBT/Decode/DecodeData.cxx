@@ -867,22 +867,20 @@ int DecodeData::ReadOneTDR(int Jinfnum)
         count++;
       }
 
-      if (out_flag)
-      {
-        //	if (!kClusterize) {//what happens if is mixed mode? I would write the same cluster twice... So let's NOT write the "on-line" clusters in the root file but only the "offline" ones... This remove the "online" clusters even if is not 'mixed' but only 'compressed' but I think is 'safer'...
-        if (
-            !(TESTBIT(array[size - 1], 6)) //we're only in compressed
-            ||                             // OR
-            (
-                TESTBIT(array[size - 1], 6) && //we're ALSO in RAW mode --> mixed. There's also the raw event, so this cluster would be potentially found also by the offline clusterization. This would cause a 'double counting'
-                !kClusterize)                  //we're not clusterizing offline, so is safe to AddCluster and is needed otherwise the cluster would be not present at all in the Tree
-        )
-        {
-          AddCluster(numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
-        }
+      if (out_flag) {
+	//	if (!kClusterize) {//what happens if is mixed mode? I would write the same cluster twice... So let's NOT write the "on-line" clusters in the root file but only the "offline" ones... This remove the "online" clusters even if is not 'mixed' but only 'compressed' but I think is 'safer'...
+	if (
+	    !(TESTBIT(array[size - 1], 6)) //we're only in compressed
+	    ||                             // OR
+	    (
+	     TESTBIT(array[size - 1], 6) && //we're ALSO in RAW mode --> mixed. There's also the raw event, so this cluster would be potentially found also by the offline clusterization. This would cause a 'double counting'
+	     !kClusterize)                  //we're not clusterizing offline, so is safe to AddCluster and is needed otherwise the cluster would be not present at all in the Tree
+	    ) {
+	  AddCluster(numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
+	}
       }
     }
-
+    
     //      int cc=1;
     //      //Read the  cnoise values
     //      for (int ii=size-17;ii<size-1;ii++){
@@ -1306,7 +1304,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal)
           if (!(status[seedaddmax] & (1 << 3)))
           { //if is not a bad cluster
             //	    printf("numnum = %d\n", numnum);
-            AddCluster(numnum, Jinfnum, clusadd + shift, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig, true);
+	    AddCluster(numnum, Jinfnum, clusadd + shift, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig, true);
           }
           clusterstringtodump = "--> New cluster\n";
         }

@@ -815,21 +815,28 @@ double Event::SingleFit(
 #else
   //Analytical Fit
 
+  Double_t S1=0, Sz=0, Szz=0;
+  
   //Fit X
   int nx = (int)(vS.size());
-  // Double_t S1=0;   for(int i=0; i<(int)nx; i++) S1  += 1./pow(Cluster::GetNominalResolution(0),2);
-  // Double_t Sz=0;   for(int i=0; i<(int)nx; i++) Sz  += vS.at(i).second.second/pow(Cluster::GetNominalResolution(0),2);
-  // Double_t Szz=0;  for(int i=0; i<(int)nx; i++) Szz += pow(vS.at(i).second.second,2)/pow(Cluster::GetNominalResolution(0),2);
-  // Double_t Sx=0;   for(int i=0; i<(int)nx; i++) Sx  += vS.at(i).second.first/pow(Cluster::GetNominalResolution(0),2);
-  // Double_t Szx=0;  for(int i=0; i<(int)nx; i++) Szx += (vS.at(i).second.first*vS.at(i).second.second)/pow(Cluster::GetNominalResolution(0),2);
-  Double_t S1=0, Sz=0, Szz=0, Sx=0, Szx=0;
-  for(int i=0; i<(int)nx; i++){ //Why 5 loops when you can do just one... WHY?!?!?!?
-    // printf("SingleFit: cluster %d, Jinf: %d, TDR %d\n", vS.at(i).first, GetCluster(vS.at(i).first)->GetJinf(), GetCluster(vS.at(i).first)->GetTDR());
-    S1  += 1./pow(GetCluster(vS.at(i).first)->GetNominalResolution(0),2);
-    Sz  += vS.at(i).second.second/pow(GetCluster(vS.at(i).first)->GetNominalResolution(0),2);
-    Szz += pow(vS.at(i).second.second,2)/pow(GetCluster(vS.at(i).first)->GetNominalResolution(0),2);
-    Sx  += vS.at(i).second.first/pow(GetCluster(vS.at(i).first)->GetNominalResolution(0),2);
-    Szx += (vS.at(i).second.first*vS.at(i).second.second)/pow(GetCluster(vS.at(i).first)->GetNominalResolution(0),2);
+  //Why 5 loops when you can do just one... WHY?!?!?!?
+  /*
+    Double_t S1=0;   for(int i=0; i<(int)nx; i++) S1  += 1./pow(Cluster::GetNominalResolution(0),2);
+    Double_t Sz=0;   for(int i=0; i<(int)nx; i++) Sz  += vS.at(i).second.second/pow(Cluster::GetNominalResolution(0),2);
+    Double_t Szz=0;  for(int i=0; i<(int)nx; i++) Szz += pow(vS.at(i).second.second,2)/pow(Cluster::GetNominalResolution(0),2);
+    Double_t Sx=0;   for(int i=0; i<(int)nx; i++) Sx  += vS.at(i).second.first/pow(Cluster::GetNominalResolution(0),2);
+    Double_t Szx=0;  for(int i=0; i<(int)nx; i++) Szx += (vS.at(i).second.first*vS.at(i).second.second)/pow(Cluster::GetNominalResolution(0),2);
+  */
+  S1=0; Sz=0; Szz=0;
+  Double_t Sx=0, Szx=0;
+  for(int i=0; i<(int)nx; i++){
+    if (verbose) printf("SingleFit: cluster %d, Jinf: %d, TDR %d: Z=%f, X=%f\n", vS.at(i).first, GetCluster(vS.at(i).first)->GetJinf(), GetCluster(vS.at(i).first)->GetTDR(), vS.at(i).second.second, vS.at(i).second.first);
+    double sigmasq = pow(GetCluster(vS.at(i).first)->GetNominalResolution(0),2);
+    S1  += 1./sigmasq;
+    Sz  += vS.at(i).second.second/sigmasq;
+    Szz += pow(vS.at(i).second.second,2)/sigmasq;
+    Sx  += vS.at(i).second.first/sigmasq;
+    Szx += (vS.at(i).second.first*vS.at(i).second.second)/sigmasq;
   }
 
   Double_t Dx = S1*Szz - Sz*Sz;
@@ -843,19 +850,24 @@ double Event::SingleFit(
 
   //Fit Y
   int ny = (int)(vK.size());
-  //          S1=0;   for(int i=0; i<(int)ny; i++) S1  += 1./pow(Cluster::GetNominalResolution(1),2);
-  //          Sz=0;   for(int i=0; i<(int)ny; i++) Sz  += vK.at(i).second.second/pow(Cluster::GetNominalResolution(1),2);
-  //          Szz=0;  for(int i=0; i<(int)ny; i++) Szz += pow(vK.at(i).second.second,2)/pow(Cluster::GetNominalResolution(1),2);
-  // Double_t Sy=0;   for(int i=0; i<(int)ny; i++) Sy  += vK.at(i).second.first/pow(Cluster::GetNominalResolution(1),2);
-  // Double_t Szy=0;  for(int i=0; i<(int)ny; i++) Szy += (vK.at(i).second.first*vK.at(i).second.second)/pow(Cluster::GetNominalResolution(1),2);
+  //Why 5 loops when you can do just one... WHY?!?!?!?
+  /*
+    S1=0;   for(int i=0; i<(int)ny; i++) S1  += 1./pow(Cluster::GetNominalResolution(1),2);
+    Sz=0;   for(int i=0; i<(int)ny; i++) Sz  += vK.at(i).second.second/pow(Cluster::GetNominalResolution(1),2);
+    Szz=0;  for(int i=0; i<(int)ny; i++) Szz += pow(vK.at(i).second.second,2)/pow(Cluster::GetNominalResolution(1),2);
+    Double_t Sy=0;   for(int i=0; i<(int)ny; i++) Sy  += vK.at(i).second.first/pow(Cluster::GetNominalResolution(1),2);
+    Double_t Szy=0;  for(int i=0; i<(int)ny; i++) Szy += (vK.at(i).second.first*vK.at(i).second.second)/pow(Cluster::GetNominalResolution(1),2);
+  */
+  S1=0; Sz=0; Szz=0;
   Double_t Sy=0, Szy=0;
-  for(int i=0; i<(int)ny; i++){ //Why 5 loops when you can do just one... WHY?!?!?!?
-    // printf("SingleFit: cluster %d, Jinf: %d, TDR %d\n", vK.at(i).first, GetCluster(vK.at(i).first)->GetJinf(), GetCluster(vK.at(i).first)->GetTDR());
-    S1  += 1./pow(GetCluster(vK.at(i).first)->GetNominalResolution(1),2);
-    Sz  += vK.at(i).second.second/pow(GetCluster(vK.at(i).first)->GetNominalResolution(1),2);
-    Szz += pow(vK.at(i).second.second,2)/pow(GetCluster(vK.at(i).first)->GetNominalResolution(1),2);
-    Sy  += vK.at(i).second.first/pow(GetCluster(vK.at(i).first)->GetNominalResolution(1),2);
-    Szy += (vK.at(i).second.first*vK.at(i).second.second)/pow(GetCluster(vK.at(i).first)->GetNominalResolution(1),2);
+  for(int i=0; i<(int)ny; i++){
+    if (verbose) printf("SingleFit: cluster %d, Jinf: %d, TDR %d: Z=%f, Y=%f\n", vK.at(i).first, GetCluster(vK.at(i).first)->GetJinf(), GetCluster(vK.at(i).first)->GetTDR(), vK.at(i).second.second, vK.at(i).second.first);
+    double sigmasq = pow(GetCluster(vK.at(i).first)->GetNominalResolution(1),2);
+    S1  += 1./sigmasq;
+    Sz  += vK.at(i).second.second/sigmasq;
+    Szz += pow(vK.at(i).second.second,2)/sigmasq;
+    Sy  += vK.at(i).second.first/sigmasq;
+    Szy += (vK.at(i).second.first*vK.at(i).second.second)/sigmasq;
   }
   Double_t Dy = S1*Szz - Sz*Sz;
   Y0 = (Sy*Szz-Sz*Szy)/Dy;
@@ -866,7 +878,7 @@ double Event::SingleFit(
   mYerr = sqrt(S1/Dy);
   corrYmY = -Sz/sqrt(Szz*S1);
 #endif
-
+  
   //  printf("%f %f %f %f\n", mX, mY, X0, Y0);
 
   //    dirX = mX * dirZ                 -->       dirX = mX / sqrt(1 + mX^2 + mY^2)
