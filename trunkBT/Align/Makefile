@@ -25,7 +25,8 @@ ifeq ($(UNAME), Darwin)
 ADDLDFLAGS =
 endif
 
-CFLAGS += $(shell root-config --auxcflags) -O -std=c++11 -fPIC
+#CFLAGS += $(shell root-config --auxcflags) -O -std=c++11 -fPIC
+CFLAGS += $(shell root-config --auxcflags) -O -std=c++0x -fPIC
 
 ROOTDYNAMICLIBS := $(shell root-config --libs) -lMinuit -lSpectrum
 ROOTINC := $(shell root-config --incdir)
@@ -41,8 +42,11 @@ default: Align
 
 Align: ./obj/Align.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
-	ln -sfv Align RunOnce
-	ln -sfv Align FirstStepAlign
+	ln -sfv Align DryRun
+	ln -sfv Align FirstPassAlign
+	ln -sfv Align NoLastStepAlign
+	ln -sfv Align NoFirstStepAlign
+	ln -sfv Align OnlyFinalRun
 
 ./obj/%.o: ./src/%.C
 	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
@@ -70,5 +74,6 @@ clean:
 	rm -f FirstStepAlign
 
 cleanALL: clean
-	make -C ../Decode clean
-	rm -f $(COMMON)/$(OBJ)/*.o
+	make -C $(COMMON)/ clean
+	make -C $(DECODE)/ clean
+#	rm -f $(COMMON)/$(OBJ)/*.o

@@ -28,9 +28,14 @@
 /* end */
 
 std::vector<int> ladderS_to_ignore[NJINF] = {{}};
-std::vector<int> ladderK_to_ignore[NJINF] = {{0}};
+std::vector<int> ladderK_to_ignore[NJINF] = {{}};
 // std::vector<int> ladderS_to_ignore[NJINF] = {{2, 3, 6, 7, 10, 11, 14, 15, 18, 19}};
 // std::vector<int> ladderK_to_ignore[NJINF] = {{2, 3, 6, 7, 10, 11, 14, 15, 18, 19}};
+
+int _npointsS=3;
+int _npointsK=3;
+
+double _chisqcutvalue=4;
 
 //#define PRINTDEBUG printf("%s) This is the line number %d\n", __FILE__, __LINE__);
 #define PRINTDEBUG
@@ -40,7 +45,7 @@ using namespace std;
 float deltaalign[NJINF][NTDRS][3];
 bool toprint[NJINF][NTDRS];
 
-int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth=0, bool chisqcut=false, bool writealign=true);
+int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth=0, bool chisqcut=false, bool residualexcludedpoint=false, bool writealign=true);
 void ReadDeltaAlignment(TString filename="delta_alignment.dat");
 
 int main(int argc, char* argv[]) {
@@ -48,6 +53,13 @@ int main(int argc, char* argv[]) {
   if (argc<2) {
     printf("Usage:\n");
     printf("%s <first input root-filename> [second input root-filename] ...\n", argv[0]);
+    printf("\n");
+    printf("Align:            perform the full procedure\n");
+    printf("NoFirstStepAlign: perform the full procedure without the first rough pass with the Bruna's method\n");
+    printf("FirstPassAlign:   perform just the first pass of the procedure (Bruna's method + one pass with residuals)\n");
+    printf("NoLastStepAlign:  perform the full procedure without the last rough pass to center {S0,K0}\n");
+    printf("DryRun:           run once as in the alignment, but without updating the alignment.dat file\n");
+    printf("OnlyFinalRun:     run once but with the chisq cut and the excluded point residuals, and without updating the alignment.dat file\n");
     return 1;
   }
 
@@ -74,18 +86,18 @@ int main(int argc, char* argv[]) {
 	toprint[jj][tt]=false;
       }
     }
-
+    
     int indexalignment = 0;
-
+    
     if (!progname.Contains("NoFirstStep")) {
-      ret = SingleAlign(argc, argv, indexalignment++, 1);//first alignment with the 'Bruna's method'
+      ret = SingleRun(argc, argv, indexalignment++, 1);//first alignment with the 'Bruna's method'
     }
     if (ret) return ret;
     
     bool allaligned=false;
     while (!allaligned) {
       
-      ret = SingleAlign(argc, argv, indexalignment);
+      ret = SingleRun(argc, argv, indexalignment);
       if (ret) return ret;
       indexalignment++;
       
@@ -165,15 +177,16 @@ int main(int argc, char* argv[]) {
       }
       allaligned = allaligned_temp;
       //    printf("allaligned %d\n", allaligned);
-
-      if (progname.Contains("FirstStepAlign")) return 0;
+      
+      if (progname.Contains("FirstPass")) return 0;
     }
-
+    
     if (!progname.Contains("NoLastStep")) {
-      ret = SingleAlign(argc, argv, indexalignment++, 2);//last alignment just to shift all the ladder of the same quantity to have <S0>=0 and <K0>=0 
+      ret = SingleRun(argc, argv, indexalignment++, 2);//last alignment just to shift all the ladder of the same quantity to have <S0>=0 and <K0>=0 
       if (ret) return ret;
     }
-    ret = SingleAlign(argc, argv, indexalignment++, 0, true, false);//let's run again to have the plots with the final alignment
+    
+    ret = SingleRun(argc, argv, indexalignment++, 0, true, true, false);//let's run again to have the plots with the final alignment, now adding chisq cut and residual with excluded point
     if (ret) return ret;
     
     printf("-----------------------------------------------------------------------------------------------------------------------------\n");
@@ -200,9 +213,15 @@ int main(int argc, char* argv[]) {
     
     return ret;
   }
-  else if (progname.Contains("RunOnce")) {
+  else if (progname.Contains("DryRun")) {
 
-    ret = SingleAlign(argc, argv, 0, 0, false, false);//without the cut on chisq
+    ret = SingleRun(argc, argv, 0, 0, false, false, false);//without the cut on chisq and without the residuals with the excluded point
+
+    return ret;
+  }
+  else if (progname.Contains("OnlyFinalRun")) {
+    
+    ret = SingleRun(argc, argv, 0, 0, true, true, false);//with the cut on chisq and with the residuals with the excluded point
 
     return ret;
   }
@@ -210,7 +229,7 @@ int main(int argc, char* argv[]) {
   return -9;
 }
 
-int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool chisqcut, bool writealign){
+int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool chisqcut, bool residualexcludedpoint, bool writealign){
     
   TChain *chain = new TChain("t4");
      
@@ -252,6 +271,8 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
   TH1F* occupancy[NJINF*NTDRS];
   TH1F* occupancy_posS[NJINF*NTDRS];
   TH1F* occupancy_posK[NJINF*NTDRS];
+  TH2F* occupancy_posS_vs_posS[NJINF*NTDRS][NJINF*NTDRS];
+  TH2F* occupancy_posK_vs_posK[NJINF*NTDRS][NJINF*NTDRS];
   TH1F* residual_S[NJINF*NTDRS];
   TH1F* residual_K[NJINF*NTDRS];
   TProfile* residualS_vs_posS[NJINF*NTDRS];
@@ -271,12 +292,54 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     int tdr0   = GetRH(chain)->GetTdrNum(0);
     double pitchS = std::max(Cluster::GetPitch(jinfnum, tdrnum, 0), 0.01);
     double pitchK = std::max(Cluster::GetPitch(jinfnum, tdrnum, 1), 0.01);
-    occupancy_all[tt] = new TH1F(Form("occupancy_0_%02d_all", tdrnum), Form("occupancy_0_%02d_all;Channel number;Occupancy", tdrnum), 1024, 0, 1024);
-    occupancy_posS_all[tt] = new TH1F(Form("occupancy_posS_0_%02d_all", tdrnum), Form("occupancy_posS_0_%02d_all;Position_{S} (mm);Occupancy", tdrnum), 2*NSTRIPSS, -NSTRIPSS*pitchS, NSTRIPSS*pitchS);
-    occupancy_posK_all[tt] = new TH1F(Form("occupancy_posK_0_%02d_all", tdrnum), Form("occupancy_posK_0_%02d_all;Position_{K} (mm);Occupancy", tdrnum), 2*NSTRIPSK, -NSTRIPSK*pitchK, NSTRIPSK*pitchK);
-    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", tdrnum), Form("occupancy_0_%02d;Channel number;Occupancy", tdrnum), 1024, 0, 1024);
-    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", tdrnum), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", tdrnum), 2*NSTRIPSS, -NSTRIPSS*pitchS, NSTRIPSS*pitchS);
-    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", tdrnum), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", tdrnum), 2*NSTRIPSK, -NSTRIPSK*pitchK, NSTRIPSK*pitchK);
+    occupancy_all[tt] = new TH1F(
+				 Form("occupancy_%02d_%02d_all", jinfnum, tdrnum),
+				 Form("occupancy_%02d_%02d_all;Channel number;Occupancy", jinfnum, tdrnum),
+				 1024, 0, 1024
+				 );
+    occupancy_posS_all[tt] = new TH1F(
+				      Form("occupancy_posS_%02d_%02d_all", jinfnum, tdrnum),
+				      Form("occupancy_posS_%02d_%02d_all;Position_{S} (mm);Occupancy", jinfnum, tdrnum),
+				      2*NSTRIPSS, -NSTRIPSS*pitchS, NSTRIPSS*pitchS
+				      );
+    occupancy_posK_all[tt] = new TH1F(
+				      Form("occupancy_posK_%02d_%02d_all", jinfnum, tdrnum),
+				      Form("occupancy_posK_%02d_%02d_all;Position_{K} (mm);Occupancy", jinfnum, tdrnum),
+				      2*NSTRIPSK, -NSTRIPSK*pitchK, NSTRIPSK*pitchK
+				      );
+    occupancy[tt] = new TH1F(
+			     Form("occupancy_%02d_%02d", jinfnum, tdrnum),
+			     Form("occupancy_%02d_%02d;Channel number;Occupancy", jinfnum, tdrnum),
+			     1024, 0, 1024
+			     );
+    occupancy_posS[tt] = new TH1F(
+				  Form("occupancy_posS_%02d_%02d", jinfnum, tdrnum),
+				  Form("occupancy_posS_%02d_%02d;Position_{S} (mm);Occupancy", jinfnum, tdrnum),
+				  2*NSTRIPSS, -NSTRIPSS*pitchS, NSTRIPSS*pitchS
+				  );
+    occupancy_posK[tt] = new TH1F(
+				  Form("occupancy_posK_%02d_%02d", jinfnum, tdrnum),
+				  Form("occupancy_posK_%02d_%02d;Position_{K} (mm);Occupancy", jinfnum, tdrnum),
+				  2*NSTRIPSK, -NSTRIPSK*pitchK, NSTRIPSK*pitchK
+				  );
+    for (int tt2=0; tt2<_maxtdr; tt2++) {
+      int jinfnum2 = 0;
+      int tdrnum2 = GetRH(chain)->GetTdrNum(tt2);
+      double pitchS2 = std::max(Cluster::GetPitch(jinfnum2, tdrnum2, 0), 0.01);
+      double pitchK2 = std::max(Cluster::GetPitch(jinfnum2, tdrnum2, 1), 0.01);
+      occupancy_posS_vs_posS[tt][tt2] = new TH2F(
+						 Form("occupancy_posS_%02d_%02d_vs_%02d_%02d", jinfnum, tdrnum, jinfnum2, tdrnum2),
+						 Form("occupancy_posS_%02d_%02d_vs_%02d_%02d;Position_{S} (mm);Position_{S} (mm);Occupancy", jinfnum, tdrnum, jinfnum2, tdrnum2),
+						 2*NSTRIPSS, -NSTRIPSS*pitchS, NSTRIPSS*pitchS,
+						 2*NSTRIPSS, -NSTRIPSS*pitchS2, NSTRIPSS*pitchS2
+						 );
+      occupancy_posK_vs_posK[tt][tt2] = new TH2F(
+						 Form("occupancy_posK_%02d_%02d_vs_%02d_%02d", jinfnum, tdrnum, jinfnum2, tdrnum2),
+						 Form("occupancy_posK_%02d_%02d_vs_%02d_%02d;Position_{K} (mm);Position_{K} (mm);Occupancy", jinfnum, tdrnum, jinfnum2, tdrnum2),
+						 2*NSTRIPSK, -NSTRIPSK*pitchK, NSTRIPSK*pitchK,
+						 2*NSTRIPSK, -NSTRIPSK*pitchK2, NSTRIPSK*pitchK2
+						 );
+    }
     residual_S[tt] = new TH1F(Form("residual_S_0_%02d", tdrnum), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", tdrnum), 
 			      pow(2,15), -2000*Cluster::GetNominalResolution(0, tdrnum, 0), 2000*Cluster::GetNominalResolution(0, tdrnum, 0));
     residual_K[tt] = new TH1F(Form("residual_K_0_%02d", tdrnum), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", tdrnum), 
@@ -420,8 +483,8 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 
     PRINTDEBUG;
 
-    //at least 2 points on S, and 2 points on K, not verbose
-    bool trackfitok = ev->FindTrackAndFit(3, 3, false);
+    //at least 3 points on S, and 3 points on K, not verbose
+    bool trackfitok = ev->FindTrackAndFit(_npointsS, _npointsK, false);
     //    printf("%d\n", trackfitok);
 
     PRINTDEBUG;
@@ -459,8 +522,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     double logchiS = log10(ev->GetChiTrackS());
     double logchiK = log10(ev->GetChiTrackK());
     //    printf("%d %f (%f)\n", indexalignment, logchi, fiftycent);
-    //    if (chisqcut && logchi>2) continue;
-    //    if (chisqcut && logchi>9) continue;
+    //    if (chisqcut && logchi>_chisqcutvalue) continue;
 
     PRINTDEBUG;
     
@@ -482,7 +544,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	ev->IsTDRInTrack(1, 8) &&
 	(ev->IsTDRInTrack(1, 12) || ev->IsTDRInTrack(1, 14)) ) ktrackok=true;
     */
-        int snhits=ev->GetNHitsSTrack();
+    int snhits=ev->GetNHitsSTrack();
     if (snhits>=3) {
       strackok=true;
       goldStracks++;
@@ -499,18 +561,20 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 
     if (strackok & ktrackok) goldtracks++;
 
-    nhits->Fill(ev->GetNHitsTrack());
-    nhitsx->Fill(ev->GetNHitsSTrack());
-    nhitsy->Fill(ev->GetNHitsKTrack());
-    chi->Fill(log10(ev->GetChiTrack()));
-    chiS->Fill(log10(ev->GetChiTrackS()));
-    chiK->Fill(log10(ev->GetChiTrackK()));
-    theta->Fill(ev->GetThetaTrack());
-    phi->Fill(ev->GetPhiTrack());
-    thetaphi->Fill(ev->GetThetaTrack(), ev->GetPhiTrack());
-    S0->Fill(ev->GetS0Track());
-    K0->Fill(ev->GetK0Track());
-    S0K0->Fill(ev->GetS0Track(), ev->GetK0Track());
+    if (trackfitok && !(chisqcut && logchi>_chisqcutvalue)) {
+      nhits->Fill(ev->GetNHitsTrack());
+      nhitsx->Fill(ev->GetNHitsSTrack());
+      nhitsy->Fill(ev->GetNHitsKTrack());
+      chi->Fill(log10(ev->GetChiTrack()));
+      chiS->Fill(log10(ev->GetChiTrackS()));
+      chiK->Fill(log10(ev->GetChiTrackK()));
+      theta->Fill(ev->GetThetaTrack());
+      phi->Fill(ev->GetPhiTrack());
+      thetaphi->Fill(ev->GetThetaTrack(), ev->GetPhiTrack());
+      S0->Fill(ev->GetS0Track());
+      K0->Fill(ev->GetK0Track());
+      S0K0->Fill(ev->GetS0Track(), ev->GetK0Track());
+    }
 
     PRINTDEBUG;
     
@@ -536,7 +600,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
       PRINTDEBUG;
       
       occupancy_all[ladder_pos]->Fill(cl->GetCoG());
-      if (trackfitok && !(chisqcut && logchi>9)) {
+      if (trackfitok && !(chisqcut && logchi>_chisqcutvalue)) {
 	occupancy[ladder_pos]->Fill(cl->GetCoG());
       }
       
@@ -557,7 +621,7 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 
       PRINTDEBUG;
       
-      if (!trackfitok && (chisqcut && logchi>9)) continue
+      if (!trackfitok && (chisqcut && logchi>_chisqcutvalue)) continue
       
       PRINTDEBUG;
       
@@ -569,7 +633,6 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	if (strackok) {
 	  occupancy_posS[ladder_pos]->Fill(cl->GetAlignedPosition());
 	  v_cog_laddS[ladder_pos].push_back(cl->GetAlignedPosition());
-	  residual_S[ladder_pos]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));
 	  hclusSladdtrack->Fill(ladder);
 	}
       }
@@ -577,7 +640,6 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
 	if (ktrackok) {
 	  occupancy_posK[ladder_pos]->Fill(cl->GetAlignedPosition());
 	  v_cog_laddK[ladder_pos].push_back(cl->GetAlignedPosition());
-	  residual_K[ladder_pos]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));
 	  hclusKladdtrack->Fill(ladder);
 	}
       }
@@ -622,37 +684,83 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
       }
     }
 
-    std::vector<std::pair<int, std::pair<int, int> > > vec_charge = ev->GetHitVector();
-    for (unsigned int tt=0; tt<vec_charge.size(); tt++) {
-      int ladder = vec_charge.at(tt).first;
+    //Occupancy correlation
+    for(int tt=0; tt<_maxtdr; tt++) {
+      for(int tt2=0; tt2<_maxtdr; tt2++) {
+	for(int ihit=0; ihit<(int)v_cog_laddS[tt].size(); ihit++) {
+	  for(int jhit=0; jhit<(int)v_cog_laddS[tt2].size(); jhit++) {
+	    occupancy_posS_vs_posS[tt][tt2]->Fill(v_cog_laddS[tt].at(ihit), v_cog_laddS[tt2].at(jhit));
+	  }
+	}
+	for(int ihit=0; ihit<(int)v_cog_laddK[tt].size(); ihit++) {
+	  for(int jhit=0; jhit<(int)v_cog_laddK[tt2].size(); jhit++) {
+	    occupancy_posK_vs_posK[tt][tt2]->Fill(v_cog_laddK[tt].at(ihit), v_cog_laddK[tt2].at(jhit));
+	  }
+	}
+      }
+    }
+
+    //FIXME: works just for one jinf
+    std::vector<std::pair<int, std::pair<int, int> > > vec_hit = ev->GetHitVector();
+    for (unsigned int tt=0; tt<vec_hit.size(); tt++) {
+      
+      int ladder = vec_hit.at(tt).first;
       int ladder_pos = GetRH(chain)->FindPos(ladder);
       if (ladder<0 || ladder>=24 || ladder_pos<0 || ladder_pos>=24) {
 	printf("Ladder %d --> %d\n", ladder, ladder_pos);
       }
-      int index_cluster_S = vec_charge.at(tt).second.first;
-      int index_cluster_K = vec_charge.at(tt).second.second;
+      int index_cluster_S = vec_hit.at(tt).second.first;
+      int index_cluster_K = vec_hit.at(tt).second.second;
+      
       Cluster* cl_S = NULL;
       Cluster* cl_K = NULL;
       double posS = -9999.9;
       double resS = -9999.9;
       double posK = -9999.9;
       double resK = -9999.9;
-      if (index_cluster_S>=0) {
-	cl_S = ev->GetCluster(index_cluster_S);
+
+      if (index_cluster_S>=0) cl_S = ev->GetCluster(index_cluster_S);
+      if (index_cluster_K>=0) cl_K = ev->GetCluster(index_cluster_K);
+
+      bool verbose=false;
+
+      if (residualexcludedpoint) {
+	if (cl_S) ev->ExcludeTDRFromTrack(0, ladder, 0, verbose);
+	if (cl_K) ev->ExcludeTDRFromTrack(0, ladder, 1, verbose);
+	ev->FindTrackAndFit(_npointsS-1, _npointsK-1);
+	if (verbose) {
+	  printf("S %s\n", std::bitset<NTDRS>(ev->GetTrackHitPattern(0, 0)).to_string().c_str());
+	  printf("K %s\n", std::bitset<NTDRS>(ev->GetTrackHitPattern(1, 0)).to_string().c_str());
+	}
+      }
+      
+      if (cl_S) {
 	posS = cl_S->GetAlignedPosition();
 	resS = posS-ev->ExtrapolateTrack(cl_S->GetZPosition(), 0);
+	residual_S[ladder_pos]->Fill(resS);
 	residualS_vs_posS[ladder_pos]->Fill(posS, resS);
       }
-      if (index_cluster_K>=0) {
-	cl_K = ev->GetCluster(index_cluster_K);
+      if (cl_K) {
 	posK = cl_K->GetAlignedPosition();
 	resK = posK-ev->ExtrapolateTrack(cl_K->GetZPosition(), 1);
+	residual_K[ladder_pos]->Fill(resK);
 	residualK_vs_posK[ladder_pos]->Fill(posK, resK);
       }
-      if (index_cluster_S>=0 && index_cluster_K>=0) {
+      if (cl_S && cl_K) {
 	residualS_vs_posK[ladder_pos]->Fill(posK, resS);
 	residualK_vs_posS[ladder_pos]->Fill(posS, resK);
       }
+
+      if (residualexcludedpoint) {
+	if (cl_S) ev->IncludeBackTDRFromTrack(0, ladder, 0, verbose);
+	if (cl_K) ev->IncludeBackTDRFromTrack(0, ladder, 1, verbose);
+	ev->FindTrackAndFit(_npointsS, _npointsK);
+	if (verbose) {
+	  printf("S %s\n", std::bitset<NTDRS>(ev->GetTrackHitPattern(0, 0)).to_string().c_str());
+	  printf("K %s\n", std::bitset<NTDRS>(ev->GetTrackHitPattern(1, 0)).to_string().c_str());
+	}
+      }
+      
     }
     
     for (int tt=0; tt<_maxtdr; tt++) {
@@ -705,11 +813,13 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
     for (int kk=0; kk<3; kk++) {//0 is Residuals, 1 is Bruna's, 2 S0/K0 shift
       printf("Method=%d\n", kk);
 
+      double safetyfactor=0.5;//half resolution
       if (kk==0) {
 	h2fitS = residual_S[tt];
 	h2fitK = residual_K[tt];
       }
       else if (kk==1) {
+	safetyfactor=10.0;
 	h2fitS = hcooreldiff_S[tt];
 	h2fitK = hcooreldiff_K[tt];
       }
@@ -720,98 +830,98 @@ int SingleAlign(int argc, char* argv[], int indexalignment, int alignmeth, bool 
       
       // printf("%d) %d %d\n", tt, h2fitS->GetNbinsX(), h2fitK->GetNbinsX());
       // printf("%d) %f %f\n", tt, h2fitS->GetEntries(), h2fitK->GetEntries());
-      
-      while (h2fitS->GetMaximum()<0.01*h2fitS->GetEntries() && h2fitS->GetXaxis()->GetBinWidth(1)<0.1*Cluster::GetNominalResolution(0, tdrnum, 0)) h2fitS->Rebin(2);
-      while (h2fitK->GetMaximum()<0.01*h2fitK->GetEntries() && h2fitK->GetXaxis()->GetBinWidth(1)<0.1*Cluster::GetNominalResolution(0, tdrnum, 1)) h2fitK->Rebin(2);
 
+      double peakcontentreq = 0.04;// the h->GetMaximum()/h->GetEntries() of a gaussian with 100 bins in [ -5σ, 5σ] is 0.04
+      
+      while (
+	     h2fitS->GetMaximum()<peakcontentreq*h2fitS->GetEntries() &&
+	     h2fitS->GetXaxis()->GetBinWidth(1)<safetyfactor*Cluster::GetNominalResolution(jj, tdrnum, 0)
+	     )
+	h2fitS->Rebin(2);
+      while (
+	     h2fitK->GetMaximum()<peakcontentreq*h2fitK->GetEntries() &&
+	     h2fitK->GetXaxis()->GetBinWidth(1)<safetyfactor*Cluster::GetNominalResolution(jj, tdrnum, 1)
+	     )
+	h2fitK->Rebin(2);
+      
       TF1* gauss = new TF1("gauss", "gaus", -100.0, 100.0);
 
       double _smean = 0.0;
       double _kmean = 0.0;
 
-      //MI SA CHE SKIPPO S anche nel caso che tt=FirstK e viceversa --> controllare
       if (kk==2) {
 	_smean = h2fitS->GetMean();
 	_kmean = h2fitK->GetMean();
 	//	printf("%d) %f %f\n", tt, _smean, _kmean);
       }
-      else if (kk==1 && tt==firstS) {//in the Bruna's method there's no reason to shift the first
-	Smean=0;
-      }
-      else if (kk==1 && tt==firstK) {//in the Bruna's method there's no reason to shift the first
-	Kmean=0;
-      }
       else {
-	//----------
-	if (!(std::find(ladderS_to_ignore[jj].begin(), ladderS_to_ignore[jj].end(), tdrnum) != ladderS_to_ignore[jj].end())) {
-	  
-	  // _smean = h2fitS->GetMean();
-	  // fit_limit[0]=_smean-5.0*h2fitS->GetRMS();
-	  // fit_limit[1]=_smean+5.0*h2fitS->GetRMS();
-	  
-	  h2fitS->Fit("gauss", "QWW", "");
-	  h2fitS->Fit("gauss", "QWW", "");
-	  _smean = gauss->GetParameter(1);
-	  if (kk==alignmeth) printf("fabs(smean)=%f+-%f, sigma=%f, resolution=%f\n", fabs(_smean), gauss->GetParError(1), gauss->GetParameter(2), Cluster::GetNominalResolution(0, tdrnum, 0));
-	  
-	  // _smean = gauss->GetParameter(1);
-	  // fit_limit[0]=_smean-5.0*Cluster::GetNominalResolution(0, tdrnum, 0);
-	  // fit_limit[1]=_smean+5.0*Cluster::GetNominalResolution(0, tdrnum, 0);
+	for (int ss=0; ss<2; ss++) {
+	  TH1* h2fit = NULL;
+	  std::vector<int> *ladder_to_ignore = NULL;
+	  int first=-99;
+	  char _sidename[256];
+	  int _sidenum=-1;
+	  double _mean=0;
+	  if (ss==0) {
+	    h2fit = h2fitS;
+	    ladder_to_ignore = ladderS_to_ignore;
+	    first=firstS;
+	    sprintf(_sidename, "S");
+	    _sidenum=0;
+	  }
+	  else if (ss==1) {
+	    h2fit = h2fitK;
+	    ladder_to_ignore = ladderK_to_ignore;
+	    first=firstK;
+	    sprintf(_sidename, "K");
+	    _sidenum=1;
+	  }
+	  if (kk==1 && tt==first) {//in the Bruna's method there's no reason to shift the first
+	    if (ss==0) Smean=0;
+	    else if (ss==1) Kmean=0;
+	  }
+	  else if (!(std::find(ladder_to_ignore[jj].begin(), ladder_to_ignore[jj].end(), tdrnum) != ladder_to_ignore[jj].end())) {
 
-	  // h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	  // h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	  
-	  fit_limit[0]=gauss->GetParameter(1)-5.0*gauss->GetParameter(2);
-	  fit_limit[1]=gauss->GetParameter(1)+5.0*gauss->GetParameter(2);
-	  
-	  h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	  h2fitS->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	  
-	  _smean = gauss->GetParameter(1);
-	  if (kk==alignmeth) printf("fabs(smean)=%f, error=%f, resolution=%f -> ", fabs(_smean), gauss->GetParError(1), Cluster::GetNominalResolution(0, tdrnum, 0));
-	  if (fabs(_smean)<3.0*gauss->GetParError(1) || fabs(_smean)<0.1*Cluster::GetNominalResolution(0, tdrnum, 0)) _smean=0.0;
-	  if (kk==alignmeth) printf("smean=%f\n", _smean);
-	  // cout<<" Fit between "<<fit_limit[0]
-	  //     <<" and "<<	   fit_limit[1]
-	  //     <<endl;
-	  if (kk==alignmeth) printf("S align par = %f (old = %f + mean = %f)\n", _smean+ev->GetAlignPar(0, tdrnum, 0), ev->GetAlignPar(0, tdrnum, 0), _smean);
-
+	    gauss->SetParameter(0, h2fit->GetMaximum());
+	    gauss->SetParameter(1, h2fit->GetMean());
+	    gauss->SetParameter(2, h2fit->GetRMS());
+	    printf("Starting with: %f %f %f\n", h2fit->GetMaximum(), h2fit->GetMean(), h2fit->GetRMS());
+	    
+	    h2fit->Fit(gauss, "QI", "");
+	    h2fit->Fit(gauss, "QI", "");
+	    _mean = gauss->GetParameter(1);
+	    if (kk==alignmeth) printf("fabs(%smean)=%f+-%f, sigma=%f, resolution=%f\n", _sidename, fabs(_mean), gauss->GetParError(1), gauss->GetParameter(2), Cluster::GetNominalResolution(jj, tdrnum, _sidenum));
+	    
+	    _mean = gauss->GetParameter(1);	  
+	    fit_limit[0]=_mean-5.0*gauss->GetParameter(2);
+	    fit_limit[1]=_mean+5.0*gauss->GetParameter(2);
+	    
+	    if (kk==alignmeth) printf("Fit in [%f,%f]\n", fit_limit[0], fit_limit[1]);
+	    h2fit->Fit(gauss, "QI", "", fit_limit[0], fit_limit[1]);
+	    h2fit->Fit(gauss, "QI", "", fit_limit[0], fit_limit[1]);
+	    
+	    _mean = gauss->GetParameter(1);
+	    fit_limit[0]=_mean-1.5*gauss->GetParameter(2);
+	    fit_limit[1]=_mean+1.5*gauss->GetParameter(2);
+	    
+	    if (kk==alignmeth) printf("Fit in [%f,%f]\n", fit_limit[0], fit_limit[1]);
+	    h2fit->Fit(gauss, "Q", "", fit_limit[0], fit_limit[1]);
+	    h2fit->Fit(gauss, "Q", "", fit_limit[0], fit_limit[1]);
+	    
+	    _mean = gauss->GetParameter(1);
+	    if (kk==alignmeth) printf("fabs(%smean)=%f, error=%f, resolution=%f -> ", _sidename, fabs(_mean), gauss->GetParError(1), Cluster::GetNominalResolution(jj, tdrnum, _sidenum));
+	    if (fabs(_mean)<3.0*gauss->GetParError(1) || fabs(_mean)<0.1*Cluster::GetNominalResolution(jj, tdrnum, _sidenum)) _smean=0.0;
+	    if (kk==alignmeth) {
+	      printf("%smean=%f\n", _sidename, _mean);
+	      // cout<<" Fit between "<<fit_limit[0]
+	      //     <<" and "<<	   fit_limit[1]
+	      //     <<endl;
+	      printf("%s align par = %f (old = %f + mean = %f)\n", _sidename, _mean+ev->GetAlignPar(jj, tdrnum, _sidenum), ev->GetAlignPar(jj, tdrnum, _sidenum), _mean);
+	    }
+	  }
+	  if (ss==0) _smean=_mean;
+	  else if (ss==1) _kmean=_mean;
 	}
-	//----------
-	if (!(std::find(ladderK_to_ignore[jj].begin(), ladderK_to_ignore[jj].end(), tdrnum) != ladderK_to_ignore[jj].end())) {
-	  
-	  // _kmean = h2fitK->GetMean();
-	  // fit_limit[0]=_kmean-5.0*h2fitK->GetRMS();
-	  // fit_limit[1]=_kmean+5.0*h2fitK->GetRMS();
-	  
-	  h2fitK->Fit("gauss", "QWW", "");
-	  h2fitK->Fit("gauss", "QWW", "");
-	  _kmean = gauss->GetParameter(1);
-	  if (kk==alignmeth) printf("fabs(kmean)=%f+-%f, sigma=%f, resolution=%f\n", fabs(_kmean), gauss->GetParError(1), gauss->GetParameter(2), Cluster::GetNominalResolution(0, tdrnum, 1));
-	  
-	  // _kmean = gauss->GetParameter(1);
-	  // fit_limit[0]=_kmean-5.0*Cluster::GetNominalResolution(0, tdrnum, 1);
-	  // fit_limit[1]=_kmean-5.0*Cluster::GetNominalResolution(0, tdrnum, 1);
-	  
-	  // h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	  // h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);	
-
-	  fit_limit[0]=gauss->GetParameter(1)-5.0*gauss->GetParameter(2);
-	  fit_limit[1]=gauss->GetParameter(1)+5.0*gauss->GetParameter(2);
-	  
-	  h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	  h2fitK->Fit("gauss", "Q", "", fit_limit[0], fit_limit[1]);
-	  
-	  _kmean = gauss->GetParameter(1);
-	  if (kk==alignmeth) printf("fabs(kmean)=%f, error=%f, resolution=%f -> ", fabs(_kmean), gauss->GetParError(1), Cluster::GetNominalResolution(0, tdrnum, 1));
-	  if (fabs(_kmean)<3.0*gauss->GetParError(1) || fabs(_kmean)<0.1*Cluster::GetNominalResolution(0, tdrnum, 1)) _kmean=0.0;
-	  if (kk==alignmeth) printf("kmean=%f\n", _kmean);
-	  // cout<<" Fit between "<<fit_limit[0]
-	  //     <<" and "<<	   fit_limit[1]
-	  //     <<endl;    
-	  if (kk==alignmeth) printf("K align par = %f (old = %f + mean = %f)\n", _kmean+ev->GetAlignPar(0, tdrnum, 1), ev->GetAlignPar(0, tdrnum, 1), _kmean);
-	}
-
       }
       
       if (alignmeth==kk) {//only for the choosen align method
