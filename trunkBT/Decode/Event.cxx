@@ -476,9 +476,9 @@ void Event::ClearTrack_sf(){
   return;
 }
 
-void Event::ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side) {
+void Event::ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side, bool verbose) {
 
-  printf("From now on excluding JINF=%d, TDR=%d, Side=%d\n", jinfnum, tdrnum, side);
+  if (verbose) printf("From now on excluding JINF=%d, TDR=%d, Side=%d\n", jinfnum, tdrnum, side);
   
   int item = jinfnum*100+tdrnum;
 
@@ -487,6 +487,22 @@ void Event::ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side) {
   }
   else {
     _v_ladderK_to_ignore.push_back(item);
+  }
+
+  return;
+}
+
+void Event::IncludeBackTDRFromTrack(int jinfnum, int tdrnum, int side, bool verbose) {
+
+  if (verbose) printf("From now on including back JINF=%d, TDR=%d, Side=%d\n", jinfnum, tdrnum, side);
+  
+  int item = jinfnum*100+tdrnum;
+
+  if (side==0) {
+    _v_ladderS_to_ignore.erase(std::remove(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item), _v_ladderS_to_ignore.end());
+  }
+  else {
+    _v_ladderK_to_ignore.erase(std::remove(_v_ladderK_to_ignore.begin(), _v_ladderK_to_ignore.end(), item), _v_ladderK_to_ignore.end());
   }
 
   return;

@@ -59,7 +59,8 @@ public:
   //! Get Gain Correction "component" for the vanum VA of the tdrnum TDR for the jinfnum JINF
   static float GetGainCorrectionPar(int jinfnum, int tdrnum, int vanum, int component);
 
-  void ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side);//to be called just one, before event loop
+  void ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side, bool verbose=true);//to be called just one, before event loop, or, for a "temporary ban" call, afterwards, 'IncludeBack'
+  void IncludeBackTDRFromTrack(int jinfnum, int tdrnum, int side, bool verbose=true);//to be called after 'Exclude' for a "temporary ban"
   bool FindTrackAndFit(int nptsS, int nptsK, bool verbose=false);
   bool FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, double threshK, bool verbose=false);
   double RefineTrack(double nsigmaS=5.0, int nptsS=3, double nsigmaK=5.0, int nptsK=3, bool verbose=false);
