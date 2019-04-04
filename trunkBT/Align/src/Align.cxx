@@ -27,15 +27,15 @@
 #include "Utilities.hh"
 /* end */
 
-std::vector<int> ladderS_to_ignore[NJINF] = {{}};
-std::vector<int> ladderK_to_ignore[NJINF] = {{}};
-// std::vector<int> ladderS_to_ignore[NJINF] = {{2, 3, 6, 7, 10, 11, 14, 15, 18, 19}};
-// std::vector<int> ladderK_to_ignore[NJINF] = {{2, 3, 6, 7, 10, 11, 14, 15, 18, 19}};
+// std::vector<int> ladderS_to_ignore[NJINF] = {{}};
+// std::vector<int> ladderK_to_ignore[NJINF] = {{}};
+std::vector<int> ladderS_to_ignore[NJINF] = {{2, 3, 6, 7, 10, 11, 14, 15, 18, 19}};
+std::vector<int> ladderK_to_ignore[NJINF] = {{2, 3, 6, 7, 10, 11, 14, 15, 18, 19}};
 
 int _npointsS=3;
 int _npointsK=3;
 
-double _chisqcutvalue=4;
+double _chisqcutvalue=2;
 
 //#define PRINTDEBUG printf("%s) This is the line number %d\n", __FILE__, __LINE__);
 #define PRINTDEBUG
@@ -215,8 +215,13 @@ int main(int argc, char* argv[]) {
   }
   else if (progname.Contains("DryRun")) {
 
-    ret = SingleRun(argc, argv, 0, 0, false, false, false);//without the cut on chisq and without the residuals with the excluded point
-
+    if (progname.Contains("Residual")) {
+      ret = SingleRun(argc, argv, 0, 0, false, false, false);//without the cut on chisq and without the residuals with the excluded point
+    }
+    else if (progname.Contains("Bruna")) {
+      ret = SingleRun(argc, argv, 0, 1, false, false, false);//without the cut on chisq and without the residuals with the excluded point
+    }
+      
     return ret;
   }
   else if (progname.Contains("OnlyFinalRun")) {
@@ -470,7 +475,7 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
     if (!cleanevent) continue;
     cleanevs++;//in this way this number is giving the "complete reasonable sample"
 
-    bool preselevent = CleanEvent(ev, GetRH(chain), 4, 999, 10, 10, 0, 0);
+    bool preselevent = CleanEvent(ev, GetRH(chain), 4, 50, 3, 3, 0, 0);
     if (!preselevent) continue;
     preselevs++;
 
@@ -795,14 +800,6 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
     delta_align_file<<"#JINF \t TDR \t S (mm) \t K (mm) \t Z (mm) \t MultiplicyFlip"<<endl;
   }
   
-  double Smean = 0.0;
-  double Kmean = 0.0;
-  
-  float fit_limit[2]={-30.0, 30.0};
-  
-  TH1* h2fitS = NULL;
-  TH1* h2fitK = NULL;
-
   TCanvas c;
 
   int jj=0; //FIX ME: HARD-CODED "only one Jinf"
@@ -810,9 +807,15 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
     int tdrnum = GetRH(chain)->GetTdrNum(tt);
     printf("%d) TDR %d\n", tt, tdrnum);
     
+    double Smean = 0.0;
+    double Kmean = 0.0;
+
     for (int kk=0; kk<3; kk++) {//0 is Residuals, 1 is Bruna's, 2 S0/K0 shift
       printf("Method=%d\n", kk);
 
+      TH1* h2fitS = NULL;
+      TH1* h2fitK = NULL;
+      
       double safetyfactor=0.5;//half resolution
       if (kk==0) {
 	h2fitS = residual_S[tt];
@@ -848,49 +851,62 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
 
       double _smean = 0.0;
       double _kmean = 0.0;
+      float fit_limit[2]={-30.0, 30.0};
 
-      if (kk==2) {
-	_smean = h2fitS->GetMean();
-	_kmean = h2fitK->GetMean();
-	//	printf("%d) %f %f\n", tt, _smean, _kmean);
-      }
-      else {
-	for (int ss=0; ss<2; ss++) {
-	  TH1* h2fit = NULL;
-	  std::vector<int> *ladder_to_ignore = NULL;
-	  int first=-99;
-	  char _sidename[256];
-	  int _sidenum=-1;
-	  double _mean=0;
-	  if (ss==0) {
-	    h2fit = h2fitS;
-	    ladder_to_ignore = ladderS_to_ignore;
-	    first=firstS;
-	    sprintf(_sidename, "S");
-	    _sidenum=0;
+      for (int ss=0; ss<2; ss++) {
+	
+	TH1* h2fit = NULL;
+	std::vector<int> *ladder_to_ignore = NULL;
+	int first=-99;
+	char _sidename[256];
+	int _sidenum=-1;
+	double _mean=0;
+	if (ss==0) {
+	  h2fit = h2fitS;
+	  ladder_to_ignore = ladderS_to_ignore;
+	  first=firstS;
+	  sprintf(_sidename, "S");
+	  _sidenum=0;
+	}
+	else if (ss==1) {
+	  h2fit = h2fitK;
+	  ladder_to_ignore = ladderK_to_ignore;
+	  first=firstK;
+	  sprintf(_sidename, "K");
+	  _sidenum=1;
+	}
+
+	if (!(std::find(ladder_to_ignore[jj].begin(), ladder_to_ignore[jj].end(), tdrnum) != ladder_to_ignore[jj].end())) {
+	  //cases
+	  if (kk==2) {//last shift for S0 and K0
+	    _smean = h2fitS->GetMean();
+	    _kmean = h2fitK->GetMean();
+	    //	printf("%d) %f %f\n", tt, _smean, _kmean);
 	  }
-	  else if (ss==1) {
-	    h2fit = h2fitK;
-	    ladder_to_ignore = ladderK_to_ignore;
-	    first=firstK;
-	    sprintf(_sidename, "K");
-	    _sidenum=1;
-	  }
-	  if (kk==1 && tt==first) {//in the Bruna's method there's no reason to shift the first
+	  else if (kk==1 && tt==first) {//in the Bruna's method there's no reason to shift the first
 	    if (ss==0) Smean=0;
 	    else if (ss==1) Kmean=0;
 	  }
-	  else if (!(std::find(ladder_to_ignore[jj].begin(), ladder_to_ignore[jj].end(), tdrnum) != ladder_to_ignore[jj].end())) {
+	  else {//kk==1 (but the reference ones) and kk==0
 
+	    TSpectrum s(1);
+	    s.Search(h2fit, Cluster::GetNominalResolution(jj, tdrnum, _sidenum), "newgoff");
+	    Double_t *xpeaks = s.GetPositionX();
+	    double width=1.0*Cluster::GetNominalResolution(jj, tdrnum, _sidenum);
+	    if (kk==1) width*=100.0;
+	    h2fit->GetXaxis()->SetRangeUser(xpeaks[0]-width, xpeaks[0]+width);
+	    
 	    gauss->SetParameter(0, h2fit->GetMaximum());
 	    gauss->SetParameter(1, h2fit->GetMean());
 	    gauss->SetParameter(2, h2fit->GetRMS());
-	    printf("Starting with: %f %f %f\n", h2fit->GetMaximum(), h2fit->GetMean(), h2fit->GetRMS());
+	    if (kk==alignmeth) printf("Starting with: %f %f %f\n", h2fit->GetMaximum(), h2fit->GetMean(), h2fit->GetRMS());
 	    
 	    h2fit->Fit(gauss, "QI", "");
 	    h2fit->Fit(gauss, "QI", "");
 	    _mean = gauss->GetParameter(1);
 	    if (kk==alignmeth) printf("fabs(%smean)=%f+-%f, sigma=%f, resolution=%f\n", _sidename, fabs(_mean), gauss->GetParError(1), gauss->GetParameter(2), Cluster::GetNominalResolution(jj, tdrnum, _sidenum));
+
+	    h2fit->GetXaxis()->UnZoom();
 	    
 	    _mean = gauss->GetParameter(1);	  
 	    fit_limit[0]=_mean-5.0*gauss->GetParameter(2);
@@ -899,14 +915,32 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
 	    if (kk==alignmeth) printf("Fit in [%f,%f]\n", fit_limit[0], fit_limit[1]);
 	    h2fit->Fit(gauss, "QI", "", fit_limit[0], fit_limit[1]);
 	    h2fit->Fit(gauss, "QI", "", fit_limit[0], fit_limit[1]);
-	    
+
 	    _mean = gauss->GetParameter(1);
-	    fit_limit[0]=_mean-1.5*gauss->GetParameter(2);
-	    fit_limit[1]=_mean+1.5*gauss->GetParameter(2);
+	    fit_limit[0]=_mean-1.0*gauss->GetParameter(2);
+	    fit_limit[1]=_mean+1.0*gauss->GetParameter(2);
 	    
 	    if (kk==alignmeth) printf("Fit in [%f,%f]\n", fit_limit[0], fit_limit[1]);
-	    h2fit->Fit(gauss, "Q", "", fit_limit[0], fit_limit[1]);
-	    h2fit->Fit(gauss, "Q", "", fit_limit[0], fit_limit[1]);
+	    h2fit->Fit(gauss, "QI", "", fit_limit[0], fit_limit[1]);
+	    h2fit->Fit(gauss, "QI", "", fit_limit[0], fit_limit[1]);
+	    
+	    double squeezefactor=1.0;
+	    while(gauss->Eval(0)<0.7*h2fit->GetMaximum() && squeezefactor>0.5) {
+	      _mean = gauss->GetParameter(1);
+	      double _width=squeezefactor*gauss->GetParameter(2);
+	      fit_limit[0]=_mean-_width;
+	      fit_limit[1]=_mean+_width;
+	      
+	      if (kk==alignmeth) printf("Fit in [%f,%f]\n", fit_limit[0], fit_limit[1]);
+	      h2fit->Fit(gauss, "QI", "", fit_limit[0], fit_limit[1]);
+	      h2fit->Fit(gauss, "QI", "", fit_limit[0], fit_limit[1]);
+
+	      if (squeezefactor*gauss->GetParameter(2)>=(_width-0.1*_width)) squeezefactor-=0.1;
+	    }
+	    
+	    fit_limit[0]=_mean-15.0*gauss->GetParameter(2);
+	    fit_limit[1]=_mean+15.0*gauss->GetParameter(2);
+	    h2fit->GetXaxis()->SetRangeUser(fit_limit[0], fit_limit[1]);
 	    
 	    _mean = gauss->GetParameter(1);
 	    if (kk==alignmeth) printf("fabs(%smean)=%f, error=%f, resolution=%f -> ", _sidename, fabs(_mean), gauss->GetParError(1), Cluster::GetNominalResolution(jj, tdrnum, _sidenum));
@@ -918,19 +952,19 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
 	      //     <<endl;
 	      printf("%s align par = %f (old = %f + mean = %f)\n", _sidename, _mean+ev->GetAlignPar(jj, tdrnum, _sidenum), ev->GetAlignPar(jj, tdrnum, _sidenum), _mean);
 	    }
+	    
 	  }
-	  if (ss==0) _smean=_mean;
-	  else if (ss==1) _kmean=_mean;
 	}
+	if (ss==0) _smean=_mean;
+	else if (ss==1) _kmean=_mean;
       }
       
       if (alignmeth==kk) {//only for the choosen align method
 	Smean = _smean;
 	Kmean = _kmean;
       }
-      
     }
-
+    
     if (writealign) {
       new_align_file<<" 0 \t"<<tdrnum
 		    <<" \t " <<Smean+ev->GetAlignPar(0, tdrnum, 0)
