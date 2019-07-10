@@ -21,9 +21,14 @@
 
 #include "viewerGUI.hh"
 
+#include <iostream>
+#include <fstream>
+
 #include "Event.hh"
 #include "Utilities.hh"
 #include "DecodeData.hh"
+
+using namespace std;
 
 MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h)
 {
@@ -56,6 +61,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h)
   fHor1 = new TGHorizontalFrame(fVer0, 1024, 20);
   fHor2 = new TGHorizontalFrame(fVer0, 1024, 20);
   fHor3 = new TGHorizontalFrame(fMain, 1024, 20);
+  fHor4 = new TGHorizontalFrame(fVer0, 1024, 20);
 
   fOpen = new TGTextButton(fHor0, "&Open");
   fOpen->Connect("Clicked()", "MyMainFrame", this, "DoOpen()");
@@ -64,6 +70,9 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h)
   fDraw->Connect("Clicked()", "MyMainFrame", this, "DoDraw()");
 
   fExit = new TGTextButton(fHor0, "&Exit", "gApplication->Terminate(0)");
+
+  fSave = new TGTextButton(fHor0, "&Save");
+  fSave->Connect("Clicked()", "MyMainFrame", this, "DoSave()");
 
   evtLabel = new TGLabel(fHor1, "Event Number:");
   fHor1->AddFrame(evtLabel, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 5, 2, 2, 2));
@@ -75,14 +84,20 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h)
   fNumber2 = new TGNumberEntry(fHor2, 0, 9, 999, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative, TGNumberFormat::kNELLimitMinMax, 0, 24);
   fNumber2->GetNumberEntry()->Connect("ReturnPressed()", "MyMainFrame", this, "DoDraw()");
 
+  fPed = new TGCheckButton(fHor4, "Pedestal subtraction");
+  fPed->SetOn();
+  fHor4->AddFrame(fPed, new TGLayoutHints(kLHintsExpandX | kLHintsLeft | kLHintsCenterY, 5, 2, 2, 2));
+
   fileLabel = new TGLabel(fHor3, "No rootfile opened");
   fHor3->AddFrame(fileLabel, new TGLayoutHints(kLHintsExpandX | kLHintsLeft | kLHintsCenterY, 5, 2, 2, 2));
 
   fHor1->AddFrame(fNumber, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
   fHor2->AddFrame(fNumber2, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
+  fHor4->AddFrame(fPed, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
 
   fHor0->AddFrame(fOpen, new TGLayoutHints(kLHintsCenterX, 5, 5, 3, 4));
   fHor0->AddFrame(fDraw, new TGLayoutHints(kLHintsCenterX, 5, 5, 3, 4));
+  fHor0->AddFrame(fSave, new TGLayoutHints(kLHintsCenterX, 5, 5, 3, 4));
   fHor0->AddFrame(fExit, new TGLayoutHints(kLHintsCenterX, 5, 5, 3, 4));
 
   fHor0b->AddFrame(fVer0, new TGLayoutHints(kLHintsCenterX | kLHintsExpandX | kLHintsExpandY, 2, 2, 5, 1));
@@ -93,6 +108,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h)
 
   fVer0->AddFrame(fHor1, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY, 2, 2, 5, 1));
   fVer0->AddFrame(fHor2, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY, 2, 2, 5, 1));
+  fVer0->AddFrame(fHor4, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY, 2, 2, 5, 1));
   fMain->AddFrame(fHor3, new TGLayoutHints(kLHintsExpandX | kLHintsCenterX, 2, 2, 5, 1));
 
   //  fStatusBar->Resize(0,200);
@@ -144,7 +160,7 @@ void MyMainFrame::viewer(int tdr, int evt, char filename[200])
 
   gr_eventS->Set(0);
   gr_eventK->Set(0);
-
+  
   maxadc = 0;
   minadc = 0;
 
@@ -154,11 +170,16 @@ void MyMainFrame::viewer(int tdr, int evt, char filename[200])
     double calADC = ev->GetCalPed_PosNum(tdr, chan, 0);
     double cnADC = ev->GetCN_PosNum(tdr, (int)chan / 64, 0);
     int status = ev->GetCalStatus_PosNum(tdr, chan, 0);
-    
+    double signal;
+
     if (status!=0) continue;
 
-    double signal = ADC - calADC - cnADC;
-    
+    if( fPed->IsOn() ){
+      signal = ADC - calADC - cnADC;
+    } else {
+      signal = ADC;
+    }
+  
     if (signal > maxadc)
       maxadc = signal;
     if (signal < minadc)
@@ -207,11 +228,75 @@ void MyMainFrame::viewer(int tdr, int evt, char filename[200])
   delete ev;
 }
 
+void MyMainFrame::savetofile(int tdr, int evt, char filename[200])
+{
+  ofstream myfile;
+  TString outfile = filename;
+  myfile.open (outfile+"_TDR_" + TString::Format("%02d", (int)tdr)+".txt",std::ios_base::app);
+
+  TChain *chain = new TChain("t4");
+  chain->Add(filename);
+  Long64_t entries = chain->GetEntries();
+
+  RHClass *rh = (RHClass *)chain->GetTree()->GetUserInfo()->At(0);
+
+  Event *ev;
+  Cluster *cl;
+
+  ev = new Event();
+
+  chain->SetBranchAddress("cluster_branch", &ev);
+  chain->GetEntry(0);
+
+  chain->GetEntry(evt);
+
+  for (int chan = 0; chan < 1024; chan++)
+  {
+    double ADC = ev->GetRawSignal_PosNum(tdr, chan, 0);
+    double calADC = ev->GetCalPed_PosNum(tdr, chan, 0);
+    double cnADC = ev->GetCN_PosNum(tdr, (int)chan / 64, 0);
+    int status = ev->GetCalStatus_PosNum(tdr, chan, 0);
+    double signal;
+
+    if (status!=0) continue;
+
+    if( fPed->IsOn() ){
+      signal = ADC - calADC - cnADC;
+    } else {
+      signal = ADC;
+    }
+
+  const size_t bufsize = 256*1024;
+  char buf[bufsize];
+  myfile.rdbuf()->pubsetbuf(buf, bufsize);
+
+  myfile << evt << " " << chan << " " << signal << endl;
+
+  }
+  
+  TCanvas *fCanvas = fEcanvas->GetCanvas();
+  fCanvas->cd();
+  fCanvas->SaveAs(outfile+"_TDR_" + TString::Format("%02d", (int)tdr)+".png");
+
+  delete chain;
+  delete ev;
+  myfile.close();
+}
+
+
 void MyMainFrame::DoDraw()
 {
   if (gROOT->GetListOfFiles()->FindObject((char *)(fileLabel->GetText())->GetString()))
   {
     viewer(fNumber2->GetNumberEntry()->GetIntNumber(), fNumber->GetNumberEntry()->GetIntNumber(), (char *)(fileLabel->GetText())->GetString());  
+  }
+}
+
+void MyMainFrame::DoSave()
+{
+  if (gROOT->GetListOfFiles()->FindObject((char *)(fileLabel->GetText())->GetString()))
+  {
+      savetofile(fNumber2->GetNumberEntry()->GetIntNumber(), fNumber->GetNumberEntry()->GetIntNumber(), (char *)(fileLabel->GetText())->GetString());  
   }
 }
 

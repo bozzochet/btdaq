@@ -14,6 +14,7 @@ class TGTextView;
 class TGLayout;
 class TGFrame;
 class TGFileDialog;
+class TGCheckButton;
 
 class MyMainFrame
 {
@@ -22,11 +23,12 @@ private:
   TGMainFrame *fMain;
   TRootEmbeddedCanvas *fEcanvas;
   TGNumberEntry *fNumber, *fNumber2;
-  TGHorizontalFrame *fHor0, *fHor0b, *fHor1, *fHor2, *fHor3;
+  TGHorizontalFrame *fHor0, *fHor0b, *fHor1, *fHor2, *fHor3, *fHor4;
   TGVerticalFrame *fVer0, *fVer1;
-  TGTextButton *fExit, *fDraw, *fOpen;
-  TGLabel *evtLabel, *tdrLabel, *fileLabel;
+  TGTextButton *fExit, *fDraw, *fOpen, *fSave;
+  TGLabel *evtLabel, *tdrLabel, *fileLabel, *pedLabel;
   TGTextView *fStatusBar;
+  TGCheckButton *fPed;
   TGraph *gr_eventS = new TGraph();
   TGraph *gr_eventK = new TGraph();
   TGraph *line[14];
@@ -36,6 +38,8 @@ public:
   virtual ~MyMainFrame();
   void DoDraw();
   void DoOpen();
+  void DoSave();
   void viewer(int tdr, int evt, char filename[200]);
+  void savetofile(int tdr, int evt, char filename[200]);
   ClassDef(MyMainFrame, 0)
 };
