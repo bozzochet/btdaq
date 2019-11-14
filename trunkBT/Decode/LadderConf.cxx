@@ -28,8 +28,8 @@ void LadderConf::Init(TString filename, bool DEBUG){
           continue;
         } else {
           LadderParams* params = new LadderParams;
-
-          sscanf(line, "%d\t%d\t%lf\t%lf\t%lf\t%lf\t%d\t%d\t%d\t%lf\t%lf\t%lf\t%lf", &jinfnum, &tdrnum, &dummy, &dummy, &dummy, &dummy, &dummyint, &dummyint, &dummyint, &dummy, &dummy, &dummy, &dummy);
+	  
+	  sscanf(line, "%d\t%d\t%lf\t%lf\t%lf\t%lf\t%d\t%d\t%d\t%lf\t%lf\t%lf\t%lf", &jinfnum, &tdrnum, &dummy, &dummy, &dummy, &dummy, &dummyint, &dummyint, &dummyint, &dummy, &dummy, &dummy, &dummy);
           if( jinfnum<NJINF && tdrnum<NTDRS ){
             int n = sscanf(
 			   line, "%d\t%d\t%lf\t%lf\t%lf\t%lf\t%d\t%d\t%d\t%d\t%lf\t%lf\t%lf\t%lf",
