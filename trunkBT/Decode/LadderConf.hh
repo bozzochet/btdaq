@@ -61,18 +61,15 @@ public:
   double GetKHiThreshold(int jinfnum, int tdrnum);
   double GetSLoThreshold(int jinfnum, int tdrnum);
   double GetKLoThreshold(int jinfnum, int tdrnum);
-
+  
   bool IsTDRConfigured(int jinfnum, int tdrnum);
   bool IsTDRConfigured(int HwId);
-
+  
   void PrintLadderParams(int jinfnum, int tdrnum);
-
+  
 private:
   std::map<int, LadderParams*> _ladders;
-
+  
 };
-
-
-
 
 #endif
