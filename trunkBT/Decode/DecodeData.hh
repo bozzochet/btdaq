@@ -9,10 +9,10 @@
 //#define CALOCUBE 
 
 typedef struct calib{
-  float ped[1024];
-  float rsig[1024];
-  float sig[1024];
-  int status[1024];
+  float ped[4096]; // was [1024]: is backward compatible?
+  float rsig[4096]; // was [1024]: is backward compatible?
+  float sig[4096]; // was [1024]: is backward compatible?
+  int status[4096]; // was [1024]: is backward compatible?
 
 } calib;
 
@@ -64,6 +64,11 @@ class DecodeData {
   
 private:
   FILE* rawfile;
+  
+  TFile *mcf;//added by Viviana
+  TTree *mcrt;//added by Viviana
+  TTree *mcht;//added by Viviana
+  
   char rawname[300];
   char rawdir[300];
   char rawCaldir[300];
@@ -78,11 +83,15 @@ private:
   int ntdrRaw;
   int ntdrCmp;
   laddernumtype tdrMap[NJINF*NTDRS];
+  int ntdrMC;//added by Viviana, controllare se matcha con le modifiche che avevo fatto alle Map
+  int tdrAlign[NJINF*NTDRS];//added by Viviana, credo...
   int out_flag;
   char type[10]; //JinF or JinJ
   void FindCalibs ();
   int  ReadCalib(FILE * fil,calib* cal);
+  int  ReadCalib_mc(FILE * fil,calib* cal);
   int FindPos(int tdrnum);
+  int FindPosMC(int hitnum);//added by Viviana, serve veramente?
   int FindCalPos(int tdrnum);
   int ReadFile(void *ptr, size_t size, size_t nitems, FILE * stream);
   void mysort(laddernumtype* aa,int nel);
@@ -92,8 +101,22 @@ private:
 public:
   Event * ev;
   RHClass *rh;
-  
+
+  int nlayers;//added by Viviana
+  double gene;//added by Viviana
+  int gevt;//added by Viviana
   int evenum;
+
+  int nhits;//added by Viviana
+  int pphit;//added by Viviana
+
+  //// generalization for nhits!=nlayers
+  int hvol[MAXNHITS];//added by Viviana
+  double hvolz[MAXNHITS];//added by Viviana
+  int echx[MAXNHITS]; //added by Viviana
+  int echy[MAXNHITS];//added by Viviana
+  double edep[MAXNHITS];  //added by Viviana
+  
   TH1F* hocc[NJINF*NTDRS];
   TH1F* hoccseed[NJINF*NTDRS];
   TH1F* hcharge[NJINF*NTDRS][2];
@@ -140,11 +163,14 @@ public:
   int ReadOneTDR(int jinf=0);
   int ReadOneJINF();
   int SkipOneEvent_data(int evskip=1);
+  int EndOfFile_data();
   
   //mc
-  void OpenFile_mc(char* ifname, char* caldir, int run, int ancillary);
+  //  void OpenFile_mc(char* ifname, char* caldir, int run, int ancillary);
+  void OpenFile_mc(char* ifname);
   int ReadOneEvent_mc();
   int SkipOneEvent_mc(int evskip=1);
+  int EndOfFile_mc();
   
   void SetPrintOff(){pri=0;}
   void SetPrintOn(){pri=1;}
