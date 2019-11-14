@@ -1,0 +1,143 @@
+
+<html>
+<head>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+<link rel="STYLESHEET" type="text/css" href="../daqmxbasecfunccommon/styles.css"></link>
+<title>DAQmxBaseCreateCOPulseChanFreq</title>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+</head>
+<body bgcolor="#ffffff">
+<h1>DAQmxBaseCreateCOPulseChanFreq</h1>
+<p class="syntax">int32 DAQmxBaseCreateCOPulseChanFreq (TaskHandle taskHandle, const char counter[ ], const char nameToAssignToChannel[ ], int32 units, int32 idleState, float64 initialDelay, float64 freq, float64 dutyCycle);</p>
+<h2>Purpose</h2>
+<p class="body">Creates a channel to generate digital pulses defined by <strong>freq</strong> and <strong>dutyCycle</strong> and adds the channel to the task you specify with <strong>taskHandle</strong>. The pulses appear on the 
+default output terminal of the counter.</p>
+<p class="body">You can create only one counter output channel at a time with this function because a task can include only one counter output channel. To use multiple counters simultaneously, use a separate task for each counter.</p>
+<h2>Parameters</h2>
+<table class="borderless">
+<tr>
+<td>
+<em>Input</em>
+</td>
+</tr>
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>taskHandle</strong>
+</td>
+<td valign="top">TaskHandle</td>
+<td valign="top">The task to which to add the channels that this function creates.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>counter</strong>
+</td>
+<td valign="top">
+<nobr>const char [ ]</nobr>
+</td>
+<td valign="top">The name of the counter to use to create virtual channels such as <span id="monospace">Dev1/ctr0</span>.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>nameToAssignToChannel</strong>
+</td>
+<td valign="top">
+<nobr>const char [ ]</nobr>
+</td>
+<td valign="top">Pass NULL for this parameter. NI-DAQmx Base currently ignores this parameter.</td>
+</tr>
+<tr>
+<td>
+<strong>units</strong>
+</td>
+<td>int32</td>
+<td>The units in which to specify <strong>freq</strong>.
+	<table class="borderless">
+<tr>
+<th class="left-align">Name</th>
+<th width="20"></th>
+<th class="left-align">Description</th>
+</tr>
+<tr>
+<td>
+<span id="monospace">DAQmx_Val_Hz</span>
+</td>
+<td></td>
+<td>Hertz</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td>
+<strong>idleState</strong>
+</td>
+<td>int32</td>
+<td>The resting state of the output terminal.
+	<table class="borderless">
+<tr>
+<th class="left-align">Value</th>
+<th width="20"></th>
+<th class="left-align">Description</th>
+</tr>
+<tr>
+<td>
+<span id="monospace">DAQmx_Val_High</span>
+</td>
+<td></td>
+<td>High state. M Series only.</td>
+</tr>
+<tr>
+<td>
+<span id="monospace">DAQmx_Val_Low</span>
+</td>
+<td></td>
+<td>Low state</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>initialDelay</strong>
+</td>
+<td valign="top">float64</td>
+<td valign="top">The amount of time in seconds to wait before generating the first pulse.</td>
+</tr>
+<tr>
+<td>
+<strong>freq</strong>
+</td>
+<td>float64</td>
+<td>The frequency of the pulses to generate.</td>
+</tr>
+<tr>
+<td>
+<strong>dutyCycle</strong>
+</td>
+<td>float64</td>
+<td>The width of the pulse divided by the pulse period. NI-DAQmx Base uses this ratio, combined with frequency, to determine both pulse width and pulse delay.</td>
+</tr>
+</table>
+<h2>Return Value</h2>
+<table class="borderless">
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>status</strong>
+</td>
+<td valign="top">int32</td>
+<td valign="top">The error code returned by the function in the event of an error or warning. A value of 0 indicates success. A positive value indicates a warning. A negative value indicates an error.</td>
+</tr>
+</table>
+</body>
+</html>
+

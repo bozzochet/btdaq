@@ -1,0 +1,1 @@
+cmd_/home/testsys/amsdaq-code/trunkBT/DAQ/DAQ/amsw/amswire.ko.unsigned := ld -r -m elf_i386 -T /usr/src/kernels/2.6.32-696.1.1.el6.i686/scripts/module-common.lds --build-id -o /home/testsys/amsdaq-code/trunkBT/DAQ/DAQ/amsw/amswire.ko.unsigned /home/testsys/amsdaq-code/trunkBT/DAQ/DAQ/amsw/amswire.o /home/testsys/amsdaq-code/trunkBT/DAQ/DAQ/amsw/amswire.mod.o 
