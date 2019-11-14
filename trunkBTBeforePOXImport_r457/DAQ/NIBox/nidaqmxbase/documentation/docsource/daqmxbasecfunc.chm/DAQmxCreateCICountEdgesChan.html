@@ -1,0 +1,149 @@
+
+<html>
+<head>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+<link rel="STYLESHEET" type="text/css" href="../daqmxbasecfunccommon/styles.css"></link>
+<title>DAQmxBaseCreateCICountEdgesChan</title>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+</head>
+<body bgcolor="#ffffff">
+<h1>DAQmxBaseCreateCICountEdgesChan</h1>
+<p class="syntax">int32 DAQmxBaseCreateCICountEdgesChan (TaskHandle taskHandle, const char counter[ ], const char
+nameToAssignToChannel[ ], int32 edge, uInt32 initialCount, int32 countDirection);</p>
+<h2>Purpose</h2>
+<p class="body">Creates a channel to count the number of rising or falling edges of a digital signal and adds the channel to
+ the task you specify with <strong>taskHandle</strong>. 
+You can create only one counter input channel at a time with this function because a task can include only one counter 
+input channel. To read from multiple counters simultaneously, use a separate task for each counter. Connect the input 
+signal to the default input terminal of the counter.</p>
+<h2>Parameters</h2>
+<table class="borderless">
+<tr>
+<td>
+<em>Input</em>
+</td>
+</tr>
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>taskHandle</strong>
+</td>
+<td valign="top">TaskHandle</td>
+<td valign="top">The task to which to add the channels that this function creates.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>counter</strong>
+</td>
+<td valign="top">
+<nobr>const char [ ]</nobr>
+</td>
+<td valign="top">The name of the counter to use to create virtual channels such as <span id="monospace">Dev1/ctr0</span>.</td>
+</tr>
+<tr>
+<td valign="top">
+<strong>nameToAssignToChannel</strong>
+</td>
+<td valign="top">
+<nobr>const char [ ]</nobr>
+</td>
+<td valign="top">Pass NULL for this parameter. NI-DAQmx Base currently ignores this parameter.</td>
+</tr>
+<tr>
+<td>
+<strong>edge</strong>
+</td>
+<td>int32</td>
+<td>Specifies on which edges of the input signal to increment or decrement the count.<br></br>
+<enum id="DAQmx_CI_CountEdges_ActiveEdge">
+<table class="Borderless">
+<tr>
+<th class="Left-Align">Value</th>
+<th width="20"></th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td>
+<span id="Monospace">DAQmx_Val_Rising</span>
+</td>
+<td></td>
+<td>Rising edge(s).</td>
+</tr>
+<tr>
+<td>
+<span id="Monospace">DAQmx_Val_Falling</span>
+</td>
+<td></td>
+<td>Falling edge(s).</td>
+</tr>
+</table>
+</enum>
+</td>
+</tr>
+<tr>
+<td>
+<strong>initialCount</strong>
+</td>
+<td>uInt32</td>
+<td>The value from which to start counting.</td>
+</tr>
+<tr>
+<td>
+<strong>countDirection</strong>
+</td>
+<td>int32</td>
+<td>Specifies whether to increment or decrement the counter on each edge.<br></br>
+<!-- from enums; replace after Kyle has updated. <embedenum id="DAQmx_CI_CountEdges_Dir" /> -->
+<table class="Borderless">
+<tr>
+<th class="Left-Align">Value</th>
+<th width="20"></th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td>
+<span id="Monospace">DAQmx_Val_CountUp</span>
+</td>
+<td></td>
+<td>Increment the count register on each edge.</td>
+</tr>
+<tr>
+<td>
+<span id="Monospace">DAQmx_Val_CountDown</span>
+</td>
+<td></td>
+<td>Decrement the count register on each edge.</td>
+</tr>
+<tr>
+<td>
+<span id="Monospace">DAQmx_Val_ExtControlled</span>
+</td>
+<td></td>
+<td>The state of a digital line controls the count direction. Each counter has a default count direction terminal. The default for Counter 0 is PFI 10. The default for Counter 1 is PFI 11.</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<h2>Return Value</h2>
+<table class="borderless">
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>status</strong>
+</td>
+<td valign="top">int32</td>
+<td valign="top">The error code returned by the function in the event of an error or warning. A value of 0 indicates success. A positive value indicates a warning. A negative value indicates an error.</td>
+</tr>
+</table>
+</body>
+</html>
+

@@ -1,0 +1,38 @@
+#!/bin/sh
+
+module="amswire"
+device="amsw"
+
+#make device file for card 0 if not existing
+if ! [ -a /dev/amsw0 ]; then
+	echo "make device file /dev/amsw0"
+	mknod --mode=666 /dev/amsw0 c 240 0
+fi
+
+#make device file for card 1 if not existing
+if ! [ -a /dev/amsw1 ]; then
+	echo "make device file /dev/amsw1"
+	mknod --mode=666 /dev/amsw1 c 240 1
+fi
+
+#make device file for card 2 if not existing
+if ! [ -a /dev/amsw2 ]; then
+	echo "make device file /dev/amsw2"
+	mknod --mode=666 /dev/amsw2 c 240 2
+fi
+
+#make device file for card 3 if not existing
+if ! [ -a /dev/amsw3 ]; then
+	echo "make device file /dev/amsw3"
+	mknod --mode=666 /dev/amsw3 c 240 3
+fi
+
+
+# invoke insmod 
+/sbin/insmod -f -o ${module} ${module}.mod || exit 1
+
+# show information
+echo "Module information:"
+/sbin/lsmod | grep ${module}
+echo "Device information:"
+ls -l /dev/${device}?

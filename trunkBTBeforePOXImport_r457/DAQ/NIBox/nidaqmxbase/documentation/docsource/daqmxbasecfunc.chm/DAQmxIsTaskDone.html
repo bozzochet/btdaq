@@ -1,0 +1,71 @@
+
+<html>
+<head>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+<link rel="STYLESHEET" type="text/css" href="../daqmxbasecfunccommon/styles.css"></link>
+<title>DAQmxBaseIsTaskDone</title>
+<script src="../daqmxbasecfunccommon/launchhelpCVI.js" type="text/javascript"></script>
+</head>
+<body bgcolor="#ffffff">
+<h1>DAQmxBaseIsTaskDone</h1>
+<p class="syntax">int32 DAQmxBaseIsTaskDone (TaskHandle taskHandle, bool32 *isTaskDone);</p>
+<h2>Purpose</h2>
+<p class="body">Queries whether the task completed execution. Use this function to 
+ensure that the specified operation is complete before you stop the task.</p>
+<h2>Parameters</h2>
+<table class="borderless">
+<tr>
+<td>
+<em>Input</em>
+</td>
+</tr>
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>taskHandle</strong>
+</td>
+<td valign="top">TaskHandle</td>
+<td valign="top">The task used in this function.</td>
+</tr>
+<tr>
+<td>
+<em>Output</em>
+</td>
+</tr>
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td>
+<strong>isTaskDone</strong>
+</td>
+<td>
+<nobr>bool32 *</nobr>
+</td>
+<td>Indicates whether the measurement or generated completed.</td>
+</tr>
+</table>
+<h2>Return Value</h2>
+<table class="borderless">
+<tr>
+<th class="Left-Align">Name</th>
+<th class="Left-Align">Type</th>
+<th class="Left-Align">Description</th>
+</tr>
+<tr>
+<td valign="top">
+<strong>status</strong>
+</td>
+<td valign="top">int32</td>
+<td valign="top">The error code returned by the function in the event of an error or warning. A value of 0 indicates success. A positive value indicates a warning. A negative value indicates an error.</td>
+</tr>
+</table>
+</body>
+</html>
+
