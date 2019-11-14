@@ -266,6 +266,7 @@ int main(int argc,char** argv){
     if (ret1==0) {
       processed++;
       //      printf("This event has %d clusters\n", (dd1->ev)->GetNClusTot());
+      //      printf("This event has CALPED %f\n", (dd1->ev)->GetCalPed_PosNum(1,0,0));
       memset(chaK, 0, 24*sizeof(chaK[0]));
       memset(chaS, 0, 24*sizeof(chaS[0]));
       memset(sigK, 0, 24*sizeof(sigK[0]));
@@ -315,7 +316,7 @@ int main(int argc,char** argv){
   }
 
   CreatePdfWithPlots(dd1, pdf_filename);
-    
+
   t4->Write("",TObject::kOverwrite);
 
   printf("\nProcessed %5d  Events\n",processed+readfailed+jinffailed);
@@ -324,10 +325,10 @@ int main(int argc,char** argv){
   printf("Rejected  %5d  Events --> Jinf/Jinj Error\n",jinffailed);
 
   delete dd1;
-  
+
   foutput->Write("",TObject::kOverwrite);
   foutput->Close("R");
-
+  
   return 0;
 }
 
