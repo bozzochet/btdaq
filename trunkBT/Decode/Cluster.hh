@@ -5,19 +5,31 @@
 #include "math.h"
 
 #define MAXLENGHT 128
+
+//// for MC events
+#define MAXNHITS 100
+
+//// also def in Event.hh
 #define NTDRS  24
 
 //110mum and 208mum
 #define SPITCH 0.110
-#define KPITCH 0.208
+//#define KPITCH 0.208
+#define KPITCH 0.110  // Viviana: fake K. MD: Ladderconf must override it
 
 //10mum and 30mum
 #define SRESO 0.010
-#define KRESO 0.030
+//#define KRESO 0.030
+#define KRESO 0.010  // Viviana: fake K. MD: Ladderconf must override it
 
-//640 and 384 channels
-#define SCHANN 640
-#define KCHANN 384
+// Viviana: originally was 640 and 384 channels
+//#define SCHANN 640
+//#define SCHANN 2560 // 50cmx50cm sensors 
+#define SCHANN 4096 // 50cmx50cm sensors
+//#define KCHANN 384
+//#define KCHANN 640 // fake K
+#define KCHANN 4096 // fake K same 50x50cm sensors
+// MD: we have to make it general
 
 //https://twiki.cern.ch/twiki/pub/Sandbox/HerdBT/HERDBT_Silicon_detector_details.pdf
 
@@ -134,6 +146,10 @@ public:
 
   //! Returns the position of the cluster (Cog), in mm units and after alignment
   double GetAlignedPosition(int mult=0);
+  //! Viviana: Returns the position of the cluster (Cog), in mm units and after alignment for MC
+  // MD: cannot be like this. Must be general
+  double GetAlignedPositionMC();
+
   //! Returns the Z position
   double GetZPosition();
 
