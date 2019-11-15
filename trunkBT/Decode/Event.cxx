@@ -68,17 +68,19 @@ Event::Event(){
     NClus[ii][0]=0;
     NClus[ii][1]=0;
   }
-
-  for(int kk=0;kk<8;kk++) {
-    for(int ii=0;ii<1024;ii++) {
+  
+  // Viviana: hardcoded n
+  // -> kk to run onto nlayers
+  for(int kk=0;kk<NTDRS;kk++) { // Viviana: was kk<8
+    for(int ii=0;ii<4096;ii++) {  //// Viviana: was ii<1024
       CalSigma[kk][ii]=0.0;
       CalPed[kk][ii]=0.0;
-      RawSignal[kk][ii]=0;
+      RawSignal[kk][ii]=0.;
       RawSoN[kk][ii]=0.0;
       CalStatus[kk][ii]=0.0;
     }
   }
-
+  
   //  RawLadder = new TClonesArray("RawData", NJINF*8);//NJINFS*8 is the maximum number of ladder in raw mode that can me read by a single jinf.
 
   NClusTot=0;
@@ -86,9 +88,13 @@ Event::Event(){
   Cls = new TClonesArray("Cluster", NJINF*NTDRS);//if more than NJINFS*NTDRS anyhow the array will be expanded
   Cls->SetOwner();
 
-  if (ladderconfnotread) ReadLadderConf("ladderconf.dat");
+  // MD: this must be fixed, cannot be hardcoded
+  //  if (ladderconfnotread) ReadLadderConf("ladderconf.dat");  
+  if (ladderconfnotread) ReadLadderConf("ladderconf_mc.dat");
 
-  if (alignmentnotread) ReadAlignment("alignment.dat");
+  if (alignmentnotread) ReadAlignment("alignment_mc.dat");
+  //if (alignmentnotread) ReadAlignment("alignment_mc_300.dat");
+  //if (alignmentnotread) ReadAlignment("alignment_mc_150.dat");
 
   if (gaincorrectionnotread) ReadGainCorrection("gaincorrection.dat");
 
@@ -117,8 +123,10 @@ void Event::Clear(){
     NClus[ii][1]=0;
   }
 
-  for(int ii=0;ii<8;ii++){
-    for(int kk=0;kk<1024;kk++) {
+  // Viviana: hardcoded
+  // ->kk to run onto nlayers?
+  for(int ii=0;ii<NTDRS;ii++){ // Viviana: was kk<8
+    for(int kk=0;kk<4096;kk++) { // Viviana: was 1024
       CalSigma[ii][kk]=0.0;
       CalPed[ii][kk]=0.0;
       RawSignal[ii][kk]=0;
@@ -126,9 +134,9 @@ void Event::Clear(){
       CalStatus[ii][kk]=0.0;
     }
   }
-
+  
   if(Cls) Cls->Delete();
-
+  
   //   for (int ii=Cls->GetEntries();ii>-1;ii--){
   //     Cluster* ff=(Cluster*) Cls->RemoveAt(ii);
   //     if(ff) delete ff;
@@ -300,9 +308,9 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG){
       }
     }
   }
-
+  
   gaincorrectionnotread=false;
-
+  
   //  if(DEBUG==false) return;
   // per ora (finche' il lavoro non e' finito) utile mostrare la tabellina dei TDR  con valori non di default, perchè NON dovrebbero esserci!
   bool first=true;
@@ -522,7 +530,7 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
     int jinfnum = current_cluster->GetJinf();
     int tdrnum = current_cluster->GetTDR();
     int item = jinfnum*100+tdrnum;
-
+    
     int side=current_cluster->side;
     if (side==0) {
       if (!(std::find(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item)!=_v_ladderS_to_ignore.end())) {
@@ -534,7 +542,7 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
 	v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
       }
     }
-
+    
   }
 
   std::vector<std::pair<int, std::pair<double, double> > > vecS;//actually used just for compatibility with the telescopic function
@@ -566,7 +574,7 @@ bool Event::FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, do
     int jinfnum = current_cluster->GetJinf();
     int tdrnum = current_cluster->GetTDR();
     int item = jinfnum*100+tdrnum;
-
+    
     int side=current_cluster->side;
     if (side==0) {
       if (!(std::find(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item)!=_v_ladderS_to_ignore.end())) {
@@ -601,7 +609,7 @@ bool Event::FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, do
       }
     }
   }
-
+  
   //let's use CombinatorialFit just for simplicity but the vector above are with at most one cluster per ladder
   std::vector<std::pair<int, std::pair<double, double> > > vecS;//actually used just for compatibility with the telescopic function
   std::vector<std::pair<int, std::pair<double, double> > > vecK;//actually used just for compatibility with the telescopic function
@@ -624,7 +632,7 @@ double Event::CombinatorialFit(
 			     int nptsS, int nptsK,
 			     bool verbose
 			     ){
-  //  printf("ijinf = %d, itdr = %d\n", ijinf, itdr);
+  //    printf("ijinf = %d, itdr = %d\n", ijinf, itdr);
 
   if (itdr==0) {
     itdr=NTDRS;
@@ -634,7 +642,7 @@ double Event::CombinatorialFit(
   if (ijinf!=0) {//recursion
     int sizeS = v_cog_laddS[ijinf-1][itdr-1].size();
     int sizeK = v_cog_laddK[ijinf-1][itdr-1].size();
-    //    printf("size: %d %d\n", sizeS, sizeK);
+    //        printf("size: %d %d\n", sizeS, sizeK);
     for (int ss=0; ss<std::max(sizeS, 1); ss++) {
       for (int kk=0; kk<std::max(sizeK, 1); kk++) {
         //	printf("ss=%d, kk=%d\n", ss, kk);
@@ -807,7 +815,7 @@ double Event::SingleFit(
   minuit->mnparm(1, "mK", vstart[1], step[1], 0, 0, ierflg);
   minuit->mnparm(2, "S0", vstart[2], step[2], 0,0, ierflg);
   minuit->mnparm(3, "K0", vstart[3], step[3], 0,0, ierflg);
-
+  
   // Now ready for minimization step
   arglist[0] = 50000;
   arglist[1] = 1.;
@@ -819,18 +827,22 @@ double Event::SingleFit(
   // minuit->mnstat(amin, edm, errdef, nvpar, nparx, icstat);
   // minuit->mnprin(3,amin);
 
+ 
   minuit->GetParameter (0, mX, mXerr);
   minuit->GetParameter (1, mY, mYerr);
   minuit->GetParameter (2, X0, X0err);
   minuit->GetParameter (3, Y0, Y0err);
-
+ 
   Double_t covmat[4][4];
   minuit->mnemat(&covmat[0][0],4);
   corrXmX=-covmat[0][2]/(sqrt(covmat[0][0]*covmat[2][2])); //minus is because they shold be anticorrelated
   corrYmY=-covmat[1][3]/(sqrt(covmat[1][1]*covmat[3][3]));
+
 #else
   //Analytical Fit
 
+  // Viviana claimed that everything following was REVERSED (S<->K). I imported the newer version, erasing Viviana's one. Check if is correct.
+  
   Double_t S1=0, Sz=0, Szz=0;
   
   //Fit X
@@ -958,6 +970,8 @@ double Event::SingleFit(
   double chisqK_nored = 0.0;
   double chisq = 0.0;
 
+
+  // Viviana claimed REVERSED X->Y. I imported the newew version, erasing her one. We need to check
   if (ndofS>=0) {
     chisqS_nored = _compchisq(vS, v_chilayS, mX, X0, v_trackErrS_sf);
     chisq += chisqS_nored;
@@ -975,6 +989,7 @@ double Event::SingleFit(
     else if (ndof==0) ret = 0.0;
     else ret = -1.0;
   }
+  // Viviana claimed REVERSED X->Y. I imported the newew version, erasing her one. We need to check
   chisqS = -1.0;
   if (ndofS>0) chisqS = chisqS_nored/ndofS;
   else if (ndofS==0) chisqS = 0.0;
@@ -993,7 +1008,7 @@ void _fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag) {
   std::vector<double> v_chilay;
 
   f = _compchisq(v_trackS_sf, v_chilay, par[0], par[2], v_trackErrS_sf) + _compchisq(v_trackK_sf, v_chilay, par[1], par[3], v_trackErrK_sf);
-
+  
   return;
 }
 #endif
@@ -1218,19 +1233,24 @@ double Event::GetCalStatus_PosNum(int tdrnum, int channel, int Jinfnum){
 
 double Event::GetCN_PosNum(int tdrnum, int va, int Jinfnum){
 
-  short int array[1024];
-  float arraySoN[1024];
-  float pede[1024];
-  int status[1024];
+  // Viviana: hardcoded n channel
+  // array dimension was 1024
+  short int array[4096];
+  float arraySoN[4096];
+  float pede[4096];
+  int status[4096];
 
-  for(int chan=0; chan <1024; chan++){
+  for(int chan=0; chan <4096; chan++){
     array[chan]=RawSignal[tdrnum][chan];
     arraySoN[chan]=RawSoN[tdrnum][chan];
     pede[chan]=CalPed[tdrnum][chan];
     status[chan]=CalStatus[tdrnum][chan];
   }
 
-  return ComputeCN(64, &(array[va*64]), &(pede[va*64]), &(arraySoN[va*64]), &(status[va*64]));
+  // Viviana: hardcoded number of channels per VA
+  // MD: but why '256' hardcoded' and not NCHAVA?
+  //  return ComputeCN(64, &(array[va*64]), &(pede[va*64]), &(arraySoN[va*64]), &(status[va*64]));
+  return ComputeCN(256, &(array[va*256]), &(pede[va*256]), &(arraySoN[va*256]), &(status[va*256]));
 }
 
 float Event::GetRawSoN_PosNum(int tdrnum, int channel, int Jinfnum) {
@@ -1268,10 +1288,10 @@ float Event::GetRawSoN(RHClass* rh, int tdrnum, int channel, int Jinfnum) {
 }
 
 double Event::ComputeCN(int size, short int* RawSignal, float* pede, float* RawSoN, int* status, double threshold){
-
+  
   double mean=0.0;
   int n=0;
-
+  
   for (int ii=0; ii<size; ii++){
     if (RawSoN[ii]<threshold && status[ii]==0) {//to avoid real signal...
       n++;
@@ -1286,7 +1306,7 @@ double Event::ComputeCN(int size, short int* RawSignal, float* pede, float* RawS
     mean = ComputeCN(size, RawSignal, pede, RawSoN, status, threshold+1.0);
   }
   //  printf("    CN = %f\n", mean);
-
+  
   return mean;
 }
 
@@ -1302,6 +1322,15 @@ RHClass::RHClass(){
   sprintf(date," ");
   memset(JinfMap,-1,NJINF*sizeof(JinfMap[0]));
   memset(tdrMap,0,NTDRS*NJINF*sizeof(tdrMap[0]));
+
+  /* Viviana added (or left) these: do we really need?
+  for (int ii=0;ii<NTDRS;ii++)
+    for (int jj=0;jj<NVAS;jj++){
+      CNMean[ii][jj]=0.;
+      CNSigma[ii][jj]=0.;
+    }
+  }
+  */
 
   return;
 }
@@ -1333,7 +1362,7 @@ void RHClass::Print(){
       printf("TDR %2d???: Map pos: %d tdrnum: %d\n", tdrMap[ii].second, ii, tdrMap[ii].first);
     }
   }
-  
+
   printf("---------------------------------------------\n");
   return;
 }
