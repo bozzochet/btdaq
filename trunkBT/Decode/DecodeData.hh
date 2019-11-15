@@ -3,6 +3,9 @@
 #include "Event.hh"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TBranch.h"
 #include <cstdio>
 
 //(could be defined by Makefile)

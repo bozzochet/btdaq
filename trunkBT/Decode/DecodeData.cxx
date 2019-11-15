@@ -7,9 +7,6 @@
 #include "DecodeData.hh"
 
 #include "TString.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TBranch.h"
 #include "TRandom3.h"
 
 using namespace std;
@@ -92,13 +89,13 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary, bool 
     out_flag=1;  
   }
   else {
-    rh->Run=runn;
-    time_t now=time(0);
-    sprintf(rh->date, "%s", ctime(&now));
+    rh->SetRun(runn);
+    time_t now=time(0);//MD: I don't like. Should be decided when simulating, not when analyzing!
+    rh->SetDate(ctime(&now));
     nJinf=0;
     out_flag=0;
     ReadOneEvent();
-    ntdrRaw=ntdrMC;
+    ntdrRaw=ntdrMC;//MD: seems ok. MC files are raw by default and we clusterize offline...
     out_flag=1;
   }
 
@@ -658,18 +655,12 @@ int DecodeData::ReadOneEvent_data(){
 	}
       }
       else if (pri || evpri) {
-	int tdrnum=FindPos(ii);
-	//	  printf("%d\n", tdrnum);
-	if (tdrnum>=0)
-	  printf("A tdr (%02d) is CMP...\n", ii);
-	else {
-	  tdrnum=FindPosRaw(ii);
-	  //	    printf("%d\n", tdrnum);
-	  if (tdrnum>=0) printf("A tdr (%02d) is RAW...\n", ii);
-	  else {
-	    printf("A tdr (%02d) didn't replied...\n", ii);
-	  }
-	}
+	int tdrnum = FindPos(ii);
+        //	  printf("%d\n", tdrnum);
+        if (tdrnum >= 0)
+          printf("A tdr (%02d) replied...\n", ii);
+	else
+	  printf("A tdr (%02d) didn't replied...\n", ii);
       }
     }
   }
@@ -719,12 +710,17 @@ int DecodeData::ReadOneEvent_mc(){
       JinfMap[ij]=0;
     }
     for (int ir=0;ir<nlayers;ir++){
-      tdrRaw[ir]=ir;
-      printf("ALIGNMENT %d %d\n",ir,tdrAlign[ir]);
+      //      tdrRaw[ir]=ir;//Viviana
+      tdrMap[ir].first = ir;//MD: to check
+      tdrMap[ir].second = 0;//MD: RAW, and to check
+      printf("ALIGNMENT %d %d\n", ir, tdrAlign[ir]);
     }
+    /*
+    // Viviana, but not needed anymore
     for (int ic=0;ic<ntdrCmp;ic++){
       tdrCmp[ic]=0;
     }
+    */
 
     //printf("END FIRST ReadOneEventMC entry:%d %d\n",evenum,nhits);
     
@@ -1022,7 +1018,7 @@ int DecodeData::ReadOneTDR(int Jinfnum){
   return 0;
 }
 
-void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float* sig) {
+void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float *sig, bool kRaw) {
   //  pri=1;
   
   static LadderConf *ladderconf = Event::GetLadderConf();
@@ -1299,8 +1295,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
     double CN[nvas];
     
     for (int va=0; va<nvas; va++) {
-      CN[va] = Event::ComputeCN(nchava, &(array[va*nchava]), &(pede[va*nchava]), &(arraySoN[va*nchava]));
-      //      CN[va] = ComputeCN(nchava, &(array[va*nchava]), &(pede[va*nchava]), &(arraySoN[va*nchava]));
+      CN[va] = Event::ComputeCN(nchava, &(array[va * nchava]), &(pede[va * nchava]), &(arraySoN[va * nchava]), &(status[va * nchava]));
       //      printf("%d) %f\n", va, CN[va]);
       //      headerstringtodump += Form("CN[%d] = %f\n", va, CN[va]);
     }
@@ -1464,65 +1459,66 @@ void DecodeData::FindCalibs(){
   int run2;
   int runA;
   int runB;
-  int runMC=0;
-  FILE* calfile[NTDRS];
-  int old=pri;
-  bool afterclose=false;
+  int runMC=0;// added by Viviana. MD: see if really needed
+  
+  FILE *calfile[NTDRS];
+  int old = pri;
+  bool afterclose = false;
 
   if(!kMC){ 
-    if((ntdrCmp+ntdrRaw)<1){
+    if ((ntdrCmp + ntdrRaw) < 1) {
       printf("No TDR in CMP or RAW mode --> No DSP Calib can be found\n");
       return;
     }
-  
+    
     int tdrprobe = tdrMap[0].first;
     
-    for (runB=runn; runB>0 ;runB--){
+    for (runB = runn; runB > 0; runB--) {
       sprintf(nameB, "%s/%06d_%04d.cal", rawCaldir, runB, tdrprobe);
       //    printf("%s\n", nameB);
-      if (stat(nameB, &buf)==0){
+      if (stat(nameB, &buf) == 0) {
 	//      printf("First calib Found %s run %d\n", name1, run2);
 	break;
       }
     }
     
-    for (runA=runn; runA<(runn+(runn-runB)) ;runA++){
+    for (runA = runn; runA < (runn + (runn - runB)); runA++) {
       sprintf(nameA, "%s/%06d_%04d.cal", rawCaldir, runA, tdrprobe);
       //    printf("%s\n", nameA);
-      if (stat(nameA, &buf)==0){
+      if (stat(nameA, &buf) == 0) {
 	//      printf("First calib Found %s run %d\n", name1, run2);
-	afterclose=true;
+	afterclose = true;
 	break;
       }
     }
     
-    if (afterclose){
-      run2=runA;
+    if (afterclose) {
+      run2 = runA;
       sprintf(name1, "%s/%06d_%04d.cal", rawCaldir, runA, tdrprobe);
     }
-    else{
-      run2=runB;
+    else {
+      run2 = runB;
       sprintf(name1, "%s/%06d_%04d.cal", rawCaldir, runB, tdrprobe);
     }
     
     printf("Closest calib Found %s run %d\n", name1, run2);
-  
-    if (run2<40) {
+
+    if (run2 < 40) {
       printf("Cannot find any calibration done before the requested run %d\n", runn);
       printf("I give up. Bye.\n");
       exit(2);
     }
     else
-      printf ("Searching the calib files for the other TDRs, if any\n");
-
+      printf("Searching the calib files for the other TDRs, if any\n");
+    
     for (int ii = 0; ii < ntdrCmp+ntdrRaw; ii++) {
-      int Jinfnum=tdrCmp[ii]/100;
-      int tdrnum=tdrCmp[ii]-Jinfnum*100;
-      int index = Jinfnum*100+tdrnum;
-      sprintf(name1,"%s/%06d_%02d%02d.cal", rawCaldir, run2, Jinfnum, tdrnum);
-      calfile[index]=fopen(name1,"r");
-      if(!calfile[index]){
-	printf("Cannot find the calib %s for the requested calib run %d\n",name1,run2);
+      int Jinfnum = tdrMap[ii].first / 100;
+      int tdrnum = tdrMap[ii].first - Jinfnum * 100;
+      int index = Jinfnum * 100 + tdrnum;
+      sprintf(name1, "%s/%06d_%02d%02d.cal", rawCaldir, run2, Jinfnum, tdrnum);
+      calfile[index] = fopen(name1, "r");
+      if (!calfile[index]) {
+	printf("Cannot find the calib %s for the requested calib run %d\n", name1, run2);
 	printf("I give up. Bye.\n");
 	exit(2);
       }
@@ -1531,7 +1527,7 @@ void DecodeData::FindCalibs(){
       ReadCalib(calfile[index],&(cals[index]));
     }
   }// end if !kMC
-  else {
+  else {// for MC
     printf("%scalMC_%04d.cal TDRS %d\n", rawCaldir,runMC, ntdrMC);      
     for (int iic=0;iic<ntdrMC;iic++){
       //sprintf(nameMC,"%s/calMC_%04d.cal", rawCaldir, iic);
@@ -1754,7 +1750,7 @@ int DecodeData::ReadFile(void * ptr, size_t size, size_t nitems, FILE * stream){
   return ret;
 }
 
-void DecodeData::mysort(int* aa, int nel){
+void DecodeData::mysort(laddernumtype *aa, int nel){
   
   laddernumtype* bb = new laddernumtype[nel];
   
