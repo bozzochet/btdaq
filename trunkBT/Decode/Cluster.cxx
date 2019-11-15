@@ -193,8 +193,10 @@ float Cluster::GetCoG(){
 
 int Cluster::GetVA(int strip_address){
   int vanum=0;
-
-  vanum=strip_address/64;
+  // Viviana: hardcoded number of channels per VA
+  // MD: we need to put this under a #define, but however 256 is not possibile.
+  // vanum=strip_address/64;
+  vanum=strip_address/256;
 
   return vanum;
 }
@@ -273,6 +275,18 @@ double Cluster::GetAlignedPosition(int mult){
   double align_shift = Event::GetAlignPar(GetJinf(), GetTDR(), side);
   return (cog2+pitchcorr)*GetPitch(side)+mult_shift-align_shift;
 }
+
+// MD: must be a general function, cannot be divided for data and MC
+double Cluster::GetAlignedPositionMC(){
+  double align_shift = Event::GetAlignPar(GetJinf(), GetTDR(), side);
+  float cog = GetCoG();
+  double mult_shift = 0.0;
+  float pitchcorr = 0.110; // just for fun
+  
+  return (cog+pitchcorr)*GetPitch(0)+mult_shift-align_shift;
+}
+
+
 
 double Cluster::GetZPosition(){
   return Event::GetAlignPar(GetJinf(), GetTDR(), 2);
