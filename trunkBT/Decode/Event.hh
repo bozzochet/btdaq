@@ -7,9 +7,13 @@
 
 #include "LadderConf.hh"
 
+//// also def in Cluster.hh
 #define NTDRS 24
 #define NJINF 1
+
 #define NVAS  16
+// added here number of read ch per va -> dimension of arrays 
+#define NCHAVA 256
 
 typedef short int shortint;
 typedef std::pair<int, int> laddernumtype;
@@ -67,7 +71,7 @@ public:
   double GetThetaTrack() { return _theta; };
   double GetPhiTrack() { return _phi; };
   double GetS0Track() { return _S0; };
-  double GetK0Track() { return _K0; };
+  double GetK0Track() { return _K0; }; 
   double GetChiTrack() { return _chisq; };
   double GetChiTrackS() { return _chisqS; };
   double GetChiTrackK() { return _chisqK; };
@@ -87,14 +91,14 @@ public:
   double GetCN_PosNum(int tdrposnum, int va, int Jinfnum=0);
   float GetRawSoN_PosNum(int tdrposnum, int channel, int Jinfnum=0);
   double GetCalStatus_PosNum(int tdrposnum, int va, int Jinfnum=0);
-
+  
   double GetCalPed(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetCalSigma(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetRawSignal(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetCN(RHClass* rh, int tdrnum, int va, int Jinfnum=0);
   float GetRawSoN(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetCalStatus(RHClass* rh, int tdrposnum, int va, int Jinfnum=0);
-
+  
 private:
   static bool ladderconfnotread;
   static LadderConf* ladderconf;
@@ -160,12 +164,16 @@ private:
   //! (TClones) Array of the recontructed hits
 
   //! pointer to the data (filled just when reading RAW data) and just for the first 8 TRDs (even when there're more Jinf's)
-  //8 since more than 8 raw TDRs cannot be read by a single Jinf
-  double     CalSigma[8][1024];   
-  double       CalPed[8][1024];
-  short int RawSignal[8][1024];
-  float        RawSoN[8][1024];//! (do not stream on file! Can be recomputed easily!)
-  int       CalStatus[8][1024];
+  // was 8 since more than 8 raw TDRs cannot be read by a single Jinf
+  // in the MC, instead, can be long as we want
+  // Viviana  changed to [NTDRS] what about CH 1024->4096
+  // CH=NVAS*NCHAVA
+  // MD: check how much space we waste
+  double     CalSigma[NTDRS][NVAS*NCHAVA];   
+  double       CalPed[NTDRS][NVAS*NCHAVA];
+  short int RawSignal[NTDRS][NVAS*NCHAVA];
+  float        RawSoN[NTDRS][NVAS*NCHAVA];//! (do not stream on file! Can be recomputed easily!)
+  int       CalStatus[NTDRS][NVAS*NCHAVA];
   short int ReadTDR[NTDRS];
 
   //track parameters and points
@@ -202,8 +210,8 @@ private:
   // int is jinfnum*100+tdrnum
   std::vector<int> _v_ladderS_to_ignore;//!
   std::vector<int> _v_ladderK_to_ignore;//!
-
-  ClassDef(Event,5)
+  
+  ClassDef(Event,6)
 };
 
 //! Run Header Class
@@ -217,6 +225,8 @@ private:
   int JinfMap[NJINF];
   int ntdrRaw;
   int ntdrCmp;
+  //  double CNMean[NTDRS][NVAS];//added by Viviana? Do we really need?
+  //  double CNSigma[NTDRS][NVAS];//added by Viviana? Do we really need?
   laddernumtype tdrMap[NJINF*NTDRS];
 
 public:
@@ -253,8 +263,7 @@ public:
   
   int FindPos(int tdrnum);
 
-  ClassDef(RHClass,3)
+  ClassDef(RHClass,4)
 };
-
 
 #endif
