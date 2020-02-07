@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
   if (GetRH(chain)) {
 
     GetRH(chain)->Print();
-     _maxtdr = GetRH(chain)->ntdrRaw;
+     _maxtdr = GetRH(chain)->GetNTdrs();
     printf("This run has %d layers\n", _maxtdr);
   }
   else {
@@ -125,15 +125,17 @@ int main(int argc, char* argv[]) {
   // GetPitch used always with side=0 to get (S pitch)
   
   for (int tt=0; tt<_maxtdr; tt++) {
-    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", GetRH(chain)->tdrRawMap[tt]), Form("occupancy_0_%02d;Channel number;Occupancy", GetRH(chain)->tdrRawMap[tt]), 4096, 0, 4096); // was 1024
-    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", GetRH(chain)->tdrRawMap[tt]), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", GetRH(chain)->tdrRawMap[tt]), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0,tt,0), NSTRIPSS*Cluster::GetPitch(0,tt,0));
-    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", GetRH(chain)->tdrRawMap[tt]), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", GetRH(chain)->tdrRawMap[tt]), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(0,tt,0), NSTRIPSK*Cluster::GetPitch(0,tt,0));
-    residual_S[tt] = new TH1F(Form("residual_S_0_%02d", GetRH(chain)->tdrRawMap[tt]), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", GetRH(chain)->tdrRawMap[tt]), 
+    // VV compatibility with newer version of RHClass (without tdrRawMap and findPosRaw)
+    int tdrnum = GetRH(chain)->GetTdrNum(tt);
+    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", tdrnum), Form("occupancy_0_%02d;Channel number;Occupancy", tdrnum), 4096, 0, 4096); // was 1024
+    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", tdrnum), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", tdrnum), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0,tt,0), NSTRIPSS*Cluster::GetPitch(0,tt,0));
+    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", tdrnum), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", tdrnum), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(0,tt,0), NSTRIPSK*Cluster::GetPitch(0,tt,0));
+    residual_S[tt] = new TH1F(Form("residual_S_0_%02d", tdrnum), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", tdrnum), 
 			      2*NSTRIPSS, -float(NSTRIPSS)/100.*Cluster::GetPitch(0,tt,0), float(NSTRIPSS)/100.*Cluster::GetPitch(0,tt,0));
-    residual_K[tt] = new TH1F(Form("residual_K_0_%02d", GetRH(chain)->tdrRawMap[tt]), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", GetRH(chain)->tdrRawMap[tt]), 40*NSTRIPSK, -20*float(NSTRIPSK)/100.*Cluster::GetPitch(0,tt,0), 20*float(NSTRIPSK)/100.*Cluster::GetPitch(0,tt,0));
-    chargeS[tt] = new TH1F(Form("chargeS_0_%02d", GetRH(chain)->tdrRawMap[tt]), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", GetRH(chain)->tdrRawMap[tt]), 1000, 0, 100);
-    chargeK[tt] = new TH1F(Form("chargeK_0_%02d", GetRH(chain)->tdrRawMap[tt]), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", GetRH(chain)->tdrRawMap[tt]), 1000, 0, 100);
-    charge2D[tt] = new TH2F(Form("charge_0_%02d", GetRH(chain)->tdrRawMap[tt]), Form("charge_0_%02d;Q_{S} (c.u.);Q_{K} (c.u.);Entries", GetRH(chain)->tdrRawMap[tt]), 1000, 0, 100, 1000, 0, 100);
+    residual_K[tt] = new TH1F(Form("residual_K_0_%02d", tdrnum), Form("residual_K_0_%02d;Residual_{K} (mm);Entries",tdrnum), 40*NSTRIPSK, -20*float(NSTRIPSK)/100.*Cluster::GetPitch(0,tt,0), 20*float(NSTRIPSK)/100.*Cluster::GetPitch(0,tt,0));
+    chargeS[tt] = new TH1F(Form("chargeS_0_%02d", tdrnum), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", tdrnum), 1000, 0, 100);
+    chargeK[tt] = new TH1F(Form("chargeK_0_%02d", tdrnum), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", tdrnum), 1000, 0, 100);
+    charge2D[tt] = new TH2F(Form("charge_0_%02d", tdrnum), Form("charge_0_%02d;Q_{S} (c.u.);Q_{K} (c.u.);Entries", tdrnum), 1000, 0, 100, 1000, 0, 100);
   }
   chargeS_ave = new TH1F("chargeS", "chargeS;Q_{S} (c.u.);Entries", 1000, 0, 100);
   chargeK_ave = new TH1F("chargeK", "chargeK;Q_{K} (c.u.);Entries", 1000, 0, 100);
@@ -303,11 +305,14 @@ int main(int argc, char* argv[]) {
     dyRes->Fill(1e3*(dYtrue-magz*tan(ev->GetThetaTrack())));
     phi->Fill(ev->GetPhiTrack());
     thetaphi->Fill(ev->GetThetaTrack(), ev->GetPhiTrack());
-    X0->Fill(ev->GetX0Track());
-    Y0->Fill(ddzone+ev->GetY0Track());
+    // VV compatibility with newer version X0 -> S0 and Y0 -> K0
+    // X0->Fill(ev->GetX0Track());
+    // Y0->Fill(ddzone+ev->GetY0Track());
+    X0->Fill(ev->GetS0Track());
+    Y0->Fill(ddzone+ev->GetK0Track());
 
-    printf("TRACK PARAMETERS chi th phi X0 Y0 -> %f %f %f %f %f\n", ev->GetChiTrack(),ev->GetThetaTrack(),ev->GetPhiTrack(),ev->GetX0Track(),ev->GetY0Track());
-    X0Y0->Fill(ev->GetX0Track(), ddzone+ev->GetY0Track());
+    printf("TRACK PARAMETERS chi th phi X0 Y0 -> %f %f %f %f %f\n", ev->GetChiTrack(),ev->GetThetaTrack(),ev->GetPhiTrack(),ev->GetS0Track(),ev->GetK0Track());
+    X0Y0->Fill(ev->GetS0Track(), ddzone+ev->GetK0Track());
     X0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 0));
     Y0HERD->Fill(ddzone+ev->ExtrapolateTrack(ZHERD, 1));
     X0Y0HERD->Fill(ev->ExtrapolateTrack(ZHERD, 0), ddzone+ev->ExtrapolateTrack(ZHERD, 1));
@@ -325,16 +330,18 @@ int main(int argc, char* argv[]) {
       
       int ladder = cl->ladder;
       //      printf("%d --> %d\n", ladder, GetRH(chain)->FindPos(ladder));
-      occupancy[GetRH(chain)->FindPosRaw(ladder)]->Fill(cl->GetCoG());
+
+      // VV: compatibility change FindPosRaw -> FindPos
+      occupancy[GetRH(chain)->FindPos(ladder)]->Fill(cl->GetCoG());
       int side=cl->side;
 
       if (side==0) {
-	occupancy_posS[GetRH(chain)->FindPosRaw(ladder)]->Fill(ddzone+cl->GetAlignedPositionMC());
-	v_cog_all_laddS[GetRH(chain)->FindPosRaw(ladder)].push_back(ddzone+cl->GetAlignedPositionMC());
+	occupancy_posS[GetRH(chain)->FindPos(ladder)]->Fill(ddzone+cl->GetAlignedPositionMC());
+	v_cog_all_laddS[GetRH(chain)->FindPos(ladder)].push_back(ddzone+cl->GetAlignedPositionMC());
       }
       else {
-	occupancy_posK[GetRH(chain)->FindPosRaw(ladder)]->Fill(ddzone+cl->GetAlignedPositionMC());
-	v_cog_all_laddK[GetRH(chain)->FindPosRaw(ladder)].push_back(ddzone+cl->GetAlignedPositionMC());
+	occupancy_posK[GetRH(chain)->FindPos(ladder)]->Fill(ddzone+cl->GetAlignedPositionMC());
+	v_cog_all_laddK[GetRH(chain)->FindPos(ladder)].push_back(ddzone+cl->GetAlignedPositionMC());
       }
             
       if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
@@ -343,15 +350,15 @@ int main(int argc, char* argv[]) {
       
       if (side==0) {
 	if (strackok) {
-	  residual_S[GetRH(chain)->FindPosRaw(ladder)]->Fill(ddzone+cl->GetAlignedPositionMC()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));// was 0 for Y
-	  v_cog_laddS[GetRH(chain)->FindPosRaw(ladder)].push_back(ddzone+cl->GetAlignedPositionMC());
+	  residual_S[GetRH(chain)->FindPos(ladder)]->Fill(ddzone+cl->GetAlignedPositionMC()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));// was 0 for Y
+	  v_cog_laddS[GetRH(chain)->FindPos(ladder)].push_back(ddzone+cl->GetAlignedPositionMC());
 	  hclusSladdtrack->Fill(ladder);
 	}
       }
       else {
 	if (ktrackok) {
-	  residual_K[GetRH(chain)->FindPosRaw(ladder)]->Fill(ddzone+cl->GetAlignedPositionMC()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));// was 1 for Y
-	  v_cog_laddK[GetRH(chain)->FindPosRaw(ladder)].push_back(ddzone+cl->GetAlignedPositionMC());
+	  residual_K[GetRH(chain)->FindPos(ladder)]->Fill(ddzone+cl->GetAlignedPositionMC()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));// was 1 for Y
+	  v_cog_laddK[GetRH(chain)->FindPos(ladder)].push_back(ddzone+cl->GetAlignedPositionMC());
 	  hclusKladdtrack->Fill(ladder);
 	}
       }
@@ -364,23 +371,26 @@ int main(int argc, char* argv[]) {
       int index_cluster_S = vec_charge.at(tt).second.first;
       int index_cluster_K = vec_charge.at(tt).second.second;
       if (index_cluster_S>=0) {
-	chargeS[GetRH(chain)->FindPosRaw(ladder)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge());
+	chargeS[GetRH(chain)->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge());
       }
       if (index_cluster_K>=0) {
-	chargeK[GetRH(chain)->FindPosRaw(ladder)]->Fill(ev->GetCluster(index_cluster_K)->GetCharge());
+	chargeK[GetRH(chain)->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_K)->GetCharge());
       }
       if (index_cluster_S>=0 && index_cluster_K>=0) {
-	charge2D[GetRH(chain)->FindPosRaw(ladder)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge(), ev->GetCluster(index_cluster_K)->GetCharge());
+	charge2D[GetRH(chain)->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge(), ev->GetCluster(index_cluster_K)->GetCharge());
       }
     }
     
     chargeS_ave->Fill(ev->GetChargeTrack(0));
     chargeK_ave->Fill(ev->GetChargeTrack(1));
     charge2D_ave->Fill(ev->GetChargeTrack(0), ev->GetChargeTrack(1));
-    
+
+    // VV: changed for compatibility with newer version of RHClass
     for (int ll=0; ll<NJINF*NTDRS; ll++) {
-      hclusSladd->Fill(GetRH(chain)->tdrRawMap[ll], v_cog_all_laddS[ll].size());
-      hclusKladd->Fill(GetRH(chain)->tdrRawMap[ll], v_cog_all_laddK[ll].size());
+      //      hclusSladd->Fill(GetRH(chain)->tdrRawMap[ll], v_cog_all_laddS[ll].size());
+      // hclusKladd->Fill(GetRH(chain)->tdrRawMap[ll], v_cog_all_laddK[ll].size());
+      hclusSladd->Fill(GetRH(chain)->GetTdrNum(ll), v_cog_all_laddS[ll].size());
+      hclusKladd->Fill(GetRH(chain)->GetTdrNum(ll), v_cog_all_laddK[ll].size());
     }
     
     //    printf("\n",);

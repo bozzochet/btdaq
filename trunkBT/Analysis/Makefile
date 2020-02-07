@@ -48,8 +48,8 @@ Viewer: ./obj/viewer.o
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) -o$@
 
 ViewerGUI:
-	$(ROOTCLING) -f guiDict.cxx $(DECODE)/Event.cxx $(DECODE)/Cluster.cxx $(DECODE)/LadderConf.cxx -c $(SRC)/viewerGUI.hh $(SRC)/guiLinkDef.h
-	$(CXX) $(SRC)/viewerGUI.cxx guiDict.cxx $(INCLUDES) $(ROOTVIEWERLIBS) -o$@
+	$(ROOTCLING) -f $(SRC)/guiDict.cxx $(DECODE)/Event.cxx $(DECODE)/Cluster.cxx $(DECODE)/LadderConf.cxx -c $(SRC)/viewerGUI.hh $(SRC)/guiLinkDef.h
+	$(CXX) $(SRC)/viewerGUI.cxx $(SRC)/guiDict.cxx $(INCLUDES) $(ROOTVIEWERLIBS) -o$@
 
 ViewerFOOT: ./obj/viewerFOOT.o $(COMMON)/obj/Utilities.o libEvent
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
