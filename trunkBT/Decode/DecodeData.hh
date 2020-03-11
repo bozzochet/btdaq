@@ -111,14 +111,22 @@ public:
   int evenum;
 
   int nhits;//added by Viviana
+  int ntothits;
   int pphit;//added by Viviana
 
   //// generalization for nhits!=nlayers
   int hvol[MAXNHITS];//added by Viviana
   double hvolz[MAXNHITS];//added by Viviana
+  double xcoord[MAXNHITS]; 
+  double ycoord[MAXNHITS]; 
+  double zcoord[MAXNHITS]; 
   int echx[MAXNHITS]; //added by Viviana
   int echy[MAXNHITS];//added by Viviana
   double edep[MAXNHITS];  //added by Viviana
+  double eEne[MAXNHITS];  //added by Viviana	
+  
+
+  
   
   TH1F* hocc[NJINF*NTDRS];
   TH1F* hoccseed[NJINF*NTDRS];
@@ -173,6 +181,7 @@ public:
   void OpenFile_mc(char* ifname);
   int ReadOneEvent_mc();
   int SkipOneEvent_mc(int evskip=1);
+  
   int EndOfFile_mc();
   
   void SetPrintOff(){pri=0;}

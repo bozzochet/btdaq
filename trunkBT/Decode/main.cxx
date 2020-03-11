@@ -209,8 +209,11 @@ int main(int argc,char** argv){
   printf("The choosen compression level is %d\n", complevel);
   TFile* foutput = new TFile(filename, "RECREATE", "File with the event tree", complevel);
   
-  DecodeData *dd1= new DecodeData(DirRaw, DirCal, run, ancillary, kMC);
+  ///VV debug
+  TTree* t4= new TTree("t4","My cluster tree");
 
+  DecodeData *dd1= new DecodeData(DirRaw, DirCal, run, ancillary, kMC);
+    
   dd1->shighthreshold=shighthreshold;
   dd1->slowthreshold=slowthreshold;
   dd1->khighthreshold=khighthreshold;
@@ -221,8 +224,11 @@ int main(int argc,char** argv){
   dd1->SetPrintOff();
   dd1->SetEvPrintOff();
 
-  TTree* t4= new TTree("t4","My cluster tree");
-  t4->Branch("cluster_branch","Event",&(dd1->ev),32000,2);
+  /// VV debug moved before dd1
+  //TTree* t4= new TTree("t4","My cluster tree");
+  /// VV debug given 64000
+  //t4->Branch("cluster_branch","Event",&(dd1->ev),32000,2);
+  t4->Branch("cluster_branch","Event",&(dd1->ev),64000,2);
   double chaK[24];
   double chaS[24];
   double sigK[24];
@@ -259,14 +265,16 @@ int main(int argc,char** argv){
     
     ret1=dd1->ReadOneEvent();
     //    printf("%d\n", ret1);
-    
-    ret1=dd1->EndOfFile();    
-    if (ret1) break;
+
+
+    /// VV debug commented out
+    // ret1=dd1->EndOfFile();    
+    //if (ret1) break;
     
     if (ret1==0) {
       processed++;
-      //      printf("This event has %d clusters\n", (dd1->ev)->GetNClusTot());
-      //      printf("This event has CALPED %f\n", (dd1->ev)->GetCalPed_PosNum(1,0,0));
+      printf("This event has %d clusters\n", (dd1->ev)->GetNClusTot());
+      printf("This event has CALPED %f\n", (dd1->ev)->GetCalPed_PosNum(1,0,0));
       memset(chaK, 0, 24*sizeof(chaK[0]));
       memset(chaS, 0, 24*sizeof(chaS[0]));
       memset(sigK, 0, 24*sizeof(sigK[0]));
@@ -315,8 +323,9 @@ int main(int argc,char** argv){
 
   }
 
-  CreatePdfWithPlots(dd1, pdf_filename);
-
+  //CreatePdfWithPlots(dd1, pdf_filename);
+  /// VV debug write to output file
+  foutput->cd();
   t4->Write("",TObject::kOverwrite);
 
   printf("\nProcessed %5d  Events\n",processed+readfailed+jinffailed);
@@ -324,11 +333,13 @@ int main(int argc,char** argv){
   printf("Rejected  %5d  Events --> Read Error\n",readfailed);
   printf("Rejected  %5d  Events --> Jinf/Jinj Error\n",jinffailed);
 
-  delete dd1;
+  /// VV debug moved just below
+  //  delete dd1;
 
   foutput->Write("",TObject::kOverwrite);
   foutput->Close("R");
-  
+
+  delete dd1;
   return 0;
 }
 

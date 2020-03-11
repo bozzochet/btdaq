@@ -218,9 +218,9 @@ DecodeData::~DecodeData(){
 
 
   if(kMC){
-    delete mcf;
     delete mcrt;
     delete mcht;    
+    delete mcf;
   }
   
   return;
@@ -241,9 +241,9 @@ int DecodeData::FindPos(int tdrnum) {
 int DecodeData::FindPosMC(int hitnum){
   
   // dummy map function -> to implement for realistic MC
-  // return hvol[hitnum]; // does not work on old files
+   return hvol[hitnum]; // does not work on old files
   // MD: see also if is really needed to have a separe FindPos for MC
-  return hitnum;
+  //return hitnum;
 }
 //=============================================================================================
 
@@ -311,7 +311,7 @@ void DecodeData::OpenFile_mc(char* ifname){
   mcrt->SetBranchAddress("nLayers",&nlayers);
   mcrt->SetBranchAddress("xyAlign",&tdrAlign);
   mcrt->GetEntry(0);
-  printf("OPEN MC FILE %s -> SIM Events, energy[GeV]: %d %f\n", rawname, gevt, gene);
+  printf("OPEN MC FILE %s -> SIM Events, energy[MeV]: %d %f\n", rawname, gevt, gene);
   mcht=(TTree*)mcf->Get("hitTree");
   int nent=mcht->GetEntries();
   printf("-> PProd Entries: %d\n", nent);
@@ -680,27 +680,23 @@ int DecodeData::ReadOneEvent_mc(){
 
   TRandom3 rn;
   double dEdX2ADC=3.5e3;
-
-  //// layer!=hits -->> to change for realistic mc configuration
-  //int nhits=NTDRS;
-  //int pphit;
-  //int echx[24];
-  //int echy[24];
-  //double edep[24];
   
   mcht->SetBranchAddress("nHits",&nhits);
-  //  mcht->SetBranchAddress("hVol",&hvol);
-  
+  mcht->SetBranchAddress("nTotalHits",&ntothits);
+  mcht->SetBranchAddress("hVol",&hvol);  
   mcht->SetBranchAddress("hVolZ",&hvolz);
+  mcht->SetBranchAddress("xCoord",&ycoord);
+  mcht->SetBranchAddress("yCoord",&ycoord);
+  mcht->SetBranchAddress("zCoord",&zcoord);
   mcht->SetBranchAddress("echX",&echx);
   mcht->SetBranchAddress("echY",&echy);
   mcht->SetBranchAddress("ppHit",&pphit);
 
   //// for electron -->> to set for both electron and positron 
-  mcht->SetBranchAddress("eeDep",&edep);
+  mcht->SetBranchAddress("eDep",&edep);
      
   mcht->GetEntry(evenum);  
-  printf("ReadOneEventMC entry:%d %d %d %d %d\n",evenum, nhits, pphit, echx[pphit], echy[pphit]); 
+  printf("ReadOneEventMC entry:%d %d %d %d %d\n",evenum, ntothits, pphit, echx[0], echy[0]); 
   ntdrMC=nlayers; 
 
   
@@ -735,10 +731,10 @@ int DecodeData::ReadOneEvent_mc(){
     
     ev->JINFStatus[0]=999;
     
-    printf("ReadOneEventMC store to event: %d %d %d %d %d %f %f \n",evenum,nhits,pphit,echx[pphit],echy[pphit],edep[pphit],edep[pphit]*dEdX2ADC/8.);
+    printf("ReadOneEventMC store to event: %d %d %d %f %f %d %d %f %f \n",evenum,ntothits,pphit,eEne[0],eEne[1],echx[0],echy[0],edep[0],edep[0]*dEdX2ADC/8.);
     int hitclcount=0;
-    for(int nh=0;nh<nhits;nh++){ // nhits!=nlayers
-      hvol[nh]=nh;      
+    for(int nh=0;nh<ntothits;nh++){ // nhits!=nlayers
+      //hvol[nh]=nh;      // now read
        
       //calib* cal=&(cals[nh]);
       calib* cal=&(cals[hvol[nh]]);
@@ -746,7 +742,7 @@ int DecodeData::ReadOneEvent_mc(){
       ev->TDRStatus[hvol[nh]]=999;
       ev->ReadTDR[hvol[nh]]=1;
       
-      printf("ReadOneEventMC HIT %d: %d %f cm %d %f GeV %f \n",nh,hvol[nh],hvolz[nh],(tdrAlign[hvol[nh]]?echx[nh]:echy[nh]),edep[nh],edep[nh]*dEdX2ADC/8.);
+      printf("ReadOneEventMC HIT %d: %d %f cm %d %f MeV %f \n",nh,hvol[nh],hvolz[nh],(tdrAlign[hvol[nh]]?echx[nh]:echy[nh]),edep[nh],edep[nh]*dEdX2ADC/8.);
       //// hardcoded number of channels
       for (int kk=0;kk<4096;kk++){
 	//for (int kk=0;kk<1024;kk++){
