@@ -89,8 +89,8 @@ Event::Event(){
   Cls->SetOwner();
 
   // MD: this must be fixed, cannot be hardcoded
-  //  if (ladderconfnotread) ReadLadderConf("ladderconf.dat");  
-  if (ladderconfnotread) ReadLadderConf("ladderconf_mc.dat");
+    if (ladderconfnotread) ReadLadderConf("ladderconf.dat");  
+  //if (ladderconfnotread) ReadLadderConf("ladderconf_mc.dat");
 
   if (alignmentnotread) ReadAlignment("alignment_mc.dat");
   //if (alignmentnotread) ReadAlignment("alignment_mc_300.dat");
