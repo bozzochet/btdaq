@@ -1354,13 +1354,12 @@ bool Event::FindTracksAndVertex(){
 	//printf("hit n° %d, y = %f, z = %f\n",index_cluster, current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2));
       }
     }
-    cout<<"oppellà\n";
-    if(current_cluster) delete current_cluster;
   }//for loop on clusters
 
   printf("L'evento ha generato %lu(S) + %lu(K) = %d cluster\n",v_hitsS.size(),v_hitsK.size(),NClusTot);
   //bool fail=0;
-  if(v_hitsS.size()<5 || v_hitsK.size()<5) return false;
+  if(v_hitsS.size()<5 || v_hitsK.size()<5)
+    {printf("non arriviamo ad almeno 5 per piano\n"); return false;}
   //we are going to copy in these vectors the hits recorded in the third 3 layers since the production layer
 
   /////////////////////////////////
@@ -1382,11 +1381,6 @@ bool Event::FindTracksAndVertex(){
       break;
     }
   }
-  // if ( vert_v_hitsS.size() < 5 ) {
-  //   cout<<"ops non bastano le hit S"<<endl;
-  //   return false;
-  // }
-
   printf("CAMBIO!!\n");
   iter=v_hitsK.begin();
   first_layer=GetCluster((*iter).first)->GetTDR();
@@ -1398,16 +1392,11 @@ bool Event::FindTracksAndVertex(){
       break;
     }
   }
-  // if (vert_v_hitsK.size()<5) {
-  //   cout<<"ops non bastano le hit K"<<endl;
-  //   return false;
-  // }
-
   printf("vert_hitsS sono %lu\n",vert_v_hitsS.size());
   printf("vert_hitsK sono %lu\n",vert_v_hitsK.size());
   
   if(vert_v_hitsS.size()<5 || vert_v_hitsK.size()<5)
-    {cout<<"non arriviamo ad almeno 5 per piano"<<endl; return false;}
+    {printf("non arriviamo ad almeno 5 per piano\n"); return false;}
   printf("abbiamo riempito tutti i v_hits che ci serviranno e tutti contengono almeno 5 hits\n");
 
   /////////////////////////////////////////////////////////
@@ -1450,12 +1439,13 @@ bool Event::FindTracksAndVertex(){
   int j_joinS,j_joinK;
   for(int it=0;it<n_tr_to_search;it++){
     printf("VERT:alla ricerca della %d° traccia\n",it+1);
-    cout<<"e 1\n";
+    printf("linea %d\n", __LINE__);
     Track(vert_v_hitsS,rejectsS);
-    cout<<"e 2\n";
+    printf("linea %d\n", __LINE__) ;   
     if(vert_v_hitsS.size()<3){printf("poche hit\n"); return false;}
+    printf("linea %d\n", __LINE__);
     printf("S:%lu\n",vert_v_hitsS.size());
-
+    printf("linea %d\n", __LINE__);
     Track(vert_v_hitsK,rejectsK);
     if(vert_v_hitsK.size()<3){printf("poche hit\n"); return false;}
     printf("K:%lu\n",vert_v_hitsK.size());
@@ -1516,9 +1506,9 @@ void Event::Track(std::vector<std::pair<int,std::pair<double,double>>> &hits,std
   double pos;
 
   for(int itdr=NTDRS-1;itdr>=0;itdr--){
-    cout<<"e 3\n";
+    printf("linea %d\n", __LINE__);
     dir=Hough(hits);
-    cout<<"e 4\n";
+    printf("linea %d\n", __LINE__);
     pos=alignpar[0][itdr][2];   //current z position for the study
     //printf("iter n° %d -> pos = %f\n",itdr,pos);
     //variables for the search of the minimum distance                                        
@@ -1565,14 +1555,14 @@ pair<double,double> Event::Hough( vector< pair< int, pair< double, double >>> &v
   pair<double,double> best_dir;
   
   int nHits=vec.size();
-  printf("lol2\n");
+  printf("linea %d\n", __LINE__);
   //h1->Reset("ICESM");
   int nbin[2] = { 1000, 1000 };
   double minbin[2] = { -1, -3000 }, maxbin[2] = { 1, 3000 };
-  cout<<"cose\n";
+  printf("linea %d\n", __LINE__);
   THnSparseD* h1=new THnSparseD(" ", "Hough Transform", 2, nbin, minbin, maxbin);
-  printf("lol3\n");
-
+  printf("linea %d\n", __LINE__);
+  
   double m, th, r;
   for(int ii=0; ii<nHits; ii++){
     for(int jj=ii+1; jj<nHits; jj++){
