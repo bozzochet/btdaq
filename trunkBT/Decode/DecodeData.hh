@@ -7,6 +7,7 @@
 #include "TTree.h"
 #include "TBranch.h"
 #include <cstdio>
+#include <vector>
 
 //(could be defined by Makefile)
 //#define CALOCUBE 
@@ -120,12 +121,25 @@ public:
   double xcoord[MAXNHITS]; 
   double ycoord[MAXNHITS]; 
   double zcoord[MAXNHITS]; 
-  int echx[MAXNHITS]; //added by Viviana
-  int echy[MAXNHITS];//added by Viviana
-  double edep[MAXNHITS];  //added by Viviana
+  //int echx[MAXNHITS]; //added by Viviana
+  //int echy[MAXNHITS];//added by Viviana
+  //double edep[MAXNHITS];  //added by Viviana
   double eEne[MAXNHITS];  //added by Viviana	
-  
+  double eDep[MAXNHITS];  //added by Viviana
 
+  int pdg[MAXNHITS];
+  int parid[MAXNHITS];
+  int trid[MAXNHITS]; 
+
+  //new GGS output for channels and deposits
+  int chXY[MAXNHITS]; 
+  int hitStrips[MAXNHITS];
+  int simStrips[MAXNHITS];
+  std::vector<int> * hitChan = 0;
+  std::vector<double> * hitDep = 0;
+  std::vector<int> *simChan = 0;
+  std::vector<double> *simDep = 0;
+  
   
   
   TH1F* hocc[NJINF*NTDRS];

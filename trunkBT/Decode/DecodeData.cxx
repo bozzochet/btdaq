@@ -45,8 +45,8 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary, bool 
   
   memset(tdrAlign,-1,NTDRS*sizeof(tdrAlign[0]));//added by Viviana
   
-  pri=0;
-  //  pri=1;
+  //pri=0;
+    pri=1;
   evpri=0;
   
   sprintf(type,"Jinf");
@@ -311,11 +311,38 @@ void DecodeData::OpenFile_mc(char* ifname){
   mcrt->SetBranchAddress("nLayers",&nlayers);
   mcrt->SetBranchAddress("xyAlign",&tdrAlign);
   mcrt->GetEntry(0);
-  printf("OPEN MC FILE %s -> SIM Events, energy[MeV]: %d %f\n", rawname, gevt, gene);
+  printf("OPEN MC FILE %s -> SIM Events %d energy: %f MeV, LAYERS %d \n", rawname, gevt, gene, nlayers);
+  
   mcht=(TTree*)mcf->Get("hitTree");
   int nent=mcht->GetEntries();
   printf("-> PProd Entries: %d\n", nent);
+
+  /// moved here  
+  mcht->SetBranchAddress("nHits",&nhits);
+  mcht->SetBranchAddress("nTotalHits",&ntothits);
+  mcht->SetBranchAddress("hVol",&hvol);  
+  mcht->SetBranchAddress("hVolZ",&hvolz);
+  mcht->SetBranchAddress("xCoord",&ycoord);
+  mcht->SetBranchAddress("yCoord",&ycoord);
+  mcht->SetBranchAddress("zCoord",&zcoord);
+  mcht->SetBranchAddress("ppHit",&pphit);
   
+  mcht->SetBranchAddress("eDep",&eDep);
+  mcht->SetBranchAddress("eEne",&eEne);
+
+  mcht->SetBranchAddress("PDG",&pdg);
+  mcht->SetBranchAddress("ParID",&parid);
+  mcht->SetBranchAddress("TrID",&trid);
+  
+  /// new output from GGS
+  mcht->SetBranchAddress("chXY",&chXY);
+  mcht->SetBranchAddress("hitStrips",&hitStrips);
+  mcht->SetBranchAddress("simStrips",&simStrips);
+  mcht->SetBranchAddress("hitChan",&hitChan);
+  mcht->SetBranchAddress("hitDep",&hitDep);
+  mcht->SetBranchAddress("simChan",&simChan);
+  mcht->SetBranchAddress("simDep",&simDep);
+
   return;
 }
 
@@ -680,23 +707,16 @@ int DecodeData::ReadOneEvent_mc(){
 
   TRandom3 rn;
   double dEdX2ADC=3.5e3;
+ 
+  hitChan->clear();
+  hitDep->clear();
+  simChan->clear();
+  simDep->clear();
   
-  mcht->SetBranchAddress("nHits",&nhits);
-  mcht->SetBranchAddress("nTotalHits",&ntothits);
-  mcht->SetBranchAddress("hVol",&hvol);  
-  mcht->SetBranchAddress("hVolZ",&hvolz);
-  mcht->SetBranchAddress("xCoord",&ycoord);
-  mcht->SetBranchAddress("yCoord",&ycoord);
-  mcht->SetBranchAddress("zCoord",&zcoord);
-  mcht->SetBranchAddress("echX",&echx);
-  mcht->SetBranchAddress("echY",&echy);
-  mcht->SetBranchAddress("ppHit",&pphit);
-
-  //// for electron -->> to set for both electron and positron 
-  mcht->SetBranchAddress("eDep",&edep);
-     
-  mcht->GetEntry(evenum);  
-  printf("ReadOneEventMC entry:%d %d %d %d %d\n",evenum, ntothits, pphit, echx[0], echy[0]); 
+  mcht->GetEntry(evenum);
+  
+  std::cout<<"ReadOneEventMC entry:"<<evenum<<" hits "<<ntothits<<" pphit "<<pphit<<" datasize "<<simDep->size()<<std::endl;
+  
   ntdrMC=nlayers; 
 
   
@@ -723,62 +743,98 @@ int DecodeData::ReadOneEvent_mc(){
   }
   else{
 
-    //update the event counters
-    evenum++;  
+    //    //update the event counters ...here?
+    // evenum++;  
 
     ev->Evtnum=evenum;
     ev->JINJStatus=999;
     
     ev->JINFStatus[0]=999;
     
-    printf("ReadOneEventMC store to event: %d %d %d %f %f %d %d %f %f \n",evenum,ntothits,pphit,eEne[0],eEne[1],echx[0],echy[0],edep[0],edep[0]*dEdX2ADC/8.);
-    int hitclcount=0;
-    for(int nh=0;nh<ntothits;nh++){ // nhits!=nlayers
-      //hvol[nh]=nh;      // now read
-       
-      //calib* cal=&(cals[nh]);
-      calib* cal=&(cals[hvol[nh]]);
+    // printf("ReadOneEventMC store to event: %d %d %d %f %d %f %d \n",evenum,nlayers,pphit,eEne[0],chXY[0],eDep[0],int(eDep[0]*dEdX2ADC/8.));
+
+    
+    std::cout<<"ReadOneEventMC store to event:"<<evenum<<" layers "<<nlayers<<" hits "<<ntothits<<" pphit "<<pphit<<" datasize "<<simDep->size()<<" first hit: "<<pdg[0]<<" "<<parid[0]<<" "<<eEne[0]<<" "<<eDep[0]<<" alXY(0,1) "<<tdrAlign[0]<<" CoG "<<chXY[0]<<std::endl;
+
+  int hitclcount=0;
+  int nhi=0;
+   
+    //for(int nh=0;nh<ntothits;nh++){ // ntothits>nlayers
+    for(int nl=0;nl<ntdrMC;nl++){ // nlayers
+      //hvol[nh]=nh;      // now read      
+      calib* cal=&(cals[nl]);
+      ev->TDRStatus[nl]=999;
+      ev->ReadTDR[nl]=1;
+      //calib* cal=&(cals[hvol[nh]]);
+      //ev->TDRStatus[hvol[nh]]=999;
+      //ev->ReadTDR[hvol[nh]]=1;
       
-      ev->TDRStatus[hvol[nh]]=999;
-      ev->ReadTDR[hvol[nh]]=1;
-      
-      printf("ReadOneEventMC HIT %d: %d %f cm %d %f MeV %f \n",nh,hvol[nh],hvolz[nh],(tdrAlign[hvol[nh]]?echx[nh]:echy[nh]),edep[nh],edep[nh]*dEdX2ADC/8.);
-      //// hardcoded number of channels
+      printf("ReadOneEventMC LAYER %d align: %d\n",nl,tdrAlign[nl]);
+
+      /// hardcoded number of channels
       for (int kk=0;kk<4096;kk++){
 	//for (int kk=0;kk<1024;kk++){
-	ev->CalPed[hvol[nh]][kk]=cal->ped[kk];
-	ev->CalSigma[hvol[nh]][kk]=cal->sig[kk];
+	ev->CalPed[nl][kk]=cal->ped[kk];
+	ev->CalSigma[nl][kk]=cal->sig[kk];	
+	ev->RawSignal[nl][kk]=int(rn.Gaus(420.,1.125));// simnoise --> OK?
+	ev->RawSoN[nl][kk]=(ev->RawSignal[nl][kk]/8.0-cal->ped[kk])/cal->sig[kk];
+      }
+
+
+      for(int nh=0;nh<ntothits;nh++){ // ntothits>nlayers
+	if(hvol[nh]!=nl)
+	  continue;
+	if(pri)
+	  printf("LAYER %d HIT %d on CH %d: hitS %d simS %d DEP %f MeV conv %d \n",hvol[nh],nh,chXY[nh],hitStrips[nh],simStrips[nh],eDep[nh],int(eDep[nh]*dEdX2ADC/8.));
+            
+	//for (int kk=0;kk<4096;kk++){
+	  //for (int kk=0;kk<1024;kk++){
 	
-	ev->RawSignal[hvol[nh]][kk]=int(rn.Gaus(0.,5.));// simnoise --> OK?
-	//	int chh=!tdrAlign[nh]?echx[nh]:echy[nh]; // X or Y according to alignment
+	for (int si=0;si<simStrips[nh];si++){
+	  //check the shift of 255 chs for 50x50 as done previously 	 
+	  cout<<"*****************"<<si<<" "<<hvol[nh]<<" "<<nhi<<" "<<simChan->at(nhi)<<" "<<simDep->at(nhi)<<endl;
+	  ev->RawSignal[hvol[nh]][simChan->at(nhi)]+=int(simDep->at(nhi)*dEdX2ADC);
+	  ev->RawSoN[hvol[nh]][simChan->at(nhi)]=(ev->RawSignal[hvol[nh]][simChan->at(nhi)]/8.0-cal->ped[simChan->at(nhi)])/cal->sig[simChan->at(nhi)];
+	  if(pri)
+	    printf("HITSIG %d: %d %f %f %f\n",simChan->at(nhi),ev->RawSignal[hvol[nh]][simChan->at(nhi)],ev->RawSoN[hvol[nh]][simChan->at(nhi)],cal->ped[simChan->at(nhi)],cal->sig[simChan->at(nhi)]);
+	  nhi++;
+       	}
+	  
 	// shift to get 4096 strips
-	int chh=!tdrAlign[hvol[nh]]?echx[nh]-225:echy[nh]-225; // X or Y according to alignment
-	
+	/* int chh=!tdrAlign[hvol[nh]]?echx[nh]-225:echy[nh]-225; // X or Y according to alignment
 	//	if(kk<640){	  //// was for getting 0 on the k side
 	if (kk==chh){
-	  ev->RawSignal[hvol[nh]][kk]=int(edep[nh]*dEdX2ADC);//
+	  ev->RawSignal[hvol[nh]][kk]=int(eDep[nh]*dEdX2ADC);//
 	  printf("ReadOneEventMC HITSIG %d: %d %f %f \n",kk,ev->RawSignal[hvol[nh]][kk],cal->ped[kk],cal->sig[kk]);
 	}
-	ev->RawSoN[hvol[nh]][kk]=(ev->RawSignal[hvol[nh]][kk]/8.0-cal->ped[kk])/cal->sig[kk];
 	
+	ev->RawSoN[nl][kk]=(ev->RawSignal[nl][kk]/8.0-cal->ped[kk])/cal->sig[kk];
+	*/
+	  
 	//printf("ReadOneEventMC SIGS %d: %d %f %f -> %f \n",kk,ev->RawSignal[nh][kk],cal->ped[kk],cal->sig[kk],ev->RawSoN[nh][kk]);
 	/*}else{
 	  ev->RawSignal[nh][kk]=0.;//	
 	  ev->RawSoN[nh][kk]=0.;
 	  }*/
 	
-      }
+	//}
       
-      hitclcount++;
-
+	hitclcount++;
+      
+      }// new loop on hits
+    
       //// numnum is hvol[nhit] -> must be mapped to find the ntdr(=nlayer)
-      int mtdrn=FindPosMC(nh);
+      //int mtdrn=FindPosMC(nl);
+      //     printf("ReadOneEventMC clusterize hits %d on vol %d of layer(tdr) %d, hcl:%d \n",nh, hvol[nh], mtdrn, hitclcount);
       
-      printf("ReadOneEventMC clusterize hit %d on vol %d of layer(tdr) %d, hcl:%d \n",nh, hvol[nh], mtdrn, hitclcount);
+      printf("ReadOneEventMC clusterize hits of layer %d , hcl:%d \n",nl, hitclcount);
+      //Clusterize(mtdrn, 0, cal);
+      Clusterize(nl, 0, cal);
+      
+    } // ntdrMC = nlayers
 
-      Clusterize(mtdrn, 0, cal);
-      
-    }
+    //update the event counters ...moved here
+    evenum++;  
 
   }// out_flag ==1
     
@@ -1015,7 +1071,7 @@ int DecodeData::ReadOneTDR(int Jinfnum){
 }
 
 void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float *sig, bool kRaw) {
-  //  pri=1;
+  pri=1;
   
   static LadderConf *ladderconf = Event::GetLadderConf();
   int _bondingtype = 0;
@@ -1085,8 +1141,8 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   //   for (int ii=0; ii<cluslen; ii++) {
   //     printf("AddCluster) %d %f\n", ii, sig[ii]);
   //   }
-  //  printf("***** SoN: %f, Sig: %f, SeedAdd: %d side %d \n", pp->GetSeedSN(), pp->GetSeedVal(), pp->GetSeed(), pp->side);
-     //   pp->Print();
+    printf("***** SoN: %f, Sig: %f, SeedAdd: %d side %d \n", pp->GetSeedSN(), pp->GetSeedVal(), pp->GetSeed(), pp->side);
+    //pp->Print();
      // sleep(3);
   // }
   // if (pp->GetSeedVal()<1.0) {
@@ -1109,7 +1165,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
 
   // printf("numnum = %d\n", numnum);
   
-  // pri=1;
+  pri=1;
   
   int _bondingtype=0;
   bool defaultThresholds = (shighthreshold == 3.5 && khighthreshold == 3.5 && slowthreshold == 1.0 && klowthreshold == 1.0);
@@ -1200,7 +1256,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib* cal) {
   int shift=0;
 
   TString headerstringtodump = "New clusterize:\n";
-  bool added=false;//added by Viviana
+  bool added=false;//added by Viviana 
   
   for (int side=0; side<2; side++) {
     if(added) continue;   

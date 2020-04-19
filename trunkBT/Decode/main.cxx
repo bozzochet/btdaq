@@ -266,7 +266,6 @@ int main(int argc,char** argv){
     ret1=dd1->ReadOneEvent();
     //    printf("%d\n", ret1);
 
-
     /// VV debug commented out
     // ret1=dd1->EndOfFile();    
     //if (ret1) break;
