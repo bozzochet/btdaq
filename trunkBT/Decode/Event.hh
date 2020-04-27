@@ -13,7 +13,7 @@
 
 #define NVAS  16
 // added here number of read ch per va -> dimension of arrays 
-#define NCHAVA 256
+#define NCHAVA 128
 
 typedef short int shortint;
 typedef std::pair<int, int> laddernumtype;

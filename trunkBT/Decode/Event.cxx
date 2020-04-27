@@ -72,7 +72,7 @@ Event::Event(){
   // Viviana: hardcoded n
   // -> kk to run onto nlayers
   for(int kk=0;kk<NTDRS;kk++) { // Viviana: was kk<8
-    for(int ii=0;ii<4096;ii++) {  //// Viviana: was ii<1024
+    for(int ii=0;ii<NVAS*NCHAVA;ii++) {  //// Viviana: was ii<1024
       CalSigma[kk][ii]=0.0;
       CalPed[kk][ii]=0.0;
       RawSignal[kk][ii]=0.;
@@ -126,7 +126,7 @@ void Event::Clear(){
   // Viviana: hardcoded
   // ->kk to run onto nlayers?
   for(int ii=0;ii<NTDRS;ii++){ // Viviana: was kk<8
-    for(int kk=0;kk<4096;kk++) { // Viviana: was 1024
+    for(int kk=0;kk<NVAS*NCHAVA;kk++) { // Viviana: was 1024
       CalSigma[ii][kk]=0.0;
       CalPed[ii][kk]=0.0;
       RawSignal[ii][kk]=0;
@@ -534,12 +534,12 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
     int side=current_cluster->side;
     if (side==0) {
       if (!(std::find(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item)!=_v_ladderS_to_ignore.end())) {
-	v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+	v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2))));
       }
     }
     else {
       if (!(std::find(_v_ladderK_to_ignore.begin(), _v_ladderK_to_ignore.end(), item)!=_v_ladderK_to_ignore.end())) {
-	v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+	v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2))));
       }
     }
     
@@ -580,12 +580,12 @@ bool Event::FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, do
       if (!(std::find(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item)!=_v_ladderS_to_ignore.end())) {
 	if (current_cluster->GetTotSN()>threshS) {
 	  if (v_q_laddS[jinfnum][tdrnum].size()==0) {
-	    v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+	    v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2))));
 	    v_q_laddS[jinfnum][tdrnum].push_back(current_cluster->GetCharge());
 	  }
 	  else {
 	    if (current_cluster->GetCharge()>v_q_laddS[jinfnum][tdrnum][0]) {
-	      v_cog_laddS[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2)));
+	      v_cog_laddS[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2)));
 	      v_q_laddS[jinfnum][tdrnum][0] = current_cluster->GetCharge();
 	    }
 	  }
@@ -596,12 +596,12 @@ bool Event::FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, do
       if (!(std::find(_v_ladderK_to_ignore.begin(), _v_ladderK_to_ignore.end(), item)!=_v_ladderK_to_ignore.end())) {
 	if (current_cluster->GetTotSN()>threshK) {
 	  if (v_q_laddK[jinfnum][tdrnum].size()==0) {
-	    v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+	    v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2))));
 	    v_q_laddK[jinfnum][tdrnum].push_back(current_cluster->GetCharge());
 	  }
 	  else {
 	    if (current_cluster->GetCharge()>v_q_laddK[jinfnum][tdrnum][0]) {
-	      v_cog_laddK[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2)));
+	      v_cog_laddK[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2)));
 	      v_q_laddK[jinfnum][tdrnum][0] = current_cluster->GetCharge();
 	    }
 	  }
@@ -1235,12 +1235,12 @@ double Event::GetCN_PosNum(int tdrnum, int va, int Jinfnum){
 
   // Viviana: hardcoded n channel
   // array dimension was 1024
-  short int array[4096];
-  float arraySoN[4096];
-  float pede[4096];
-  int status[4096];
+  short int array[NVAS*NCHAVA];
+  float arraySoN[NVAS*NCHAVA];
+  float pede[NVAS*NCHAVA];
+  int status[NVAS*NCHAVA];
 
-  for(int chan=0; chan <4096; chan++){
+  for(int chan=0; chan <NVAS*NCHAVA; chan++){
     array[chan]=RawSignal[tdrnum][chan];
     arraySoN[chan]=RawSoN[tdrnum][chan];
     pede[chan]=CalPed[tdrnum][chan];
@@ -1250,7 +1250,7 @@ double Event::GetCN_PosNum(int tdrnum, int va, int Jinfnum){
   // Viviana: hardcoded number of channels per VA
   // MD: but why '256' hardcoded' and not NCHAVA?
   //  return ComputeCN(64, &(array[va*64]), &(pede[va*64]), &(arraySoN[va*64]), &(status[va*64]));
-  return ComputeCN(256, &(array[va*256]), &(pede[va*256]), &(arraySoN[va*256]), &(status[va*256]));
+  return ComputeCN(NCHAVA, &(array[va*NCHAVA]), &(pede[va*NCHAVA]), &(arraySoN[va*NCHAVA]), &(status[va*NCHAVA]));
 }
 
 float Event::GetRawSoN_PosNum(int tdrnum, int channel, int Jinfnum) {

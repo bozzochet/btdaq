@@ -13,10 +13,10 @@
 //#define CALOCUBE 
 
 typedef struct calib{
-  float ped[4096]; // was [1024]: is backward compatible?
-  float rsig[4096]; // was [1024]: is backward compatible?
-  float sig[4096]; // was [1024]: is backward compatible?
-  int status[4096]; // was [1024]: is backward compatible?
+  float ped[NVAS*NCHAVA]; // was [1024]: is backward compatible?
+  float rsig[NVAS*NCHAVA]; // was [1024]: is backward compatible?
+  float sig[NVAS*NCHAVA]; // was [1024]: is backward compatible?
+  int status[NVAS*NCHAVA]; // was [1024]: is backward compatible?
 
 } calib;
 
