@@ -13,9 +13,10 @@
 #define NTDRS  24
 
 //110mum and 208mum
-#define SPITCH 0.110
+/// now READOUT PITCH
+#define SPITCH 0.220
 //#define KPITCH 0.208
-#define KPITCH 0.110  // Viviana: fake K. MD: Ladderconf must override it
+#define KPITCH 0.220  // Viviana: fake K. MD: Ladderconf must override it
 
 //10mum and 30mum
 #define SRESO 0.010
@@ -24,11 +25,9 @@
 
 // Viviana: originally was 640 and 384 channels
 //#define SCHANN 640
-//#define SCHANN 2560 // 50cmx50cm sensors 
-#define SCHANN 4096 // 50cmx50cm sensors
+#define SCHANN 2048 // 50cmx50cm sensors
 //#define KCHANN 384
-//#define KCHANN 640 // fake K
-#define KCHANN 4096 // fake K same 50x50cm sensors
+#define KCHANN 2048 // fake K same 50x50cm sensors
 // MD: we have to make it general
 
 //https://twiki.cern.ch/twiki/pub/Sandbox/HerdBT/HERDBT_Silicon_detector_details.pdf

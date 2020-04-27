@@ -137,10 +137,10 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary, bool 
 	{
 	  sprintf(name,"occ_%d_%d",jj, hh);
 	  //	  hocc[jj*NTDRS+hh]= new TH1F(name,name,1024,0,1024);
-	  hocc[jj*NTDRS+hh]= new TH1F(name,name,4096,0,4096);
+	  hocc[jj*NTDRS+hh]= new TH1F(name,name,NVAS*NCHAVA,0,NVAS*NCHAVA);
 	  sprintf(name,"occseed_%d_%d",jj, hh);
 	  //	  hoccseed[jj*NTDRS+hh]= new TH1F(name,name,1024,0,1024);
-	  hoccseed[jj*NTDRS+hh]= new TH1F(name,name,4096,0,4096);
+	  hoccseed[jj*NTDRS+hh]= new TH1F(name,name,NVAS*NCHAVA,0,NVAS*NCHAVA);
 	  
 	  sprintf(name,"qS_%d_%d", jj, hh);
 	  hcharge[jj*NTDRS+hh][0]= new TH1F(name,name,1000,0,100);
@@ -153,10 +153,10 @@ DecodeData::DecodeData(char* ifname, char* caldir, int run, int ancillary, bool 
 	  hsignal[jj*NTDRS+hh][1]= new TH1F(name,name,4200,-100,4100);
 	  
 	  sprintf(name,"q_vs_occ_%d_%d", jj, hh);
-	  hchargevsocc[jj*NTDRS+hh]= new TH2F(name,name,4096,0,4096,1000,0,100);
+	  hchargevsocc[jj*NTDRS+hh]= new TH2F(name,name,NVAS*NCHAVA,0,NVAS*NCHAVA,1000,0,100);
 	  
 	  sprintf(name,"signal_vs_occ_%d_%d", jj, hh);
-	  hsignalvsocc[jj*NTDRS+hh]= new TH2F(name,name,4096,0,4096,4200,-100,4100);
+	  hsignalvsocc[jj*NTDRS+hh]= new TH2F(name,name,NVAS*NCHAVA,0,NVAS*NCHAVA,4200,-100,4100);
 	  
 	  sprintf(name,"sonS_%d_%d", jj, hh);
 	  hson[jj*NTDRS+hh][0]= new TH1F(name,name,1000,0,100);
@@ -772,7 +772,7 @@ int DecodeData::ReadOneEvent_mc(){
       printf("ReadOneEventMC LAYER %d align: %d\n",nl,tdrAlign[nl]);
 
       /// hardcoded number of channels
-      for (int kk=0;kk<4096;kk++){
+      for (int kk=0;kk<NVAS*NCHAVA;kk++){
 	//for (int kk=0;kk<1024;kk++){
 	ev->CalPed[nl][kk]=cal->ped[kk];
 	ev->CalSigma[nl][kk]=cal->sig[kk];	
@@ -791,12 +791,13 @@ int DecodeData::ReadOneEvent_mc(){
 	  //for (int kk=0;kk<1024;kk++){
 	
 	for (int si=0;si<simStrips[nh];si++){
-	  //check the shift of 255 chs for 50x50 as done previously 	 
+	  //check the shift of -225 chs for 50x50 as done previously 	 
 	  cout<<"*****************"<<si<<" "<<hvol[nh]<<" "<<nhi<<" "<<simChan->at(nhi)<<" "<<simDep->at(nhi)<<endl;
-	  ev->RawSignal[hvol[nh]][simChan->at(nhi)]+=int(simDep->at(nhi)*dEdX2ADC);
-	  ev->RawSoN[hvol[nh]][simChan->at(nhi)]=(ev->RawSignal[hvol[nh]][simChan->at(nhi)]/8.0-cal->ped[simChan->at(nhi)])/cal->sig[simChan->at(nhi)];
+	  int sch=simChan->at(nhi)-112;
+	  ev->RawSignal[hvol[nh]][sch]+=int(simDep->at(nhi)*dEdX2ADC);
+	  ev->RawSoN[hvol[nh]][sch]=(ev->RawSignal[hvol[nh]][sch]/8.0-cal->ped[sch])/cal->sig[sch];
 	  if(pri)
-	    printf("HITSIG %d: %d %f %f %f\n",simChan->at(nhi),ev->RawSignal[hvol[nh]][simChan->at(nhi)],ev->RawSoN[hvol[nh]][simChan->at(nhi)],cal->ped[simChan->at(nhi)],cal->sig[simChan->at(nhi)]);
+	    printf("HITSIG %d: %d %f %f %f\n",sch,ev->RawSignal[hvol[nh]][sch],ev->RawSoN[hvol[nh]][sch],cal->ped[sch],cal->sig[sch]);
 	  nhi++;
        	}
 	  
@@ -1633,7 +1634,7 @@ int  DecodeData::ReadCalib_mc(FILE * fil,calib* cal){
   */
   
   ////for (int ii=0;ii<1024;ii++){  
-  for (int ii=0;ii<4096;ii++){
+  for (int ii=0;ii<NVAS*NCHAVA;ii++){
     
     /*		
 		fscanf(fil,"%d  %d  %d  %f %f %f %f %d  ",&a,&b,&c,

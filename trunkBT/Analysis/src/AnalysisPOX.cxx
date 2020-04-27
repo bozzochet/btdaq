@@ -48,6 +48,8 @@ int main(int argc, char* argv[]) {
   //// TEMPORARY HARDCODED THINGS
   // xyalignment of 50x50 detector with a core read by 4096 strips pitch 0.11
   double ddzone=24.75; // shift for getting 4096 strips in decode -> to check
+  // double ddzone=24.75; // shift for getting 4096 strips in decode -> to check
+
   
   TString align_filename = "alignment_mc.dat";
   //TString align_filename = "alignment_mc_300.dat";
@@ -98,8 +100,8 @@ int main(int argc, char* argv[]) {
   int pphit=-1;
 
   TTree *mcht=(TTree*)mcf->Get("hitTree");
-  mcht->SetBranchAddress("ezMom",&ezmom);
-  mcht->SetBranchAddress("ppHit",&pphit);
+  mcht->SetBranchAddress("zMom",&ezmom);
+
   
 
   TFile* foutput = new TFile(output_filename.Data(), "RECREATE");
@@ -116,18 +118,24 @@ int main(int argc, char* argv[]) {
   TH1F* chargeS_ave;
   TH1F* chargeK_ave;
   TH2F* charge2D_ave;
+  
+  int NSTRIPS=SCHANN; // FAKE S LAYERS MEASURING Y
+
   //  int NSTRIPSS=640;
-  int NSTRIPSS=4096; // FAKE S LAYERS MEASURING Y
+  int NSTRIPSS=SCHANN; // FAKE S LAYERS MEASURING Y
+  //int NSTRIPSS=4096; // FAKE S LAYERS MEASURING Y
+  
   //  int NSTRIPSK=384; 
   //int NSTRIPSK=640; // FAKE K LAYERS MEASURING X
-  int NSTRIPSK=4096; // FAKE K LAYERS MEASURING X
+  int NSTRIPSK=KCHANN; // FAKE K LAYERS MEASURING X
+  //int NSTRIPSK=4096; // FAKE K LAYERS MEASURING X
   
   // GetPitch used always with side=0 to get (S pitch)
   
   for (int tt=0; tt<_maxtdr; tt++) {
     // VV compatibility with newer version of RHClass (without tdrRawMap and findPosRaw)
     int tdrnum = GetRH(chain)->GetTdrNum(tt);
-    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", tdrnum), Form("occupancy_0_%02d;Channel number;Occupancy", tdrnum), 4096, 0, 4096); // was 1024
+    occupancy[tt] = new TH1F(Form("occupancy_0_%02d", tdrnum), Form("occupancy_0_%02d;Channel number;Occupancy", tdrnum), NSTRIPS, 0, NSTRIPS); // was 1024
     occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", tdrnum), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", tdrnum), 2*NSTRIPSS, -NSTRIPSS*Cluster::GetPitch(0,tt,0), NSTRIPSS*Cluster::GetPitch(0,tt,0));
     occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", tdrnum), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", tdrnum), 2*NSTRIPSK, -NSTRIPSK*Cluster::GetPitch(0,tt,0), NSTRIPSK*Cluster::GetPitch(0,tt,0));
     residual_S[tt] = new TH1F(Form("residual_S_0_%02d", tdrnum), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", tdrnum), 
@@ -291,7 +299,7 @@ int main(int argc, char* argv[]) {
     //double mom=0.311349; // first ev K=0.5 GeV
     //double mom=0.031011;// first ev K=0.05 GeV
     mcht->GetEntry(index_event);
-    double mom=ezmom[pphit];
+    double mom=ezmom[0];
     double magf=0.05; // mag field [tesla]
     double magz=0.2; // 2* mag z size [m]
     double ro=mom/magf/0.3;  // radius of curvature [m]
