@@ -42,7 +42,7 @@ INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE) -I$(
 
 .PHONY: ViewerGUI
 
-default: Analysis AnalysisPOX
+default: Analysis
 
 Viewer: ./obj/viewer.o
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) -o$@
@@ -55,9 +55,6 @@ ViewerFOOT: ./obj/viewerFOOT.o $(COMMON)/obj/Utilities.o libEvent
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
 
 Analysis: ./obj/Analysis.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
-
-AnalysisPOX: ./obj/AnalysisPOX.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
 
 AnalysisFOOT: ./obj/AnalysisFOOT.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
@@ -86,7 +83,6 @@ clean:
 	rm -Rf ./obj
 	rm -f ./Analysis
 	rm -f ./AnalysisFOOT
-	rm -f ./AnalysisPOX
 	rm -f ./ViewerGUI
 	rm -f ./ViewerFOOT
 
