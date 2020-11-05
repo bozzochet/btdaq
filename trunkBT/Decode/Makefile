@@ -12,20 +12,28 @@ LIB_OBJ=$(LIB_SOURCES:%.cxx=obj/%.o)
 
 ANYOPTION=AnyOption
 
+ROOTVERSION      := $(shell $(ROOTSYS)/bin/root-config --version | cut -b1-1)
+
 ROOTINC = $(shell root-config --incdir)
 ROOTDYNAMICLIBS := $(shell root-config --libs) -lMinuit
 
-#CFLAGS= -O -std=c++11 -g -fPIC
-CFLAGS = $(shell root-config --cflags) -g -fPIC
 LDFLAGS = $(shell root-config --ldflags)
+#CFLAGS = $(shell root-config --cflags) -g -fPIC
+CFLAGS:= -g -O3 -fPIC -Wno-deprecated
 
+CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags)
+
+ifneq ($(ROOTVERSION),6)
+        CFLAGSFORCINT	:= -c -p $(CFLAGS)
+endif
+
+SOFLAGS=
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 	SOFLAGS = -dynamic -shared -dynamiclib -undefined dynamic_lookup
-        CFLAGSFORCINT=$(subst -stdlib=libc++ -std=c++11,,$(CFLAGS))	
+#	CFLAGSFORCINT=$(subst -stdlib=libc++ -std=c++11,,$(CFLAGS))
 else
-        SOFLAGS = -shared
-        CFLAGSFORCINT=$(CFLAGS)
+	SOFLAGS = -shared
 endif
 
 all: Decode lib
@@ -51,7 +59,7 @@ $(ANYOPTION)/anyoption.o :
 
 rootElibdict.cxx: $(CLASSES) LinkDef.h
 	@echo Creating ROOT dictionary
-	rootcint -f $@ -c -p $(CFLAGSFORCINT) $^
+	$(ROOTSYS)/bin/rootcint -f $@ $(CFLAGSFORCINT) $^
 
 clean:
 	@rm -Rfv libEventa.a libEvent.so Decode rootElibdict.cxx rootElibdict.h obj
