@@ -10,13 +10,6 @@ INC=./include/
 #CFLAGS:= -g -Wno-deprecated
 CFLAGS:= -O3 -g -Wno-deprecated
 
-VERSION      := $(shell root-config --version | cut -b1-4)
-ifeq ($(VERSION),5.27)
-VERSIONP=
-else
-VERSIONP = $(VERSION)
-endif
-
 UNAME := $(shell uname)
 
 ifeq ($(UNAME), Linux)
@@ -30,7 +23,6 @@ endif
 CFLAGS += $(shell root-config --auxcflags) -O -fPIC
 
 ROOTDYNAMICLIBS := $(shell root-config --libs) -lMinuit -lSpectrum
-ROOTVIEWERLIBS := $(shell root-config --cflags --glibs)
 ROOTINC := $(shell root-config --incdir)
 
 DECODE = ../Decode/
@@ -40,30 +32,9 @@ COMMON = ../CommonTool/
 
 INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE) -I$(COMMON)
 
-.PHONY: ViewerGUI
-
-default: QuickAnalysis
-
-Viewer: ./obj/viewer.o
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) -o$@
-
-ViewerGUI:
-	$(ROOTCLING) -f $(SRC)/guiDict.cxx $(DECODE)/Event.cxx $(DECODE)/Cluster.cxx $(DECODE)/LadderConf.cxx -c $(SRC)/viewerGUI.hh $(SRC)/guiLinkDef.h
-	$(CXX) $(SRC)/viewerGUI.cxx $(SRC)/guiDict.cxx $(INCLUDES) $(ROOTVIEWERLIBS) -o$@
-
-ViewerFOOT: ./obj/viewerFOOT.o $(COMMON)/obj/Utilities.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
-
-QuickAnalysis: ./obj/QuickAnalysis.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
+default: Analysis
 
 Analysis: ./obj/Analysis.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
-
-AnalysisPOX: ./obj/AnalysisPOX.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
-
-AnalysisFOOT: ./obj/AnalysisFOOT.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
 
 ./obj/%.o: ./src/%.C
@@ -87,12 +58,7 @@ libEvent:
 
 clean:
 	rm -Rf ./obj
-	rm -f ./QuickAnalysis
 	rm -f ./Analysis
-	rm -f ./AnalysisFOOT
-	rm -f ./AnalysisPOX
-	rm -f ./ViewerGUI
-	rm -f ./ViewerFOOT
 
 cleanALL: clean
 	make -C $(DECODE) clean
