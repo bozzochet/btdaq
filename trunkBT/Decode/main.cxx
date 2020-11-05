@@ -229,12 +229,12 @@ int main(int argc,char** argv){
   /// VV debug given 64000
   //t4->Branch("cluster_branch","Event",&(dd1->ev),32000,2);
   t4->Branch("cluster_branch","Event",&(dd1->ev),64000,2);
-  double chaK[24];
-  double chaS[24];
-  double sigK[24];
-  double sigS[24];
-  double sonK[24];
-  double sonS[24];
+  double chaK[NTDRS];
+  double chaS[NTDRS];
+  double sigK[NTDRS];
+  double sigS[NTDRS];
+  double sonK[NTDRS];
+  double sonS[NTDRS];
   int NTDR = dd1->GetNTdrRaw()+dd1->GetNTdrCmp();
   for (int ii=0; ii<NTDR; ii++) {
     int IdTDR = dd1->GetTdrNum(ii);
@@ -269,15 +269,15 @@ int main(int argc,char** argv){
     /// VV debug commented out
     // ret1=dd1->EndOfFile();    
     //if (ret1) break;
-    
+    // if(processed==4 || processed==5){processed++;continue;}
     if (ret1==0) {
       processed++;
       printf("This event has %d clusters\n", (dd1->ev)->GetNClusTot());
       printf("This event has CALPED %f\n", (dd1->ev)->GetCalPed_PosNum(1,0,0));
-      memset(chaK, 0, 24*sizeof(chaK[0]));
-      memset(chaS, 0, 24*sizeof(chaS[0]));
-      memset(sigK, 0, 24*sizeof(sigK[0]));
-      memset(sigS, 0, 24*sizeof(sigS[0]));
+      memset(chaK, 0, NTDRS*sizeof(chaK[0]));
+      memset(chaS, 0, NTDRS*sizeof(chaS[0]));
+      memset(sigK, 0, NTDRS*sizeof(sigK[0]));
+      memset(sigS, 0, NTDRS*sizeof(sigS[0]));
       for (int cc=0; cc<(dd1->ev)->GetNClusTot(); cc++) {
 	Cluster* cl = (dd1->ev)->GetCluster(cc);
 	int ladder = cl->ladder;
@@ -326,7 +326,9 @@ int main(int argc,char** argv){
   /// VV debug write to output file
   foutput->cd();
   t4->Write("",TObject::kOverwrite);
-
+  TTree* mcht=dd1->GetMCTruth()->CloneTree();
+  mcht->Write("",TObject::kOverwrite);
+  
   printf("\nProcessed %5d  Events\n",processed+readfailed+jinffailed);
   printf("Accepted  %5d  Events\n",processed);
   printf("Rejected  %5d  Events --> Read Error\n",readfailed);

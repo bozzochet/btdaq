@@ -51,9 +51,9 @@ int main(int argc, char* argv[]) {
   // double ddzone=24.75; // shift for getting 4096 strips in decode -> to check
 
   
-  TString align_filename = "alignment_mc.dat";
+  //TString align_filename = "alignment_mc.dat";
   //TString align_filename = "alignment_mc_300.dat";
-  //TString align_filename = "alignment_mc_150.dat";
+  TString align_filename = "alignment_mc_150.dat";
   TString gaincorrection_filename = "gaincorrection_mc.dat";
   TString output_filename = argv[1];
 
@@ -221,9 +221,9 @@ int main(int argc, char* argv[]) {
     // ev->FindTrackAndFit(4, 4, false);
     bool trackfitok = ev->FindTrackAndFit(3, 4, true);
     //    printf("%d\n", trackfitok);
-    
+
     if (trackfitok) {
-      
+
       //remove from the best fit track the worst hit if giving a residual greater than 6.0 sigmas on S and 6.0 sigmas on K
       //(but only if removing them still we'll have more or equal than 3 hits on S and 3 (2 if 'HigherCharge') hits on K)
       //and perform the fit again
@@ -243,6 +243,7 @@ int main(int argc, char* argv[]) {
 
       ///      trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false); 
       trackfitok = ev->FindHigherChargeTrackAndFit(3, 5.0, 4, 5.0, false);
+      
     }
     if (!trackfitok) continue;
     //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetX0Track(), ev->GetY0Track());    

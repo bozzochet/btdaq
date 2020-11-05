@@ -7,25 +7,25 @@
 #define MAXLENGHT 128
 
 //// for MC events
-#define MAXNHITS 100
+#define MAXNHITS 500
 
 //// also def in Event.hh
 #define NTDRS  24
 
 //110mum and 208mum
 /// now READOUT PITCH
-#define SPITCH 0.220
+#define SPITCH 0.220//0.110//0.220
 //#define KPITCH 0.208
-#define KPITCH 0.220  // Viviana: fake K. MD: Ladderconf must override it
+#define KPITCH 0.22//0.208//0.220  // Viviana: fake K. MD: Ladderconf must override it
 
 //10mum and 30mum
-#define SRESO 0.010
+#define SRESO 0.030
 //#define KRESO 0.030
-#define KRESO 0.010  // Viviana: fake K. MD: Ladderconf must override it
+#define KRESO 0.03//0.010  // Viviana: fake K. MD: Ladderconf must override it
 
 // Viviana: originally was 640 and 384 channels
 //#define SCHANN 640
-#define SCHANN 2048 // 50cmx50cm sensors
+#define SCHANN 2048//4096 // 50cmx50cm sensors
 //#define KCHANN 384
 #define KCHANN 2048 // fake K same 50x50cm sensors
 // MD: we have to make it general

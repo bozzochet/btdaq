@@ -322,7 +322,7 @@ void DecodeData::OpenFile_mc(char* ifname){
   mcht->SetBranchAddress("nTotalHits",&ntothits);
   mcht->SetBranchAddress("hVol",&hvol);  
   mcht->SetBranchAddress("hVolZ",&hvolz);
-  mcht->SetBranchAddress("xCoord",&ycoord);
+  mcht->SetBranchAddress("xCoord",&xcoord);
   mcht->SetBranchAddress("yCoord",&ycoord);
   mcht->SetBranchAddress("zCoord",&zcoord);
   mcht->SetBranchAddress("ppHit",&pphit);
@@ -411,7 +411,7 @@ void DecodeData::DumpRunHeader(){
   /* check the header size */
   if (size != sizeof(hh))
     printf("!!!!!!!!!!!!!!!!!!! WRONG: Headersize = %hu (but sizeof(header) = %zu)\n", size, sizeof(hh));
-  //	ReadFile(&hh, sizeof(header), 1, rawfile);//this should be fine also
+  //ReadFile(&hh, sizeof(header), 1, rawfile);//this should be fine also
   ReadFile(&hh, size, 1, rawfile);
   
   rh->SetRun(hh.run);
@@ -705,6 +705,7 @@ int DecodeData::ReadOneEvent_data(){
 
 int DecodeData::ReadOneEvent_mc(){
 
+  // if (evenum==5 || evenum==21 || evenum==26) {evenum++; return 0;}
   TRandom3 rn;
   double dEdX2ADC=3.5e3;
  
@@ -718,7 +719,6 @@ int DecodeData::ReadOneEvent_mc(){
   std::cout<<"ReadOneEventMC entry:"<<evenum<<" hits "<<ntothits<<" pphit "<<pphit<<" datasize "<<simDep->size()<<std::endl;
   
   ntdrMC=nlayers; 
-
   
   if(!out_flag){
 
@@ -780,49 +780,52 @@ int DecodeData::ReadOneEvent_mc(){
 	ev->RawSoN[nl][kk]=(ev->RawSignal[nl][kk]/8.0-cal->ped[kk])/cal->sig[kk];
       }
 
-
       for(int nh=0;nh<ntothits;nh++){ // ntothits>nlayers
-	if(hvol[nh]!=nl)
-	  continue;
-	if(pri)
-	  printf("LAYER %d HIT %d on CH %d: hitS %d simS %d DEP %f MeV conv %d \n",hvol[nh],nh,chXY[nh],hitStrips[nh],simStrips[nh],eDep[nh],int(eDep[nh]*dEdX2ADC/8.));
-            
-	//for (int kk=0;kk<4096;kk++){
-	  //for (int kk=0;kk<1024;kk++){
-	
+     	if(hvol[nh]!=nl)
+     	  continue;
+     	if(pri)
+     	  printf("LAYER %d HIT %d on CH %d: hitS %d simS %d DEP %f MeV conv %d \n",hvol[nh],nh,chXY[nh],hitStrips[nh],simStrips[nh],eDep[nh],int(eDep[nh]*dEdX2ADC/8.));
+        
+     	//for (int kk=0;kk<4096;kk++){
+     	  //for (int kk=0;kk<1024;kk++){
+
+	//for (int si=0;si<hitStrips[nh];si++){
 	for (int si=0;si<simStrips[nh];si++){
-	  //check the shift of -225 chs for 50x50 as done previously 	 
-	  cout<<"*****************"<<si<<" "<<hvol[nh]<<" "<<nhi<<" "<<simChan->at(nhi)<<" "<<simDep->at(nhi)<<endl;
-	  int sch=simChan->at(nhi)-112;
+     	  //check the shift of -225 chs for 50x50 as done previously 	 
+     	  cout<<"*****************"<<si<<" "<<hvol[nh]<<" "<<nhi<<" "<<simChan->at(nhi)<<" "<<simDep->at(nhi)<<endl;
+	  int sch=simChan->at(nhi) - (tdrAlign[hvol[nh]]?224:177);
+	  //int sch=hitChan->at(nhi)-112;
+     	  //int sch=simChan->at(nhi)-112;
+	  //ev->RawSignal[hvol[nh]][sch]+=int(hitDep->at(nhi)*dEdX2ADC);
 	  ev->RawSignal[hvol[nh]][sch]+=int(simDep->at(nhi)*dEdX2ADC);
-	  ev->RawSoN[hvol[nh]][sch]=(ev->RawSignal[hvol[nh]][sch]/8.0-cal->ped[sch])/cal->sig[sch];
+     	  ev->RawSoN[hvol[nh]][sch]=(ev->RawSignal[hvol[nh]][sch]/8.0-cal->ped[sch])/cal->sig[sch];
 	  if(pri)
-	    printf("HITSIG %d: %d %f %f %f\n",sch,ev->RawSignal[hvol[nh]][sch],ev->RawSoN[hvol[nh]][sch],cal->ped[sch],cal->sig[sch]);
-	  nhi++;
-       	}
-	  
-	// shift to get 4096 strips
-	/* int chh=!tdrAlign[hvol[nh]]?echx[nh]-225:echy[nh]-225; // X or Y according to alignment
-	//	if(kk<640){	  //// was for getting 0 on the k side
-	if (kk==chh){
-	  ev->RawSignal[hvol[nh]][kk]=int(eDep[nh]*dEdX2ADC);//
-	  printf("ReadOneEventMC HITSIG %d: %d %f %f \n",kk,ev->RawSignal[hvol[nh]][kk],cal->ped[kk],cal->sig[kk]);
+     	    printf("HITSIG %d: %d %f %f %f\n",sch,ev->RawSignal[hvol[nh]][sch],ev->RawSoN[hvol[nh]][sch],cal->ped[sch],cal->sig[sch]);
+     	  nhi++;
 	}
-	
-	ev->RawSoN[nl][kk]=(ev->RawSignal[nl][kk]/8.0-cal->ped[kk])/cal->sig[kk];
-	*/
-	  
-	//printf("ReadOneEventMC SIGS %d: %d %f %f -> %f \n",kk,ev->RawSignal[nh][kk],cal->ped[kk],cal->sig[kk],ev->RawSoN[nh][kk]);
-	/*}else{
-	  ev->RawSignal[nh][kk]=0.;//	
-	  ev->RawSoN[nh][kk]=0.;
-	  }*/
-	
-	//}
       
-	hitclcount++;
+     	// shift to get 4096 strips
+     	/* int chh=!tdrAlign[hvol[nh]]?echx[nh]-225:echy[nh]-225; // X or Y according to alignment
+     	//	if(kk<640){	  //// was for getting 0 on the k side
+     	if (kk==chh){
+     	  ev->RawSignal[hvol[nh]][kk]=int(eDep[nh]*dEdX2ADC);//
+     	  printf("ReadOneEventMC HITSIG %d: %d %f %f \n",kk,ev->RawSignal[hvol[nh]][kk],cal->ped[kk],cal->sig[kk]);
+     	}
+    
+     	ev->RawSoN[nl][kk]=(ev->RawSignal[nl][kk]/8.0-cal->ped[kk])/cal->sig[kk];
+     	*/
       
-      }// new loop on hits
+     	//printf("ReadOneEventMC SIGS %d: %d %f %f -> %f \n",kk,ev->RawSignal[nh][kk],cal->ped[kk],cal->sig[kk],ev->RawSoN[nh][kk]);
+     	/*}else{
+     	  ev->RawSignal[nh][kk]=0.;//	
+     	  ev->RawSoN[nh][kk]=0.;
+     	  }*/
+    
+     	//}
+    
+     	hitclcount++;
+    
+     }// new loop on hits
     
       //// numnum is hvol[nhit] -> must be mapped to find the ntdr(=nlayer)
       //int mtdrn=FindPosMC(nl);

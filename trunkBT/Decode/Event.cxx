@@ -2,6 +2,8 @@
 #include "Cluster.hh"
 #include "TMinuit.h"
 #include "TH1F.h"
+#include "TH2F.h"
+#include "TRotation.h"
 #include "TMath.h"
 #include <unistd.h>
 #include <iostream>
@@ -77,7 +79,7 @@ Event::Event(){
       CalPed[kk][ii]=0.0;
       RawSignal[kk][ii]=0.;
       RawSoN[kk][ii]=0.0;
-      CalStatus[kk][ii]=0.0;
+      CalStatus[kk][ii]=0;
     }
   }
   
@@ -92,9 +94,9 @@ Event::Event(){
     if (ladderconfnotread) ReadLadderConf("ladderconf.dat");  
   //if (ladderconfnotread) ReadLadderConf("ladderconf_mc.dat");
 
-  if (alignmentnotread) ReadAlignment("alignment_mc.dat");
+    //  if (alignmentnotread) ReadAlignment("alignment_mc.dat");
   //if (alignmentnotread) ReadAlignment("alignment_mc_300.dat");
-  //if (alignmentnotread) ReadAlignment("alignment_mc_150.dat");
+  if (alignmentnotread) ReadAlignment("alignment_mc_150.dat");
 
   if (gaincorrectionnotread) ReadGainCorrection("gaincorrection.dat");
 
@@ -131,7 +133,7 @@ void Event::Clear(){
       CalPed[ii][kk]=0.0;
       RawSignal[ii][kk]=0;
       RawSoN[ii][kk]=0.0;
-      CalStatus[ii][kk]=0.0;
+      CalStatus[ii][kk]=0;
     }
   }
   
@@ -396,7 +398,12 @@ float Event::GetMultiplicityFlip(int jinfnum, int tdrnum) {
 }
 
 void Event::ClearTrack(){
-
+  //CB:
+  _TrS.clear();
+  _TrK.clear();
+  _vertexK = make_pair(9999.,9999.);
+  _vertexS = make_pair(9999.,9999.);
+  
   _chisq = 999999999.9;
   _chisqS = 999999999.9;
   _chisqK = 999999999.9;
@@ -534,12 +541,12 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
     int side=current_cluster->side;
     if (side==0) {
       if (!(std::find(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item)!=_v_ladderS_to_ignore.end())) {
-	v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2))));
+	v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
       }
     }
     else {
       if (!(std::find(_v_ladderK_to_ignore.begin(), _v_ladderK_to_ignore.end(), item)!=_v_ladderK_to_ignore.end())) {
-	v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2))));
+	v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
       }
     }
     
@@ -580,12 +587,12 @@ bool Event::FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, do
       if (!(std::find(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item)!=_v_ladderS_to_ignore.end())) {
 	if (current_cluster->GetTotSN()>threshS) {
 	  if (v_q_laddS[jinfnum][tdrnum].size()==0) {
-	    v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2))));
+	    v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
 	    v_q_laddS[jinfnum][tdrnum].push_back(current_cluster->GetCharge());
 	  }
 	  else {
 	    if (current_cluster->GetCharge()>v_q_laddS[jinfnum][tdrnum][0]) {
-	      v_cog_laddS[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2)));
+	      v_cog_laddS[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2)));
 	      v_q_laddS[jinfnum][tdrnum][0] = current_cluster->GetCharge();
 	    }
 	  }
@@ -596,12 +603,12 @@ bool Event::FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, do
       if (!(std::find(_v_ladderK_to_ignore.begin(), _v_ladderK_to_ignore.end(), item)!=_v_ladderK_to_ignore.end())) {
 	if (current_cluster->GetTotSN()>threshK) {
 	  if (v_q_laddK[jinfnum][tdrnum].size()==0) {
-	    v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2))));
+	    v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
 	    v_q_laddK[jinfnum][tdrnum].push_back(current_cluster->GetCharge());
 	  }
 	  else {
 	    if (current_cluster->GetCharge()>v_q_laddK[jinfnum][tdrnum][0]) {
-	      v_cog_laddK[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2)));
+	      v_cog_laddK[jinfnum][tdrnum][0] = std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2)));
 	      v_q_laddK[jinfnum][tdrnum][0] = current_cluster->GetCharge();
 	    }
 	  }
@@ -1235,12 +1242,12 @@ double Event::GetCN_PosNum(int tdrnum, int va, int Jinfnum){
 
   // Viviana: hardcoded n channel
   // array dimension was 1024
-  short int array[NVAS*NCHAVA];
-  float arraySoN[NVAS*NCHAVA];
-  float pede[NVAS*NCHAVA];
-  int status[NVAS*NCHAVA];
+  short int array[4096];
+  float arraySoN[4096];
+  float pede[4096];
+  int status[4096];
 
-  for(int chan=0; chan <NVAS*NCHAVA; chan++){
+  for(int chan=0; chan <4096; chan++){
     array[chan]=RawSignal[tdrnum][chan];
     arraySoN[chan]=RawSoN[tdrnum][chan];
     pede[chan]=CalPed[tdrnum][chan];
@@ -1250,7 +1257,7 @@ double Event::GetCN_PosNum(int tdrnum, int va, int Jinfnum){
   // Viviana: hardcoded number of channels per VA
   // MD: but why '256' hardcoded' and not NCHAVA?
   //  return ComputeCN(64, &(array[va*64]), &(pede[va*64]), &(arraySoN[va*64]), &(status[va*64]));
-  return ComputeCN(NCHAVA, &(array[va*NCHAVA]), &(pede[va*NCHAVA]), &(arraySoN[va*NCHAVA]), &(status[va*NCHAVA]));
+  return ComputeCN(256, &(array[va*256]), &(pede[va*256]), &(arraySoN[va*256]), &(status[va*256]));
 }
 
 float Event::GetRawSoN_PosNum(int tdrnum, int channel, int Jinfnum) {
@@ -1308,6 +1315,480 @@ double Event::ComputeCN(int size, short int* RawSignal, float* pede, float* RawS
   //  printf("    CN = %f\n", mean);
   
   return mean;
+}
+//------------CB: Qui iniziano le cose che ho aggiunto------------//
+bool Event::FindTracksAndVertex(bool vertmode=0){
+  ClearTrack();//tra le altre cose fa il clear di _TrS e _TrK
+  ////////////////////////
+  //PHASE 1.a: Hits Vector//
+  ////////////////////////
+  int NS=0,NK=0;
+  //in these vectors we collect the positions of every cluster detected as hits
+  std::vector<std::pair<int, std::pair<double, double> > > v_hitsS;
+  std::vector<std::pair<int, std::pair<double, double> > > v_hitsK;
+  //this loop make all the work (copied from FindTrackAndFit())
+  for (int ic = 0; ic < NClusTot; ic++) {
+    Cluster* cc = GetCluster(ic);
+
+    int jinfnum = cc->GetJinf();
+    int tdrnum = cc->GetTDR();
+    int item = jinfnum*100+tdrnum;
+
+    double noise_threshold=0;//20;
+    double mixed_threshold=30;//180;
+    if (tdrnum<NTDRS-4 && cc->GetTotSig()>noise_threshold) {
+      int side=cc->side;
+      if (side==0) {   // ( index, ( X or Y, Z ) )
+	if ( find(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item)
+	     ==_v_ladderS_to_ignore.end() ) {
+	  v_hitsS.push_back(make_pair(ic, make_pair(cc->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2))));
+	  //we double a cluster if it's likely that it's been generated by two merged hits
+	  if (cc->GetTotSig()>mixed_threshold &&
+	      (ic==NClusTot-1 || tdrnum!=GetCluster(ic+1)->GetTDR()) &&
+	      (ic==0 || tdrnum!=GetCluster(ic-1)->GetTDR()))
+	    v_hitsS.push_back(v_hitsS.back());
+	}
+      }
+      else {
+	if (find(_v_ladderK_to_ignore.begin(), _v_ladderK_to_ignore.end(), item)==_v_ladderK_to_ignore.end()) {
+	  v_hitsK.push_back(make_pair(ic, make_pair(cc->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2))));
+	  if(cc->GetTotSig()>mixed_threshold &&
+	     (ic==NClusTot-1 || tdrnum!=GetCluster(ic+1)->GetTDR()) &&
+	     (ic==0 || tdrnum!=GetCluster(ic-1)->GetTDR()))
+	    v_hitsK.push_back(v_hitsK.back());
+	}
+      }
+    }
+  }//for loop on clusters
+  printf("L'evento ha generato %lu(S) + %lu(K) = %d cluster\n",v_hitsS.size(),v_hitsK.size(),NClusTot);
+
+  if(v_hitsS.size()<5 || v_hitsK.size()<5)
+    {printf("non arriviamo ad almeno 5 per piano\n"); return false;}
+
+  //we double the first cluster if it is the only one in its ladder-> this should allow a better vertex reco
+  int ppside=GetCluster(0)->side,vert=0;
+  if (!ppside){
+    if(v_hitsS[0].second.second!=v_hitsS[1].second.second)
+      vert=1;
+    //v_hitsS.insert(v_hitsS.begin(),v_hitsS[0]);
+  }
+  else {
+    if(v_hitsK[0].second.second!=v_hitsK[1].second.second)
+      vert=1;
+    //v_hitsK.insert(v_hitsK.begin(),v_hitsK[0]);
+  }
+  
+  /////////////////////////////////
+  //PHASE 1.b: Vertex Hits Vector//
+  /////////////////////////////////
+  
+  //we are going to copy in these vectors the hits recorded in the third 3 layers since the production layer
+  std::vector<std::pair<int,std::pair<double,double>>> vert_v_hitsS;
+  std::vector<std::pair<int,std::pair<double,double>>> vert_v_hitsK;
+    
+  if(vertmode) {
+    std::vector<std::pair<int,std::pair<double,double>>>::iterator iter;
+    iter=v_hitsS.begin();
+    int first_layer=GetCluster((*iter).first)->GetTDR();
+  
+    while( GetCluster((*iter).first)->GetTDR() < first_layer+6 ) {
+      printf("nuova hit aggiunta al set S ristretto\n");
+      vert_v_hitsS.push_back(*iter);
+      iter++;
+      if ( iter == v_hitsS.end() ) {
+	break;
+      }
+    }
+    printf("CAMBIO!!\n");
+    iter=v_hitsK.begin();
+    first_layer=GetCluster((*iter).first)->GetTDR();
+    while( GetCluster((*iter).first)->GetTDR() < first_layer+6 ) {
+      printf("nuova hit aggiunta al set K ristretto\n");
+      vert_v_hitsK.push_back(*iter);
+      iter++;
+      if ( iter == v_hitsK.end() ) {
+	break;
+      }
+    }
+    printf("vert_hitsS sono %lu\n",vert_v_hitsS.size());
+    printf("vert_hitsK sono %lu\n",vert_v_hitsK.size());
+  
+    if(vert_v_hitsS.size()<5 || vert_v_hitsK.size()<5)
+      {printf("non arriviamo ad almeno 5 per piano\n"); return false;}
+    printf("abbiamo riempito tutti i v_hits che ci serviranno e tutti contengono almeno 5 hits\n");
+  }
+
+  /////////////////////////////////////////////////////////
+  //PHASE 2.a:Track Recontruction on the main Hits Vector//
+  /////////////////////////////////////////////////////////
+  
+  //in these vectors the hits excluded from the tracks
+  std::vector<std::pair<int,std::pair<double,double>>> rejectsS;
+  std::vector<std::pair<int,std::pair<double,double>>> rejectsK;
+  
+  int n_tr_to_search=2;
+  for(int it=0;it<n_tr_to_search;it++){
+    printf("alla ricerca della %d° traccia\n",it+1);
+    printf("S:\n");
+    Track(v_hitsS,rejectsS);
+    printf("tracciate->%lu, rigettate->%lu\n",v_hitsS.size(),rejectsS.size());
+    if(v_hitsS.size()<3){printf("poche hit\n"); /*return false;*/}
+    else{
+      NS++;
+      _TrS.push_back(make_track(v_hitsS)); //Here we store the tracks we have already found
+    }
+    printf("K:\n");
+    Track(v_hitsK,rejectsK);
+    printf("tracciate->%lu, rigettate->%lu\n",v_hitsK.size(),rejectsK.size());
+    if(v_hitsK.size()<3){printf("poche hit\n"); /*return false;*/}
+    else{
+      NK++;
+      _TrK.push_back(make_track(v_hitsK));
+    }
+    //rejected hits are now eligible for the next track to find
+    if (vert && !ppside)
+      rejectsS.insert(rejectsS.begin(),v_hitsS[0]);
+    v_hitsS=rejectsS;
+    if (vert && ppside)
+      rejectsK.insert(rejectsK.begin(),v_hitsK[0]);
+    v_hitsK=rejectsK;
+    
+    rejectsS.clear();
+    rejectsK.clear();    
+  }
+  _NTrks=std::min(NS,NK);
+  // printf("S: %lu, %lu\n",_TrS[0].hits.size(),_TrS[1].hits.size());
+  // printf("K: %lu, %lu\n",_TrK[0].hits.size(),_TrK[1].hits.size());
+  // if ( _TrS[0].hits.size()<3 || _TrS[1].hits.size()<3 ) {printf("poche hit\n"); return false;}
+  // if ( _TrK[0].hits.size()<3 || _TrK[1].hits.size()<3 ) {printf("poche hit\n"); return false;}
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////
+  //PHASE 2.b: Track Reconstruction on the Vertex Hits Vector and merge with the main tracks//
+  ////////////////////////////////////////////////////////////////////////////////////////////
+  //  bool vertmode=1;
+  if(vertmode && _NTrks>=2){
+    //j_joinS is the index of the track 
+    int j_joinS,j_joinK;
+    for(int it=0;it<n_tr_to_search;it++){
+      printf("VERT:alla ricerca della %d° traccia\n",it+1);
+
+      Track(vert_v_hitsS,rejectsS);
+      if(vert_v_hitsS.size()<3){printf("poche hit\n"); return false;}
+      printf("S:%lu\n",vert_v_hitsS.size());
+
+      Track(vert_v_hitsK,rejectsK);
+      if(vert_v_hitsK.size()<3){printf("poche hit\n"); return false;}
+      printf("K:%lu\n",vert_v_hitsK.size());
+
+      if ( it==0 ){
+	j_joinS = ( TMath::Abs(vert_v_hitsS.back().second.first - _TrS[0].hits[2].second.first) <
+		    TMath::Abs(vert_v_hitsS.back().second.first - _TrS[1].hits[2].second.first) ) ? 0 : 1;
+	//	printf("j_joinS = %d\n",j_joinS);
+	j_joinK = ( TMath::Abs(vert_v_hitsK.back().second.first - _TrK[0].hits[2].second.first) <
+		    TMath::Abs(vert_v_hitsK.back().second.first - _TrK[1].hits[2].second.first) ) ? 0 : 1;
+	//	printf("j_joinK = %d\n",j_joinK);
+      }
+      else if ( it==1 ){
+	j_joinS=1-j_joinS;
+	j_joinK=1-j_joinK;
+      }
+      printf("Individuato punto di raccordo ottimale\n Procediamo al %d° raccordo\n",it+1);
+      //qui vengono raccolti i vector di hit appartenenti a ciascuna traccia
+      if(vert_v_hitsS.size()<=_TrS[j_joinS].hits.size())
+	copy( vert_v_hitsS.begin(), vert_v_hitsS.end(), _TrS[j_joinS].hits.begin() );
+      printf("raccordo sulle hit S effettuato!\n");
+      _TrS[j_joinS].update();
+      printf("traccia aggiornata\n");
+
+      if(vert_v_hitsK.size()<=_TrK[j_joinK].hits.size())
+	copy( vert_v_hitsK.begin(), vert_v_hitsK.end(), _TrK[j_joinK].hits.begin() );
+      printf("raccordo sulle hit K effettuato!\n");
+      _TrK[j_joinK].update();
+      printf("traccia aggiornata\n");
+    
+      vert_v_hitsS=rejectsS;
+      vert_v_hitsK=rejectsK;
+    
+      rejectsS.clear();
+      rejectsK.clear();
+    }
+  }
+
+  ////////////////////////////////
+  //PHASE 3:Vertex Recontruction//
+  ////////////////////////////////
+  pair<double,double> vx,vy;
+  //  printf("3\n");
+  if(_NTrks==1){
+    vx=make_pair(_TrK[0].hits[0].second.second,_TrK[0].hits[0].second.first);
+    vy=make_pair(_TrS[0].hits[0].second.second,_TrS[0].hits[0].second.first);
+    if(ppside) vy.second=vx.second;
+    else vx.second=vy.second;
+  }
+  else if (std::min(NS,NK)==2){
+    if (ppside){
+      vx=vertex(_TrK[0],_TrK[1]);
+      if (_TrS[0].hits[0].first==_TrS[1].hits[0].first &&
+	  _TrS[0].hits[1].first==_TrS[1].hits[1].first){
+	vy.first=tan(_TrS[0].prod_angle)*vx.second+_TrS[0].prod_dist/cos(_TrS[0].prod_angle);
+      }
+      else
+	vy=vertex(_TrS[0],_TrS[1]);
+      vy.second=vx.second;
+    }
+    else {
+      vy=vertex(_TrS[0],_TrS[1]);
+      if (_TrK[0].hits[0].first==_TrK[1].hits[0].first &&
+	  _TrK[0].hits[1].first==_TrK[1].hits[1].first){
+	vx.first=tan(_TrK[0].prod_angle)*vy.second+_TrK[0].prod_dist/cos(_TrK[0].prod_angle);
+      }
+      else
+	vx=vertex(_TrK[0],_TrK[1]);
+      vx.second=vy.second;
+    }
+  }
+  //  printf("4\n");
+  
+  if(vx==make_pair(9999.,9999.)) {
+    cout<<"Impossible to find a vertex on the ZX plane!!!\n";
+    return false;
+  }
+  if(vy==make_pair(9999.,9999.)) {
+    cout<<"Impossible to find a vertex on the ZY plane!!!\n";
+    return false;
+  }
+  _vertexK=vx;
+  _vertexS=vy;
+  return true;
+}
+
+void Event::Track(std::vector<Hit> &hits,std::vector<Hit> &rejects){
+  rejects.clear();
+  std::vector<Hit> _hits;
+  std::pair<double,double> dir;
+  double pos;
+
+  for(int itdr=NTDRS-1;itdr>=0;itdr--){
+    dir=Hough(hits);
+    pos=alignpar[0][itdr][2];   //current z position for the study
+    //    printf("iter n° %d -> pos = %f\ndir = (%f,%f)\n",itdr,pos,dir.first,dir.second);
+    double xexp = dir.second/cos(dir.first) + tan(dir.first)*pos;
+    //variables for the search of the minimum distance
+    double min=9999;
+    int jmin=-1;
+    int s=hits.size();
+    for(int j=0;j<s;j++){
+      if ( abs(hits[j].second.second - pos)<1. ){    //layer belonging condition
+  	//	printf("pos=%f\n",pos);
+	//	double xexp = dir.second/cos(dir.first) + tan(dir.first)*hits[j].second.second;
+  	double d=TMath::Abs(hits[j].second.first-xexp);
+  
+  	if(d<min){      //among the coplanar hits we look for the nearest to the expected point
+  	  if(jmin>-1) rejects.push_back( hits[jmin] );
+  	  min=d;
+  	  jmin=j;
+  	} else {
+  	  rejects.push_back( hits[j] );
+   	}
+      }
+      else {
+   	//we keep all the other hits                                                          
+   	_hits.push_back( hits[j] );
+      }
+    }//ciclo for sugli elementi di hits
+    
+    if(jmin>-1){   //we still have to save the winner hit
+      hits={hits[jmin]};
+      //      _hits.push_back(hits[jmin]);
+    } else hits.clear();
+    for (int nh=0;nh<_hits.size();nh++)
+      hits.push_back(_hits[nh]);
+    _hits.clear();
+  }
+  
+    reverse(rejects.begin(),rejects.end());
+  return;
+}
+
+pair<double,double> Event::Hough( vector<Hit> &vec ){  
+  int nHits=vec.size();
+  HoughSpace h(.00001,.00001);
+  double m, th, r;
+  for(int ii=0; ii<nHits; ii++){
+    for(int jj=ii+1; jj<nHits; jj++){
+      if ( vec[ii].second.second != vec[jj].second.second ) {
+	m=(vec[ii].second.first-vec[jj].second.first)/(vec[ii].second.second-vec[jj].second.second);
+	th=atan(m);
+	r=cos(th)*vec[ii].second.first-sin(th)*vec[ii].second.second;
+	
+	h.Add(th,r);
+      }
+    }
+  }
+  return h.GetMax();
+}
+
+std::vector<Hit> Event::CleanTrack(std::vector<Hit> &hits){
+  int i=0,tdr=hits[0].first;
+  int imax=0,smax=0;
+  std::vector<std::vector<Hit>> coll;
+  for (auto h:hits){
+    if (h.first-tdr<4)
+      coll[i].push_back(h);
+    else {
+      if (coll[i].size()>smax){
+	smax=coll[i].size();
+	imax=i;
+      }
+      i++;
+    }
+    tdr=h.first;
+  }
+  return coll[imax];
+}
+
+
+void Event::RecombineXY(double ang){
+  vector<double> xhitrot,yhitrot;
+  int tdrX=18;
+  int tdrY=19;
+  for (int cl=0;cl<NClusTot;cl++){
+    if(GetCluster(cl)->GetTDR()==tdrY) //questi numeri hardcoded sono brutti
+      yhitrot.push_back(GetCluster(cl)->GetAlignedPositionMC()+0.07);
+    if(GetCluster(cl)->GetTDR()==tdrX)
+      xhitrot.push_back(GetCluster(cl)->GetAlignedPositionMC()+0.07);
+  }
+  if (xhitrot.size()<2 || yhitrot.size()<2) return;
+
+  //TGraph* gr=new TGraph();
+  TRotation rot;
+  rot=rot.RotateZ(ang*TMath::Pi()/180.); //da controllare l'angolo
+  double x[4],y[4];
+  for (int i=0;i<4;i++){
+    TVector3 bo = rot * TVector3(xhitrot[i%2],
+				 yhitrot[i<2?(i%2):(1-i%2)],
+				 0);
+    x[i]=bo[0];
+    y[i]=bo[1];
+    //    printf("hit ruotata %d --> (%f, %f)\n",i,x[i],y[i]);
+    //    gr->SetPoint(gr->GetN(),x[i],y[i]);
+  }
+  double
+    a1 = (min(x[0],x[1]) + min(x[2],x[3]))/2,//dovrebbero essere giusti
+    a2 = (max(x[0],x[1]) + max(x[2],x[3]))/2,
+    b1 = (min(y[0],y[1]) + min(y[2],y[3]))/2,
+    b2 = (max(y[0],y[1]) + max(y[2],y[3]))/2;
+
+  double
+    y1=tan(_TrS[0].exit_angle)*alignpar[0][tdrY][2]+_TrS[0].exit_dist/cos(_TrS[0].exit_angle),
+    y2=tan(_TrS[1].exit_angle)*alignpar[0][tdrY][2]+_TrS[1].exit_dist/cos(_TrS[1].exit_angle),
+    x1=tan(_TrK[0].exit_angle)*alignpar[0][tdrX][2]+_TrK[0].exit_dist/cos(_TrK[0].exit_angle),
+    x2=tan(_TrK[1].exit_angle)*alignpar[0][tdrX][2]+_TrK[1].exit_dist/cos(_TrK[1].exit_angle);
+  printf("x1=%f, x2=%f, y1=%f, y2=%f\n",x1,x2,y1,y2);
+  // gr->SetPoint(gr->SetPoint(),x1,0);
+  // gr->SetPoint(gr->SetPoint(),x2,0);
+  // gr->SetPoint(gr->SetPoint(),0,y1);
+  // gr->SetPoint(gr->SetPoint(),0,y2);
+  int option1=0;
+  if (x1>a2 || x1<a1) option1++;//ricontrolla tutto
+  if (x2>a2 || x2<a1) option1++;
+  if (y1<b2 && y1>b1) option1++;
+  if (y2<b2 && y2>b1) option1++;
+  pair<double,double> hit1,hit2;
+  if (option1<2) { //this work only if the layer is tilted counterclockwise
+    hit1=make_pair(x[0],y[0]);
+    hit2=make_pair(x[1],y[1]);
+  }
+  else {
+    hit1=make_pair(x[2],y[2]);
+    hit2=make_pair(x[3],y[3]);
+  }
+  if (abs(x1-hit1.first)>abs(x1-hit2.first)){
+    std::reverse(_TrK.begin(),_TrK.end());
+    // Track box=_TrK[0];
+    // _TrK.erase(_TrK.begin());
+    // _TrK.push_back(box);
+  }
+  if (abs(y1-hit1.second)>abs(y1-hit2.second)) {
+    std::reverse(_TrS.begin(),_TrS.end());
+  }
+}
+
+std::pair<double,double> Event::GetVertexS(){
+  if(_vertexS==make_pair(9999.,9999.)) FindTracksAndVertex();
+  return _vertexS;
+}
+std::pair<double,double> Event::GetVertexK(){
+  if(_vertexK==make_pair(9999.,9999.)) FindTracksAndVertex();
+  return _vertexK;
+}
+
+trackColl* Event::GetTracks(int t){
+  if (t) return &_TrK;
+  else return &_TrS;
+}
+
+track::track(){
+  prod_angle=9999.;
+  exit_angle=9999.;
+  prod_dist=9999.;
+  exit_dist=9999.;
+}
+
+void track::update(){
+  unsigned int ss=hits.size();
+  if(ss>1){
+    prod_angle = atan( (hits[1].second.first - hits[0].second.first )/
+		       (hits[1].second.second - hits[0].second.second) );
+    exit_angle = atan( (hits[ss-1].second.first - hits[ss-2].second.first )/
+		       (hits[ss-1].second.second - hits[ss-2].second.second) );
+    
+    prod_dist = cos(prod_angle) * hits[0].second.first - sin(prod_angle) * hits[0].second.second;
+    exit_dist = cos(exit_angle) * hits[ss-1].second.first - sin(exit_angle) * hits[ss-1].second.second;
+  }
+  return;
+}
+
+track make_track(std::vector<std::pair<int,std::pair<double,double>>> &hits){
+  track tr;
+  tr.hits=hits;
+  tr.update();
+  return tr;
+}
+
+std::pair<double,double> vertex(track &tr1, track &tr2){
+  if(tr1.hits.size()<2 || tr2.hits.size()<2) return make_pair(9999.,9999.);//NULL;
+
+  std::pair<double,double> vert;//=new std::pair<double,double>;
+  if (tr1.hits[0].first==tr2.hits[0].first && tr1.hits[1].first==tr2.hits[1].first){
+    vert.first=tr1.hits[0].second.first;
+    vert.second=tr1.hits[0].second.second;
+  }
+  else {
+    vert.second=( tr2.prod_dist*cos(tr1.prod_angle) - tr1.prod_dist*cos(tr2.prod_angle) ) /
+      ( cos(tr2.prod_angle)*sin(tr1.prod_angle) - cos(tr1.prod_angle)*sin(tr2.prod_angle) );//Z
+    vert.first=( tr1.prod_dist + sin(tr1.prod_angle) * vert.second ) / cos(tr1.prod_angle);//X or Y
+  }
+  return vert;
+}
+
+HoughSpace::HoughSpace(double th,double r){
+  risth=th;
+  risr=r;
+  maxfreq=-1;
+  maxpos=make_pair(9999.,9999.);
+}
+
+void HoughSpace::Add(double th, double r){
+  int f=1;
+  pair<double,double> vote=make_pair(floor(th/risth)*risth,floor(r/risr)*risr);
+  if ( votes.find(vote) == votes.end() ) votes.insert(make_pair(vote,1));
+  else f=++votes[vote];
+  if ( f > maxfreq ) {
+    //    printf("nuovo max\n");
+    maxfreq=f;
+    maxpos=vote;
+  }
 }
 
 //-------------------------------------------------------------------------------------
