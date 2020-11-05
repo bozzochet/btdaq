@@ -283,8 +283,9 @@ double Cluster::GetAlignedPositionMC(){
   double align_shift = Event::GetAlignPar(GetJinf(), GetTDR(), side);
   float cog = GetCoG();
   double mult_shift = 0.0;
-  float pitchcorr = 0.110; // just for fun
-  std::cout<<"***** COG "<<cog<<" PIT "<<  GetPitch(side)<<" ALI "<<align_shift<<" -->"<<(cog+pitchcorr)*GetPitch(side)+mult_shift-align_shift<<std::endl;
+  //float pitchcorr = (side?177:224); // just for fun
+  float pitchcorr = 112.0;//0.110; // just for fun
+  //  std::cout<<"***** COG "<<cog<<" PIT "<<  GetPitch(side)<<" ALI "<<align_shift<<" -->"<<(cog+pitchcorr)*GetPitch(side)+mult_shift-align_shift<<std::endl;
   
   return (cog+pitchcorr)*GetPitch(side)+mult_shift-align_shift;
 }

@@ -202,6 +202,8 @@ public:
   void SetPrintOn(){pri=1;}
   void SetEvPrintOff(){evpri=0;}
   void SetEvPrintOn(){evpri=1;}
+
+  TTree *GetMCTruth(){return mcht;};//CB
 };
 
 #endif

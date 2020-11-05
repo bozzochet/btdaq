@@ -1,6 +1,7 @@
 #ifndef Event_hh
 #define Event_hh
 
+#include "TH2F.h"
 #include "TObject.h"
 #include "TClonesArray.h"
 #include "Cluster.hh"
@@ -21,6 +22,39 @@ typedef std::pair<int, int> laddernumtype;
 /*!  Tracker Event class contains all the information about a Event
  */
 
+//--CB--//
+typedef std::pair<int,std::pair<double,double>> Hit;
+
+struct track{
+  track();
+  std::vector<Hit> hits;
+  void update();
+  //private:
+  double prod_angle;
+  double prod_dist;
+  
+  double exit_angle;
+  double exit_dist;
+};
+
+typedef std::vector<track> trackColl;
+
+track make_track(std::vector<Hit> &hits);
+std::pair<double,double> vertex(track &tr1, track &tr2);
+
+class HoughSpace{
+  double risth,risr;
+  std::map<std::pair<double,double>,int> votes;
+  std::pair<double,double> maxpos;
+  int maxfreq;
+public:
+  HoughSpace(double,double);
+  void Add(double,double);
+  std::pair<double,double> GetMax(){return maxpos;};
+};
+
+//----//
+
 class DecodeData;
 class RHClass;
 
@@ -36,9 +70,9 @@ public:
   //! Clear the event
   void Clear();
 
-  //! Add an Cluster to the array
+  //! Add a Cluster to the array
   Cluster* AddCluster(int lad,int side);
-  //! Get the Cluster in the postion ii of the array
+  //! Get the Cluster in the position ii of the array
   Cluster* GetCluster(int ii);
 
   inline int GetNClusTot(){ return NClusTot;};
@@ -98,6 +132,14 @@ public:
   double GetCN(RHClass* rh, int tdrnum, int va, int Jinfnum=0);
   float GetRawSoN(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetCalStatus(RHClass* rh, int tdrposnum, int va, int Jinfnum=0);
+  //CB:
+  bool FindTracksAndVertex(bool);
+  std::pair<double,double> GetVertexK();
+  std::pair<double,double> GetVertexS();
+  trackColl* GetTracks(int);
+  int GetNTracks(){return _NTrks;};
+  void RecombineXY(double);
+  //TH2F* h1;
   
 private:
   static bool ladderconfnotread;
@@ -142,7 +184,10 @@ private:
 
   void StoreTrackClusterPatterns();
   void FillHitVector();
-
+  //------------CB:metodi privati che vengono usati da FindTracksAndVertex()------------//
+  void Track(std::vector<std::pair<int,std::pair<double,double>>> &hits, std::vector<std::pair<int,std::pair<double,double>>> &rejects);
+  std::pair<double,double> Hough(std::vector<std::pair<int,std::pair<double,double>>> &vec);
+  std::vector<Hit> CleanTrack(std::vector<Hit> &hits);
   //! Progressive Event number
   int Evtnum;
   //! Jinj Status
@@ -175,6 +220,13 @@ private:
   float        RawSoN[NTDRS][NVAS*NCHAVA];//! (do not stream on file! Can be recomputed easily!)
   int       CalStatus[NTDRS][NVAS*NCHAVA];
   short int ReadTDR[NTDRS];
+
+  //------------CB:qui salvo gli output di FindTracksAndVertex()------------//
+  int _NTrks;
+  trackColl _TrS;
+  trackColl _TrK;
+  std::pair<double,double> _vertexK;
+  std::pair<double,double> _vertexS;
 
   //track parameters and points
   double _chisq;//!
@@ -211,7 +263,7 @@ private:
   std::vector<int> _v_ladderS_to_ignore;//!
   std::vector<int> _v_ladderK_to_ignore;//!
   
-  ClassDef(Event,6)
+  ClassDef(Event,7)
 };
 
 //! Run Header Class
