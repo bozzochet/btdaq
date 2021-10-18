@@ -10,6 +10,7 @@
 #include <Compression.h>
 
 #include "DecodeData.hh"
+#include "DecodeDataOCA.hh"
 #include "Event.hh"
 #include <stdlib.h>
 #include <math.h>
@@ -26,7 +27,7 @@ char progname[50];
 void CreatePdfWithPlots(DecodeData* dd1, char* pdf_filename);
 void PlotsWithFits(TH1* histo, char* name, char* title, char* pdf_filename);
 
-int main(int argc,char** argv){
+int main(int argc, char **argv) {
 
   char filename[255], pdf_filename[1024];
 
@@ -34,26 +35,27 @@ int main(int argc,char** argv){
   char DirCal[255];
   char DirRoot[255];
 
-  double shighthreshold=3.5;
-  double slowthreshold=1.0;
-  double khighthreshold=3.5;
-  double klowthreshold=1.0;
+  double shighthreshold = 3.5;
+  double slowthreshold = 1.0;
+  double khighthreshold = 3.5;
+  double klowthreshold = 1.0;
 
-  bool kMC=false;
-  
-  bool kClusterize=false;
-  int cworkaround=0;
+  bool kMC = false;
+  bool kOca = false;
 
-  int run=110;
-  int ancillary=-1;
-  int eventstoprocess=-1;
-  int processed=0;
-  int jinffailed=0;
-  int readfailed=0;
+  bool kClusterize = false;
+  int cworkaround = 0;
 
-  sprintf(DirRoot,"./RootData/");
-  sprintf(DirRaw,"./RawData/");
-  sprintf(DirCal,"./CalData/");
+  int run = 110;
+  int ancillary = -1;
+  int eventstoprocess = -1;
+  int processed = 0;
+  int jinffailed = 0;
+  int readfailed = 0;
+
+  sprintf(DirRoot, "./RootData/");
+  sprintf(DirRaw, "./RawData/");
+  sprintf(DirCal, "./CalData/");
 
   opt = new AnyOption();
 
@@ -65,6 +67,7 @@ int main(int argc,char** argv){
   opt->addUsage(Form("  --rawdata <path/to/dir/with/raw> ............ Directory with raw data (%s is the default)", DirRaw));
   opt->addUsage(Form("  --caldata <path/to/dir/with/cal> ............ Directory with cal data (%s is the default)", DirCal));
   opt->addUsage(Form("  --rootdata <path/to/dir/for/root> ........... Directory where to put ROOT file (%s is the default)", DirRoot));
+  opt->addUsage(     "  --oca ....................................... Read the OCA boards");
   opt->addUsage(     "  -c, --clusterize ............................ To perform an offline clusterization to the RAW event");
   opt->addUsage(     "                                                    (the bonding type is defined in ladderconf.dat");
   opt->addUsage(     "                                                     with the same codes as for --cworkaround)");
@@ -93,6 +96,7 @@ int main(int argc,char** argv){
   opt->setFlag("help", 'h');
   opt->setFlag("clusterize", 'c');
   opt->setFlag("montecarlo", 'm');
+  opt->setFlag("oca");
 
   //***********
   //set Options
@@ -128,6 +132,10 @@ int main(int argc,char** argv){
     kMC = true;
   }
   
+  if (opt->getFlag("oca")){
+    kOca = true;
+  }
+
   //*********
   //Get Options
   //*********
@@ -212,8 +220,13 @@ int main(int argc,char** argv){
   ///VV debug
   TTree* t4= new TTree("t4","My cluster tree");
 
-  DecodeData *dd1= new DecodeData(DirRaw, DirCal, run, ancillary, kMC);
-    
+  DecodeData *dd1 = nullptr;
+  if(kOca){
+    dd1 = new DecodeDataOCA(DirRaw, DirCal, run);
+  } else {
+    dd1 = new DecodeData(DirRaw, DirCal, run, ancillary, kMC);
+  }
+
   dd1->shighthreshold=shighthreshold;
   dd1->slowthreshold=slowthreshold;
   dd1->khighthreshold=khighthreshold;
@@ -235,6 +248,7 @@ int main(int argc,char** argv){
   double sigS[NTDRS];
   double sonK[NTDRS];
   double sonS[NTDRS];
+
   int NTDR = dd1->GetNTdrRaw()+dd1->GetNTdrCmp();
   for (int ii=0; ii<NTDR; ii++) {
     int IdTDR = dd1->GetTdrNum(ii);
@@ -247,7 +261,10 @@ int main(int argc,char** argv){
     t4->Branch(Form("SoNS_Ladder%02d", IdTDR), &sonS[IdTDR], Form("SoNS_Ladder%02d/D", IdTDR));
   }
   sleep(3);
-  t4->GetUserInfo()->Add(dd1->rh);
+
+  if(!kOca) {
+    t4->GetUserInfo()->Add(dd1->rh);
+  }
 
   TObjArray* obj = t4->GetListOfBranches();
   for (int ii=0; ii<obj->GetEntries(); ii++) {
@@ -256,14 +273,14 @@ int main(int argc,char** argv){
   }
     
   int ret1=0;
-  while (1) {
-
+  while (true) {
     if(eventstoprocess!=-1 && processed==eventstoprocess) break;
     
     ret1=dd1->EndOfFile();    
     if (ret1) break;
     
     ret1=dd1->ReadOneEvent();
+
     //    printf("%d\n", ret1);
 
     /// VV debug commented out
@@ -272,8 +289,8 @@ int main(int argc,char** argv){
     // if(processed==4 || processed==5){processed++;continue;}
     if (ret1==0) {
       processed++;
-      printf("This event has %d clusters\n", (dd1->ev)->GetNClusTot());
-      printf("This event has CALPED %f\n", (dd1->ev)->GetCalPed_PosNum(1,0,0));
+//      printf("This event has %d clusters\n", (dd1->ev)->GetNClusTot());
+//      printf("This event has CALPED %f\n", (dd1->ev)->GetCalPed_PosNum(1,0,0));
       memset(chaK, 0, NTDRS*sizeof(chaK[0]));
       memset(chaS, 0, NTDRS*sizeof(chaS[0]));
       memset(sigK, 0, NTDRS*sizeof(sigK[0]));
@@ -301,6 +318,7 @@ int main(int argc,char** argv){
 	}	
       }
       //      printf("%f %f %f %f %f %f\n", sigS[0], sigK[0], sigS[1], sigK[1], sigS[4], sigK[4]);
+
       t4->Fill();
       if (processed%1000==0) printf("Processed %d events...\n", processed);
     }
@@ -317,30 +335,27 @@ int main(int argc,char** argv){
       jinffailed++;
     }
 
-
     dd1->ev->Clear();
-
   }
 
   //CreatePdfWithPlots(dd1, pdf_filename);
   /// VV debug write to output file
   foutput->cd();
   t4->Write("",TObject::kOverwrite);
-  TTree* mcht=dd1->GetMCTruth()->CloneTree();
-  mcht->Write("",TObject::kOverwrite);
-  
+  if(dd1->GetMCTruth()){
+    TTree *mcht = dd1->GetMCTruth()->CloneTree();
+    mcht->Write("", TObject::kOverwrite);
+  }
   printf("\nProcessed %5d  Events\n",processed+readfailed+jinffailed);
   printf("Accepted  %5d  Events\n",processed);
   printf("Rejected  %5d  Events --> Read Error\n",readfailed);
   printf("Rejected  %5d  Events --> Jinf/Jinj Error\n",jinffailed);
 
-  /// VV debug moved just below
-  //  delete dd1;
+  delete dd1;
 
   foutput->Write("",TObject::kOverwrite);
   foutput->Close("R");
 
-  delete dd1;
   return 0;
 }
 

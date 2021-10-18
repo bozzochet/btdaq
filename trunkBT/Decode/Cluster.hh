@@ -10,7 +10,11 @@
 #define MAXNHITS 500
 
 //// also def in Event.hh
+#ifdef OCA
+#define NTDRS  12 // 2 sensors per board
+#else
 #define NTDRS  24
+#endif
 
 //110mum and 208mum
 /// now READOUT PITCH
