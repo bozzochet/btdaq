@@ -66,12 +66,12 @@ struct wholeheader {
 
 class DecodeData {
   
-private:
+protected:
   FILE* rawfile;
   
-  TFile *mcf;//added by Viviana
-  TTree *mcrt;//added by Viviana
-  TTree *mcht;//added by Viviana
+  TFile *mcf = nullptr;//added by Viviana
+  TTree *mcrt = nullptr;//added by Viviana
+  TTree *mcht = nullptr;//added by Viviana
   
   char rawname[300];
   char rawdir[300];
@@ -80,16 +80,19 @@ private:
   int runn;
   int tdroffset;
   calib cals[NJINF*NTDRS];
-  int pri;
+  int pri = 0;
   int evpri;
   int nJinf;
   int JinfMap[NJINF];
-  int ntdrRaw;
-  int ntdrCmp;
+  int ntdrRaw = 0;
+  int ntdrCmp = 0;
   laddernumtype tdrMap[NJINF*NTDRS];
   int ntdrMC;//added by Viviana, controllare se matcha con le modifiche che avevo fatto alle Map
   int tdrAlign[NJINF*NTDRS];//added by Viviana, credo...
   int out_flag;
+  double m_adcUnits = 8.0;
+  unsigned int m_defaultShift = 640;
+  unsigned int m_defaultArraySize = 384;
   char type[10]; //JinF or JinJ
   void FindCalibs ();
   int  ReadCalib(FILE * fil,calib* cal);
@@ -158,11 +161,12 @@ public:
   bool kClusterize;
   int cworkaround;
   
-  void DumpRunHeader();
+  virtual void DumpRunHeader();
   
 public:
+  DecodeData() = default;
   DecodeData(char * ifname, char* caldir, int run, int ancillary, bool _kMC=false);
-  ~DecodeData();
+  virtual ~DecodeData();
 
   //generic
   void AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float* sig, bool kRaw=false);
@@ -170,20 +174,20 @@ public:
   //moved to Event class
   //  double ComputeCN(int size, short int* Signal, float* pede, float* SoN, double threshold=3.0);
 
-  inline int GetNTdrRaw() { return ntdrRaw;}
-  inline int GetNTdrCmp() { return ntdrCmp;}
+  virtual inline int GetNTdrRaw() { return ntdrRaw;}
+  virtual inline int GetNTdrCmp() { return ntdrCmp;}
   int GetTdrNum(int pos);
   int GetTdrType(int pos);
   
   int SkipOneEvent(int evskip=1);
-  int ReadOneEvent();
+  virtual int ReadOneEvent();
 
-  void OpenFile(char* ifname, char* caldir, int run, int ancillary);
+  virtual void OpenFile(const char* ifname, const char* caldir, int run, int ancillary);
   void CloseFile();
   int EndOfFile();
 
   //data
-  void OpenFile_data(char* ifname, char* caldir, int run, int ancillary);
+  void OpenFile_data(const char* ifname, const char* caldir, int run, int ancillary);
   int ReadOneEvent_data();
   int ReadOneTDR(int jinf=0);
   int ReadOneJINF();
@@ -192,7 +196,7 @@ public:
   
   //mc
   //  void OpenFile_mc(char* ifname, char* caldir, int run, int ancillary);
-  void OpenFile_mc(char* ifname);
+  void OpenFile_mc(const char* ifname);
   int ReadOneEvent_mc();
   int SkipOneEvent_mc(int evskip=1);
   

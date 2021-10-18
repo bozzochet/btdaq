@@ -9,12 +9,19 @@
 #include "LadderConf.hh"
 
 //// also def in Cluster.hh
-#define NTDRS 24
 #define NJINF 1
 
+// added here number of read ch per va -> dimension of arrays
+#ifdef OCA
+#define NTDRS 12 //  2 sensors for board
+#define NADCS 5
+#define NVAS 10
+#define NCHAVA 64
+#else
+#define NTDRS 24
 #define NVAS  16
-// added here number of read ch per va -> dimension of arrays 
 #define NCHAVA 128
+#endif
 
 typedef short int shortint;
 typedef std::pair<int, int> laddernumtype;
@@ -60,6 +67,7 @@ class RHClass;
 
 class Event: public TObject{
   friend class DecodeData;
+  friend class DecodeDataOCA;
 
 public:
   //! Default contructor
@@ -205,7 +213,7 @@ private:
   //! 0 if there are hits on all the ladders
   int notgood;
   //! (TClones) Array of the recontructed clusters
-  TClonesArray *Cls;
+  TClonesArray *Cls = nullptr;
   //! (TClones) Array of the recontructed hits
 
   //! pointer to the data (filled just when reading RAW data) and just for the first 8 TRDs (even when there're more Jinf's)
