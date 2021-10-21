@@ -374,8 +374,8 @@ int DecodeData::EndOfFile_data() {
     dummy = 0; // without the declaration of this variable it's not working (not finding the end of the file!!!!!)
     eff = feof(rawfile);
     //    if (eff) printf("EndOfFile: end of file !\n" );
-//    if (pri)
-//      printf("End of file? -> %d\n", eff);
+    //    if (pri)
+    //      printf("End of file? -> %d\n", eff);
   } else {
     printf("Error file pointer is NULL \n");
     exit(3);
@@ -1166,7 +1166,8 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   //   for (int ii=0; ii<cluslen; ii++) {
   //     printf("AddCluster) %d %f\n", ii, sig[ii]);
   //   }
-//  printf("***** SoN: %f, Sig: %f, SeedAdd: %d side %d \n", pp->GetSeedSN(), pp->GetSeedVal(), pp->GetSeed(), pp->side);
+  //  printf("***** SoN: %f, Sig: %f, SeedAdd: %d side %d \n", pp->GetSeedSN(), pp->GetSeedVal(), pp->GetSeed(),
+  //  pp->side);
   // pp->Print();
   //  sleep(3);
   // }
@@ -1180,8 +1181,8 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   //   sleep(3);
   // }
 
-//  if (pri)
-//    pp->Print();
+  //  if (pri)
+  //    pp->Print();
 
   return;
 }
@@ -1351,7 +1352,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
           lowthreshold = klowthreshold;
         }
 
-        shift = !kMC ? m_defaultShift : 0;                 // changed by Viviana
+        shift = !kMC ? m_defaultShift : 0;                     // changed by Viviana
         arraysize = !kMC ? m_defaultArraySize : nvas * nchava; // changed by Viviana
         ////arraysize=!kMC?384:1024;//changed by Viviana
         // the src is the same array as in the S-side case but passing the reference to the first element of K-side
@@ -1460,8 +1461,8 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
           //	  printf("%d) <low, seed found already: let's save the cluster (cluslen=%d)\n", count, cluslen);
           //	  clusterstringtodump += Form("%d) <low, seed found already: let's save the cluster (cluslen=%d)\n",
           // count, cluslen);
-//          if (pri)
-//            printf("Cluster: add=%d  lenght=%d, seed=%d\n", clusadd + shift, cluslen, seedaddmax + shift);
+          //          if (pri)
+          //            printf("Cluster: add=%d  lenght=%d, seed=%d\n", clusadd + shift, cluslen, seedaddmax + shift);
           //	  clusterstringtodump += Form("Cluster: add=%d  lenght=%d, seed=%d\n", clusadd+shift, cluslen,
           // seedaddmax+shift);
           for (int hh = clusadd; hh < (clusadd + cluslen); hh++) {
@@ -1469,13 +1470,13 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
             float s = array[hh] / m_adcUnits - pede[hh] - CN[_va];
             //	    clusterstringtodump += Form("Sig=%f from Array = %d, Ped=%f, CN=%f\n", s, array[hh], pede[hh],
             // CN[_va]);
-//            if (pri)
-//              printf("Signal: %d, Pos:%d\n", (int)(m_adcUnits * s), hh + shift);
+            //            if (pri)
+            //              printf("Signal: %d, Pos:%d\n", (int)(m_adcUnits * s), hh + shift);
             //	    clusterstringtodump += Form("Signal: %d, Pos:%d\n", (int)(8*s), hh+shift);
             if ((hh - clusadd) < MAXLENGHT) {
               sig[hh - clusadd] = s;
-//              if (pri)
-//                printf("        %f, Pos: %d\n", sig[hh - clusadd], hh + shift);
+              //              if (pri)
+              //                printf("        %f, Pos: %d\n", sig[hh - clusadd], hh + shift);
               //	      clusterstringtodump += Form("        %f, Pos: %d\n", sig[hh-clusadd], hh+shift);
             } else
               bad = 1;

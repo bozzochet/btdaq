@@ -69,9 +69,7 @@ void DecodeDataOCA::OpenFile(const char *rawDir, const char *calDir, int runNum,
   m_filename = *fileName_it;
 
   auto calFilename_it = std::find_if(std::reverse_iterator<decltype(fileName_it)>(fileName_it), rend(fileList),
-                                     [](const std::string &_filename) {
-                                       return _filename.substr(13, 3) == "CAL";
-                                     });
+                                     [](const std::string &_filename) { return _filename.substr(13, 3) == "CAL"; });
 
   if (calFilename_it != rend(fileList)) {
     m_calFilename = *calFilename_it;
@@ -98,9 +96,12 @@ bool DecodeDataOCA::ProcessCalibration() {
   auto start = std::chrono::system_clock::now();
 
   auto event = std::make_unique<Event>();
-  std::array<std::array<std::vector<uint16_t>, NVAS * NCHAVA>, NTDRS> signals;
+  std::array<std::array<std::vector<float>, NVAS * NCHAVA>, NTDRS> signals;
+
+  unsigned int nEvents{0};
   while (!feof(calfile)) {
     ReadOneEventFromFile(calfile, event.get());
+    std::cout << "\rRead " << ++nEvents << " events" << std::flush;
 
     for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -108,6 +109,7 @@ bool DecodeDataOCA::ProcessCalibration() {
       }
     }
   }
+  std::cout << '\n';
 
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -177,14 +179,27 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, Event *event) {
 
   uint32_t bEvHeader;
   fstat = ReadFile(&bEvHeader, sizeof(bEvHeader), 1, file);
-  if (fstat == -1 || bEvHeader != c_bEvHeader)
+  if (fstat == -1 || bEvHeader != c_bEvHeader) {
+    printf("Mismatch in event header %x (expected %x)\n", bEvHeader, c_bEvHeader);
     return 1;
+  }
 
   for (unsigned int iBoard = 0; iBoard < m_numBoards; ++iBoard) {
     uint32_t bHeader;
     fstat = ReadFile(&bHeader, sizeof(bHeader), 1, file);
-    if (fstat == -1 || bHeader != c_bHeader)
+    if (fstat == -1) {
       return 1;
+    } else if (bHeader != c_bHeader) {
+      if (bHeader == c_bEvHeader) {
+        // We have less boards than expected? Stop reading this event and get ready for the next one
+        // but first reset the file cursor back so that on the next call we'll read the event header
+        fseek(file, -sizeof(decltype(c_bEvHeader)), SEEK_CUR);
+        return 0;
+      } else {
+        printf("Mismatch in board header %x (expected %x)\n", bHeader, c_bHeader);
+        return 1;
+      }
+    }
 
     uint32_t messageLength;
     fstat = ReadFile(&messageLength, sizeof(messageLength), 1, file);
@@ -240,7 +255,8 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, Event *event) {
         // TODO: check if signal is still zero-padded on both sides
         // both the shift and the m_adcUnits should be removed later on...
         event->RawSignal[iTDR][iCh] = m_adcUnits * (data[iVal] >> 2);
-        event->RawSoN[iTDR][iCh] = (event->RawSignal[iTDR][iCh] / m_adcUnits - cals[iTDR].ped[iCh]) / cals[iTDR].sig[iCh];
+        event->RawSoN[iTDR][iCh] =
+            (event->RawSignal[iTDR][iCh] / m_adcUnits - cals[iTDR].ped[iCh]) / cals[iTDR].sig[iCh];
       }
     };
 
@@ -317,8 +333,8 @@ int DecodeDataOCA::ReadOneEvent() {
   int retVal = ReadOneEventFromFile(rawfile, ev);
 
   // clusterize!
-  // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this point,
-  // so it should return.
+  // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this
+  // point, so it should return.
   for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
     Clusterize(iTDR, 0, &cals[iTDR]);
   }
