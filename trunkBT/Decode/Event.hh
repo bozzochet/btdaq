@@ -17,6 +17,11 @@
 #define NADCS 5
 #define NVAS 10
 #define NCHAVA 64
+#elif defined FOOT
+#define NTDRS 12 //  2 sensors for board
+#define NADCS 5
+#define NVAS 10
+#define NCHAVA 64
 #else
 #define NTDRS 24
 #define NVAS  16
@@ -68,6 +73,7 @@ class RHClass;
 class Event: public TObject{
   friend class DecodeData;
   friend class DecodeDataOCA;
+  friend class DecodeDataFOOT;
 
 public:
   //! Default contructor

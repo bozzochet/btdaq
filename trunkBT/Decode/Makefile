@@ -2,7 +2,7 @@ CXX := $(shell root-config --cxx)
 
 CLASSES = Cluster.hh LadderConf.hh Event.hh
 
-DEC_SOURCES = DecodeData.cxx DecodeDataOCA.cxx FSUtils.cxx main.cxx rootElibdict.cxx
+DEC_SOURCES = DecodeData.cxx DecodeDataOCA.cxx DecodeDataFOOT.cxx FSUtils.cxx main.cxx rootElibdict.cxx
 DEC_SOURCES+= $(CLASSES:%.hh=%.cxx)
 DEC_OBJ=$(DEC_SOURCES:%.cxx=obj/%.o)
 
@@ -22,9 +22,9 @@ LDFLAGS = $(shell root-config --ldflags)
 CFLAGS:= -g -O3 -fPIC -Wno-deprecated
 
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags)
-CFLAGS += -DOCA # remove for AMS
+CFLAGS += -DOCA -DFOOT # remove for AMS
 
-CFLAGSFORCINT := -DOCA
+CFLAGSFORCINT := -DOCA -DFOOT
 ifneq ($(ROOTVERSION),6)
         CFLAGSFORCINT	:= -c -p $(CFLAGS)
 endif

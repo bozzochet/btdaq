@@ -11,6 +11,7 @@
 
 #include "DecodeData.hh"
 #include "DecodeDataOCA.hh"
+#include "DecodeDataFOOT.hh"
 #include "Event.hh"
 #include <stdlib.h>
 #include <math.h>
@@ -42,6 +43,7 @@ int main(int argc, char **argv) {
 
   bool kMC = false;
   bool kOca = false;
+  bool kFoot = false;
 
   bool kClusterize = false;
   int cworkaround = 0;
@@ -67,7 +69,8 @@ int main(int argc, char **argv) {
   opt->addUsage(Form("  --rawdata <path/to/dir/with/raw> ............ Directory with raw data (%s is the default)", DirRaw));
   opt->addUsage(Form("  --caldata <path/to/dir/with/cal> ............ Directory with cal data (%s is the default)", DirCal));
   opt->addUsage(Form("  --rootdata <path/to/dir/for/root> ........... Directory where to put ROOT file (%s is the default)", DirRoot));
-  opt->addUsage(     "  --oca ....................................... Read the OCA boards");
+  opt->addUsage(     "  --oca  ....................................... Read the OCA boards");
+  opt->addUsage(     "  --foot ....................................... Read files from FOOT Bo TDAQ");
   opt->addUsage(     "  -c, --clusterize ............................ To perform an offline clusterization to the RAW event");
   opt->addUsage(     "                                                    (the bonding type is defined in ladderconf.dat");
   opt->addUsage(     "                                                     with the same codes as for --cworkaround)");
@@ -97,6 +100,7 @@ int main(int argc, char **argv) {
   opt->setFlag("clusterize", 'c');
   opt->setFlag("montecarlo", 'm');
   opt->setFlag("oca");
+  opt->setFlag("foot");
 
   //***********
   //set Options
@@ -134,6 +138,10 @@ int main(int argc, char **argv) {
   
   if (opt->getFlag("oca")){
     kOca = true;
+  }
+
+  if (opt->getFlag("foot")){
+    kFoot = true;
   }
 
   //*********
@@ -223,7 +231,9 @@ int main(int argc, char **argv) {
   DecodeData *dd1 = nullptr;
   if(kOca){
     dd1 = new DecodeDataOCA(DirRaw, DirCal, run);
-  } else {
+  }else if(kFoot){
+    dd1 = new DecodeDataFOOT(DirRaw, DirCal, run);
+  }else {
     dd1 = new DecodeData(DirRaw, DirCal, run, ancillary, kMC);
   }
 
@@ -262,7 +272,7 @@ int main(int argc, char **argv) {
   }
   sleep(3);
 
-  if(!kOca) {
+  if(!kOca && !kFoot) {
     t4->GetUserInfo()->Add(dd1->rh);
   }
 

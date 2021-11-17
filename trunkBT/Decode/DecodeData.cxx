@@ -1390,7 +1390,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
     int seedaddmax = -1;
 
     TString clusterstringtodump = "--> New cluster\n";
-    //    printf("--> New cluster\n");
+    //printf("--> New cluster\n");
 
     for (int count = 0; count < arraysize; count++) {
 

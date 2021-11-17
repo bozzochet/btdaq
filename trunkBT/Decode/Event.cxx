@@ -269,6 +269,8 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG) {
 
 #ifdef OCA
   return;
+#elif defined FOOT
+  return;  
 #endif
 
   int const dimline = 255;
