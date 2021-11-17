@@ -3,6 +3,7 @@
 //
 
 #include "FSUtils.hh"
+#include <algorithm>
 
 #include <dirent.h>
 #include <sys/stat.h>

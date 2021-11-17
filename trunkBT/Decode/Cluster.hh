@@ -12,6 +12,8 @@
 //// also def in Event.hh
 #ifdef OCA
 #define NTDRS  12 // 2 sensors per board
+#elif defined FOOT
+#define NTDRS  12 // 2 sensors per board
 #else
 #define NTDRS  24
 #endif
