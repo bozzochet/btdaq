@@ -30,7 +30,7 @@ void LadderConf::Init(TString filename, bool DEBUG){
           LadderParams* params = new LadderParams;
 	  
 	  sscanf(line, "%d\t%d\t%lf\t%lf\t%lf\t%lf\t%d\t%d\t%d\t%lf\t%lf\t%lf\t%lf", &jinfnum, &tdrnum, &dummy, &dummy, &dummy, &dummy, &dummyint, &dummyint, &dummyint, &dummy, &dummy, &dummy, &dummy);
-          if( jinfnum<NJINF && tdrnum<NTDRS ){
+          if( jinfnum<Event::NJINF && tdrnum<Event::NTDRS ){
             int n = sscanf(
 			   line, "%d\t%d\t%lf\t%lf\t%lf\t%lf\t%d\t%d\t%d\t%d\t%lf\t%lf\t%lf\t%lf",
 			   &jinfnum,
@@ -72,7 +72,7 @@ void LadderConf::Init(TString filename, bool DEBUG){
             _ladders.insert( std::pair<int, LadderParams*>(params->_HwId, params) );
             // printf("%lu\n", _ladders.size());
           } else {
-            printf("Wrong JINF/TDR (%d, %d): maximum is (%d,%d)\n", jinfnum, tdrnum, NJINF, NTDRS);
+            printf("Wrong JINF/TDR (%d, %d): maximum is (%d,%d)\n", jinfnum, tdrnum, Event::NJINF, Event::NTDRS);
           }
         }
       } else {

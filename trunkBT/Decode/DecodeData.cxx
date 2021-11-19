@@ -40,15 +40,35 @@ TString stringtodump;
 //=============================================================================================
 DecodeData::DecodeData(char *ifname, char *caldir, int run, int ancillary, bool _kMC) {
 
+  Event::SetFlavour(Event::Flavour::AMS);
+  
+  cals = new calib[Event::NJINF*Event::NTDRS];
+  JinfMap = new int[Event::NJINF];
+  tdrMap = new laddernumtype[Event::NJINF*Event::NTDRS];
+  tdrAlign = new int[Event::NJINF*Event::NTDRS];
+
+  hocc = new TH1F*[Event::NJINF*Event::NTDRS];
+  hoccseed = new TH1F*[Event::NJINF*Event::NTDRS];
+  hchargevsocc = new TH2F*[Event::NJINF*Event::NTDRS];
+  hsignalvsocc = new TH2F*[Event::NJINF*Event::NTDRS];
+  hcharge = new TH1F**[Event::NJINF*Event::NTDRS];
+  hsignal = new TH1F**[Event::NJINF*Event::NTDRS];
+  hson = new TH1F**[Event::NJINF*Event::NTDRS];
+  for (int ii=0; ii<Event::NJINF*Event::NTDRS; ii++) {
+    hcharge[ii] = new TH1F*[2];
+    hsignal[ii] = new TH1F*[2];
+    hson[ii] = new TH1F*[2];
+  }
+  
   kMC = _kMC;
 
   runn = run;
 
   ntdrRaw = 0;
   ntdrCmp = 0;
-  memset(tdrMap, -1, NTDRS * sizeof(tdrMap[0]));
+  memset(tdrMap, -1, Event::NJINF*Event::NTDRS * sizeof(tdrMap[0]));
 
-  memset(tdrAlign, -1, NTDRS * sizeof(tdrAlign[0])); // added by Viviana
+  memset(tdrAlign, -1, Event::NJINF*Event::NTDRS * sizeof(tdrAlign[0])); // added by Viviana
 
   // pri=0;
   pri = 1;
@@ -115,7 +135,7 @@ DecodeData::DecodeData(char *ifname, char *caldir, int run, int ancillary, bool 
   rh->SetTdrMap(tdrMap);
 
   if (pri) {
-    printf("********* READVALS: %d %d %d %d \n", NTDRS, nJinf, ntdrRaw, ntdrCmp);
+    printf("********* READVALS: %d %d %d %d \n", Event::NTDRS, nJinf, ntdrRaw, ntdrCmp);
     printf("Dumping the file headers that are going to be written in the ROOT files...\n");
   }
   rh->Print();
@@ -135,35 +155,35 @@ DecodeData::DecodeData(char *ifname, char *caldir, int run, int ancillary, bool 
   //
 
   char name[255];
-  for (int jj = 0; jj < NJINF; jj++) {
-    for (int hh = 0; hh < NTDRS; hh++) {
+  for (int jj = 0; jj < Event::NJINF; jj++) {
+    for (int hh = 0; hh < Event::NTDRS; hh++) {
       sprintf(name, "occ_%d_%d", jj, hh);
       //	  hocc[jj*NTDRS+hh]= new TH1F(name,name,1024,0,1024);
-      hocc[jj * NTDRS + hh] = new TH1F(name, name, NVAS * NCHAVA, 0, NVAS * NCHAVA);
+      hocc[jj * Event::NTDRS + hh] = new TH1F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA);
       sprintf(name, "occseed_%d_%d", jj, hh);
       //	  hoccseed[jj*NTDRS+hh]= new TH1F(name,name,1024,0,1024);
-      hoccseed[jj * NTDRS + hh] = new TH1F(name, name, NVAS * NCHAVA, 0, NVAS * NCHAVA);
+      hoccseed[jj * Event::NTDRS + hh] = new TH1F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA);
 
       sprintf(name, "qS_%d_%d", jj, hh);
-      hcharge[jj * NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
+      hcharge[jj * Event::NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
       sprintf(name, "qK_%d_%d", jj, hh);
-      hcharge[jj * NTDRS + hh][1] = new TH1F(name, name, 1000, 0, 100);
+      hcharge[jj * Event::NTDRS + hh][1] = new TH1F(name, name, 1000, 0, 100);
 
       sprintf(name, "signalS_%d_%d", jj, hh);
-      hsignal[jj * NTDRS + hh][0] = new TH1F(name, name, 4200, -100, 4100);
+      hsignal[jj * Event::NTDRS + hh][0] = new TH1F(name, name, 4200, -100, 4100);
       sprintf(name, "signalK_%d_%d", jj, hh);
-      hsignal[jj * NTDRS + hh][1] = new TH1F(name, name, 4200, -100, 4100);
+      hsignal[jj * Event::NTDRS + hh][1] = new TH1F(name, name, 4200, -100, 4100);
 
       sprintf(name, "q_vs_occ_%d_%d", jj, hh);
-      hchargevsocc[jj * NTDRS + hh] = new TH2F(name, name, NVAS * NCHAVA, 0, NVAS * NCHAVA, 1000, 0, 100);
+      hchargevsocc[jj * Event::NTDRS + hh] = new TH2F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA, 1000, 0, 100);
 
       sprintf(name, "signal_vs_occ_%d_%d", jj, hh);
-      hsignalvsocc[jj * NTDRS + hh] = new TH2F(name, name, NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 4100);
+      hsignalvsocc[jj * Event::NTDRS + hh] = new TH2F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA, 4200, -100, 4100);
 
       sprintf(name, "sonS_%d_%d", jj, hh);
-      hson[jj * NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
+      hson[jj * Event::NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
       sprintf(name, "sonK_%d_%d", jj, hh);
-      hson[jj * NTDRS + hh][1] = new TH1F(name, name, 1000, 0, 100);
+      hson[jj * Event::NTDRS + hh][1] = new TH1F(name, name, 1000, 0, 100);
     }
   }
 }
@@ -171,39 +191,39 @@ DecodeData::DecodeData(char *ifname, char *caldir, int run, int ancillary, bool 
 
 DecodeData::~DecodeData() {
 
-  for (int jj = 0; jj < NJINF; jj++) {
-    for (int hh = 0; hh < NTDRS; hh++) {
+  for (int jj = 0; jj < Event::NJINF; jj++) {
+    for (int hh = 0; hh < Event::NTDRS; hh++) {
       //      printf("%d %d --> %f\n", jj, hh, hocc[jj*NTDRS+hh]->GetEntries());
-      if (hocc[jj * NTDRS + hh] && hocc[jj * NTDRS + hh]->GetEntries() < 1.0) {
+      if (hocc[jj * Event::NTDRS + hh] && hocc[jj * Event::NTDRS + hh]->GetEntries() < 1.0) {
         //		printf("deleting hocc %d %d at %p\n", jj, hh, hocc[jj*NTDRS+hh]);
-        delete hocc[jj * NTDRS + hh];
+        delete hocc[jj * Event::NTDRS + hh];
       }
-      if (hoccseed[jj * NTDRS + hh] && hoccseed[jj * NTDRS + hh]->GetEntries() < 1.0) {
+      if (hoccseed[jj * Event::NTDRS + hh] && hoccseed[jj * Event::NTDRS + hh]->GetEntries() < 1.0) {
         //		printf("deleting hoccseed %d %d\n", jj, hh);
-        delete hoccseed[jj * NTDRS + hh];
+        delete hoccseed[jj * Event::NTDRS + hh];
       }
-      if (hchargevsocc[jj * NTDRS + hh] && hchargevsocc[jj * NTDRS + hh]->GetEntries() < 1.0) {
+      if (hchargevsocc[jj * Event::NTDRS + hh] && hchargevsocc[jj * Event::NTDRS + hh]->GetEntries() < 1.0) {
         //		  printf("deleting hchargevsocc %d %d\n", jj, hh);
-        delete hchargevsocc[jj * NTDRS + hh];
+        delete hchargevsocc[jj * Event::NTDRS + hh];
       }
-      if (hsignalvsocc[jj * NTDRS + hh] && hsignalvsocc[jj * NTDRS + hh]->GetEntries() < 1.0) {
+      if (hsignalvsocc[jj * Event::NTDRS + hh] && hsignalvsocc[jj * Event::NTDRS + hh]->GetEntries() < 1.0) {
         //		  printf("deleting hsignalvsocc %d %d\n", jj, hh);
-        delete hsignalvsocc[jj * NTDRS + hh];
+        delete hsignalvsocc[jj * Event::NTDRS + hh];
       }
 
       for (int ss = 0; ss < 2; ss++) {
         //	printf("%d %d %d --> %f\n", jj, hh, ss, hcharge[jj*NTDRS+hh][ss]->GetEntries());
-        if (hcharge[jj * NTDRS + hh][ss] && hcharge[jj * NTDRS + hh][ss]->GetEntries() < 1.0) {
+        if (hcharge[jj * Event::NTDRS + hh][ss] && hcharge[jj * Event::NTDRS + hh][ss]->GetEntries() < 1.0) {
           //	  	  printf("deleting hcharge %d %d %d\n", jj, hh, ss);
-          delete hcharge[jj * NTDRS + hh][ss];
+          delete hcharge[jj * Event::NTDRS + hh][ss];
         }
-        if (hsignal[jj * NTDRS + hh][ss] && hsignal[jj * NTDRS + hh][ss]->GetEntries() < 1.0) {
+        if (hsignal[jj * Event::NTDRS + hh][ss] && hsignal[jj * Event::NTDRS + hh][ss]->GetEntries() < 1.0) {
           //	  	  printf("deleting hsignal %d %d %d\n", jj, hh, ss);
-          delete hsignal[jj * NTDRS + hh][ss];
+          delete hsignal[jj * Event::NTDRS + hh][ss];
         }
-        if (hson[jj * NTDRS + hh][ss] && hson[jj * NTDRS + hh][ss]->GetEntries() < 1.0) {
+        if (hson[jj * Event::NTDRS + hh][ss] && hson[jj * Event::NTDRS + hh][ss]->GetEntries() < 1.0) {
           //	  	  printf("deleting hson %d %d %d\n", jj, hh, ss);
-          delete hson[jj * NTDRS + hh][ss];
+          delete hson[jj * Event::NTDRS + hh][ss];
         }
       }
     }
@@ -678,7 +698,7 @@ int DecodeData::ReadOneEvent_data() {
       return 1;
     if (pri || evpri)
       printf("Tdrs with no event Mask: %d\n", tdrnoeventmask);
-    for (int ii = 0; ii < NTDRS; ii++) {
+    for (int ii = 0; ii < Event::NTDRS; ii++) {
       if (tdrnoeventmask & (1 << ii)) {
         if (pri || evpri)
           printf("A tdr (%02d) replied with no event...\n", ii);
@@ -713,6 +733,8 @@ int DecodeData::ReadOneEvent_data() {
 
 int DecodeData::ReadOneEvent_mc() {
 
+  int jinfnum=0;//MD: assuming only one Jinf
+  
   // if (evenum==5 || evenum==21 || evenum==26) {evenum++; return 0;}
   TRandom3 rn;
   double dEdX2ADC = 3.5e3;
@@ -732,7 +754,7 @@ int DecodeData::ReadOneEvent_mc() {
   if (!out_flag) {
 
     for (int ij = 0; ij < nJinf; ij++) {
-      JinfMap[ij] = 0;
+      JinfMap[ij] = 0; // MD: all Jinf put at 0, assuming only one jinf? 
     }
     for (int ir = 0; ir < nlayers; ir++) {
       //      tdrRaw[ir]=ir;//Viviana
@@ -757,7 +779,7 @@ int DecodeData::ReadOneEvent_mc() {
     ev->Evtnum = evenum;
     ev->JINJStatus = 999;
 
-    ev->JINFStatus[0] = 999;
+    ev->JINFStatus[jinfnum] = 999;
 
     // printf("ReadOneEventMC store to event: %d %d %d %f %d %f %d
     // \n",evenum,nlayers,pphit,eEne[0],chXY[0],eDep[0],int(eDep[0]*dEdX2ADC/8.));
@@ -773,8 +795,8 @@ int DecodeData::ReadOneEvent_mc() {
     for (int nl = 0; nl < ntdrMC; nl++) { // nlayers
       // hvol[nh]=nh;      // now read
       calib *cal = &(cals[nl]);
-      ev->TDRStatus[nl] = 999;
-      ev->ReadTDR[nl] = 1;
+      ev->TDRStatus[jinfnum][nl] = 999;
+      ev->ReadTDR[jinfnum][nl] = 1;
       // calib* cal=&(cals[hvol[nh]]);
       // ev->TDRStatus[hvol[nh]]=999;
       // ev->ReadTDR[hvol[nh]]=1;
@@ -782,12 +804,12 @@ int DecodeData::ReadOneEvent_mc() {
       printf("ReadOneEventMC LAYER %d align: %d\n", nl, tdrAlign[nl]);
 
       /// hardcoded number of channels
-      for (int kk = 0; kk < NVAS * NCHAVA; kk++) {
+      for (int kk = 0; kk < Event::NVAS * Event::NCHAVA; kk++) {
         // for (int kk=0;kk<1024;kk++){
-        ev->CalPed[nl][kk] = cal->ped[kk];
-        ev->CalSigma[nl][kk] = cal->sig[kk];
-        ev->RawSignal[nl][kk] = int(rn.Gaus(420., 1.125)); // simnoise --> OK?
-        ev->RawSoN[nl][kk] = (ev->RawSignal[nl][kk] / 8.0 - cal->ped[kk]) / cal->sig[kk];
+        ev->CalPed[jinfnum][nl][kk] = cal->ped[kk];
+        ev->CalSigma[jinfnum][nl][kk] = cal->sig[kk];
+        ev->RawSignal[jinfnum][nl][kk] = int(rn.Gaus(420., 1.125)); // simnoise --> OK?
+        ev->RawSoN[jinfnum][nl][kk] = (ev->RawSignal[jinfnum][nl][kk] / 8.0 - cal->ped[kk]) / cal->sig[kk];
       }
 
       for (int nh = 0; nh < ntothits; nh++) { // ntothits>nlayers
@@ -809,10 +831,10 @@ int DecodeData::ReadOneEvent_mc() {
           // int sch=hitChan->at(nhi)-112;
           // int sch=simChan->at(nhi)-112;
           // ev->RawSignal[hvol[nh]][sch]+=int(hitDep->at(nhi)*dEdX2ADC);
-          ev->RawSignal[hvol[nh]][sch] += int(simDep->at(nhi) * dEdX2ADC);
-          ev->RawSoN[hvol[nh]][sch] = (ev->RawSignal[hvol[nh]][sch] / 8.0 - cal->ped[sch]) / cal->sig[sch];
+          ev->RawSignal[jinfnum][hvol[nh]][sch] += int(simDep->at(nhi) * dEdX2ADC);
+          ev->RawSoN[jinfnum][hvol[nh]][sch] = (ev->RawSignal[jinfnum][hvol[nh]][sch] / 8.0 - cal->ped[sch]) / cal->sig[sch];
           if (pri)
-            printf("HITSIG %d: %d %f %f %f\n", sch, ev->RawSignal[hvol[nh]][sch], ev->RawSoN[hvol[nh]][sch],
+            printf("HITSIG %d: %d %f %f %f\n", sch, ev->RawSignal[jinfnum][hvol[nh]][sch], ev->RawSoN[jinfnum][hvol[nh]][sch],
                    cal->ped[sch], cal->sig[sch]);
           nhi++;
         }
@@ -948,9 +970,9 @@ int DecodeData::ReadOneTDR(int Jinfnum) {
   // - bits 4-0 { slave ID, set by master;
 
   if (out_flag)
-    ev->TDRStatus[tdrnum] = array[size - 1];
+    ev->TDRStatus[Jinfnum][tdrnum] = array[size - 1];
   if (out_flag)
-    ev->ReadTDR[tdrnum] = 1;
+    ev->ReadTDR[Jinfnum][tdrnum] = 1;
 
   int RawOffset = 0;
   if (TESTBIT(array[size - 1], 6)) {
@@ -971,26 +993,26 @@ int DecodeData::ReadOneTDR(int Jinfnum) {
       }
       calib *cal = &(cals[numnum + 100 * Jinfnum]);
       for (int kk = 0; kk < 320; kk++) {
-        ev->RawSignal[tdrnumraw][kk] = array[count];           // first ADC on S
-        ev->RawSignal[tdrnumraw][320 + kk] = array[count + 1]; // second ADC on S
-        ev->RawSignal[tdrnumraw][640 + kk] = array[count + 2]; // ADC on K
+        ev->RawSignal[Jinfnum][tdrnumraw][kk] = array[count];           // first ADC on S
+        ev->RawSignal[Jinfnum][tdrnumraw][320 + kk] = array[count + 1]; // second ADC on S
+        ev->RawSignal[Jinfnum][tdrnumraw][640 + kk] = array[count + 2]; // ADC on K
         //	printf("RAW %d %d  %d\n",kk,ev->RawSignal[FindTDRPos(tdrnum)][kk],array[count]);
         count += 3;
       }
       for (int kk = 960; kk < 1024; kk++) { // remaining (320->384) on ADC on K
-        ev->RawSignal[tdrnumraw][kk] = array[kk];
+        ev->RawSignal[Jinfnum][tdrnumraw][kk] = array[kk];
       }
       for (int cc = 0; cc < 1024; cc++) {
         //	printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->RawSignal[tdrnumraw][cc])/8.0, cal->ped[cc],
         // cal->sig[cc], (ev->RawSignal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
-        ev->CalPed[tdrnumraw][cc] = cal->ped[cc];
-        ev->CalSigma[tdrnumraw][cc] = cal->sig[cc];
-        ev->CalStatus[tdrnumraw][cc] = cal->status[cc];
+        ev->CalPed[Jinfnum][tdrnumraw][cc] = cal->ped[cc];
+        ev->CalSigma[Jinfnum][tdrnumraw][cc] = cal->sig[cc];
+        ev->CalStatus[Jinfnum][tdrnumraw][cc] = cal->status[cc];
         if (cal->sig[cc] > 0.125 && // not a dead channel
             cal->sig[cc] < 10.0) {  // not a noisy channel
-          ev->RawSoN[tdrnumraw][cc] = (ev->RawSignal[tdrnumraw][cc] / 8.0 - cal->ped[cc]) / cal->sig[cc];
+          ev->RawSoN[Jinfnum][tdrnumraw][cc] = (ev->RawSignal[Jinfnum][tdrnumraw][cc] / 8.0 - cal->ped[cc]) / cal->sig[cc];
         } else {
-          ev->RawSoN[tdrnumraw][cc] = 0.0;
+          ev->RawSoN[Jinfnum][tdrnumraw][cc] = 0.0;
         }
       }
 
@@ -1005,13 +1027,13 @@ int DecodeData::ReadOneTDR(int Jinfnum) {
           double threshold = shighthreshold;
           if (cc >= 640)
             threshold = khighthreshold;
-          if (ev->RawSoN[tdrnumraw][cc] > threshold) {
+          if (ev->RawSoN[Jinfnum][tdrnumraw][cc] > threshold) {
             //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->RawSignal[tdrnumraw][cc])/8.0, cal->ped[cc],
             // cal->sig[cc], (ev->RawSignal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
             // printf("%04d) %f\n", cc, ev->RawSoN[tdrnumraw][cc]);
             // this fills the histogram for the raw events when NOT clustering, if kClusterize anyhow, ALL the histos as
             // for the compressed data, will be filled
-            hocc[numnum + NTDRS * Jinfnum]->Fill(cc, ev->RawSoN[tdrnumraw][cc]);
+            hocc[numnum + Event::NTDRS * Jinfnum]->Fill(cc, ev->RawSoN[Jinfnum][tdrnumraw][cc]);
             // hoccseed not filled in this case...
             // hcharge not filled in this case...
             // hsignal not filled in this case...
@@ -1144,21 +1166,21 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   double cog = pp->GetCoG();
   double seedadd = pp->GetSeedAdd();
 
-  hocc[numnum + NTDRS * Jinfnum]->Fill(cog);
-  hoccseed[numnum + NTDRS * Jinfnum]->Fill(seedadd);
+  hocc[numnum + Event::NTDRS * Jinfnum]->Fill(cog);
+  hoccseed[numnum + Event::NTDRS * Jinfnum]->Fill(seedadd);
   //#define TOTCHARGE
 #ifndef TOTCHARGE
-  hcharge[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetSeedCharge());
-  hsignal[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetSeedVal());
-  hchargevsocc[numnum + NTDRS * Jinfnum]->Fill(cog, pp->GetSeedCharge());
-  hsignalvsocc[numnum + NTDRS * Jinfnum]->Fill(cog, pp->GetSeedVal());
-  hson[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetSeedSN());
+  hcharge[numnum + Event::NTDRS * Jinfnum][sid]->Fill(pp->GetSeedCharge());
+  hsignal[numnum + Event::NTDRS * Jinfnum][sid]->Fill(pp->GetSeedVal());
+  hchargevsocc[numnum + Event::NTDRS * Jinfnum]->Fill(cog, pp->GetSeedCharge());
+  hsignalvsocc[numnum + Event::NTDRS * Jinfnum]->Fill(cog, pp->GetSeedVal());
+  hson[numnum + Event::NTDRS * Jinfnum][sid]->Fill(pp->GetSeedSN());
 #else
-  hcharge[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetCharge());
-  hsignal[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetTotSig());
-  hchargevsocc[numnum + NTDRS * Jinfnum]->Fill(cog, pp->GetCharge());
-  hsignalvsocc[numnum + NTDRS * Jinfnum]->Fill(cog, pp->GetTotSig());
-  hson[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetTotSN());
+  hcharge[numnum + Event::NTDRS * Jinfnum][sid]->Fill(pp->GetCharge());
+  hsignal[numnum + Event::NTDRS * Jinfnum][sid]->Fill(pp->GetTotSig());
+  hchargevsocc[numnum + Event::NTDRS * Jinfnum]->Fill(cog, pp->GetCharge());
+  hsignalvsocc[numnum + Event::NTDRS * Jinfnum]->Fill(cog, pp->GetTotSig());
+  hson[numnum + Event::NTDRS * Jinfnum][sid]->Fill(pp->GetTotSN());
 #endif
 
   // if (pp->GetSeedSN()<3.5) {
@@ -1211,8 +1233,8 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
     if (defaultThresholds && ladderconf) {
       printf("Except for: \n");
 
-      for (int jj = 0; jj < NJINF; jj++) {
-        for (int tt = 0; tt < NTDRS; tt++) {
+      for (int jj = 0; jj < Event::NJINF; jj++) {
+        for (int tt = 0; tt < Event::NTDRS; tt++) {
           double shithresh = ladderconf->GetSHiThreshold(jj, tt);
           double khithresh = ladderconf->GetKHiThreshold(jj, tt);
           double slothresh = ladderconf->GetSLoThreshold(jj, tt);
@@ -1232,8 +1254,8 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
       _bondingtype = cworkaround;
     } else {
       printf("\n");
-      for (int jj = 0; jj < NJINF; jj++) {
-        for (int tt = 0; tt < NTDRS; tt++) {
+      for (int jj = 0; jj < Event::NJINF; jj++) {
+        for (int tt = 0; tt < Event::NTDRS; tt++) {
           if (ladderconf->GetBondingType(jj, tt) != 0)
             printf("    %d as workaround for JINF=%d, TDR=%d\n", ladderconf->GetBondingType(jj, tt), jj, tt);
         }
@@ -1253,20 +1275,20 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
   //// nvas were 16 total summing S and K
   //  int nvasS=10;
   //  int nvasK= 6;
-  int nvasS = NVAS; // changed by Viviana. MD: check if is coherent with the "bondingtype" stuff
-  int nvasK = NVAS; // changed by Viviana. MD: check if is coherent with the "bondingtype" stuff
+  int nvasS = Event::NVAS; // changed by Viviana. MD: check if is coherent with the "bondingtype" stuff
+  int nvasK = Event::NVAS; // changed by Viviana. MD: check if is coherent with the "bondingtype" stuff
   //// hardcoded nchannels per va was 64
   //  int nchavaS=64;
   //  int nchavaK=64;
   // defined in
-  int nchavaS = NCHAVA; // changed by Viviana. MD: check if is coherent with the "bondingtype" stuff
-  int nchavaK = NCHAVA; // changed by Viviana. MD: check if is coherent with the "bondingtype" stuff
+  int nchavaS = Event::NCHAVA; // changed by Viviana. MD: check if is coherent with the "bondingtype" stuff
+  int nchavaK = Event::NCHAVA; // changed by Viviana. MD: check if is coherent with the "bondingtype" stuff
   if (_bondingtype == 1) {
     nchavaS = 32;
   }
 
-  int nvas = NVAS;     // changed by Viviana
-  int nchava = NCHAVA; // changed by Viviana
+  int nvas = Event::NVAS;     // changed by Viviana
+  int nchava = Event::NCHAVA; // changed by Viviana
   //// hardcoded nchannels per tdr was 1024
   short int array[nvas * nchava]; // changed by Viviana
   float arraySoN[nvas * nchava];  // changed by Viviana
@@ -1301,8 +1323,8 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
       if (_bondingtype == 1) {
         arraysize = 320;
         for (int cc = 0; cc < arraysize; cc++) {
-          array[cc] = ev->RawSignal[tdrnumraw][cc * 2];
-          arraySoN[cc] = ev->RawSoN[tdrnumraw][cc * 2];
+          array[cc] = ev->RawSignal[Jinfnum][tdrnumraw][cc * 2];
+          arraySoN[cc] = ev->RawSoN[Jinfnum][tdrnumraw][cc * 2];
           pede[cc] = cal->ped[cc * 2];
           sigma[cc] = cal->sig[cc * 2];
           status[cc] = cal->status[cc * 2];
@@ -1313,13 +1335,13 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
         int shift = ((int)(640 / 2));
         for (int cc = 0; cc < halfarraysize; cc++) {
           //	  printf("%d %d %d\n", cc, cc+halfarraysize, cc+shift);
-          array[cc] = ev->RawSignal[tdrnumraw][cc];
-          arraySoN[cc] = ev->RawSoN[tdrnumraw][cc];
+          array[cc] = ev->RawSignal[Jinfnum][tdrnumraw][cc];
+          arraySoN[cc] = ev->RawSoN[Jinfnum][tdrnumraw][cc];
           pede[cc] = cal->ped[cc];
           sigma[cc] = cal->sig[cc];
           status[cc] = cal->status[cc];
-          array[cc + halfarraysize] = ev->RawSignal[tdrnumraw][cc + shift];
-          arraySoN[cc + halfarraysize] = ev->RawSoN[tdrnumraw][cc + shift];
+          array[cc + halfarraysize] = ev->RawSignal[Jinfnum][tdrnumraw][cc + shift];
+          arraySoN[cc + halfarraysize] = ev->RawSoN[Jinfnum][tdrnumraw][cc + shift];
           pede[cc + halfarraysize] = cal->ped[cc + shift];
           sigma[cc + halfarraysize] = cal->sig[cc + shift];
           status[cc + halfarraysize] = cal->status[cc + shift];
@@ -1542,7 +1564,7 @@ void DecodeData::FindCalibs() {
   int runB;
   int runMC = 0; // added by Viviana. MD: see if really needed
 
-  FILE *calfile[NTDRS];
+  FILE *calfile[Event::NTDRS];
   int old = pri;
   bool afterclose = false;
 
@@ -1656,7 +1678,7 @@ int DecodeData::ReadCalib_mc(FILE *fil, calib *cal) {
   */
 
   ////for (int ii=0;ii<1024;ii++){
-  for (int ii = 0; ii < NVAS * NCHAVA; ii++) {
+  for (int ii = 0; ii < Event::NVAS * Event::NCHAVA; ii++) {
 
     /*
                 fscanf(fil,"%d  %d  %d  %f %f %f %f %d  ",&a,&b,&c,
@@ -1771,7 +1793,7 @@ int DecodeData::ReadOneJINF() {
   ReadFile(&tdrnoeventmask, sizeof(tdrnoeventmask), 1, rawfile);
   if (pri || evpri)
     printf("Tdrs with no event Mask: %d\n", tdrnoeventmask);
-  for (int ii = 0; ii < NTDRS; ii++) {
+  for (int ii = 0; ii < Event::NTDRS; ii++) {
     if (tdrnoeventmask & (1 << ii)) {
       if (pri || evpri)
         printf("A tdr (%d) replied with no event...\n", ii);
@@ -1792,16 +1814,16 @@ int DecodeData::ReadOneJINF() {
 }
 
 int DecodeData::GetTdrNum(int pos) {
-  if (pos > NJINF * NTDRS) {
-    printf("Pos %d not allowed. Max is %d\n", pos, NJINF * NTDRS);
+  if (pos > Event::NJINF * Event::NTDRS) {
+    printf("Pos %d not allowed. Max is %d\n", pos, Event::NJINF * Event::NTDRS);
     return -9999;
   }
   return tdrMap[pos].first;
 }
 
 int DecodeData::GetTdrType(int pos) {
-  if (pos > NJINF * NTDRS) {
-    printf("Pos %d not allowed. Max is %d\n", pos, NJINF * NTDRS);
+  if (pos > Event::NJINF * Event::NTDRS) {
+    printf("Pos %d not allowed. Max is %d\n", pos, Event::NJINF * Event::NTDRS);
     return -9999;
   }
   return tdrMap[pos].second;

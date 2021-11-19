@@ -8,8 +8,8 @@ CXXFLAGS= -O3 -Wno-write-strings $(CPPFLAGS) -fstack-protector -D_FORTIFY_SOURCE
 
 AnyOption:
 	@echo "Building $@ ... "
-	$(CXX) $(CXXFLAGS) -c $(SRC) -o anyoption.o
-	@echo "Done"
+	@$(CXX) $(CXXFLAGS) -c $(SRC) -o anyoption.o
+#	@echo "Done"
 
 clean:
 	rm -f anyoption.o

@@ -17,15 +17,23 @@ using namespace std;
 
 ClassImp(Event);
 
+int Event::NJINF=-1;
+int Event::NTDRS=-1;
+int Event::NCHAVA=-1;
+int Event::NADCS=-1;
+int Event::NVAS=-1;
+
+Event::Flavour Event::kFlavour = Event::Flavour::UNDEF;
+
 bool Event::ladderconfnotread = true;
 bool Event::alignmentnotread = true;
-float Event::alignpar[NJINF][NTDRS][3];
-bool Event::multflip[NJINF][NTDRS];
+float*** Event::alignpar;
+bool** Event::multflip;
 
 LadderConf *Event::ladderconf = nullptr;
 
 bool Event::gaincorrectionnotread = true;
-float Event::gaincorrectionpar[NJINF][NTDRS][NVAS][2];
+float**** Event::gaincorrectionpar;
 
 // they store temporarily the result of the fit----------------------------
 double mS_sf, mSerr_sf;
@@ -59,29 +67,104 @@ static void _fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t i
 
 Event::Event() {
 
+  if (kFlavour == Flavour::UNDEF) {
+    printf("********************************\n");
+    printf("********************************\n");
+    printf("Before using the event\n");
+    printf("(even the default-constructed one used when reading a TTree)\n");
+    printf("you mandatory need to call\n");
+    printf("Event::SetFlavour(Flavour::<AMS,OCA,FOOT,...>)\n");
+    printf("********************************\n");
+    printf("********************************\n");
+  }
+  
+  NJINF=1;
+  NTDRS=24; // this a "max number of". For FOOT/OCA remember that we have 2 sensors for board (i.e. 6 DE-10 nano means 12 "TDR")
+  NCHAVA=64; //for POX MC it was 256 or 128. To be understood...
+  NADCS=3;
+  NVAS=16;
+  
+  if (kFlavour == Flavour::OCA) {
+    NADCS=5;
+    NVAS=10;
+  }
+  else if (kFlavour == Flavour::FOOT) {
+    NADCS=5;
+    NVAS=10;
+  }
+
+  alignpar = new float**[NJINF];
+  multflip = new bool*[NJINF];
+  gaincorrectionpar = new float***[NJINF];
+  JINFStatus = new int[NJINF];
+  TDRStatus = new int*[NJINF];
+  CNoise = new double**[NJINF];
+  NClus = new int**[NJINF];
+  CalSigma = new double**[NJINF];
+  CalPed = new double**[NJINF];
+  RawSignal = new short int**[NJINF];
+  RawSoN = new float**[NJINF];
+  CalStatus = new int**[NJINF];
+  ReadTDR = new short int*[NJINF];
+  _track_cluster_pattern = new unsigned int*[NJINF];
+  for (int ii=0; ii<NJINF; ii++) {
+    alignpar[ii] = new float*[NTDRS];
+    multflip[ii] = new bool[NTDRS];
+    gaincorrectionpar[ii] = new float**[NTDRS];
+    TDRStatus[ii] = new int[NTDRS];
+    CNoise[ii] = new double*[NTDRS];
+    NClus[ii] = new int*[NTDRS];
+    CalSigma[ii] = new double*[NTDRS];
+    CalPed[ii] = new double*[NTDRS];
+    RawSignal[ii] = new short int*[NTDRS];
+    RawSoN[ii] = new float*[NTDRS];
+    CalStatus[ii] = new int*[NTDRS];
+    ReadTDR[ii] = new short int[NTDRS];
+    _track_cluster_pattern[ii] = new unsigned int[2];
+    for (int jj=0; jj<NTDRS; jj++) {
+      alignpar[ii][jj] = new float[3];
+      gaincorrectionpar[ii][jj] = new float*[NVAS];
+      CNoise[ii][jj] = new double[NVAS];
+      NClus[ii][jj] = new int[2];
+      CalSigma[ii][jj] = new double[NVAS*NCHAVA];
+      CalPed[ii][jj] = new double[NVAS*NCHAVA];
+      RawSignal[ii][jj] = new short int[NVAS*NCHAVA];
+      RawSoN[ii][jj] = new float[NVAS*NCHAVA];
+      CalStatus[ii][jj] = new int[NVAS*NCHAVA];
+      for (int kk=0; kk<NVAS; kk++) {
+	gaincorrectionpar[ii][jj][kk] = new float[2];
+      }
+    }
+  }
+  
   Evtnum = 0;
   JINJStatus = 0;
-  for (int ii = 0; ii < NJINF; ii++)
-    JINFStatus[ii] = 0;
+  for (int jj = 0; jj < NJINF; jj++) {
+    JINFStatus[jj] = 0;
+    for (int ii = 0; ii < NTDRS; ii++) {
+      TDRStatus[jj][ii] = 31;
+    }
+  }
 
   for (int ii = 0; ii < NTDRS; ii++) {
     ReadTDR[ii] = 0;
-    TDRStatus[ii] = 31;
     for (int jj = 0; jj < NVAS; jj++)
       CNoise[ii][jj] = 0;
     NClus[ii][0] = 0;
     NClus[ii][1] = 0;
   }
 
-  // Viviana: hardcoded n
-  // -> kk to run onto nlayers
-  for (int kk = 0; kk < NTDRS; kk++) {           // Viviana: was kk<8
-    for (int ii = 0; ii < NVAS * NCHAVA; ii++) { //// Viviana: was ii<1024
-      CalSigma[kk][ii] = 0.0;
-      CalPed[kk][ii] = 0.0;
-      RawSignal[kk][ii] = 0.;
-      RawSoN[kk][ii] = 0.0;
-      CalStatus[kk][ii] = 0;
+  for (int jj = 0; jj < NJINF; jj++) {
+    // Viviana: hardcoded n
+    // -> kk to run onto nlayers
+    for (int kk = 0; kk < NTDRS; kk++) {           // Viviana: was kk<8
+      for (int ii = 0; ii < NVAS * NCHAVA; ii++) { //// Viviana: was ii<1024
+	CalSigma[jj][kk][ii] = 0.0;
+	CalPed[jj][kk][ii] = 0.0;
+	RawSignal[jj][kk][ii] = 0.;
+	RawSoN[jj][kk][ii] = 0.0;
+	CalStatus[jj][kk][ii] = 0;
+      }
     }
   }
 
@@ -120,29 +203,34 @@ Event::~Event() {
 
 void Event::Clear() {
   JINJStatus = 0;
-  for (int ii = 0; ii < NJINF; ii++)
-    JINFStatus[ii] = 0;
+  for (int jj = 0; jj < NJINF; jj++) {
+    JINFStatus[jj] = 0;
+    for (int ii = 0; ii < NTDRS; ii++) {
+      TDRStatus[jj][ii] = 31;
+    }
+  }
 
   NClusTot = 0;
 
   for (int ii = 0; ii < NTDRS; ii++) {
     ReadTDR[ii] = 0;
-    TDRStatus[ii] = 31;
     for (int jj = 0; jj < NVAS; jj++)
       CNoise[ii][jj] = 0;
     NClus[ii][0] = 0;
     NClus[ii][1] = 0;
   }
 
-  // Viviana: hardcoded
-  // ->kk to run onto nlayers?
-  for (int ii = 0; ii < NTDRS; ii++) {           // Viviana: was kk<8
-    for (int kk = 0; kk < NVAS * NCHAVA; kk++) { // Viviana: was 1024
-      CalSigma[ii][kk] = 0.0;
-      CalPed[ii][kk] = 0.0;
-      RawSignal[ii][kk] = 0;
-      RawSoN[ii][kk] = 0.0;
-      CalStatus[ii][kk] = 0;
+  for (int jj = 0; jj < NJINF; jj++) {
+    // Viviana: hardcoded
+    // ->kk to run onto nlayers?
+    for (int ii = 0; ii < NTDRS; ii++) {           // Viviana: was kk<8
+      for (int kk = 0; kk < NVAS * NCHAVA; kk++) { // Viviana: was 1024
+	CalSigma[jj][ii][kk] = 0.0;
+	CalPed[jj][ii][kk] = 0.0;
+	RawSignal[jj][ii][kk] = 0;
+	RawSoN[jj][ii][kk] = 0.0;
+	CalStatus[jj][ii][kk] = 0;
+      }
     }
   }
 
@@ -539,8 +627,14 @@ bool Event::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
 
   ClearTrack();
 
-  std::vector<std::pair<int, std::pair<double, double>>> v_cog_laddS[NJINF][NTDRS];
-  std::vector<std::pair<int, std::pair<double, double>>> v_cog_laddK[NJINF][NTDRS];
+  std::vector<std::pair<int, std::pair<double, double>>>** v_cog_laddS;
+  std::vector<std::pair<int, std::pair<double, double>>>** v_cog_laddK;
+  v_cog_laddS = new std::vector<std::pair<int, std::pair<double, double>>>*[NJINF];
+  v_cog_laddK = new std::vector<std::pair<int, std::pair<double, double>>>*[NJINF];
+  for (int ii=0; ii<NJINF; ii++){
+    v_cog_laddS[ii] = new std::vector<std::pair<int, std::pair<double, double>>>[NTDRS];
+    v_cog_laddK[ii] = new std::vector<std::pair<int, std::pair<double, double>>>[NTDRS];
+  }
 
   for (int index_cluster = 0; index_cluster < NClusTot; index_cluster++) {
 
@@ -584,11 +678,22 @@ bool Event::FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, do
 
   ClearTrack();
 
-  std::vector<std::pair<int, std::pair<double, double>>> v_cog_laddS[NJINF][NTDRS];
-  std::vector<std::pair<int, std::pair<double, double>>> v_cog_laddK[NJINF][NTDRS];
+  std::vector<std::pair<int, std::pair<double, double>>>** v_cog_laddS;
+  std::vector<std::pair<int, std::pair<double, double>>>** v_cog_laddK;
 
-  std::vector<double> v_q_laddS[NJINF][NTDRS];
-  std::vector<double> v_q_laddK[NJINF][NTDRS];
+  std::vector<double>** v_q_laddS;
+  std::vector<double>** v_q_laddK;
+
+  v_cog_laddS = new std::vector<std::pair<int, std::pair<double, double>>>*[NJINF];
+  v_cog_laddK = new std::vector<std::pair<int, std::pair<double, double>>>*[NJINF];
+  v_q_laddS = new std::vector<double>*[NJINF];
+  v_q_laddK = new std::vector<double>*[NJINF];
+  for (int ii=0; ii<NJINF; ii++) {
+    v_cog_laddS[ii] = new std::vector<std::pair<int, std::pair<double, double>>>[NTDRS];
+    v_cog_laddK[ii] = new std::vector<std::pair<int, std::pair<double, double>>>[NTDRS];
+    v_q_laddS[ii] = new std::vector<double>[NTDRS];
+    v_q_laddK[ii] = new std::vector<double>[NTDRS];
+  }
 
   for (int index_cluster = 0; index_cluster < NClusTot; index_cluster++) {
 
@@ -653,9 +758,10 @@ bool Event::FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, do
   return ret;
 }
 
-double Event::CombinatorialFit(std::vector<std::pair<int, std::pair<double, double>>> v_cog_laddS[NJINF][NTDRS],
-                               std::vector<std::pair<int, std::pair<double, double>>> v_cog_laddK[NJINF][NTDRS],
-                               int ijinf, int itdr, std::vector<std::pair<int, std::pair<double, double>>> v_cog_trackS,
+double Event::CombinatorialFit(std::vector<std::pair<int, std::pair<double, double>>>** v_cog_laddS,
+                               std::vector<std::pair<int, std::pair<double, double>>>** v_cog_laddK,
+                               int ijinf, int itdr,
+			       std::vector<std::pair<int, std::pair<double, double>>> v_cog_trackS,
                                std::vector<std::pair<int, std::pair<double, double>>> v_cog_trackK, int nptsS,
                                int nptsK, bool verbose) {
   //    printf("ijinf = %d, itdr = %d\n", ijinf, itdr);
@@ -1276,13 +1382,13 @@ double Event::GetChargeTrack(int side) {
   return charge;
 }
 
-double Event::GetCalPed_PosNum(int tdrnum, int channel, int Jinfnum) { return CalPed[tdrnum][channel]; }
+double Event::GetCalPed_PosNum(int tdrnum, int channel, int Jinfnum) { return CalPed[Jinfnum][tdrnum][channel]; }
 
-double Event::GetCalSigma_PosNum(int tdrnum, int channel, int Jinfnum) { return CalSigma[tdrnum][channel]; }
+double Event::GetCalSigma_PosNum(int tdrnum, int channel, int Jinfnum) { return CalSigma[Jinfnum][tdrnum][channel]; }
 
-double Event::GetRawSignal_PosNum(int tdrnum, int channel, int Jinfnum) { return RawSignal[tdrnum][channel] / 8.0; }
+double Event::GetRawSignal_PosNum(int tdrnum, int channel, int Jinfnum) { return RawSignal[Jinfnum][tdrnum][channel] / 8.0; }
 
-double Event::GetCalStatus_PosNum(int tdrnum, int channel, int Jinfnum) { return CalStatus[tdrnum][channel]; }
+double Event::GetCalStatus_PosNum(int tdrnum, int channel, int Jinfnum) { return CalStatus[Jinfnum][tdrnum][channel]; }
 
 double Event::GetCN_PosNum(int tdrnum, int va, int Jinfnum) {
 
@@ -1294,10 +1400,10 @@ double Event::GetCN_PosNum(int tdrnum, int va, int Jinfnum) {
   int status[4096];
 
   for (int chan = 0; chan < 4096; chan++) {
-    array[chan] = RawSignal[tdrnum][chan];
-    arraySoN[chan] = RawSoN[tdrnum][chan];
-    pede[chan] = CalPed[tdrnum][chan];
-    status[chan] = CalStatus[tdrnum][chan];
+    array[chan] = RawSignal[Jinfnum][tdrnum][chan];
+    arraySoN[chan] = RawSoN[Jinfnum][tdrnum][chan];
+    pede[chan] = CalPed[Jinfnum][tdrnum][chan];
+    status[chan] = CalStatus[Jinfnum][tdrnum][chan];
   }
 
   // Viviana: hardcoded number of channels per VA
@@ -1307,7 +1413,7 @@ double Event::GetCN_PosNum(int tdrnum, int va, int Jinfnum) {
 }
 
 float Event::GetRawSoN_PosNum(int tdrnum, int channel, int Jinfnum) {
-  return (RawSignal[tdrnum][channel] / 8.0 - CalPed[tdrnum][channel]) / CalSigma[tdrnum][channel];
+  return (RawSignal[Jinfnum][tdrnum][channel] / 8.0 - CalPed[Jinfnum][tdrnum][channel]) / CalSigma[Jinfnum][tdrnum][channel];
 }
 
 double Event::GetCalPed(RHClass *rh, int tdrnum, int channel, int Jinfnum) {
@@ -1852,13 +1958,17 @@ void HoughSpace::Add(double th, double r) {
 ClassImp(RHClass);
 
 RHClass::RHClass() {
+
+  JinfMap = new int[Event::NJINF];
+  tdrMap = new laddernumtype[Event::NJINF*Event::NTDRS];
+  
   Run = 0;
   ntdrRaw = 0;
   ntdrCmp = 0;
   nJinf = 0;
   sprintf(date, " ");
-  memset(JinfMap, -1, NJINF * sizeof(JinfMap[0]));
-  memset(tdrMap, 0, NTDRS * NJINF * sizeof(tdrMap[0]));
+  memset(JinfMap, -1, Event::NJINF * sizeof(JinfMap[0]));
+  memset(tdrMap, 0, Event::NTDRS * Event::NJINF * sizeof(tdrMap[0]));
 
   /* Viviana added (or left) these: do we really need?
   for (int ii=0;ii<NTDRS;ii++)
@@ -1920,7 +2030,7 @@ void RHClass::SetJinfMap(int *_JinfMap) {
   // for (int ii=0;ii<NJINF;ii++) {
   //   JinfMap[ii]=_JinfMap[ii];
   // }
-  memcpy(JinfMap, _JinfMap, NJINF * sizeof(JinfMap[0]));
+  memcpy(JinfMap, _JinfMap, Event::NJINF * sizeof(JinfMap[0]));
 
   return;
 }
@@ -1930,20 +2040,20 @@ void RHClass::SetTdrMap(laddernumtype *_TdrMap) {
   // for (int ii=0;ii<NTDRS;ii++) {
   //   tdrMap[ii]=_TdrMap[ii];
   // }
-  memcpy(tdrMap, _TdrMap, NTDRS * sizeof(tdrMap[0]));
+  memcpy(tdrMap, _TdrMap, Event::NTDRS * sizeof(tdrMap[0]));
 
   return;
 }
 
 int RHClass::GetTdrNum(int tdrpos) {
-  if (tdrpos < NTDRS) {
+  if (tdrpos < Event::NTDRS) {
     return tdrMap[tdrpos].first;
   }
   return -1;
 }
 
 int RHClass::GetTdrType(int tdrpos) {
-  if (tdrpos < NTDRS) {
+  if (tdrpos < Event::NTDRS) {
     return tdrMap[tdrpos].second;
   }
   return -1;
