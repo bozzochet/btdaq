@@ -12,13 +12,20 @@
 //(could be defined by Makefile)
 //#define CALOCUBE 
 
-typedef struct calib{
-  float ped[NVAS*NCHAVA]; // was [1024]: is backward compatible?
-  float rsig[NVAS*NCHAVA]; // was [1024]: is backward compatible?
-  float sig[NVAS*NCHAVA]; // was [1024]: is backward compatible?
-  int status[NVAS*NCHAVA]; // was [1024]: is backward compatible?
+class calib{
+public:
+  float* ped;
+  float* rsig;
+  float* sig;
+  int* status;
 
-} calib;
+  calib(){
+    ped = new float[Event::NVAS*Event::NCHAVA]; // was [1024]: is backward compatible?
+    rsig = new float[Event::NVAS*Event::NCHAVA]; // was [1024]: is backward compatible?
+    sig = new float[Event::NVAS*Event::NCHAVA]; // was [1024]: is backward compatible?
+    status = new int[Event::NVAS*Event::NCHAVA]; // was [1024]: is backward compatible?    
+  };
+};
 
 #pragma pack(push, 1)
 
@@ -79,16 +86,16 @@ protected:
   //  int Xstant;
   int runn;
   int tdroffset;
-  calib cals[NJINF*NTDRS];
+  calib* cals;
   int pri = 0;
   int evpri;
   int nJinf;
-  int JinfMap[NJINF];
+  int* JinfMap;
   int ntdrRaw = 0;
   int ntdrCmp = 0;
-  laddernumtype tdrMap[NJINF*NTDRS];
+  laddernumtype* tdrMap;
   int ntdrMC;//added by Viviana, controllare se matcha con le modifiche che avevo fatto alle Map
-  int tdrAlign[NJINF*NTDRS];//added by Viviana, credo...
+  int* tdrAlign;//added by Viviana, credo...
   int out_flag;
   double m_adcUnits = 8.0;
   unsigned int m_defaultShift = 640;
@@ -142,16 +149,14 @@ public:
   std::vector<double> * hitDep = 0;
   std::vector<int> *simChan = 0;
   std::vector<double> *simDep = 0;
-  
-  
-  
-  TH1F* hocc[NJINF*NTDRS];
-  TH1F* hoccseed[NJINF*NTDRS];
-  TH1F* hcharge[NJINF*NTDRS][2];
-  TH1F* hsignal[NJINF*NTDRS][2];
-  TH2F* hchargevsocc[NJINF*NTDRS];
-  TH2F* hsignalvsocc[NJINF*NTDRS];
-  TH1F* hson[NJINF*NTDRS][2];
+    
+  TH1F** hocc;
+  TH1F** hoccseed;
+  TH1F*** hcharge;
+  TH1F*** hsignal;
+  TH2F** hchargevsocc;
+  TH2F** hsignalvsocc;
+  TH1F*** hson;
 
   double shighthreshold;
   double slowthreshold;

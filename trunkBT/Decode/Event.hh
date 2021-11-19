@@ -8,25 +8,22 @@
 
 #include "LadderConf.hh"
 
-//// also def in Cluster.hh
-#define NJINF 1
+// #define NJINF 1
+// #define NTDRS 24 // this a "max number of". For FOOT/OCA remember that we have 2 sensors for board (i.e. 6 DE-10 nano means 12 "TDR")
+// #define NCHAVA 64 //for POX MC it was 256 or 128. To be understood...
 
-// added here number of read ch per va -> dimension of arrays
-#ifdef OCA
-#define NTDRS 12 //  2 sensors for board
-#define NADCS 5
-#define NVAS 10
-#define NCHAVA 64
-#elif defined FOOT
-#define NTDRS 12 //  2 sensors for board
-#define NADCS 5
-#define NVAS 10
-#define NCHAVA 64
-#else
-#define NTDRS 24
-#define NVAS  16
-#define NCHAVA 128
-#endif
+// #ifdef OCA
+// #define NADCS 5
+// #define NVAS 10
+// #elif defined FOOT
+// #define NADCS 5
+// #define NVAS 10
+// #else
+// #define NVAS  16
+// #endif
+
+//// for MC events
+#define MAXNHITS 500
 
 typedef short int shortint;
 typedef std::pair<int, int> laddernumtype;
@@ -75,12 +72,30 @@ class Event: public TObject{
   friend class DecodeDataOCA;
   friend class DecodeDataFOOT;
 
-public:
+public:  
   //! Default contructor
   Event();
   //! Default destructor
   ~Event();
+  
+  static int NJINF;
+  static int NTDRS;
+  static int NCHAVA;
+  static int NADCS;
+  static int NVAS;
 
+  enum class Flavour: int {
+    UNDEF = 11,
+    AMS = 22,
+    OCA = 33,
+    FOOT = 44
+  };
+  
+  static Flavour kFlavour;  
+  static void SetFlavour(Flavour flv=Flavour::AMS) {
+    kFlavour = flv;
+  }
+    
   //! Clear the event
   void Clear();
 
@@ -159,23 +174,23 @@ private:
   static bool ladderconfnotread;
   static LadderConf* ladderconf;
   static bool alignmentnotread;
-  static float alignpar[NJINF][NTDRS][3];
-  static bool multflip[NJINF][NTDRS];
+  static float*** alignpar;
+  static bool** multflip;
 
   static bool gaincorrectionnotread;
-  static float gaincorrectionpar[NJINF][NTDRS][NVAS][2];
+  static float**** gaincorrectionpar;
 
   double CombinatorialFit(
-			std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddS[NJINF][NTDRS],
-			std::vector<std::pair<int, std::pair<double, double> > > v_cog_laddK[NJINF][NTDRS],
+			std::vector<std::pair<int, std::pair<double, double>>>** v_cog_laddS,
+			std::vector<std::pair<int, std::pair<double, double>>>** v_cog_laddK,
 			int ijinf, int itdr,
-			std::vector<std::pair<int, std::pair<double, double> > > v_cog_trackS,
-			std::vector<std::pair<int, std::pair<double, double> > > v_cog_trackK,
+			std::vector<std::pair<int, std::pair<double, double>>> v_cog_trackS,
+			std::vector<std::pair<int, std::pair<double, double>>> v_cog_trackK,
 			int nptsS, int nptsK,
 			bool verbose=false
 			);
-  double SingleFit(std::vector<std::pair<int, std::pair<double, double> > > vS,
-		   std::vector<std::pair<int, std::pair<double, double> > > vK,
+  double SingleFit(std::vector<std::pair<int, std::pair<double, double>>> vS,
+		   std::vector<std::pair<int, std::pair<double, double>>> vK,
 		   std::vector<double>& v_chilayS,
 		   std::vector<double>& v_chilayK,
 		   double& theta, double& thetaerr,
@@ -207,13 +222,13 @@ private:
   //! Jinj Status
   int JINJStatus;
   //! Jinf Status
-  int JINFStatus[NJINF];
+  int* JINFStatus;
   //! Status word for the TDRs (  TDRStatus & 0x1f == TDR ID)
-  int TDRStatus[NTDRS];
+  int** TDRStatus;
   //! Common Noise from Calibration
-  double CNoise[NTDRS][NVAS];
+  double*** CNoise;
   //! Cluster number for (side 0(S) 1(K))
-  int NClus[NTDRS][2];
+  int*** NClus;
   //! Total number of clusters
   int NClusTot;
   //! 0 if there are hits on all the ladders
@@ -228,12 +243,12 @@ private:
   // Viviana  changed to [NTDRS] what about CH 1024->4096
   // CH=NVAS*NCHAVA
   // MD: check how much space we waste
-  double     CalSigma[NTDRS][NVAS*NCHAVA];   
-  double       CalPed[NTDRS][NVAS*NCHAVA];
-  short int RawSignal[NTDRS][NVAS*NCHAVA];
-  float        RawSoN[NTDRS][NVAS*NCHAVA];//! (do not stream on file! Can be recomputed easily!)
-  int       CalStatus[NTDRS][NVAS*NCHAVA];
-  short int ReadTDR[NTDRS];
+  double***     CalSigma;   
+  double***       CalPed;
+  short int*** RawSignal;
+  float***        RawSoN;//! (do not stream on file! Can be recomputed easily!)
+  int***       CalStatus;
+  short int** ReadTDR;
 
   //------------CB:qui salvo gli output di FindTracksAndVertex()------------//
   int _NTrks;
@@ -271,7 +286,7 @@ private:
   //! filled by FillHitVector(). Here the int is the ladder number and the second pair is <cluster index S, cluster index K>
   std::vector<std::pair<int, std::pair<int, int> > > _v_trackhit;//!
   //! filled by StoreTrackClusterPatterns()
-  unsigned int _track_cluster_pattern[NJINF][2];//!
+  unsigned int** _track_cluster_pattern;//!
 
   // int is jinfnum*100+tdrnum
   std::vector<int> _v_ladderS_to_ignore;//!
@@ -288,12 +303,12 @@ private:
   int Run;
   char date[30];
   int nJinf;
-  int JinfMap[NJINF];
+  int* JinfMap;
   int ntdrRaw;
   int ntdrCmp;
   //  double CNMean[NTDRS][NVAS];//added by Viviana? Do we really need?
   //  double CNSigma[NTDRS][NVAS];//added by Viviana? Do we really need?
-  laddernumtype tdrMap[NJINF*NTDRS];
+  laddernumtype* tdrMap;
 
 public:
   //! default constructor

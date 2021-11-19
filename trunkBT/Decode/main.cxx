@@ -231,9 +231,11 @@ int main(int argc, char **argv) {
   DecodeData *dd1 = nullptr;
   if(kOca){
     dd1 = new DecodeDataOCA(DirRaw, DirCal, run);
-  }else if(kFoot){
+  }
+  else if(kFoot){
     dd1 = new DecodeDataFOOT(DirRaw, DirCal, run);
-  }else {
+  }
+  else {
     dd1 = new DecodeData(DirRaw, DirCal, run, ancillary, kMC);
   }
 
@@ -252,12 +254,12 @@ int main(int argc, char **argv) {
   /// VV debug given 64000
   //t4->Branch("cluster_branch","Event",&(dd1->ev),32000,2);
   t4->Branch("cluster_branch","Event",&(dd1->ev),64000,2);
-  double chaK[NTDRS];
-  double chaS[NTDRS];
-  double sigK[NTDRS];
-  double sigS[NTDRS];
-  double sonK[NTDRS];
-  double sonS[NTDRS];
+  double chaK[Event::NTDRS];
+  double chaS[Event::NTDRS];
+  double sigK[Event::NTDRS];
+  double sigS[Event::NTDRS];
+  double sonK[Event::NTDRS];
+  double sonS[Event::NTDRS];
 
   int NTDR = dd1->GetNTdrRaw()+dd1->GetNTdrCmp();
   for (int ii=0; ii<NTDR; ii++) {
@@ -301,10 +303,10 @@ int main(int argc, char **argv) {
       processed++;
 //      printf("This event has %d clusters\n", (dd1->ev)->GetNClusTot());
 //      printf("This event has CALPED %f\n", (dd1->ev)->GetCalPed_PosNum(1,0,0));
-      memset(chaK, 0, NTDRS*sizeof(chaK[0]));
-      memset(chaS, 0, NTDRS*sizeof(chaS[0]));
-      memset(sigK, 0, NTDRS*sizeof(sigK[0]));
-      memset(sigS, 0, NTDRS*sizeof(sigS[0]));
+      memset(chaK, 0, Event::NTDRS*sizeof(chaK[0]));
+      memset(chaS, 0, Event::NTDRS*sizeof(chaS[0]));
+      memset(sigK, 0, Event::NTDRS*sizeof(sigK[0]));
+      memset(sigS, 0, Event::NTDRS*sizeof(sigS[0]));
       for (int cc=0; cc<(dd1->ev)->GetNClusTot(); cc++) {
 	Cluster* cl = (dd1->ev)->GetCluster(cc);
 	int ladder = cl->ladder;
@@ -430,34 +432,34 @@ void CreatePdfWithPlots(DecodeData* dd1, char* pdf_filename){
   gStyle->SetOptStat(1);
   gStyle->SetOptFit(1);
 
-  for (int jj=0; jj<NJINF; jj++){
-    for (int hh = 0; hh < NTDRS; hh++) {
+  for (int jj=0; jj<Event::NJINF; jj++){
+    for (int hh = 0; hh < Event::NTDRS; hh++) {
       sprintf(name, "ladder %d %d", jj, hh);
       sprintf(title, "ladder %d %d", jj, hh);
-      PlotsWithFits(dd1->hocc[NTDRS*jj+hh], name, title, pdf_filename);
+      PlotsWithFits(dd1->hocc[Event::NTDRS*jj+hh], name, title, pdf_filename);
     }
   }
 
-  for (int jj=0; jj<NJINF; jj++){
-    for (int hh = 0; hh < NTDRS; hh++) {
+  for (int jj=0; jj<Event::NJINF; jj++){
+    for (int hh = 0; hh < Event::NTDRS; hh++) {
       sprintf(name, "ladder %d %d", jj, hh);
       sprintf(title, "ladder %d %d", jj, hh);
-      PlotsWithFits(dd1->hoccseed[NTDRS*jj+hh], name, title, pdf_filename);
+      PlotsWithFits(dd1->hoccseed[Event::NTDRS*jj+hh], name, title, pdf_filename);
     }
   }
 
-  for (int jj=0; jj<NJINF; jj++){
-    for (int hh = 0; hh < NTDRS; hh++) {
+  for (int jj=0; jj<Event::NJINF; jj++){
+    for (int hh = 0; hh < Event::NTDRS; hh++) {
       for (int ss = 0; ss < 2; ss++) {
 	TCanvas* canvas = new TCanvas("dummy", "dummy", 1024, 1024);
 	canvas->SetLogy(true);
-	dd1->hsignal[jj*NTDRS+hh][ss]->Draw();
-	int entries = (int)(dd1->hsignal[NTDRS*jj+hh][ss]->GetEntries());
+	dd1->hsignal[jj*Event::NTDRS+hh][ss]->Draw();
+	int entries = (int)(dd1->hsignal[Event::NTDRS*jj+hh][ss]->GetEntries());
 	if (entries>=1) {
-	  double mean = (dd1->hsignal[NTDRS*jj+hh][ss]->GetMean());
-	  double rms = (dd1->hsignal[NTDRS*jj+hh][ss]->GetRMS());
+	  double mean = (dd1->hsignal[Event::NTDRS*jj+hh][ss]->GetMean());
+	  double rms = (dd1->hsignal[Event::NTDRS*jj+hh][ss]->GetRMS());
 	  //	  printf("%f %f\n", mean, rms);
-	  (dd1->hsignal[NTDRS*jj+hh][ss])->GetXaxis()->SetRangeUser(mean-5.0*rms, mean+9.0*rms);
+	  (dd1->hsignal[Event::NTDRS*jj+hh][ss])->GetXaxis()->SetRangeUser(mean-5.0*rms, mean+9.0*rms);
 	  canvas->Update();
 	  canvas->Modified();
 	  canvas->Update();
@@ -468,18 +470,18 @@ void CreatePdfWithPlots(DecodeData* dd1, char* pdf_filename){
     }
   }
 
-  for (int jj=0; jj<NJINF; jj++){
-    for (int hh = 0; hh < NTDRS; hh++) {
+  for (int jj=0; jj<Event::NJINF; jj++){
+    for (int hh = 0; hh < Event::NTDRS; hh++) {
       for (int ss = 0; ss < 2; ss++) {
 	TCanvas* canvas = new TCanvas("dummy", "dummy", 1024, 1024);
 	canvas->SetLogy(true);
-	dd1->hson[jj*NTDRS+hh][ss]->Draw();
-	int entries = (int)(dd1->hson[NTDRS*jj+hh][ss]->GetEntries());
+	dd1->hson[jj*Event::NTDRS+hh][ss]->Draw();
+	int entries = (int)(dd1->hson[Event::NTDRS*jj+hh][ss]->GetEntries());
 	if (entries>=1) {
-	  double mean = (dd1->hson[NTDRS*jj+hh][ss]->GetMean());
-	  double rms = (dd1->hson[NTDRS*jj+hh][ss]->GetRMS());
+	  double mean = (dd1->hson[Event::NTDRS*jj+hh][ss]->GetMean());
+	  double rms = (dd1->hson[Event::NTDRS*jj+hh][ss]->GetRMS());
 	  //	  printf("%f %f\n", mean, rms);
-	  (dd1->hson[NTDRS*jj+hh][ss])->GetXaxis()->SetRangeUser(0.0, mean+7.0*rms);
+	  (dd1->hson[Event::NTDRS*jj+hh][ss])->GetXaxis()->SetRangeUser(0.0, mean+7.0*rms);
 	  canvas->Update();
 	  canvas->Modified();
 	  canvas->Update();

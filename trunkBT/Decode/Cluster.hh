@@ -6,18 +6,6 @@
 
 #define MAXLENGHT 128
 
-//// for MC events
-#define MAXNHITS 500
-
-//// also def in Event.hh
-#ifdef OCA
-#define NTDRS  12 // 2 sensors per board
-#elif defined FOOT
-#define NTDRS  12 // 2 sensors per board
-#else
-#define NTDRS  24
-#endif
-
 //110mum and 208mum
 /// now READOUT PITCH
 #define SPITCH 0.220//0.110//0.220

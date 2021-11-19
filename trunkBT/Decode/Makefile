@@ -22,9 +22,7 @@ LDFLAGS = $(shell root-config --ldflags)
 CFLAGS:= -g -O3 -fPIC -Wno-deprecated
 
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags)
-CFLAGS += -DOCA -DFOOT # remove for AMS
 
-CFLAGSFORCINT := -DOCA -DFOOT
 ifneq ($(ROOTVERSION),6)
         CFLAGSFORCINT	:= -c -p $(CFLAGS)
 endif
@@ -43,13 +41,13 @@ all: Decode lib
 lib: libEvent.so libEventa.a
 
 libEvent.so:$(LIB_OBJ)
-	$(CXX) $(LDFLAGS) $(SOFLAGS) -o $@ $^ 
+	@$(CXX) $(LDFLAGS) $(SOFLAGS) -o $@ $^ 
 
 libEventa.a:$(LIB_OBJ)
-	ar rv $@ $^
+	@ar rv $@ $^
 
 Decode: $(ANYOPTION)/anyoption.o $(DEC_OBJ)
-	$(CXX) $(LDFLAGS) -o$@ $^ -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
+	@$(CXX) $(LDFLAGS) -o$@ $^ -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
 
 obj/%.o:%.cxx
 	@echo Compiling $< ...;
@@ -61,7 +59,7 @@ $(ANYOPTION)/anyoption.o :
 
 rootElibdict.cxx: $(CLASSES) LinkDef.h
 	@echo Creating ROOT dictionary
-	$(ROOTSYS)/bin/rootcint -f $@ $(CFLAGSFORCINT) $^
+	@$(ROOTSYS)/bin/rootcint -f $@ $(CFLAGSFORCINT) $^
 
 clean:
 	@rm -Rfv libEventa.a libEvent.so Decode rootElibdict.cxx rootElibdict.h obj
