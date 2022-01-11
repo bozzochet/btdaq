@@ -19,7 +19,14 @@ ROOTDYNAMICLIBS := $(shell root-config --libs) -lMinuit
 
 LDFLAGS = $(shell root-config --ldflags)
 #CFLAGS = $(shell root-config --cflags) -g -fPIC
+
+### For Release:
 CFLAGS:= -g -O3 -fPIC -Wno-deprecated
+
+### For Debug:
+#CFLAGS:= -g -O0 -fPIC -Wno-deprecated
+#CFLAGS += -fsanitize=address
+#LDFLAGS += -fsanitize=address
 
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags)
 

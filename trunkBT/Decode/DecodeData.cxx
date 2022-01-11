@@ -1152,7 +1152,7 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
   if (kMC)
     sid = !tdrAlign[numnum]; // check alignment. MD: why we need this in the MC case?
 
-  Cluster *pp = ev->AddCluster(numnum + 100 * Jinfnum, sid);
+  Cluster *pp = ev->AddCluster(Jinfnum, numnum + 100 * Jinfnum, sid);
   calib *cal = &(cals[numnum + 100 * Jinfnum]);
 
   //  pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
@@ -1211,8 +1211,6 @@ void DecodeData::AddCluster(int numnum, int Jinfnum, int clusadd, int cluslen, i
 
 void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
 
-  // printf("numnum = %d\n", numnum);
-
   pri = 1;
 
   int _bondingtype = 0;
@@ -1263,6 +1261,7 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
     }
     printed = true;
   }
+
 
   _bondingtype = ladderconf->GetBondingType(Jinfnum, numnum);
 
@@ -1348,12 +1347,12 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
         }
       } else {
         // arraysize=640;
-        arraysize = nvas * nchava; // changed by Viviana
-        memcpy(array, &(ev->RawSignal[tdrnumraw][0]), arraysize * sizeof(ev->RawSignal[tdrnumraw][0]));
-        memcpy(arraySoN, &(ev->RawSoN[tdrnumraw][0]), arraysize * sizeof(ev->RawSoN[tdrnumraw][0]));
-        memcpy(pede, &(cal->ped[0]), arraysize * sizeof(cal->ped[0]));
-        memcpy(sigma, &(cal->sig[0]), arraysize * sizeof(cal->sig[0]));
-        memcpy(status, &(cal->status[0]), arraysize * sizeof(cal->status[0]));
+//        arraysize = nvas * nchava; // changed by Viviana
+        memcpy(array, ev->RawSignal[Jinfnum][tdrnumraw], arraysize * sizeof(ev->RawSignal[Jinfnum][tdrnumraw][0]));
+        memcpy(arraySoN, ev->RawSoN[Jinfnum][tdrnumraw], arraysize * sizeof(ev->RawSoN[Jinfnum][tdrnumraw][0]));
+        memcpy(pede, cal->ped, arraysize * sizeof(cal->ped[0]));
+        memcpy(sigma, cal->sig, arraysize * sizeof(cal->sig[0]));
+        memcpy(status, cal->status, arraysize * sizeof(cal->status[0]));
         if (kMC) { // added by Viviana
           added = true;
         }
@@ -1380,8 +1379,8 @@ void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
         // the src is the same array as in the S-side case but passing the reference to the first element of K-side
         // (640)
 
-        memcpy(array, &(ev->RawSignal[tdrnumraw][shift]), arraysize * sizeof(ev->RawSignal[tdrnumraw][0]));
-        memcpy(arraySoN, &(ev->RawSoN[tdrnumraw][shift]), arraysize * sizeof(ev->RawSoN[tdrnumraw][0]));
+        memcpy(array, &(ev->RawSignal[Jinfnum][tdrnumraw][shift]), arraysize * sizeof(ev->RawSignal[Jinfnum][tdrnumraw][0]));
+        memcpy(arraySoN, &(ev->RawSoN[Jinfnum][tdrnumraw][shift]), arraysize * sizeof(ev->RawSoN[Jinfnum][tdrnumraw][0]));
         memcpy(pede, &(cal->ped[shift]), arraysize * sizeof(cal->ped[0]));
         memcpy(sigma, &(cal->sig[shift]), arraysize * sizeof(cal->sig[0]));
         memcpy(status, &(cal->status[shift]), arraysize * sizeof(cal->sig[0]));
