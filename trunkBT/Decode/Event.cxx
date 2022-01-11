@@ -93,6 +93,13 @@ Event::Event() {
     NVAS=10;
   }
 
+  _NJINF=NJINF;
+  _NTDRS=NTDRS;
+  _NCHAVA=NCHAVA;
+  _NADCS=NADCS;
+  _NVAS=NVAS;
+  _NCHA=NVAS*NCHAVA;
+
   alignpar = new float**[NJINF];
   multflip = new bool*[NJINF];
   gaincorrectionpar = new float***[NJINF];
@@ -146,14 +153,17 @@ Event::Event() {
     }
   }
 
-  for (int ii = 0; ii < NTDRS; ii++) {
-    ReadTDR[ii] = 0;
-    for (int jj = 0; jj < NVAS; jj++)
-      CNoise[ii][jj] = 0;
-    NClus[ii][0] = 0;
-    NClus[ii][1] = 0;
+  for (int hh = 0; hh < NJINF; hh++) {
+    for (int ii = 0; ii < NTDRS; ii++) {
+      ReadTDR[hh][ii] = 0;
+      for (int jj = 0; jj < NVAS; jj++) {
+	CNoise[hh][ii][jj] = 0;
+      }
+      NClus[hh][ii][0] = 0;
+      NClus[hh][ii][1] = 0;
+    }
   }
-
+  
   for (int jj = 0; jj < NJINF; jj++) {
     // Viviana: hardcoded n
     // -> kk to run onto nlayers
@@ -186,8 +196,17 @@ Event::Event() {
 //  if (alignmentnotread)
 //    ReadAlignment("alignment_mc_150.dat");
 
-  if (gaincorrectionnotread)
-    ReadGainCorrection("gaincorrection.dat");
+  if (gaincorrectionnotread) {
+    if (kFlavour == Flavour::OCA) {
+      ReadGainCorrection("gaincorrection_OCA.dat");
+    }
+    else if (kFlavour == Flavour::FOOT) {
+      ReadGainCorrection("gaincorrection_FOOT.dat");
+    }
+    else {
+      ReadGainCorrection("gaincorrection.dat");
+    }
+  }
 
   ClearTrack();
 
@@ -300,7 +319,8 @@ void Event::ReadAlignment(TString filename, bool DEBUG) {
   if (ft == NULL) {
     printf("Error: cannot open %s \n", filename.Data());
     return;
-  } else {
+  }
+  else {
     while (1) {
       if (fgets(line, dimline, ft) != NULL) {
         if (*line == '#')
@@ -315,7 +335,8 @@ void Event::ReadAlignment(TString filename, bool DEBUG) {
             printf("Wrong JINF/TDR (%d, %d): maximum is (%d,%d)\n", jinfnum, tdrnum, NJINF, NTDRS);
           }
         }
-      } else {
+      }
+      else {
         printf(" closing alignment file \n");
         fclose(ft);
         break;
@@ -355,12 +376,6 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG) {
     }
   }
 
-#ifdef OCA
-  return;
-#elif defined FOOT
-  return;  
-#endif
-
   int const dimline = 255;
   char line[dimline];
   int jinfnum = 0;
@@ -369,45 +384,37 @@ void Event::ReadGainCorrection(TString filename, bool DEBUG) {
   float dummy = 0.;
 
   FILE *ft = fopen(filename.Data(), "r");
-
   if (ft == NULL) {
-    printf("Error: cannot open %s , setting all gain corrections to default \n", filename.Data());
-    // FIX ME [VF]: isn't this totally redundant?
-    for (int jj = 0; jj < NJINF; jj++) {
-      for (int tt = 0; tt < NTDRS; tt++) {
-        for (int vv = 0; vv < NVAS; vv++) {
-          gaincorrectionpar[jj][tt][vv][0] = 0.0;
-          gaincorrectionpar[jj][tt][vv][1] = 1.0;
-        }
-      }
-    }
-
+    printf("Error: cannot open %s \n", filename.Data());
     return;
-  } else {
+  }
+  else {
     while (1) {
       if (fgets(line, dimline, ft) != NULL) {
         if (*line == '#')
           continue; /* ignore comment line */
         else {
           sscanf(line, "%d\t%d\t%d\t%f\t%f", &jinfnum, &tdrnum, &vanum, &dummy, &dummy);
+	  //	  printf("%d %d %d\n", NJINF, NTDRS, NVAS);
           if (jinfnum < NJINF && tdrnum < NTDRS && vanum < NVAS) {
             sscanf(line, "%d \t %d \t %d \t %f \t %f", &jinfnum, &tdrnum, &vanum,
                    &gaincorrectionpar[jinfnum][tdrnum][vanum][0], &gaincorrectionpar[jinfnum][tdrnum][vanum][1]);
-          } else {
-            printf("Wrong JINF/TDR/VA (%d, %d, %d): maximum is (%d,%d, %d)\n", jinfnum, tdrnum, vanum, NJINF, NTDRS,
-                   NVAS);
+          }
+	  else {
+            printf("Wrong JINF/TDR/VA (%d, %d, %d): maximum is (%d,%d, %d)\n", jinfnum, tdrnum, vanum, NJINF-1, NTDRS-1, NVAS-1);
           }
         }
-      } else {
+      }
+      else {
         printf(" closing gain correction file \n");
         fclose(ft);
         break;
       }
     }
   }
-
+  
   gaincorrectionnotread = false;
-
+  
   //  if(DEBUG==false) return;
   // per ora (finche' il lavoro non e' finito) utile mostrare la tabellina dei TDR  con valori non di default, perchè
   // NON dovrebbero esserci!

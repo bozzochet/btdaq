@@ -77,13 +77,22 @@ public:
   Event();
   //! Default destructor
   ~Event();
-  
-  static int NJINF;
-  static int NTDRS;
-  static int NCHAVA;
-  static int NADCS;
-  static int NVAS;
 
+  // static to be used easily across the code. But cannot be used as array size for the streamers, so not saved on disk 
+  static int NJINF;//!
+  static int NTDRS;//!
+  static int NCHAVA;//!
+  static int NADCS;//!
+  static int NVAS;//!
+
+  // saved on disk, used as array size for the streamers
+  int _NJINF;
+  int _NTDRS;
+  int _NCHAVA;
+  int _NADCS;
+  int _NVAS;
+  int _NCHA;//is needed for the array size as said before, is simply NVAS*NCHAVA
+  
   enum class Flavour: int {
     UNDEF = 11,
     AMS = 22,
@@ -217,18 +226,23 @@ private:
   void Track(std::vector<std::pair<int,std::pair<double,double>>> &hits, std::vector<std::pair<int,std::pair<double,double>>> &rejects);
   std::pair<double,double> Hough(std::vector<std::pair<int,std::pair<double,double>>> &vec);
   std::vector<Hit> CleanTrack(std::vector<Hit> &hits);
+
+  // for variable length arrays we need to "pass" the size (another data member, that cannot be static, look NJINF vs _NINFS, for example)
+  // cfr. https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#inputoutput
+  // 11.3.4 Variable length array
+  
   //! Progressive Event number
   int Evtnum;
   //! Jinj Status
   int JINJStatus;
   //! Jinf Status
-  int* JINFStatus;
+  int* JINFStatus; //[_NJINF]
   //! Status word for the TDRs (  TDRStatus & 0x1f == TDR ID)
-  int** TDRStatus;
+  int** TDRStatus; //[_NJINF][_NTDRS]
   //! Common Noise from Calibration
-  double*** CNoise;
+  double*** CNoise; //[_NJINF][_NTDRS][_NVAS]
   //! Cluster number for (side 0(S) 1(K))
-  int*** NClus;
+  int*** NClus; //[_NJINF][_NTDRS][2]
   //! Total number of clusters
   int NClusTot;
   //! 0 if there are hits on all the ladders
@@ -241,14 +255,14 @@ private:
   // was 8 since more than 8 raw TDRs cannot be read by a single Jinf
   // in the MC, instead, can be long as we want
   // Viviana  changed to [NTDRS] what about CH 1024->4096
-  // CH=NVAS*NCHAVA
+  // NCHA=NVAS*NCHAVA
   // MD: check how much space we waste
-  double***     CalSigma;   
-  double***       CalPed;
-  short int*** RawSignal;
+  double***     CalSigma; //[_NJINF][_NTDRS][_NCHA]
+  double***       CalPed; //[_NJINF][_NTDRS][_NCHA]
+  short int*** RawSignal; //[_NJINF][_NTDRS][_NCHA]
   float***        RawSoN;//! (do not stream on file! Can be recomputed easily!)
-  int***       CalStatus;
-  short int** ReadTDR;
+  int***       CalStatus; //[_NJINF][_NTDRS][_NCHA]
+  short int** ReadTDR; //[_NJINF][_NTDRS]
 
   //------------CB:qui salvo gli output di FindTracksAndVertex()------------//
   int _NTrks;

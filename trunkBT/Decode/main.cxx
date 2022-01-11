@@ -213,13 +213,13 @@ int main(int argc, char **argv) {
   printf("Reading Raw Data from %s\n", DirRaw);
   printf("Reading Cal Data from %s\n", DirCal);
   printf("Writing output in %s\n", DirRoot);
-
+  
   if (ancillary < 0)
     sprintf(filename,"%s/run_%06d.root", DirRoot, run);
   else
     sprintf(filename,"%s/run_%06d_ANC_%d.root", DirRoot, run, ancillary);
   sprintf(pdf_filename, "%s.pdf", filename);
-
+  
   //  int complevel=ROOT::CompressionSettings(ROOT::kLZMA, 2);
   int complevel=ROOT::CompressionSettings(ROOT::kZLIB, 2);
   printf("The choosen compression level is %d\n", complevel);
@@ -238,7 +238,7 @@ int main(int argc, char **argv) {
   else {
     dd1 = new DecodeData(DirRaw, DirCal, run, ancillary, kMC);
   }
-
+  
   dd1->shighthreshold=shighthreshold;
   dd1->slowthreshold=slowthreshold;
   dd1->khighthreshold=khighthreshold;
