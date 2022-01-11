@@ -28,6 +28,15 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
 
   ev = new Event();
 
+  return;
+
+  /*
+  if (kOCA) {//the name format seems OCA, but most likely the content is FOOT...
+    sprintf(filename,"%s/SCD_RUN07048_CAL_20211016_232653.dat", DirRoot, run);
+  }
+  else {
+  */
+  
   DecodeDataOCA::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runn, -1);
   // we assume we also have the corresponding calibration file
   std::cout << "Raw file: " << m_filename << '\n';
