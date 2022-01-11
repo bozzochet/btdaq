@@ -41,7 +41,7 @@ struct track{
   //private:
   double prod_angle;
   double prod_dist;
-  
+
   double exit_angle;
   double exit_dist;
 };
@@ -72,13 +72,13 @@ class Event: public TObject{
   friend class DecodeDataOCA;
   friend class DecodeDataFOOT;
 
-public:  
+public:
   //! Default contructor
   Event();
   //! Default destructor
   ~Event();
 
-  // static to be used easily across the code. But cannot be used as array size for the streamers, so not saved on disk 
+  // static to be used easily across the code. But cannot be used as array size for the streamers, so not saved on disk
   static int NJINF;//!
   static int NTDRS;//!
   static int NCHAVA;//!
@@ -92,24 +92,26 @@ public:
   int _NADCS;
   int _NVAS;
   int _NCHA;//is needed for the array size as said before, is simply NVAS*NCHAVA
-  
+
   enum class Flavour: int {
     UNDEF = 11,
     AMS = 22,
     OCA = 33,
     FOOT = 44
   };
-  
-  static Flavour kFlavour;  
+
+  static Flavour kFlavour;
+  static void InitFlavourConfig(Flavour flv);
   static void SetFlavour(Flavour flv=Flavour::AMS) {
     kFlavour = flv;
+    InitFlavourConfig(kFlavour);
   }
-    
+
   //! Clear the event
   void Clear();
 
   //! Add a Cluster to the array
-  Cluster* AddCluster(int lad,int side);
+  Cluster* AddCluster(int Jinfnum, int lad,int side);
   //! Get the Cluster in the position ii of the array
   Cluster* GetCluster(int ii);
 
@@ -119,7 +121,7 @@ public:
   static int GetNTDRS() { return NTDRS;};
   static int GetNJINFS() { return NJINF;};
   static double ComputeCN(int size, shortint * RawSignal, float* pede, float* RawSoN, int* status, double threshold=3.0);
-  
+
   //  int NGoldenClus(int lad, int side);
   //! Load LadderConf parameter from an ASCII file
   static void ReadLadderConf(TString filename, bool DEBUG=false);
@@ -143,7 +145,7 @@ public:
   double GetThetaTrack() { return _theta; };
   double GetPhiTrack() { return _phi; };
   double GetS0Track() { return _S0; };
-  double GetK0Track() { return _K0; }; 
+  double GetK0Track() { return _K0; };
   double GetChiTrack() { return _chisq; };
   double GetChiTrackS() { return _chisqS; };
   double GetChiTrackK() { return _chisqK; };
@@ -163,7 +165,7 @@ public:
   double GetCN_PosNum(int tdrposnum, int va, int Jinfnum=0);
   float GetRawSoN_PosNum(int tdrposnum, int channel, int Jinfnum=0);
   double GetCalStatus_PosNum(int tdrposnum, int va, int Jinfnum=0);
-  
+
   double GetCalPed(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetCalSigma(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
   double GetRawSignal(RHClass* rh, int tdrnum, int channel, int Jinfnum=0);
@@ -178,7 +180,7 @@ public:
   int GetNTracks(){return _NTrks;};
   void RecombineXY(double);
   //TH2F* h1;
-  
+
 private:
   static bool ladderconfnotread;
   static LadderConf* ladderconf;
@@ -230,7 +232,7 @@ private:
   // for variable length arrays we need to "pass" the size (another data member, that cannot be static, look NJINF vs _NINFS, for example)
   // cfr. https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#inputoutput
   // 11.3.4 Variable length array
-  
+
   //! Progressive Event number
   int Evtnum;
   //! Jinj Status
@@ -305,7 +307,7 @@ private:
   // int is jinfnum*100+tdrnum
   std::vector<int> _v_ladderS_to_ignore;//!
   std::vector<int> _v_ladderK_to_ignore;//!
-  
+
   ClassDef(Event,7)
 };
 
@@ -337,10 +339,10 @@ public:
 
   inline void SetDate(char* _date) { snprintf(date, 30, "%s", _date); return;}
   inline const char* GetDate() { return date;}
-  
+
   inline int GetNJinfs() { return nJinf; }
   inline void SetNJinfs(int _nJinf) { nJinf=_nJinf; return; }
-    
+
   inline int GetNTdrs() { return ntdrRaw+ntdrCmp; }
   inline int GetNTdrsCmp() { return ntdrCmp; }
   inline int GetNTdrsRaw() { return ntdrRaw; }
@@ -352,10 +354,10 @@ public:
 
   // FIXME: the methods below must include also the jinfnum
   // sometims infact I use tdrnum+100*jinfnum that CANNOT WORK (see above)!
-  
+
   int GetTdrNum(int tdrpos);
   int GetTdrType(int tdrpos);
-  
+
   int FindPos(int tdrnum);
 
   ClassDef(RHClass,4)

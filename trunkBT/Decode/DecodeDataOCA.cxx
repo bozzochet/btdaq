@@ -11,7 +11,7 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
     : m_rawDir{std::move(rawDir)}, m_calDir{std::move(calDir)} {
 
   Event::SetFlavour(Event::Flavour::OCA);
-  
+
   // Init base-class members
   kMC = false;
   runn = runNum;
@@ -24,19 +24,15 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
   m_defaultShift = 0;
   m_defaultArraySize = Event::NVAS * Event::NCHAVA;
 
+  cals = new calib[Event::NJINF * Event::NTDRS];
+  tdrMap = new laddernumtype[Event::NJINF * Event::NTDRS];
+
   pri = false;
 
   ev = new Event();
 
-  return;
+  std::cout << "ev: " << ev << '\n';
 
-  /*
-  if (kOCA) {//the name format seems OCA, but most likely the content is FOOT...
-    sprintf(filename,"%s/SCD_RUN07048_CAL_20211016_232653.dat", DirRoot, run);
-  }
-  else {
-  */
-  
   DecodeDataOCA::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runn, -1);
   // we assume we also have the corresponding calibration file
   std::cout << "Raw file: " << m_filename << '\n';
@@ -96,8 +92,8 @@ void DecodeDataOCA::DumpRunHeader() {
 // TODO: read calib events, compute mean and sigma
 bool DecodeDataOCA::ProcessCalibration() {
 
-  int iJinf = 0;  //in the OCA case we have just one "collector" (the DAQ PC itself) 
-  
+  int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
+
   // open the calibration file
   std::string calFilePath = m_rawDir + "/" + m_calFilename;
   calfile = fopen(calFilePath.c_str(), "r");
@@ -110,7 +106,8 @@ bool DecodeDataOCA::ProcessCalibration() {
   auto start = std::chrono::system_clock::now();
 
   auto event = std::make_unique<Event>();
-  std::vector<std::vector<std::vector<float> > > signals(Event::NTDRS, std::vector<std::vector<float> >(Event::NVAS * Event::NCHAVA));
+  std::vector<std::vector<std::vector<float>>> signals(Event::NTDRS,
+                                                       std::vector<std::vector<float>>(Event::NVAS * Event::NCHAVA));
   // std::vector<std::vector<std::vector<float> > > signals;
   // signals.resize(Event::NTDRS);
   // for (int ii=0; ii<Event::NTDRS; ii++) {
@@ -148,7 +145,8 @@ bool DecodeDataOCA::ProcessCalibration() {
 
   unsigned int lastVA = std::numeric_limits<unsigned int>::max();
   std::vector<float> common_noise(Event::NVAS);
-  std::vector<std::vector<unsigned int> > processed_events(Event::NTDRS, std::vector<unsigned int>(Event::NVAS * Event::NCHAVA));
+  std::vector<std::vector<unsigned int>> processed_events(Event::NTDRS,
+                                                          std::vector<unsigned int>(Event::NVAS * Event::NCHAVA));
   // std::vector<std::vector<unsigned int> > processed_events;
   // processed_events.resize(Event::NTDRS);
   // for (int ii=0; ii<Event::NTDRS; ii++) {
@@ -162,7 +160,8 @@ bool DecodeDataOCA::ProcessCalibration() {
 
           std::vector<float> values(Event::NCHAVA);
           for (unsigned int iVACh = 0; iVACh < Event::NCHAVA; ++iVACh) {
-            values[iVACh] = signals[iTdr][thisVA * Event::NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * Event::NCHAVA + iVACh];
+            values[iVACh] =
+                signals[iTdr][thisVA * Event::NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * Event::NCHAVA + iVACh];
           }
 
           // get the median
@@ -196,8 +195,8 @@ bool DecodeDataOCA::ProcessCalibration() {
 // TODO: read event data.
 int DecodeDataOCA::ReadOneEventFromFile(FILE *file, Event *event) {
 
-  int iJinf = 0;  //in the OCA case we have just one "collector" (the DAQ PC itself) 
-  
+  int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
+
   constexpr uint32_t c_bEvHeader = 0xfa4af1ca;
   constexpr uint32_t c_bHeader = 0xbaba1a9a;
   constexpr uint32_t c_bFooter = 0x0bedface;
@@ -310,7 +309,19 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, Event *event) {
 
 void DecodeDataOCA::InitHistos() {
   // taken from DecodeData. Hidden down here so I don't throw up every time I open this file
-  
+  hocc = new TH1F*[Event::NJINF*Event::NTDRS];
+  hoccseed = new TH1F*[Event::NJINF*Event::NTDRS];
+  hchargevsocc = new TH2F*[Event::NJINF*Event::NTDRS];
+  hsignalvsocc = new TH2F*[Event::NJINF*Event::NTDRS];
+  hcharge = new TH1F**[Event::NJINF*Event::NTDRS];
+  hsignal = new TH1F**[Event::NJINF*Event::NTDRS];
+  hson = new TH1F**[Event::NJINF*Event::NTDRS];
+  for (int ii=0; ii<Event::NJINF*Event::NTDRS; ii++) {
+    hcharge[ii] = new TH1F*[2];
+    hsignal[ii] = new TH1F*[2];
+    hson[ii] = new TH1F*[2];
+  }
+
   char name[255];
   for (int jj = 0; jj < Event::NJINF; jj++) {
     for (int hh = 0; hh < Event::NTDRS; hh++) {
@@ -320,7 +331,8 @@ void DecodeDataOCA::InitHistos() {
 
       sprintf(name, "occseed_%d_%d", jj, hh);
       //	  hoccseed[jj*Event::NTDRS+hh]= new TH1F(name,name,1024,0,1024);
-      hoccseed[jj * Event::NTDRS + hh] = new TH1F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA);
+      hoccseed[jj * Event::NTDRS + hh] =
+          new TH1F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA);
 
       sprintf(name, "qS_%d_%d", jj, hh);
       hcharge[jj * Event::NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
@@ -333,10 +345,12 @@ void DecodeDataOCA::InitHistos() {
       hsignal[jj * Event::NTDRS + hh][1] = new TH1F(name, name, 4200, -100, 4100);
 
       sprintf(name, "q_vs_occ_%d_%d", jj, hh);
-      hchargevsocc[jj * Event::NTDRS + hh] = new TH2F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA, 1000, 0, 100);
+      hchargevsocc[jj * Event::NTDRS + hh] =
+          new TH2F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA, 1000, 0, 100);
 
       sprintf(name, "signal_vs_occ_%d_%d", jj, hh);
-      hsignalvsocc[jj * Event::NTDRS + hh] = new TH2F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA, 4200, -100, 4100);
+      hsignalvsocc[jj * Event::NTDRS + hh] =
+          new TH2F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA, 4200, -100, 4100);
 
       sprintf(name, "sonS_%d_%d", jj, hh);
       hson[jj * Event::NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
@@ -348,8 +362,8 @@ void DecodeDataOCA::InitHistos() {
 }
 int DecodeDataOCA::ReadOneEvent() {
 
-  int iJinf = 0;  //in the OCA case we have just one "collector" (the DAQ PC itself) 
-  
+  int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
+
   // copy calibration data...
   for (unsigned int iBoard = 0; iBoard < 2 * m_numBoards; ++iBoard) {
     for (unsigned int iCh = 0; iCh < Event::NVAS * Event::NCHAVA; ++iCh) {
