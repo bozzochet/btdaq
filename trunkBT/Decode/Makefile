@@ -1,8 +1,9 @@
 CXX := $(shell root-config --cxx)
 
 CLASSES = Cluster.hh LadderConf.hh Event.hh
+TEMPLATE_CLASSES = GenericEvent.hh
 
-DEC_SOURCES = DecodeData.cxx DecodeDataOCA.cxx DecodeDataFOOT.cxx FSUtils.cxx main.cxx rootElibdict.cxx
+DEC_SOURCES = DecodeData.cxx DecodeDataAMS.cxx DecodeDataOCA.cxx DecodeDataFOOT.cxx FSUtils.cxx main.cxx rootElibdict.cxx
 DEC_SOURCES+= $(CLASSES:%.hh=%.cxx)
 DEC_OBJ=$(DEC_SOURCES:%.cxx=obj/%.o)
 
@@ -64,7 +65,7 @@ obj/%.o:%.cxx
 $(ANYOPTION)/anyoption.o :
 	make -C $(ANYOPTION)
 
-rootElibdict.cxx: $(CLASSES) LinkDef.h
+rootElibdict.cxx: $(CLASSES) $(TEMPLATE_CLASSES) LinkDef.h
 	@echo Creating ROOT dictionary
 	@$(ROOTSYS)/bin/rootcint -f $@ $(CFLAGSFORCINT) $^
 

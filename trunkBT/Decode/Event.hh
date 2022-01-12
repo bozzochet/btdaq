@@ -69,6 +69,7 @@ class RHClass;
 
 class Event: public TObject{
   friend class DecodeData;
+  friend class DecodeDataAMS;
   friend class DecodeDataOCA;
   friend class DecodeDataFOOT;
 

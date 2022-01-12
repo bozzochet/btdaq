@@ -29,6 +29,11 @@ private:
   void OpenFile(const char *rawDir, const char *calDir, int runNum, int ancillary) override;
   int ProcessCalibration();
   int ReadOneEventFromFile(FILE *file, Event *event);
+
+  // dummy for now
+  virtual int SkipOneEvent(int evskip = 1) final { return 0; };
+  virtual int GetTdrNum(int pos) override;
+  virtual int GetTdrType(int pos) override;
 };
 
 #endif // DECODE_DECODEDATAFOOT_HH
