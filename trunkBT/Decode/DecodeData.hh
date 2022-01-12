@@ -106,6 +106,7 @@ protected:
 
 public:
   Event *ev;
+  // TODO: put in DecodeDataAMS
   RHClass *rh;
 
   TH1F **hocc;
