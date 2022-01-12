@@ -89,6 +89,23 @@ void DecodeDataOCA::DumpRunHeader() {
   m_numBoards = 6;
 }
 
+int DecodeDataOCA::GetTdrNum(int pos) {
+  if (pos > Event::NJINF * Event::NTDRS) {
+    printf("Pos %d not allowed. Max is %d\n", pos, Event::NJINF * Event::NTDRS);
+    return -9999;
+  }
+  return tdrMap[pos].first;
+}
+
+int DecodeDataOCA::GetTdrType(int pos) {
+  if (pos > Event::NJINF * Event::NTDRS) {
+    printf("Pos %d not allowed. Max is %d\n", pos, Event::NJINF * Event::NTDRS);
+    return -9999;
+  }
+  return tdrMap[pos].second;
+}
+
+
 // TODO: read calib events, compute mean and sigma
 bool DecodeDataOCA::ProcessCalibration() {
 

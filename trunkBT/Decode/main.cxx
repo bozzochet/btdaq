@@ -9,10 +9,10 @@
 #include "TPaveStats.h"
 #include <Compression.h>
 
-#include "DecodeData.hh"
+#include "DecodeDataAMS.hh"
 #include "DecodeDataOCA.hh"
 #include "DecodeDataFOOT.hh"
-#include "Event.hh"
+#include "GenericEvent.hpp"
 #include <stdlib.h>
 #include <math.h>
 
@@ -236,7 +236,7 @@ int main(int argc, char **argv) {
     dd1 = new DecodeDataFOOT(DirRaw, DirCal, run);
   }
   else {
-    dd1 = new DecodeData(DirRaw, DirCal, run, ancillary, kMC);
+    dd1 = new DecodeDataAMS(DirRaw, DirCal, run, ancillary, kMC);
   }
   
   dd1->shighthreshold=shighthreshold;

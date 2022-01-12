@@ -9,5 +9,8 @@
 #pragma link C++ class Cluster+;
 #pragma link C++ class RHClass+;
 #pragma link C++ class Event+;  
+#pragma link C++ class GenericEvent<1, 24, 64, 3, 16>+;
+#pragma link C++ class GenericEvent<1, 24, 64, 5, 10>+;
+#pragma link C++ class GenericEvent<1, 24, 64, 5, 10>+;
 
 #endif 

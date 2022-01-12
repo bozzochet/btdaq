@@ -87,6 +87,22 @@ void DecodeDataFOOT::OpenFile(const char *rawDir, const char *calDir, int runNum
   }
 }
 
+int DecodeDataFOOT::GetTdrNum(int pos) {
+  if (pos > Event::NJINF * Event::NTDRS) {
+    printf("Pos %d not allowed. Max is %d\n", pos, Event::NJINF * Event::NTDRS);
+    return -9999;
+  }
+  return tdrMap[pos].first;
+}
+
+int DecodeDataFOOT::GetTdrType(int pos) {
+  if (pos > Event::NJINF * Event::NTDRS) {
+    printf("Pos %d not allowed. Max is %d\n", pos, Event::NJINF * Event::NTDRS);
+    return -9999;
+  }
+  return tdrMap[pos].second;
+}
+
 // TODO: waiting for run header definition
 void DecodeDataFOOT::DumpRunHeader() {
   // TODO: remove later

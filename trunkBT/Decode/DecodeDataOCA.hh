@@ -11,7 +11,12 @@ class DecodeDataOCA : public DecodeData {
 public:
   DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum);
 
-  int ReadOneEvent() override;
+  virtual int ReadOneEvent() final;
+
+  // dummy for now
+  virtual int SkipOneEvent(int evskip = 1) final { return 0; };
+  virtual int GetTdrNum(int pos) final;
+  virtual int GetTdrType(int pos) final;
 
 private:
   std::string m_rawDir;
@@ -26,9 +31,10 @@ private:
 
   void DumpRunHeader() override;
   void InitHistos();
-  void OpenFile(const char *rawDir, const char *calDir, int runNum, int ancillary) override;
+  void OpenFile(const char *rawDir, const char *calDir, int runNum, int ancillary) final;
   bool ProcessCalibration();
   int ReadOneEventFromFile(FILE *file, Event *event);
+
 };
 
 #endif // DECODE_DECODEDATAOCA_HH
