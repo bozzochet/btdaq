@@ -5,12 +5,20 @@
 #include "DecodeDataOCA.hh"
 #include "FSUtils.hh"
 
+#include "GenericEvent.hpp"
+
 #include <numeric>
+
+namespace {
+constexpr auto NJINF = DecodeDataOCA::EventOCA::GetNJINF();
+constexpr auto NTDRS = DecodeDataOCA::EventOCA::GetNTDRS();
+constexpr auto NVAS = DecodeDataOCA::EventOCA::GetNVAS();
+constexpr auto NCHAVA = DecodeDataOCA::EventOCA::GetNCHAVA();
+constexpr auto NADCS = DecodeDataOCA::EventOCA::GetNADCS();
+} // namespace
 
 DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum)
     : m_rawDir{std::move(rawDir)}, m_calDir{std::move(calDir)} {
-
-  Event::SetFlavour(Event::Flavour::OCA);
 
   // Init base-class members
   kMC = false;
@@ -22,14 +30,13 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
   kClusterize = true;
 
   m_defaultShift = 0;
-  m_defaultArraySize = Event::NVAS * Event::NCHAVA;
+  m_defaultArraySize = NVAS * NCHAVA;
 
-  cals = new calib[Event::NJINF * Event::NTDRS];
-  tdrMap = new laddernumtype[Event::NJINF * Event::NTDRS];
+  tdrMap = new laddernumtype[NJINF * NTDRS];
 
   pri = false;
 
-  ev = new Event();
+  ev = new EventOCA();
 
   std::cout << "ev: " << ev << '\n';
 
@@ -47,11 +54,11 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
 
   DecodeDataOCA::DumpRunHeader();
   // we assume that from now on we know how many boards are in the DAQ
-  ntdrRaw = Event::NTDRS;
+  ntdrRaw = NTDRS;
   ntdrCmp = 0;
 
   // VF: create a fake trdMap. I still don't know what it is used for and I don't wanna know why it's an array of pairs
-  for (unsigned int iTdr = 0; iTdr < Event::NJINF * Event::NTDRS; ++iTdr) {
+  for (unsigned int iTdr = 0; iTdr < NJINF * NTDRS; ++iTdr) {
     tdrMap[iTdr] = {iTdr, 1};
   }
 
@@ -67,7 +74,7 @@ void DecodeDataOCA::OpenFile(const char *rawDir, const char *calDir, int runNum,
   auto fileName_it = std::find_if(begin(fileList), end(fileList), [this](const std::string &_filename) {
     // all our files begin with 'SCD_RUN' followed by zero-padded run numbers
     unsigned int runNum = std::atoi(_filename.substr(7, 5).c_str());
-    return runNum == runn;
+    return runNum == static_cast<unsigned int>(runn);
   });
 
   if (fileName_it == end(fileList)) {
@@ -89,22 +96,21 @@ void DecodeDataOCA::DumpRunHeader() {
   m_numBoards = 6;
 }
 
-int DecodeDataOCA::GetTdrNum(int pos) {
-  if (pos > Event::NJINF * Event::NTDRS) {
-    printf("Pos %d not allowed. Max is %d\n", pos, Event::NJINF * Event::NTDRS);
+int DecodeDataOCA::GetTdrNum(size_t pos) {
+  if (pos > NJINF * NTDRS) {
+    printf("Pos %ld not allowed. Max is %ld\n", pos, NJINF * NTDRS);
     return -9999;
   }
   return tdrMap[pos].first;
 }
 
-int DecodeDataOCA::GetTdrType(int pos) {
-  if (pos > Event::NJINF * Event::NTDRS) {
-    printf("Pos %d not allowed. Max is %d\n", pos, Event::NJINF * Event::NTDRS);
+int DecodeDataOCA::GetTdrType(size_t pos) {
+  if (pos > NJINF * NTDRS) {
+    printf("Pos %ld not allowed. Max is %ld\n", pos, NJINF * NTDRS);
     return -9999;
   }
   return tdrMap[pos].second;
 }
-
 
 // TODO: read calib events, compute mean and sigma
 bool DecodeDataOCA::ProcessCalibration() {
@@ -122,13 +128,12 @@ bool DecodeDataOCA::ProcessCalibration() {
   std::cout << "Processing calibration... \n";
   auto start = std::chrono::system_clock::now();
 
-  auto event = std::make_unique<Event>();
-  std::vector<std::vector<std::vector<float>>> signals(Event::NTDRS,
-                                                       std::vector<std::vector<float>>(Event::NVAS * Event::NCHAVA));
+  auto event = std::make_unique<EventOCA>();
+  std::vector<std::vector<std::vector<float>>> signals(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
   // std::vector<std::vector<std::vector<float> > > signals;
-  // signals.resize(Event::NTDRS);
-  // for (int ii=0; ii<Event::NTDRS; ii++) {
-  //   signals[ii].resize(Event::NVAS * Event::NCHAVA);
+  // signals.resize(NTDRS);
+  // for (int ii=0; ii<NTDRS; ii++) {
+  //   signals[ii].resize(NVAS * NCHAVA);
   // }
 
   unsigned int nEvents{0};
@@ -136,16 +141,16 @@ bool DecodeDataOCA::ProcessCalibration() {
     ReadOneEventFromFile(calfile, event.get());
     std::cout << "\rRead " << ++nEvents << " events" << std::flush;
 
-    for (unsigned int iTdr = 0; iTdr < Event::NTDRS; ++iTdr) {
-      for (unsigned int iCh = 0; iCh < Event::NVAS * Event::NCHAVA; ++iCh) {
+    for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
         signals[iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
       }
     }
   }
   std::cout << '\n';
 
-  for (unsigned int iTdr = 0; iTdr < Event::NTDRS; ++iTdr) {
-    for (unsigned int iCh = 0; iCh < Event::NVAS * Event::NCHAVA; ++iCh) {
+  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
       cals[iTdr].ped[iCh] = std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f) /
                             static_cast<float>(signals[iTdr][iCh].size());
       cals[iTdr].rsig[iCh] =
@@ -161,29 +166,27 @@ bool DecodeDataOCA::ProcessCalibration() {
   }
 
   unsigned int lastVA = std::numeric_limits<unsigned int>::max();
-  std::vector<float> common_noise(Event::NVAS);
-  std::vector<std::vector<unsigned int>> processed_events(Event::NTDRS,
-                                                          std::vector<unsigned int>(Event::NVAS * Event::NCHAVA));
+  std::vector<float> common_noise(NVAS);
+  std::vector<std::vector<unsigned int>> processed_events(NTDRS, std::vector<unsigned int>(NVAS * NCHAVA));
   // std::vector<std::vector<unsigned int> > processed_events;
-  // processed_events.resize(Event::NTDRS);
-  // for (int ii=0; ii<Event::NTDRS; ii++) {
-  //   processed_events[ii].resize(Event::NVAS * Event::NCHAVA);
+  // processed_events.resize(NTDRS);
+  // for (int ii=0; ii<NTDRS; ii++) {
+  //   processed_events[ii].resize(NVAS * NCHAVA);
   // }
   for (unsigned int iEv = 0; iEv < signals[0][0].size(); ++iEv) {
-    for (unsigned int iTdr = 0; iTdr < Event::NTDRS; ++iTdr) {
-      for (unsigned int iCh = 0; iCh < Event::NVAS * Event::NCHAVA; ++iCh) {
-        unsigned int thisVA = iCh / Event::NCHAVA;
+    for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+        unsigned int thisVA = iCh / NCHAVA;
         if (thisVA != lastVA) {
 
-          std::vector<float> values(Event::NCHAVA);
-          for (unsigned int iVACh = 0; iVACh < Event::NCHAVA; ++iVACh) {
-            values[iVACh] =
-                signals[iTdr][thisVA * Event::NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * Event::NCHAVA + iVACh];
+          std::vector<float> values(NCHAVA);
+          for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
+            values[iVACh] = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
           }
 
           // get the median
           std::sort(begin(values), end(values));
-          common_noise[thisVA] = 0.5 * (values[(Event::NCHAVA / 2) - 1] + values[Event::NCHAVA / 2]);
+          common_noise[thisVA] = 0.5 * (values[(NCHAVA / 2) - 1] + values[NCHAVA / 2]);
         }
 
         if (std::fabs(common_noise[thisVA]) > 10) {
@@ -197,8 +200,8 @@ bool DecodeDataOCA::ProcessCalibration() {
       }
     }
   }
-  for (unsigned int iTdr = 0; iTdr < Event::NTDRS; ++iTdr) {
-    for (unsigned int iCh = 0; iCh < Event::NVAS * Event::NCHAVA; ++iCh) {
+  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
       cals[iTdr].sig[iCh] = sqrt(cals[iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
     }
   }
@@ -210,7 +213,7 @@ bool DecodeDataOCA::ProcessCalibration() {
 }
 
 // TODO: read event data.
-int DecodeDataOCA::ReadOneEventFromFile(FILE *file, Event *event) {
+int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
 
   int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
 
@@ -280,7 +283,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, Event *event) {
     if (fstat == -1)
       return 1;
 
-    unsigned int numChannels = Event::NVAS * Event::NCHAVA;
+    unsigned int numChannels = NVAS * NCHAVA;
     uint32_t nFrames = messageLength - 10;
     if (nFrames != numChannels)
       std::cerr << "WARNING: payload length doesn't match number of channels in Event class (" << nFrames << " vs "
@@ -292,8 +295,8 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, Event *event) {
         // correct for endianess in the original file
         // iVal 0 -> iCh 1, iVal 1 -> iCh 0, iVal 2 -> iCh 3, iVal 3 -> iCh 2
         unsigned int iValNoEnd = (iVal % 2) ? iVal - 1 : iVal + 1;
-        unsigned int iCh = (iValNoEnd / (2 * Event::NADCS)) + (2 * Event::NCHAVA) * (iValNoEnd % Event::NADCS);
-        unsigned int iTDR = 2 * iBoard + ((iValNoEnd / Event::NADCS) % 2);
+        unsigned int iCh = (iValNoEnd / (2 * NADCS)) + (2 * NCHAVA) * (iValNoEnd % NADCS);
+        unsigned int iTDR = 2 * iBoard + ((iValNoEnd / NADCS) % 2);
 
         // TODO: check if signal is still zero-padded on both sides
         // both the shift and the m_adcUnits should be removed later on...
@@ -326,53 +329,50 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, Event *event) {
 
 void DecodeDataOCA::InitHistos() {
   // taken from DecodeData. Hidden down here so I don't throw up every time I open this file
-  hocc = new TH1F*[Event::NJINF*Event::NTDRS];
-  hoccseed = new TH1F*[Event::NJINF*Event::NTDRS];
-  hchargevsocc = new TH2F*[Event::NJINF*Event::NTDRS];
-  hsignalvsocc = new TH2F*[Event::NJINF*Event::NTDRS];
-  hcharge = new TH1F**[Event::NJINF*Event::NTDRS];
-  hsignal = new TH1F**[Event::NJINF*Event::NTDRS];
-  hson = new TH1F**[Event::NJINF*Event::NTDRS];
-  for (int ii=0; ii<Event::NJINF*Event::NTDRS; ii++) {
-    hcharge[ii] = new TH1F*[2];
-    hsignal[ii] = new TH1F*[2];
-    hson[ii] = new TH1F*[2];
+  hocc = new TH1F *[NJINF * NTDRS];
+  hoccseed = new TH1F *[NJINF * NTDRS];
+  hchargevsocc = new TH2F *[NJINF * NTDRS];
+  hsignalvsocc = new TH2F *[NJINF * NTDRS];
+  hcharge = new TH1F **[NJINF * NTDRS];
+  hsignal = new TH1F **[NJINF * NTDRS];
+  hson = new TH1F **[NJINF * NTDRS];
+  for (size_t ii = 0; ii < NJINF * NTDRS; ii++) {
+    hcharge[ii] = new TH1F *[2];
+    hsignal[ii] = new TH1F *[2];
+    hson[ii] = new TH1F *[2];
   }
 
   char name[255];
-  for (int jj = 0; jj < Event::NJINF; jj++) {
-    for (int hh = 0; hh < Event::NTDRS; hh++) {
-      sprintf(name, "occ_%d_%d", jj, hh);
-      //	  hocc[jj*Event::NTDRS+hh]= new TH1F(name,name,1024,0,1024);
-      hocc[jj * Event::NTDRS + hh] = new TH1F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA);
+  for (size_t jj = 0; jj < NJINF; jj++) {
+    for (size_t hh = 0; hh < NTDRS; hh++) {
+      sprintf(name, "occ_%ld_%ld", jj, hh);
+      //	  hocc[jj*NTDRS+hh]= new TH1F(name,name,1024,0,1024);
+      hocc[jj * NTDRS + hh] = new TH1F(name, name, NVAS * NCHAVA, 0, NVAS * NCHAVA);
 
-      sprintf(name, "occseed_%d_%d", jj, hh);
-      //	  hoccseed[jj*Event::NTDRS+hh]= new TH1F(name,name,1024,0,1024);
-      hoccseed[jj * Event::NTDRS + hh] =
-          new TH1F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA);
+      sprintf(name, "occseed_%ld_%ld", jj, hh);
+      //	  hoccseed[jj*NTDRS+hh]= new TH1F(name,name,1024,0,1024);
+      hoccseed[jj * NTDRS + hh] = new TH1F(name, name, NVAS * NCHAVA, 0, NVAS * NCHAVA);
 
-      sprintf(name, "qS_%d_%d", jj, hh);
-      hcharge[jj * Event::NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
-      sprintf(name, "qK_%d_%d", jj, hh);
-      hcharge[jj * Event::NTDRS + hh][1] = new TH1F(name, name, 1000, 0, 100);
+      sprintf(name, "qS_%ld_%ld", jj, hh);
+      hcharge[jj * NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
+      sprintf(name, "qK_%ld_%ld", jj, hh);
+      hcharge[jj * NTDRS + hh][1] = new TH1F(name, name, 1000, 0, 100);
 
-      sprintf(name, "signalS_%d_%d", jj, hh);
-      hsignal[jj * Event::NTDRS + hh][0] = new TH1F(name, name, 4200, -100, 4100);
-      sprintf(name, "signalK_%d_%d", jj, hh);
-      hsignal[jj * Event::NTDRS + hh][1] = new TH1F(name, name, 4200, -100, 4100);
+      sprintf(name, "signalS_%ld_%ld", jj, hh);
+      hsignal[jj * NTDRS + hh][0] = new TH1F(name, name, 4200, -100, 4100);
+      sprintf(name, "signalK_%ld_%ld", jj, hh);
+      hsignal[jj * NTDRS + hh][1] = new TH1F(name, name, 4200, -100, 4100);
 
-      sprintf(name, "q_vs_occ_%d_%d", jj, hh);
-      hchargevsocc[jj * Event::NTDRS + hh] =
-          new TH2F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA, 1000, 0, 100);
+      sprintf(name, "q_vs_occ_%ld_%ld", jj, hh);
+      hchargevsocc[jj * NTDRS + hh] = new TH2F(name, name, NVAS * NCHAVA, 0, NVAS * NCHAVA, 1000, 0, 100);
 
-      sprintf(name, "signal_vs_occ_%d_%d", jj, hh);
-      hsignalvsocc[jj * Event::NTDRS + hh] =
-          new TH2F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA, 4200, -100, 4100);
+      sprintf(name, "signal_vs_occ_%ld_%ld", jj, hh);
+      hsignalvsocc[jj * NTDRS + hh] = new TH2F(name, name, NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 4100);
 
-      sprintf(name, "sonS_%d_%d", jj, hh);
-      hson[jj * Event::NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
-      sprintf(name, "sonK_%d_%d", jj, hh);
-      hson[jj * Event::NTDRS + hh][1] = new TH1F(name, name, 1000, 0, 100);
+      sprintf(name, "sonS_%ld_%ld", jj, hh);
+      hson[jj * NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
+      sprintf(name, "sonK_%ld_%ld", jj, hh);
+      hson[jj * NTDRS + hh][1] = new TH1F(name, name, 1000, 0, 100);
     }
   }
   std::cout << '\n';
@@ -383,7 +383,7 @@ int DecodeDataOCA::ReadOneEvent() {
 
   // copy calibration data...
   for (unsigned int iBoard = 0; iBoard < 2 * m_numBoards; ++iBoard) {
-    for (unsigned int iCh = 0; iCh < Event::NVAS * Event::NCHAVA; ++iCh) {
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
       ev->CalPed[iJinf][iBoard][iCh] = cals[iBoard].ped[iCh];
       ev->CalSigma[iJinf][iBoard][iCh] = cals[iBoard].sig[iCh];
       ev->CalStatus[iJinf][iBoard][iCh] = cals[iBoard].status[iCh];
@@ -395,8 +395,8 @@ int DecodeDataOCA::ReadOneEvent() {
   // clusterize!
   // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this
   // point, so it should return.
-  for (unsigned int iTDR = 0; iTDR < Event::NTDRS; ++iTDR) {
-    Clusterize(iTDR, 0, &cals[iTDR]);
+  for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
+    Clusterize(iTDR, 0, ev, &cals[iTDR]);
   }
 
   return retVal;

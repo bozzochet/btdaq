@@ -1,9 +1,9 @@
 CXX := $(shell root-config --cxx)
 
-CLASSES = Cluster.hh LadderConf.hh Event.hh
+CLASSES = Cluster.hh LadderConf.hh EventUtils.hh 
 TEMPLATE_CLASSES = GenericEvent.hh
 
-DEC_SOURCES = DecodeData.cxx DecodeDataAMS.cxx DecodeDataOCA.cxx DecodeDataFOOT.cxx FSUtils.cxx main.cxx rootElibdict.cxx
+DEC_SOURCES = DecodeData.cxx DecodeDataAMS.cxx DecodeDataOCA.cxx DecodeDataFOOT.cxx EventAMS.cxx EventOCA.cxx FSUtils.cxx main.cxx rootElibdict.cxx
 DEC_SOURCES+= $(CLASSES:%.hh=%.cxx)
 DEC_OBJ=$(DEC_SOURCES:%.cxx=obj/%.o)
 
