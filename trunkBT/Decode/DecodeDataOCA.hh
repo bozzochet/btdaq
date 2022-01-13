@@ -6,17 +6,30 @@
 #define DECODE_DECODEDATAOCA_HH
 
 #include "DecodeData.hh"
+#include "GenericEvent.hh"
 
 class DecodeDataOCA : public DecodeData {
 public:
+  using EventOCA = GenericEvent<1, 24, 64, 5, 10>;
+  using calibOCA = calib<EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;
+
+public:
+  EventOCA *ev;
+
   DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum);
 
+  virtual ::FlavorConfig FlavorConfig() final {
+    return {EventOCA::GetNJINF(), EventOCA::GetNTDRS(), EventOCA::GetNCHAVA(), EventOCA::GetNADCS(),
+            EventOCA::GetNVAS()};
+  };
+
   virtual int ReadOneEvent() final;
+  virtual void ClearEvent() final { ev->Clear(); };
 
   // dummy for now
   virtual int SkipOneEvent(int evskip = 1) final { return 0; };
-  virtual int GetTdrNum(int pos) final;
-  virtual int GetTdrType(int pos) final;
+  virtual int GetTdrNum(size_t pos) final;
+  virtual int GetTdrType(size_t pos) final;
 
 private:
   std::string m_rawDir;
@@ -26,6 +39,7 @@ private:
   std::string m_calFilename;
 
   FILE *calfile = nullptr;
+  calibOCA cals[EventOCA::GetNJINF() * EventOCA::GetNTDRS()]{};
 
   unsigned int m_numBoards = 0;
 
@@ -33,8 +47,7 @@ private:
   void InitHistos();
   void OpenFile(const char *rawDir, const char *calDir, int runNum, int ancillary) final;
   bool ProcessCalibration();
-  int ReadOneEventFromFile(FILE *file, Event *event);
-
+  int ReadOneEventFromFile(FILE *file, EventOCA *event);
 };
 
 #endif // DECODE_DECODEDATAOCA_HH

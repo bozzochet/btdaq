@@ -15,14 +15,7 @@
 #include "Cluster.hh"
 #include "GenericEvent.hh"
 
-//#define USEMINUIT
-using EventAMS = GenericEvent<1, 24, 64, 3, 16>;
-using EventOCA = GenericEvent<1, 24, 64, 5, 10>;
-using EventFOOT = GenericEvent<1, 24, 64, 5, 10>;
-
-ClassImp(EventAMS);
-ClassImp(EventOCA);
-ClassImp(EventFOOT);
+#include "RHClass.hpp"
 
 namespace {
 // they store temporarily the result of the fit----------------------------
@@ -61,26 +54,10 @@ template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
 bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ladderconfnotread = true;
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-LadderConf *GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ladderconf = nullptr;
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
 bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::alignmentnotread = true;
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
 bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::gaincorrectionnotread = true;
-
-// VF: This is very ugly to look at
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-typename GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::template VAArray<float[2]>
-    GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::gaincorrectionpar{{{{0}}}};
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-typename GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::template TdrArray<float[3]>
-    GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::alignpar{{{0}}};
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-typename GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::template TdrArray<bool>
-    GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::multflip{{false}};
 
 // NOTE: This constructor should not be used, if you create a new Event flavor, specialize its constructor as shown
 // below [VF]
@@ -88,42 +65,6 @@ template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
 GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GenericEvent() {
   Cls = new TClonesArray("Cluster", NJINF * NTDRS); // if more than NJINFS*NTDRS anyhow the array will be expanded
   Cls->SetOwner();
-
-  ClearTrack();
-}
-
-// we can keep everything hardcoded since we define specialized constructors for each flavor
-template <> EventAMS::GenericEvent() {
-  Cls = new TClonesArray("Cluster",
-                         GetNJINF() * GetNTDRS()); // if more than NJINFS*NTDRS anyhow the array will be expanded
-  Cls->SetOwner();
-
-  // MD: this must be fixed, cannot be hardcoded
-  if (ladderconfnotread)
-    ReadLadderConf("ladderconf.dat");
-
-  if (gaincorrectionnotread) {
-    ReadGainCorrection("gaincorrection.dat");
-  }
-
-  ClearTrack();
-}
-
-// EventOCA and EventFOOT are aliases to the same type, we shouldn't define the same constructor twice
-template <> EventOCA::GenericEvent() {
-  Cls = new TClonesArray("Cluster",
-                         GetNJINF() * GetNTDRS()); // if more than NJINFS*NTDRS anyhow the array will be expanded
-  Cls->SetOwner();
-
-  // MD: this must be fixed, cannot be hardcoded
-  if (ladderconfnotread)
-    ReadLadderConf("ladderconf_OCA.dat");
-
-  // FIXME: I don't have a smart way to differentiate OCA and FOOT now, we'll think about it later [VF]
-  if (gaincorrectionnotread) {
-    ReadGainCorrection("gaincorrection_OCA.dat");
-    // ReadGainCorrection("gaincorrection_FOOT.dat");
-  }
 
   ClearTrack();
 }
@@ -139,25 +80,25 @@ GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::~GenericEvent() {
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
 void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::Clear() {
   JINJStatus = 0;
-  for (int jj = 0; jj < NJINF; jj++) {
+  for (size_t jj = 0; jj < NJINF; jj++) {
     JINFStatus[jj] = 0;
-    for (int ii = 0; ii < NTDRS; ii++) {
+    for (size_t ii = 0; ii < NTDRS; ii++) {
       TDRStatus[jj][ii] = 31;
     }
   }
 
   NClusTot = 0;
 
-  for (int jj = 0; jj < NJINF; jj++) {
+  for (size_t jj = 0; jj < NJINF; jj++) {
     // Viviana: hardcoded
     // ->kk to run onto nlayers?
-    for (int ii = 0; ii < NTDRS; ii++) { // Viviana: was kk<8
+    for (size_t ii = 0; ii < NTDRS; ii++) { // Viviana: was kk<8
       ReadTDR[jj][ii] = 0;
-      for (int iv = 0; iv < NVAS; iv++)
+      for (size_t iv = 0; iv < NVAS; iv++)
         CNoise[jj][ii][iv] = 0;
       NClus[jj][ii][0] = 0;
       NClus[jj][ii][1] = 0;
-      for (int kk = 0; kk < NVAS * NCHAVA; kk++) { // Viviana: was 1024
+      for (size_t kk = 0; kk < NVAS * NCHAVA; kk++) { // Viviana: was 1024
         CalSigma[jj][ii][kk] = 0.0;
         CalPed[jj][ii][kk] = 0.0;
         RawSignal[jj][ii][kk] = 0;
@@ -202,58 +143,17 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadLadderConf(TString fil
 
   printf("Reading ladder configuration from %s:\n", filename.Data());
 
-  if (!ladderconf)
-    ladderconf = new LadderConf();
-  ladderconf->Init(filename, DEBUG);
+  LadderConf *ladderconf = LadderConf::Instance();
+  ladderconf->InitSize(NJINF, NTDRS);
+  ladderconf->Init(filename.Data(), DEBUG);
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
 void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadAlignment(TString filename, bool DEBUG) {
 
-  printf("Reading alignment from %s:\n", filename.Data());
-
-  for (int jj = 0; jj < NJINF; jj++) {
-    for (int tt = 0; tt < NTDRS; tt++) {
-      for (int cc = 0; cc < 3; cc++) {
-        alignpar[jj][tt][cc] = 0.0;
-      }
-      multflip[jj][tt] = false;
-    }
-  }
-
-  int const dimline = 255;
-  char line[dimline];
-  float dummy;
-  int dummyint;
-  int jinfnum = 0;
-  int tdrnum = 0;
-
-  FILE *ft = fopen(filename.Data(), "r");
-  if (ft == NULL) {
-    printf("Error: cannot open %s \n", filename.Data());
-    return;
-  } else {
-    while (1) {
-      if (fgets(line, dimline, ft) != NULL) {
-        if (*line == '#')
-          continue; /* ignore comment line */
-        else {
-          sscanf(line, "%d\t%d\t%f\t%f\t%f\t%d", &jinfnum, &tdrnum, &dummy, &dummy, &dummy, &dummyint);
-          if (jinfnum < NJINF && tdrnum < NTDRS) {
-            sscanf(line, "%d\t%d\t%f\t%f\t%f\t%d", &jinfnum, &tdrnum, &alignpar[jinfnum][tdrnum][0],
-                   &alignpar[jinfnum][tdrnum][1], &alignpar[jinfnum][tdrnum][2], &dummyint);
-            multflip[jinfnum][tdrnum] = (bool)(dummyint);
-          } else {
-            printf("Wrong JINF/TDR (%d, %d): maximum is (%d,%d)\n", jinfnum, tdrnum, NJINF, NTDRS);
-          }
-        }
-      } else {
-        printf(" closing alignment file \n");
-        fclose(ft);
-        break;
-      }
-    }
-  }
+  auto *alignmentPars = AlignmentPars::Instance();
+  alignmentPars->InitSize(NJINF, NTDRS);
+  alignmentPars->Init(filename.Data());
 
   alignmentnotread = false;
 
@@ -265,9 +165,9 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadAlignment(TString file
       for (int cc = 0; cc < 3; cc++) {
         if (cc == 0)
           printf("JINF %02d TDR %02d)\t", jj, tt);
-        printf("%f\t", alignpar[jj][tt][cc]);
+        printf("%f\t", alignmentPars->GetPar(jj, tt, cc));
         if (cc == 2)
-          printf("%d\n", (int)(multflip[jj][tt]));
+          printf("%d\n", (int)(alignmentPars->GetMultiplicityFlip(jj, tt)));
       }
     }
   }
@@ -278,51 +178,9 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadAlignment(TString file
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
 void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadGainCorrection(TString filename, bool DEBUG) {
 
-  printf("Reading Gain Correction from %s:\n", filename.Data());
-
-  for (int jj = 0; jj < NJINF; jj++) {
-    for (int tt = 0; tt < NTDRS; tt++) {
-      for (int vv = 0; vv < NVAS; vv++) {
-        gaincorrectionpar[jj][tt][vv][0] = 0.0;
-        gaincorrectionpar[jj][tt][vv][1] = 1.0;
-      }
-    }
-  }
-
-  int const dimline = 255;
-  char line[dimline];
-  int jinfnum = 0;
-  int tdrnum = 0;
-  int vanum = 0;
-  float dummy = 0.;
-
-  FILE *ft = fopen(filename.Data(), "r");
-  if (ft == NULL) {
-    printf("Error: cannot open %s \n", filename.Data());
-    return;
-  } else {
-    while (1) {
-      if (fgets(line, dimline, ft) != NULL) {
-        if (*line == '#')
-          continue; /* ignore comment line */
-        else {
-          sscanf(line, "%d\t%d\t%d\t%f\t%f", &jinfnum, &tdrnum, &vanum, &dummy, &dummy);
-          //	  printf("%d %d %d\n", NJINF, NTDRS, NVAS);
-          if (jinfnum < NJINF && tdrnum < NTDRS && vanum < NVAS) {
-            sscanf(line, "%d \t %d \t %d \t %f \t %f", &jinfnum, &tdrnum, &vanum,
-                   &gaincorrectionpar[jinfnum][tdrnum][vanum][0], &gaincorrectionpar[jinfnum][tdrnum][vanum][1]);
-          } else {
-            printf("Wrong JINF/TDR/VA (%d, %d, %d): maximum is (%lu, %lu, %lu)\n", jinfnum, tdrnum, vanum, NJINF - 1,
-                   NTDRS - 1, NVAS - 1);
-          }
-        }
-      } else {
-        printf(" closing gain correction file \n");
-        fclose(ft);
-        break;
-      }
-    }
-  }
+  auto *gainCorrectionPars = GainCorrectionPars::Instance();
+  gainCorrectionPars->InitSize(NJINF, NTDRS, NVAS);
+  gainCorrectionPars->Init(filename.Data());
 
   gaincorrectionnotread = false;
 
@@ -331,10 +189,10 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadGainCorrection(TString
   // NON dovrebbero esserci!
   bool first = true;
   bool everdone = false;
-  for (int jj = 0; jj < NJINF; jj++) {
-    for (int tt = 0; tt < NTDRS; tt++) {
-      for (int vv = 0; vv < NVAS; vv++) {
-        if (gaincorrectionpar[jj][tt][vv][0] == 0.0 && gaincorrectionpar[jj][tt][vv][1] == 1.0)
+  for (size_t jj = 0; jj < NJINF; jj++) {
+    for (size_t tt = 0; tt < NTDRS; tt++) {
+      for (size_t vv = 0; vv < NVAS; vv++) {
+        if (gainCorrectionPars->GetPar(jj, tt, vv, 0) == 0.0 && gainCorrectionPars->GetPar(jj, tt, vv, 1) == 1.0)
           continue;
         if (first) {
           printf("***************************************\n");
@@ -343,9 +201,9 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadGainCorrection(TString
         }
         first = false;
         everdone = true;
-        printf("JINF %02d TDR %02d VA %02d)\t", jj, tt, vv);
-        printf("%f\t", gaincorrectionpar[jj][tt][vv][0]);
-        printf("%f\t", gaincorrectionpar[jj][tt][vv][1]);
+        printf("JINF %02ld TDR %02ld VA %02ld)\t", jj, tt, vv);
+        printf("%f\t", gainCorrectionPars->GetPar(jj, tt, vv, 0));
+        printf("%f\t", gainCorrectionPars->GetPar(jj, tt, vv, 1));
         printf("\n");
       }
     }
@@ -356,64 +214,6 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadGainCorrection(TString
   }
 
   return;
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetGainCorrectionPar(int jinfnum, int tdrnum, int vanum,
-                                                                            int component) {
-  if (jinfnum >= NJINF || jinfnum < 0) {
-    printf("Jinf %d: not possible, the maximum is %d...\n", jinfnum, NJINF - 1);
-    return -9999;
-  }
-  if (tdrnum >= NTDRS || tdrnum < 0) {
-    printf("TDR %d: not possible, the maximum is %d...\n", tdrnum, NTDRS - 1);
-    return -9999;
-  }
-  if (vanum >= NVAS || vanum < 0) {
-    printf("VA %d: not possible, the maximum is %d...\n", vanum, NVAS - 1);
-    return -9999;
-  }
-  if (component < 0 || component >= 3) {
-    printf("Component %d not valid: it can be only up to 2\n", component);
-    return -9999;
-  }
-
-  return gaincorrectionpar[jinfnum][tdrnum][vanum][component];
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetAlignPar(int jinfnum, int tdrnum, int component) {
-
-  if (jinfnum >= NJINF || jinfnum < 0) {
-    printf("Jinf %d: not possible, the maximum is %d...\n", jinfnum, NJINF - 1);
-    return -9999;
-  }
-  if (tdrnum >= NTDRS || tdrnum < 0) {
-    printf("TDR %d: not possible, the maximum is %d...\n", tdrnum, NTDRS - 1);
-    return -9999;
-  }
-  if (component < 0 || component >= 3) {
-    printf("Component %d not valid: it can be only up to 2\n", component);
-    return -9999;
-  }
-
-  return alignpar[jinfnum][tdrnum][component];
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetMultiplicityFlip(int jinfnum, int tdrnum) {
-
-  if (jinfnum >= NJINF || jinfnum < 0) {
-    printf("Jinf %d: not possible, the maximum is %d...\n", jinfnum, NJINF - 1);
-    return -9999;
-  }
-  if (tdrnum >= NTDRS || tdrnum < 0) {
-    printf("TDR %d: not possible, the maximum is %d...\n", tdrnum, NTDRS - 1);
-    return -9999;
-  }
-
-  return ladderconf->GetMultiplicityFlip(jinfnum, tdrnum);
-  // return multflip[jinfnum][tdrnum];
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
@@ -569,13 +369,15 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FindTrackAndFit(int nptsS,
     int side = current_cluster->side;
     if (side == 0) {
       if (!(std::find(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item) != _v_ladderS_to_ignore.end())) {
-        v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(
-            index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+        v_cog_laddS[jinfnum][tdrnum].push_back(
+            std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(),
+                                                         AlignmentPars::Instance()->GetPar(jinfnum, tdrnum, 2))));
       }
     } else {
       if (!(std::find(_v_ladderK_to_ignore.begin(), _v_ladderK_to_ignore.end(), item) != _v_ladderK_to_ignore.end())) {
-        v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(
-            index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+        v_cog_laddK[jinfnum][tdrnum].push_back(
+            std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(),
+                                                         AlignmentPars::Instance()->GetPar(jinfnum, tdrnum, 2))));
       }
     }
   }
@@ -632,14 +434,15 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FindHigherChargeTrackAndFi
       if (!(std::find(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item) != _v_ladderS_to_ignore.end())) {
         if (current_cluster->GetTotSN() > threshS) {
           if (v_q_laddS[jinfnum][tdrnum].size() == 0) {
-            v_cog_laddS[jinfnum][tdrnum].push_back(std::make_pair(
-                index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+            v_cog_laddS[jinfnum][tdrnum].push_back(
+                std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(),
+                                                             AlignmentPars::Instance()->GetPar(jinfnum, tdrnum, 2))));
             v_q_laddS[jinfnum][tdrnum].push_back(current_cluster->GetCharge());
           } else {
             if (current_cluster->GetCharge() > v_q_laddS[jinfnum][tdrnum][0]) {
               v_cog_laddS[jinfnum][tdrnum][0] =
                   std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(),
-                                                               GetAlignPar(jinfnum, tdrnum, 2)));
+                                                               AlignmentPars::Instance()->GetPar(jinfnum, tdrnum, 2)));
               v_q_laddS[jinfnum][tdrnum][0] = current_cluster->GetCharge();
             }
           }
@@ -649,14 +452,15 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FindHigherChargeTrackAndFi
       if (!(std::find(_v_ladderK_to_ignore.begin(), _v_ladderK_to_ignore.end(), item) != _v_ladderK_to_ignore.end())) {
         if (current_cluster->GetTotSN() > threshK) {
           if (v_q_laddK[jinfnum][tdrnum].size() == 0) {
-            v_cog_laddK[jinfnum][tdrnum].push_back(std::make_pair(
-                index_cluster, std::make_pair(current_cluster->GetAlignedPosition(), GetAlignPar(jinfnum, tdrnum, 2))));
+            v_cog_laddK[jinfnum][tdrnum].push_back(
+                std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(),
+                                                             AlignmentPars::Instance()->GetPar(jinfnum, tdrnum, 2))));
             v_q_laddK[jinfnum][tdrnum].push_back(current_cluster->GetCharge());
           } else {
             if (current_cluster->GetCharge() > v_q_laddK[jinfnum][tdrnum][0]) {
               v_cog_laddK[jinfnum][tdrnum][0] =
                   std::make_pair(index_cluster, std::make_pair(current_cluster->GetAlignedPosition(),
-                                                               GetAlignPar(jinfnum, tdrnum, 2)));
+                                                               AlignmentPars::Instance()->GetPar(jinfnum, tdrnum, 2)));
               v_q_laddK[jinfnum][tdrnum][0] = current_cluster->GetCharge();
             }
           }
@@ -1369,38 +1173,43 @@ float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetRawSoN_PosNum(int tdrn
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCalPed(RHClass *rh, int tdrnum, int channel, int Jinfnum) {
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCalPed(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel,
+                                                                  int Jinfnum) {
   int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
   return GetCalPed_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCalSigma(RHClass *rh, int tdrnum, int channel, int Jinfnum) {
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCalSigma(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel,
+                                                                    int Jinfnum) {
   int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
   return GetCalSigma_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetRawSignal(RHClass *rh, int tdrnum, int channel,
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetRawSignal(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel,
                                                                      int Jinfnum) {
   int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
   return GetRawSignal_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCN(RHClass *rh, int tdrnum, int va, int Jinfnum) {
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int va,
+                                                              int Jinfnum) {
   int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
   return GetCN_PosNum(tdrnumraw, va, Jinfnum);
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCalStatus(RHClass *rh, int tdrnum, int va, int Jinfnum) {
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCalStatus(RHClass<NJINF, NTDRS> *rh, int tdrnum, int va,
+                                                                     int Jinfnum) {
   int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
   return GetCalStatus_PosNum(tdrnumraw, va, Jinfnum);
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetRawSoN(RHClass *rh, int tdrnum, int channel, int Jinfnum) {
+float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetRawSoN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel,
+                                                                 int Jinfnum) {
   int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
   return GetRawSoN_PosNum(tdrnumraw, channel, Jinfnum);
 }
@@ -1455,7 +1264,8 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FindTracksAndVertex(bool v
       int side = cc->side;
       if (side == 0) { // ( index, ( X or Y, Z ) )
         if (find(_v_ladderS_to_ignore.begin(), _v_ladderS_to_ignore.end(), item) == _v_ladderS_to_ignore.end()) {
-          v_hitsS.push_back(make_pair(ic, std::make_pair(cc->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2))));
+          v_hitsS.push_back(make_pair(
+              ic, std::make_pair(cc->GetAlignedPositionMC(), AlignmentPars::Instance()->GetPar(jinfnum, tdrnum, 2))));
           // we double a cluster if it's likely that it's been generated by two merged hits
           if (cc->GetTotSig() > mixed_threshold && (ic == NClusTot - 1 || tdrnum != GetCluster(ic + 1)->GetTDR()) &&
               (ic == 0 || tdrnum != GetCluster(ic - 1)->GetTDR()))
@@ -1463,7 +1273,8 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FindTracksAndVertex(bool v
         }
       } else {
         if (find(_v_ladderK_to_ignore.begin(), _v_ladderK_to_ignore.end(), item) == _v_ladderK_to_ignore.end()) {
-          v_hitsK.push_back(make_pair(ic, std::make_pair(cc->GetAlignedPositionMC(), GetAlignPar(jinfnum, tdrnum, 2))));
+          v_hitsK.push_back(make_pair(
+              ic, std::make_pair(cc->GetAlignedPositionMC(), AlignmentPars::Instance()->GetPar(jinfnum, tdrnum, 2))));
           if (cc->GetTotSig() > mixed_threshold && (ic == NClusTot - 1 || tdrnum != GetCluster(ic + 1)->GetTDR()) &&
               (ic == 0 || tdrnum != GetCluster(ic - 1)->GetTDR()))
             v_hitsK.push_back(v_hitsK.back());
@@ -1550,7 +1361,7 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FindTracksAndVertex(bool v
       printf("poche hit\n"); /*return false;*/
     } else {
       NS++;
-      _TrS.push_back(make_track(v_hitsS)); // Here we store the tracks we have already found
+      _TrS.emplace_back(v_hitsS); // Here we store the tracks we have already found
     }
     printf("K:\n");
     Track(v_hitsK, rejectsK);
@@ -1559,7 +1370,7 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FindTracksAndVertex(bool v
       printf("poche hit\n"); /*return false;*/
     } else {
       NK++;
-      _TrK.push_back(make_track(v_hitsK));
+      _TrK.emplace_back(v_hitsK);
     }
     // rejected hits are now eligible for the next track to find
     if (vert && !ppside)
@@ -1692,7 +1503,7 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::Track(std::vector<Hit> &hi
 
   for (int itdr = NTDRS - 1; itdr >= 0; itdr--) {
     dir = Hough(hits);
-    pos = alignpar[0][itdr][2]; // current z position for the study
+    pos = AlignmentPars::Instance()->GetPar(0, itdr, 2); // current z position for the study
     //    printf("iter n° %d -> pos = %f\ndir = (%f,%f)\n",itdr,pos,dir.first,dir.second);
     double xexp = dir.second / cos(dir.first) + tan(dir.first) * pos;
     // variables for the search of the minimum distance
@@ -1801,10 +1612,12 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::RecombineXY(double ang) {
       a2 = (std::max(x[0], x[1]) + std::max(x[2], x[3])) / 2, b1 = (std::min(y[0], y[1]) + std::min(y[2], y[3])) / 2,
          b2 = (std::max(y[0], y[1]) + std::max(y[2], y[3])) / 2;
 
-  double y1 = tan(_TrS[0].exit_angle) * alignpar[0][tdrY][2] + _TrS[0].exit_dist / cos(_TrS[0].exit_angle),
-         y2 = tan(_TrS[1].exit_angle) * alignpar[0][tdrY][2] + _TrS[1].exit_dist / cos(_TrS[1].exit_angle),
-         x1 = tan(_TrK[0].exit_angle) * alignpar[0][tdrX][2] + _TrK[0].exit_dist / cos(_TrK[0].exit_angle),
-         x2 = tan(_TrK[1].exit_angle) * alignpar[0][tdrX][2] + _TrK[1].exit_dist / cos(_TrK[1].exit_angle);
+  AlignmentPars *alignmentPars = AlignmentPars::Instance();
+
+  double y1 = tan(_TrS[0].exit_angle) * alignmentPars->GetPar(0, tdrY, 2) + _TrS[0].exit_dist / cos(_TrS[0].exit_angle),
+         y2 = tan(_TrS[1].exit_angle) * alignmentPars->GetPar(0, tdrY, 2) + _TrS[1].exit_dist / cos(_TrS[1].exit_angle),
+         x1 = tan(_TrK[0].exit_angle) * alignmentPars->GetPar(0, tdrX, 2) + _TrK[0].exit_dist / cos(_TrK[0].exit_angle),
+         x2 = tan(_TrK[1].exit_angle) * alignmentPars->GetPar(0, tdrX, 2) + _TrK[1].exit_dist / cos(_TrK[1].exit_angle);
   printf("x1=%f, x2=%f, y1=%f, y2=%f\n", x1, x2, y1, y2);
   // gr->SetPoint(gr->SetPoint(),x1,0);
   // gr->SetPoint(gr->SetPoint(),x2,0);

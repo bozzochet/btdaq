@@ -6,6 +6,8 @@
 
 #include "DecodeDataAMS.hh"
 
+#include "GenericEvent.hpp"
+
 #include "TRandom3.h"
 #include "TString.h"
 
@@ -14,21 +16,21 @@ using namespace std;
 extern char progname[50];
 
 static char errmess[16][80] = {"",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "replying node is CDP",
-                        " RAW events",
-                        " COMPRESSED events",
-                        " cumulative status",
-                        "build errors (sequencer errors for event building",
-                        "build conditions (FE power fault for event building",
-                        "NEXT bit / timeout (if DATA=1), set by master",
-                        "ERROR bit / AMSW error (if DATA=1), set by master",
-                        "ABORT bit / assembly error (if DATA=1), set by master",
-                        "END bit / CRC error (if DATA=1), set by master",
-                        "DATA bit, set by master when assembling group reply"};
+                               "",
+                               "",
+                               "",
+                               "",
+                               "replying node is CDP",
+                               " RAW events",
+                               " COMPRESSED events",
+                               " cumulative status",
+                               "build errors (sequencer errors for event building",
+                               "build conditions (FE power fault for event building",
+                               "NEXT bit / timeout (if DATA=1), set by master",
+                               "ERROR bit / AMSW error (if DATA=1), set by master",
+                               "ABORT bit / assembly error (if DATA=1), set by master",
+                               "END bit / CRC error (if DATA=1), set by master",
+                               "DATA bit, set by master when assembling group reply"};
 
 inline bool file_exists(const std::string &name) {
   struct stat buffer;
@@ -37,49 +39,43 @@ inline bool file_exists(const std::string &name) {
 
 static TString stringtodump;
 
+namespace {
+constexpr auto NJINF = DecodeDataAMS::EventAMS::GetNJINF();
+constexpr auto NTDRS = DecodeDataAMS::EventAMS::GetNTDRS();
+constexpr auto NVAS = DecodeDataAMS::EventAMS::GetNVAS();
+constexpr auto NCHAVA = DecodeDataAMS::EventAMS::GetNCHAVA();
+} // namespace
+
 //=============================================================================================
-DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary, bool _kMC) {
+DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary, bool _kMC) : kMC{_kMC} {
 
-  Event::SetFlavour(Event::Flavour::AMS);
-  
-  cals = new calib[Event::NJINF*Event::NTDRS];
-  JinfMap = new int[Event::NJINF];
-  tdrMap = new laddernumtype[Event::NJINF*Event::NTDRS];
-  tdrAlign = new int[Event::NJINF*Event::NTDRS];
+  tdrMap = new laddernumtype[NJINF * NTDRS];
+  tdrAlign = new int[NJINF * NTDRS];
 
-  hocc = new TH1F*[Event::NJINF*Event::NTDRS];
-  hoccseed = new TH1F*[Event::NJINF*Event::NTDRS];
-  hchargevsocc = new TH2F*[Event::NJINF*Event::NTDRS];
-  hsignalvsocc = new TH2F*[Event::NJINF*Event::NTDRS];
-  hcharge = new TH1F**[Event::NJINF*Event::NTDRS];
-  hsignal = new TH1F**[Event::NJINF*Event::NTDRS];
-  hson = new TH1F**[Event::NJINF*Event::NTDRS];
-  for (int ii=0; ii<Event::NJINF*Event::NTDRS; ii++) {
-    hcharge[ii] = new TH1F*[2];
-    hsignal[ii] = new TH1F*[2];
-    hson[ii] = new TH1F*[2];
+  hocc = new TH1F *[NJINF * NTDRS];
+  hoccseed = new TH1F *[NJINF * NTDRS];
+  hchargevsocc = new TH2F *[NJINF * NTDRS];
+  hsignalvsocc = new TH2F *[NJINF * NTDRS];
+  hcharge = new TH1F **[NJINF * NTDRS];
+  hsignal = new TH1F **[NJINF * NTDRS];
+  hson = new TH1F **[NJINF * NTDRS];
+  for (size_t ii = 0; ii < NJINF * NTDRS; ii++) {
+    hcharge[ii] = new TH1F *[2];
+    hsignal[ii] = new TH1F *[2];
+    hson[ii] = new TH1F *[2];
   }
-  
-  kMC = _kMC;
 
+  // Initialize base-class members
   runn = run;
-
   ntdrRaw = 0;
   ntdrCmp = 0;
-  memset(tdrMap, -1, Event::NJINF*Event::NTDRS * sizeof(tdrMap[0]));
+  memset(tdrMap, -1, NJINF * NTDRS * sizeof(tdrMap[0]));
+  memset(tdrAlign, -1, NJINF * NTDRS * sizeof(tdrAlign[0])); // added by Viviana
 
-  memset(tdrAlign, -1, Event::NJINF*Event::NTDRS * sizeof(tdrAlign[0])); // added by Viviana
-
-  // pri=0;
   pri = 1;
   evpri = 0;
 
-  sprintf(type, "Jinf");
-
   OpenFile(ifname, caldir, run, ancillary);
-
-  tdroffset = 0;
-  evenum = 0;
   runn = run;
 
   shighthreshold = 3.5;
@@ -91,7 +87,7 @@ DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary,
   cworkaround = 0;
 
   // Create the ROOT run header
-  rh = new RHClass();
+  rh = new RHClassAMS();
 
   if (!kMC) {
     // Read the run Header
@@ -99,7 +95,6 @@ DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary,
 
     // Try to get some info on how many ladders there are in the data (RAW and CMP)
     long int pos = ftell(rawfile);
-    out_flag = 0;
     if (pri)
       printf("*************** Reading one event to understand things...\n");
     ReadOneEvent();
@@ -111,31 +106,29 @@ DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary,
       exit(3);
     }
 
-    out_flag = 1;
+    out_flag = true;
   } else {
     rh->SetRun(runn);
     time_t now = time(0); // MD: I don't like. Should be decided when simulating, not when analyzing!
     rh->SetDate(ctime(&now));
     nJinf = 0;
-    out_flag = 0;
     ReadOneEvent();
     ntdrRaw = ntdrMC; // MD: seems ok. MC files are raw by default and we clusterize offline...
-    out_flag = 1;
+    out_flag = true;
   }
 
-  //  // Create the ROOT Classes for the ROOT data format
-  ev = new Event();
+  // Create the ROOT Classes for the ROOT data format
+  ev = new EventAMS();
 
   mysort(tdrMap, ntdrRaw + ntdrCmp);
   // Update the ROOT run header
-  rh->SetNJinfs(nJinf);
   rh->SetJinfMap(JinfMap);
   rh->SetNTdrsRaw(ntdrRaw);
   rh->SetNTdrsCmp(ntdrCmp);
   rh->SetTdrMap(tdrMap);
 
   if (pri) {
-    printf("********* READVALS: %d %d %d %d \n", Event::NTDRS, nJinf, ntdrRaw, ntdrCmp);
+    printf("********* READVALS: %ld %d %d %d \n", NTDRS, nJinf, ntdrRaw, ntdrCmp);
     printf("Dumping the file headers that are going to be written in the ROOT files...\n");
   }
   rh->Print();
@@ -149,41 +142,41 @@ DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary,
   int ntotdrs = ntdrRaw + ntdrCmp;
   //  for (int ii=0;ii<NTDRS;ii++) {
   for (int ii = 0; ii < ntotdrs; ii++) { // check if compatible with data struct
-    calib *calt = &(cals[ii]);
+    calibAMS *calt = &(cals[ii]);
     printf("CALTEST: TDR %d -> %f %f %d\n", ii, calt->ped[0], calt->sig[0], calt->status[0]);
   }
   //
 
   char name[255];
-  for (int jj = 0; jj < Event::NJINF; jj++) {
-    for (int hh = 0; hh < Event::NTDRS; hh++) {
-      sprintf(name, "occ_%d_%d", jj, hh);
+  for (size_t jj = 0; jj < NJINF; jj++) {
+    for (size_t hh = 0; hh < NTDRS; hh++) {
+      sprintf(name, "occ_%ld_%ld", jj, hh);
       //	  hocc[jj*NTDRS+hh]= new TH1F(name,name,1024,0,1024);
-      hocc[jj * Event::NTDRS + hh] = new TH1F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA);
-      sprintf(name, "occseed_%d_%d", jj, hh);
+      hocc[jj * NTDRS + hh] = new TH1F(name, name, NVAS * NCHAVA, 0, NVAS * NCHAVA);
+      sprintf(name, "occseed_%ld_%ld", jj, hh);
       //	  hoccseed[jj*NTDRS+hh]= new TH1F(name,name,1024,0,1024);
-      hoccseed[jj * Event::NTDRS + hh] = new TH1F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA);
+      hoccseed[jj * NTDRS + hh] = new TH1F(name, name, NVAS * NCHAVA, 0, NVAS * NCHAVA);
 
-      sprintf(name, "qS_%d_%d", jj, hh);
-      hcharge[jj * Event::NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
-      sprintf(name, "qK_%d_%d", jj, hh);
-      hcharge[jj * Event::NTDRS + hh][1] = new TH1F(name, name, 1000, 0, 100);
+      sprintf(name, "qS_%ld_%ld", jj, hh);
+      hcharge[jj * NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
+      sprintf(name, "qK_%ld_%ld", jj, hh);
+      hcharge[jj * NTDRS + hh][1] = new TH1F(name, name, 1000, 0, 100);
 
-      sprintf(name, "signalS_%d_%d", jj, hh);
-      hsignal[jj * Event::NTDRS + hh][0] = new TH1F(name, name, 4200, -100, 4100);
-      sprintf(name, "signalK_%d_%d", jj, hh);
-      hsignal[jj * Event::NTDRS + hh][1] = new TH1F(name, name, 4200, -100, 4100);
+      sprintf(name, "signalS_%ld_%ld", jj, hh);
+      hsignal[jj * NTDRS + hh][0] = new TH1F(name, name, 4200, -100, 4100);
+      sprintf(name, "signalK_%ld_%ld", jj, hh);
+      hsignal[jj * NTDRS + hh][1] = new TH1F(name, name, 4200, -100, 4100);
 
-      sprintf(name, "q_vs_occ_%d_%d", jj, hh);
-      hchargevsocc[jj * Event::NTDRS + hh] = new TH2F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA, 1000, 0, 100);
+      sprintf(name, "q_vs_occ_%ld_%ld", jj, hh);
+      hchargevsocc[jj * NTDRS + hh] = new TH2F(name, name, NVAS * NCHAVA, 0, NVAS * NCHAVA, 1000, 0, 100);
 
-      sprintf(name, "signal_vs_occ_%d_%d", jj, hh);
-      hsignalvsocc[jj * Event::NTDRS + hh] = new TH2F(name, name, Event::NVAS * Event::NCHAVA, 0, Event::NVAS * Event::NCHAVA, 4200, -100, 4100);
+      sprintf(name, "signal_vs_occ_%ld_%ld", jj, hh);
+      hsignalvsocc[jj * NTDRS + hh] = new TH2F(name, name, NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 4100);
 
-      sprintf(name, "sonS_%d_%d", jj, hh);
-      hson[jj * Event::NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
-      sprintf(name, "sonK_%d_%d", jj, hh);
-      hson[jj * Event::NTDRS + hh][1] = new TH1F(name, name, 1000, 0, 100);
+      sprintf(name, "sonS_%ld_%ld", jj, hh);
+      hson[jj * NTDRS + hh][0] = new TH1F(name, name, 1000, 0, 100);
+      sprintf(name, "sonK_%ld_%ld", jj, hh);
+      hson[jj * NTDRS + hh][1] = new TH1F(name, name, 1000, 0, 100);
     }
   }
 }
@@ -191,39 +184,39 @@ DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary,
 
 DecodeDataAMS::~DecodeDataAMS() {
 
-  for (int jj = 0; jj < Event::NJINF; jj++) {
-    for (int hh = 0; hh < Event::NTDRS; hh++) {
+  for (size_t jj = 0; jj < NJINF; jj++) {
+    for (size_t hh = 0; hh < NTDRS; hh++) {
       //      printf("%d %d --> %f\n", jj, hh, hocc[jj*NTDRS+hh]->GetEntries());
-      if (hocc[jj * Event::NTDRS + hh] && hocc[jj * Event::NTDRS + hh]->GetEntries() < 1.0) {
+      if (hocc[jj * NTDRS + hh] && hocc[jj * NTDRS + hh]->GetEntries() < 1.0) {
         //		printf("deleting hocc %d %d at %p\n", jj, hh, hocc[jj*NTDRS+hh]);
-        delete hocc[jj * Event::NTDRS + hh];
+        delete hocc[jj * NTDRS + hh];
       }
-      if (hoccseed[jj * Event::NTDRS + hh] && hoccseed[jj * Event::NTDRS + hh]->GetEntries() < 1.0) {
+      if (hoccseed[jj * NTDRS + hh] && hoccseed[jj * NTDRS + hh]->GetEntries() < 1.0) {
         //		printf("deleting hoccseed %d %d\n", jj, hh);
-        delete hoccseed[jj * Event::NTDRS + hh];
+        delete hoccseed[jj * NTDRS + hh];
       }
-      if (hchargevsocc[jj * Event::NTDRS + hh] && hchargevsocc[jj * Event::NTDRS + hh]->GetEntries() < 1.0) {
+      if (hchargevsocc[jj * NTDRS + hh] && hchargevsocc[jj * NTDRS + hh]->GetEntries() < 1.0) {
         //		  printf("deleting hchargevsocc %d %d\n", jj, hh);
-        delete hchargevsocc[jj * Event::NTDRS + hh];
+        delete hchargevsocc[jj * NTDRS + hh];
       }
-      if (hsignalvsocc[jj * Event::NTDRS + hh] && hsignalvsocc[jj * Event::NTDRS + hh]->GetEntries() < 1.0) {
+      if (hsignalvsocc[jj * NTDRS + hh] && hsignalvsocc[jj * NTDRS + hh]->GetEntries() < 1.0) {
         //		  printf("deleting hsignalvsocc %d %d\n", jj, hh);
-        delete hsignalvsocc[jj * Event::NTDRS + hh];
+        delete hsignalvsocc[jj * NTDRS + hh];
       }
 
       for (int ss = 0; ss < 2; ss++) {
         //	printf("%d %d %d --> %f\n", jj, hh, ss, hcharge[jj*NTDRS+hh][ss]->GetEntries());
-        if (hcharge[jj * Event::NTDRS + hh][ss] && hcharge[jj * Event::NTDRS + hh][ss]->GetEntries() < 1.0) {
+        if (hcharge[jj * NTDRS + hh][ss] && hcharge[jj * NTDRS + hh][ss]->GetEntries() < 1.0) {
           //	  	  printf("deleting hcharge %d %d %d\n", jj, hh, ss);
-          delete hcharge[jj * Event::NTDRS + hh][ss];
+          delete hcharge[jj * NTDRS + hh][ss];
         }
-        if (hsignal[jj * Event::NTDRS + hh][ss] && hsignal[jj * Event::NTDRS + hh][ss]->GetEntries() < 1.0) {
+        if (hsignal[jj * NTDRS + hh][ss] && hsignal[jj * NTDRS + hh][ss]->GetEntries() < 1.0) {
           //	  	  printf("deleting hsignal %d %d %d\n", jj, hh, ss);
-          delete hsignal[jj * Event::NTDRS + hh][ss];
+          delete hsignal[jj * NTDRS + hh][ss];
         }
-        if (hson[jj * Event::NTDRS + hh][ss] && hson[jj * Event::NTDRS + hh][ss]->GetEntries() < 1.0) {
+        if (hson[jj * NTDRS + hh][ss] && hson[jj * NTDRS + hh][ss]->GetEntries() < 1.0) {
           //	  	  printf("deleting hson %d %d %d\n", jj, hh, ss);
-          delete hson[jj * Event::NTDRS + hh][ss];
+          delete hson[jj * NTDRS + hh][ss];
         }
       }
     }
@@ -367,6 +360,7 @@ int DecodeDataAMS::EndOfFile_data() {
 
   int eff = 0;
   unsigned short int dummy;
+  (void)dummy;
 
   if (rawfile) {
     dummy = 0; // without the declaration of this variable it's not working (not finding the end of the file!!!!!)
@@ -676,10 +670,10 @@ int DecodeDataAMS::ReadOneEvent_data() {
       return 1;
     if (pri || evpri)
       printf("Tdrs with no event Mask: %d\n", tdrnoeventmask);
-    for (int ii = 0; ii < Event::NTDRS; ii++) {
+    for (size_t ii = 0; ii < NTDRS; ii++) {
       if (tdrnoeventmask & (1 << ii)) {
         if (pri || evpri)
-          printf("A tdr (%02d) replied with no event...\n", ii);
+          printf("A tdr (%02ld) replied with no event...\n", ii);
         if (!out_flag) {
           //	  printf("tdrMap[%d].first = %d\n", ntdrRaw+ntdrCmp, ii+100*0);
           tdrMap[ntdrRaw + ntdrCmp].first =
@@ -691,9 +685,9 @@ int DecodeDataAMS::ReadOneEvent_data() {
         int tdrnum = FindPos(ii);
         //	  printf("%d\n", tdrnum);
         if (tdrnum >= 0)
-          printf("A tdr (%02d) replied...\n", ii);
+          printf("A tdr (%02ld) replied...\n", ii);
         else
-          printf("A tdr (%02d) didn't replied...\n", ii);
+          printf("A tdr (%02ld) didn't replied...\n", ii);
       }
     }
   }
@@ -711,8 +705,8 @@ int DecodeDataAMS::ReadOneEvent_data() {
 
 int DecodeDataAMS::ReadOneEvent_mc() {
 
-  int jinfnum=0;//MD: assuming only one Jinf
-  
+  int jinfnum = 0; // MD: assuming only one Jinf
+
   // if (evenum==5 || evenum==21 || evenum==26) {evenum++; return 0;}
   TRandom3 rn;
   double dEdX2ADC = 3.5e3;
@@ -732,7 +726,7 @@ int DecodeDataAMS::ReadOneEvent_mc() {
   if (!out_flag) {
 
     for (int ij = 0; ij < nJinf; ij++) {
-      JinfMap[ij] = 0; // MD: all Jinf put at 0, assuming only one jinf? 
+      JinfMap[ij] = 0; // MD: all Jinf put at 0, assuming only one jinf?
     }
     for (int ir = 0; ir < nlayers; ir++) {
       //      tdrRaw[ir]=ir;//Viviana
@@ -772,7 +766,7 @@ int DecodeDataAMS::ReadOneEvent_mc() {
     // for(int nh=0;nh<ntothits;nh++){ // ntothits>nlayers
     for (int nl = 0; nl < ntdrMC; nl++) { // nlayers
       // hvol[nh]=nh;      // now read
-      calib *cal = &(cals[nl]);
+      calibAMS *cal = &(cals[nl]);
       ev->TDRStatus[jinfnum][nl] = 999;
       ev->ReadTDR[jinfnum][nl] = 1;
       // calib* cal=&(cals[hvol[nh]]);
@@ -782,7 +776,7 @@ int DecodeDataAMS::ReadOneEvent_mc() {
       printf("ReadOneEventMC LAYER %d align: %d\n", nl, tdrAlign[nl]);
 
       /// hardcoded number of channels
-      for (int kk = 0; kk < Event::NVAS * Event::NCHAVA; kk++) {
+      for (size_t kk = 0; kk < NVAS * NCHAVA; kk++) {
         // for (int kk=0;kk<1024;kk++){
         ev->CalPed[jinfnum][nl][kk] = cal->ped[kk];
         ev->CalSigma[jinfnum][nl][kk] = cal->sig[kk];
@@ -810,10 +804,11 @@ int DecodeDataAMS::ReadOneEvent_mc() {
           // int sch=simChan->at(nhi)-112;
           // ev->RawSignal[hvol[nh]][sch]+=int(hitDep->at(nhi)*dEdX2ADC);
           ev->RawSignal[jinfnum][hvol[nh]][sch] += int(simDep->at(nhi) * dEdX2ADC);
-          ev->RawSoN[jinfnum][hvol[nh]][sch] = (ev->RawSignal[jinfnum][hvol[nh]][sch] / 8.0 - cal->ped[sch]) / cal->sig[sch];
+          ev->RawSoN[jinfnum][hvol[nh]][sch] =
+              (ev->RawSignal[jinfnum][hvol[nh]][sch] / 8.0 - cal->ped[sch]) / cal->sig[sch];
           if (pri)
-            printf("HITSIG %d: %d %f %f %f\n", sch, ev->RawSignal[jinfnum][hvol[nh]][sch], ev->RawSoN[jinfnum][hvol[nh]][sch],
-                   cal->ped[sch], cal->sig[sch]);
+            printf("HITSIG %d: %d %f %f %f\n", sch, ev->RawSignal[jinfnum][hvol[nh]][sch],
+                   ev->RawSoN[jinfnum][hvol[nh]][sch], cal->ped[sch], cal->sig[sch]);
           nhi++;
         }
 
@@ -848,8 +843,7 @@ int DecodeDataAMS::ReadOneEvent_mc() {
 
       printf("ReadOneEventMC clusterize hits of layer %d , hcl:%d \n", nl, hitclcount);
       // Clusterize(mtdrn, 0, cal);
-      Clusterize(nl, 0, cal);
-
+      Clusterize(nl, 0, ev, cal);
     } // ntdrMC = nlayers
 
     // update the event counters ...moved here
@@ -969,7 +963,7 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
         printf("DecodeDataAMS::ReadOneTDR::Cannot-Find-TDR-%d-RAW\n", numnum + 100 * Jinfnum);
         exit(4);
       }
-      calib *cal = &(cals[numnum + 100 * Jinfnum]);
+      calibAMS *cal = &(cals[numnum + 100 * Jinfnum]);
       for (int kk = 0; kk < 320; kk++) {
         ev->RawSignal[Jinfnum][tdrnumraw][kk] = array[count];           // first ADC on S
         ev->RawSignal[Jinfnum][tdrnumraw][320 + kk] = array[count + 1]; // second ADC on S
@@ -988,7 +982,8 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
         ev->CalStatus[Jinfnum][tdrnumraw][cc] = cal->status[cc];
         if (cal->sig[cc] > 0.125 && // not a dead channel
             cal->sig[cc] < 10.0) {  // not a noisy channel
-          ev->RawSoN[Jinfnum][tdrnumraw][cc] = (ev->RawSignal[Jinfnum][tdrnumraw][cc] / 8.0 - cal->ped[cc]) / cal->sig[cc];
+          ev->RawSoN[Jinfnum][tdrnumraw][cc] =
+              (ev->RawSignal[Jinfnum][tdrnumraw][cc] / 8.0 - cal->ped[cc]) / cal->sig[cc];
         } else {
           ev->RawSoN[Jinfnum][tdrnumraw][cc] = 0.0;
         }
@@ -1011,7 +1006,7 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
             // printf("%04d) %f\n", cc, ev->RawSoN[tdrnumraw][cc]);
             // this fills the histogram for the raw events when NOT clustering, if kClusterize anyhow, ALL the histos as
             // for the compressed data, will be filled
-            hocc[numnum + Event::NTDRS * Jinfnum]->Fill(cc, ev->RawSoN[Jinfnum][tdrnumraw][cc]);
+            hocc[numnum + NTDRS * Jinfnum]->Fill(cc, ev->RawSoN[Jinfnum][tdrnumraw][cc]);
             // hoccseed not filled in this case...
             // hcharge not filled in this case...
             // hsignal not filled in this case...
@@ -1024,7 +1019,7 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
 
       // this searches for clusters and if found Fill the histograms as in the CMP case
       if (kClusterize)
-        Clusterize(numnum, Jinfnum, cal);
+        Clusterize(numnum, Jinfnum, ev, cal);
     }
   }
 
@@ -1071,8 +1066,8 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
              !kClusterize) // we're not clusterizing offline, so is safe to AddCluster and is needed otherwise the
                            // cluster would be not present at all in the Tree
         ) {
-
-          AddCluster(numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
+          calibAMS *cal = &(cals[numnum + 100 * Jinfnum]);
+          AddCluster(ev, cal, numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
         }
       }
     }
@@ -1099,16 +1094,16 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
 void DecodeDataAMS::FindCalibs() {
 
   struct stat buf;
-  char name1[300];
-  char nameA[300];
-  char nameB[300];
-  char nameMC[300];
+  char name1[350];
+  char nameA[350];
+  char nameB[350];
+  char nameMC[350];
   int run2;
   int runA;
   int runB;
   int runMC = 0; // added by Viviana. MD: see if really needed
 
-  FILE *calfile[Event::NTDRS];
+  FILE *calfile[NTDRS];
   int old = pri;
   bool afterclose = false;
 
@@ -1189,26 +1184,33 @@ void DecodeDataAMS::FindCalibs() {
 
 //=============================================================================================
 
-int DecodeDataAMS::ReadCalib(FILE *fil, calib *cal) {
+int DecodeDataAMS::ReadCalib(FILE *fil, calibAMS *cal) {
 
   int a, b, c;
   float d, e;
-  for (int ii = 0; ii < 16; ii++)
-    fscanf(fil, "%d, %f, %f", &a, &d, &e);
-
+  bool failed = false;
+  for (int ii = 0; ii < 16; ii++) {
+    auto ret = fscanf(fil, "%d, %f, %f", &a, &d, &e);
+    if (!ret)
+      failed = true;
+  }
   for (int ii = 0; ii < 1024; ii++) {
-    fscanf(fil, "%d  %d  %d  %f %f %f %f %d  ", &a, &b, &c, &(cal->ped[ii]), &(cal->rsig[ii]), &(cal->sig[ii]), &d,
-           &(cal->status[ii]));
+    auto ret = fscanf(fil, "%d  %d  %d  %f %f %f %f %d  ", &a, &b, &c, &(cal->ped[ii]), &(cal->rsig[ii]),
+                      &(cal->sig[ii]), &d, &(cal->status[ii]));
+
+    if (!ret)
+      failed = true;
+
     if (pri)
       printf("%d  %f %f %f %d\n", ii, cal->ped[ii], cal->rsig[ii], cal->sig[ii], cal->status[ii]);
   }
 
-  return 1;
+  return !failed;
 }
 
 //=============================================================================================
 
-int DecodeDataAMS::ReadCalib_mc(FILE *fil, calib *cal) {
+int DecodeDataAMS::ReadCalib_mc(FILE *fil, calibAMS *cal) {
   // for now keeping kind of data like calibration file..
 
   // int a,b,c;
@@ -1222,7 +1224,7 @@ int DecodeDataAMS::ReadCalib_mc(FILE *fil, calib *cal) {
   */
 
   ////for (int ii=0;ii<1024;ii++){
-  for (int ii = 0; ii < Event::NVAS * Event::NCHAVA; ii++) {
+  for (size_t ii = 0; ii < NVAS * NCHAVA; ii++) {
 
     /*
                 fscanf(fil,"%d  %d  %d  %f %f %f %f %d  ",&a,&b,&c,
@@ -1337,10 +1339,10 @@ int DecodeDataAMS::ReadOneJINF() {
   ReadFile(&tdrnoeventmask, sizeof(tdrnoeventmask), 1, rawfile);
   if (pri || evpri)
     printf("Tdrs with no event Mask: %d\n", tdrnoeventmask);
-  for (int ii = 0; ii < Event::NTDRS; ii++) {
+  for (size_t ii = 0; ii < NTDRS; ii++) {
     if (tdrnoeventmask & (1 << ii)) {
       if (pri || evpri)
-        printf("A tdr (%d) replied with no event...\n", ii);
+        printf("A tdr (%ld) replied with no event...\n", ii);
       if (!out_flag) {
         tdrMap[ntdrRaw + ntdrCmp].first = ii + 100 * (status & 0x1f);
         tdrMap[ntdrRaw + ntdrCmp].second = 1;
@@ -1357,17 +1359,17 @@ int DecodeDataAMS::ReadOneJINF() {
   return 0;
 }
 
-int DecodeDataAMS::GetTdrNum(int pos) {
-  if (pos > Event::NJINF * Event::NTDRS) {
-    printf("Pos %d not allowed. Max is %d\n", pos, Event::NJINF * Event::NTDRS);
+int DecodeDataAMS::GetTdrNum(size_t pos) {
+  if (pos > NJINF * NTDRS) {
+    printf("Pos %ld not allowed. Max is %ld\n", pos, NJINF * NTDRS);
     return -9999;
   }
   return tdrMap[pos].first;
 }
 
-int DecodeDataAMS::GetTdrType(int pos) {
-  if (pos > Event::NJINF * Event::NTDRS) {
-    printf("Pos %d not allowed. Max is %d\n", pos, Event::NJINF * Event::NTDRS);
+int DecodeDataAMS::GetTdrType(size_t pos) {
+  if (pos > NJINF * NTDRS) {
+    printf("Pos %ld not allowed. Max is %ld\n", pos, NJINF * NTDRS);
     return -9999;
   }
   return tdrMap[pos].second;

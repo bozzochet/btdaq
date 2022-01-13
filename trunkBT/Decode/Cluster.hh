@@ -1,30 +1,33 @@
 #ifndef Cluster_hh
 #define Cluster_hh
 
-#include "TObject.h"
 #include "math.h"
+
+#include "TObject.h"
+
+#include "LadderConf.hh"
 
 #define MAXLENGHT 128
 
-//110mum and 208mum
+// 110mum and 208mum
 /// now READOUT PITCH
-#define SPITCH 0.220//0.110//0.220
+#define SPITCH 0.220 // 0.110//0.220
 //#define KPITCH 0.208
-#define KPITCH 0.22//0.208//0.220  // Viviana: fake K. MD: Ladderconf must override it
+#define KPITCH 0.22 // 0.208//0.220  // Viviana: fake K. MD: Ladderconf must override it
 
-//10mum and 30mum
+// 10mum and 30mum
 #define SRESO 0.030
 //#define KRESO 0.030
-#define KRESO 0.03//0.010  // Viviana: fake K. MD: Ladderconf must override it
+#define KRESO 0.03 // 0.010  // Viviana: fake K. MD: Ladderconf must override it
 
 // Viviana: originally was 640 and 384 channels
 //#define SCHANN 640
-#define SCHANN 2048//4096 // 50cmx50cm sensors
+#define SCHANN 2048 // 4096 // 50cmx50cm sensors
 //#define KCHANN 384
 #define KCHANN 2048 // fake K same 50x50cm sensors
 // MD: we have to make it general
 
-//https://twiki.cern.ch/twiki/pub/Sandbox/HerdBT/HERDBT_Silicon_detector_details.pdf
+// https://twiki.cern.ch/twiki/pub/Sandbox/HerdBT/HERDBT_Silicon_detector_details.pdf
 
 #define KREADCHANN 192
 #define KSENSPITCH 41.40
@@ -40,19 +43,29 @@
 
 static double MIPSIG[2] = {40.0, 40.0};
 
+struct ClusterSummary {
+  unsigned int ladder;
+  unsigned int side;
+  double signal;
+  double charge;
+  double son;
+};
+
 //!  Tracker Cluster class.
 /*!  Tracker Cluser class contains all the information about a Cluster
  */
 
-//class Event;//forward declaration
+// class Event;//forward declaration
 
-class Cluster :public TObject{
+class Cluster : public TObject {
 
 private:
   float GetCSignal(int aa);
 
   int GetReadChannelK() { return KREADCHANN; };
   float GetSensPitchK() { return KSENSPITCH; };
+
+  LadderConf *m_ladderConf; //!
 
 public:
   //! Adress of the first strip of the cluster
@@ -72,7 +85,7 @@ public:
   //! Ladder (trdnum + 100*jinfnum)
   int ladder;
   //! side (0=S, 1=K)
-  int side; //0 S / 1 K
+  int side; // 0 S / 1 K
   //! cluster > MAXLENGHT strips
   int bad;
   //! Golden Flag
@@ -90,7 +103,7 @@ public:
   static double GetNominalResolution(int jinfnum, int tdrnum, int side);
   // static double GetPitch(int side){ return (side==0)?SPITCH:KPITCH; };
   // static double GetNominalResolution(int side){ return (side==0)?SRESO:KRESO; };
-  static int GetNChannels(int side){ return (side==0)?SCHANN:KCHANN; };
+  static int GetNChannels(int side) { return (side == 0) ? SCHANN : KCHANN; };
 
   //! Get the VA a single strip belongs to from its address
   static int GetVA(int strip_address);
@@ -98,22 +111,23 @@ public:
   //! std constructor (create an empty cluster)
   Cluster();
   //! copy constructor
-  Cluster(Cluster & orig);
+  Cluster(Cluster &orig);
   //! std destructor
-  virtual  ~Cluster() {};
+  virtual ~Cluster(){};
   //! Fill the hit object with the right infos
-  void Build(int lad, int sid, int add, int len, float* sig, float* noi, int* stat, int Sig2NoiRatio, int CNStatus, int PowBits, int badin=0);
+  void Build(int lad, int sid, int add, int len, float *sig, float *noi, int *stat, int Sig2NoiRatio, int CNStatus,
+             int PowBits, int badin = 0);
   //! reset the cluster object
   void Clear();
   //! Returns the address of the first strip in the cluster
   int GetAddress();
-    //! Returns the lenght of the cluster
-  int   GetLength();
-  int   GetLength(float val);
+  //! Returns the lenght of the cluster
+  int GetLength();
+  int GetLength(float val);
   //! Returns the position of the seed in the Signal vector
-  int   GetSeed();
+  int GetSeed();
   //! Returns the strip number of the seed
-  int   GetSeedAdd();
+  int GetSeedAdd();
   //! Returns the signal of the seed strip
   float GetSeedVal();
   //! Returns the SN of the seed strip
@@ -138,7 +152,7 @@ public:
   void ApplyVAEqualization();
 
   //! Returns the position of the cluster (Cog), in mm units and after alignment
-  double GetAlignedPosition(int mult=0);
+  double GetAlignedPosition(int mult = 0);
   //! Viviana: Returns the position of the cluster (Cog), in mm units and after alignment for MC
   // MD: cannot be like this. Must be general
   double GetAlignedPositionMC();
@@ -146,16 +160,18 @@ public:
   //! Returns the Z position
   double GetZPosition();
 
-  double GetSeedCharge() { return sqrt(GetSeedVal())/sqrt(MIPSIG[side]); };
-  double GetCharge() { return sqrt(GetTotSig())/sqrt(MIPSIG[side]); };
+  double GetSeedCharge() { return sqrt(GetSeedVal()) / sqrt(MIPSIG[side]); };
+  double GetCharge() { return sqrt(GetTotSig()) / sqrt(MIPSIG[side]); };
 
   int GoldRegion();
   bool BorderRegion();
 
-  int GetTDR() { return ladder%100;};
-  int GetJinf() { return (int)(ladder/100);};
+  void SetLadderConf(LadderConf *lConf) { m_ladderConf = lConf; }
 
-  ClassDef(Cluster,2)
+  int GetTDR() { return ladder % 100; };
+  int GetJinf() { return (int)(ladder / 100); };
+
+  ClassDef(Cluster, 2)
 };
 
 #endif

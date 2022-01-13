@@ -12,23 +12,23 @@ struct LadderParams {
   // HwId is the combination of 2 elements in ladder conf
   // Ladderconf version 0 has  9 _nelements
   // Ladderconf version 1 has 10 _nelements
-  // Ladderconf version 2 has 14 _nelements 
+  // Ladderconf version 2 has 14 _nelements
   static const int _nelements = 14;
-  int    _HwId;
+  int _HwId;
   double _spitch;
   double _kpitch;
   double _sreso;
   double _kreso;
-  bool   _kmultiflip;
-  bool   _smirror;
-  bool   _kmirror;
-  int    _bondtype;
+  bool _kmultiflip;
+  bool _smirror;
+  bool _kmirror;
+  int _bondtype;
   double _shithresh;
   double _khithresh;
   double _slothresh;
   double _klothresh;
 
-  void Dump(){
+  void Dump() {
     std::cout << "HwID       = " << _HwId << std::endl;
     std::cout << "spitch     = " << _spitch << std::endl;
     std::cout << "kpitch     = " << _kpitch << std::endl;
@@ -47,10 +47,17 @@ struct LadderParams {
 
 class LadderConf {
 public:
-  LadderConf();
+  static LadderConf *Instance() {
+    static LadderConf instance;
+    return &instance;
+  };
   ~LadderConf();
 
-  void Init(TString conffilename="ladderconf.dat", bool DEBUG=false);
+  void Init(TString conffilename = "ladderconf.dat", bool DEBUG = false);
+  void InitSize(size_t nJinf, size_t nTdrs) {
+    NJINF = nJinf;
+    NTDRS = nTdrs;
+  }
 
   bool GetMultiplicityFlip(int jinfnum, int tdrnum);
   bool GetStripMirroring(int jinfnum, int tdrnum, int side);
@@ -61,15 +68,18 @@ public:
   double GetKHiThreshold(int jinfnum, int tdrnum);
   double GetSLoThreshold(int jinfnum, int tdrnum);
   double GetKLoThreshold(int jinfnum, int tdrnum);
-  
+
   bool IsTDRConfigured(int jinfnum, int tdrnum);
   bool IsTDRConfigured(int HwId);
-  
+
   void PrintLadderParams(int jinfnum, int tdrnum);
-  
+
 private:
-  std::map<int, LadderParams*> _ladders;
-  
+  LadderConf();
+  std::map<int, LadderParams *> _ladders;
+
+  size_t NJINF;
+  size_t NTDRS;
 };
 
 #endif

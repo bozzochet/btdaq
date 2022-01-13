@@ -7,6 +7,17 @@
 
 #include "Cluster.hh"
 #include "DataTypes.hh"
+#include "EventUtils.hh"
+#include "LadderConf.hh"
+#include "RHClass.hh"
+
+struct FlavorConfig {
+  size_t NJINF;
+  size_t NTDRS;
+  size_t NCHAVA;
+  size_t NADCS;
+  size_t NVAS;
+};
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS> class GenericEvent : public TObject {
   // handy shortcuts for common types
@@ -17,6 +28,7 @@ template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS> 
 
 public:
   friend class DecodeData;
+  friend class DecodeDataAMS;
   friend class DecodeDataOCA;
   friend class DecodeDataFOOT;
 
@@ -27,21 +39,12 @@ public:
   //! Default destructor
   ~GenericEvent();
 
-  // TODO: check if can be removed [VF]
-  //  // saved on disk, used as array size for the streamers
-  //  int _NJINF = NJINF;
-  //  int _NTDRS = NTDRS;
-  //  int _NCHAVA = NCHAVA;
-  //  int _NADCS = NADCS;
-  //  int _NVAS = NVAS;
-  //  int _NCHA = NCHAVA * NVAS; //is needed for the array size as said before
-
-  static constexpr size_t GetNJINF(){ return NJINF; }
-  static constexpr size_t GetNTDRS(){ return NTDRS; }
-  static constexpr size_t GetNADCS(){ return NADCS; }
-  static constexpr size_t GetNCHAVA(){ return NCHAVA; }
-  static constexpr size_t GetNVAS(){ return NVAS; }
-  static constexpr size_t GetNCH(){ return NVAS * NCHAVA; }
+  static constexpr size_t GetNJINF() { return NJINF; }
+  static constexpr size_t GetNTDRS() { return NTDRS; }
+  static constexpr size_t GetNADCS() { return NADCS; }
+  static constexpr size_t GetNCHAVA() { return NCHAVA; }
+  static constexpr size_t GetNVAS() { return NVAS; }
+  static constexpr size_t GetNCH() { return NVAS * NCHAVA; }
 
   //! Clear the event
   void Clear();
@@ -53,23 +56,16 @@ public:
 
   inline int GetNClusTot() { return NClusTot; };
 
-  static double ComputeCN(int size, shortint *RawSignal, float *pede, float *RawSoN, int *status,
+  static double ComputeCN(int size, short int *RawSignal, float *pede, float *RawSoN, int *status,
                           double threshold = 3.0);
 
   //  int NGoldenClus(int lad, int side);
   //! Load LadderConf parameter from an ASCII file
   static void ReadLadderConf(TString filename, bool DEBUG = false);
-  //! Get Gain Correction "component" for the vanum VA of the tdrnum TDR for the jinfnum JINF
-  static LadderConf *GetLadderConf() { return ladderconf; };
   //! Load Alignment parameter from an ASCII file
   static void ReadAlignment(TString filename, bool DEBUG = false);
-  //! Get Alignment parameter "component" for the tdrnum TDR of the jinfnum JINF
-  static float GetAlignPar(int jinfnum, int tdrnum, int component);
-  static float GetMultiplicityFlip(int jinfnum, int tdrnum);
   //! Load VA Gain Correction from an ASCII file
   static void ReadGainCorrection(TString filename, bool DEBUG = false);
-  //! Get Gain Correction "component" for the vanum VA of the tdrnum TDR for the jinfnum JINF
-  static float GetGainCorrectionPar(int jinfnum, int tdrnum, int vanum, int component);
 
   void ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side,
                            bool verbose = true); // to be called just one, before event loop, or, for a "temporary ban"
@@ -105,12 +101,12 @@ public:
   float GetRawSoN_PosNum(int tdrposnum, int channel, int Jinfnum = 0);
   double GetCalStatus_PosNum(int tdrposnum, int va, int Jinfnum = 0);
 
-  double GetCalPed(RHClass *rh, int tdrnum, int channel, int Jinfnum = 0);
-  double GetCalSigma(RHClass *rh, int tdrnum, int channel, int Jinfnum = 0);
-  double GetRawSignal(RHClass *rh, int tdrnum, int channel, int Jinfnum = 0);
-  double GetCN(RHClass *rh, int tdrnum, int va, int Jinfnum = 0);
-  float GetRawSoN(RHClass *rh, int tdrnum, int channel, int Jinfnum = 0);
-  double GetCalStatus(RHClass *rh, int tdrposnum, int va, int Jinfnum = 0);
+  double GetCalPed(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum = 0);
+  double GetCalSigma(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum = 0);
+  double GetRawSignal(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum = 0);
+  double GetCN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int va, int Jinfnum = 0);
+  float GetRawSoN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum = 0);
+  double GetCalStatus(RHClass<NJINF, NTDRS> *rh, int tdrposnum, int va, int Jinfnum = 0);
   // CB:
   bool FindTracksAndVertex(bool vertex = false);
   std::pair<double, double> GetVertexK();
@@ -122,13 +118,8 @@ public:
 
 private:
   static bool ladderconfnotread;
-  static LadderConf *ladderconf;
   static bool alignmentnotread;
-  static TdrArray<float[3]> alignpar;
-  static TdrArray<bool> multflip;
-
   static bool gaincorrectionnotread;
-  static VAArray<float[2]> gaincorrectionpar;
 
   double CombinatorialFit(std::vector<std::pair<int, std::pair<double, double>>> **v_cog_laddS,
                           std::vector<std::pair<int, std::pair<double, double>>> **v_cog_laddK, int ijinf, int itdr,
@@ -238,5 +229,4 @@ private:
 
   ClassDef(GenericEvent, 1)
 };
-
 #endif
