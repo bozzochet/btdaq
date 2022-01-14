@@ -27,7 +27,7 @@ private:
   char rawname[300];
   char rawdir[300];
   char rawCaldir[300];
-  int tdroffset{0};
+  // int tdroffset{0};
   calibAMS cals[EventAMS::GetNJINF() * EventAMS::GetNTDRS()]{};
   int nJinf{0};
   EventAMS::JArray<int> JinfMap{0};
@@ -91,6 +91,7 @@ public:
     return {EventAMS::GetNJINF(), EventAMS::GetNTDRS(), EventAMS::GetNCHAVA(), EventAMS::GetNADCS(),
             EventAMS::GetNVAS()};
   };
+  virtual TString EventClassname() final {return ev->ClassName(); };
 
   virtual int GetTdrNum(size_t pos) final;
   virtual int GetTdrType(size_t pos) final;
