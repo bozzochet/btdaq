@@ -22,6 +22,7 @@ public:
     return {EventFOOT::GetNJINF(), EventFOOT::GetNTDRS(), EventFOOT::GetNCHAVA(), EventFOOT::GetNADCS(),
             EventFOOT::GetNVAS()};
   };
+  virtual TString EventClassname() final {return ev->ClassName(); };
 
   int ReadOneEvent() override;
   virtual void ClearEvent() final { ev->Clear(); };

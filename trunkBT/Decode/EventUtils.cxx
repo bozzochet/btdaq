@@ -21,9 +21,9 @@ void GainCorrectionPars::InitSize(size_t nJinf, size_t nTdr, size_t nVA) {
 
   for (size_t iJ = 0; iJ < nJinf; ++iJ) {
     m_pars[iJ].resize(nTdr);
-    for (size_t iT = 0; iT < nJinf; ++iT) {
+    for (size_t iT = 0; iT < nTdr; ++iT) {
       m_pars[iJ][iT].resize(nVA);
-      for (size_t iV = 0; iV < nJinf; ++iV) {
+      for (size_t iV = 0; iV < nVA; ++iV) {
         m_pars[iJ][iT][iV][0] = 0.0;
         m_pars[iJ][iT][iV][1] = 0.0;
       }
@@ -90,7 +90,7 @@ void AlignmentPars::InitSize(size_t nJinf, size_t nTdr) {
   for (size_t iJ = 0; iJ < nJinf; ++iJ) {
     m_pars[iJ].resize(nTdr);
     m_multflip[iJ].resize(nTdr);
-    for (size_t iT = 0; iT < nJinf; ++iT) {
+    for (size_t iT = 0; iT < nTdr; ++iT) {
       m_pars[iJ][iT][0] = 0.0;
       m_pars[iJ][iT][1] = 0.0;
       m_pars[iJ][iT][2] = 0.0;

@@ -23,7 +23,7 @@
 using namespace std;
 
 AnyOption *opt; // Handle the option input
-char progname[50];
+char progname[300];
 
 void CreatePdfWithPlots(DecodeData *dd1, char *pdf_filename);
 void PlotsWithFits(TH1 *histo, char *name, char *title, char *pdf_filename);
@@ -252,17 +252,17 @@ int main(int argc, char **argv) {
   if (kOca) {
     auto *dd = new DecodeDataOCA(DirRaw, DirCal, run);
     fConf = dd->FlavorConfig();
-    t4->Branch("cluster_branch", "Event", &(dd->ev), 64000, 2);
+    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), 64000, 2);
     dd1 = static_cast<DecodeData *>(dd);
   } else if (kFoot) {
     auto *dd = new DecodeDataFOOT(DirRaw, DirCal, run);
     fConf = dd->FlavorConfig();
-    t4->Branch("cluster_branch", "Event", &(dd->ev), 64000, 2);
+    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), 64000, 2);
     dd1 = static_cast<DecodeData *>(dd);
   } else {
     auto *dd = new DecodeDataAMS(DirRaw, DirCal, run, ancillary, kMC);
     fConf = dd->FlavorConfig();
-    t4->Branch("cluster_branch", "Event", &(dd->ev), 64000, 2);
+    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), 64000, 2);
     dd1 = static_cast<DecodeData *>(dd);
   }
 

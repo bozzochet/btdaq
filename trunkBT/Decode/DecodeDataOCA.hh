@@ -22,6 +22,7 @@ public:
     return {EventOCA::GetNJINF(), EventOCA::GetNTDRS(), EventOCA::GetNCHAVA(), EventOCA::GetNADCS(),
             EventOCA::GetNVAS()};
   };
+  virtual TString EventClassname() final {return ev->ClassName(); };
 
   virtual int ReadOneEvent() final;
   virtual void ClearEvent() final { ev->Clear(); };

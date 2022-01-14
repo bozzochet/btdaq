@@ -124,6 +124,7 @@ public:
   virtual ~DecodeData() = default;
 
   virtual ::FlavorConfig FlavorConfig() = 0;
+  virtual TString EventClassname() = 0;
 
   // generic
   template <class Event, class calib>
