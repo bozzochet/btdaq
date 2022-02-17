@@ -504,52 +504,6 @@ int DecodeDataAMS::ReadOneEvent_data() {
   if (pri)
     printf("ReadOneEvent) pos:%ld\n ", ftell(rawfile) / 2);
 
-#ifdef CALOCUBE
-  int header_size;
-  fstat = ReadFile(&header_size, sizeof(int), 1, rawfile);
-  if (fstat != 1)
-    return 1;
-  if (header_size != (int)sizeof(wholeheader)) { // not clear to me why he's always reading this kind of header: TIC
-                                                 // data where collected with the other header...
-    printf("Warning : the size of wholeheader is %d instead of the expected value %d\n", header_size,
-           (int)sizeof(wholeheader));
-    return 1;
-  }
-
-  wholeheader calocube_header;
-  fstat = ReadFile(&calocube_header, sizeof(wholeheader), 1, rawfile);
-  if (fstat == -1)
-    return 1;
-    /*
-  cout << hex << endl;
-  cout << "Header SIZE = " << calocube_header.SIZE << endl;
-  cout << "Header RRRWNODETYPE = " << calocube_header.RRRWNODETYPE << endl;
-  cout << "Header FBITAG = " << calocube_header.FBITAG << endl;
-  cout << "Header TIMEMSB = " << calocube_header.TIMEMSB << endl;
-  cout << "Header TIMELSB = " << calocube_header.TIMELSB << endl;
-  cout << "Header JMDCSIZE = " << calocube_header.JMDCSIZE << endl;
-  cout << "Header JMDCRRRWNODETYPE = " << calocube_header.JMDCRRRWNODETYPE << endl;
-  cout << "Header RUNNUMMSB = " << calocube_header.RUNNUMMSB << endl;
-  cout << "Header RUNNUMLSB = " << calocube_header.RUNNUMLSB << endl;
-  cout << "Header RUNTAGMSB = " << calocube_header.RUNTAGMSB << endl;
-  cout << "Header RUNTAGLSB = " << calocube_header.RUNTAGLSB << endl;
-  cout << "Header EVTNUMMSB = " << calocube_header.EVTNUMMSB << endl;
-  cout << "Header EVTNUMLSB = " << calocube_header.EVTNUMLSB << endl;
-  cout << "Header JMDCTIMEMSB = " << calocube_header.JMDCTIMEMSB << endl;
-  cout << "Header JMDCTIMELSB = " << calocube_header.JMDCTIMELSB << endl;
-  cout << "Header JMDCTIMEFINEMSB = " << calocube_header.JMDCTIMEFINEMSB << endl;
-  cout << "Header JMDCTIMEFINELSB = " << calocube_header.JMDCTIMEFINELSB << endl;
-  int time_s = (int)(calocube_header.JMDCTIMEMSB*pow(2, 16)+calocube_header.JMDCTIMELSB);
-  int time_u = (int)(calocube_header.JMDCTIMEFINEMSB*pow(2, 16)+calocube_header.JMDCTIMEFINELSB);
-  time_t date_time = time_s;
-  cout << "Equivalent to \n\t" << dec << asctime(localtime(&date_time)) <<
-                  "\t\t and " << time_u << " usec " << hex << endl;
-  cout << "Header GReservedGroups = " << calocube_header.GReservedGroups << endl;
-  cout << "Header DSPSIZE = " << calocube_header.DSPSIZE << endl;
-  cout << "Header DSPRRRWNODETYPE = " << calocube_header.DSPRRRWNODETYPE << endl;
-  */
-#endif
-
   fstat = ReadFile(&size, sizeof(size), 1, rawfile);
   if (fstat == -1)
     return 1;
@@ -947,7 +901,7 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
     ev->ReadTDR[Jinfnum][tdrnum] = 1;
 
   int RawOffset = 0;
-  if (TESTBIT(array[size - 1], 6)) {
+  if (TESTBIT(array[size - 1], 6)) { // RAW data present
     //    printf("size = %d\n", size);
     //    sleep(10);
     RawOffset = 1024; // RAW data present
@@ -988,31 +942,14 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
           ev->RawSoN[Jinfnum][tdrnumraw][cc] = 0.0;
         }
       }
-
-      for (int cc = 0; cc < 1024; cc++) {
-        //	if (!kClusterize) {//otherwise the histos will be filled better with the clusters
-        if (!(                                 // reverse the following conditions/staments
-                TESTBIT(array[size - 1], 7) || // if we're purely RAW is better to fill the histograms also in this
-                                               // "naive" way (weighting of strip by signal). But if we're also in CMP
-                                               // (-> we're in MIXED), the compressed ones would be better
-                kClusterize // if we're clusterizing the RAW event is better to fill the histograms with the clusters
-                )) {
-          double threshold = shighthreshold;
-          if (cc >= 640)
-            threshold = khighthreshold;
-          if (ev->RawSoN[Jinfnum][tdrnumraw][cc] > threshold) {
-            //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->RawSignal[tdrnumraw][cc])/8.0, cal->ped[cc],
-            // cal->sig[cc], (ev->RawSignal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
-            // printf("%04d) %f\n", cc, ev->RawSoN[tdrnumraw][cc]);
-            // this fills the histogram for the raw events when NOT clustering, if kClusterize anyhow, ALL the histos as
-            // for the compressed data, will be filled
-            hocc[numnum + NTDRS * Jinfnum]->Fill(cc, ev->RawSoN[Jinfnum][tdrnumraw][cc]);
-            // hoccseed not filled in this case...
-            // hcharge not filled in this case...
-            // hsignal not filled in this case...
-            // hson not filled in this case...
-          }
-        }
+      
+      //	if (!kClusterize) {//otherwise the histos will be filled better with the clusters
+      if (!TESTBIT(array[size - 1], 7) && // if we're purely RAW is better to fill the histograms also in this
+	  // "naive" way (weighting of strip by signal). But if we're also in CMP
+	  // (-> we're in MIXED), the compressed ones would be better
+	  !kClusterize // if we're clusterizing the RAW event is better to fill the histograms with the clusters
+	  ) {
+	FillRawHistos(numnum, Jinfnum, ev, cal);
       }
 
       //      printf("%d %f %f %f %f\n", kClusterize, shighthreshold, slowthreshold, khighthreshold, klowthreshold);
@@ -1067,6 +1004,7 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
                            // cluster would be not present at all in the Tree
         ) {
           calibAMS *cal = &(cals[numnum + 100 * Jinfnum]);
+	  //AddCluster is also taking care of filling the histos
           AddCluster(ev, cal, numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
         }
       }

@@ -104,8 +104,10 @@ int DecodeData::ReadFile(void *ptr, size_t size, size_t nitems, FILE *stream) {
   int ret = 0;
   ret = fread(ptr, size, nitems, stream);
   if (feof(stream)) {
-    if (pri)
+    if (pri) {
+      printf("\n");
       printf("End of File \n");
+    }
     return -1;
   }
   if (ferror(stream)) {

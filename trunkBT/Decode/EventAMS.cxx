@@ -1,6 +1,6 @@
 #include "GenericEvent.hpp"
 
-using EventAMS = GenericEvent<1, 24, 64, 3, 16>;
+using EventAMS = GenericEvent<1, 24, 64, 3, 16, 10>;
 using RHClassAMS = RHClass<EventAMS::GetNJINF(), EventAMS::GetNTDRS()>;
 
 ClassImp(RHClassAMS);

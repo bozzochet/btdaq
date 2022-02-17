@@ -8,8 +8,11 @@
 
 #pragma link C++ class Cluster + ;
 #pragma link C++ class RHClass < 1, 24> + ;
-#pragma link C++ class GenericEvent < 1, 24, 64, 3, 16> + ;
-#pragma link C++ class GenericEvent < 1, 24, 64, 5, 10> + ;
-#pragma link C++ class GenericEvent < 1, 24, 64, 5, 10> + ;
+//AMS
+#pragma link C++ class GenericEvent < 1, 24, 64, 3, 16, 10> + ;
+//OCA
+#pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0> + ;
+//FOOT
+#pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0> + ;
 
 #endif

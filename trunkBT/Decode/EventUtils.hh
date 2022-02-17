@@ -37,7 +37,7 @@ public:
   }
   ~GainCorrectionPars() = default;
 
-  void InitSize(size_t nJinf, size_t nTdr, size_t nVA);
+  void InitSize(size_t nJinf, size_t nTdr, size_t nVA_S, size_t nVA_K);
   void Init(const std::string &filename);
   float GetPar(size_t jinfnum, size_t tdrnum, size_t vanum, size_t parnum) {
     return m_pars[jinfnum][tdrnum][vanum][parnum];

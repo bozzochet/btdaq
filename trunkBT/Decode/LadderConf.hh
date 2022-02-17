@@ -13,8 +13,8 @@ struct LadderParams {
   // Ladderconf version 0 has  9 _nelements
   // Ladderconf version 1 has 10 _nelements
   // Ladderconf version 2 has 14 _nelements
-  static const int _nelements = 14;
-  int _HwId;
+  static const int _nelements = 15;
+  int _HwId;//two elements
   double _spitch;
   double _kpitch;
   double _sreso;
@@ -27,6 +27,7 @@ struct LadderParams {
   double _khithresh;
   double _slothresh;
   double _klothresh;
+  bool _sideswap;
 
   void Dump() {
     std::cout << "HwID       = " << _HwId << std::endl;
@@ -42,6 +43,7 @@ struct LadderParams {
     std::cout << "khithresh  = " << _shithresh << std::endl;
     std::cout << "slothresh  = " << _slothresh << std::endl;
     std::cout << "klothresh  = " << _slothresh << std::endl;
+    std::cout << "sideswap   = " << _sideswap << std::endl;
   }
 };
 
@@ -68,6 +70,7 @@ public:
   double GetKHiThreshold(int jinfnum, int tdrnum);
   double GetSLoThreshold(int jinfnum, int tdrnum);
   double GetKLoThreshold(int jinfnum, int tdrnum);
+  bool GetSideSwap(int jinfnum, int tdrnum);
 
   bool IsTDRConfigured(int jinfnum, int tdrnum);
   bool IsTDRConfigured(int HwId);

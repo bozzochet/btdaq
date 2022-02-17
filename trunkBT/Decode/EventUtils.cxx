@@ -16,14 +16,14 @@ using namespace std;
 
 //#define USEMINUIT
 
-void GainCorrectionPars::InitSize(size_t nJinf, size_t nTdr, size_t nVA) {
+void GainCorrectionPars::InitSize(size_t nJinf, size_t nTdr, size_t nVA_S, size_t nVA_K) {
   m_pars.resize(nJinf);
 
   for (size_t iJ = 0; iJ < nJinf; ++iJ) {
     m_pars[iJ].resize(nTdr);
     for (size_t iT = 0; iT < nTdr; ++iT) {
-      m_pars[iJ][iT].resize(nVA);
-      for (size_t iV = 0; iV < nVA; ++iV) {
+      m_pars[iJ][iT].resize(nVA_S+nVA_K);
+      for (size_t iV = 0; iV < (nVA_S+nVA_K); ++iV) {
         m_pars[iJ][iT][iV][0] = 0.0;
         m_pars[iJ][iT][iV][1] = 0.0;
       }

@@ -15,7 +15,7 @@
 
 class DecodeDataAMS : public DecodeData {
 public:
-  using EventAMS = GenericEvent<1, 24, 64, 3, 16>;
+  using EventAMS = GenericEvent<1, 24, 64, 3, 16, 10>;
   using RHClassAMS = RHClass<EventAMS::GetNJINF(), EventAMS::GetNTDRS()>;
   using calibAMS = calib<EventAMS::GetNCHAVA() * EventAMS::GetNVAS()>;
 
