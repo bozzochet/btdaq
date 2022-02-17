@@ -1,7 +1,7 @@
 CXX := $(shell root-config --cxx)
 
 CLASSES = Cluster.hh LadderConf.hh EventUtils.hh 
-TEMPLATE_CLASSES = GenericEvent.hh
+TEMPLATE_CLASSES = GenericEvent.hh GenericEvent.hpp
 
 DEC_SOURCES = DecodeData.cxx DecodeDataAMS.cxx DecodeDataOCA.cxx DecodeDataFOOT.cxx EventAMS.cxx EventOCA.cxx FSUtils.cxx main.cxx rootElibdict.cxx
 DEC_SOURCES+= $(CLASSES:%.hh=%.cxx)
@@ -44,7 +44,7 @@ else
 	SOFLAGS = -shared
 endif
 
-all: Decode lib
+all: Decode lib PlotCalib
 
 lib: libEvent.so libEventa.a
 
@@ -55,6 +55,7 @@ libEventa.a:$(LIB_OBJ)
 	@ar rv $@ $^
 
 Decode: $(ANYOPTION)/anyoption.o $(DEC_OBJ)
+	@echo Linking $@ ...;
 	@$(CXX) $(LDFLAGS) -o$@ $^ -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
 
 obj/%.o:%.cxx
@@ -69,7 +70,12 @@ rootElibdict.cxx: $(CLASSES) $(TEMPLATE_CLASSES) LinkDef.h
 	@echo Creating ROOT dictionary
 	@$(ROOTSYS)/bin/rootcint -f $@ $(CFLAGSFORCINT) $^
 
+PlotCalib: obj/summary.o
+	@echo Linking $@ ...;
+	@$(CXX) $(LDFLAGS) -o$@ $^ -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
+	ln -fs $@ $@Mute
+
 clean:
-	@rm -Rfv libEventa.a libEvent.so Decode rootElibdict.cxx rootElibdict.h obj
+	@rm -Rfv libEventa.a libEvent.so Decode rootElibdict.cxx rootElibdict.h obj PlotCalib PlotCalibMute
 	make -C $(ANYOPTION) clean
 	@rm -f rootElibdict_rdict.pcm

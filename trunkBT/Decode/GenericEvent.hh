@@ -16,15 +16,16 @@ struct FlavorConfig {
   size_t NTDRS;
   size_t NCHAVA;
   size_t NADCS;
-  size_t NVAS;
+  size_t NVASS;
+  size_t NVASK;
 };
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS> class GenericEvent : public TObject {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK> class GenericEvent : public TObject {
   // handy shortcuts for common types
   template <typename T> using JArray = Array1<T, NJINF>;
   template <typename T> using TdrArray = Array2<T, NJINF, NTDRS>;
-  template <typename T> using VAArray = Array3<T, NJINF, NTDRS, NVAS>;
-  template <typename T> using ChArray = Array3<T, NJINF, NTDRS, NCHAVA * NVAS>;
+  template <typename T> using VAArray = Array3<T, NJINF, NTDRS, NVASS+NVASK>;
+  template <typename T> using ChArray = Array3<T, NJINF, NTDRS, NCHAVA*(NVASS+NVASK)>;
 
 public:
   friend class DecodeData;
@@ -43,8 +44,10 @@ public:
   static constexpr size_t GetNTDRS() { return NTDRS; }
   static constexpr size_t GetNADCS() { return NADCS; }
   static constexpr size_t GetNCHAVA() { return NCHAVA; }
-  static constexpr size_t GetNVAS() { return NVAS; }
-  static constexpr size_t GetNCH() { return NVAS * NCHAVA; }
+  static constexpr size_t GetNVAS() { return NVASS+NVASK; }
+  static constexpr size_t GetNVASS() { return NVASS; }
+  static constexpr size_t GetNVASK() { return NVASK; }
+  static constexpr size_t GetNCH() { return (NVASS+NVASK)*NCHAVA; }
 
   //! Clear the event
   void Clear();
@@ -116,6 +119,8 @@ public:
   void RecombineXY(double);
   // TH2F* h1;
 
+  int GetEvtnum() { return Evtnum;} ;
+  
 private:
   static bool ladderconfnotread;
   static bool alignmentnotread;
@@ -185,11 +190,11 @@ private:
   TdrArray<short> ReadTDR{{0}};
 
   //------------CB:qui salvo gli output di FindTracksAndVertex()------------//
-  int _NTrks;
-  trackColl _TrS;
-  trackColl _TrK;
-  std::pair<double, double> _vertexK;
-  std::pair<double, double> _vertexS;
+  int _NTrks;//!
+  trackColl _TrS;//!
+  trackColl _TrK;//!
+  std::pair<double, double> _vertexK;//!
+  std::pair<double, double> _vertexS;//!
 
   // track parameters and points
   double _chisq;    //!

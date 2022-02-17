@@ -410,12 +410,14 @@ int DecodeDataFOOT::ReadOneEvent() {
 
   int retVal = ReadOneEventFromFile(rawfile, ev);
 
-  // clusterize!
-  // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this
-  // point, so it should return.
-  for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
-    printf("Cluterizing detector %i\n", iTDR);
-    Clusterize(iTDR, 0, ev, &cals[iTDR]);
+  if (kClusterize) {
+    // clusterize!
+    // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this
+    // point, so it should return.
+    for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
+      printf("Cluterizing detector %i\n", iTDR);
+      Clusterize(iTDR, 0, ev, &cals[iTDR]);
+    }
   }
 
   return retVal;

@@ -45,6 +45,8 @@ int main(int argc, char **argv) {
   bool kOca = false;
   bool kFoot = false;
 
+  bool kOnlyProcessCal = false;
+  
   bool kClusterize = false;
   int cworkaround = 0;
 
@@ -108,6 +110,8 @@ int main(int argc, char **argv) {
                 "has all 384 channels bonded to a single sensor");
   opt->addUsage(
       "  -m, --montecarlo ............................ To decode MonteCarlo simulation files (default is OFF)");
+  opt->addUsage(
+      "  -l, --onlycal ............................... To only search and process the closer calibration run (default is OFF)");
   opt->addUsage("");
   opt->addUsage("Arguments: ");
   opt->addUsage("  <runnum> [ancillary code (-1 is the default)]");
@@ -118,6 +122,7 @@ int main(int argc, char **argv) {
   opt->setFlag("help", 'h');
   opt->setFlag("clusterize", 'c');
   opt->setFlag("montecarlo", 'm');
+  opt->setFlag("onlycal", 'l');
   opt->setFlag("oca");
   opt->setFlag("foot");
 
@@ -155,6 +160,10 @@ int main(int argc, char **argv) {
     kMC = true;
   }
 
+  if (opt->getFlag("onlycal") || opt->getFlag('l')) {
+    kOnlyProcessCal = true;
+  }
+  
   if (opt->getFlag("oca")) {
     kOca = true;
   }
@@ -266,149 +275,223 @@ int main(int argc, char **argv) {
     dd1 = static_cast<DecodeData *>(dd);
   }
 
-  dd1->shighthreshold = shighthreshold;
-  dd1->slowthreshold = slowthreshold;
-  dd1->khighthreshold = khighthreshold;
-  dd1->klowthreshold = klowthreshold;
-  dd1->kClusterize = kClusterize;
-  dd1->cworkaround = cworkaround;
+  if (!kOnlyProcessCal) {
+  
+    dd1->shighthreshold = shighthreshold;
+    dd1->slowthreshold = slowthreshold;
+    dd1->khighthreshold = khighthreshold;
+    dd1->klowthreshold = klowthreshold;
+    dd1->kClusterize = kClusterize;
+    dd1->cworkaround = cworkaround;
 
-  dd1->SetPrintOff();
-  dd1->SetEvPrintOff();
+    dd1->SetPrintOff();
+    dd1->SetEvPrintOff();
 
-  /// VV debug moved before dd1
-  // TTree* t4= new TTree("t4","My cluster tree");
-  /// VV debug given 64000
-  // t4->Branch("cluster_branch","Event",&(dd1->ev),32000,2);
-  double chaK[fConf.NTDRS];
-  double chaS[fConf.NTDRS];
-  double sigK[fConf.NTDRS];
-  double sigS[fConf.NTDRS];
-  double sonK[fConf.NTDRS];
-  double sonS[fConf.NTDRS];
-
-  int NTDR = dd1->GetNTdrRaw() + dd1->GetNTdrCmp();
-  for (int ii = 0; ii < NTDR; ii++) {
-    int IdTDR = dd1->GetTdrNum(ii);
-    //      printf("%d\n", IdTDR);
-    t4->Branch(Form("SignalK_Ladder%02d", IdTDR), &sigK[IdTDR], Form("SignalK_Ladder%02d/D", IdTDR));
-    t4->Branch(Form("SignalS_Ladder%02d", IdTDR), &sigS[IdTDR], Form("SignalS_Ladder%02d/D", IdTDR));
-    t4->Branch(Form("ChargeK_Ladder%02d", IdTDR), &chaK[IdTDR], Form("ChargeK_Ladder%02d/D", IdTDR));
-    t4->Branch(Form("ChargeS_Ladder%02d", IdTDR), &chaS[IdTDR], Form("ChargeS_Ladder%02d/D", IdTDR));
-    t4->Branch(Form("SoNK_Ladder%02d", IdTDR), &sonK[IdTDR], Form("SoNK_Ladder%02d/D", IdTDR));
-    t4->Branch(Form("SoNS_Ladder%02d", IdTDR), &sonS[IdTDR], Form("SoNS_Ladder%02d/D", IdTDR));
-  }
-  sleep(3);
-
-  if (!kOca && !kFoot) {
-    auto *dd = dynamic_cast<DecodeDataAMS *>(dd1);
-    if (dd) {
-      t4->GetUserInfo()->Add(dd->rh);
-    } else {
-      throw std::runtime_error("AMS decode selected, but decoder is not of type DecodeDataAMS");
+    /// VV debug moved before dd1
+    // TTree* t4= new TTree("t4","My cluster tree");
+    /// VV debug given 64000
+    // t4->Branch("cluster_branch","Event",&(dd1->ev),32000,2);
+    double chaK[fConf.NTDRS];
+    double chaS[fConf.NTDRS];
+    double sigK[fConf.NTDRS];
+    double sigS[fConf.NTDRS];
+    double sonK[fConf.NTDRS];
+    double sonS[fConf.NTDRS];
+  
+    int NTDR = dd1->GetNTdrRaw() + dd1->GetNTdrCmp();
+    for (int ii = 0; ii < NTDR; ii++) {
+      int IdTDR = dd1->GetTdrNum(ii);
+      //      printf("%d\n", IdTDR);
+      t4->Branch(Form("SignalS_Ladder%02d", IdTDR), &sigS[IdTDR], Form("SignalS_Ladder%02d/D", IdTDR));
+      t4->Branch(Form("ChargeS_Ladder%02d", IdTDR), &chaS[IdTDR], Form("ChargeS_Ladder%02d/D", IdTDR));
+      t4->Branch(Form("SoNS_Ladder%02d", IdTDR), &sonS[IdTDR], Form("SoNS_Ladder%02d/D", IdTDR));
+      t4->Branch(Form("SignalK_Ladder%02d", IdTDR), &sigK[IdTDR], Form("SignalK_Ladder%02d/D", IdTDR));
+      t4->Branch(Form("ChargeK_Ladder%02d", IdTDR), &chaK[IdTDR], Form("ChargeK_Ladder%02d/D", IdTDR));
+      t4->Branch(Form("SoNK_Ladder%02d", IdTDR), &sonK[IdTDR], Form("SoNK_Ladder%02d/D", IdTDR));
     }
-  }
+    sleep(3);
 
-  TObjArray *obj = t4->GetListOfBranches();
-  for (int ii = 0; ii < obj->GetEntries(); ii++) {
-    TBranch *branch = (TBranch *)(obj->At(ii));
-    branch->SetCompressionLevel(6);
-  }
-
-  auto fillClusterArrays = [&chaK, &chaS, &sigK, &sigS, &sonK, &sonS](auto *dd) {
-    auto fConf = dd->FlavorConfig();
-
-    memset(chaK, 0, fConf.NTDRS * sizeof(chaK[0]));
-    memset(chaS, 0, fConf.NTDRS * sizeof(chaS[0]));
-    memset(sigK, 0, fConf.NTDRS * sizeof(sigK[0]));
-    memset(sigS, 0, fConf.NTDRS * sizeof(sigS[0]));
-
-    for (int cc = 0; cc < (dd->ev)->GetNClusTot(); cc++) {
-      //      printf("This event has %d clusters\n", (dd->ev)->GetNClusTot());
-      //      printf("This event has CALPED %f\n", (dd->ev)->GetCalPed_PosNum(1,0,0));
-
-      Cluster *cl = (dd->ev)->GetCluster(cc);
-      int ladder = cl->ladder;
-      //	printf("%d\n", ladder);
-      double signal = cl->GetTotSig();
-      double charge = cl->GetCharge();
-      double son = cl->GetTotSN();
-      if (cl->side == 1) {
-        if (charge > chaK[ladder]) {
-          chaK[ladder] = charge;
-          sigK[ladder] = signal;
-          sonK[ladder] = son;
-        }
+    if (!kOca && !kFoot) {
+      auto *dd = dynamic_cast<DecodeDataAMS *>(dd1);
+      if (dd) {
+	t4->GetUserInfo()->Add(dd->rh);
       } else {
-        if (charge > chaS[ladder]) {
-          chaS[ladder] = charge;
-          sigS[ladder] = signal;
-          sonS[ladder] = son;
-        }
+	throw std::runtime_error("AMS decode selected, but decoder is not of type DecodeDataAMS");
       }
     }
-  };
 
-  int ret1 = 0;
-  while (true) {
-    if (eventstoprocess != -1 && processed == eventstoprocess)
-      break;
-
-    ret1 = dd1->EndOfFile();
-    if (ret1)
-      break;
-
-    ret1 = dd1->ReadOneEvent();
-
-    //    printf("%d\n", ret1);
-
-    /// VV debug commented out
-    // ret1=dd1->EndOfFile();
-    // if (ret1) break;
-    // if(processed==4 || processed==5){processed++;continue;}
-    if (ret1 == 0) {
-      processed++;
-
-      if (kOca) {
-        fillClusterArrays(static_cast<DecodeDataOCA *>(dd1));
-      } else if (kFoot) {
-        fillClusterArrays(static_cast<DecodeDataFOOT *>(dd1));
-      } else {
-        fillClusterArrays(static_cast<DecodeDataAMS *>(dd1));
-      }
-
-      //      printf("%f %f %f %f %f %f\n", sigS[0], sigK[0], sigS[1], sigK[1], sigS[4], sigK[4]);
-
-      t4->Fill();
-      if (processed % 1000 == 0)
-        printf("Processed %d events...\n", processed);
-    } else if (ret1 == -1) {
-      printf("=======================> END of FILE\n");
-      break;
-    } else if (ret1 < -1) {
-      printf("=======================> READ Error Event Skipped\n");
-      readfailed++;
-      break;
-    } else {
-      jinffailed++;
+    TObjArray *obj = t4->GetListOfBranches();
+    for (int ii = 0; ii < obj->GetEntries(); ii++) {
+      TBranch *branch = (TBranch *)(obj->At(ii));
+      branch->SetCompressionLevel(6);
     }
 
-    dd1->ClearEvent();
-  }
+    auto fillClusterArrays = [&chaK, &chaS, &sigK, &sigS, &sonK, &sonS](auto *dd) {
+      auto fConf = dd->FlavorConfig();
 
-  // CreatePdfWithPlots(dd1, pdf_filename);
-  /// VV debug write to output file
-  foutput->cd();
-  t4->Write("", TObject::kOverwrite);
-  if (dd1->GetMCTruth()) {
-    TTree *mcht = dd1->GetMCTruth()->CloneTree();
-    mcht->Write("", TObject::kOverwrite);
-  }
-  printf("\nProcessed %5d  Events\n", processed + readfailed + jinffailed);
-  printf("Accepted  %5d  Events\n", processed);
-  printf("Rejected  %5d  Events --> Read Error\n", readfailed);
-  printf("Rejected  %5d  Events --> Jinf/Jinj Error\n", jinffailed);
+      memset(chaK, 0, fConf.NTDRS * sizeof(chaK[0]));
+      memset(chaS, 0, fConf.NTDRS * sizeof(chaS[0]));
+      memset(sigK, 0, fConf.NTDRS * sizeof(sigK[0]));
+      memset(sigS, 0, fConf.NTDRS * sizeof(sigS[0]));
 
+      for (int cc = 0; cc < (dd->ev)->GetNClusTot(); cc++) {
+	//      printf("This event has %d clusters\n", (dd->ev)->GetNClusTot());
+	//      printf("This event has CALPED %f\n", (dd->ev)->GetCalPed_PosNum(1,0,0));
+
+	Cluster *cl = (dd->ev)->GetCluster(cc);
+	int ladder = cl->ladder;
+	//	printf("%d\n", ladder);
+	double signal = cl->GetTotSig();
+	// if (signal>4095) {
+	// 	printf("event %d, cluster %d, side %d) signal %f\n", (dd->ev)->GetEvtnum(), cc, cl->side, signal);
+	// }
+	double charge = cl->GetCharge();
+	double son = cl->GetTotSN();
+	if (cl->side == 1) {
+	  if (charge > chaK[ladder]) {//filling only with the largest
+	    chaK[ladder] = charge;
+	    sigK[ladder] = signal;
+	    sonK[ladder] = son;
+	  }
+	} else {
+	  if (charge > chaS[ladder]) {//filling only with the largest
+	    chaS[ladder] = charge;
+	    sigS[ladder] = signal;
+	    sonS[ladder] = son;
+	  }
+	}
+      }
+    };
+
+    auto fillRawArrays = [&chaK, &chaS, &sigK, &sigS, &sonK, &sonS](auto *dd) {
+      auto fConf = dd->FlavorConfig();
+
+      memset(chaK, 0, fConf.NTDRS * sizeof(chaK[0]));
+      memset(chaS, 0, fConf.NTDRS * sizeof(chaS[0]));
+      memset(sigK, 0, fConf.NTDRS * sizeof(sigK[0]));
+      memset(sigS, 0, fConf.NTDRS * sizeof(sigS[0]));
+
+      for (unsigned int iJinf = 0; iJinf < fConf.NJINF; ++iJinf) {
+	for (unsigned int iTDR = 0; iTDR < fConf.NTDRS; ++iTDR) {
+	  for (unsigned int iCh = 0; iCh < (fConf.NVASS + fConf.NVASK)* fConf.NCHAVA; ++iCh) {
+	    // if ((dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf)>4095) {
+	    //   printf("event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %f\n", (dd->ev)->GetEvtnum(), iJinf, iTDR, iCh, (dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf));
+	    //   sleep(1);
+	    // }
+	    int ladder = iTDR + 100*iJinf;
+	    double signal = (dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf);
+	    double son = (dd->ev)->GetRawSoN_PosNum(iTDR, iCh, iJinf);
+	  
+	    int side=0;
+	    if (iCh >= fConf.NCHAVA * fConf.NVASS) {
+	      side=1;
+	    }
+
+	    LadderConf *ladderconf = LadderConf::Instance();
+	    if (ladderconf->GetSideSwap(iJinf, iTDR)) {
+	      if (side==0) {
+		side=1;
+	      }
+	      else {
+		side=0;
+	      }
+	    }
+
+	    if (side == 1) {
+	      if (signal > sigK[ladder]) {//filling only with the largest
+		sigK[ladder] = signal;
+		sonK[ladder] = son;
+	      }
+	    }
+	    else {
+	      if (signal > sigS[ladder]) {//filling only with the largest
+		sigS[ladder] = signal;
+		sonS[ladder] = son;
+	      }
+	    }
+	  
+	  }
+	}
+      }
+
+    };
+  
+    int ret1 = 0;
+    while (true) {
+      if (eventstoprocess != -1 && processed == eventstoprocess)
+	break;
+
+      ret1 = dd1->EndOfFile();
+      if (ret1)
+	break;
+
+      ret1 = dd1->ReadOneEvent();
+
+      //    printf("%d\n", ret1);
+
+      /// VV debug commented out
+      // ret1=dd1->EndOfFile();
+      // if (ret1) break;
+      // if(processed==4 || processed==5){processed++;continue;}
+      if (ret1 == 0) {
+	processed++;
+
+	if (kClusterize) {
+	  if (kOca) {
+	    fillClusterArrays(static_cast<DecodeDataOCA *>(dd1));
+	  } else if (kFoot) {
+	    fillClusterArrays(static_cast<DecodeDataFOOT *>(dd1));
+	  } else {
+	    fillClusterArrays(static_cast<DecodeDataAMS *>(dd1));
+	  }
+	}
+	else {
+	  if (kOca) {
+	    fillRawArrays(static_cast<DecodeDataOCA *>(dd1));
+	  } else if (kFoot) {
+	    fillRawArrays(static_cast<DecodeDataFOOT *>(dd1));
+	  } else {
+	    fillRawArrays(static_cast<DecodeDataAMS *>(dd1));
+	  }
+	}
+
+	//      printf("%f %f %f %f %f %f\n", sigS[0], sigK[0], sigS[1], sigK[1], sigS[4], sigK[4]);
+
+	t4->Fill();
+	if (processed % 1000 == 0) {
+	  printf("\rProcessed %d events...", processed);
+	  fflush(stdout);
+	}
+      } else if (ret1 == -1) {
+	printf("=======================> END of FILE\n");
+	break;
+      } else if (ret1 < -1) {
+	printf("=======================> READ Error Event Skipped\n");
+	readfailed++;
+	break;
+      } else {
+	jinffailed++;
+      }
+
+      dd1->ClearEvent();
+    }
+    printf("\n");
+
+    // CreatePdfWithPlots(dd1, pdf_filename);
+    /// VV debug write to output file
+    foutput->cd();
+    t4->Write("", TObject::kOverwrite);
+    if (dd1->GetMCTruth()) {
+      TTree *mcht = dd1->GetMCTruth()->CloneTree();
+      mcht->Write("", TObject::kOverwrite);
+    }
+    printf("\nProcessed %5d  Events\n", processed + readfailed + jinffailed);
+    printf("Accepted  %5d  Events\n", processed);
+    printf("Rejected  %5d  Events --> Read Error\n", readfailed);
+    printf("Rejected  %5d  Events --> Jinf/Jinj Error\n", jinffailed);
+
+  }
+  
   delete dd1;
 
   foutput->Write("", TObject::kOverwrite);

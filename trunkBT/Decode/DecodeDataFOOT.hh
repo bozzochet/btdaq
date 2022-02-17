@@ -10,7 +10,7 @@
 
 class DecodeDataFOOT : public DecodeData {
 public:
-  using EventFOOT = GenericEvent<1, 24, 64, 5, 10>;
+  using EventFOOT = GenericEvent<1, 24, 64, 5, 10, 0>;
   using calibFOOT = calib<EventFOOT::GetNCHAVA() * EventFOOT::GetNVAS()>;
 
 public:

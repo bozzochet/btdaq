@@ -8,6 +8,7 @@
 #include "GenericEvent.hpp"
 
 #include <numeric>
+#include <sstream>
 
 namespace {
 constexpr auto NJINF = DecodeDataOCA::EventOCA::GetNJINF();
@@ -27,7 +28,7 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
   slowthreshold = 1.0;
   khighthreshold = 3.5;
   klowthreshold = 1.0;
-  kClusterize = true;
+  kClusterize = false;
 
   m_defaultShift = 0;
   m_defaultArraySize = NVAS * NCHAVA;
@@ -37,8 +38,7 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
   pri = false;
 
   ev = new EventOCA();
-
-  std::cout << "ev: " << ev << '\n';
+  //  std::cout << "ev: " << ev << '\n';
 
   DecodeDataOCA::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runn, -1);
   // we assume we also have the corresponding calibration file
@@ -63,9 +63,61 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
   }
 
   ProcessCalibration();
-
+  
   // TODO: add setup of histograms
   InitHistos();
+}
+
+DecodeDataOCA::~DecodeDataOCA() {
+
+  for (size_t jj = 0; jj < NJINF; jj++) {
+    for (size_t hh = 0; hh < NTDRS; hh++) {
+      //      printf("%d %d --> %f\n", jj, hh, hocc[jj*NTDRS+hh]->GetEntries());
+      if (hocc[jj * NTDRS + hh] && hocc[jj * NTDRS + hh]->GetEntries() < 1.0) {
+        //		printf("deleting hocc %d %d at %p\n", jj, hh, hocc[jj*NTDRS+hh]);
+        delete hocc[jj * NTDRS + hh];
+      }
+      if (hoccseed[jj * NTDRS + hh] && hoccseed[jj * NTDRS + hh]->GetEntries() < 1.0) {
+        //		printf("deleting hoccseed %d %d\n", jj, hh);
+        delete hoccseed[jj * NTDRS + hh];
+      }
+      if (hchargevsocc[jj * NTDRS + hh] && hchargevsocc[jj * NTDRS + hh]->GetEntries() < 1.0) {
+        //		  printf("deleting hchargevsocc %d %d\n", jj, hh);
+        delete hchargevsocc[jj * NTDRS + hh];
+      }
+      if (hsignalvsocc[jj * NTDRS + hh] && hsignalvsocc[jj * NTDRS + hh]->GetEntries() < 1.0) {
+        //		  printf("deleting hsignalvsocc %d %d\n", jj, hh);
+        delete hsignalvsocc[jj * NTDRS + hh];
+      }
+      
+      for (int ss = 0; ss < 2; ss++) {
+        //	printf("%d %d %d --> %f\n", jj, hh, ss, hcharge[jj*NTDRS+hh][ss]->GetEntries());
+        if (hcharge[jj * NTDRS + hh][ss] && hcharge[jj * NTDRS + hh][ss]->GetEntries() < 1.0) {
+          //	  	  printf("deleting hcharge %d %d %d\n", jj, hh, ss);
+          delete hcharge[jj * NTDRS + hh][ss];
+        }
+        if (hsignal[jj * NTDRS + hh][ss] && hsignal[jj * NTDRS + hh][ss]->GetEntries() < 1.0) {
+          //	  	  printf("deleting hsignal %d %d %d\n", jj, hh, ss);
+          delete hsignal[jj * NTDRS + hh][ss];
+        }
+        if (hson[jj * NTDRS + hh][ss] && hson[jj * NTDRS + hh][ss]->GetEntries() < 1.0) {
+          //	  	  printf("deleting hson %d %d %d\n", jj, hh, ss);
+          delete hson[jj * NTDRS + hh][ss];
+        }
+      }
+    }
+  }
+  
+  if (pri)
+    std::cout << "In the destructor..." << std::endl;
+  if (rawfile)
+    CloseFile();
+  if (ev)
+    delete ev;
+  if (pri)
+    std::cout << "Destroyed." << std::endl;
+
+  return;
 }
 
 void DecodeDataOCA::OpenFile(const char *rawDir, const char *calDir, int runNum, int ancillary) {
@@ -92,8 +144,7 @@ void DecodeDataOCA::OpenFile(const char *rawDir, const char *calDir, int runNum,
 
 // TODO: waiting for run header definition
 void DecodeDataOCA::DumpRunHeader() {
-  // TODO: remove later
-  m_numBoards = 6;
+  printf("There're %d boards (%d detectors)\n", m_numBoards, 2*m_numBoards);
 }
 
 int DecodeDataOCA::GetTdrNum(size_t pos) {
@@ -117,6 +168,22 @@ bool DecodeDataOCA::ProcessCalibration() {
 
   int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
 
+  std::istringstream is(m_calFilename);
+  std::string part;
+  std::string prefix = "RUN";
+  std::string srunnum = "";
+  long int runnum = 0; 
+  while (getline(is, part, '_')) {
+    //    std::cout << part << std::endl;
+    if (part.rfind(prefix, 0) == 0) {
+      //      std::cout << part << std::endl;
+      srunnum = part.substr(prefix.length());
+      //      std::cout << srunnum << std::endl;
+      runnum = atol(srunnum.c_str());
+      //      std::cout << runnum << std::endl;
+    }
+  }
+    
   // open the calibration file
   std::string calFilePath = m_rawDir + "/" + m_calFilename;
   calfile = fopen(calFilePath.c_str(), "r");
@@ -124,8 +191,8 @@ bool DecodeDataOCA::ProcessCalibration() {
     printf("Error file %s not found \n", calFilePath.c_str());
     exit(2);
   }
-
-  std::cout << "Processing calibration... \n";
+  
+  printf("Processing calibration (%s)... \n", calFilePath.c_str());
   auto start = std::chrono::system_clock::now();
 
   auto event = std::make_unique<EventOCA>();
@@ -136,10 +203,14 @@ bool DecodeDataOCA::ProcessCalibration() {
   //   signals[ii].resize(NVAS * NCHAVA);
   // }
 
+#define CALPLOTS
+#define PERCENTILE 0.02
+  
   unsigned int nEvents{0};
   while (!feof(calfile)) {
     ReadOneEventFromFile(calfile, event.get());
-    std::cout << "\rRead " << ++nEvents << " events" << std::flush;
+    //    std::cout << "\rRead " << ++nEvents << " events" << std::flush;
+    std::cout << "\rRead " << ++nEvents << " events" << " (found " << m_numBoardsFound << " boards)" << std::flush;
 
     for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -148,23 +219,45 @@ bool DecodeDataOCA::ProcessCalibration() {
     }
   }
   std::cout << '\n';
-
+  
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+      std::sort(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]));
+      
       cals[iTdr].ped[iCh] = std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f) /
-                            static_cast<float>(signals[iTdr][iCh].size());
+	static_cast<float>(signals[iTdr][iCh].size());
+      
       cals[iTdr].rsig[iCh] =
-          std::sqrt(std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f,
-                                    [&](float acc, float curr) {
-                                      return acc + (curr - cals[iTdr].ped[iCh]) * (curr - cals[iTdr].ped[iCh]);
-                                    }) /
-                    static_cast<float>(signals[iTdr][iCh].size()));
+	//          std::sqrt(std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f,
+	std::sqrt(std::accumulate(begin(signals[iTdr][iCh])+((int)(PERCENTILE*signals[iTdr][iCh].size())), end(signals[iTdr][iCh])-((int)(PERCENTILE*signals[iTdr][iCh].size())), 0.0f,
+				  [&](float acc, float curr) {
+				    return acc + (curr - cals[iTdr].ped[iCh]) * (curr - cals[iTdr].ped[iCh]);
+				  }) /
+		  static_cast<float>(signals[iTdr][iCh].size()));
       // initialize this for later
       cals[iTdr].sig[iCh] = 0;
       cals[iTdr].status[iCh] = 0;
     }
   }
-
+  
+#ifdef CALPLOTS
+  TH1F* hrawsig[NTDRS];
+  TH1F* hsig[NTDRS];
+  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+    hrawsig[iTdr] = new TH1F(Form("rawsigma_%d", iTdr), "rawsigma", 5000, -500, 500);
+    hsig[iTdr] = new TH1F(Form("sigma_%d", iTdr), "sigma", 5000, -500, 500);
+  }
+  
+  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {  
+      for (unsigned int iEv=0; iEv<signals[iTdr][iCh].size(); iEv++) {
+	//      for (unsigned int iEv=((int)(PERCENTILE*signals[iTdr][iCh].size())); iEv<((int)((1.0-PERCENTILE)*signals[iTdr][iCh].size())); iEv++) { 
+	hrawsig[iTdr]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+      }
+    }
+  }
+#endif
+  
   unsigned int lastVA = std::numeric_limits<unsigned int>::max();
   std::vector<float> common_noise(NVAS);
   std::vector<std::vector<unsigned int>> processed_events(NTDRS, std::vector<unsigned int>(NVAS * NCHAVA));
@@ -178,24 +271,33 @@ bool DecodeDataOCA::ProcessCalibration() {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
         unsigned int thisVA = iCh / NCHAVA;
         if (thisVA != lastVA) {
-
+	  
           std::vector<float> values(NCHAVA);
           for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
             values[iVACh] = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
           }
-
+	  
           // get the median
           std::sort(begin(values), end(values));
           common_noise[thisVA] = 0.5 * (values[(NCHAVA / 2) - 1] + values[NCHAVA / 2]);
+	  //	  printf("%f\n", common_noise[thisVA]);
         }
-
+	
         if (std::fabs(common_noise[thisVA]) > 10) {
           continue;
         }
-        ++processed_events[iTdr][iCh];
+	//this relies in sorted vectors, done in preveious loop (sigma raw) 
+        if (iEv>=((int)(PERCENTILE*signals[0][0].size())) && iEv<((int)((1.0-PERCENTILE)*signals[0][0].size()))) {
+	  ++processed_events[iTdr][iCh];
+	  
+	  cals[iTdr].sig[iCh] += (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
+	    (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
+	}
 
-        cals[iTdr].sig[iCh] += (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
-                               (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
+#ifdef CALPLOTS
+	hsig[iTdr]->Fill(signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
+#endif
+	
         lastVA = thisVA;
       }
     }
@@ -205,10 +307,38 @@ bool DecodeDataOCA::ProcessCalibration() {
       cals[iTdr].sig[iCh] = sqrt(cals[iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
     }
   }
-
+  
   auto stop = std::chrono::system_clock::now();
   std::cout << "DecodeDataOCA::ProcessCalibration took "
             << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
+
+  char calfileprefix[255];
+  sprintf(calfileprefix,"%s/%ld", m_calDir.c_str(), runnum);
+  
+  //  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+  for (unsigned int iTdr = 0; iTdr < (2*m_numBoardsFound); ++iTdr) {
+    char calfilename[255];
+    sprintf(calfilename, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
+    FILE* calfil=fopen(calfilename, "w");
+    if(!calfil) {
+      printf("problem in opening the %s cal file...\n", calfilename);
+      return true;
+    }
+    
+    // writing the common noise (average?)
+    for (unsigned int iVa = 0; iVa < NVAS; ++iVa) {
+      fprintf(calfil, "%02d,\t%lf,\t%lf\n", iVa, 0.0, 0.0);
+    }
+    
+    // reading channels
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+      fprintf(calfil, "%d %d %d %lf %f %f %f %d\n", iCh+1, (1+(int)(iCh/NCHAVA)), (1+(int)((iCh)%NCHAVA)),
+	     cals[iTdr].ped[iCh], cals[iTdr].rsig[iCh], cals[iTdr].sig[iCh], 0.0, 0);
+    }
+    
+    fclose(calfil);
+  }
+
   return true;
 }
 
@@ -230,6 +360,11 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
     return 1;
   }
 
+  static unsigned int iTDRmax=0;
+  m_numBoardsFound = (iTDRmax+1)/2;
+  // printf("numBoardsFound = %d\n", m_numBoardsFound);
+  // sleep(1);
+  
   for (unsigned int iBoard = 0; iBoard < m_numBoards; ++iBoard) {
     uint32_t bHeader;
     fstat = ReadFile(&bHeader, sizeof(bHeader), 1, file);
@@ -246,7 +381,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
         return 1;
       }
     }
-
+    
     uint32_t messageLength;
     fstat = ReadFile(&messageLength, sizeof(messageLength), 1, file);
     if (fstat == -1)
@@ -261,7 +396,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
     fstat = ReadFile(&TriggerNumber, sizeof(TriggerNumber), 1, file);
     if (fstat == -1)
       return 1;
-    ev->Evtnum = TriggerNumber;
+    event->Evtnum = TriggerNumber;
 
     uint16_t TriggerID;
     fstat = ReadFile(&TriggerID, sizeof(TriggerID), 1, file);
@@ -291,26 +426,37 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
 
     // helper function to unpack board data
     auto unpack_board_data = [this, event, iJinf](const auto &data, unsigned int iBoard) {
+      unsigned int iTDRmax=0;
       for (unsigned int iVal = 0; iVal < data.size(); ++iVal) {
         // correct for endianess in the original file
         // iVal 0 -> iCh 1, iVal 1 -> iCh 0, iVal 2 -> iCh 3, iVal 3 -> iCh 2
         unsigned int iValNoEnd = (iVal % 2) ? iVal - 1 : iVal + 1;
         unsigned int iCh = (iValNoEnd / (2 * NADCS)) + (2 * NCHAVA) * (iValNoEnd % NADCS);
         unsigned int iTDR = 2 * iBoard + ((iValNoEnd / NADCS) % 2);
-
+	if (iTDR>iTDRmax) {
+	  iTDRmax=iTDR;
+	  //	  printf("iTDRmax = %u\n", iTDRmax);
+	}
+	
         // TODO: check if signal is still zero-padded on both sides
         // both the shift and the m_adcUnits should be removed later on...
         event->RawSignal[iJinf][iTDR][iCh] = m_adcUnits * (data[iVal] >> 2);
+	if (event->RawSignal[iJinf][iTDR][iCh]>(m_adcUnits*4095)) {
+	  printf("event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %d (%d)\n", event->Evtnum, iJinf, iTDR, iCh, event->RawSignal[iJinf][iTDR][iCh], data[iVal]);
+	  //	  sleep(1);
+	}
         event->RawSoN[iJinf][iTDR][iCh] =
             (event->RawSignal[iJinf][iTDR][iCh] / m_adcUnits - cals[iTDR].ped[iCh]) / cals[iTDR].sig[iCh];
       }
+      return iTDRmax;
     };
 
     std::vector<uint16_t> adc_buf(2 * numChannels);
     fstat = ReadFile(adc_buf.data(), sizeof(decltype(adc_buf)::value_type) * adc_buf.size(), 1, file);
     if (fstat == -1)
       return 1;
-    unpack_board_data(adc_buf, iBoard);
+    iTDRmax = unpack_board_data(adc_buf, iBoard);
+    //    printf("iTDRmax = %d\n", iTDRmax);
 
     uint32_t bFooter;
     fstat = ReadFile(&bFooter, sizeof(bFooter), 1, file);
@@ -322,7 +468,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
     if (fstat == -1)
       return 1;
   }
-
+  
   // all good...
   return 0;
 }
@@ -377,6 +523,7 @@ void DecodeDataOCA::InitHistos() {
   }
   std::cout << '\n';
 }
+
 int DecodeDataOCA::ReadOneEvent() {
 
   int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
@@ -392,11 +539,24 @@ int DecodeDataOCA::ReadOneEvent() {
 
   int retVal = ReadOneEventFromFile(rawfile, ev);
 
-  // clusterize!
+  // for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
+  //   for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+  //     if (ev->RawSignal[iJinf][iTDR][iCh]>(m_adcUnits*4095)) {
+  // 	printf("event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %d\n", ev->Evtnum, iJinf, iTDR, iCh, ev->RawSignal[iJinf][iTDR][iCh]);
+  // 	sleep(1);
+  //     }
+  //   }
+  // }
+  
   // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this
   // point, so it should return.
   for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
-    Clusterize(iTDR, 0, ev, &cals[iTDR]);
+    if (kClusterize) {
+      Clusterize(iTDR, 0, ev, &cals[iTDR]);
+    }
+    else {
+      FillRawHistos(iTDR, 0, ev, &cals[iTDR]); 
+    }
   }
 
   return retVal;

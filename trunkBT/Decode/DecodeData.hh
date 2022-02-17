@@ -1,5 +1,6 @@
 #ifndef DecodeData_h
 #define DecodeData_h
+#include <unistd.h>
 #include <cstdio>
 #include <vector>
 
@@ -10,9 +11,6 @@
 #include "TTree.h"
 
 #include "EventUtils.hh"
-
-//(could be defined by Makefile)
-//#define CALOCUBE
 
 template <size_t NCh> class calib {
 public:
@@ -131,6 +129,7 @@ public:
   void AddCluster(Event *ev, calib *cals, int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus,
                   int CNStatus, int PowBits, int bad, float *sig, bool kRaw = false);
   template <class Event, class calib> void Clusterize(int numnum, int Jinfnum, Event *ev, calib *cal);
+  template <class Event, class calib> void FillRawHistos(int numnum, int Jinfnum, Event *ev, calib *cal);
 
   virtual inline int GetNTdrRaw() { return ntdrRaw; }
   virtual inline int GetNTdrCmp() { return ntdrCmp; }
@@ -157,6 +156,14 @@ public:
 template <class Event, class calib>
 inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnum, int clusadd, int cluslen,
                                    int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float *sig, bool kRaw) {
+
+  //  constexpr auto NJINF = Event::GetNJINF();
+  constexpr auto NTDRS = Event::GetNTDRS();
+  //  constexpr auto NVAS = Event::GetNVAS();
+  constexpr auto NVASS = Event::GetNVASS();
+  //  constexpr auto NVASK = Event::GetNVASK();
+  constexpr auto NCHAVA = Event::GetNCHAVA();
+
   pri = 1;
 
   LadderConf *ladderconf = LadderConf::Instance();
@@ -171,26 +178,34 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
   //  printf("bondingtype = %d\n", _bondingtype);
 
   int newclusadd = clusadd;
-
+  
   if (!kRaw) { // otherwise the swap has been already done when clustering (if we were clustering, otherwise the cluster
                // is not present and we never reach this function...)
     if (_bondingtype == 2) {
-      // if (clusadd>=(3*64) && clusadd<(5*64)) newclusadd+=3*64;
-      // if (clusadd>=(5*64) && clusadd<(8*64)) newclusadd-=2*64;
+      // if (clusadd>=(3*NCHAVA) && clusadd<(5*NCHAVA)) newclusadd+=3*NCHAVA;
+      // if (clusadd>=(5*NCHAVA) && clusadd<(8*NCHAVA)) newclusadd-=2*NCHAVA;
       // questo cura in parte dei problemi sui bordi ancora da capire
-      if (clusadd >= (3 * 64) && (clusadd + cluslen - 1) < (5 * 64))
-        newclusadd += 3 * 64;
-      if ((clusadd + cluslen - 1) >= (5 * 64) && clusadd < (8 * 64))
-        newclusadd -= 2 * 64;
+      if (clusadd >= (3 * NCHAVA) && (clusadd + cluslen - 1) < (5 * NCHAVA))
+        newclusadd += 3 * NCHAVA;
+      if ((clusadd + cluslen - 1) >= (5 * NCHAVA) && clusadd < (8 * NCHAVA))
+        newclusadd -= 2 * NCHAVA;
     }
   }
 
   int sid = 0;
-  if (!kMC && clusadd >= 640)
+  if (!kMC && clusadd >= (NCHAVA*NVASS))
     sid = 1;
   if (kMC)
     sid = !tdrAlign[numnum]; // check alignment. MD: why we need this in the MC case?
 
+  if (ladderconf->GetSideSwap(Jinfnum, numnum)) {
+    if (sid==0) sid=1;
+    else if (sid==1) sid=0;
+    else {
+      printf("Side is %d so I don't know hot to swap...\n", sid);
+    }
+  }
+  
   Cluster *pp = ev->AddCluster(Jinfnum, numnum + 100 * Jinfnum, sid);
   pp->SetLadderConf(ladderconf);
 
@@ -205,21 +220,21 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
   double cog = pp->GetCoG();
   double seedadd = pp->GetSeedAdd();
 
-  hocc[numnum + Event::GetNTDRS() * Jinfnum]->Fill(cog);
-  hoccseed[numnum + Event::GetNTDRS() * Jinfnum]->Fill(seedadd);
+  hocc[numnum + NTDRS * Jinfnum]->Fill(cog);
+  hoccseed[numnum + NTDRS * Jinfnum]->Fill(seedadd);
   //#define TOTCHARGE
 #ifndef TOTCHARGE
-  hcharge[numnum + Event::GetNTDRS() * Jinfnum][sid]->Fill(pp->GetSeedCharge());
-  hsignal[numnum + Event::GetNTDRS() * Jinfnum][sid]->Fill(pp->GetSeedVal());
-  hchargevsocc[numnum + Event::GetNTDRS() * Jinfnum]->Fill(cog, pp->GetSeedCharge());
-  hsignalvsocc[numnum + Event::GetNTDRS() * Jinfnum]->Fill(cog, pp->GetSeedVal());
-  hson[numnum + Event::GetNTDRS() * Jinfnum][sid]->Fill(pp->GetSeedSN());
+  hcharge[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetSeedCharge());
+  hsignal[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetSeedVal());
+  hchargevsocc[numnum + NTDRS * Jinfnum]->Fill(cog, pp->GetSeedCharge());
+  hsignalvsocc[numnum + NTDRS * Jinfnum]->Fill(cog, pp->GetSeedVal());
+  hson[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetSeedSN());
 #else
-  hcharge[numnum + Event::GetNTDRS() * Jinfnum][sid]->Fill(pp->GetCharge());
-  hsignal[numnum + Event::GetNTDRS() * Jinfnum][sid]->Fill(pp->GetTotSig());
-  hchargevsocc[numnum + Event::GetNTDRS() * Jinfnum]->Fill(cog, pp->GetCharge());
-  hsignalvsocc[numnum + Event::GetNTDRS() * Jinfnum]->Fill(cog, pp->GetTotSig());
-  hson[numnum + Event::GetNTDRS() * Jinfnum][sid]->Fill(pp->GetTotSN());
+  hcharge[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetCharge());
+  hsignal[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetTotSig());
+  hchargevsocc[numnum + NTDRS * Jinfnum]->Fill(cog, pp->GetCharge());
+  hsignalvsocc[numnum + NTDRS * Jinfnum]->Fill(cog, pp->GetTotSig());
+  hson[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetTotSN());
 #endif
 
   // if (pp->GetSeedSN()<3.5) {
@@ -248,10 +263,70 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
   return;
 }
 
+template <class Event, class calib> inline void DecodeData::FillRawHistos(int numnum, int Jinfnum, Event *ev, calib *cal) {
+  //  constexpr auto NJINF = Event::GetNJINF();
+  constexpr auto NTDRS = Event::GetNTDRS();
+  constexpr auto NVAS = Event::GetNVAS();
+  constexpr auto NVASS = Event::GetNVASS();
+  //  constexpr auto NVASK = Event::GetNVASK();
+  constexpr auto NCHAVA = Event::GetNCHAVA();
+
+  pri = 1;
+
+  int tdrnumraw = FindPos(numnum + 100 * Jinfnum);
+
+  LadderConf *ladderconf = LadderConf::Instance();
+  double shithresh = ladderconf->GetSHiThreshold(Jinfnum, numnum);
+  double khithresh = ladderconf->GetKHiThreshold(Jinfnum, numnum);
+  // double slothresh = ladderconf->GetSLoThreshold(Jinfnum, numnum);
+  // double klothresh = ladderconf->GetKLoThreshold(Jinfnum, numnum);  
+  
+  // printf("Thresholds: %f %f\n", shithresh, khithresh);
+  // sleep(3);
+  
+  for (int cc = 0; cc < (NCHAVA*NVAS); cc++) {
+    
+    double threshold = shithresh;
+    int side=0;
+    if (cc >= NCHAVA*NVASS) {
+      threshold = khithresh;
+      side=1;
+    }
+    
+    if (ladderconf->GetSideSwap(Jinfnum, numnum)) {
+      if (side==0) {
+	side=1;
+	threshold = khithresh;
+      }
+      else {
+	side=0;
+	threshold = shithresh;
+      }
+    }
+
+    if (ev->RawSoN[Jinfnum][tdrnumraw][cc] > threshold) {
+      //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->RawSignal[tdrnumraw][cc])/8.0, cal->ped[cc],
+      // cal->sig[cc], (ev->RawSignal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
+      // printf("%04d) %f\n", cc, ev->RawSoN[tdrnumraw][cc]);
+      // this fills the histogram for the raw events when NOT clustering,
+      // if kClusterize anyhow, ALL the histos as for the compressed data, will be filled
+      hocc[numnum + NTDRS * Jinfnum]->Fill(cc, ev->RawSoN[Jinfnum][tdrnumraw][cc]);
+      // hoccseed not filled in this case...
+      // hcharge not filled in this case...
+      hsignal[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSignal[Jinfnum][tdrnumraw][cc]/m_adcUnits);
+      hson[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSoN[Jinfnum][tdrnumraw][cc]);
+    }
+  }
+  
+  return;  
+}
+
 template <class Event, class calib> inline void DecodeData::Clusterize(int numnum, int Jinfnum, Event *ev, calib *cal) {
   constexpr auto NJINF = Event::GetNJINF();
   constexpr auto NTDRS = Event::GetNTDRS();
   constexpr auto NVAS = Event::GetNVAS();
+  constexpr auto NVASS = Event::GetNVASS();
+  constexpr auto NVASK = Event::GetNVASK();
   constexpr auto NCHAVA = Event::GetNCHAVA();
 
   pri = 1;
@@ -316,8 +391,8 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
   //// nvas were 16 total summing S and K
   //  int nvasS=10;
   //  int nvasK= 6;
-  int nvasS = NVAS; // changed by Viviana. MD: check if is coherent with the "bondingtype" stuff
-  int nvasK = NVAS; // changed by Viviana. MD: check if is coherent with the "bondingtype" stuff
+  int nvasS = NVASS; // changed by Viviana. MD: check if is coherent with the "bondingtype" stuff
+  int nvasK = NVASK; // changed by Viviana. MD: check if is coherent with the "bondingtype" stuff
   //// hardcoded nchannels per va was 64
   //  int nchavaS=64;
   //  int nchavaK=64;
@@ -346,6 +421,9 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
   TString headerstringtodump = "New clusterize:\n";
   bool added = false; // added by Viviana
 
+  // MD: there're still a couple of 640, 320, 384, etc... hardcoded
+  // are inside particular "bondingtype"s so let's keep hardcoded...
+  
   for (int side = 0; side < 2; side++) {
     if (added)
       continue;
@@ -400,7 +478,7 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
         }
       }
     } // side=0
-    else {
+    else { // side=1
       if (_bondingtype == 2) {
         continue;
       } else {

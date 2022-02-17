@@ -50,35 +50,36 @@ static Double_t _func(double z, double imS, double iS, double Z0 = 0);
 static void _fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
 #endif
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ladderconfnotread = true;
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ladderconfnotread = true;
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::alignmentnotread = true;
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::alignmentnotread = true;
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::gaincorrectionnotread = true;
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::gaincorrectionnotread = true;
 
 // NOTE: This constructor should not be used, if you create a new Event flavor, specialize its constructor as shown
 // below [VF]
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GenericEvent() {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GenericEvent() {
   Cls = new TClonesArray("Cluster", NJINF * NTDRS); // if more than NJINFS*NTDRS anyhow the array will be expanded
   Cls->SetOwner();
 
+  _NTrks=0;
   ClearTrack();
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::~GenericEvent() {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::~GenericEvent() {
   if (Cls) {
     Cls->Delete();
     delete Cls;
   }
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::Clear() {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::Clear() {
   JINJStatus = 0;
   for (size_t jj = 0; jj < NJINF; jj++) {
     JINFStatus[jj] = 0;
@@ -94,11 +95,11 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::Clear() {
     // ->kk to run onto nlayers?
     for (size_t ii = 0; ii < NTDRS; ii++) { // Viviana: was kk<8
       ReadTDR[jj][ii] = 0;
-      for (size_t iv = 0; iv < NVAS; iv++)
+      for (size_t iv = 0; iv < (NVASS+NVASK); iv++)
         CNoise[jj][ii][iv] = 0;
       NClus[jj][ii][0] = 0;
       NClus[jj][ii][1] = 0;
-      for (size_t kk = 0; kk < NVAS * NCHAVA; kk++) { // Viviana: was 1024
+      for (size_t kk = 0; kk < (NVASS+NVASK)*NCHAVA; kk++) { // Viviana: was 1024
         CalSigma[jj][ii][kk] = 0.0;
         CalPed[jj][ii][kk] = 0.0;
         RawSignal[jj][ii][kk] = 0;
@@ -114,16 +115,16 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::Clear() {
   ClearTrack();
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-Cluster *GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::AddCluster(int Jinfnum, int lad, int side) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+Cluster *GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::AddCluster(int Jinfnum, int lad, int side) {
   Cluster *pp = (Cluster *)Cls->New(NClusTot);
   NClus[Jinfnum][lad][side]++;
   NClusTot++;
   return pp;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-Cluster *GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCluster(int ii) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+Cluster *GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCluster(int ii) {
   return (Cluster *)Cls->At(ii);
 }
 
@@ -138,8 +139,8 @@ int Event::NGoldenClus(int lad, int side){
 }
 */
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadLadderConf(TString filename, bool DEBUG) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ReadLadderConf(TString filename, bool DEBUG) {
 
   printf("Reading ladder configuration from %s:\n", filename.Data());
 
@@ -148,8 +149,8 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadLadderConf(TString fil
   ladderconf->Init(filename.Data(), DEBUG);
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadAlignment(TString filename, bool DEBUG) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ReadAlignment(TString filename, bool DEBUG) {
 
   auto *alignmentPars = AlignmentPars::Instance();
   alignmentPars->InitSize(NJINF, NTDRS);
@@ -175,11 +176,11 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadAlignment(TString file
   return;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadGainCorrection(TString filename, bool DEBUG) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ReadGainCorrection(TString filename, bool DEBUG) {
 
   auto *gainCorrectionPars = GainCorrectionPars::Instance();
-  gainCorrectionPars->InitSize(NJINF, NTDRS, NVAS);
+  gainCorrectionPars->InitSize(NJINF, NTDRS, NVASS, NVASK);
   gainCorrectionPars->Init(filename.Data());
 
   gaincorrectionnotread = false;
@@ -191,7 +192,7 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadGainCorrection(TString
   bool everdone = false;
   for (size_t jj = 0; jj < NJINF; jj++) {
     for (size_t tt = 0; tt < NTDRS; tt++) {
-      for (size_t vv = 0; vv < NVAS; vv++) {
+      for (size_t vv = 0; vv < (NVASS+NVASK); vv++) {
         if (gainCorrectionPars->GetPar(jj, tt, vv, 0) == 0.0 && gainCorrectionPars->GetPar(jj, tt, vv, 1) == 1.0)
           continue;
         if (first) {
@@ -216,8 +217,8 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ReadGainCorrection(TString
   return;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ClearTrack() {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ClearTrack() {
   // CB:
   _TrS.clear();
   _TrK.clear();
@@ -265,8 +266,8 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ClearTrack() {
   return;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ClearTrack_sf() {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ClearTrack_sf() {
 
   chisq_sf = 999999999.9;
   chisqS_sf = 999999999.9;
@@ -306,8 +307,8 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ClearTrack_sf() {
   return;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side,
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side,
                                                                           bool verbose) {
 
   if (verbose)
@@ -324,8 +325,8 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ExcludeTDRFromTrack(int ji
   return;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::IncludeBackTDRFromTrack(int jinfnum, int tdrnum, int side,
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::IncludeBackTDRFromTrack(int jinfnum, int tdrnum, int side,
                                                                               bool verbose) {
 
   if (verbose)
@@ -344,8 +345,8 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::IncludeBackTDRFromTrack(in
   return;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::FindTrackAndFit(int nptsS, int nptsK, bool verbose) {
 
   ClearTrack();
 
@@ -398,8 +399,8 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FindTrackAndFit(int nptsS,
   return ret;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK,
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK,
                                                                                   double threshK, bool verbose) {
 
   ClearTrack();
@@ -486,8 +487,8 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FindHigherChargeTrackAndFi
   return ret;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::CombinatorialFit(
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::CombinatorialFit(
     std::vector<std::pair<int, std::pair<double, double>>> **v_cog_laddS,
     std::vector<std::pair<int, std::pair<double, double>>> **v_cog_laddK, int ijinf, int itdr,
     std::vector<std::pair<int, std::pair<double, double>>> v_cog_trackS,
@@ -553,8 +554,8 @@ double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::CombinatorialFit(
   return _chisq;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::AssignAsBestTrackFit() {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::AssignAsBestTrackFit() {
 
   _chisq = chisq_sf;
   _chisqS = chisqS_sf;
@@ -588,9 +589,9 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::AssignAsBestTrackFit() {
   return;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 double
-GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::SingleFit(std::vector<std::pair<int, std::pair<double, double>>> vS,
+GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::SingleFit(std::vector<std::pair<int, std::pair<double, double>>> vS,
                                                            std::vector<std::pair<int, std::pair<double, double>>> vK,
                                                            bool verbose) {
 
@@ -623,8 +624,8 @@ GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::SingleFit(std::vector<std::pair
   return chisq_sf;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::SingleFit(
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::SingleFit(
     std::vector<std::pair<int, std::pair<double, double>>> vS,
     std::vector<std::pair<int, std::pair<double, double>>> vK, std::vector<double> &v_chilayS,
     std::vector<double> &v_chilayK, double &theta, double &thetaerr, double &phi, double &phierr, double &iDirX,
@@ -939,8 +940,8 @@ double _compchisq(std::vector<std::pair<int, std::pair<double, double>>> vec, st
 
 Double_t _func(double z, double imS, double iS, double Z0) { return iS + (z - Z0) * imS; }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ExtrapolateTrack(double z, int component) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ExtrapolateTrack(double z, int component) {
   if (component == 0)
     return _func(z, _mS, _S0);
   else if (component == 1)
@@ -949,8 +950,8 @@ double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ExtrapolateTrack(double 
     return -9999.99;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::IsClusterUsedInTrack(int index_cluster) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::IsClusterUsedInTrack(int index_cluster) {
 
   //  printf("IsClusterUsedInTrack\n");
 
@@ -968,8 +969,8 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::IsClusterUsedInTrack(int i
   return false;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::StoreTrackClusterPatterns() {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::StoreTrackClusterPatterns() {
 
   for (int ii = 0; ii < NJINF; ii++) {
     for (int ss = 0; ss < 2; ss++) {
@@ -1006,15 +1007,15 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::StoreTrackClusterPatterns(
   return;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::IsTDRInTrack(int side, int tdrnum, int jinfnum) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::IsTDRInTrack(int side, int tdrnum, int jinfnum) {
   //  return ((bool)(((unsigned long long int)(_track_cluster_pattern[jinfnum][side]/((int)(pow((double)10,
   //  (double)tdrnum)))))%10));
   return ((bool)(_track_cluster_pattern[jinfnum][side] & (1 << tdrnum)));
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FillHitVector() {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::FillHitVector() {
 
   _v_trackhit.clear();
 
@@ -1055,8 +1056,8 @@ struct sort_pred {
   }
 };
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::RefineTrack(double nsigmaS, int nptsS, double nsigmaK,
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::RefineTrack(double nsigmaS, int nptsS, double nsigmaK,
                                                                     int nptsK, bool verbose) {
 
   std::vector<std::pair<int, std::pair<double, double>>> _v_trackS_tmp = _v_trackS;
@@ -1094,8 +1095,8 @@ double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::RefineTrack(double nsigm
 }
 
 // A TRUNCATED MEAN WOULD BE BETTER BUT STICAZZI FOR NOW...
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetChargeTrack(int side) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetChargeTrack(int side) {
 
   if (side < 0 || side > 1) {
     printf("Not a valid side: %d\n", side);
@@ -1123,28 +1124,28 @@ double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetChargeTrack(int side)
   return charge;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCalPed_PosNum(int tdrnum, int channel, int Jinfnum) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalPed_PosNum(int tdrnum, int channel, int Jinfnum) {
   return CalPed[Jinfnum][tdrnum][channel];
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCalSigma_PosNum(int tdrnum, int channel, int Jinfnum) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalSigma_PosNum(int tdrnum, int channel, int Jinfnum) {
   return CalSigma[Jinfnum][tdrnum][channel];
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetRawSignal_PosNum(int tdrnum, int channel, int Jinfnum) {
-  return RawSignal[Jinfnum][tdrnum][channel] / 8.0;
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSignal_PosNum(int tdrnum, int channel, int Jinfnum) {
+  return RawSignal[Jinfnum][tdrnum][channel] / 8.0;//FIX ME: to be substituted with DecodeData::m_adcUnits
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCalStatus_PosNum(int tdrnum, int channel, int Jinfnum) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalStatus_PosNum(int tdrnum, int channel, int Jinfnum) {
   return CalStatus[Jinfnum][tdrnum][channel];
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCN_PosNum(int tdrnum, int va, int Jinfnum) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCN_PosNum(int tdrnum, int va, int Jinfnum) {
 
   // Viviana: hardcoded n channel
   // array dimension was 1024
@@ -1166,57 +1167,50 @@ double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCN_PosNum(int tdrnum,
   return ComputeCN(256, &(array[va * 256]), &(pede[va * 256]), &(arraySoN[va * 256]), &(status[va * 256]));
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetRawSoN_PosNum(int tdrnum, int channel, int Jinfnum) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSoN_PosNum(int tdrnum, int channel, int Jinfnum) {
   return (RawSignal[Jinfnum][tdrnum][channel] / 8.0 - CalPed[Jinfnum][tdrnum][channel]) /
          CalSigma[Jinfnum][tdrnum][channel];
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCalPed(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel,
-                                                                  int Jinfnum) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalPed(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum) {
   int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
   return GetCalPed_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCalSigma(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel,
-                                                                    int Jinfnum) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalSigma(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum) {
   int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
   return GetCalSigma_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetRawSignal(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel,
-                                                                     int Jinfnum) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSignal(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum) {
   int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
   return GetRawSignal_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int va,
-                                                              int Jinfnum) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int va, int Jinfnum) {
   int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
   return GetCN_PosNum(tdrnumraw, va, Jinfnum);
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetCalStatus(RHClass<NJINF, NTDRS> *rh, int tdrnum, int va,
-                                                                     int Jinfnum) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalStatus(RHClass<NJINF, NTDRS> *rh, int tdrnum, int va, int Jinfnum) {
   int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
   return GetCalStatus_PosNum(tdrnumraw, va, Jinfnum);
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetRawSoN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel,
-                                                                 int Jinfnum) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSoN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum) {
   int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
   return GetRawSoN_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ComputeCN(int size, short int *RawSignal, float *pede,
-                                                                  float *RawSoN, int *status, double threshold) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ComputeCN(int size, short int *RawSignal, float *pede, float *RawSoN, int *status, double threshold) {
 
   double mean = 0.0;
   int n = 0;
@@ -1240,8 +1234,8 @@ double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::ComputeCN(int size, shor
 }
 
 //------------CB: Qui iniziano le cose che ho aggiunto------------//
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FindTracksAndVertex(bool vertmode) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::FindTracksAndVertex(bool vertmode) {
   ClearTrack(); // tra le altre cose fa il clear di _TrS e _TrK
   ////////////////////////
   // PHASE 1.a: Hits std::vector//
@@ -1494,8 +1488,8 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::FindTracksAndVertex(bool v
   return true;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::Track(std::vector<Hit> &hits, std::vector<Hit> &rejects) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::Track(std::vector<Hit> &hits, std::vector<Hit> &rejects) {
   rejects.clear();
   std::vector<Hit> _hits;
   std::pair<double, double> dir;
@@ -1544,8 +1538,8 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::Track(std::vector<Hit> &hi
   return;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-std::pair<double, double> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::Hough(std::vector<Hit> &vec) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+std::pair<double, double> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::Hough(std::vector<Hit> &vec) {
   int nHits = vec.size();
   HoughSpace h(.00001, .00001);
   double m, th, r;
@@ -1563,8 +1557,8 @@ std::pair<double, double> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::Hough
   return h.GetMax();
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-std::vector<Hit> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::CleanTrack(std::vector<Hit> &hits) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+std::vector<Hit> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::CleanTrack(std::vector<Hit> &hits) {
   int i = 0, tdr = hits[0].first;
   int imax = 0, smax = 0;
   std::vector<std::vector<Hit>> coll;
@@ -1583,8 +1577,8 @@ std::vector<Hit> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::CleanTrack(std
   return coll[imax];
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::RecombineXY(double ang) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::RecombineXY(double ang) {
   std::vector<double> xhitrot, yhitrot;
   int tdrX = 18;
   int tdrY = 19;
@@ -1651,22 +1645,22 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::RecombineXY(double ang) {
   }
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-std::pair<double, double> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetVertexS() {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+std::pair<double, double> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetVertexS() {
   if (_vertexS == std::make_pair(9999., 9999.))
     FindTracksAndVertex();
   return _vertexS;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-std::pair<double, double> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetVertexK() {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+std::pair<double, double> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetVertexK() {
   if (_vertexK == std::make_pair(9999., 9999.))
     FindTracksAndVertex();
   return _vertexK;
 }
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVAS>
-trackColl *GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVAS>::GetTracks(int t) {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+trackColl *GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetTracks(int t) {
   if (t)
     return &_TrK;
   else

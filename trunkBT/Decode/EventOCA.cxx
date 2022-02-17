@@ -1,7 +1,7 @@
 #include "GenericEvent.hpp"
 
-using EventOCA = GenericEvent<1, 24, 64, 5, 10>;
-using EventFOOT = GenericEvent<1, 24, 64, 5, 10>;
+using EventOCA = GenericEvent<1, 24, 64, 5, 10, 0>;
+using EventFOOT = GenericEvent<1, 24, 64, 5, 10, 0>;
 
 ClassImp(EventOCA);
 ClassImp(EventFOOT);

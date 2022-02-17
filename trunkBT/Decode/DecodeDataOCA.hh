@@ -10,14 +10,15 @@
 
 class DecodeDataOCA : public DecodeData {
 public:
-  using EventOCA = GenericEvent<1, 24, 64, 5, 10>;
+  using EventOCA = GenericEvent<1, 24, 64, 5, 10, 0>;
   using calibOCA = calib<EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;
 
 public:
   EventOCA *ev;
 
   DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum);
-
+  virtual ~DecodeDataOCA();
+  
   virtual ::FlavorConfig FlavorConfig() final {
     return {EventOCA::GetNJINF(), EventOCA::GetNTDRS(), EventOCA::GetNCHAVA(), EventOCA::GetNADCS(),
             EventOCA::GetNVAS()};
@@ -31,7 +32,7 @@ public:
   virtual int SkipOneEvent(int evskip = 1) final { return 0; };
   virtual int GetTdrNum(size_t pos) final;
   virtual int GetTdrType(size_t pos) final;
-
+  
 private:
   std::string m_rawDir;
   std::string m_calDir;
@@ -42,7 +43,8 @@ private:
   FILE *calfile = nullptr;
   calibOCA cals[EventOCA::GetNJINF() * EventOCA::GetNTDRS()]{};
 
-  unsigned int m_numBoards = 0;
+  unsigned int m_numBoards = 12;//maximum
+  unsigned int m_numBoardsFound = 0;//found during ReadOneEventFromFile
 
   void DumpRunHeader() override;
   void InitHistos();
