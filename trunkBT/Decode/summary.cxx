@@ -320,7 +320,7 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
 
   c->cd(2);
   gPad->SetFillStyle(0);
-  TH2F *fram2=new TH2F(Form("fram2_%d", count), Form("%s: sigma",filename),nch,1,nch,31,0,30);
+  TH2F *fram2=new TH2F(Form("fram2_%d", count), Form("%s: sigma",filename),nch,1,nch,11,0,10);
   fram2->SetStats(0);
   fram2->Draw();
   TH1F *isto2=new TH1F(Form("isto2_%d", count), Form("%s: sigma",filename),nch,1,nch);  
@@ -332,7 +332,7 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
 
   c->cd(3);
   gPad->SetFillStyle(0);
-  TH2F *fram3=new TH2F(Form("fram3_%d", count), Form("%s: sigma raw",filename),nch,1,nch,51,0,50);
+  TH2F *fram3=new TH2F(Form("fram3_%d", count), Form("%s: sigma raw",filename),nch,1,nch,21,0,20);
   fram3->SetStats(0);
   fram3->Draw();
   TH1F *isto3=new TH1F(Form("isto3_%d", count), Form("%s: sigma raw",filename),nch,1,nch);
