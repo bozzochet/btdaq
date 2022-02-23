@@ -343,7 +343,8 @@ int main(int argc, char **argv) {
 	//	printf("%d\n", ladder);
 	double signal = cl->GetTotSig();
 	// if (signal>4095) {
-	// 	printf("event %d, cluster %d, side %d) signal %f\n", (dd->ev)->GetEvtnum(), cc, cl->side, signal);
+	//   printf("event %d, cluster %d, side %d), address %d, signal %f\n", (dd->ev)->GetEvtnum(), cc, cl->side, cl->address, signal);
+	//   sleep(1);
 	// }
 	double charge = cl->GetCharge();
 	double son = cl->GetTotSN();

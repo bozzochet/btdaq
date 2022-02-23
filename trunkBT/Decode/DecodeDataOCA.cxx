@@ -202,7 +202,7 @@ bool DecodeDataOCA::ProcessCalibration() {
   // for (int ii=0; ii<NTDRS; ii++) {
   //   signals[ii].resize(NVAS * NCHAVA);
   // }
-
+  
 #define CALPLOTS
 #define PERCENTILE 0.02
   
