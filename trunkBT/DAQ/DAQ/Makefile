@@ -14,7 +14,7 @@ LIBINCLUDE= -I$(ROOTSYS)/include -I $(TOP)PeCpIp/ -I  $(TOP)SlowControl/ -I $(TO
 LIBOBJ:=$(LIBSOURCES:%.cxx=%.o)
 
 
-CFLAGS= -g
+CFLAGS= -g -Wno-int-to-pointer-cast
 CPPFLAGS+= $(LIBINCLUDE) 
 
 OBJECTS=$(TOP)/TakeData/takeJinj.o $(TOP)/TakeData/JinjSlave.o $(TOP)/TakeData/dampe.o $(TOP)/TakeData/JLV1.o $(TOP)/TakeData/CommClass.o $(TOP)/TakeData/TrigClass.o $(TOP)/TakeData/Jinj.o $(TOP)/TakeData/Jinf.o $(TOP)/TakeData/PUtil.o
