@@ -1184,7 +1184,7 @@ void HeaderReset(wholeheader* Head, int runtype){//0 = calibration, 1 = run
 
 void headerReset(header* Header){
 	Header->run=0;// run number
-	sprintf(Header->date,"");// date
+	sprintf(Header->date,"\0");// date
 	for (int ii=0; ii<4; ii++){
 		Header->gonpar[ii]=0;// goniometer parameters
 	}
