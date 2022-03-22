@@ -15,13 +15,13 @@
 #include "CommClass.hh"
 int CommClass::sock_id = -1;
 CommClass::CommClass(const char *add, int PORT){
-	if (add)
-		snprintf(address, 80, "%s",add);
-	else
-		sprintf(address,"");//28 Marzo 2011, Matteo Duranti: non so bene perche' ho dovuto fare cosi', altrimenti segfaultava...
-	port=PORT;
-	childpid=0;
-	pri=1;
+  if (add)
+    snprintf(address, 80, "%s",add);
+  else
+    sprintf(address,"%s", "");//28 Marzo 2011, Matteo Duranti: non so bene perche' ho dovuto fare cosi', altrimenti segfaultava...
+  port=PORT;
+  childpid=0;
+  pri=1;
 }
 
 int CommClass::StopFile(){
