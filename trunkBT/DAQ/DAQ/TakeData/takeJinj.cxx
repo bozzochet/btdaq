@@ -929,7 +929,7 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
   //}
 
   //10 November 2015 - trick to add the stoptime to the file name...
-  char newfilename[255];
+  char newfilename[300];
   int stoptime = time(NULL);
   sprintf(newfilename,"%s/%d_ANC_%d.dat", JJ->CPars->DATAPATH, runnum, stoptime);
   char systemcommand[1024];
