@@ -102,8 +102,8 @@ void headerReset(header* Header);
 int main(int argc, char **argv) {
   int ret=0;
   int NodeType=0;
-  char logfilename[255];
-  char shortlogfilename[255];
+  char logfilename[512];
+  char shortlogfilename[512];
   char LOGPATH[255]="./log/";
   bool FakeFlag=0;//0 means there's a Jinj, if 1 a fake Jinj class will be used (it depends on the program name used [J->Jinj]) 
   
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
     printf("%s\n",(ret)?"ERROR":"READY"); 
     return 0;
   }
-  sprintf(shortlogfilename,"%s/shortlog.txt",LOGPATH);
+  sprintf(shortlogfilename,"%s/shortlog.txt", LOGPATH);
   shortlogfile=fopen(shortlogfilename,"a"); //append mode
   if (shortlogfile==NULL) {
     printf("ERROR: file %s could not be created, perhaps the log dir doesn't exist ?\n",shortlogfilename);
@@ -498,7 +498,7 @@ int SaveCalibration(AMSWcom* node, int runnum){
   if (WritingMode==0){
     //AMSBlock writing file mode  
     //----------------opening data file for writing-----------------
-    char datafilename[255];
+    char datafilename[512];
     sprintf(datafilename,"%s/%d.dat", JJ->CPars->CALPATH, runnum);
 
     struct stat buf;
@@ -700,7 +700,7 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
   int size_u_short=sizeof(u_short); //u_short is a typedef (I don't know in which library) to a generic unsigned short int (however sizeof(u_short) is 2!!)
   
   //----------------opening data file for writing-----------------
-  char datafilename[255];
+  char datafilename[512];
 
   if (ancillary_code<0) {
     sprintf(datafilename,"%s/%d.dat", JJ->CPars->DATAPATH, runnum);
@@ -932,7 +932,7 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
   char newfilename[255];
   int stoptime = time(NULL);
   sprintf(newfilename,"%s/%d_ANC_%d.dat", JJ->CPars->DATAPATH, runnum, stoptime);
-  char systemcommand[255];
+  char systemcommand[512];
   sprintf(systemcommand, "cp -v %s %s", datafilename, newfilename);
   system(systemcommand);
   
