@@ -889,9 +889,7 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
 	  size_t writtensize=0;
 	  writtensize=fwrite(node->Event,size_u_short, usize, datafile);
 	  if (writtensize!=usize) {
-	    char toprint[256] = "";
-	    sprintf(toprint, "There's a big problem %d %d\n!", writtensize, usize);
-	    PRINTF(toprint);
+	    PRINTF("There's a big problem %d %d\n!", (int)writtensize, usize);
 	  }
 	  fwrite(&DSPCRC16, sizeof(DSPCRC16), 1, datafile);
 	}
