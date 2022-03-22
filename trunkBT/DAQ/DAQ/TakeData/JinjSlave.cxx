@@ -38,18 +38,18 @@ int ConfPars::ReadConfig(char * conf_file) {
   }
   if (strstr(conf_file, "DAMPE")) {
     type = 2;
-    fscanf(file, "%s %s   ", &dummy, &dampeIP);
-    fscanf(file, "%s %s   ", &dummy, &dampePORT);
-    fscanf(file, "%s %s   ", &dummy, &REMOTEPATH);
+    fscanf(file, "%s %s   ", &dummy[0], &dampeIP[0]);
+    fscanf(file, "%s %s   ", &dummy[0], &dampePORT[0]);
+    fscanf(file, "%s %s   ", &dummy[0], &REMOTEPATH[0]);
     LPRINTF("DAMPE destination: %s:%s\n", dampeIP, dampePORT);
     LPRINTF("DAMPE remote directory: %s\n", REMOTEPATH);
   } else {
-    fscanf(file,"%s  %s",&dummy,&DATAPATH);
-    fscanf(file,"%s  %s",&dummy,&CALPATH);
+    fscanf(file,"%s  %s", &dummy[0], &DATAPATH[0]);
+    fscanf(file,"%s  %s", &dummy[0], &CALPATH[0]);
     if (strstr(conf_file,"JLV1")){
       type=1;
-      fscanf(file,"%s %hx  ",&dummy, &JLV1flash);
-      fscanf(file,"%s %d  ",&dummy, &delay);
+      fscanf(file,"%s %hx  ", &dummy[0], &JLV1flash);
+      fscanf(file,"%s %d  ", &dummy[0], &delay);
       delay/=20;
       
       LPRINTF("JLV1 program: 0x%04x\n", JLV1flash);
