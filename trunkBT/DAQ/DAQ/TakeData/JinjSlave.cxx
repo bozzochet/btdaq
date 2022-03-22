@@ -14,9 +14,9 @@ ConfPars::ConfPars() {
 	TDRflash=0; 
 	JLV1flash=0;
 	memset(mode,0,sizeof(mode));
-	sprintf(DATAPATH,"");
-	sprintf(CALPATH,"");
-	sprintf(REMOTEPATH, "");
+	sprintf(DATAPATH,"%s", "");
+	sprintf(CALPATH,"%s", "");
+	sprintf(REMOTEPATH, "%s", "");
 	refmask=0;
 	memset(SLowTrash,0,sizeof(SLowTrash));
 	memset(SHighTrash,0,sizeof(SHighTrash));
@@ -57,7 +57,7 @@ int ConfPars::ReadConfig(char * conf_file) {
       type=0;
       fscanf(file,"%s %hx  ",&dummy[0], &JINFflash);
       fscanf(file,"%s %hx  ",&dummy[0], &TDRflash);
-      fscanf(file,"%s %d  ",&dummy[0], &delay);
+      fscanf(file,"%s %hd  ",&dummy[0], &delay);
       delay/=20;
       fscanf(file,"%s %s %s %s %s %s %s %s %s",&dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0]);
       
