@@ -30,7 +30,7 @@ public:
   void SetPointer(JLV1* pointer){_PJLV1 = pointer;}
 
   //NI-USB case
-  TrigClass(char* address, int port);
+  TrigClass(const char* address, int port);
 
   int ReadCounter();
   int ResetCounter();

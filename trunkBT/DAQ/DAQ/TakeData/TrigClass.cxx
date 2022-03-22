@@ -16,7 +16,7 @@ TrigClass::TrigClass(JLV1* pointer):CommClass(NULL,0){
 }
 
 //NI_USB case
-TrigClass::TrigClass(char* address, int port):CommClass(address,port){
+TrigClass::TrigClass(const char* address, int port):CommClass(address,port){
   //initializing...
   this->TestConnection();
   _PJLV1 = NULL;
