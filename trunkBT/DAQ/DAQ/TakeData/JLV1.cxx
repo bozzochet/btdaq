@@ -110,7 +110,7 @@ int JLV1::GetEventNumber() {
 char* JLV1::PrintAllEventNumber(int log,int JLV1num) {
   int ret=0;
   static char numbers[1023];
-  sprintf(numbers,"");
+  sprintf(numbers,"%s", "");
 
   if (log) LPRINTF("Printing all last event numbers...\n");
 	
