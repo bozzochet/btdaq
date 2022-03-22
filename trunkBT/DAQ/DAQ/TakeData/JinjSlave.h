@@ -54,7 +54,7 @@ class JinjSlave{
   virtual int SetDelay(){ return 0; };
   virtual int SetMode(int jinjslavemode){ return 0; };
   virtual int GetEventNumber(){ return 0;};
-  virtual char* PrintAllEventNumber(int log=1,int jinjslavenum=0){ return null; };
+  virtual char* PrintAllEventNumber(int log=1,int jinjslavenum=0){ return NULL; };
   virtual int EventReset(){ return 0;};
  private:
   
