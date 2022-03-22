@@ -26,7 +26,7 @@ public:
   int  OpenConnection();
   int  TestConnection();
   //! Send a command, returns <0 on error and 1 on success  
-  int  SendCommand(char* command,char *answer, float timeout,int no_close=1);
+  int  SendCommand(const char* command,char *answer, float timeout,int no_close=1);
   int  SendCommandWithReply(char *command,char *goodanswer,char* badanswer,char* funame,float timeout);
 
   inline void CloseConnection(){if(pri)printf("Closing Connection \n"); if(sock_id>0) close(sock_id); sock_id=0;}
