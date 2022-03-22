@@ -50,9 +50,9 @@ int main(int argv, char **argc) {
 
   printf("mode = %d\n",mode);
 
-  sscanf(argc[1],"%d",&port);
-  sscanf(argc[2],"%x",&addr); // in case you wonder, 'h' is for 'short'...
-  sscanf(argc[3],"%hx",&cmd);
+  sscanf(argc[1],"%hd", &port);
+  sscanf(argc[2],"%x", &addr); // in case you wonder, 'h' is for 'short'...
+  sscanf(argc[3],"%hx", &cmd);
 
   int start=4, nparam=0;
   //if (cmd==cAMSW_COMMAND) start++;
