@@ -28,12 +28,12 @@ int ConfParsJ::ReadConfig(const char* conf_file) { // gcc 4.3: added 'const'
   fscanf(file,"%s  %s",&dummy,&CALPATH);
   fscanf(file,"%s  %s",&dummy,&CONFPATH);
   fscanf(file,"%s %hx  ",&dummy, &JINJflash);
-  fscanf(file,"%s %s %s  %s",&dummy, &dummy, &dummy, &dummy);
+  fscanf(file,"%s %s %s  %s", &dummy[0], &dummy[0], &dummy[0], &dummy[0]);
   
   int a, tmp;
   for (int slave=0; slave<NSLAVE-1; slave++) {
     
-    fscanf(file, "%d %d %d %s",&a,&tmp,&mode[slave],SlaveConfFile[slave]);
+    fscanf(file, "%d %d %hd %s", &a, &tmp, &mode[slave], SlaveConfFile[slave]);
     if(tmp) refmask+= 1<<slave;
     //LPRINTF("TDR %2d will be set to%s%s%s acquisition mode\n",tdr,(mode[tdr]==0)?" NO ":"",(mode[tdr]&1)?" RAW":"",(mode[tdr]&2)?" RED":"");
   }
@@ -227,7 +227,7 @@ int Jinj::SetDelay(){
 int Jinj::SetModeSlaves(int jinjslavemode,int tdrmode){
   int ret=0;
   for (int ii=0;ii<NSlave;ii++){
-    printf("-------------------- setting mode %d to Slave[ii]\n", jinjslavemode, ii);
+    printf("-------------------- setting mode %d to Slave[%d]\n", jinjslavemode, ii);
     ret+=Slave[ii]->SetMode(jinjslavemode);
     if (Slave[ii]->CPars->type == 0){//it's a Jinf
       printf("-------------------- setting mode %d to tdrs\n", tdrmode);
