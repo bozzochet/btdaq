@@ -265,7 +265,7 @@ char* Jinf::PrintAllEventNumber(int log,int Jinfnum) {
 
 
   sprintf(numbers,"Jinf %02d: %6d",Jinfnum, jinfevents[0]);
-  sprintf(numbers,"%s\nTdrs:",numbers);
+  strcat(numbers, "Tdrs:");
  
 
   for (int ii=0;ii<NTDRS;ii++)
