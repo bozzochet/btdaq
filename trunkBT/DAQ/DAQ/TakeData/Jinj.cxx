@@ -303,7 +303,9 @@ char* Jinj::PrintAllEventNumber(int log) {
   LPRINTF("Printing all last event numbers...\n");
   
   for (int ii=0;ii<NSlave;ii++){
-    sprintf(numbers,"%s\n%s\n",numbers,Slave[ii]->PrintAllEventNumber(0,SlaveAdd[ii])); 
+    char addline[64] = "";
+    sprintf(addline, "\n%s\n",Slave[ii]->PrintAllEventNumber(0,SlaveAdd[ii])); 
+    strncat(numbers, addline, strlen(addline));
   }
   
   if (log) PRINTF("%s\n", numbers);
@@ -313,7 +315,6 @@ char* Jinj::PrintAllEventNumber(int log) {
 
 int Jinj::ShowConnect(SlaveMask mask) {
   int ntdrs=0;
-  char line[100];
   const int config[NSLAVE]={0,4,8,0xc,0x10,0x14,0x16,0x12,0xe,0xa,6,2,1,5,9,0xd,0x11,0x15,0x17,0x13,0xf,0xb,7,3};  
   LPRINTF("Summary:\n");
   const char on[2][5]={"[ ]\0","[X]\0"};
@@ -324,10 +325,12 @@ int Jinj::ShowConnect(SlaveMask mask) {
     LPRINTF("Mask ID=%02x : 0x%06x\n",id,connect);
     
     for (int j=0; j<2; j++) {
-      sprintf(line,"");
+      char line[100] = "";
       for (int i=0; i<12; i++) {
+	char addline[64] = "";
 	int val=(connect&(1<<config[j*12+i]))?1:0;
-	sprintf(line,"%s %3d:%s", line,config[j*12+i],on[val]);
+	sprintf(addline," %3d:%s", config[j*12+i], on[val]);
+	strncat(line, addline, strlen(addline));
 	ntdrs+=val;
       }
       LPRINTF("%s\n", line);
