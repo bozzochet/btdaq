@@ -258,8 +258,7 @@ int Jinf::GetEventNumber() {
 
 char* Jinf::PrintAllEventNumber(int log,int Jinfnum) {
   int ret=0;
-  static char numbers[1023];
-  sprintf(numbers,"");
+  char numbers[1023] = "";
 
   if (log) LPRINTF("Printing all last event numbers...\n");
 
@@ -300,7 +299,6 @@ int Jinf::EventReset() {
 
 int Jinf::ShowConnect(SlaveMask mask) {
   int ntdrs=0;
-  char line[256];
   const int config[NTDRS]={0,4,8,0xc,0x10,0x14,0x16,0x12,0xe,0xa,6,2,1,5,9,0xd,0x11,0x15,0x17,0x13,0xf,0xb,7,3};  
   LPRINTF("Summary:\n");
   const char on[2][5]={"[ ]\0","[X]\0"};
@@ -311,7 +309,7 @@ int Jinf::ShowConnect(SlaveMask mask) {
     LPRINTF("Mask ID=%02x : 0x%06x\n",id,connect);
     
     for (int j=0; j<2; j++) {
-      sprintf(line, "");
+      char line[256] = "";
       for (int i=0; i<12; i++) {
 	int val=(connect&(1<<config[j*12+i]))?1:0;
 	char addline[31] = "";
