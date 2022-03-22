@@ -49,15 +49,15 @@ int ConfPars::ReadConfig(char * conf_file) {
     if (strstr(conf_file,"JLV1")){
       type=1;
       fscanf(file,"%s %hx  ", &dummy[0], &JLV1flash);
-      fscanf(file,"%s %d  ", &dummy[0], &delay);
+      fscanf(file,"%s %hd  ", &dummy[0], &delay);
       delay/=20;
       
       LPRINTF("JLV1 program: 0x%04x\n", JLV1flash);
     } else if (strstr(conf_file,"JINF")){
       type=0;
-      fscanf(file,"%s %hx  ",&dummy, &JINFflash);
-      fscanf(file,"%s %hx  ",&dummy, &TDRflash);
-      fscanf(file,"%s %d  ",&dummy, &delay);
+      fscanf(file,"%s %hx  ",&dummy[0], &JINFflash);
+      fscanf(file,"%s %hx  ",&dummy[0], &TDRflash);
+      fscanf(file,"%s %d  ",&dummy[0], &delay);
       delay/=20;
       fscanf(file,"%s %s %s %s %s %s %s %s %s",&dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0]);
       
