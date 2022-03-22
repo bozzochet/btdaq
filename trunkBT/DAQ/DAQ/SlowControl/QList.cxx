@@ -489,7 +489,7 @@ void QEvent::Print(int pos) {
       continue;
     }
 
-    char boardname[10];
+    char boardname[64];
     if (qdata->IsS9011AT()) sprintf(boardname,"S9011AT half %d", qdata->GetHalf());
     else if (qdata->IsTBS()) sprintf(boardname,"TBS_%02d", qdata->GetLrAddr());
     else if (qdata->IsTPSFE()) sprintf(boardname,"TPSFE_%02d", qdata->GetLrAddr());
