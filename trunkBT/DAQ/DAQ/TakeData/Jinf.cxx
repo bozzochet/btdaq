@@ -316,7 +316,7 @@ int Jinf::ShowConnect(SlaveMask mask) {
 	int val=(connect&(1<<config[j*12+i]))?1:0;
 	char addline[31] = "";
 	sprintf(addline, " %3d:%s", config[j*12+i], on[val]);
-	strncat(line, addline, strlen(affline));
+	strncat(line, addline, strlen(addline));
 	ntdrs+=val;
       }
       LPRINTF("%s\n", line);
