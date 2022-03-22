@@ -270,8 +270,11 @@ char* Jinf::PrintAllEventNumber(int log,int Jinfnum) {
 
   for (int ii=0;ii<NTDRS;ii++)
     if(CPars->refmask&(1<<ii) && CPars->mode[ii]) {
-      if(ii%6==0)sprintf(numbers,"%s\n",numbers);
-      sprintf(numbers,"%s%2d: %6d| ", numbers, ii, tdrevents[0][ii]);
+      char ret[10] = "\n";
+      if(ii%6==0) strncat(numbers, ret, strlen(ret));
+      char addline[64] = "";
+      sprintf(addline, "%2d: %6d| ", ii, tdrevents[0][ii]);
+      strncat(numbers, addline, strlen(addline));
     }
     
   if (log) PRINTF("%s\n", numbers);
