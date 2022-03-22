@@ -59,13 +59,13 @@ int ConfPars::ReadConfig(char * conf_file) {
       fscanf(file,"%s %hx  ",&dummy, &TDRflash);
       fscanf(file,"%s %d  ",&dummy, &delay);
       delay/=20;
-      fscanf(file,"%s %s %s %s %s %s %s %s %s",&dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy);
+      fscanf(file,"%s %s %s %s %s %s %s %s %s",&dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0], &dummy[0]);
       
       int a, tmp, inutile;
       float b,c,d,e,f,g;
       for (int tdr=0; tdr<NTDRS; tdr++) {
 	inutile = refmask;
-	fscanf(file, "%d %d %d %f %f %f %f %f %f", &a, &tmp, &mode[tdr], &b, &c, &d, &e, &f, &g);
+	fscanf(file, "%d %d %hd %f %f %f %f %f %f", &a, &tmp, &mode[tdr], &b, &c, &d, &e, &f, &g);
 	SLowTrash[tdr]=(short int)b*8;
 	SHighTrash[tdr]=(short int)c*8;
 	KLowTrash[tdr]=(short int)d*8;
