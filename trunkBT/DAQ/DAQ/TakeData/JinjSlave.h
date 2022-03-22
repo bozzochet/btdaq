@@ -50,12 +50,12 @@ class JinjSlave{
   int jinfevents[2];
   int tdrevents[2][24];
   int jlv1events;
-  virtual int Init(){};
-  virtual int SetDelay(){};
-  virtual int SetMode(int jinjslavemode){};
-  virtual int GetEventNumber(){};
-  virtual char* PrintAllEventNumber(int log=1,int jinjslavenum=0){};
-  virtual int EventReset(){};
+  virtual int Init(){ return 0; };
+  virtual int SetDelay(){ return 0; };
+  virtual int SetMode(int jinjslavemode){ return 0; };
+  virtual int GetEventNumber(){ return 0;};
+  virtual char* PrintAllEventNumber(int log=1,int jinjslavenum=0){ return null; };
+  virtual int EventReset(){ return 0;};
  private:
   
 };
