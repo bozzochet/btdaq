@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <cstdio>
 #define d_string_len 255
+
 class CommClass {
   
 public:
