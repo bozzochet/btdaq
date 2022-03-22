@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sstream>
-//#include <unistd.h> //needed to compile with Root6
+#include <unistd.h> //needed to compile with Root6
 
 //Definition of AMSWcom class
 #include "amswcom.h"
@@ -1959,30 +1959,48 @@ void AMSWcom::PrintSummary( unsigned int address) {
 
 void AMSWcom::PrintBuildStat(unsigned short e1) {
 
-	char string[200];
+	char string[512];
 
 	sprintf(string, "Slave ID %d: ",(e1 & 0x1f));
 	//  writeDAQMessg(string);
 
-	sprintf(string,"%s%snode is building%s%s%s events",string,(e1 & (1<<5))?"CDP ":"",(e1 & (1<<6))?" RAW":"", (e1 & (1<<7))?" CMP":"", (e1 & ((1<<6)+(1<<7)))?"":" no");
-	IOutput("%s\n",string);
+	char stringout[1024];
+	sprintf(stringout, "%s%snode is building%s%s%s events", string,
+		(e1 & (1<<5))?"CDP ":"",
+		(e1 & (1<<6))?" RAW":"",
+		(e1 & (1<<7))?" CMP":"",
+		(e1 & ((1<<6)+(1<<7)))?"":" no");
+	IOutput("%s\n", stringout);
 
 	if (e1 & (1<<15)) {
-		sprintf(string,"DATA");
-		if (e1 & (1<<14)) sprintf(string,"%s CRC error",string);
-		if (e1 & (1<<13)) sprintf(string,"%s assembly error",string);
-		if (e1 & (1<<12)) sprintf(string,"%s AMSW error",string);
-		if (e1 & (1<<11)) sprintf(string,"%s timeout",string);
-		if (strlen(string)>0) IOutput("%s\n",string);  
-	} else {
-		sprintf(string,"");
-		if (e1 & (1<<14)) sprintf(string,"%s END",string);
-		if (e1 & (1<<13)) sprintf(string,"%s ABORT",string);
-		if (e1 & (1<<12)) sprintf(string,"%s ERROR",string);
-		if (e1 & (1<<11)) sprintf(string,"%s NEXT",string);
-		if (strlen(string)>0) IOutput("%s\n",string);  
+	  char stringc[64] = "";
+	  char stringa[64] = "";
+	  char stringe[64] = "";
+	  char stringt[64] = "";
+	  if (e1 & (1<<14)) sprintf(stringc," CRC error");
+	  if (e1 & (1<<13)) sprintf(stringa," assembly error");
+	  if (e1 & (1<<12)) sprintf(stringe," AMSW error");
+	  if (e1 & (1<<11)) sprintf(stringt," timeout");
+	  if (strlen(string)>0) {
+	    sprintf(string,"DATA%s%s%s%s", stringc, stringa, stringe, stringt);
+	    IOutput("%s\n", string);
+	  }
 	}
-
+	else {
+	  char stringc[64] = "";
+	  char stringa[64] = "";
+	  char stringe[64] = "";
+	  char stringt[64] = "";
+	  if (e1 & (1<<14)) sprintf(stringc," END");
+	  if (e1 & (1<<13)) sprintf(stringa," ABORT");
+	  if (e1 & (1<<12)) sprintf(stringe," ERROR");
+	  if (e1 & (1<<11)) sprintf(stringt," NEXT");
+	  if (strlen(string)>0) {
+	    sprintf(string, "%s%s%s%s", stringc, stringa, stringe, stringt);
+	    IOutput("%s\n", string);
+	  }
+	}
+	
 }
 
 
@@ -1993,7 +2011,7 @@ void AMSWcom::PrintNodeStatus( unsigned int addr) {
 	static char error[7][50]={"Program selftest\0","Data memory test\0","Program memory test\0",
 		"Buffer memory test\0","FLASH\0","AMSWire\0","Event building\0"};
 
-	char string[200];
+	char string[255];
 	unsigned short e1=0;
 	unsigned short ver=0, attr=0, subdver=0, lastevt=0, subdsubver=0;
 	unsigned short LStime=0, MStime=0;
@@ -2051,18 +2069,21 @@ void AMSWcom::PrintNodeStatus( unsigned int addr) {
 	timem=times/60.;
 	timeh=timem/60.;
 	timed=timeh/24.;
+	
+	char stringd[128] = "";
+	char stringh[128] = "";
+	char stringm[128] = "";
+	char strings[128] = "";
+	char stringout[1024] = "";
 
-
-
-	sprintf(string,"Started");
-	if (!(timed<1)) sprintf(string,"%s %d days",string, (int) timed);
-	if (!(timeh<1)) sprintf(string,"%s %d hours",string, (int)timeh%24);
-	if (!(timem<1)) sprintf(string,"%s %d minutes",string, (int)timem%60);
-	if (!(times<1)) sprintf(string,"%s %d seconds",string, (int)times%60); 
-	sprintf(string,"%s ago\n",string);
+	if (!(timed<1)) sprintf(stringd, " %d days",    (int)timed);
+	if (!(timeh<1)) sprintf(stringh, " %d hours",   (int)timeh%24);
+	if (!(timem<1)) sprintf(stringm, " %d minutes", (int)timem%60);
+	if (!(times<1)) sprintf(strings, " %d seconds", (int)times%60); 
+	sprintf(stringout,"Started%s%s%s%s ago\n", stringd, stringh, stringm, strings);
 
 	//  sprintf(string,"Started %.2lf seconds ago",(timed<1)?timed); // 10 ms ticks
-	IOutput("%s\n",string);
+	IOutput("%s\n", stringout);
 
 }
 
@@ -2251,11 +2272,11 @@ int AMSWcom::CreateFlashFile(unsigned int amswaddr) {
 	fclose(in);
 	fclose(out);
 
-
+	return 0;
 }
 
 
-int AMSWcom::WriteFlashFile(unsigned int amswaddr, char *name) {
+int AMSWcom::WriteFlashFile(unsigned int amswaddr, const char *name) {
 
 	FILE *in;
 	unsigned short fname, m, slen, saddr, nseg, flag, length, page, nw, fcs, txst, addr;

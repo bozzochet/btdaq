@@ -242,7 +242,7 @@ class AMSWcom
   void FlashRead(unsigned int addr, unsigned short fname,char* fout=0);
   void FlashDefault(unsigned int addr, unsigned short fname, unsigned short def);
   int  CreateFlashFile(unsigned int amswaddr);
-  int  WriteFlashFile(unsigned int amswaddr, char *name);
+  int  WriteFlashFile(unsigned int amswaddr, const char *name);
   void FlashWrite(unsigned int addrl, unsigned short length);
 private:
   int  SaveFlashFile( char *name);
