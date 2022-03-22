@@ -7,8 +7,8 @@ ConfParsJ::ConfParsJ() {
   Nslave=NSLAVE;
   JINJflash=0;
   memset(mode,0,sizeof(mode));
-  sprintf(DATAPATH,"");
-  sprintf(CALPATH,"");
+  sprintf(DATAPATH, "%s", "");
+  sprintf(CALPATH, "%s", "");
   refmask=0;
 }
 
