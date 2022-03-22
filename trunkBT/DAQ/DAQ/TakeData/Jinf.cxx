@@ -278,7 +278,9 @@ char* Jinf::PrintAllEventNumber(int log,int Jinfnum) {
     
   if (log) PRINTF("%s\n", numbers);
 
-  return numbers;
+  static char numberstoret[1050];
+  sprintf(numberstoret, "%s", numbers);
+  return numberstoret;
 }
 
 int Jinf::EventReset() {
