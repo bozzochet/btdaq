@@ -187,7 +187,7 @@ int CommClass::OpenConnection() {
 	return socket_id;
 }
 
-int CommClass::SendCommand(char* command, char *answer, float timeout,int no_close){
+int CommClass::SendCommand(const char* command, char *answer, float timeout,int no_close){
 
 	int retsel;
 	int ret;
