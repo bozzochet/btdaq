@@ -27,10 +27,10 @@ using namespace std;
 
 class ConfPars{
 
-	public:
-		char CALPATH[255];
-		unsigned int refmask;
-		ConfPars();
+public:
+  char CALPATH[512];
+  unsigned int refmask;
+  ConfPars();
 };
 
 ConfPars::ConfPars() {
@@ -43,10 +43,10 @@ ConfPars* CPars;
 bool mute=false;
 
 void ShowHelp(char *cmd);
-void RefMask(ConfPars *CPars, int run_number, int jinfnum, char *nameprefixin);
-Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, char *nameprefixin, char *nameout, char *outkind);
-Int_t Summary(char *filename, char *nameout, char *outkind);
-int SummaryComplete(char *dir, int run_number, int jinfnum, char *outkind, char *nameprefix);
+void RefMask(ConfPars *CPars, int run_number, int jinfnum, const char *nameprefixin);
+Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, const char *nameprefixin, char *nameout, const char *outkind);
+Int_t Summary(char *filename, char *nameout, const char *outkind);
+int SummaryComplete(char *dir, int run_number, int jinfnum, const char *outkind, const char *nameprefix);
 
 //--------------------------------------------------------------------------------------------
 //                              Here comes the main...
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
     }
   }
   if (argc>2) {
-    char type[255];
+    char type[512];
     sprintf(type,"pdf");
     if (!strcmp(argv[2],"ps"))
       sprintf(type,"ps");
@@ -106,15 +106,17 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-void RefMask(ConfPars *CPars, int run_number, int jinfnum, char *nameprefixin) {
+void RefMask(ConfPars *CPars, int run_number, int jinfnum, const char *nameprefixin) {
   CPars->refmask=0; 
-  char calfileprefix[255];
-  char prefix[255];
-  sprintf(prefix,"%s",nameprefixin);
-  if (prefix[0]!=0) sprintf(prefix,"%s_",prefix);
+  char calfileprefix[850];
+  char prefixtemp[255];
+  char prefix[300];
+  sprintf(prefixtemp, "%s", nameprefixin);
+  if (prefixtemp[0]!=0) sprintf(prefix, "%s_", prefixtemp);
+  else sprintf(prefix, "%s", prefixtemp);
   sprintf(calfileprefix,"%s/%s%06d", CPars->CALPATH, prefix, run_number);
   
-  char calfilename[255];
+  char calfilename[1024];
   
   for (int ii=0;ii<24;ii++) {
     sprintf(calfilename,"%s_%02d%02d.cal", calfileprefix, jinfnum, ii);
@@ -127,16 +129,16 @@ void RefMask(ConfPars *CPars, int run_number, int jinfnum, char *nameprefixin) {
   return;
 }
 
-int SummaryComplete(char *dir, int run_number, int jinfnum, char *outkind, char *nameprefix) {
+int SummaryComplete(char *dir, int run_number, int jinfnum, const char *outkind, const char *nameprefix) {
 	int ret=0;
 	int lasttdr=0;
 	int tdrcount=0;
 
-	char calfileprefix[255];
-	char nameouttemp[255];
-	char nameout[255];
-	char nameprefixtemp[255];
-	char systemcommand[255];
+	char calfileprefix[600];
+	char nameouttemp[750];
+	char nameout[700];
+	char nameprefixtemp[512];
+	char systemcommand[750];
 
 	if (nameprefix[0]!=0) sprintf(nameprefixtemp,"summary-%s_",nameprefix);
 	else sprintf(nameprefixtemp,"summary-%s",nameprefix);	
@@ -181,12 +183,12 @@ int SummaryComplete(char *dir, int run_number, int jinfnum, char *outkind, char 
 	return ret;
 }
 
-Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, char *nameprefixin, char *nameout, char *outkind) {
+Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, const char *nameprefixin, char *nameout, const char *outkind) {
 	int ret=0;
 
-	char calfileprefix[255];
-	Char_t filename[255];
-	char nameprefixintemp[255];
+	char calfileprefix[700];
+	Char_t filename[1024];
+	char nameprefixintemp[512];
 
 	if (nameprefixin[0]!=0) sprintf(nameprefixintemp,"%s_",nameprefixin);
 	else sprintf(nameprefixintemp,"%s",nameprefixin);
@@ -197,7 +199,7 @@ Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, char *name
 	return ret;
 }
 
-Int_t Summary(char *filename, char *nameout, char *outkind) {
+Int_t Summary(char *filename, char *nameout, const char *outkind) {
 
 	InitStyle();
 
