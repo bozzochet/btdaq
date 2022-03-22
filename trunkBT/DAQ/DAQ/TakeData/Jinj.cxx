@@ -24,10 +24,10 @@ int ConfParsJ::ReadConfig(const char* conf_file) { // gcc 4.3: added 'const'
   }
   
   
-  fscanf(file,"%s  %s",&dummy,&DATAPATH);
-  fscanf(file,"%s  %s",&dummy,&CALPATH);
-  fscanf(file,"%s  %s",&dummy,&CONFPATH);
-  fscanf(file,"%s %hx  ",&dummy, &JINJflash);
+  fscanf(file,"%s  %s", &dummy[0], &DATAPATH[0]);
+  fscanf(file,"%s  %s", &dummy[0], &CALPATH[0]);
+  fscanf(file,"%s  %s", &dummy[0], &CONFPATH[0]);
+  fscanf(file,"%s %hx  ", &dummy[0], &JINJflash[0]);
   fscanf(file,"%s %s %s  %s", &dummy[0], &dummy[0], &dummy[0], &dummy[0]);
   
   int a, tmp;
