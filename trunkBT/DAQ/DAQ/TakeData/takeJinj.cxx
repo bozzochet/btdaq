@@ -932,7 +932,7 @@ int StartRun(AMSWcom *node, int nevents, int fake) {
   char newfilename[255];
   int stoptime = time(NULL);
   sprintf(newfilename,"%s/%d_ANC_%d.dat", JJ->CPars->DATAPATH, runnum, stoptime);
-  char systemcommand[512];
+  char systemcommand[1024];
   sprintf(systemcommand, "cp -v %s %s", datafilename, newfilename);
   system(systemcommand);
   
