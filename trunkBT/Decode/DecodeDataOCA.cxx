@@ -211,10 +211,11 @@ bool DecodeDataOCA::ProcessCalibration() {
     ReadOneEventFromFile(calfile, event.get());
     //    std::cout << "\rRead " << ++nEvents << " events" << std::flush;
     std::cout << "\rRead " << ++nEvents << " events" << " (found " << m_numBoardsFound << " boards)" << std::flush;
-
+    
     for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
         signals[iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+	//	printf("%d (%d %d)) %hd %f -> %f\n", nEvents, iTdr, iCh, event->RawSignal[iJinf][iTdr][iCh], m_adcUnits, event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
       }
     }
   }
@@ -222,18 +223,29 @@ bool DecodeDataOCA::ProcessCalibration() {
   
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      std::sort(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]));
       
-      cals[iTdr].ped[iCh] = std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f) /
-	static_cast<float>(signals[iTdr][iCh].size());
+      std::sort(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]));
+      unsigned int skipped_ch = PERCENTILE*signals[iTdr][iCh].size();
+      auto beginItr = std::next(begin(signals[iTdr][iCh]), skipped_ch);
+      auto endItr = std::prev(end(signals[iTdr][iCh]), skipped_ch);
+      auto nCh = std::distance(beginItr, endItr);
+      //      printf("%ld %f\n", nCh, (1.0-2.0*PERCENTILE)*signals[iTdr][iCh].size());
+      
+      //      cals[iTdr].ped[iCh] = std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f) /
+      cals[iTdr].ped[iCh] = std::accumulate(beginItr, endItr, 0.0f) /
+	//	static_cast<float>(signals[iTdr][iCh].size());
+	nCh;
       
       cals[iTdr].rsig[iCh] =
-	//          std::sqrt(std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f,
-	std::sqrt(std::accumulate(begin(signals[iTdr][iCh])+((int)(PERCENTILE*signals[iTdr][iCh].size())), end(signals[iTdr][iCh])-((int)(PERCENTILE*signals[iTdr][iCh].size())), 0.0f,
+	//	std::sqrt(std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f,
+	//	std::sqrt(std::accumulate(begin(signals[iTdr][iCh])+((int)(PERCENTILE*signals[iTdr][iCh].size())), end(signals[iTdr][iCh])-((int)(PERCENTILE*signals[iTdr][iCh].size())), 0.0f,
+	std::sqrt(std::accumulate(beginItr, endItr, 0.0f,
 				  [&](float acc, float curr) {
 				    return acc + (curr - cals[iTdr].ped[iCh]) * (curr - cals[iTdr].ped[iCh]);
 				  }) /
-		  static_cast<float>(signals[iTdr][iCh].size()));
+		  //		  static_cast<float>(signals[iTdr][iCh].size()));
+		  //		  ((1.0-2.0*PERCENTILE)*static_cast<float>(signals[iTdr][iCh].size())));
+		  nCh);
       // initialize this for later
       cals[iTdr].sig[iCh] = 0;
       cals[iTdr].status[iCh] = 0;
@@ -242,21 +254,28 @@ bool DecodeDataOCA::ProcessCalibration() {
   
 #ifdef CALPLOTS
   TH1F* hrawsig[NTDRS];
+  TH1F* hrawsig_filtered[NTDRS];
   TH1F* hsig[NTDRS];
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     hrawsig[iTdr] = new TH1F(Form("rawsigma_%d", iTdr), "rawsigma", 5000, -500, 500);
+    hrawsig_filtered[iTdr] = new TH1F(Form("rawsigma_filtered_%d", iTdr), "rawsigma", 5000, -500, 500);
     hsig[iTdr] = new TH1F(Form("sigma_%d", iTdr), "sigma", 5000, -500, 500);
+    printf("%d) %p %p %p\n", iTdr, hrawsig[iTdr], hrawsig_filtered[iTdr], hsig[iTdr]);
   }
   
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {  
       for (unsigned int iEv=0; iEv<signals[iTdr][iCh].size(); iEv++) {
-	//      for (unsigned int iEv=((int)(PERCENTILE*signals[iTdr][iCh].size())); iEv<((int)((1.0-PERCENTILE)*signals[iTdr][iCh].size())); iEv++) { 
 	hrawsig[iTdr]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+      }
+      for (unsigned int iEv=((int)(PERCENTILE*signals[iTdr][iCh].size())); iEv<((int)((1.0-PERCENTILE)*signals[iTdr][iCh].size())); iEv++) {
+	hrawsig_filtered[iTdr]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
       }
     }
   }
 #endif
+
+  printf("Qui (%d)!\n", __LINE__);
   
   unsigned int lastVA = std::numeric_limits<unsigned int>::max();
   std::vector<float> common_noise(NVAS);
@@ -272,9 +291,14 @@ bool DecodeDataOCA::ProcessCalibration() {
         unsigned int thisVA = iCh / NCHAVA;
         if (thisVA != lastVA) {
 	  
-          std::vector<float> values(NCHAVA);
+          std::vector<float> values;
           for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
-            values[iVACh] = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
+	    double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
+	    double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
+	    double sig_to_rawnoise = sig/rawnoise;
+	    if (fabs(sig_to_rawnoise)<3) {
+	      values.push_back(sig);
+	    }
           }
 	  
           // get the median
@@ -283,17 +307,18 @@ bool DecodeDataOCA::ProcessCalibration() {
 	  //	  printf("%f\n", common_noise[thisVA]);
         }
 	
-        if (std::fabs(common_noise[thisVA]) > 10) {
+        if (std::fabs(common_noise[thisVA]) > 10) {//not used for the sigma evaluation
           continue;
         }
+	
 	//this relies in sorted vectors, done in preveious loop (sigma raw) 
-        if (iEv>=((int)(PERCENTILE*signals[0][0].size())) && iEv<((int)((1.0-PERCENTILE)*signals[0][0].size()))) {
+	if (iEv>=((int)(PERCENTILE*signals[0][0].size())) && iEv<((int)((1.0-PERCENTILE)*signals[0][0].size()))) {
 	  ++processed_events[iTdr][iCh];
 	  
 	  cals[iTdr].sig[iCh] += (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
 	    (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
 	}
-
+	
 #ifdef CALPLOTS
 	hsig[iTdr]->Fill(signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
 #endif
@@ -304,7 +329,7 @@ bool DecodeDataOCA::ProcessCalibration() {
   }
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      cals[iTdr].sig[iCh] = sqrt(cals[iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
+      cals[iTdr].sig[iCh] = std::sqrt(cals[iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
     }
   }
   
