@@ -260,7 +260,7 @@ bool DecodeDataOCA::ProcessCalibration() {
     hrawsig[iTdr] = new TH1F(Form("rawsigma_%d", iTdr), "rawsigma", 5000, -500, 500);
     hrawsig_filtered[iTdr] = new TH1F(Form("rawsigma_filtered_%d", iTdr), "rawsigma", 5000, -500, 500);
     hsig[iTdr] = new TH1F(Form("sigma_%d", iTdr), "sigma", 5000, -500, 500);
-    printf("%d) %p %p %p\n", iTdr, hrawsig[iTdr], hrawsig_filtered[iTdr], hsig[iTdr]);
+    //    printf("%d) %p %p %p\n", iTdr, hrawsig[iTdr], hrawsig_filtered[iTdr], hsig[iTdr]);
   }
   
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
@@ -274,8 +274,6 @@ bool DecodeDataOCA::ProcessCalibration() {
     }
   }
 #endif
-
-  printf("Qui (%d)!\n", __LINE__);
   
   unsigned int lastVA = std::numeric_limits<unsigned int>::max();
   std::vector<float> common_noise(NVAS);
@@ -290,7 +288,7 @@ bool DecodeDataOCA::ProcessCalibration() {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
         unsigned int thisVA = iCh / NCHAVA;
         if (thisVA != lastVA) {
-	  
+
           std::vector<float> values;
           for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
 	    double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
@@ -300,17 +298,30 @@ bool DecodeDataOCA::ProcessCalibration() {
 	      values.push_back(sig);
 	    }
           }
-	  
+
           // get the median
           std::sort(begin(values), end(values));
-          common_noise[thisVA] = 0.5 * (values[(NCHAVA / 2) - 1] + values[NCHAVA / 2]);
+	  if (values.size()>0) {
+	    common_noise[thisVA] = 0.5 * (values[(values.size() / 2) - 1] + values[values.size() / 2]);
+	  }
+	  else {
+	    /*
+	    for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
+	      double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
+	      double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
+	      double sig_to_rawnoise = sig/rawnoise;
+	      printf("Event = %d) board=%d, ch=%lu --> sig=%f, ped=%f, S/N=%f\n", iEv, iTdr, thisVA * NCHAVA + iVACh, signals[iTdr][thisVA * NCHAVA + iVACh][iEv], cals[iTdr].ped[thisVA * NCHAVA + iVACh], sig_to_rawnoise);
+	    }
+	    */
+	    common_noise[thisVA] = 0.0;
+	  }
 	  //	  printf("%f\n", common_noise[thisVA]);
         }
-	
+
         if (std::fabs(common_noise[thisVA]) > 10) {//not used for the sigma evaluation
           continue;
         }
-	
+
 	//this relies in sorted vectors, done in preveious loop (sigma raw) 
 	if (iEv>=((int)(PERCENTILE*signals[0][0].size())) && iEv<((int)((1.0-PERCENTILE)*signals[0][0].size()))) {
 	  ++processed_events[iTdr][iCh];
