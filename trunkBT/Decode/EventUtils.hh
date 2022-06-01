@@ -1,5 +1,5 @@
-#ifndef Event_hh
-#define Event_hh
+#ifndef EventUtils_hh
+#define EventUtils_hh
 
 #include <array>
 #include <vector>
