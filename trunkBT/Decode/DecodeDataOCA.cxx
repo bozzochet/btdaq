@@ -220,10 +220,12 @@ bool DecodeDataOCA::ProcessCalibration() {
     }
   }
   std::cout << '\n';
+
+  //----------------------------------
   
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      
+
       std::sort(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]));
       unsigned int skipped_ch = PERCENTILE*signals[iTdr][iCh].size();
       auto beginItr = std::next(begin(signals[iTdr][iCh]), skipped_ch);
@@ -251,6 +253,8 @@ bool DecodeDataOCA::ProcessCalibration() {
       cals[iTdr].status[iCh] = 0;
     }
   }
+
+  //------------------------------------
   
 #ifdef CALPLOTS
   TH1F* hrawsig[NTDRS];
@@ -274,6 +278,8 @@ bool DecodeDataOCA::ProcessCalibration() {
     }
   }
 #endif
+
+  //----------------------------------
   
   unsigned int lastVA = std::numeric_limits<unsigned int>::max();
   std::vector<float> common_noise(NVAS);
@@ -286,7 +292,9 @@ bool DecodeDataOCA::ProcessCalibration() {
   for (unsigned int iEv = 0; iEv < signals[0][0].size(); ++iEv) {
     for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+	
         unsigned int thisVA = iCh / NCHAVA;
+	//	printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
         if (thisVA != lastVA) {
 
           std::vector<float> values;
@@ -294,11 +302,16 @@ bool DecodeDataOCA::ProcessCalibration() {
 	    double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
 	    double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
 	    double sig_to_rawnoise = sig/rawnoise;
-	    if (fabs(sig_to_rawnoise)<3) {
-	      values.push_back(sig);
+	    //this relies in sorted vectors (i.e. signals), done in preveious loop (sigma raw) 
+	    if (iEv>=((int)(PERCENTILE*signals[iTdr][thisVA * NCHAVA + iVACh].size())) && iEv<((int)((1.0-PERCENTILE)*signals[iTdr][thisVA * NCHAVA + iVACh].size()))) {
+	      if (fabs(sig_to_rawnoise)<50.0) {
+		values.push_back(sig);
+	      }
 	    }
           }
 
+	  printf("%d) Board=%d VA=%d -> %lu events for CN evaluation\n", iEv, iTdr, thisVA, values.size());
+	  
           // get the median
           std::sort(begin(values), end(values));
 	  if (values.size()>0) {
@@ -306,24 +319,26 @@ bool DecodeDataOCA::ProcessCalibration() {
 	  }
 	  else {
 	    /*
-	    for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
-	      double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
-	      double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
-	      double sig_to_rawnoise = sig/rawnoise;
-	      printf("Event = %d) board=%d, ch=%lu --> sig=%f, ped=%f, S/N=%f\n", iEv, iTdr, thisVA * NCHAVA + iVACh, signals[iTdr][thisVA * NCHAVA + iVACh][iEv], cals[iTdr].ped[thisVA * NCHAVA + iVACh], sig_to_rawnoise);
-	    }
+	      for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
+	        double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
+	        double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
+	        double sig_to_rawnoise = sig/rawnoise;
+	        printf("Event = %d) board=%d, ch=%lu --> sig=%f, ped=%f, S/N=%f\n", iEv, iTdr, thisVA * NCHAVA + iVACh, signals[iTdr][thisVA * NCHAVA + iVACh][iEv], cals[iTdr].ped[thisVA * NCHAVA + iVACh], sig_to_rawnoise);
+	      }
 	    */
 	    common_noise[thisVA] = 0.0;
 	  }
 	  //	  printf("%f\n", common_noise[thisVA]);
         }
 
+	/*
         if (std::fabs(common_noise[thisVA]) > 10) {//not used for the sigma evaluation
           continue;
         }
+	*/
 
-	//this relies in sorted vectors, done in preveious loop (sigma raw) 
-	if (iEv>=((int)(PERCENTILE*signals[0][0].size())) && iEv<((int)((1.0-PERCENTILE)*signals[0][0].size()))) {
+	//this relies in sorted vectors (i.e. signals), done in preveious loop (sigma raw)
+	if (iEv>=((int)(PERCENTILE*signals[iTdr][iCh].size())) && iEv<((int)((1.0-PERCENTILE)*signals[iTdr][iCh].size()))) {
 	  ++processed_events[iTdr][iCh];
 	  
 	  cals[iTdr].sig[iCh] += (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
