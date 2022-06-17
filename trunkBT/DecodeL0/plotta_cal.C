@@ -77,8 +77,6 @@ static uint64_t _utime = 0;
 
 static int usbbox_mode = USB_LINF_V1;
 static char *test_info = NULL;
-FILE *file = NULL;
-AMSBlock *block = NULL;
 
 int16 calculate_CRC16(int16 *dat, int16 len);
 
@@ -476,8 +474,6 @@ void plotta_cal(){
       */
     }
   }
-  
-  void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos);
   
   {
     char nameouttemp[255];
@@ -2106,9 +2102,13 @@ void lef_raw_calib(const int mode, const char *info, const char *fname)
   char field[100];
   int v, c, i;
 
+  printf("%d events\n", nevents);
+  
   // Process only when has enough event
   if ( nevents < 1000 ) return;
 
+  printf("Processing LEF RAW calib: %d events\n", nevents);
+  
   // Make name prefix (once)
   if ( strlen(prename) < 10 ) {
     i = snprintf(prename, sizeof(prename), "raw_calib,name=calibration,usbbox=%s,", usbbox_names[mode]);
@@ -2238,6 +2238,8 @@ void lef_raw_calib(const int mode, const char *info, const char *fname)
 void decode_lef_raw_event(AMSBlock *block, uint64_t utime, const int mode, const char *info)
 {
   int c, b, i, a;
+
+  printf("file_no=%d, last_file=%d\n", file_no, last_file);
   
   // Check file no (do one calibration with one data file)
   if ( last_file < 0 ) last_file = file_no;
@@ -2324,8 +2326,11 @@ void decode_lef_raw_event(AMSBlock *block, uint64_t utime, const int mode, const
 //----------------------------------------------------------
 void decode_l0_upgrade(AMSBlock *block, uint64_t utime, const int mode, const char *info)
 {
+
+  printf("DT: 0x%x\n", block->DataType);
+  
   // Datatypes
-  switch ( block->DataType ) {
+  switch (block->DataType) {
     // USB box read event reply
   case 0x13:
     decode_lef_raw_event(block, utime, mode, info);
@@ -2452,7 +2457,7 @@ static bool process_block(void *caller_data, AMSBlock *block)
   }
   */
 
-  //    printf("NA: %x, DT: %x\n", block->NodeAddress, block->DataType);
+  if (block->DataType != 0x1f0383) printf("NA: %x, DT: %x\n", block->NodeAddress, block->DataType);
     
   // All single blocks
   //    else {
@@ -2531,9 +2536,16 @@ void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos){
   
   char fname[256] = "";
   sprintf(fname, "%s", filename.Data());
+
+  printf("***Assegnare file_no al file corrente!***\n");
+  sleep(10);
   
   // File open
-  file = fopen(fname, "rb");
+  FILE* file = fopen(fname, "rb");
+
+  AMSBlock *block = NULL;
+
+  printf("Qui0!\n");
   
   while (1) {
     block = abiFileRead(file, fname, TRUE);
@@ -2543,8 +2555,14 @@ void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos){
     //  if ( debug_output > 1 ) abiPrint("BLOCK", block, 0);
     process_block((void *) 0, block);
     block = NULL;
-  }
+  }// all events were read and accumulated
 
+  printf("Qui!\n");
+  
+  lef_raw_calib(usbbox_mode, test_info, NULL);
+
+  printf("Qui2!\n");
+  
   /*
   const char* names[4] = {"Pedestals", "Sigma", "RawSigma", "AverageSignal"};
   
