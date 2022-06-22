@@ -23,6 +23,26 @@
 #include "TApplication.h"
 #include "TFile.h"
 
+#ifndef _BYTESWAP_H
+#define _BYTESWAP_H
+
+//#warning "byteswap.h is an unportable GNU extension! Don't use!"
+
+static inline unsigned short bswap_16(unsigned short x) {
+  return (x>>8) | (x<<8);
+}
+
+static inline unsigned int bswap_32(unsigned int x) {
+  return (bswap_16(x&0xffff)<<16) | (bswap_16(x>>16));
+}
+
+static inline unsigned long long bswap_64(unsigned long long x) {
+  return (((unsigned long long)bswap_32(x&0xffffffffull))<<32) |
+    (bswap_32(x>>32));
+}
+
+#endif
+
 void LinesVas(int nva=16, int nch_for_va=64);
 int InitStyle();
 
@@ -33,9 +53,11 @@ int openL0FEP_debug_level = 0;
 //int openL0FEP_debug_level = 2;
 //int openL0FEP_debug_level = 3;
 //int openL0FEP_debug_level = 4;
+//int openL0FEP_debug_level = 5;//with also the sleep
 
 void ReOrderVladimir(std::vector<unsigned char>& data,  std::vector<unsigned short>& data_ord);
 void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev, std::vector<std::vector<unsigned short>>& signals, int nev, TString filename, std::vector<TH1F*>& histos);
+//#define COMPCALVLAD_DEBUG
 
 unsigned short int bit(int bitno, unsigned short int data);
 unsigned short int bit(int bitnofirst, int bitnolast, unsigned short int data);
@@ -52,6 +74,8 @@ int ReadFile(void *ptr, size_t size, size_t nitems, FILE *stream);
 
 void Summary(std::vector<TH1F*> histos, const char* filename, const char* nameout, int type=0);
 void Comparison(std::vector<TH1F*> histos[3], const char* nameout);
+
+TString Path2Name(const char *name, const char *sep, const char *exten);
 
 //--------------------------------------------------------------------------------------------
 //                              Here comes the main...
@@ -86,8 +110,8 @@ void plotta_cal(){
   TString amsl0vladrootfiles[namsl0vladrootfiles] = {"LEFP03_18.bin", "LEFP03_19.bin", "LEFP03_20.bin", "LEFP03_21.bin", "LEFP03_22.bin"};
 
   const int namsl0feprootfiles = 1;
-  //  TString amsl0feprootfiles[namsl0vladrootfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519"};
-  TString amsl0feprootfiles[namsl0vladrootfiles] = {"./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/525"};
+  TString amsl0feprootfiles[namsl0vladrootfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519"};
+  //  TString amsl0feprootfiles[namsl0vladrootfiles] = {"./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/525"};
   
   std::vector<TH1F*> comparison[3];//3 since there're 3 comparisons: pedestal, sigma and sigmawas
 
@@ -224,13 +248,18 @@ void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos){
     
     ret = ReadFile(&data[0], size*sizeof(short), 1, rawfile);
     /*
-      for (int ii=0; ii<((int)data.size()); ii++) {
-      printf("%d) %02hx\n", ret, data[ii]);
-      } 
+    for (int ii=0; ii<((int)data.size()); ii++) {
+      printf("0x%02x\n", data[ii]);
+    }
     */
 
     std::vector<unsigned short> data_ord;
     ReOrderVladimir(data, data_ord);
+    /*
+    for (int ii=0; ii<((int)data_ord.size()); ii++) {
+      printf("%d\n", data_ord[ii]);
+    }
+    */
     signals_by_ev.push_back(data_ord);
     
     nev++;
@@ -248,6 +277,11 @@ void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos){
 }
 
 void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev, std::vector<std::vector<unsigned short>>& signals, int nev, TString filename, std::vector<TH1F*>& histos){
+
+#ifdef COMPCALVLAD_DEBUG
+  TFile* fdebug = new TFile(Form("fdebug_%s.root", Path2Name(filename.Data(), "/", "").Data()), "RECREATE");
+  fdebug->cd();
+#endif
   
   int nch = ((int)(signals_by_ev[0].size()));
   //  printf("nch = %d\n", nch);
@@ -263,8 +297,22 @@ void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signal
   for (int ii=0; ii<4; ii++) {
     values[ii].resize(signals.size());
   }
+
+#ifdef COMPCALVLAD_DEBUG
+  TH1F** hsig = NULL;
+  hsig = new TH1F*[((int)(signals.size()))];
+  for (int ch = 0; ch < ((int)(signals.size())); ch++) {
+    hsig[ch] = new TH1F(Form("hsig_%d", ch), Form("hsig_%d", ch), 4096, 0, 4096);
+  }
+#endif
   
   for (int ch = 0; ch < ((int)(signals.size())); ch++) {
+
+#ifdef COMPCALVLAD_DEBUG
+    for (int ev=0; ev<((int)(signals[ch].size())); ev++) {
+      hsig[ch]->Fill(signals[ch].at(ev));
+    }
+#endif
     
     values[0][ch] = std::accumulate(begin(signals[ch]), end(signals[ch]), 0.0) /
       static_cast<float>(signals[ch].size());
@@ -391,6 +439,15 @@ void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signal
     }
     }
   */
+  
+#ifdef COMPCALVLAD_DEBUG
+  fdebug->Write();
+  fdebug->Close();
+  // for (int ch = 0; ch < ((int)(signals.size())); ch++) {
+  //   if (hsig[ch]) delete hsig[ch]; 
+  // }
+  // delete[] hsig;
+#endif
   
   const char* names[4] = {"Pedestals", "Sigma", "RawSigma", "AverageSignal"};
   
@@ -885,7 +942,7 @@ unsigned short int bit(int bitnofirst, int bitnolast, unsigned short int data) {
 
 int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::vector<std::vector<unsigned short>>& signals_by_ev, int nesting_level){
 
-  if (openL0FEP_debug_level>3 && nesting_level==0)
+  if (openL0FEP_debug_level>4 && nesting_level==0)
     sleep(10);
   
   int fstat = 0;
@@ -1094,15 +1151,23 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
       if (openL0FEP_debug_level>1)
 	printf("Event number: %u\n", evtn);
       
+      std::vector<unsigned char> data_end_nc;
       std::vector<unsigned char> data;
       //      printf("data size (FEP): %d\n", size_to_read);
+      data_end_nc.resize(size_to_read);
       data.resize(size_to_read);
 
-      fstat = ReadFile(&data[0], size_to_read, 1, file);
+      fstat = ReadFile(&data_end_nc[0], size_to_read, 1, file);
       size_consumed+=size_to_read;
       size_to_read-=size_to_read;
       if (fstat == -1) return 1;
 
+      for (int ii=0; ii<((int)(data_end_nc.size())); ii+=2) {
+	data[ii] = data_end_nc[ii+1];
+	data[ii+1] = data_end_nc[ii];
+      }
+
+      //Endianess correction
       if (openL0FEP_debug_level>3) {
 	for (int ii=0; ii<((int)data.size()); ii++) {
 	  printf("0x%02x\n", data[ii]);
@@ -1111,6 +1176,11 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
 
       std::vector<unsigned short> data_ord;
       ReOrderVladimir(data, data_ord);
+      if (openL0FEP_debug_level>3) {
+	for (int ii=0; ii<((int)data_ord.size()); ii++) {
+	  printf("%d\n", data_ord[ii]);
+	}
+      }
       signals_by_ev.push_back(data_ord);
 
       ev_found++;
@@ -1170,4 +1240,28 @@ void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos){
   ComputeCalibrationVladimir(signals_by_ev, signals, nev, filename, histos);
 
   return;
+}
+
+TString Path2Name(const char *name, const char *sep, const char *exten){
+   // Extract name from full path
+   // sep is path separator and exten is name extension
+
+   TString outname = TString(name);
+   char   *tmpname = new char[strlen(name) + 1];
+   char   *delname = tmpname;
+
+   tmpname = strtok(strcpy(tmpname,name),sep);
+   while(tmpname) {
+      outname = tmpname;
+      tmpname = strtok(NULL,sep);
+   }//while
+      
+   if (strcmp(exten,"") != 0) {
+      Int_t i = outname.Index(exten);
+      if (i > 0) {outname = outname.Remove(i);}
+   }//if
+
+   delete [] delname;
+
+   return outname;
 }
