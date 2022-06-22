@@ -86,7 +86,8 @@ void plotta_cal(){
   TString amsl0vladrootfiles[namsl0vladrootfiles] = {"LEFP03_18.bin", "LEFP03_19.bin", "LEFP03_20.bin", "LEFP03_21.bin", "LEFP03_22.bin"};
 
   const int namsl0feprootfiles = 1;
-  TString amsl0feprootfiles[namsl0vladrootfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519"};
+  //  TString amsl0feprootfiles[namsl0vladrootfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519"};
+  TString amsl0feprootfiles[namsl0vladrootfiles] = {"./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/525"};
   
   std::vector<TH1F*> comparison[3];//3 since there're 3 comparisons: pedestal, sigma and sigmawas
 
@@ -206,6 +207,7 @@ void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos){
     if (size<=2) break;
     size = size-2;//ha contato la size stessa nella size
     data.resize(2*size);
+    //    printf("data size (bin): %d\n", 2*size);
     
     unsigned short dt=0;
     ret = ReadFile(&dt, sizeof(dt), 1, rawfile);
@@ -1093,6 +1095,7 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
 	printf("Event number: %u\n", evtn);
       
       std::vector<unsigned char> data;
+      //      printf("data size (FEP): %d\n", size_to_read);
       data.resize(size_to_read);
 
       fstat = ReadFile(&data[0], size_to_read, 1, file);
