@@ -48,12 +48,12 @@ int InitStyle();
 
 void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos);
 void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos);
-int openL0FEP_debug_level = 0;
+//int openL0FEP_debug_level = 0;
 //int openL0FEP_debug_level = 1;
 //int openL0FEP_debug_level = 2;
 //int openL0FEP_debug_level = 3;
 //int openL0FEP_debug_level = 4;
-//int openL0FEP_debug_level = 5;//with also the sleep
+int openL0FEP_debug_level = 5;//with also the sleep
 
 void ReOrderVladimir(std::vector<unsigned char>& data,  std::vector<unsigned short>& data_ord);
 void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev, std::vector<std::vector<unsigned short>>& signals, int nev, TString filename, std::vector<TH1F*>& histos);
@@ -1162,12 +1162,12 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
       size_to_read-=size_to_read;
       if (fstat == -1) return 1;
 
+      //Endianess correction
       for (int ii=0; ii<((int)(data_end_nc.size())); ii+=2) {
 	data[ii] = data_end_nc[ii+1];
 	data[ii+1] = data_end_nc[ii];
       }
 
-      //Endianess correction
       if (openL0FEP_debug_level>3) {
 	for (int ii=0; ii<((int)data.size()); ii++) {
 	  printf("0x%02x\n", data[ii]);
