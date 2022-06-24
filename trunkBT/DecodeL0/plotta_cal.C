@@ -47,22 +47,22 @@ void LinesVas(int nva=16, int nch_for_va=64);
 int InitStyle();
 
 void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos);
-void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos);
-//int openL0FEP_debug_level = 0;
+void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos, bool kCal=true);
+int openL0FEP_debug_level = 0;
 //int openL0FEP_debug_level = 1;
 //int openL0FEP_debug_level = 2;
 //int openL0FEP_debug_level = 3;
 //int openL0FEP_debug_level = 4;
-int openL0FEP_debug_level = 5;//with also the sleep
+//int openL0FEP_debug_level = 5;//with also the sleep
 
 void ReOrderVladimir(std::vector<unsigned char>& data,  std::vector<unsigned short>& data_ord);
 void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev, std::vector<std::vector<unsigned short>>& signals, int nev, TString filename, std::vector<TH1F*>& histos);
 //#define COMPCALVLAD_DEBUG
+void ComputeBeamVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev, std::vector<std::vector<unsigned short>>& signals, int nev, TString filename, std::vector<TH1F*>& histos);
 
 unsigned short int bit(int bitno, unsigned short int data);
 unsigned short int bit(int bitnofirst, int bitnolast, unsigned short int data);
 int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::vector<std::vector<unsigned short>>& signals_by_ev, int nesting_level=0);
-void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos);
 
 void OpenGigiFile(TString filename, std::vector<TH1F*>& histos);
 std::pair<TH1F*, TH1F*> GigiGraphToHisto(const char* name, const char* filename, bool dummy=false);
@@ -70,9 +70,11 @@ std::pair<TH1F*, TH1F*> GigiGraphToHisto(const char* name, const char* filename,
 void CreateAMSFlightHistos(std::vector<TH1F*>& histos);
 
 std::pair<TH1F*, TH1F*> VectorToHisto(std::vector<double> values, const char* name, const char* filename, int nch=640, int nspread=4096);
+std::vector<double> HistoToVector(TH1F* histo);
 int ReadFile(void *ptr, size_t size, size_t nitems, FILE *stream);
 
-void Summary(std::vector<TH1F*> histos, const char* filename, const char* nameout, int type=0);
+void SummaryCal(std::vector<TH1F*> histos, const char* filename, const char* nameout, int type=0);
+void SummaryBeam(std::vector<TH1F*> histos, const char* filename, const char* nameout, int type=0);
 void Comparison(std::vector<TH1F*> histos[3], const char* nameout);
 
 TString Path2Name(const char *name, const char *sep, const char *exten);
@@ -80,12 +82,47 @@ TString Path2Name(const char *name, const char *sep, const char *exten);
 //--------------------------------------------------------------------------------------------
 //                              Here comes the main...
 //-------------------------------------------------------------------------------------------
+void plotta_beam(){
+
+  InitStyle();
+  
+  gROOT->SetStyle("StyleWhite");
+  //  gStyle->SetPaperSize(27,20);
+
+  char nameout[255];
+  sprintf(nameout, "Beam.pdf");
+  
+  // TString amsl0fepcalfile = "./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519";
+  // TString amsl0fepcalfile = "./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/235";
+  TString amsl0fepcalfile = "./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/626";
+  
+  //  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/525";
+  //  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/238_244";
+  //  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/238_244";
+  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/627_999";
+
+  std::vector<TH1F*> histos_cal;
+  OpenAMSL0FEPFile(amsl0fepcalfile, histos_cal, true);
+
+  std::vector<TH1F*> histos_beam = histos_cal;//I have to pass the cal (will be overwritten) to the below function
+  OpenAMSL0FEPFile(amsl0fepbeamfile, histos_beam, false);
+
+  char nameouttemp[255];
+  sprintf(nameouttemp, "%s", nameout);
+  SummaryBeam(histos_beam, amsl0fepbeamfile, nameouttemp, 1);
+  
+  return;  
+}
+
+
 void plotta_cal(){
 
-  bool amsflight=true;
+  bool amsflight=false;
   bool pox=false;
-  bool amsl0vlad=true;
+  bool amsl0vlad=false;
   bool amsl0fep=true;
+
+  bool nocomparison=true;
   
   InitStyle();
 
@@ -95,23 +132,23 @@ void plotta_cal(){
   char nameout[255];
   sprintf(nameout, "Calibrations.pdf");
 
-  const int npoxrootfiles = 4;
-  TString poxrootfiles[npoxrootfiles] = {"POX02.root", "POX12_newVA.root", "POX12_VAonly.root", "POX12_completo_50Vbias.root"};
+  const int npoxfiles = 4;
+  TString poxfiles[npoxfiles] = {"POX02.root", "POX12_newVA.root", "POX12_VAonly.root", "POX12_completo_50Vbias.root"};
 
   /*
-    const int namsl0vladrootfiles = 3;
-    TString amsl0vladrootfiles[namsl0vladrootfiles] = {"LEFP01_noVA.bin", "LEFP03_2.bin", "LEFP03_3.bin"};
+    const int namsl0vladfiles = 3;
+    TString amsl0vladfiles[namsl0vladfiles] = {"LEFP01_noVA.bin", "LEFP03_2.bin", "LEFP03_3.bin"};
   */
   /*
-    const int namsl0vladrootfiles = 1;
-    TString amsl0vladrootfiles[namsl0vladrootfiles] = {"LEFP03_17.bin"};
+    const int namsl0vladfiles = 1;
+    TString amsl0vladfiles[namsl0vladfiles] = {"LEFP03_17.bin"};
   */
-  const int namsl0vladrootfiles = 5;
-  TString amsl0vladrootfiles[namsl0vladrootfiles] = {"LEFP03_18.bin", "LEFP03_19.bin", "LEFP03_20.bin", "LEFP03_21.bin", "LEFP03_22.bin"};
+  const int namsl0vladfiles = 5;
+  TString amsl0vladfiles[namsl0vladfiles] = {"LEFP03_18.bin", "LEFP03_19.bin", "LEFP03_20.bin", "LEFP03_21.bin", "LEFP03_22.bin"};
 
-  const int namsl0feprootfiles = 1;
-  TString amsl0feprootfiles[namsl0vladrootfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519"};
-  //  TString amsl0feprootfiles[namsl0vladrootfiles] = {"./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/525"};
+  const int namsl0fepfiles = 1;
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519"};
+  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/626"};
   
   std::vector<TH1F*> comparison[3];//3 since there're 3 comparisons: pedestal, sigma and sigmawas
 
@@ -119,7 +156,7 @@ void plotta_cal(){
     std::vector<TH1F*> histos;
     char nameouttemp[255];
     sprintf(nameouttemp, "%s[", nameout);
-    Summary(histos, "", nameouttemp);
+    SummaryCal(histos, "", nameouttemp);
   }
   
   if (amsflight) {
@@ -127,20 +164,20 @@ void plotta_cal(){
     CreateAMSFlightHistos(histos);
     char nameouttemp[255];
     sprintf(nameouttemp, "%s", nameout);
-    Summary(histos, "AMS-flight", nameouttemp);
+    SummaryCal(histos, "AMS-flight", nameouttemp);
     for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
       comparison[jj].push_back(histos[4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
     }
   }
 
   if (pox) {
-    for (int ii=0; ii<npoxrootfiles; ii++) {
+    for (int ii=0; ii<npoxfiles; ii++) {
       std::vector<TH1F*> histos;
-      OpenGigiFile(poxrootfiles[ii], histos);
+      OpenGigiFile(poxfiles[ii], histos);
       char nameouttemp[255];
       sprintf(nameouttemp, "%s", nameout);
-      Summary(histos, poxrootfiles[ii], nameouttemp);
-      if (poxrootfiles[ii]=="POX12_completo_50Vbias.root") {
+      SummaryCal(histos, poxfiles[ii], nameouttemp);
+      if (poxfiles[ii]=="POX12_completo_50Vbias.root") {
 	for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
 	  comparison[jj].push_back(histos[4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
 	}
@@ -149,13 +186,13 @@ void plotta_cal(){
   }
 
   if (amsl0vlad) {
-    for (int ii=0; ii<namsl0vladrootfiles; ii++) {
+    for (int ii=0; ii<namsl0vladfiles; ii++) {
       std::vector<TH1F*> histos;
-      OpenAMSL0VladimirFile(amsl0vladrootfiles[ii], histos);
+      OpenAMSL0VladimirFile(amsl0vladfiles[ii], histos);
       char nameouttemp[255];
       sprintf(nameouttemp, "%s", nameout);
-      Summary(histos, amsl0vladrootfiles[ii], nameouttemp, 1);
-      if (amsl0vladrootfiles[ii].Contains("LEFP03_")) {
+      SummaryCal(histos, amsl0vladfiles[ii], nameouttemp, 1);
+      if (amsl0vladfiles[ii].Contains("LEFP03_")) {
 	for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
 	  comparison[jj].push_back(histos[4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
 	}
@@ -164,13 +201,13 @@ void plotta_cal(){
   }
 
   if (amsl0fep) {
-    for (int ii=0; ii<namsl0feprootfiles; ii++) {
+    for (int ii=0; ii<namsl0fepfiles; ii++) {
       std::vector<TH1F*> histos;
-      OpenAMSL0FEPFile(amsl0feprootfiles[ii], histos);
+      OpenAMSL0FEPFile(amsl0fepfiles[ii], histos);
       char nameouttemp[255];
       sprintf(nameouttemp, "%s", nameout);
-      Summary(histos, amsl0feprootfiles[ii], nameouttemp, 1);
-      //      if (amsl0feprootfiles[ii].Contains("LEFP03_")) {
+      SummaryCal(histos, amsl0fepfiles[ii], nameouttemp, 1);
+      //      if (amsl0fepfiles[ii].Contains("LEFP03_")) {
       for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
 	comparison[jj].push_back(histos[4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
       }
@@ -178,7 +215,7 @@ void plotta_cal(){
     }
   }
   
-  {
+  if (!nocomparison){
     char nameouttemp[255];
     sprintf(nameouttemp, "%s)", nameout);
     Comparison(comparison, nameouttemp);
@@ -273,6 +310,117 @@ void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos){
   
   ComputeCalibrationVladimir(signals_by_ev, signals, nev, filename, histos);
   
+  return;
+}
+
+void ComputeBeamVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev, std::vector<std::vector<unsigned short>>& signals, int nev, TString filename, std::vector<TH1F*>& histos){
+  
+  int nch = ((int)(signals_by_ev[0].size()));
+  // printf("nch = %d\n", nch);
+  // printf("nev = %d\n", nev);
+  signals.resize(nch);
+  for (int ch = 0; ch < ((int)(signals.size())); ch++) {
+    signals[ch].resize(nev);
+    for (int ev = 0; ev < ((int)(signals[ch].size())); ev++) {
+      signals[ch][ev] = signals_by_ev[ev][ch];
+    }
+  }
+  
+  std::vector<double> values[4];
+  for (int ii=0; ii<4; ii++) {
+    values[ii] = HistoToVector(histos[ii]);
+  }
+
+  TH1F* histo_example = histos[0];
+  
+  histos.clear();
+  // clone, clear and rename histos
+  histos.push_back((TH1F*)histo_example->Clone());
+  histos[0]->Reset();
+  histos[0]->SetName(Form("%s_%s", "occupancy", filename.Data()));
+  histos[0]->SetTitle(Form("%s_%s", "occupancy", filename.Data()));
+  histos.push_back((TH1F*)histo_example->Clone());
+  histos[1]->Reset();
+  histos[1]->SetName(Form("%s_%s", "weighted_occupancy", filename.Data()));
+  histos[1]->SetTitle(Form("%s_%s", "weighted_occupancy", filename.Data()));
+  {
+    TH1F* h = new TH1F(Form("%s_%s", "signal", filename.Data()), Form("%s_%s", "signal", filename.Data()), 4096, 0, 4096);
+    histos.push_back(h);
+  }
+  {
+    TH1F* h = new TH1F(Form("%s_%s", "signal_abovethresh", filename.Data()), Form("%s_%s", "signal", filename.Data()), 4096, 0, 4096);
+    histos.push_back(h);
+  }
+  {
+    TH1F* h = new TH1F(Form("%s_%s", "signal_to_noise", filename.Data()), Form("%s_%s", "signal", filename.Data()), 1000, 0, 100);
+    histos.push_back(h);
+  }
+  
+  /*
+  for (int ii=0; ii<4; ii++) {
+    for (int ch=0; ch<((int)(values[ii].size())); ch++){
+      printf("values[%d][%d] = %f\n", ii, ch, values[ii][ch]);
+    }
+  }
+  */
+  
+  {
+    unsigned int NVAS = 16;
+    unsigned int NCHAVA = 64;     
+    unsigned int lastVA = std::numeric_limits<unsigned int>::max();
+    std::vector<float> common_noise(NVAS);
+    for (unsigned int iEv = 0; iEv < signals[0].size(); ++iEv) {
+      for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
+	unsigned int thisVA = iCh / NCHAVA;
+	if (thisVA != lastVA) {
+	  
+	  std::vector<float> sig_mean_sub;
+	  for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
+	    double sig = signals[thisVA * NCHAVA + iVACh][iEv] - values[0][thisVA * NCHAVA + iVACh];
+	    double noise = values[1][thisVA * NCHAVA + iVACh];
+	    double sig_to_noise = sig/noise;
+	    if (fabs(sig_to_noise)<3.5) {
+	      sig_mean_sub.push_back(sig);
+	      //	      printf("%f\n", sig_mean_sub[iVACh]);
+	    }
+	  }
+
+	  if (((int)(sig_mean_sub.size()))>0) {
+	    if (((int)(sig_mean_sub.size()))>16) {
+	      // get the median
+	      std::sort(begin(sig_mean_sub), end(sig_mean_sub));
+	      //	  common_noise[thisVA] = 0.5 * (sig_mean_sub[(NCHAVA / 2) - 1] + sig_mean_sub[NCHAVA / 2]);
+	      common_noise[thisVA] = 0.5 * (sig_mean_sub[(((int)(sig_mean_sub.size())) / 2) - 1] + sig_mean_sub[((int)(sig_mean_sub.size())) / 2]);
+	    }
+	    else {
+	      printf("event=%d) the common noise vector (VA=%d) has less than 16 entries (%d)...\n", iEv, thisVA, ((int)(sig_mean_sub.size())));
+	      common_noise[thisVA] = 0.0;
+	    }
+	  }
+	  else {
+	    printf("event=%d) The common noise vector (VA=%d) is empty...\n", iEv, thisVA);
+	    common_noise[thisVA] = 0.0;
+	  }
+	}
+
+	double sig = (signals[iCh][iEv] - values[0][iCh] - common_noise[thisVA]);
+	double noise = values[1][iCh];
+	double sig_to_noise = sig/noise;
+	if (sig_to_noise>0) {
+	  if (sig_to_noise>3.5) {
+	    histos[0]->Fill(iCh);
+	    histos[3]->Fill(sig);
+	  }
+	  histos[1]->Fill(iCh, sig);
+	}
+	histos[2]->Fill(sig);
+	histos[4]->Fill(sig_to_noise);
+		
+	lastVA = thisVA;
+      }
+    }
+  }
+
   return;
 }
 
@@ -615,6 +763,17 @@ void CreateAMSFlightHistos(std::vector<TH1F*>& histos){
   return;
 }
 
+std::vector<double> HistoToVector(TH1F* histo){
+
+  std::vector<double> values(histo->GetNbinsX());
+
+  for (int bb=1; bb<=histo->GetNbinsX(); bb++) {
+    values[bb-1] = histo->GetBinContent(bb);
+  }
+
+  return values;
+}
+
 std::pair<TH1F*, TH1F*> VectorToHisto(std::vector<double> values, const char* name, const char* filename, int nch, int nspread){
 
   TH1F* h = new TH1F(Form("%s_%s", name, filename), Form("%s_%s", name, filename), nch, 0, nch);
@@ -642,7 +801,112 @@ std::pair<TH1F*, TH1F*> VectorToHisto(std::vector<double> values, const char* na
   return coppia;
 }
 
-void Summary(std::vector<TH1F*> histos, const char* filename, const char* nameout, int type) {
+void SummaryBeam(std::vector<TH1F*> histos, const char* filename, const char* nameout, int type) {
+
+  int nva = 10;
+  int nch_for_va = 64;
+  double max_occ = 0.01;
+  double max_wei = 0.01;
+
+  if (type==1) {//AMS-L0
+    nva = 16;
+    nch_for_va = 64;
+  }
+  else {//type=0, AMS, FOOT/POX, ...
+    nva=10;
+    nch_for_va = 64;
+  }
+
+  int nch = nva*nch_for_va;
+
+  static int count=-1;
+  count++;
+  
+  TCanvas *c;
+  
+  if (((int)histos.size())!=0) {
+    TLatex *comment=new TLatex(1-0.01,0.01,Form("%s",filename));
+    comment->SetNDC();  
+    comment->SetTextAngle(90);
+    comment->SetTextAlign(11);
+    comment->SetTextSize(0.025);
+    
+    c = new TCanvas(Form("c_%d", count), Form("%s_%d",filename,0),0*100,0*10,900,400);
+    comment->Draw();
+    c->Update();
+    c->Divide(3,2);
+    c->SetFillStyle(0);
+    c->cd(1);
+    gPad->SetFillStyle(0);
+    
+    c->cd(1);
+    TH2F *fram=new TH2F(Form("fram1_%d", count), Form("%s: occupancy",filename),nch,1,nch,1000,0,max_occ);
+    fram->SetStats(0);
+    fram->Draw();
+    TH1F *isto = histos.at(0);
+    isto->DrawNormalized("samehist");
+    gPad->Update();
+    LinesVas(nva, ((int)(nch/nva)));
+    gPad->Update();
+
+    c->cd(4);
+    gPad->SetFillStyle(0);
+    TH2F *fram4=new TH2F(Form("fram4_%d", count), Form("%s: weighted_occupancy",filename),nch,1,nch,1000,0,max_wei);
+    fram4->SetStats(0);
+    fram4->Draw();
+    TH1F *isto4 = histos.at(1);
+    isto4->DrawNormalized("samehist");
+    gPad->Update();
+    LinesVas(nva, ((int)(nch/nva)));
+    gPad->Update();
+    
+    c->cd(2);
+    gPad->SetLogy();
+    gPad->SetFillStyle(0);
+    TH2F *fram2=new TH2F(Form("fram2_%d", count), Form("%s: signal",filename),200,0,200, 1000, 0, 1);
+    fram2->SetStats(0);
+    fram2->Draw();
+    TH1F *isto2 = histos.at(2);
+    isto2->DrawNormalized("samehist");
+    gPad->Update();
+    
+    c->cd(5);
+    gPad->SetLogy();
+    gPad->SetFillStyle(0);
+    TH2F *fram3=new TH2F(Form("fram3_%d", count), Form("%s: signal_abovethresh",filename),200,0,200, 1000, 0, 1);
+    fram3->SetStats(0);
+    fram3->Draw();
+    TH1F *isto3 = histos.at(3);
+    isto3->DrawNormalized("samehist");
+    gPad->Update();
+
+    c->cd(3);
+    gPad->SetLogy();
+    gPad->SetFillStyle(0);
+    TH2F *fram5=new TH2F(Form("fram5_%d", count), Form("%s: signal_to_noise",filename),10,0,10, 1000, 0, 1);
+    fram5->SetStats(0);
+    fram5->Draw();
+    TH1F *isto5 = histos.at(4);
+    isto5->DrawNormalized("samehist");
+    gPad->Update();
+  }
+  else {
+    c = new TCanvas("c", "",0*100,0*10,600,400);
+  }
+  
+  gROOT->SetStyle("StyleWhite");
+  c->Update();
+  
+  c->Print(nameout);
+
+  if (((int)histos.size())==0) {
+    if (c) delete c;
+  }
+
+  return;
+}
+
+void SummaryCal(std::vector<TH1F*> histos, const char* filename, const char* nameout, int type) {
   
   int nva = 10;
   int nch_for_va = 64;
@@ -1210,7 +1474,7 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
   return 0;
 }
 
-void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos){
+void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos, bool kCal){
   
   // File open
   FILE* file = fopen(filename.Data(), "rb");
@@ -1237,7 +1501,12 @@ void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos){
     fclose(file);
   file = NULL;
 
-  ComputeCalibrationVladimir(signals_by_ev, signals, nev, filename, histos);
+  if (kCal) {
+    ComputeCalibrationVladimir(signals_by_ev, signals, nev, filename, histos);
+  }
+  else {
+    ComputeBeamVladimir(signals_by_ev, signals, nev, filename, histos);
+  }
 
   return;
 }
