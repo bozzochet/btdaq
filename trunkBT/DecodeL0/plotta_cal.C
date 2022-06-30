@@ -220,6 +220,12 @@ void plotta_cal(){
     sprintf(nameouttemp, "%s)", nameout);
     Comparison(comparison, nameouttemp);
   }
+  else {
+    std::vector<TH1F*> histos;
+    char nameouttemp[255];
+    sprintf(nameouttemp, "%s]", nameout);
+    SummaryCal(histos, "", nameouttemp);
+  }
       
   return;
 }
