@@ -26,11 +26,13 @@
 #include <TF1.h>
 #include <TRandom.h>
 #include <TGButton.h>
+#include <TGLabel.h>
 #include <TGFrame.h>
 #include <TRootEmbeddedCanvas.h>
 #include <RQ_OBJECT.h>
 #include <TGMenu.h>
 #include <TGNumberEntry.h>
+#include <TGResourcePool.h>
 
 int first_call = 0;
 std::vector<std::vector<unsigned short>> vec_of_signals;
