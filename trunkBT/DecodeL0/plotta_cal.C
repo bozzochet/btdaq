@@ -22,6 +22,98 @@
 #include "TString.h"
 #include "TApplication.h"
 #include "TFile.h"
+#include <TGClient.h>
+#include <TF1.h>
+#include <TRandom.h>
+#include <TGButton.h>
+#include <TGFrame.h>
+#include <TRootEmbeddedCanvas.h>
+#include <RQ_OBJECT.h>
+#include <TGMenu.h>
+#include <TGNumberEntry.h>
+
+int first_call = 0;
+std::vector<std::vector<unsigned short>> vec_of_signals;
+
+enum ETestCommandIdentifiers {
+  M_TEST_NUMBERENTRY
+};
+  
+class MyMainFrame {
+  RQ_OBJECT("MyMainFrame")
+  private:
+  TGMainFrame         *fMain;
+  TGPopupMenu        *fMenuTest;
+  TRootEmbeddedCanvas *fEcanvas;
+   TGVerticalFrame      *fF1;
+  TGLayoutHints        *fL1;
+  TGNumberEntryField* fNumericEntries;
+  public:
+  MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h);
+  virtual ~MyMainFrame();
+  void DoDraw();
+  void DoDraw_next();
+  void DoDraw_prev();
+};
+void example(std::vector<std::vector<unsigned short>>& signals_by_ev);
+
+MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
+  TGGC myGC = *gClient->GetResourcePool()->GetFrameGC();
+  TGFont *myfont = gClient->GetFont("-adobe-helvetica-bold-r-*-*-14-*-*-*-*-*-iso8859-1");
+
+   // Create a main frame
+  fMain = new TGMainFrame(p,w,h);
+
+  // Create canvas widget
+  fEcanvas = new TRootEmbeddedCanvas("Ecanvas",fMain,w,h);
+  fMain->AddFrame(fEcanvas, new TGLayoutHints(kLHintsExpandX |
+                                              kLHintsExpandY, 10,10,10,1));
+
+  // Create a horizontal frame widget with buttons
+  TGHorizontalFrame *hframe = new TGHorizontalFrame(fMain,200,40);
+  fMain->AddFrame(hframe, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
+
+  TGLabel *fLabel = new TGLabel(hframe, "Event number:", myGC(), myfont->GetFontStruct());
+  hframe->AddFrame(fLabel, new TGLayoutHints(kLHintsCenterX,
+                                           5,5,3,4));
+  
+  TGHorizontalFrame *hframe2 = new TGHorizontalFrame(fMain,200,40);
+  fMain->AddFrame(hframe2, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
+
+  TGTextButton *prev = new TGTextButton(hframe2,"&Prev");
+  prev->Connect("Clicked()","MyMainFrame",this,"DoDraw_prev()");
+  hframe2->AddFrame(prev, new TGLayoutHints(kLHintsCenterX,
+                                           5,5,3,4));
+  
+  fNumericEntries = new TGNumberEntryField(hframe2, 15, 0, (TGNumberFormat::EStyle) 0);
+  hframe2->AddFrame(fNumericEntries, new TGLayoutHints(kLHintsCenterX,
+                                                      5,5,3,4));
+
+  TGTextButton *next = new TGTextButton(hframe2,"&Next");
+  next->Connect("Clicked()","MyMainFrame",this,"DoDraw_next()");
+  hframe2->AddFrame(next, new TGLayoutHints(kLHintsCenterX,
+                                           5,5,3,4));
+  
+    TGHorizontalFrame *hframe3 = new TGHorizontalFrame(fMain,200,40);
+  fMain->AddFrame(hframe3, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
+  
+  TGTextButton *draw = new TGTextButton(hframe3,"&Draw");
+  draw->Connect("Clicked()","MyMainFrame",this,"DoDraw()");
+  hframe3->AddFrame(draw, new TGLayoutHints(kLHintsCenterX,
+                                           5,5,3,4));
+  
+  // Set a name to the main frame
+  fMain->SetWindowName("Simple Example");
+  
+  // Map all subwindows of main frame
+  fMain->MapSubwindows();
+
+  // Initialize the layout algorithm
+  fMain->Resize(fMain->GetDefaultSize());
+  
+  // Map main frame
+  fMain->MapWindow();
+} 
 
 #ifndef _BYTESWAP_H
 #define _BYTESWAP_H
@@ -48,6 +140,7 @@ int InitStyle();
 
 void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos);
 void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos, bool kCal=true);
+void OpenAMSL0FEPFile_EvDisp(TString filename, std::vector<TH1F*>& histos, bool kCal=true);
 int openL0FEP_debug_level = 0;
 //int openL0FEP_debug_level = 1;
 //int openL0FEP_debug_level = 2;
@@ -82,6 +175,30 @@ TString Path2Name(const char *name, const char *sep, const char *exten);
 //--------------------------------------------------------------------------------------------
 //                              Here comes the main...
 //-------------------------------------------------------------------------------------------
+void EventDisplay(TString filename){
+
+  bool amsflight=false;
+  bool pox=false;
+  bool amsl0vlad=false;
+  bool amsl0fep=true;
+
+  InitStyle();
+
+  gROOT->SetStyle("StyleWhite");
+  //  gStyle->SetPaperSize(27,20);
+  
+  const int namsl0fepfiles = 1;
+  //  TString amsl0fepfiles[namsl0fepfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/626"};
+
+   if (amsl0fep) {
+    for (int ii=0; ii<namsl0fepfiles; ii++) {
+      std::vector<TH1F*> histos;
+      OpenAMSL0FEPFile_EvDisp(filename, histos);
+    }
+   }
+   
+  return;
+}
 void plotta_beam(){
 
   InitStyle();
@@ -1516,6 +1633,45 @@ void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos, bool kCal){
 
   return;
 }
+void OpenAMSL0FEPFile_EvDisp(TString filename, std::vector<TH1F*>& histos, bool kCal){
+  
+  // File open
+  FILE* file = fopen(filename.Data(), "rb");
+  if (file == NULL) {
+    printf("Error file %s not found\n", filename.Data());
+    exit(2);
+  }
+  else {
+    printf("File %s opened\n", filename.Data());
+  }
+  
+  std::vector<std::vector<unsigned short>> signals_by_ev;
+  std::vector<std::vector<unsigned short>> signals;
+ 
+  int nev=0;
+  while (1) {
+    unsigned int read_bytes = 0;
+    int ret = ProcessBlock(file, read_bytes, nev, signals_by_ev, 0);
+    if (ret!=0) break;
+  }
+  
+  example(signals_by_ev);
+  
+  printf("We read %d events\n", nev);
+
+  if (file)
+    fclose(file);
+  file = NULL;
+
+  if (kCal) {
+    ComputeCalibrationVladimir(signals_by_ev, signals, nev, filename, histos);
+  }
+  else {
+    ComputeBeamVladimir(signals_by_ev, signals, nev, filename, histos);
+  }
+
+  return;
+}
 
 TString Path2Name(const char *name, const char *sep, const char *exten){
    // Extract name from full path
@@ -1539,4 +1695,99 @@ TString Path2Name(const char *name, const char *sep, const char *exten){
    delete [] delname;
 
    return outname;
+}
+
+void MyMainFrame::DoDraw_next() {
+  // Draws function graphics in randomly chosen interval
+  int num_ev = fNumericEntries->GetIntNumber();  
+  cout<<num_ev<<endl; 
+  fNumericEntries->SetIntNumber(num_ev+1);
+  
+  TH1F* h  = new TH1F(Form("Event_%d",num_ev+1),Form("#Event = %d; Channel; Signal (ADC)",num_ev+1),640,0,640);
+  TH1F* h_sig  = new TH1F(Form("Sig_%d",num_ev+1),Form("#Event = %d; Signal (ADC); Entries",num_ev+1),5000,0,5000);
+
+  h_sig->GetXaxis()->SetRangeUser(1200,2200);
+
+  for (int ii=0; ii<640; ii++)
+    {
+      h->SetBinContent(ii,vec_of_signals[num_ev+1][ii]);
+      h_sig->Fill(vec_of_signals[num_ev+1][ii]);
+    }
+  
+  TCanvas *fCanvas = fEcanvas->GetCanvas();
+  fCanvas->cd();
+  if (first_call==0) fCanvas->Divide(2,2);
+  fCanvas->cd(1);
+  h->Draw();
+  fCanvas->cd(2);
+  h_sig->Draw();
+  fCanvas->Update();
+  first_call=1;
+}
+void MyMainFrame::DoDraw() {
+  // Draws function graphics in randomly chosen interval
+  int num_ev = fNumericEntries->GetIntNumber();  
+  cout<<num_ev<<endl; 
+  
+  TH1F* h  = new TH1F(Form("Event_%d",num_ev),Form("#Event = %d; Channel; Signal (ADC)",num_ev),640,0,640);
+  TH1F* h_sig  = new TH1F(Form("Sig_%d",num_ev),Form("#Event = %d; Signal (ADC); Entries",num_ev),5000,0,5000);
+
+  h_sig->GetXaxis()->SetRangeUser(1200,2200);
+
+  for (int ii=0; ii<640; ii++)
+    {
+      h->SetBinContent(ii,vec_of_signals[num_ev][ii]);
+      h_sig->Fill(vec_of_signals[num_ev][ii]);
+    }
+  
+  TCanvas *fCanvas = fEcanvas->GetCanvas();
+  fCanvas->cd();
+  if (first_call==0) fCanvas->Divide(2,2);
+  fCanvas->cd(1);
+  h->Draw();
+  fCanvas->cd(2);
+  h_sig->Draw();
+  fCanvas->Update();
+  first_call=1;
+}
+void MyMainFrame::DoDraw_prev() {
+  // Draws function graphics in randomly chosen interval
+  int num_ev = fNumericEntries->GetIntNumber();  
+  cout<<num_ev<<endl; 
+  fNumericEntries->SetIntNumber(num_ev-1);
+  TH1F* h  = new TH1F(Form("Event_%d",num_ev-1),Form("#Event = %d; Channel; Signal (ADC)",num_ev-1),640,0,640);
+  TH1F* h_sig  = new TH1F(Form("Sig_%d",num_ev-1),Form("#Event = %d; Signal (ADC); Entries",num_ev-1),5000,0,5000);
+
+  h_sig->GetXaxis()->SetRangeUser(1200,2200);
+
+  for (int ii=0; ii<640; ii++)
+    {
+      h->SetBinContent(ii,vec_of_signals[num_ev-1][ii]);
+      h_sig->Fill(vec_of_signals[num_ev-1][ii]);
+    }
+  
+  TCanvas *fCanvas = fEcanvas->GetCanvas();
+  fCanvas->cd();
+  if (first_call==0) fCanvas->Divide(2,2);
+  fCanvas->cd(1);
+  h->Draw();
+  fCanvas->cd(2);
+  h_sig->Draw();
+  fCanvas->Update();
+  first_call=1;
+}
+MyMainFrame::~MyMainFrame() {
+  // Clean up used widgets: frames, buttons, layout hints
+  fMain->Cleanup();
+  delete fMain;
+}
+void example(std::vector<std::vector<unsigned short>>& signals_by_ev) {
+  // Popup the GUI...
+
+  signals_by_ev[0];
+  //  std::vector<std::vector<unsigned short>> vec_of_signals;
+  for (int ev = 0; ev < ((int)(signals_by_ev.size())); ev++)
+    vec_of_signals.push_back(signals_by_ev[ev]);
+  
+  new MyMainFrame(gClient->GetRoot(),1200,800);
 }
