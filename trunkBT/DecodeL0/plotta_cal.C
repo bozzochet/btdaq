@@ -179,25 +179,13 @@ TString Path2Name(const char *name, const char *sep, const char *exten);
 //-------------------------------------------------------------------------------------------
 void EventDisplay(TString filename){
 
-  bool amsflight=false;
-  bool pox=false;
-  bool amsl0vlad=false;
-  bool amsl0fep=true;
-
   InitStyle();
 
   gROOT->SetStyle("StyleWhite");
   //  gStyle->SetPaperSize(27,20);
   
-  const int namsl0fepfiles = 1;
-  //  TString amsl0fepfiles[namsl0fepfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/626"};
-
-   if (amsl0fep) {
-    for (int ii=0; ii<namsl0fepfiles; ii++) {
-      std::vector<TH1F*> histos;
-      OpenAMSL0FEPFile_EvDisp(filename, histos);
-    }
-   }
+  std::vector<TH1F*> histos;
+  OpenAMSL0FEPFile_EvDisp(filename, histos);
    
   return;
 }
@@ -1635,6 +1623,8 @@ void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos, bool kCal){
 
   return;
 }
+
+//MD: unificare con l'altra mettendo una flag per chiamare 'example'
 void OpenAMSL0FEPFile_EvDisp(TString filename, std::vector<TH1F*>& histos, bool kCal){
   
   // File open
@@ -1699,18 +1689,21 @@ TString Path2Name(const char *name, const char *sep, const char *exten){
    return outname;
 }
 
+//MD: provare a mettere i range degli isto automatici
 void MyMainFrame::DoDraw_next() {
   // Draws function graphics in randomly chosen interval
   int num_ev = fNumericEntries->GetIntNumber();  
   cout<<num_ev<<endl; 
   fNumericEntries->SetIntNumber(num_ev+1);
   
-  TH1F* h  = new TH1F(Form("Event_%d",num_ev+1),Form("#Event = %d; Channel; Signal (ADC)",num_ev+1),640,0,640);
+  TH1F* h  = new TH1F(Form("Event_%d",num_ev+1),Form("#Event = %d; Channel; Signal (ADC)",num_ev+1),16*64,0,16*64);
   TH1F* h_sig  = new TH1F(Form("Sig_%d",num_ev+1),Form("#Event = %d; Signal (ADC); Entries",num_ev+1),5000,0,5000);
 
+  h->GetYaxis()->SetRangeUser(0,3000);
   h_sig->GetXaxis()->SetRangeUser(1200,2200);
 
-  for (int ii=0; ii<640; ii++)
+  //MD: 16*64 provare a farlo automatico dalla dimensione del vettore
+  for (int ii=0; ii<16*64; ii++)
     {
       h->SetBinContent(ii,vec_of_signals[num_ev+1][ii]);
       h_sig->Fill(vec_of_signals[num_ev+1][ii]);
@@ -1726,17 +1719,21 @@ void MyMainFrame::DoDraw_next() {
   fCanvas->Update();
   first_call=1;
 }
+
+//MD: provare a mettere i range degli isto automatici
 void MyMainFrame::DoDraw() {
   // Draws function graphics in randomly chosen interval
   int num_ev = fNumericEntries->GetIntNumber();  
   cout<<num_ev<<endl; 
   
-  TH1F* h  = new TH1F(Form("Event_%d",num_ev),Form("#Event = %d; Channel; Signal (ADC)",num_ev),640,0,640);
+  TH1F* h  = new TH1F(Form("Event_%d",num_ev),Form("#Event = %d; Channel; Signal (ADC)",num_ev),16*64,0,16*64);
   TH1F* h_sig  = new TH1F(Form("Sig_%d",num_ev),Form("#Event = %d; Signal (ADC); Entries",num_ev),5000,0,5000);
 
+  h->GetYaxis()->SetRangeUser(0,3000);
   h_sig->GetXaxis()->SetRangeUser(1200,2200);
 
-  for (int ii=0; ii<640; ii++)
+  //MD: provare a mettere i range degli isto automatici
+  for (int ii=0; ii<16*64; ii++)
     {
       h->SetBinContent(ii,vec_of_signals[num_ev][ii]);
       h_sig->Fill(vec_of_signals[num_ev][ii]);
@@ -1752,17 +1749,21 @@ void MyMainFrame::DoDraw() {
   fCanvas->Update();
   first_call=1;
 }
+
+//MD: provare a mettere i range degli isto automatici
 void MyMainFrame::DoDraw_prev() {
   // Draws function graphics in randomly chosen interval
   int num_ev = fNumericEntries->GetIntNumber();  
   cout<<num_ev<<endl; 
   fNumericEntries->SetIntNumber(num_ev-1);
-  TH1F* h  = new TH1F(Form("Event_%d",num_ev-1),Form("#Event = %d; Channel; Signal (ADC)",num_ev-1),640,0,640);
+  TH1F* h  = new TH1F(Form("Event_%d",num_ev-1),Form("#Event = %d; Channel; Signal (ADC)",num_ev-1),16*64,0,16*64);
   TH1F* h_sig  = new TH1F(Form("Sig_%d",num_ev-1),Form("#Event = %d; Signal (ADC); Entries",num_ev-1),5000,0,5000);
 
+  h->GetYaxis()->SetRangeUser(0,3000);
   h_sig->GetXaxis()->SetRangeUser(1200,2200);
 
-  for (int ii=0; ii<640; ii++)
+  //MD: provare a mettere i range degli isto automatici
+  for (int ii=0; ii<16*64; ii++)
     {
       h->SetBinContent(ii,vec_of_signals[num_ev-1][ii]);
       h_sig->Fill(vec_of_signals[num_ev-1][ii]);
@@ -1783,6 +1784,7 @@ MyMainFrame::~MyMainFrame() {
   fMain->Cleanup();
   delete fMain;
 }
+
 void example(std::vector<std::vector<unsigned short>>& signals_by_ev) {
   // Popup the GUI...
 
