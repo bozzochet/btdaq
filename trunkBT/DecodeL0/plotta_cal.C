@@ -34,8 +34,25 @@
 #include <TGNumberEntry.h>
 #include <TGResourcePool.h>
 
-int first_call = 0;
-std::vector<std::vector<unsigned short>> vec_of_signals;
+/* for GUI START */
+double y1_min=0;
+double y1_max=3000;
+double x1_min=0;
+double x1_max=1024;
+double x2_min=1200;
+double x2_max=2200;
+double x3_min=-100;
+double x3_max=100;
+double x4_min=-100;
+double x4_max=100;
+
+bool first_call = true;
+std::vector<std::vector<unsigned short>> vec_of_signals; 
+std::vector<unsigned short> vec_of_ped; //ped-common noise, one for each channel
+std::vector<unsigned short> vec_of_noise;
+
+#define EV_DISP
+/*   for GUI END  */
 
 enum ETestCommandIdentifiers {
   M_TEST_NUMBERENTRY
@@ -53,11 +70,9 @@ class MyMainFrame {
   public:
   MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h);
   virtual ~MyMainFrame();
-  void DoDraw();
-  void DoDraw_next();
-  void DoDraw_prev();
+  void DoDraw(int nn_ev);
+  void SaveCurrentRanges();
 };
-void example(std::vector<std::vector<unsigned short>>& signals_by_ev);
 
 MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
   TGGC myGC = *gClient->GetResourcePool()->GetFrameGC();
@@ -70,7 +85,9 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
   fEcanvas = new TRootEmbeddedCanvas("Ecanvas",fMain,w,h);
   fMain->AddFrame(fEcanvas, new TGLayoutHints(kLHintsExpandX |
                                               kLHintsExpandY, 10,10,10,1));
-
+  TCanvas *fCanvas = fEcanvas->GetCanvas();
+  fCanvas->Divide(2,2);
+  
   // Create a horizontal frame widget with buttons
   TGHorizontalFrame *hframe = new TGHorizontalFrame(fMain,200,40);
   fMain->AddFrame(hframe, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
@@ -83,7 +100,8 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
   fMain->AddFrame(hframe2, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
 
   TGTextButton *prev = new TGTextButton(hframe2,"&Prev");
-  prev->Connect("Clicked()","MyMainFrame",this,"DoDraw_prev()");
+  prev->Connect("Clicked()","MyMainFrame",this,"SaveCurrentRanges()");
+  prev->Connect("Clicked()","MyMainFrame",this,"DoDraw(=-1)");
   hframe2->AddFrame(prev, new TGLayoutHints(kLHintsCenterX,
                                            5,5,3,4));
   
@@ -92,20 +110,22 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
                                                       5,5,3,4));
 
   TGTextButton *next = new TGTextButton(hframe2,"&Next");
-  next->Connect("Clicked()","MyMainFrame",this,"DoDraw_next()");
+  next->Connect("Clicked()","MyMainFrame",this,"SaveCurrentRanges()");
+  next->Connect("Clicked()","MyMainFrame",this,"DoDraw(=1)");
   hframe2->AddFrame(next, new TGLayoutHints(kLHintsCenterX,
                                            5,5,3,4));
   
-    TGHorizontalFrame *hframe3 = new TGHorizontalFrame(fMain,200,40);
+  TGHorizontalFrame *hframe3 = new TGHorizontalFrame(fMain,200,40);
   fMain->AddFrame(hframe3, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
   
   TGTextButton *draw = new TGTextButton(hframe3,"&Draw");
-  draw->Connect("Clicked()","MyMainFrame",this,"DoDraw()");
+  draw->Connect("Clicked()","MyMainFrame",this,"SaveCurrentRanges()");
+  draw->Connect("Clicked()","MyMainFrame",this,"DoDraw(=0)");
   hframe3->AddFrame(draw, new TGLayoutHints(kLHintsCenterX,
                                            5,5,3,4));
-  
+
   // Set a name to the main frame
-  fMain->SetWindowName("Simple Example");
+  //  fMain->SetWindowName("Simple Example");
   
   // Map all subwindows of main frame
   fMain->MapSubwindows();
@@ -185,7 +205,7 @@ void EventDisplay(TString filename){
   //  gStyle->SetPaperSize(27,20);
   
   std::vector<TH1F*> histos;
-  OpenAMSL0FEPFile_EvDisp(filename, histos);
+  OpenAMSL0FEPFile(filename, histos);
    
   return;
 }
@@ -206,7 +226,7 @@ void plotta_beam(){
   //  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/525";
   //  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/238_244";
   //  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/238_244";
-  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/627_999";
+  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/626_999";
 
   std::vector<TH1F*> histos_cal;
   OpenAMSL0FEPFile(amsl0fepcalfile, histos_cal, true);
@@ -438,6 +458,7 @@ void ComputeBeamVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev
       signals[ch][ev] = signals_by_ev[ev][ch];
     }
   }
+
   
   std::vector<double> values[4];
   for (int ii=0; ii<4; ii++) {
@@ -517,9 +538,9 @@ void ComputeBeamVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev
 	}
 
 	double sig = (signals[iCh][iEv] - values[0][iCh] - common_noise[thisVA]);
-	double noise = values[1][iCh];
+      	double noise = values[1][iCh];
 	double sig_to_noise = sig/noise;
-	if (sig_to_noise>0) {
+          if (sig_to_noise>0) {
 	  if (sig_to_noise>3.5) {
 	    histos[0]->Fill(iCh);
 	    histos[3]->Fill(sig);
@@ -528,9 +549,22 @@ void ComputeBeamVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev
 	}
 	histos[2]->Fill(sig);
 	histos[4]->Fill(sig_to_noise);
-		
-	lastVA = thisVA;
+#ifdef EV_DISP
+        if (iEv==0){
+          for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
+            unsigned int thisVA = iCh / NCHAVA;
+            if (thisVA != lastVA) {
+              vec_of_ped.push_back(values[0][iCh] - common_noise[thisVA]);
+              vec_of_noise.push_back(values[1][iCh]);
+            }
+          }
+        }
+#endif
+        lastVA = thisVA;
       }
+#ifdef EV_DISP
+      vec_of_signals.push_back(signals_by_ev[iEv]);
+#endif
     }
   }
 
@@ -553,7 +587,7 @@ void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signal
       signals[ch][ev] = signals_by_ev[ev][ch];
     }
   }
-  
+
   std::vector<double> values[4];
   for (int ii=0; ii<4; ii++) {
     values[ii].resize(signals.size());
@@ -646,13 +680,13 @@ void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signal
       for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
 	unsigned int thisVA = iCh / NCHAVA;
 	if (thisVA != lastVA) {
-	  
+        
 	  std::vector<float> sig_mean_sub;
 	  for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
 	    double sig = signals[thisVA * NCHAVA + iVACh][iEv] - values[0][thisVA * NCHAVA + iVACh];
 	    double noise = values[1][thisVA * NCHAVA + iVACh];
 	    double sig_to_noise = sig/noise;
-	    if (fabs(sig_to_noise)<3.5) {
+            if (fabs(sig_to_noise)<3.5) {
 	      sig_mean_sub.push_back(sig);
 	      //	      printf("%f\n", sig_mean_sub[iVACh]);
 	    }
@@ -679,8 +713,22 @@ void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signal
 	/* if (iCh==959 && fabs(sig_to_noise)>100.0) */
 	/*   printf("%d %d -> %f (%f) [%hu %f %f %f]\n", iEv, iCh, sig_to_noise, values[3][iCh], signals[iCh][iEv], values[0][iCh], common_noise[thisVA], values[1][iCh]); */
 		
+#ifdef EV_DISP
+        if (iEv==0){
+          for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
+            unsigned int thisVA = iCh / NCHAVA;
+            if (thisVA != lastVA) {
+              vec_of_ped.push_back(values[0][iCh] - common_noise[thisVA]);
+              vec_of_noise.push_back(values[1][iCh]);
+            }
+          }
+        }
+#endif
 	lastVA = thisVA;
       }
+#ifdef EV_DISP
+      vec_of_signals.push_back(signals_by_ev[iEv]);
+#endif
     }
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
       values[3][iCh] = (values[3][iCh] / static_cast<float>(signals[0].size()));
@@ -1620,48 +1668,10 @@ void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos, bool kCal){
   else {
     ComputeBeamVladimir(signals_by_ev, signals, nev, filename, histos);
   }
-
-  return;
-}
-
-//MD: unificare con l'altra mettendo una flag per chiamare 'example'
-void OpenAMSL0FEPFile_EvDisp(TString filename, std::vector<TH1F*>& histos, bool kCal){
   
-  // File open
-  FILE* file = fopen(filename.Data(), "rb");
-  if (file == NULL) {
-    printf("Error file %s not found\n", filename.Data());
-    exit(2);
-  }
-  else {
-    printf("File %s opened\n", filename.Data());
-  }
-  
-  std::vector<std::vector<unsigned short>> signals_by_ev;
-  std::vector<std::vector<unsigned short>> signals;
- 
-  int nev=0;
-  while (1) {
-    unsigned int read_bytes = 0;
-    int ret = ProcessBlock(file, read_bytes, nev, signals_by_ev, 0);
-    if (ret!=0) break;
-  }
-  
-  example(signals_by_ev);
-  
-  printf("We read %d events\n", nev);
-
-  if (file)
-    fclose(file);
-  file = NULL;
-
-  if (kCal) {
-    ComputeCalibrationVladimir(signals_by_ev, signals, nev, filename, histos);
-  }
-  else {
-    ComputeBeamVladimir(signals_by_ev, signals, nev, filename, histos);
-  }
-
+#ifdef EV_DISP
+  new MyMainFrame(gClient->GetRoot(),1200,800);
+#endif 
   return;
 }
 
@@ -1690,94 +1700,67 @@ TString Path2Name(const char *name, const char *sep, const char *exten){
 }
 
 //MD: provare a mettere i range degli isto automatici
-void MyMainFrame::DoDraw_next() {
-  // Draws function graphics in randomly chosen interval
-  int num_ev = fNumericEntries->GetIntNumber();  
-  cout<<num_ev<<endl; 
-  fNumericEntries->SetIntNumber(num_ev+1);
-  
-  TH1F* h  = new TH1F(Form("Event_%d",num_ev+1),Form("#Event = %d; Channel; Signal (ADC)",num_ev+1),16*64,0,16*64);
-  TH1F* h_sig  = new TH1F(Form("Sig_%d",num_ev+1),Form("#Event = %d; Signal (ADC); Entries",num_ev+1),5000,0,5000);
-
-  h->GetYaxis()->SetRangeUser(0,3000);
-  h_sig->GetXaxis()->SetRangeUser(1200,2200);
-
-  //MD: 16*64 provare a farlo automatico dalla dimensione del vettore
-  for (int ii=0; ii<16*64; ii++)
-    {
-      h->SetBinContent(ii,vec_of_signals[num_ev+1][ii]);
-      h_sig->Fill(vec_of_signals[num_ev+1][ii]);
-    }
-  
-  TCanvas *fCanvas = fEcanvas->GetCanvas();
-  fCanvas->cd();
-  if (first_call==0) fCanvas->Divide(2,2);
-  fCanvas->cd(1);
-  h->Draw();
-  fCanvas->cd(2);
-  h_sig->Draw();
-  fCanvas->Update();
-  first_call=1;
+void MyMainFrame::SaveCurrentRanges(){
+  if (first_call==false){
+    TCanvas *fCanvas = fEcanvas->GetCanvas();
+    
+    y1_min = fCanvas->GetPad(1)->GetFrame()->GetY1();
+    y1_max = fCanvas->GetPad(1)->GetFrame()->GetY2();
+    x1_min = fCanvas->GetPad(1)->GetFrame()->GetX1();
+    x1_max = fCanvas->GetPad(1)->GetFrame()->GetX2();
+    x2_min = fCanvas->GetPad(2)->GetFrame()->GetX1();
+    x2_max = fCanvas->GetPad(2)->GetFrame()->GetX2();
+    x3_min = fCanvas->GetPad(3)->GetFrame()->GetX1();
+    x3_max = fCanvas->GetPad(3)->GetFrame()->GetX2();
+    x4_min = fCanvas->GetPad(4)->GetFrame()->GetX1();
+    x4_max = fCanvas->GetPad(4)->GetFrame()->GetX2();
+  }
+  else
+    first_call=false;
 }
 
 //MD: provare a mettere i range degli isto automatici
-void MyMainFrame::DoDraw() {
+void MyMainFrame::DoDraw(int nn_ev) {
   // Draws function graphics in randomly chosen interval
-  int num_ev = fNumericEntries->GetIntNumber();  
-  cout<<num_ev<<endl; 
-  
-  TH1F* h  = new TH1F(Form("Event_%d",num_ev),Form("#Event = %d; Channel; Signal (ADC)",num_ev),16*64,0,16*64);
-  TH1F* h_sig  = new TH1F(Form("Sig_%d",num_ev),Form("#Event = %d; Signal (ADC); Entries",num_ev),5000,0,5000);
+  int num_ev = fNumericEntries->GetIntNumber()+nn_ev;  
+  fNumericEntries->SetIntNumber(num_ev);
 
-  h->GetYaxis()->SetRangeUser(0,3000);
-  h_sig->GetXaxis()->SetRangeUser(1200,2200);
+  TH1F* h_ped = new TH1F(Form("Pedestal_%d",num_ev),"; Channel; Pedestal - Common Noise (ADC)",16*64,0,16*64);
+  h_ped->GetYaxis()->SetRangeUser(y1_min,y1_max);
+  h_ped->GetXaxis()->SetRangeUser(x1_min,x1_max);
+ 
+  TH1F* h_sig  = new TH1F(Form("Sig_%d",num_ev),Form("#Event = %d; Raw Signal (ADC); Entries",num_ev),5000,0,5000);
+  h_sig->GetXaxis()->SetRangeUser(x2_min,x2_max);
+
+  TH1F* h_corr_sig  = new TH1F(Form("SigCorr_%d",num_ev),Form("#Event = %d; Signal (ADC); Entries",num_ev),5000,-2500,2500);
+  h_corr_sig->GetXaxis()->SetRangeUser(x3_min,x3_max);
+
+  TH1F* h_sig_over_noise  = new TH1F(Form("SigCorr_over_noise_%d",num_ev),Form("#Event = %d; Signal / Noise; Entries",num_ev),5000,-2500,2500);
+  h_sig_over_noise->GetXaxis()->SetRangeUser(x4_min,x4_max);
+
 
   //MD: provare a mettere i range degli isto automatici
   for (int ii=0; ii<16*64; ii++)
     {
-      h->SetBinContent(ii,vec_of_signals[num_ev][ii]);
+      h_ped->SetBinContent(ii,vec_of_ped[ii]);
       h_sig->Fill(vec_of_signals[num_ev][ii]);
+      h_corr_sig->Fill(vec_of_signals[num_ev][ii]-vec_of_ped[ii]);
+      h_sig_over_noise->Fill((vec_of_signals[num_ev][ii]-vec_of_ped[ii])/vec_of_noise[ii]);
     }
   
   TCanvas *fCanvas = fEcanvas->GetCanvas();
   fCanvas->cd();
-  if (first_call==0) fCanvas->Divide(2,2);
+
   fCanvas->cd(1);
-  h->Draw();
+  h_ped->Draw();
   fCanvas->cd(2);
   h_sig->Draw();
+  fCanvas->cd(3);
+  h_corr_sig->Draw();
+  fCanvas->cd(4);
+  h_sig_over_noise->Draw();
   fCanvas->Update();
-  first_call=1;
-}
 
-//MD: provare a mettere i range degli isto automatici
-void MyMainFrame::DoDraw_prev() {
-  // Draws function graphics in randomly chosen interval
-  int num_ev = fNumericEntries->GetIntNumber();  
-  cout<<num_ev<<endl; 
-  fNumericEntries->SetIntNumber(num_ev-1);
-  TH1F* h  = new TH1F(Form("Event_%d",num_ev-1),Form("#Event = %d; Channel; Signal (ADC)",num_ev-1),16*64,0,16*64);
-  TH1F* h_sig  = new TH1F(Form("Sig_%d",num_ev-1),Form("#Event = %d; Signal (ADC); Entries",num_ev-1),5000,0,5000);
-
-  h->GetYaxis()->SetRangeUser(0,3000);
-  h_sig->GetXaxis()->SetRangeUser(1200,2200);
-
-  //MD: provare a mettere i range degli isto automatici
-  for (int ii=0; ii<16*64; ii++)
-    {
-      h->SetBinContent(ii,vec_of_signals[num_ev-1][ii]);
-      h_sig->Fill(vec_of_signals[num_ev-1][ii]);
-    }
-  
-  TCanvas *fCanvas = fEcanvas->GetCanvas();
-  fCanvas->cd();
-  if (first_call==0) fCanvas->Divide(2,2);
-  fCanvas->cd(1);
-  h->Draw();
-  fCanvas->cd(2);
-  h_sig->Draw();
-  fCanvas->Update();
-  first_call=1;
 }
 MyMainFrame::~MyMainFrame() {
   // Clean up used widgets: frames, buttons, layout hints
@@ -1785,13 +1768,3 @@ MyMainFrame::~MyMainFrame() {
   delete fMain;
 }
 
-void example(std::vector<std::vector<unsigned short>>& signals_by_ev) {
-  // Popup the GUI...
-
-  signals_by_ev[0];
-  //  std::vector<std::vector<unsigned short>> vec_of_signals;
-  for (int ev = 0; ev < ((int)(signals_by_ev.size())); ev++)
-    vec_of_signals.push_back(signals_by_ev[ev]);
-  
-  new MyMainFrame(gClient->GetRoot(),1200,800);
-}
