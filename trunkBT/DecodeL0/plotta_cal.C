@@ -221,12 +221,12 @@ void plotta_beam(){
   
   // TString amsl0fepcalfile = "./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519";
   // TString amsl0fepcalfile = "./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/235";
-  TString amsl0fepcalfile = "./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/626";
+  TString amsl0fepcalfile = "/media/gsilvest/gigi/USBL0_PG_LSR00/0000/002";
   
   //  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/525";
   //  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/238_244";
   //  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/238_244";
-  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/626_999";
+  TString amsl0fepbeamfile = "/media/gsilvest/gigi/USBL0_PG_LSR00/0000/014";
 
   std::vector<TH1F*> histos_cal;
   OpenAMSL0FEPFile(amsl0fepcalfile, histos_cal, true);
@@ -373,6 +373,8 @@ int ReadFile(void *ptr, size_t size, size_t nitems, FILE *stream) {
 
   return ret;
 }
+
+
 
 void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos){
 
@@ -554,7 +556,7 @@ void ComputeBeamVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev
           for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
             unsigned int thisVA = iCh / NCHAVA;
             if (thisVA != lastVA) {
-              vec_of_ped.push_back(values[0][iCh] - common_noise[thisVA]);
+              vec_of_ped.push_back(values[0][iCh]);
               vec_of_noise.push_back(values[1][iCh]);
             }
           }
@@ -1674,6 +1676,54 @@ void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos, bool kCal){
 #endif 
   return;
 }
+
+void SaveAMSL0FEPFileGigi(TString filename){
+  
+  // File open
+  FILE* file = fopen(filename.Data(), "rb");
+  if (file == NULL) {
+    printf("Error file %s not found\n", filename.Data());
+    exit(2);
+  }
+  else {
+    printf("File %s opened\n", filename.Data());
+  }
+  
+  std::vector<std::vector<unsigned short>> signals_by_ev;
+  std::vector<std::vector<unsigned short>> signals;
+  
+  int nev=0;
+  while (1) {
+    unsigned int read_bytes = 0;
+    int ret = ProcessBlock(file, read_bytes, nev, signals_by_ev, 0);
+    if (ret!=0) break;
+  }
+  printf("We read %d events\n", nev);
+
+  std::vector<unsigned short> raw_event_buffer;
+  TFile *foutput = new TFile(filename + "_conv.root", "RECREATE", "Foot data");
+  foutput->cd();
+
+  TTree *raw_events_tree = new TTree("raw_events", "raw_events");
+  raw_events_tree->Branch("RAW Event", &raw_event_buffer);
+  
+  for (auto & evt: signals_by_ev)
+  {
+    raw_event_buffer.clear();
+    raw_event_buffer = evt;
+    raw_events_tree->Fill();
+  } 
+
+  raw_events_tree->Write();
+  foutput->Close();
+
+  if (file)
+    fclose(file);
+  file = NULL;
+
+  return;
+}
+
 
 TString Path2Name(const char *name, const char *sep, const char *exten){
    // Extract name from full path
