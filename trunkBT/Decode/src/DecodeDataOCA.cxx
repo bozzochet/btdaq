@@ -165,9 +165,9 @@ int DecodeDataOCA::GetTdrType(size_t pos) {
 
 // TODO: read calib events, compute mean and sigma
 bool DecodeDataOCA::ProcessCalibration() {
-
+  
   int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
-
+  
   std::istringstream is(m_calFilename);
   std::string part;
   std::string prefix = "RUN";
@@ -183,7 +183,7 @@ bool DecodeDataOCA::ProcessCalibration() {
       //      std::cout << runnum << std::endl;
     }
   }
-    
+  
   // open the calibration file
   std::string calFilePath = m_rawDir + "/" + m_calFilename;
   calfile = fopen(calFilePath.c_str(), "r");
@@ -194,7 +194,7 @@ bool DecodeDataOCA::ProcessCalibration() {
   
   printf("Processing calibration (%s)... \n", calFilePath.c_str());
   auto start = std::chrono::system_clock::now();
-
+  
   auto event = std::make_unique<EventOCA>();
   std::vector<std::vector<std::vector<float>>> signals(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
   std::vector<std::vector<std::vector<float>>> signals_sorted(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
@@ -206,13 +206,14 @@ bool DecodeDataOCA::ProcessCalibration() {
   
   //#define CALPLOTS // in generale deve stare spento, a differenza di AMS non abbiamo i cluster, quando fa il decode qui fa qualche plot di occupancy.   
 #define PERCENTILE 0.02
-  
+      
   unsigned int nEvents{0};
   while (!feof(calfile)) {
     //while (nEvents<1000) {
     ReadOneEventFromFile(calfile, event.get());
-    //std::cout << "\rRead " << ++nEvents << " events" << std::flush;
-    //    std::cout << "\rRead " << ++nEvents << " events" << " (found " << m_numBoardsFound << " boards)" << std::flush;
+    nEvents++;
+    //std::cout << "\rRead " << nEvents << " events" << std::flush;
+    //    std::cout << "\rRead " << nEvents << " events" << " (found " << m_numBoardsFound << " boards)" << std::flush;
     
     for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
