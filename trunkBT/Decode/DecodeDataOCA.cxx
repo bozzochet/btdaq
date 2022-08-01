@@ -197,24 +197,27 @@ bool DecodeDataOCA::ProcessCalibration() {
 
   auto event = std::make_unique<EventOCA>();
   std::vector<std::vector<std::vector<float>>> signals(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
+  std::vector<std::vector<std::vector<float>>> signals_sorted(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
   // std::vector<std::vector<std::vector<float> > > signals;
   // signals.resize(NTDRS);
   // for (int ii=0; ii<NTDRS; ii++) {
   //   signals[ii].resize(NVAS * NCHAVA);
   // }
   
-#define CALPLOTS
+  //#define CALPLOTS // in generale deve stare spento, a differenza di AMS non abbiamo i cluster, quando fa il decode qui fa qualche plot di occupancy.   
 #define PERCENTILE 0.02
   
   unsigned int nEvents{0};
   while (!feof(calfile)) {
+    //while (nEvents<1000) {
     ReadOneEventFromFile(calfile, event.get());
-    //    std::cout << "\rRead " << ++nEvents << " events" << std::flush;
-    std::cout << "\rRead " << ++nEvents << " events" << " (found " << m_numBoardsFound << " boards)" << std::flush;
+    //std::cout << "\rRead " << ++nEvents << " events" << std::flush;
+    //    std::cout << "\rRead " << ++nEvents << " events" << " (found " << m_numBoardsFound << " boards)" << std::flush;
     
     for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
         signals[iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+        signals_sorted[iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
 	//	printf("%d (%d %d)) %hd %f -> %f\n", nEvents, iTdr, iCh, event->RawSignal[iJinf][iTdr][iCh], m_adcUnits, event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
       }
     }
@@ -226,10 +229,10 @@ bool DecodeDataOCA::ProcessCalibration() {
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
 
-      std::sort(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]));
-      unsigned int skipped_ch = PERCENTILE*signals[iTdr][iCh].size();
-      auto beginItr = std::next(begin(signals[iTdr][iCh]), skipped_ch);
-      auto endItr = std::prev(end(signals[iTdr][iCh]), skipped_ch);
+      std::sort(begin(signals_sorted[iTdr][iCh]), end(signals_sorted[iTdr][iCh]));
+      unsigned int skipped_ch = PERCENTILE*signals_sorted[iTdr][iCh].size();
+      auto beginItr = std::next(begin(signals_sorted[iTdr][iCh]), skipped_ch);
+      auto endItr = std::prev(end(signals_sorted[iTdr][iCh]), skipped_ch);
       auto nCh = std::distance(beginItr, endItr);
       //      printf("%ld %f\n", nCh, (1.0-2.0*PERCENTILE)*signals[iTdr][iCh].size());
       
@@ -258,12 +261,23 @@ bool DecodeDataOCA::ProcessCalibration() {
   
 #ifdef CALPLOTS
   TH1F* hrawsig[NTDRS];
+  TH1F* hrawsig_each_ch[NVAS * NCHAVA]; //only for Tdr 0
+  TH1F* hrawsig_each_ch_vs_ev[NVAS * NCHAVA]; //only for Tdr 0
+  TH1F* hADC_each_ch[NVAS * NCHAVA]; //only for Tdr 0
+  TH1F* hADC_each_ch_vs_ev[NVAS * NCHAVA]; //only for Tdr 0
   TH1F* hrawsig_filtered[NTDRS];
   TH1F* hsig[NTDRS];
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
-    hrawsig[iTdr] = new TH1F(Form("rawsigma_%d", iTdr), "rawsigma", 5000, -500, 500);
-    hrawsig_filtered[iTdr] = new TH1F(Form("rawsigma_filtered_%d", iTdr), "rawsigma", 5000, -500, 500);
-    hsig[iTdr] = new TH1F(Form("sigma_%d", iTdr), "sigma", 5000, -500, 500);
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh)
+      if (iTdr==0) {
+        hrawsig_each_ch[iCh] = new TH1F(Form("rawsigma_ch%d",iCh),Form("ch=%d; #Event; Sigma Raw",iCh), 1000,-500,500);
+        hrawsig_each_ch_vs_ev[iCh] = new TH1F(Form("rawsigma_vs_ev_ch%d",iCh),Form("ch=%d; #Event; Sigma Raw",iCh),signals[iTdr][iCh].size(),0, signals[iTdr][iCh].size());
+        hADC_each_ch[iCh] = new TH1F(Form("ADC_ch%d",iCh),Form("ch=%d; #Event; ADC",iCh), 1000,0,1000);
+        hADC_each_ch_vs_ev[iCh] = new TH1F(Form("ADC_vs_ev_ch%d",iCh),Form("ch=%d; #Event; ADC",iCh),signals[iTdr][iCh].size(),0, signals[iTdr][iCh].size());
+      }
+    hrawsig[iTdr] = new TH1F(Form("rawsigma_%d", iTdr), "rawsigma", 1000, -500, 500);
+    hrawsig_filtered[iTdr] = new TH1F(Form("rawsigma_filtered_%d", iTdr), "rawsigma", 1000, -500, 500);
+    hsig[iTdr] = new TH1F(Form("sigma_%d", iTdr), "sigma", 1000, -500, 500);
     //    printf("%d) %p %p %p\n", iTdr, hrawsig[iTdr], hrawsig_filtered[iTdr], hsig[iTdr]);
   }
   
@@ -271,9 +285,15 @@ bool DecodeDataOCA::ProcessCalibration() {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {  
       for (unsigned int iEv=0; iEv<signals[iTdr][iCh].size(); iEv++) {
 	hrawsig[iTdr]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+        if (iTdr==0)        {
+          hADC_each_ch[iCh]->Fill(signals[iTdr][iCh].at(iEv));
+          hADC_each_ch_vs_ev[iCh]->SetBinContent(iEv+1,signals[iTdr][iCh].at(iEv));
+          hrawsig_each_ch[iCh]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+          hrawsig_each_ch_vs_ev[iCh]->SetBinContent(iEv+1,signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+        }
       }
       for (unsigned int iEv=((int)(PERCENTILE*signals[iTdr][iCh].size())); iEv<((int)((1.0-PERCENTILE)*signals[iTdr][iCh].size())); iEv++) {
-	hrawsig_filtered[iTdr]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+        hrawsig_filtered[iTdr]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
       }
     }
   }
@@ -289,48 +309,59 @@ bool DecodeDataOCA::ProcessCalibration() {
   // for (int ii=0; ii<NTDRS; ii++) {
   //   processed_events[ii].resize(NVAS * NCHAVA);
   // }
+
+#ifdef CALPLOTS
+  //  TH1F* h_sig_eachVA[1][NCHAVA][signals[0][0].size()];//uno per ogni VA e per ogni evento - se non necessario, meglio tenere commentato che sono molti plot
+#endif
   for (unsigned int iEv = 0; iEv < signals[0][0].size(); ++iEv) {
     for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-	
+        double low_cut = signals_sorted[iTdr][iCh][PERCENTILE*signals_sorted[iTdr][iCh].size()];
+        double high_cut = signals_sorted[iTdr][iCh][(1.-PERCENTILE)*signals_sorted[iTdr][iCh].size()];
         unsigned int thisVA = iCh / NCHAVA;
 	//	printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
+      
         if (thisVA != lastVA) {
-
+#ifdef CALPLOTS
+          //          if (iTdr==7)          h_sig_eachVA[0][thisVA][iEv] = new TH1F(Form("sig_Tdr%d_VA%d_Ev%d",iTdr,thisVA,iEv),Form("sig_Tdr%d_VA%d_Ev%d",iTdr,thisVA,iEv),1000,-500,500);
+#endif
           std::vector<float> values;
           for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
-	    double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
+            double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
 	    double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
-	    double sig_to_rawnoise = sig/rawnoise;
+            double sig_to_rawnoise = sig/rawnoise;
+#ifdef CALPLOTS
+            //            if (iTdr==7)  h_sig_eachVA[0][thisVA][iEv]->Fill(sig);
+#endif
 	    //this relies in sorted vectors (i.e. signals), done in preveious loop (sigma raw) 
-	    if (iEv>=((int)(PERCENTILE*signals[iTdr][thisVA * NCHAVA + iVACh].size())) && iEv<((int)((1.0-PERCENTILE)*signals[iTdr][thisVA * NCHAVA + iVACh].size()))) {
-	      if (fabs(sig_to_rawnoise)<50.0) {
-		values.push_back(sig);
-	      }
-	    }
+            //            if (iEv>=((int)(PERCENTILE*signals[iTdr][thisVA * NCHAVA + iVACh].size())) && iEv<((int)((1.0-PERCENTILE)*signals[iTdr][thisVA * NCHAVA + iVACh].size()))) { //probabilemte non serve e comunque questo è sbagliato 
+            if (fabs(sig_to_rawnoise)<50.0) {
+              if ( sig>low_cut && sig<high_cut )
+                values.push_back(sig);
+            }
+                // }
           }
 
-	  printf("%d) Board=%d VA=%d -> %lu events for CN evaluation\n", iEv, iTdr, thisVA, values.size());
-	  
+          //	  printf("%d) Board=%d VA=%d -> %lu events for CN evaluation\n", iEv, iTdr, thisVA, values.size());
           // get the median
           std::sort(begin(values), end(values));
 	  if (values.size()>0) {
 	    common_noise[thisVA] = 0.5 * (values[(values.size() / 2) - 1] + values[values.size() / 2]);
-	  }
+          }
 	  else {
 	    /*
 	      for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
-	        double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
-	        double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
-	        double sig_to_rawnoise = sig/rawnoise;
-	        printf("Event = %d) board=%d, ch=%lu --> sig=%f, ped=%f, S/N=%f\n", iEv, iTdr, thisVA * NCHAVA + iVACh, signals[iTdr][thisVA * NCHAVA + iVACh][iEv], cals[iTdr].ped[thisVA * NCHAVA + iVACh], sig_to_rawnoise);
+              double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
+              double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
+              double sig_to_rawnoise = sig/rawnoise;
+              printf("Event = %d) board=%d, ch=%lu --> sig=%f, ped=%f, S/N=%f\n", iEv, iTdr, thisVA * NCHAVA + iVACh, signals[iTdr][thisVA * NCHAVA + iVACh][iEv], cals[iTdr].ped[thisVA * NCHAVA + iVACh], sig_to_rawnoise);
 	      }
 	    */
 	    common_noise[thisVA] = 0.0;
 	  }
 	  //	  printf("%f\n", common_noise[thisVA]);
         }
-
+        
 	/*
         if (std::fabs(common_noise[thisVA]) > 10) {//not used for the sigma evaluation
           continue;
@@ -338,12 +369,11 @@ bool DecodeDataOCA::ProcessCalibration() {
 	*/
 
 	//this relies in sorted vectors (i.e. signals), done in preveious loop (sigma raw)
-	if (iEv>=((int)(PERCENTILE*signals[iTdr][iCh].size())) && iEv<((int)((1.0-PERCENTILE)*signals[iTdr][iCh].size()))) {
-	  ++processed_events[iTdr][iCh];
-	  
-	  cals[iTdr].sig[iCh] += (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
-	    (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
-	}
+        if ( signals[iTdr][iCh][iEv]>low_cut && signals[iTdr][iCh][iEv]<high_cut ){
+          ++processed_events[iTdr][iCh];
+          cals[iTdr].sig[iCh] += (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
+          (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
+        }
 	
 #ifdef CALPLOTS
 	hsig[iTdr]->Fill(signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
@@ -355,6 +385,8 @@ bool DecodeDataOCA::ProcessCalibration() {
   }
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+      if (processed_events[iTdr][iCh]==0 && cals[iTdr].sig[iCh]!=0)
+        std::cout<<"     *****"<<cals[iTdr].sig[iCh]<<std::endl;
       cals[iTdr].sig[iCh] = std::sqrt(cals[iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
     }
   }
@@ -386,7 +418,7 @@ bool DecodeDataOCA::ProcessCalibration() {
       fprintf(calfil, "%d %d %d %lf %f %f %f %d\n", iCh+1, (1+(int)(iCh/NCHAVA)), (1+(int)((iCh)%NCHAVA)),
 	     cals[iTdr].ped[iCh], cals[iTdr].rsig[iCh], cals[iTdr].sig[iCh], 0.0, 0);
     }
-    
+  
     fclose(calfil);
   }
 
@@ -395,7 +427,6 @@ bool DecodeDataOCA::ProcessCalibration() {
 
 // TODO: read event data.
 int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
-
   int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
 
   constexpr uint32_t c_bEvHeader = 0xfa4af1ca;
@@ -598,7 +629,7 @@ int DecodeDataOCA::ReadOneEvent() {
   //     }
   //   }
   // }
-  
+
   // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this
   // point, so it should return.
   for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
