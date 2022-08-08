@@ -382,6 +382,10 @@ int main(int argc, char **argv) {
 	    int ladder = iTDR + 100*iJinf;
 	    double signal = (dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf);
 	    double son = (dd->ev)->GetRawSoN_PosNum(iTDR, iCh, iJinf);
+	    if (son != son) { //NaN, not a ladder really present
+	      son = 0;
+	    }
+	    //	    printf("%d %f %f\n", ladder, signal, son);
 	  
 	    int side=0;
 	    if (iCh >= fConf.NCHAVA * fConf.NVASS) {
