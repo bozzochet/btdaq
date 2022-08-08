@@ -324,7 +324,7 @@ bool DecodeDataOCA::ProcessCalibration() {
       
         if (thisVA != lastVA) {
 #ifdef CALPLOTS
-          //          if (iTdr==7)          h_sig_eachVA[0][thisVA][iEv] = new TH1F(Form("sig_Tdr%d_VA%d_Ev%d",iTdr,thisVA,iEv),Form("sig_Tdr%d_VA%d_Ev%d",iTdr,thisVA,iEv),1000,-500,500);
+          h_sig_eachVA[0][thisVA][iEv] = new TH1F(Form("sig_Tdr%d_VA%d_Ev%d",iTdr,thisVA,iEv),Form("sig_Tdr%d_VA%d_Ev%d",iTdr,thisVA,iEv),1000,-500,500);
 #endif
           std::vector<float> values;
           for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
@@ -332,7 +332,7 @@ bool DecodeDataOCA::ProcessCalibration() {
 	    double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
             double sig_to_rawnoise = sig/rawnoise;
 #ifdef CALPLOTS
-            //            if (iTdr==7)  h_sig_eachVA[0][thisVA][iEv]->Fill(sig);
+	    h_sig_eachVA[0][thisVA][iEv]->Fill(sig);
 #endif
 	    //this relies in sorted vectors (i.e. signals), done in preveious loop (sigma raw) 
             //            if (iEv>=((int)(PERCENTILE*signals[iTdr][thisVA * NCHAVA + iVACh].size())) && iEv<((int)((1.0-PERCENTILE)*signals[iTdr][thisVA * NCHAVA + iVACh].size()))) { //probabilemte non serve e comunque questo è sbagliato 

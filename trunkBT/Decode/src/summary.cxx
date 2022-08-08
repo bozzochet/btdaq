@@ -55,14 +55,14 @@ int SummaryComplete(char *dir, int run_number, int jinfnum, const char *outkind,
 //                              Here comes the main...
 //-------------------------------------------------------------------------------------------
 int main(int argc, char **argv) {
-
-  TApplication* myapp = NULL;
-  if (!mute) myapp = new TApplication("myapp",0,0);
   
   int ret=0;
 
   TString _name = argv[0];
   if (_name.Contains("Mute")) mute=true;
+
+  TApplication* myapp = NULL;
+  if (!mute) myapp = new TApplication("myapp", &argc, argv);
 
   CPars= new ConfPars();
   //-------------------------------------------------
@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
   
   delete CPars;
 
-  return 0;
+  return ret;
 }
 
 void RefMask(ConfPars *CPars, int run_number, int jinfnum, const char *nameprefixin) {
@@ -231,7 +231,7 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
   Float_t rsig[10240];
   Float_t sig[10240];
   Int_t status[10240];
-  TCanvas *c;
+  TCanvas* c = NULL;
 
   for (Int_t ii=0;ii<10240;ii++) {
     ped[ii] = 0;
