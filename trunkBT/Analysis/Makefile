@@ -60,14 +60,14 @@ Analysis: ./obj/Analysis.o libEvent
 	ln -fs $@ AnalysisOCA
 
 #AnalysisFOOT: ./obj/AnalysisFOOT.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@
+#	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@
 
 ./obj/%.o: ./src/%.C
-	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
+	if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
 	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 ./obj/%.o: ./src/%.cxx
-	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
+	if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
 	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 libEvent:
@@ -75,9 +75,9 @@ libEvent:
 
 clean:
 	rm -Rf ./obj
-	rm -f ./Analysis
-	rm -f ./AnalysisFOOT
-	rm -f ./AnalysisOCA
+	rm -fv ./Analysis
+	rm -fv ./AnalysisFOOT
+	rm -fv ./AnalysisOCA
 	rm -f ./ViewerGUI
 	rm -f ./ViewerFOOT
 	rm -f ./guiDict.cxx

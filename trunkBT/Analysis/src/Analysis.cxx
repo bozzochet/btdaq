@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
 
 template <class Event, class RH>
 int ProcessChain(TChain* chain, TString output_filename){
-
+  
   using TS = TrackSelection<Event, RH>;
   TS* ts = new TS();
   using UT = Utilities<Event, RH>;
@@ -119,7 +119,7 @@ int ProcessChain(TChain* chain, TString output_filename){
   static int NVAS = Event::GetNVAS();
   static int NCHAVA = Event::GetNCHAVA();
   static int NADCS = Event::GetNADCS();
-
+  
   Event* ev = new Event();
   Cluster *cl;
   
@@ -193,13 +193,16 @@ int ProcessChain(TChain* chain, TString output_filename){
   TH1F* Y0TARGETDET = new TH1F("Y0TARGETDET", "Y0TARGETDET;Y_{Z=TARGETDET} (mm);Entries", 1000, -100, 100);
   TH2F* X0Y0TARGETDET = new TH2F("X0Y0TARGETDET", "X0Y0TARGETDET;X_{Z=TARGETDET} (mm);Y_{Z=TARGETDET} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
 
-  TH1F* hclusSladd = new TH1F("hclusSladd", "hclusSladd;Ladder;Clusters_{S}", 24, 0, 24);
-  TH1F* hclusSladdtrack = new TH1F("hclusSladdtrack", "hclusSladdtrack;Ladder;Clusters_{S,OnTrack}", 24, 0, 24);
-  TH1F* hclusKladd = new TH1F("hclusKladd", "hclusKladd;Ladder;Clusters_{K}", 24, 0, 24);
-  TH1F* hclusKladdtrack = new TH1F("hclusKladdtrack", "hclusKladdtrack;Ladder;Clusters_{K,OnTrack}", 24, 0, 24);
-  TH1F* hclus = new TH1F("hclus", "hclus;Clusters;Entries", 1000, 0, 1000);
-  TH1F* hclus_aftersel = new TH1F("hclus_aftersel", "hclus_aftersel;Clusters;Entries", 1000, 0, 1000);
+  TH2F* hclus_vs_event = new TH2F("hclus_vs_event", "hclus_vs_event;Event Number;Clusters", entries, 0, entries, 1000, 0, 1000);
+  TH1F* hclus = new TH1F("hclus", "hclus;Clusters;Entries", 1000, 0, 1000);//total
+  TH1F* hclus_aftersel = new TH1F("hclus_aftersel", "hclus_aftersel;Clusters;Entries", 1000, 0, 1000);//total but after event selection
+  TH1F* hclusSladd = new TH1F("hclusSladd", "hclusSladd;Ladder;Clusters_{S}", 24, 0, 24);//total per ladder but after event selection
+  TH1F* hclusSladdtrack = new TH1F("hclusSladdtrack", "hclusSladdtrack;Ladder;Clusters_{S,OnTrack}", 24, 0, 24);//on track per ladder but after event selection
+  TH1F* hclusKladd = new TH1F("hclusKladd", "hclusKladd;Ladder;Clusters_{K}", 24, 0, 24);//total per ladder but after event selection
+  TH1F* hclusKladdtrack = new TH1F("hclusKladdtrack", "hclusKladdtrack;Ladder;Clusters_{K,OnTrack}", 24, 0, 24);//on track per ladder but after event selection
 
+  //---------------------------------------------------
+  
   Long64_t cleanevs=0;
   Long64_t preselevs=0;
   Long64_t tracks=0;
@@ -249,17 +252,19 @@ int ProcessChain(TChain* chain, TString output_filename){
     //    printf("\t\tnclusters = %d\n", NClusTot);
 
     hclus->Fill(NClusTot);
+    hclus_vs_event->Fill(index_event, NClusTot);
 
     //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
     //and at most 100 (to avoid too much noise around and too much combinatorial)
     //at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
-    // ts->CleanEvent(ev, ut->GetRH(chain), 4, 50, 6, 6, 0, 0);
+    // ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 6, 6, 0, 0);
     
     bool cleanevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 9999, 9999, 9999, 9999, 9999);
     if (!cleanevent) continue;
     cleanevs++;//in this way this number is giving the "complete reasonable sample"
     
-    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 3, 3, 0, 0);
+    //    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 3, 3, 0, 0);//valid for TIC TB?
+    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 200, 10, 10, 0, 0);
     if (!preselevent) continue;
     preselevs++;
     
