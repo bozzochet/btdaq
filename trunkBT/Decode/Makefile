@@ -72,7 +72,7 @@ $(ANYOPTION)/anyoption.o :
 src/rootElibdict.cxx: $(CLASSES_HEADERS) $(TEMPLATE_CLASSES_HEADERS) include/LinkDef.h
 	@echo Creating ROOT dictionary
 	@$(ROOTSYS)/bin/rootcint -f $@ $(CFLAGSFORCINT) $^
-	ln -s src/rootElibdict_rdict.pcm ./
+	ln -fs src/rootElibdict_rdict.pcm ./
 
 PlotCalib: obj/summary.o
 	@echo Linking $@ ...;

@@ -12,9 +12,11 @@ class DecodeDataOCA : public DecodeData {
 public:
   using EventOCA = GenericEvent<1, 24, 64, 5, 10, 0>;
   using calibOCA = calib<EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;
+  using RHClassOCA = RHClass<EventOCA::GetNJINF(), EventOCA::GetNTDRS()>;
 
 public:
   EventOCA *ev;
+  RHClassOCA *rh;
 
   DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum);
   virtual ~DecodeDataOCA();
@@ -42,7 +44,8 @@ private:
 
   FILE *calfile = nullptr;
   calibOCA cals[EventOCA::GetNJINF() * EventOCA::GetNTDRS()]{};
-
+  EventOCA::JArray<int> JinfMap{0};
+  
   unsigned int m_numBoards = 12;//maximum
   unsigned int m_numBoardsFound = 0;//found during ReadOneEventFromFile
 

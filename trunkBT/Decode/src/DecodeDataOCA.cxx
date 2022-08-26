@@ -9,6 +9,7 @@
 
 #include <numeric>
 #include <sstream>
+#include <iomanip>
 
 namespace {
 constexpr auto NJINF = DecodeDataOCA::EventOCA::GetNJINF();
@@ -17,6 +18,97 @@ constexpr auto NVAS = DecodeDataOCA::EventOCA::GetNVAS();
 constexpr auto NCHAVA = DecodeDataOCA::EventOCA::GetNCHAVA();
 constexpr auto NADCS = DecodeDataOCA::EventOCA::GetNADCS();
 } // namespace
+
+long int UnixTimeFromFilename(std::string m_filename){
+
+  long int ret = 0;
+  
+  std::istringstream is(m_filename);
+  std::string part;
+  std::string prefix1 = "SCD";
+  std::string prefix2 = "RUN";
+  std::string prefix3 = "BEAM";
+  std::string prefix4 = "CAL";
+  std::string suffix = ".dat";
+  long int date = 0;
+  long int time = 0;
+  
+  while (getline(is, part, '_')) {
+    //    std::cout << part << std::endl;
+    if (part.rfind(prefix1, 0) != 0 &&
+	part.rfind(prefix2, 0) != 0 &&
+	part.rfind(prefix3, 0) != 0 &&
+	part.rfind(prefix4, 0) != 0) {
+      //      std::cout << part << std::endl;
+      if (part.find(suffix, 0) != std::string::npos) {
+	//	printf("time\n");
+	std::string stime = part.substr(0, part.length()-4);
+	time = atol(stime.c_str());
+      }
+      else {
+	//	printf("date\n");
+	date = atol(part.c_str());
+      }
+    }
+  }
+  
+  std::istringstream ss(Form("%ld_%ld", date, time));
+  std::tm t{};
+  ss >> std::get_time(&t, "%Y%m%d_%H%M%S");
+  if (ss.fail()) {
+    throw std::runtime_error{"failed to parse time string"};
+  }
+
+  //  printf("%ld\n", mktime(&t));
+  ret = mktime(&t);
+  //  printf("%ld\n", ret);
+
+  return ret;
+}
+
+char* DateFromFilename(std::string m_filename){
+  
+  std::istringstream is(m_filename);
+  std::string part;
+  std::string prefix1 = "SCD";
+  std::string prefix2 = "RUN";
+  std::string prefix3 = "BEAM";
+  std::string prefix4 = "CAL";
+  std::string suffix = ".dat";
+  long int date = 0;
+  long int time = 0;
+  
+  while (getline(is, part, '_')) {
+    //    std::cout << part << std::endl;
+    if (part.rfind(prefix1, 0) != 0 &&
+	part.rfind(prefix2, 0) != 0 &&
+	part.rfind(prefix3, 0) != 0 &&
+	part.rfind(prefix4, 0) != 0) {
+      //      std::cout << part << std::endl;
+      if (part.find(suffix, 0) != std::string::npos) {
+	//	printf("time\n");
+	std::string stime = part.substr(0, part.length()-4);
+	time = atol(stime.c_str());
+      }
+      else {
+	//	printf("date\n");
+	date = atol(part.c_str());
+      }
+    }
+  }
+
+  std::istringstream ss(Form("%ld_%ld", date, time));
+  std::tm t{};
+  ss >> std::get_time(&t, "%Y%m%d_%H%M%S");
+  if (ss.fail()) {
+    throw std::runtime_error{"failed to parse time string"};
+  }
+
+  //  printf("%s", asctime(&t));
+  char* ret = asctime(&t);
+  
+  return ret;
+}
 
 DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum)
     : m_rawDir{std::move(rawDir)}, m_calDir{std::move(calDir)} {
@@ -37,6 +129,9 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
 
   pri = false;
 
+  // Create the ROOT run header
+  rh = new RHClassOCA();
+  
   ev = new EventOCA();
   //  std::cout << "ev: " << ev << '\n';
 
@@ -44,7 +139,7 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
   // we assume we also have the corresponding calibration file
   std::cout << "Raw file: " << m_filename << '\n';
   std::cout << "Calibration file: " << m_calFilename << '\n';
-
+  
   std::string filePath = m_rawDir + "/" + m_filename;
   rawfile = fopen(filePath.c_str(), "r");
   if (!rawfile) {
@@ -52,15 +147,29 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
     exit(2);
   }
 
-  DecodeDataOCA::DumpRunHeader();
+  //  long int runnum = UnixTimeFromFilename(m_filename);
+  char* date = DateFromFilename(m_filename);  
+  rh->SetRun(runNum);
+  rh->SetDate(date);
+
   // we assume that from now on we know how many boards are in the DAQ
   ntdrRaw = NTDRS;
-  ntdrCmp = 0;
-
-  // VF: create a fake trdMap. I still don't know what it is used for and I don't wanna know why it's an array of pairs
+  ntdrCmp = 0;  
   for (unsigned int iTdr = 0; iTdr < NJINF * NTDRS; ++iTdr) {
-    tdrMap[iTdr] = {iTdr, 1};
+    tdrMap[iTdr] = {iTdr, 0};//putting type at 0 since they're all RAW, so far...
   }
+
+  // Jinf has no real meaning
+  nJinf = 1;
+  JinfMap[0] = 1;
+  
+  // Update the ROOT run header
+  rh->SetJinfMap(JinfMap);
+  rh->SetNTdrsRaw(ntdrRaw);
+  rh->SetNTdrsCmp(ntdrCmp);
+  rh->SetTdrMap(tdrMap);
+  
+  DecodeDataOCA::DumpRunHeader();
 
   ProcessCalibration();
   
@@ -145,6 +254,13 @@ void DecodeDataOCA::OpenFile(const char *rawDir, const char *calDir, int runNum,
 // TODO: waiting for run header definition
 void DecodeDataOCA::DumpRunHeader() {
   printf("There're %d boards (%d detectors)\n", m_numBoards, 2*m_numBoards);
+
+  if (pri) {
+    printf("********* READVALS: %ld %d %d %d \n", NTDRS, nJinf, ntdrRaw, ntdrCmp);
+    printf("Dumping the file headers that are going to be written in the ROOT files...\n");
+  }
+  rh->Print();
+  
 }
 
 int DecodeDataOCA::GetTdrNum(size_t pos) {

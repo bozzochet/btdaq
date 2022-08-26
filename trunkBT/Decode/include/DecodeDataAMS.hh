@@ -29,7 +29,6 @@ private:
   char rawCaldir[300];
   // int tdroffset{0};
   calibAMS cals[EventAMS::GetNJINF() * EventAMS::GetNTDRS()]{};
-  int nJinf{0};
   EventAMS::JArray<int> JinfMap{0};
   int ntdrMC{0}; // added by Viviana, controllare se matcha con le modifiche che avevo fatto alle Map
   bool out_flag{false};
