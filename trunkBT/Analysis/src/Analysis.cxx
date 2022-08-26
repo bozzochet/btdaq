@@ -17,19 +17,44 @@
 #include <bitset>
 
 /* from the 'Decode' API */
-#include "Cluster.hh"
-#include "Event.hh"
+#include "GenericEvent.hpp"
 /* end */
 
 /* from the CommonTool dir */
-#include "TrackSelection.hh"
-#include "Utilities.hh"
+#include "TrackSelection.hpp"
+#include "Utilities.hpp"
 /* end */
 
 using namespace std;
 
-//raw value. To put the real distance from the most upward AMS ladder to the desired position in the CaloCube
-#define ZCALOCUBE 0
+//raw value. To put the real distance from the most upward AMS ladder to the desired position in the target detector
+#define ZTARGETDET 0
+
+using EventOCA = GenericEvent<1, 24, 64, 5, 10, 0>;
+using calibOCA = calib<EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;
+using RHClassOCA = RHClass<EventOCA::GetNJINF(), EventOCA::GetNTDRS()>;
+//---
+using EventFOOT = GenericEvent<1, 24, 64, 5, 10, 0>;
+using calibFOOT = calib<EventFOOT::GetNCHAVA() * EventFOOT::GetNVAS()>;
+using RHClassFOOT = RHClass<EventFOOT::GetNJINF(), EventFOOT::GetNTDRS()>;
+//---
+using EventAMS = GenericEvent<1, 24, 64, 3, 16, 10>;
+using calibAMS = calib<EventAMS::GetNCHAVA() * EventAMS::GetNVAS()>;
+using RHClassAMS = RHClass<EventAMS::GetNJINF(), EventAMS::GetNTDRS()>;
+
+/*
+template <>
+bool TrackSelection::CleanEvent<EventOCA, RHClassOCA>(EventOCA* ev, RHClassOCA* rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS, int safetyK);
+template <>
+bool TrackSelection::CleanEvent<EventFOOT, RHClassFOOT>(EventFOOT* ev, RHClassFOOT* rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS, int safetyK);
+template <>
+bool TrackSelection::CleanEvent<EventAMS, RHClassAMS>(EventAMS* ev, RHClassAMS* rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS, int safetyK);
+*/
+
+template <class Event, class RH>
+int ProcessChain(TChain* ch, TString output_filename);
+
+//----------------------------------------
 
 int main(int argc, char* argv[]) {
   
@@ -37,6 +62,18 @@ int main(int argc, char* argv[]) {
     printf("Usage:\n");
     printf("%s <output root-filename> <first input root-filename> [second input root-filename] ...\n", argv[0]);
     return 1;
+  }
+
+  bool kOca = false;
+  bool kFoot = false;
+
+  TString exename = argv[0];
+  
+  if (exename.Contains("OCA")) {
+    kOca = true;
+  }
+  else if (exename.Contains("FOOT")) {
+    kFoot = true;
   }
   
   TChain *chain = new TChain("t4");
@@ -46,32 +83,58 @@ int main(int argc, char* argv[]) {
     chain->Add(argv[ii]);
   }
 
-  TString align_filename = "alignment.dat";
-  TString gaincorrection_filename = "gaincorrection.dat";
   TString output_filename = argv[1];
 
   printf("---------------------------------------------\n");
-  Event::ReadAlignment(align_filename.Data());
-  Event::ReadGainCorrection(gaincorrection_filename.Data());
-  //  exit(1);
+  if (kOca) {
+    EventOCA::ReadAlignment("alignment_OCA.dat");
+    EventOCA::ReadGainCorrection("gaincorrection_OCA.dat");
+    return ProcessChain<EventOCA, RHClassOCA>(chain, output_filename);
+  }
+  else if (kFoot) {
+    EventFOOT::ReadAlignment("alignment_FOOT.dat");
+    EventFOOT::ReadGainCorrection("gaincorrection_FOOT.dat");
+    return ProcessChain<EventFOOT, RHClassFOOT>(chain, output_filename);
+  }
+  else {
+    EventAMS::ReadAlignment("alignment.dat");
+    EventAMS::ReadGainCorrection("gaincorrection.dat");
+    return ProcessChain<EventAMS, RHClassAMS>(chain, output_filename);
+  }
   printf("---------------------------------------------\n");
   
-  Event *ev;
+  return 0;
+}
+
+template <class Event, class RH>
+int ProcessChain(TChain* chain, TString output_filename){
+
+  using TS = TrackSelection<Event, RH>;
+  TS* ts = new TS();
+  using UT = Utilities<Event, RH>;
+  UT* ut = new UT();
+  
+  static int NJINF = Event::GetNJINF();
+  static int NTDRS = Event::GetNTDRS();
+  static int NVAS = Event::GetNVAS();
+  static int NCHAVA = Event::GetNCHAVA();
+  static int NADCS = Event::GetNADCS();
+
+  Event* ev = new Event();
   Cluster *cl;
   
   Long64_t entries = chain->GetEntries();
   //  entries=10000;
   printf("This run has %lld entries\n", entries);
-  
-  ev = new Event();
+
   chain->SetBranchAddress("cluster_branch", &ev);
   chain->GetEntry(0);
   
   int _maxtdr = NJINF*NTDRS;
   
-  if (GetRH(chain)) {
-    GetRH(chain)->Print();
-    _maxtdr = GetRH(chain)->GetNTdrs();
+  if (ut->GetRH(chain)) {
+    ut->GetRH(chain)->Print();
+    _maxtdr = ut->GetRH(chain)->GetNTdrs();
   }
   else {
     printf("Not able to find the RHClass header in the UserInfo...\n");
@@ -80,7 +143,7 @@ int main(int argc, char* argv[]) {
   //  printf("%d\n", _maxladd);
   
   // for (int tt=0; tt<_maxtdr; tt++) {
-  //   printf("%d %d %f %f\n", tt, GetRH(chain)->GetTdrNum(tt), Cluster::GetPitch(0, GetRH(chain)->GetTdrNum(tt), 0), Cluster::GetPitch(0, GetRH(chain)->GetTdrNum(tt), 1));
+  //   printf("%d %d %f %f\n", tt, ut->GetRH(chain)->GetTdrNum(tt), Cluster::GetPitch(0, ut->GetRH(chain)->GetTdrNum(tt), 0), Cluster::GetPitch(0, ut->GetRH(chain)->GetTdrNum(tt), 1));
   // }
 
   TFile* foutput = new TFile(output_filename.Data(), "RECREATE");
@@ -101,7 +164,7 @@ int main(int argc, char* argv[]) {
   int NSTRIPSK=384;
   for (int tt=0; tt<_maxtdr; tt++) {
     int jinfnum = 0;
-    int tdrnum = GetRH(chain)->GetTdrNum(tt);
+    int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
     double pitchS = std::max(Cluster::GetPitch(jinfnum, tdrnum, 0), 0.01);
     double pitchK = std::max(Cluster::GetPitch(jinfnum, tdrnum, 1), 0.01);
     occupancy[tt] = new TH1F(Form("occupancy_0_%02d", tdrnum), Form("occupancy_0_%02d;Channel number;Occupancy", tdrnum), 1024, 0, 1024);
@@ -126,9 +189,9 @@ int main(int argc, char* argv[]) {
   TH1F* X0 = new TH1F("X0", "X0;X_{Z=0} (mm);Entries", 1000, -100, 100);
   TH1F* Y0 = new TH1F("Y0", "Y0;Y_{Z=0} (mm);Entries", 1000, -100, 100);
   TH2F* X0Y0 = new TH2F("X0Y0", "X0Y0;X_{Z=0} (mm);Y_{Z=0} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
-  TH1F* X0CALOCUBE = new TH1F("X0CALOCUBE", "X0CALOCUBE;X_{Z=CALOCUBE} (mm);Entries", 1000, -100, 100);
-  TH1F* Y0CALOCUBE = new TH1F("Y0CALOCUBE", "Y0CALOCUBE;Y_{Z=CALOCUBE} (mm);Entries", 1000, -100, 100);
-  TH2F* X0Y0CALOCUBE = new TH2F("X0Y0CALOCUBE", "X0Y0CALOCUBE;X_{Z=CALOCUBE} (mm);Y_{Z=CALOCUBE} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
+  TH1F* X0TARGETDET = new TH1F("X0TARGETDET", "X0TARGETDET;X_{Z=TARGETDET} (mm);Entries", 1000, -100, 100);
+  TH1F* Y0TARGETDET = new TH1F("Y0TARGETDET", "Y0TARGETDET;Y_{Z=TARGETDET} (mm);Entries", 1000, -100, 100);
+  TH2F* X0Y0TARGETDET = new TH2F("X0Y0TARGETDET", "X0Y0TARGETDET;X_{Z=TARGETDET} (mm);Y_{Z=TARGETDET} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
 
   TH1F* hclusSladd = new TH1F("hclusSladd", "hclusSladd;Ladder;Clusters_{S}", 24, 0, 24);
   TH1F* hclusSladdtrack = new TH1F("hclusSladdtrack", "hclusSladdtrack;Ladder;Clusters_{S,OnTrack}", 24, 0, 24);
@@ -150,26 +213,28 @@ int main(int argc, char* argv[]) {
 
   double perc=0;
 
-  ExcludeTDR(ev, 0, 2, 0);
-  ExcludeTDR(ev, 0, 2, 1);
-  ExcludeTDR(ev, 0, 3, 0);
-  ExcludeTDR(ev, 0, 3, 1);
-  ExcludeTDR(ev, 0, 6, 0);
-  ExcludeTDR(ev, 0, 6, 1);
-  ExcludeTDR(ev, 0, 7, 0);
-  ExcludeTDR(ev, 0, 7, 1);
-  ExcludeTDR(ev, 0, 10, 0);
-  ExcludeTDR(ev, 0, 10, 1);
-  ExcludeTDR(ev, 0, 11, 0);
-  ExcludeTDR(ev, 0, 11, 1);
-  ExcludeTDR(ev, 0, 14, 0);
-  ExcludeTDR(ev, 0, 14, 1);
-  ExcludeTDR(ev, 0, 15, 0);
-  ExcludeTDR(ev, 0, 15, 1);
-  ExcludeTDR(ev, 0, 18, 0);
-  ExcludeTDR(ev, 0, 18, 1);
-  ExcludeTDR(ev, 0, 19, 0);
-  ExcludeTDR(ev, 0, 19, 1);
+  /* valid for TIC BT?
+  ts->ExcludeTDR(ev, 0, 2, 0);
+  ts->ExcludeTDR(ev, 0, 2, 1);
+  ts->ExcludeTDR(ev, 0, 3, 0);
+  ts->ExcludeTDR(ev, 0, 3, 1);
+  ts->ExcludeTDR(ev, 0, 6, 0);
+  ts->ExcludeTDR(ev, 0, 6, 1);
+  ts->ExcludeTDR(ev, 0, 7, 0);
+  ts->ExcludeTDR(ev, 0, 7, 1);
+  ts->ExcludeTDR(ev, 0, 10, 0);
+  ts->ExcludeTDR(ev, 0, 10, 1);
+  ts->ExcludeTDR(ev, 0, 11, 0);
+  ts->ExcludeTDR(ev, 0, 11, 1);
+  ts->ExcludeTDR(ev, 0, 14, 0);
+  ts->ExcludeTDR(ev, 0, 14, 1);
+  ts->ExcludeTDR(ev, 0, 15, 0);
+  ts->ExcludeTDR(ev, 0, 15, 1);
+  ts->ExcludeTDR(ev, 0, 18, 0);
+  ts->ExcludeTDR(ev, 0, 18, 1);
+  ts->ExcludeTDR(ev, 0, 19, 0);
+  ts->ExcludeTDR(ev, 0, 19, 1);
+  */
   
   for (int index_event=0; index_event<entries; index_event++) {
     Double_t pperc=1000.0*((index_event+1.0)/entries);
@@ -188,13 +253,13 @@ int main(int argc, char* argv[]) {
     //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
     //and at most 100 (to avoid too much noise around and too much combinatorial)
     //at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
-    // CleanEvent(ev, GetRH(chain), 4, 50, 6, 6, 0, 0);
+    // ts->CleanEvent(ev, ut->GetRH(chain), 4, 50, 6, 6, 0, 0);
     
-    bool cleanevent = CleanEvent(ev, GetRH(chain), 4, 9999, 9999, 9999, 9999, 9999);
+    bool cleanevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 9999, 9999, 9999, 9999, 9999);
     if (!cleanevent) continue;
     cleanevs++;//in this way this number is giving the "complete reasonable sample"
     
-    bool preselevent = CleanEvent(ev, GetRH(chain), 4, 100, 3, 3, 0, 0);
+    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 3, 3, 0, 0);
     if (!preselevent) continue;
     preselevs++;
     
@@ -295,9 +360,9 @@ int main(int argc, char* argv[]) {
     X0->Fill(ev->GetS0Track());
     Y0->Fill(ev->GetK0Track());
     X0Y0->Fill(ev->GetS0Track(), ev->GetK0Track());
-    X0CALOCUBE->Fill(ev->ExtrapolateTrack(ZCALOCUBE, 0));
-    Y0CALOCUBE->Fill(ev->ExtrapolateTrack(ZCALOCUBE, 1));
-    X0Y0CALOCUBE->Fill(ev->ExtrapolateTrack(ZCALOCUBE, 0), ev->ExtrapolateTrack(ZCALOCUBE, 1));
+    X0TARGETDET->Fill(ev->ExtrapolateTrack(ZTARGETDET, 0));
+    Y0TARGETDET->Fill(ev->ExtrapolateTrack(ZTARGETDET, 1));
+    X0Y0TARGETDET->Fill(ev->ExtrapolateTrack(ZTARGETDET, 0), ev->ExtrapolateTrack(ZTARGETDET, 1));
 
     hclus_aftersel->Fill(NClusTot);
 
@@ -311,17 +376,17 @@ int main(int argc, char* argv[]) {
       cl = ev->GetCluster(index_cluster);
       
       int ladder = cl->ladder;
-      //      printf("%d --> %d\n", ladder, GetRH(chain)->FindPos(ladder));
-      occupancy[GetRH(chain)->FindPos(ladder)]->Fill(cl->GetCoG());
+      //      printf("%d --> %d\n", ladder, ut->GetRH(chain)->FindPos(ladder));
+      occupancy[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetCoG());
       int side=cl->side;
       
       if (side==0) {
-	occupancy_posS[GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
-	v_cog_all_laddS[GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	occupancy_posS[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
+	v_cog_all_laddS[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
       }
       else {
-	occupancy_posK[GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
-	v_cog_all_laddK[GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	occupancy_posK[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
+	v_cog_all_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
       }
             
       if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
@@ -330,15 +395,15 @@ int main(int argc, char* argv[]) {
       
       if (side==0) {
 	if (strackok) {
-	  residual_S[GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));
-	  v_cog_laddS[GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	  residual_S[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));
+	  v_cog_laddS[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
 	  hclusSladdtrack->Fill(ladder);
 	}
       }
       else {
 	if (ktrackok) {
-	  residual_K[GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));
-	  v_cog_laddK[GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	  residual_K[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));
+	  v_cog_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
 	  hclusKladdtrack->Fill(ladder);
 	}
       }
@@ -351,13 +416,13 @@ int main(int argc, char* argv[]) {
       int index_cluster_S = vec_charge.at(tt).second.first;
       int index_cluster_K = vec_charge.at(tt).second.second;
       if (index_cluster_S>=0) {
-	chargeS[GetRH(chain)->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge());
+	chargeS[ut->GetRH(chain)->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge());
       }
       if (index_cluster_K>=0) {
-	chargeK[GetRH(chain)->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_K)->GetCharge());
+	chargeK[ut->GetRH(chain)->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_K)->GetCharge());
       }
       if (index_cluster_S>=0 && index_cluster_K>=0) {
-	charge2D[GetRH(chain)->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge(), ev->GetCluster(index_cluster_K)->GetCharge());
+	charge2D[ut->GetRH(chain)->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge(), ev->GetCluster(index_cluster_K)->GetCharge());
       }
     }
     
@@ -366,8 +431,8 @@ int main(int argc, char* argv[]) {
     charge2D_ave->Fill(ev->GetChargeTrack(0), ev->GetChargeTrack(1));
     
     for (int ll=0; ll<NJINF*NTDRS; ll++) {
-      hclusSladd->Fill(GetRH(chain)->GetTdrNum(ll), v_cog_all_laddS[ll].size());
-      hclusKladd->Fill(GetRH(chain)->GetTdrNum(ll), v_cog_all_laddK[ll].size());
+      hclusSladd->Fill(ut->GetRH(chain)->GetTdrNum(ll), v_cog_all_laddS[ll].size());
+      hclusKladd->Fill(ut->GetRH(chain)->GetTdrNum(ll), v_cog_all_laddK[ll].size());
     }
     
     //    printf(" \n ");

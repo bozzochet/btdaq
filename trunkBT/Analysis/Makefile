@@ -38,7 +38,7 @@ DECODELIBS = -Wl,-rpath,$(DECODE) -L$(DECODE) -lEvent
 
 COMMON = ../CommonTool/
 
-INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE) -I$(COMMON)
+INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE)/include -isystem$(DECODE)/include -I$(COMMON)
 
 .PHONY: ViewerGUI
 
@@ -51,14 +51,16 @@ ViewerGUI:
 	$(ROOTCLING) -f $(SRC)/guiDict.cxx $(DECODE)/Event.cxx $(DECODE)/Cluster.cxx $(DECODE)/LadderConf.cxx -c $(SRC)/viewerGUI.hh $(SRC)/guiLinkDef.h
 	$(CXX) $(SRC)/viewerGUI.cxx $(SRC)/guiDict.cxx $(INCLUDES) $(ROOTVIEWERLIBS) -o$@
 
-ViewerFOOT: ./obj/viewerFOOT.o $(COMMON)/obj/Utilities.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
+ViewerFOOT: ./obj/viewerFOOT.o libEvent
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@
 
-Analysis: ./obj/Analysis.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
+Analysis: ./obj/Analysis.o libEvent
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@
+	ln -fs $@ AnalysisFOOT
+	ln -fs $@ AnalysisOCA
 
-AnalysisFOOT: ./obj/AnalysisFOOT.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
+#AnalysisFOOT: ./obj/AnalysisFOOT.o libEvent
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@
 
 ./obj/%.o: ./src/%.C
 	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
@@ -68,14 +70,6 @@ AnalysisFOOT: ./obj/AnalysisFOOT.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/
 	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
 	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-$(COMMON)/obj/%.o: $(COMMON)/%.C
-	@if ! [ -d $(COMMON)/$(OBJ) ] ; then mkdir -p $(COMMON)/$(OBJ); fi
-	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
-$(COMMON)/obj/%.o: $(COMMON)/%.cxx
-	@if ! [ -d $(COMMON)/$(OBJ) ] ; then mkdir -p $(COMMON)/$(OBJ); fi
-	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
 libEvent:
 	make -C $(DECODE)
 
@@ -83,9 +77,10 @@ clean:
 	rm -Rf ./obj
 	rm -f ./Analysis
 	rm -f ./AnalysisFOOT
+	rm -f ./AnalysisOCA
 	rm -f ./ViewerGUI
 	rm -f ./ViewerFOOT
+	rm -f ./guiDict.cxx
 
 cleanALL: clean
 	make -C $(DECODE) clean
-	make -C $(COMMON) clean
