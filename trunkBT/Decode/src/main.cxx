@@ -311,12 +311,17 @@ int main(int argc, char **argv) {
     }
     sleep(3);
 
-    if (!kOca && !kFoot) {
-      auto *dd = dynamic_cast<DecodeDataAMS *>(dd1);
-      if (dd) {
-	t4->GetUserInfo()->Add(dd->rh);
-      } else {
-	throw std::runtime_error("AMS decode selected, but decoder is not of type DecodeDataAMS");
+    if (!kFoot) {//not yet implemented
+      auto *ddams = dynamic_cast<DecodeDataAMS *>(dd1);
+      auto *ddoca = dynamic_cast<DecodeDataOCA *>(dd1);
+      if (ddams) {
+	t4->GetUserInfo()->Add(ddams->rh);
+      }
+      else if (ddoca) {
+	t4->GetUserInfo()->Add(ddoca->rh);
+      }
+      else {
+     	throw std::runtime_error("DecodeData object is not of type DecodeDataAMS nor DecodeDataOCA...");
       }
     }
 
