@@ -11,6 +11,21 @@
 #include "LadderConf.hh"
 #include "RHClass.hh"
 
+template <size_t NCh> class calib {
+public:
+  float *ped;
+  float *rsig;
+  float *sig;
+  int *status;
+
+  calib() {
+    ped = new float[NCh];  // was [1024]: is backward compatible?
+    rsig = new float[NCh]; // was [1024]: is backward compatible?
+    sig = new float[NCh];  // was [1024]: is backward compatible?
+    status = new int[NCh]; // was [1024]: is backward compatible?
+  };
+};
+
 struct FlavorConfig {
   size_t NJINF;
   size_t NTDRS;

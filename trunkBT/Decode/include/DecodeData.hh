@@ -12,21 +12,6 @@
 
 #include "EventUtils.hh"
 
-template <size_t NCh> class calib {
-public:
-  float *ped;
-  float *rsig;
-  float *sig;
-  int *status;
-
-  calib() {
-    ped = new float[NCh];  // was [1024]: is backward compatible?
-    rsig = new float[NCh]; // was [1024]: is backward compatible?
-    sig = new float[NCh];  // was [1024]: is backward compatible?
-    status = new int[NCh]; // was [1024]: is backward compatible?
-  };
-};
-
 #pragma pack(push, 1)
 
 // typedef struct header { // gcc 4.3, considers 'typedef' useless // (what??)
@@ -85,7 +70,8 @@ protected:
   int ntdrRaw = 0;
   int ntdrCmp = 0;
   laddernumtype *tdrMap;
-  int *tdrAlign; // added by Viviana, credo...
+  int nJinf{0};
+  int *tdrAlign; // added originally (before porting to OCA, FOOT, etc...) by Viviana, credo...
   double m_adcUnits = 8.0;
   unsigned int m_defaultShift = 640;
   unsigned int m_defaultArraySize = 384;

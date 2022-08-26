@@ -107,7 +107,8 @@ DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary,
     }
 
     out_flag = true;
-  } else {
+  }
+  else {
     rh->SetRun(runn);
     time_t now = time(0); // MD: I don't like. Should be decided when simulating, not when analyzing!
     rh->SetDate(ctime(&now));
@@ -619,7 +620,7 @@ int DecodeDataAMS::ReadOneEvent_data() {
     dummy = 0;
     fstat = ReadFile(&dummy, sizeof(dummy), 1, rawfile);
     tdrnoeventmask += dummy;
-    ;
+    
     if (fstat == -1)
       return 1;
     if (pri || evpri)
