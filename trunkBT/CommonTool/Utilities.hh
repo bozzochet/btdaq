@@ -5,10 +5,15 @@
 #include "TList.h"
 
 /* from the 'Decode' API */
-#include "Cluster.hh"
-#include "Event.hh"
+#include "GenericEvent.hpp"
 /* end */
 
-RHClass* GetRH(TChain* chain);
+template <class Event, class RH> class Utilities {
+  
+public:
 
+  static RH* GetRH(TChain* chain);
+
+};
+  
 #endif

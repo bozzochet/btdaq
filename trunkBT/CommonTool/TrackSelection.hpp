@@ -2,16 +2,8 @@
 #include <algorithm>
 #include <unistd.h>
 
-//#define PRINTDEBUG printf("%s) This is the line number %d\n", __FILE__, __LINE__);
-#define PRINTDEBUG
-
-using namespace std;
-
-// int is jinfnum*100+tdrnum
-std::vector<int> _v_ladderS_to_ignore;//!
-std::vector<int> _v_ladderK_to_ignore;//! 
-
-void ExcludeTDR(Event* ev, int jinfnum, int tdrnum, int side){
+template <class Event, class RH>
+void TrackSelection<Event, RH>::ExcludeTDR(Event* ev, int jinfnum, int tdrnum, int side){
   
   ev->ExcludeTDRFromTrack(jinfnum, tdrnum, side);
 
@@ -27,8 +19,12 @@ void ExcludeTDR(Event* ev, int jinfnum, int tdrnum, int side){
   return;
 }
 
-bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS, int safetyK){
+template <class Event, class RH>
+bool TrackSelection<Event, RH>::CleanEvent(Event* ev, RH* rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS, int safetyK){
 
+  static int NJINF = Event::GetNJINF();
+  static int NTDRS = Event::GetNTDRS();
+  
   PRINTDEBUG;
   
   int NClusTot = ev->GetNClusTot();
@@ -142,8 +138,12 @@ bool CleanEvent(Event* ev, RHClass *rh, int minclus, int maxclus, int perladdS, 
 // - IF FOR ONE LADDER THERE ARE TWO CLUSTERS ONLY THE SECOND IS CONSIDERED.
 // - IF ON LADDER HAS NO CLUSTERS THE CUT IS NOT PASSED
 // - IT ASSUMES THAT ONLY ONE JINF IS PRESENT (THIS MAYBE IS SAFE AT THIS LEVEL)
-bool ChargeSelection(Event *ev, RHClass *_rh, float charge_center, float lower_limit, float higher_limit){
+template <class Event, class RH>
+bool TrackSelection<Event, RH>::ChargeSelection(Event* ev, RH* rh, float charge_center, float lower_limit, float higher_limit){
   bool chargeselection=false;
+
+  static int NJINF = Event::GetNJINF();
+  static int NTDRS = Event::GetNTDRS();
   
   float charge[NTDRS];
   for (int ii=0; ii<NTDRS; ii++) {
@@ -156,15 +156,14 @@ bool ChargeSelection(Event *ev, RHClass *_rh, float charge_center, float lower_l
     Cluster *_cl = ev->GetCluster(index_cluster);
     int ladder = _cl->ladder;
     
-    //    printf("%d --> %d\n", ladder, _rh->tdrCmpMap[ladder]);
-    // printf("%d --> %d\n", ladder, _rh->FindPos(ladder));
+    //    printf("%d --> %d\n", ladder, rh->tdrCmpMap[ladder]);
+    // printf("%d --> %d\n", ladder, rh->FindPos(ladder));
     charge[ladder]=_cl->GetCharge();
   }
   if(    ((charge[0] > (charge_center-lower_limit)) && (charge[0] < (charge_center+higher_limit)))
 	 && ((charge[4] > (charge_center-lower_limit)) && (charge[4] < (charge_center+higher_limit)))
 	 && ((charge[8] > (charge_center-lower_limit)) && (charge[8] < (charge_center+higher_limit)))
 	 && ((charge[14] > (charge_center-lower_limit)) && (charge[14] < (charge_center+higher_limit)))
-	 
 	 )
     chargeselection=true;
   
