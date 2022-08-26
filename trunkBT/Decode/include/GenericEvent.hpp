@@ -151,7 +151,7 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ReadLadderConf(TSt
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ReadAlignment(TString filename, bool DEBUG) {
-
+  
   auto *alignmentPars = AlignmentPars::Instance();
   alignmentPars->InitSize(NJINF, NTDRS);
   alignmentPars->Init(filename.Data());

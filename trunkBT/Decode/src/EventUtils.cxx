@@ -17,6 +17,7 @@ using namespace std;
 //#define USEMINUIT
 
 void GainCorrectionPars::InitSize(size_t nJinf, size_t nTdr, size_t nVA_S, size_t nVA_K) {
+  
   m_pars.resize(nJinf);
 
   for (size_t iJ = 0; iJ < nJinf; ++iJ) {
@@ -85,7 +86,9 @@ void GainCorrectionPars::Init(const std::string &filename) {
 }
 
 void AlignmentPars::InitSize(size_t nJinf, size_t nTdr) {
+  
   m_pars.resize(nJinf);
+  m_multflip.resize(nJinf);
 
   for (size_t iJ = 0; iJ < nJinf; ++iJ) {
     m_pars[iJ].resize(nTdr);
