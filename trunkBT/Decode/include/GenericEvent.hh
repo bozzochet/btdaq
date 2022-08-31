@@ -85,6 +85,12 @@ public:
   //! Load VA Gain Correction from an ASCII file
   static void ReadGainCorrection(TString filename, bool DEBUG = false);
 
+  //! Get Alignment parameter "component" for the tdrnum TDR of the jinfnum JINF
+  static float GetAlignPar(int jinfnum, int tdrnum, int component);
+  static float GetMultiplicityFlip(int jinfnum, int tdrnum);
+  //! Get Gain Correction "component" for the vanum VA of the tdrnum TDR for the jinfnum JINF
+  static float GetGainCorrectionPar(int jinfnum, int tdrnum, int vanum, int component);
+  
   void ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side,
                            bool verbose = true); // to be called just one, before event loop, or, for a "temporary ban"
                                                  // call, afterwards, 'IncludeBack'

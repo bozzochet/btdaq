@@ -218,6 +218,70 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ReadGainCorrection
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetGainCorrectionPar(int jinfnum, int tdrnum, int vanum, int component) {
+  if (jinfnum >= NJINF || jinfnum < 0) {
+    printf("Jinf %d: not possible, the maximum is %d...\n", jinfnum, NJINF - 1);
+    return -9999;
+  }
+  if (tdrnum >= NTDRS || tdrnum < 0) {
+    printf("TDR %d: not possible, the maximum is %d...\n", tdrnum, NTDRS - 1);
+    return -9999;
+  }
+  if (vanum >= (NVASS+NVASK) || vanum < 0) {
+    printf("VA %d: not possible, the maximum is %d...\n", vanum, (NVASS+NVASK) - 1);
+    return -9999;
+  }
+  if (component < 0 || component >= 3) {
+    printf("Component %d not valid: it can be only up to 2\n", component);
+    return -9999;
+  }
+
+  auto *gainCorrectionPars = GainCorrectionPars::Instance();
+  
+  return gainCorrectionPars->GetPar(jinfnum, tdrnum, vanum, component);
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetAlignPar(int jinfnum, int tdrnum, int component) {
+
+  if (jinfnum >= NJINF || jinfnum < 0) {
+    printf("Jinf %d: not possible, the maximum is %d...\n", jinfnum, NJINF - 1);
+    return -9999;
+  }
+  if (tdrnum >= NTDRS || tdrnum < 0) {
+    printf("TDR %d: not possible, the maximum is %d...\n", tdrnum, NTDRS - 1);
+    return -9999;
+  }
+  if (component < 0 || component >= 3) {
+    printf("Component %d not valid: it can be only up to 2\n", component);
+    return -9999;
+  }
+
+  auto *alignmentPars = AlignmentPars::Instance();
+  
+  return alignmentPars->GetPar(jinfnum, tdrnum, component);
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetMultiplicityFlip(int jinfnum, int tdrnum) {
+
+  if (jinfnum >= NJINF || jinfnum < 0) {
+    printf("Jinf %d: not possible, the maximum is %d...\n", jinfnum, NJINF - 1);
+    return -9999;
+  }
+  if (tdrnum >= NTDRS || tdrnum < 0) {
+    printf("TDR %d: not possible, the maximum is %d...\n", tdrnum, NTDRS - 1);
+    return -9999;
+  }
+
+  LadderConf *ladderconf = LadderConf::Instance();
+  
+  return ladderconf->GetMultiplicityFlip(jinfnum, tdrnum);
+  // return multflip[jinfnum][tdrnum];
+}
+
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ClearTrack() {
   // CB:
   _TrS.clear();
@@ -1495,6 +1559,7 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::Track(std::vector<
   std::pair<double, double> dir;
   double pos;
 
+  // GENERALIZE ME: here assuming just one JINF
   for (int itdr = NTDRS - 1; itdr >= 0; itdr--) {
     dir = Hough(hits);
     pos = AlignmentPars::Instance()->GetPar(0, itdr, 2); // current z position for the study
