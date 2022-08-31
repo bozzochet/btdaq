@@ -42,15 +42,6 @@ using EventAMS = GenericEvent<1, 24, 64, 3, 16, 10>;
 using calibAMS = calib<EventAMS::GetNCHAVA() * EventAMS::GetNVAS()>;
 using RHClassAMS = RHClass<EventAMS::GetNJINF(), EventAMS::GetNTDRS()>;
 
-/*
-template <>
-bool TrackSelection::CleanEvent<EventOCA, RHClassOCA>(EventOCA* ev, RHClassOCA* rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS, int safetyK);
-template <>
-bool TrackSelection::CleanEvent<EventFOOT, RHClassFOOT>(EventFOOT* ev, RHClassFOOT* rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS, int safetyK);
-template <>
-bool TrackSelection::CleanEvent<EventAMS, RHClassAMS>(EventAMS* ev, RHClassAMS* rh, int minclus, int maxclus, int perladdS, int perladdK, int safetyS, int safetyK);
-*/
-
 template <class Event, class RH>
 int ProcessChain(TChain* ch, TString output_filename);
 
@@ -114,11 +105,11 @@ int ProcessChain(TChain* chain, TString output_filename){
   using UT = Utilities<Event, RH>;
   UT* ut = new UT();
   
-  static int NJINF = Event::GetNJINF();
-  static int NTDRS = Event::GetNTDRS();
-  static int NVAS = Event::GetNVAS();
-  static int NCHAVA = Event::GetNCHAVA();
-  static int NADCS = Event::GetNADCS();
+  static constexpr int NJINF = Event::GetNJINF();
+  static constexpr int NTDRS = Event::GetNTDRS();
+  static constexpr int NVAS = Event::GetNVAS();
+  static constexpr int NCHAVA = Event::GetNCHAVA();
+  static constexpr int NADCS = Event::GetNADCS();
   
   Event* ev = new Event();
   Cluster *cl;
