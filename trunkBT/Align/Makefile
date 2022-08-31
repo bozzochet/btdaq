@@ -59,7 +59,7 @@ AlignFOOT: Align
 	@ln -sfv Align AlignFOOT
 
 linkAlign%: %
-	echo $(<)
+#	echo $(<)
 	@ln -sfv Align$(<) NoFirstStepAlign$(<)
 	@ln -sfv Align$(<) FirstPassAlign$(<)
 	@ln -sfv Align$(<) NoLastStepAlign$(<)
