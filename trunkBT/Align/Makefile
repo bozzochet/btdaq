@@ -26,7 +26,7 @@ ADDLDFLAGS =
 endif
 
 #CFLAGS += $(shell root-config --auxcflags) -O -std=c++11 -fPIC
-CFLAGS += $(shell root-config --auxcflags) -O -std=c++0x -fPIC
+CFLAGS += $(shell root-config --auxcflags) -O -fPIC
 
 ROOTDYNAMICLIBS := $(shell root-config --libs) -lMinuit -lSpectrum
 ROOTINC := $(shell root-config --incdir)
@@ -36,33 +36,43 @@ DECODELIBS = -Wl,-rpath,$(DECODE) -L$(DECODE) -lEvent
 
 COMMON = ../CommonTool/
 
-INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE) -isystem$(DECODE) -I$(COMMON)
+INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE)/include -isystem$(DECODE)/include -I$(COMMON)
 
-default: Align
+default: linkAlignAMS linkAlignOCA linkAlignFOOT
 
-Align: ./obj/Align.o $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o libEvent
-	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(COMMON)/obj/TrackSelection.o $(COMMON)/obj/Utilities.o $(DECODELIBS) -o$@
-	ln -sfv Align DryRunResidual
-	ln -sfv Align DryRunBruna
-	ln -sfv Align FirstPassAlign
-	ln -sfv Align NoLastStepAlign
-	ln -sfv Align NoFirstStepAlign
-	ln -sfv Align OnlyFinalRun
+Align: ./obj/Align.o libEvent
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@
+
+AMS: AlignAMS
+
+OCA: AlignOCA
+
+FOOT: AlignFOOT
+
+AlignAMS: Align
+	@ln -sfv Align AlignAMS
+
+AlignOCA: Align
+	@ln -sfv Align AlignOCA
+
+AlignFOOT: Align
+	@ln -sfv Align AlignFOOT
+
+linkAlign%: %
+	echo $(<)
+	@ln -sfv Align$(<) NoFirstStepAlign$(<)
+	@ln -sfv Align$(<) FirstPassAlign$(<)
+	@ln -sfv Align$(<) NoLastStepAlign$(<)
+	@ln -sfv Align$(<) DryRunResidual$(<)
+	@ln -sfv Align$(<) DryRunBruna$(<)
+	@ln -sfv Align$(<) OnlyFinalRun$(<)
 
 ./obj/%.o: ./src/%.C
-	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
+	@if ! [ -d $(OBJ) ]; then mkdir -p $(OBJ); fi
 	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 ./obj/%.o: ./src/%.cxx
-	@if ! [ -d $(OBJ) ] ; then mkdir -p $(OBJ); fi
-	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
-$(COMMON)/obj/%.o: $(COMMON)/%.C
-	@if ! [ -d $(COMMON)/$(OBJ) ] ; then mkdir -p $(COMMON)/$(OBJ); fi
-	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
-$(COMMON)/obj/%.o: $(COMMON)/%.cxx
-	@if ! [ -d $(COMMON)/$(OBJ) ] ; then mkdir -p $(COMMON)/$(OBJ); fi
+	@if ! [ -d $(OBJ) ]; then mkdir -p $(OBJ); fi
 	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 libEvent:
@@ -70,11 +80,12 @@ libEvent:
 
 clean: 
 	rm -Rf ./obj
-	rm -f ./Align
-	rm -f RunOnce
-	rm -f FirstStepAlign
+	rm -f ./Align*
+	rm -f ./NoFirst*
+	rm -f ./FirstPass*
+	rm -f ./NoLast*
+	rm -f ./DryRun*
+	rm -f ./OnlyFinal*
 
 cleanALL: clean
-	make -C $(COMMON)/ clean
 	make -C $(DECODE)/ clean
-#	rm -f $(COMMON)/$(OBJ)/*.o
