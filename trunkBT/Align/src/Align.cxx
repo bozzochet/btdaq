@@ -18,19 +18,19 @@
 #include <initializer_list>
 
 /* from the 'Decode' API */
-#include "Cluster.hh"
-#include "Event.hh"
+#include "GenericEvent.hpp"
 /* end */
 
 /* from the CommonTool dir */
-#include "TrackSelection.hh"
-#include "Utilities.hh"
+#include "TrackSelection.hpp"
+#include "Utilities.hpp"
 /* end */
 
-// std::vector<int> ladderS_to_ignore[NJINF] = {{}};
-// std::vector<int> ladderK_to_ignore[NJINF] = {{}};
-std::vector<int> ladderS_to_ignore[NJINF] = {{2, 3, 6, 7, 10, 11, 14, 15, 18, 19}};
-std::vector<int> ladderK_to_ignore[NJINF] = {{2, 3, 6, 7, 10, 11, 14, 15, 18, 19}};
+//for an easy one-line initialization
+std::vector<int> ladderS_to_ignore_jinf0 = {};
+std::vector<int> ladderK_to_ignore_jinf0 = {};
+// std::vector<int> ladderS_to_ignore_jinf0 = {2, 3, 6, 7, 10, 11, 14, 15, 18, 19};
+// std::vector<int> ladderK_to_ignore_jinf0 = {2, 3, 6, 7, 10, 11, 14, 15, 18, 19};
 
 int _npointsS=3;
 int _npointsK=3;
@@ -42,11 +42,46 @@ double _chisqcutvalue=2;
 
 using namespace std;
 
-float deltaalign[NJINF][NTDRS][3];
-bool toprint[NJINF][NTDRS];
+float*** deltaalign;
+bool** toprint;
 
-int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth=0, bool chisqcut=false, bool residualexcludedpoint=false, bool writealign=true);
+//the real used ones...
+std::vector<int>* ladderS_to_ignore;
+std::vector<int>* ladderK_to_ignore;
+template <class Event, class RH>
+void AllocateGlobalVectors() {
+  ladderS_to_ignore = new std::vector<int>[Event::GetNJINF()];
+  for (int ii=0; ii<((int)(ladderS_to_ignore_jinf0.size())); ii++) {
+    ladderS_to_ignore[0][ii] = ladderS_to_ignore_jinf0[ii]; 
+  }
+  ladderK_to_ignore = new std::vector<int>[Event::GetNJINF()];
+  for (int ii=0; ii<((int)(ladderS_to_ignore_jinf0.size())); ii++) {
+    ladderK_to_ignore[0][ii] = ladderK_to_ignore_jinf0[ii]; 
+  }
+}
+
+template <class Event, class RH>
+int Run(int argc, char* argv[],
+	TString align_filename, TString gaincorrection_filename);
+template <class Event, class RH>
+int SingleRun(int argc, char* argv[],
+	      TString align_filename, TString gaincorrection_filename,
+	      int indexalignment,
+	      int alignmeth=0, bool chisqcut=false, bool residualexcludedpoint=false, bool writealign=true);
+template <class Event, class RH>
 void ReadDeltaAlignment(TString filename="delta_alignment.dat");
+
+using EventOCA = GenericEvent<1, 24, 64, 5, 10, 0>;
+using calibOCA = calib<EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;
+using RHClassOCA = RHClass<EventOCA::GetNJINF(), EventOCA::GetNTDRS()>;
+//---
+using EventFOOT = GenericEvent<1, 24, 64, 5, 10, 0>;
+using calibFOOT = calib<EventFOOT::GetNCHAVA() * EventFOOT::GetNVAS()>;
+using RHClassFOOT = RHClass<EventFOOT::GetNJINF(), EventFOOT::GetNTDRS()>;
+//---
+using EventAMS = GenericEvent<1, 24, 64, 3, 16, 10>;
+using calibAMS = calib<EventAMS::GetNCHAVA() * EventAMS::GetNVAS()>;
+using RHClassAMS = RHClass<EventAMS::GetNJINF(), EventAMS::GetNTDRS()>;
 
 int main(int argc, char* argv[]) {
   
@@ -54,19 +89,78 @@ int main(int argc, char* argv[]) {
     printf("Usage:\n");
     printf("%s <first input root-filename> [second input root-filename] ...\n", argv[0]);
     printf("\n");
-    printf("Align:            perform the full procedure\n");
-    printf("NoFirstStepAlign: perform the full procedure without the first rough pass with the Bruna's method\n");
-    printf("FirstPassAlign:   perform just the first pass of the procedure (Bruna's method + one pass with residuals)\n");
-    printf("NoLastStepAlign:  perform the full procedure without the last rough pass to center {S0,K0}\n");
-    printf("DryRun:           run once as in the alignment, but without updating the alignment.dat file\n");
-    printf("OnlyFinalRun:     run once but with the chisq cut and the excluded point residuals, and without updating the alignment.dat file\n");
+    printf("%s                     : perform the full procedure\n", argv[0]);
+    printf("NoFirstStepAlign       : perform the full procedure without the first rough pass with the Bruna's method\n");
+    printf("FirstPassAlign         : perform just the first pass of the procedure (Bruna's method + one pass with residuals)\n");
+    printf("NoLastStepAlign        : perform the full procedure without the last rough pass to center {S0,K0}\n");
+    printf("DryRun{Bruna,Residual} : run once as in the alignment, but without updating the alignment.dat file\n");
+    printf("OnlyFinalRun           : run once but with the chisq cut and the excluded point residuals, and without updating the alignment.dat file\n");
     return 1;
   }
-
+  
   TString progname = argv[0];
+
+  bool kOca = false;
+  bool kFoot = false;
+  
+  if (progname.Contains("OCA")) {
+    kOca = true;
+  }
+  else if (progname.Contains("FOOT")) {
+    kFoot = true;
+  }
+
   TString align_filename = "alignment.dat";
+  TString gaincorrection_filename = "gaincorrection.dat";
+  if (kOca) {
+    align_filename = "alignment_OCA.dat";
+    gaincorrection_filename = "gaincorrection_OCA.dat";
+    return Run<EventOCA, RHClassOCA>(argc, argv, align_filename, gaincorrection_filename);
+  }
+  else if (kFoot) {
+    align_filename = "alignment_FOOT.dat";
+    gaincorrection_filename = "gaincorrection_FOOT.dat";
+    return Run<EventFOOT, RHClassFOOT>(argc, argv, align_filename, gaincorrection_filename);
+  }
+  else {
+    align_filename = "alignment.dat";
+    gaincorrection_filename = "gaincorrection.dat";
+    return Run<EventAMS, RHClassAMS>(argc, argv, align_filename, gaincorrection_filename);
+  }
+  
+  return -8;
+}
+
+template <class Event, class RH>
+int Run(int argc, char* argv[],
+	TString align_filename, TString gaincorrection_filename){
 
   int ret=0;
+
+  TString progname = argv[0];
+  
+  static int NJINF = Event::GetNJINF();
+  static int NTDRS = Event::GetNTDRS();
+  static int NVAS = Event::GetNVAS();
+  static int NCHAVA = Event::GetNCHAVA();
+  static int NADCS = Event::GetNADCS();
+
+  static int firsttime=true;
+  if (firsttime) {
+    firsttime=false;
+    
+    deltaalign = new float**[NJINF];
+    toprint = new bool*[NJINF];
+    for (int ii=0; ii<NJINF; ii++) {
+      deltaalign[ii] = new float*[NTDRS];
+      toprint[ii] = new bool[NTDRS];
+      for (int jj=0; jj<NJINF; jj++) {
+	deltaalign[ii][jj] = new float[3];
+      }
+    }
+    
+    AllocateGlobalVectors<Event, RH>();
+  }
   
   if (progname.Contains("Align")) {
     
@@ -90,14 +184,14 @@ int main(int argc, char* argv[]) {
     int indexalignment = 0;
     
     if (!progname.Contains("NoFirstStep")) {
-      ret = SingleRun(argc, argv, indexalignment++, 1);//first alignment with the 'Bruna's method'
+      ret = SingleRun<Event, RH>(argc, argv, align_filename, gaincorrection_filename, indexalignment++, 1);//first alignment with the 'Bruna's method'
     }
     if (ret) return ret;
     
     bool allaligned=false;
     while (!allaligned) {
       
-      ret = SingleRun(argc, argv, indexalignment);
+      ret = SingleRun<Event, RH>(argc, argv, align_filename, gaincorrection_filename, indexalignment);
       if (ret) return ret;
       indexalignment++;
       
@@ -110,7 +204,7 @@ int main(int argc, char* argv[]) {
 	}
       }
       
-      ReadDeltaAlignment(Form("delta_%s", align_filename.Data()));
+      ReadDeltaAlignment<Event, RH>(Form("delta_%s", align_filename.Data()));
       
       for (int jj=0; jj<NJINF; jj++) {
 	for (int tt=0; tt<NTDRS; tt++) {
@@ -182,11 +276,11 @@ int main(int argc, char* argv[]) {
     }
     
     if (!progname.Contains("NoLastStep")) {
-      ret = SingleRun(argc, argv, indexalignment++, 2);//last alignment just to shift all the ladder of the same quantity to have <S0>=0 and <K0>=0 
+      ret = SingleRun<Event, RH>(argc, argv, align_filename, gaincorrection_filename, indexalignment++, 2);//last alignment just to shift all the ladder of the same quantity to have <S0>=0 and <K0>=0 
       if (ret) return ret;
     }
     
-    ret = SingleRun(argc, argv, indexalignment++, 0, true, true, false);//let's run again to have the plots with the final alignment, now adding chisq cut and residual with excluded point
+    ret = SingleRun<Event, RH>(argc, argv, align_filename, gaincorrection_filename, indexalignment++, 0, true, true, false);//let's run again to have the plots with the final alignment, now adding chisq cut and residual with excluded point
     if (ret) return ret;
     
     printf("-----------------------------------------------------------------------------------------------------------------------------\n");
@@ -216,17 +310,17 @@ int main(int argc, char* argv[]) {
   else if (progname.Contains("DryRun")) {
 
     if (progname.Contains("Residual")) {
-      ret = SingleRun(argc, argv, 0, 0, false, false, false);//without the cut on chisq and without the residuals with the excluded point
+      ret = SingleRun<Event, RH>(argc, argv, align_filename, gaincorrection_filename, 0, 0, false, false, false);//without the cut on chisq and without the residuals with the excluded point
     }
     else if (progname.Contains("Bruna")) {
-      ret = SingleRun(argc, argv, 0, 1, false, false, false);//without the cut on chisq and without the residuals with the excluded point
+      ret = SingleRun<Event, RH>(argc, argv, align_filename, gaincorrection_filename, 0, 1, false, false, false);//without the cut on chisq and without the residuals with the excluded point
     }
       
     return ret;
   }
   else if (progname.Contains("OnlyFinalRun")) {
     
-    ret = SingleRun(argc, argv, 0, 0, true, true, false);//with the cut on chisq and with the residuals with the excluded point
+    ret = SingleRun<Event, RH>(argc, argv, align_filename, gaincorrection_filename, 0, 0, true, true, false);//with the cut on chisq and with the residuals with the excluded point
 
     return ret;
   }
@@ -234,8 +328,23 @@ int main(int argc, char* argv[]) {
   return -9;
 }
 
-int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool chisqcut, bool residualexcludedpoint, bool writealign){
-    
+template <class Event, class RH>
+int SingleRun(int argc, char* argv[],
+	      TString align_filename, TString gaincorrection_filename,
+	      int indexalignment,
+	      int alignmeth, bool chisqcut, bool residualexcludedpoint, bool writealign){
+
+  static constexpr int NJINF = Event::GetNJINF();
+  static constexpr int NTDRS = Event::GetNTDRS();
+  static constexpr int NVAS = Event::GetNVAS();
+  static constexpr int NCHAVA = Event::GetNCHAVA();
+  static constexpr int NADCS = Event::GetNADCS();
+
+  using TS = TrackSelection<Event, RH>;
+  TS* ts = new TS();
+  using UT = Utilities<Event, RH>;
+  UT* ut = new UT();
+  
   TChain *chain = new TChain("t4");
      
   for (int ii=1; ii<argc; ii++) {
@@ -243,11 +352,10 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
     chain->Add(argv[ii]);
   }
 
-  TString align_filename = "alignment.dat";
-
   PRINTDEBUG;
   
   Event::ReadAlignment(align_filename.Data());
+  Event::ReadGainCorrection(gaincorrection_filename.Data());
   
   PRINTDEBUG;
   
@@ -263,8 +371,8 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
 
   int _maxtdr = NJINF*NTDRS;
   
-  GetRH(chain)->Print();
-  _maxtdr = GetRH(chain)->GetNTdrs();
+  ut->GetRH(chain)->Print();
+  _maxtdr = ut->GetRH(chain)->GetNTdrs();
   //  printf("%d\n", _maxladd);
   
   TFile* foutput = new TFile(Form("foutput_%d.root", indexalignment), "RECREATE");
@@ -293,8 +401,8 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
   int NSTRIPSK=Cluster::GetNChannels(1);
   for (int tt=0; tt<_maxtdr; tt++) {
     int jinfnum = 0;
-    int tdrnum = GetRH(chain)->GetTdrNum(tt);
-    int tdr0   = GetRH(chain)->GetTdrNum(0);
+    int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
+    int tdr0   = ut->GetRH(chain)->GetTdrNum(0);
     double pitchS = std::max(Cluster::GetPitch(jinfnum, tdrnum, 0), 0.01);
     double pitchK = std::max(Cluster::GetPitch(jinfnum, tdrnum, 1), 0.01);
     occupancy_all[tt] = new TH1F(
@@ -329,7 +437,7 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
 				  );
     for (int tt2=0; tt2<_maxtdr; tt2++) {
       int jinfnum2 = 0;
-      int tdrnum2 = GetRH(chain)->GetTdrNum(tt2);
+      int tdrnum2 = ut->GetRH(chain)->GetTdrNum(tt2);
       double pitchS2 = std::max(Cluster::GetPitch(jinfnum2, tdrnum2, 0), 0.01);
       double pitchK2 = std::max(Cluster::GetPitch(jinfnum2, tdrnum2, 1), 0.01);
       occupancy_posS_vs_posS[tt][tt2] = new TH2F(
@@ -401,11 +509,11 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
   for (int jj=0; jj<NJINF; jj++) {
     for (int i_tt=0; i_tt<ladderS_to_ignore[jj].size(); i_tt++) {
       int tt = ladderS_to_ignore[jj].at(i_tt);
-      ExcludeTDR(ev, jj, tt, 0);
+      ts->ExcludeTDR(ev, jj, tt, 0);
     }
     for (int i_tt=0; i_tt<ladderK_to_ignore[jj].size(); i_tt++) {
       int tt = ladderK_to_ignore[jj].at(i_tt);
-      ExcludeTDR(ev, jj, tt, 1);
+      ts->ExcludeTDR(ev, jj, tt, 1);
     }
   }
   
@@ -413,28 +521,28 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
   int firstK=0;
   for (int jj=0; jj<NJINF; jj++) {
     for(int tt=0; tt<_maxtdr; tt++) {
-      int tdrnum = GetRH(chain)->GetTdrNum(tt);
+      int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
       if (!(std::find(ladderS_to_ignore[jj].begin(), ladderS_to_ignore[jj].end(), tdrnum) != ladderS_to_ignore[jj].end())) {
 	firstS=tt;
 	break;
       }
     }
     for(int tt=0; tt<_maxtdr; tt++) {
-      int tdrnum = GetRH(chain)->GetTdrNum(tt);
+      int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
       if (!(std::find(ladderK_to_ignore[jj].begin(), ladderK_to_ignore[jj].end(), tdrnum) != ladderK_to_ignore[jj].end())) {
 	firstK=tt;
 	break;
       }
     }
   }
-  printf("FirstS is %d (pos: %d)\n", GetRH(chain)->GetTdrNum(firstS), firstS);
-  printf("FirstK is %d (pos: %d)\n", GetRH(chain)->GetTdrNum(firstK), firstK);
+  printf("FirstS is %d (pos: %d)\n", ut->GetRH(chain)->GetTdrNum(firstS), firstS);
+  printf("FirstK is %d (pos: %d)\n", ut->GetRH(chain)->GetTdrNum(firstK), firstK);
   //    sleep(10);
   for (int jj=0; jj<NJINF; jj++) {
     for(int tt=0; tt<_maxtdr; tt++) {
-      int tdrnum = GetRH(chain)->GetTdrNum(tt);
-      hcooreldiff_S[tt]->GetXaxis()->SetTitle(Form("Pos_{S}[%d]-Pos_{S}[%d] (mm)", tdrnum, GetRH(chain)->GetTdrNum(firstS)));
-      hcooreldiff_K[tt]->GetXaxis()->SetTitle(Form("Pos_{K}[%d]-Pos_{K}[%d] (mm)", tdrnum, GetRH(chain)->GetTdrNum(firstK)));
+      int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
+      hcooreldiff_S[tt]->GetXaxis()->SetTitle(Form("Pos_{S}[%d]-Pos_{S}[%d] (mm)", tdrnum, ut->GetRH(chain)->GetTdrNum(firstS)));
+      hcooreldiff_K[tt]->GetXaxis()->SetTitle(Form("Pos_{K}[%d]-Pos_{K}[%d] (mm)", tdrnum, ut->GetRH(chain)->GetTdrNum(firstK)));
     }
   }
   
@@ -469,13 +577,13 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
     //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
     //and at most 50 (to avoid too much noise around and too much combinatorial)
     //at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
-    // CleanEvent(ev, GetRH(chain), 4, 50, 6, 6, 0, 0);
+    // ts->CleanEvent(ev, ut->GetRH(chain), 4, 50, 6, 6, 0, 0);
 
-    bool cleanevent = CleanEvent(ev, GetRH(chain), 2, 9999, 9999, 9999, 9999, 9999);
+    bool cleanevent = ts->CleanEvent(ev, ut->GetRH(chain), 2, 9999, 9999, 9999, 9999, 9999);
     if (!cleanevent) continue;
     cleanevs++;//in this way this number is giving the "complete reasonable sample"
 
-    bool preselevent = CleanEvent(ev, GetRH(chain), 4, 50, 3, 3, 0, 0);
+    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 50, 3, 3, 0, 0);
     if (!preselevent) continue;
     preselevs++;
 
@@ -596,7 +704,7 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
       
       int ladder = cl->ladder;
       int side=cl->side;
-      int ladder_pos = GetRH(chain)->FindPos(ladder);
+      int ladder_pos = ut->GetRH(chain)->FindPos(ladder);
       if (ladder<0 || ladder>=24 || ladder_pos<0 || ladder_pos>=24) {
 	printf("Ladder %d --> %d. Side = %d\n", ladder, ladder_pos, side);
       }
@@ -655,7 +763,7 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
     int NClusTotS = 0;
     int NClusTotK = 0;
     for (int ll=0; ll<NJINF*NTDRS; ll++) {
-      int tdrnum = GetRH(chain)->GetTdrNum(ll);
+      int tdrnum = ut->GetRH(chain)->GetTdrNum(ll);
       hclusSladd->Fill(tdrnum, v_cog_all_laddS[ll].size());
       NClusTot_check+=v_cog_all_laddS[ll].size();
       NClusTotS+=v_cog_all_laddS[ll].size();
@@ -710,7 +818,7 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
     for (unsigned int tt=0; tt<vec_hit.size(); tt++) {
       
       int ladder = vec_hit.at(tt).first;
-      int ladder_pos = GetRH(chain)->FindPos(ladder);
+      int ladder_pos = ut->GetRH(chain)->FindPos(ladder);
       if (ladder<0 || ladder>=24 || ladder_pos<0 || ladder_pos>=24) {
 	printf("Ladder %d --> %d\n", ladder, ladder_pos);
       }
@@ -769,7 +877,7 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
     }
     
     for (int tt=0; tt<_maxtdr; tt++) {
-      int tdrnum = GetRH(chain)->GetTdrNum(tt);
+      int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
       //      printf("%f\n", ev->GetAlignPar(0, tdrnum, 2));
       TrackS[tt]->Fill(ev->ExtrapolateTrack(ev->GetAlignPar(0, tdrnum, 2), 0));
       TrackK[tt]->Fill(ev->ExtrapolateTrack(ev->GetAlignPar(0, tdrnum, 2), 1));
@@ -804,7 +912,7 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
 
   int jj=0; //FIX ME: HARD-CODED "only one Jinf"
   for (int tt=0; tt<_maxtdr; tt++) {
-    int tdrnum = GetRH(chain)->GetTdrNum(tt);
+    int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
     printf("%d) TDR %d\n", tt, tdrnum);
     
     double Smean = 0.0;
@@ -997,7 +1105,14 @@ int SingleRun(int argc, char* argv[], int indexalignment, int alignmeth, bool ch
   return 0;
 }
 
+template <class Event, class RH>
 void ReadDeltaAlignment(TString filename){
+
+  static constexpr int NJINF = Event::GetNJINF();
+  static constexpr int NTDRS = Event::GetNTDRS();
+  static constexpr int NVAS = Event::GetNVAS();
+  static constexpr int NCHAVA = Event::GetNCHAVA();
+  static constexpr int NADCS = Event::GetNADCS();
   
   //  printf("Reading delta-alignment from %s:\n", filename.Data());
   
