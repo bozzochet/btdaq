@@ -86,18 +86,18 @@ char* DateFromFilename(std::string m_filename){
 	part.rfind(prefix4, 0) != 0) {
       //      std::cout << part << std::endl;
       if (part.find(suffix, 0) != std::string::npos) {
-	//	printf("time\n");
 	std::string stime = part.substr(0, part.length()-4);
 	time = atol(stime.c_str());
+	//	printf("time: %s -> %s --> %ld\n", part.c_str(), stime.c_str(), time);
       }
       else {
-	//	printf("date\n");
 	date = atol(part.c_str());
+	//	printf("date: %s -> %ld\n", part.c_str(), date);
       }
     }
   }
 
-  std::istringstream ss(Form("%ld_%ld", date, time));
+  std::istringstream ss(Form("%08ld_%06ld", date, time));
   std::tm t{};
   ss >> std::get_time(&t, "%Y%m%d_%H%M%S");
   if (ss.fail()) {
