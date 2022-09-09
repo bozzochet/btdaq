@@ -29,7 +29,7 @@ bool TrackSelection<Event, RH>::CleanEvent(Event* ev, RH* rh, int minclus, int m
   
   int NClusTot = ev->GetNClusTot();
   if (NClusTot<1) return false;
-  //  if(NClusTot<(minclus-1) || NClusTot>(maxclus+1)) return false; //we have to count just the one not excluded
+  //  if (NClusTot<minclus || NClusTot>maxclus) return false; //we have to count just the one not excluded
   int NClusTot_notexcl = 0;
 
   PRINTDEBUG;
@@ -119,9 +119,9 @@ bool TrackSelection<Event, RH>::CleanEvent(Event* ev, RH* rh, int minclus, int m
     
   }
 
-  //  if(NClusTot<(minclus-1) || NClusTot>(maxclus+1)) printf("%d -> %d\n", NClusTot, NClusTot_notexcl);
-  //  if(NClusTot>(maxclus+1)) printf("%d -> %d\n", NClusTot, NClusTot_notexcl);
-  if(NClusTot_notexcl<(minclus-1) || NClusTot_notexcl>(maxclus+1)) return false;
+  //  if (NClusTot<minclus || NClusTot>maxclus) printf("%d -> %d\n", NClusTot, NClusTot_notexcl);
+  //  if (NClusTot>maxclus) printf("%d -> %d\n", NClusTot, NClusTot_notexcl);
+  if (NClusTot_notexcl<minclus || NClusTot_notexcl>maxclus) return false;
 
   PRINTDEBUG;
   
