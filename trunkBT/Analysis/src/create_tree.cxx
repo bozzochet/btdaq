@@ -111,10 +111,12 @@ int ProcessChain(TChain* chain, TString output_filename){
   static constexpr int NVAS = Event::GetNVAS();
   static constexpr int NCHAVA = Event::GetNCHAVA();
   static constexpr int NADCS = Event::GetNADCS();
-  
+
+  Bool_t clean_ev;
+  Bool_t presel_ev;
   Float_t charge2D_m[2];
   Float_t charge2D[NJINF*NTDRS][2];
-  UInt_t nhits2D[2];
+  Int_t nhits2D[2];
   Float_t X0Y0[2];
   Float_t X0Y0TARGETDET[2];
   Float_t chi;
@@ -150,6 +152,8 @@ int ProcessChain(TChain* chain, TString output_filename){
   foutput->cd();
 
   TTree *T = new TTree("T","T");
+  T->Branch("presel_ev",&presel_ev,"presel_ev/O");
+  T->Branch("clean_ev",&clean_ev,"clean_ev/O");
   T->Branch("charge2D_m",&charge2D_m,"charge2D_m/F");
   T->Branch("charge2D",&charge2D,"charge2D/F");
   T->Branch("X0Y0",&X0Y0,"X0Y0/F");
@@ -199,11 +203,30 @@ int ProcessChain(TChain* chain, TString output_filename){
   */
   
   for (int index_event=0; index_event<entries; index_event++) {
+
+    clean_ev = 0;
+    presel_ev = 0;
+    charge2D_m[0] = -99.;
+    charge2D_m[1] = -99.;
+    for (int ii=0; ii<NJINF*NTDRS; ii++)
+      {
+	charge2D[ii][0] = -99.;
+	charge2D[ii][1] = -99.;
+      }
+    nhits2D[0] = -99.;
+    nhits2D[1] = -99.;
+    X0Y0[0] = -99.;
+    X0Y0[1] = -99.;
+    X0Y0TARGETDET[0] = -99. ;
+    X0Y0TARGETDET[1] = -99. ;
+    chi = -99.;
+
     Double_t pperc=1000.0*((index_event+1.0)/entries);
     if (pperc>=perc) {
       printf("Processed %d out of %lld: %d%%\n", (index_event+1), entries, (int)(100.0*(index_event+1.0)/entries));
       perc++;
     }
+    
     //    printf("----- new event %d/%lld = %d%%\n", index_event, entries, (int)(100.0*(index_event+1.0)/entries));
     chain->GetEntry(index_event);
     
@@ -214,15 +237,15 @@ int ProcessChain(TChain* chain, TString output_filename){
     //and at most 100 (to avoid too much noise around and too much combinatorial)
     //at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
     // ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 6, 6, 0, 0);
-    
-    bool cleanevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 9999, 9999, 9999, 9999, 9999);
-    if (!cleanevent) continue;
-    cleanevs++;//in this way this number is giving the "complete reasonable sample"
+  
+    clean_ev = ts->CleanEvent(ev, ut->GetRH(chain), 4, 9999, 9999, 9999, 9999, 9999);
+    //    if (!cleanevent) continue;
+    //    cleanevs++;//in this way this number is giving the "complete reasonable sample"
     
     //    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 3, 3, 0, 0);//valid for TIC TB?
-    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 200, 50, 50, 0, 0);
-    if (!preselevent) continue;
-    preselevs++;
+    presel_ev = ts->CleanEvent(ev, ut->GetRH(chain), 4, 200, 50, 50, 0, 0);
+    //    if (!preselevent) continue;
+    //    preselevs++;
     
     //at least 4 points on S, and 4 points on K, not verbose
     // ev->FindTrackAndFit(4, 4, false);
@@ -247,7 +270,7 @@ int ProcessChain(TChain* chain, TString output_filename){
       //and requiring an higher S/N for the cluster
       //      trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
     }
-    if (!trackfitok) continue;
+    //    if (!trackfitok) continue;
     //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetS0Track(), ev->GetS0Track());    
     tracks++;
 
@@ -265,7 +288,7 @@ int ProcessChain(TChain* chain, TString output_filename){
     // printf("K %d %d %d %d\n", ev->IsTDRInTrack(1, 20)?1:0, ev->IsTDRInTrack(1, 22)?1:0, ev->IsTDRInTrack(1, 22)?1:0, ev->IsTDRInTrack(1, 23)?1:0);
 
     double logchi = log10(ev->GetChiTrack());
-    if (logchi>6) continue;
+    //    if (logchi>6) continue;
     goodtracks++;
     
     bool strackok = false;
@@ -342,7 +365,7 @@ int ProcessChain(TChain* chain, TString output_filename){
 	v_cog_all_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
       }
             
-      if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
+      //      if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
 
       double charge=cl->GetCharge();//unused for now
       
@@ -358,13 +381,10 @@ int ProcessChain(TChain* chain, TString output_filename){
       }
       
     }
-    charge2D_m[0] = -999.;
-    charge2D_m[1] = -999.;
-
+  
     std::vector<std::pair<int, std::pair<int, int> > > vec_charge = ev->GetHitVector();
 
     for (unsigned int tt=0; tt<vec_charge.size(); tt++) {
-
       int ladder = vec_charge.at(tt).first;
       int index_cluster_S = vec_charge.at(tt).second.first;
       int index_cluster_K = vec_charge.at(tt).second.second;
@@ -380,7 +400,7 @@ int ProcessChain(TChain* chain, TString output_filename){
 
     charge2D_m[0] = ev->GetChargeTrack(0);
     charge2D_m[1] = ev->GetChargeTrack(1);
-  
+
     T->Fill();
     
     //    printf(" \n ");

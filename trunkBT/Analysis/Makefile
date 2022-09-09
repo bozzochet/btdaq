@@ -59,6 +59,9 @@ Analysis: ./obj/Analysis.o libEvent
 	ln -fs $@ AnalysisFOOT
 	ln -fs $@ AnalysisOCA
 
+create_tree: ./obj/create_tree.o libEvent
+	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@
+
 #AnalysisFOOT: ./obj/AnalysisFOOT.o libEvent
 #	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@
 
