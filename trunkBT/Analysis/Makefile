@@ -42,7 +42,7 @@ INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE)/include -isystem$(DECO
 
 .PHONY: ViewerGUI
 
-default: Analysis
+default: Analysis create_tree
 
 Viewer: ./obj/viewer.o
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) -o$@

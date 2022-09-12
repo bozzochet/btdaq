@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
   bool kFoot = false;
 
   TString exename = argv[0];
-  
+
   if (exename.Contains("OCA")) {
     kOca = true;
   }
@@ -112,14 +112,13 @@ int ProcessChain(TChain* chain, TString output_filename){
   static constexpr int NCHAVA = Event::GetNCHAVA();
   static constexpr int NADCS = Event::GetNADCS();
 
-  Bool_t clean_ev;
-  Bool_t presel_ev;
-  Float_t charge2D_m[2];
-  Float_t charge2D[NJINF*NTDRS][2];
+  Float_t charge2D_m;
   Int_t nhits2D[2];
-  Float_t X0Y0[2];
-  Float_t X0Y0TARGETDET[2];
-  Float_t chi;
+  Float_t InterceptXY[2];
+  Float_t InterceptXY_err[2];
+  Float_t SlopeXY[2];
+  Float_t SlopeXY_err[2];
+  Float_t chiXY[3];
   
   
   Event* ev = new Event();
@@ -152,14 +151,12 @@ int ProcessChain(TChain* chain, TString output_filename){
   foutput->cd();
 
   TTree *T = new TTree("T","T");
-  T->Branch("presel_ev",&presel_ev,"presel_ev/O");
-  T->Branch("clean_ev",&clean_ev,"clean_ev/O");
   T->Branch("charge2D_m",&charge2D_m,"charge2D_m/F");
-  T->Branch("charge2D",&charge2D,"charge2D/F");
-  T->Branch("X0Y0",&X0Y0,"X0Y0/F");
-  T->Branch("X0Y0TARGETDET",&X0Y0TARGETDET, "X0Y0TARGETDET/F");
-  T->Branch("chi",&chi,"chi/F");
-  T->Branch("nhits2D",&nhits2D,"nhits2D/s");
+  T->Branch("InterceptXY",&InterceptXY,"InterceptXY/F");
+  T->Branch("InterceptXY_err",&InterceptXY_err,"InterceptXY_err/F");
+  T->Branch("SlopeXY",&SlopeXY,"SlopeXY/F");
+  T->Branch("SlopeXY_err",&SlopeXY_err,"SlopeXY_err/F");
+  T->Branch("chiXY",&chiXY,"chiXY/F");
 
   int NSTRIPSS=640;
   int NSTRIPSK=384;
@@ -204,23 +201,18 @@ int ProcessChain(TChain* chain, TString output_filename){
   
   for (int index_event=0; index_event<entries; index_event++) {
 
-    clean_ev = 0;
-    presel_ev = 0;
-    charge2D_m[0] = -99.;
-    charge2D_m[1] = -99.;
-    for (int ii=0; ii<NJINF*NTDRS; ii++)
-      {
-	charge2D[ii][0] = -99.;
-	charge2D[ii][1] = -99.;
-      }
-    nhits2D[0] = -99.;
-    nhits2D[1] = -99.;
-    X0Y0[0] = -99.;
-    X0Y0[1] = -99.;
-    X0Y0TARGETDET[0] = -99. ;
-    X0Y0TARGETDET[1] = -99. ;
-    chi = -99.;
-
+    charge2D_m = -9999.;
+    InterceptXY[0] = -9999.;
+    InterceptXY[1] = -9999.;
+    SlopeXY[0] = -9999. ;
+    SlopeXY[1] = -9999. ;
+    InterceptXY_err[0] = -9999.;
+    InterceptXY_err[1] = -9999.;
+    SlopeXY_err[0] = -9999. ;
+    SlopeXY_err[1] = -9999. ;
+    chiXY[0] = -9999.;
+    chiXY[1] = -9999.;
+    chiXY[2] = -9999.;
     Double_t pperc=1000.0*((index_event+1.0)/entries);
     if (pperc>=perc) {
       printf("Processed %d out of %lld: %d%%\n", (index_event+1), entries, (int)(100.0*(index_event+1.0)/entries));
@@ -238,19 +230,18 @@ int ProcessChain(TChain* chain, TString output_filename){
     //at most 6 clusters per ladder (per side) + 0 additional clusters in total (per side)
     // ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 6, 6, 0, 0);
   
-    clean_ev = ts->CleanEvent(ev, ut->GetRH(chain), 4, 9999, 9999, 9999, 9999, 9999);
-    //    if (!cleanevent) continue;
-    //    cleanevs++;//in this way this number is giving the "complete reasonable sample"
+    bool cleanevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 9999, 9999, 9999, 9999, 9999);
+    if (!cleanevent) continue;
+    cleanevs++;//in this way this number is giving the "complete reasonable sample"
     
-    //    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 3, 3, 0, 0);//valid for TIC TB?
-    presel_ev = ts->CleanEvent(ev, ut->GetRH(chain), 4, 200, 50, 50, 0, 0);
-    //    if (!preselevent) continue;
-    //    preselevs++;
+    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 3, 3, 0, 0);//valid for TIC TB?
+    if (!preselevent) continue;
+    preselevs++;
     
     //at least 4 points on S, and 4 points on K, not verbose
     // ev->FindTrackAndFit(4, 4, false);
     
-    bool trackfitok = ev->FindTrackAndFit(2, 2, false);
+    bool trackfitok = ev->FindTrackAndFit(2,2,false);
     //    printf("%d\n", trackfitok);
     if (trackfitok) {
       //      ev->RefineTrack(999999.0, 2, 999999.0, 2);
@@ -286,6 +277,10 @@ int ProcessChain(TChain* chain, TString output_filename){
 
     // printf("S %d %d %d %d\n", ev->IsTDRInTrack(0, 20)?1:0, ev->IsTDRInTrack(0, 22)?1:0, ev->IsTDRInTrack(0, 22)?1:0, ev->IsTDRInTrack(0, 23)?1:0);
     // printf("K %d %d %d %d\n", ev->IsTDRInTrack(1, 20)?1:0, ev->IsTDRInTrack(1, 22)?1:0, ev->IsTDRInTrack(1, 22)?1:0, ev->IsTDRInTrack(1, 23)?1:0);
+  
+    chiXY[0] = ev->GetChiTrackS();
+    chiXY[1] = ev->GetChiTrackK();
+    chiXY[2] = ev->GetChiTrack();
 
     double logchi = log10(ev->GetChiTrack());
     //    if (logchi>6) continue;
@@ -339,12 +334,16 @@ int ProcessChain(TChain* chain, TString output_filename){
     //   printf("Nhits: %u (S: %u, K: %u)\n", ev->GetNHitsTrack(), ev->GetNHitsSTrack(), ev->GetNHitsKTrack());
     // }
 
-    chi = log10(ev->GetChiTrack());
-    X0Y0[0]=ev->GetS0Track();
-    X0Y0[1]=ev->GetK0Track();
-    X0Y0TARGETDET[0]=ev->ExtrapolateTrack(ZTARGETDET, 0);
-    X0Y0TARGETDET[1]=ev->ExtrapolateTrack(ZTARGETDET, 1);
-
+    //chi = log10(ev->GetChiTrack());
+    SlopeXY[0] = ev->GetSlopeSTrack();
+    SlopeXY_err[0] = ev->GetSlopeSerrTrack();
+    SlopeXY[1] = ev->GetSlopeKTrack();
+    SlopeXY_err[1] = ev->GetSlopeKerrTrack();
+    InterceptXY[0]=ev->GetInterceptSTrack();
+    InterceptXY_err[0]=ev->GetInterceptSerrTrack();
+    InterceptXY[1]=ev->GetInterceptKTrack();
+    InterceptXY_err[1]=ev->GetInterceptKerrTrack();
+    
     std::vector<double> v_cog_laddS[NJINF*NTDRS];
      std::vector<double> v_cog_laddK[NJINF*NTDRS];
     std::vector<double> v_cog_all_laddS[NJINF*NTDRS];
@@ -384,23 +383,7 @@ int ProcessChain(TChain* chain, TString output_filename){
   
     std::vector<std::pair<int, std::pair<int, int> > > vec_charge = ev->GetHitVector();
 
-    for (unsigned int tt=0; tt<vec_charge.size(); tt++) {
-      int ladder = vec_charge.at(tt).first;
-      int index_cluster_S = vec_charge.at(tt).second.first;
-      int index_cluster_K = vec_charge.at(tt).second.second;
-      charge2D[ut->GetRH(chain)->FindPos(ladder)][0]=-99.;
-      charge2D[ut->GetRH(chain)->FindPos(ladder)][1]=-99.;
- 
-      if (index_cluster_S>=0 && index_cluster_K>=0) {
-	charge2D[ut->GetRH(chain)->FindPos(ladder)][0]=ev->GetCluster(index_cluster_S)->GetCharge();
-	charge2D[ut->GetRH(chain)->FindPos(ladder)][1]=ev->GetCluster(index_cluster_K)->GetCharge();
-      }
-    }
-  
-
-    charge2D_m[0] = ev->GetChargeTrack(0);
-    charge2D_m[1] = ev->GetChargeTrack(1);
-
+    charge2D_m = ev->GetChargeTrack(0);
     T->Fill();
     
     //    printf(" \n ");
