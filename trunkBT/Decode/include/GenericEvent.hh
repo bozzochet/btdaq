@@ -99,10 +99,21 @@ public:
   bool FindTrackAndFit(int nptsS, int nptsK, bool verbose = false);
   bool FindHigherChargeTrackAndFit(int nptsS, double threshS, int nptsK, double threshK, bool verbose = false);
   double RefineTrack(double nsigmaS = 5.0, int nptsS = 3, double nsigmaK = 5.0, int nptsK = 3, bool verbose = false);
+
+  double GetSlopeSTrack() { return _mS; };
+  double GetSlopeSerrTrack() { return _mSerr; };
+  double GetSlopeKTrack() { return _mK; };
+  double GetSlopeKerrTrack() { return _mKerr; };
+  double GetInterceptSTrack() { return -_mS/_S0; };
+  double GetInterceptSerrTrack() { return _mS/_S0*sqrt(pow(_mSerr/_mS,2)+pow(_S0err/_S0,2)); };
+  double GetInterceptKTrack() { return -_mK/_K0; };
+  double GetInterceptKerrTrack() { return _mK/_K0*sqrt(pow(_mKerr/_mK,2)+pow(_K0err/_K0,2)); };
   double GetThetaTrack() { return _theta; };
   double GetPhiTrack() { return _phi; };
   double GetS0Track() { return _S0; };
+  double GetS0errTrack() { return _S0err; };
   double GetK0Track() { return _K0; };
+  double GetK0errTrack() { return _K0err; };
   double GetChiTrack() { return _chisq; };
   double GetChiTrackS() { return _chisqS; };
   double GetChiTrackK() { return _chisqK; };
