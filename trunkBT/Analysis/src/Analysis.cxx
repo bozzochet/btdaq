@@ -438,6 +438,12 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
   histos->Add(hclusSladd_good);
   TH1F* hclusKladd_good = new TH1F("hclusKladd_good", "hclusKladd_good;Ladder;Clusters_{K}", 24, 0, 24);//total per ladder
   histos->Add(hclusKladd_good);
+  TH1F* hclusSladd_good_ontrack = new TH1F("hclusSladd_good_ontrack", "hclusSladd_good_ontrack;Ladder;Clusters_{S,OnTrack}", 24, 0, 24);
+  histos->Add(hclusSladd_good_ontrack);
+  TH1F* hclusKladd_good_ontrack = new TH1F("hclusKladd_good_ontrack", "hclusKladd_good_ontrack;Ladder;Clusters_{K,OnTrack}", 24, 0, 24);
+  histos->Add(hclusKladd_good_ontrack);
+
+  histos->Add(hclusKladd_good);
 
   //only for clusters used in tracks
   TH1F* occupancy_ontrack[NJINF*NTDRS];
@@ -478,6 +484,10 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
 
   // gold tracks (S, K or S&K) and only for clusters used in tracks
 
+  TH1F* hclusSladd_gold = new TH1F("hclusSladd_gold", "hclusSladd_gold;Ladder;Clusters_{S}", 24, 0, 24);//total per ladder
+  histos->Add(hclusSladd_gold);
+  TH1F* hclusKladd_gold = new TH1F("hclusKladd_gold", "hclusKladd_gold;Ladder;Clusters_{K}", 24, 0, 24);//total per ladder
+  histos->Add(hclusKladd_gold);
   TH1F* hclusSladd_gold_ontrack = new TH1F("hclusSladd_gold_ontrack", "hclusSladd_gold_ontrack;Ladder;Clusters_{S,OnTrack}", 24, 0, 24);
   histos->Add(hclusSladd_gold_ontrack);
   TH1F* hclusKladd_gold_ontrack = new TH1F("hclusKladd_gold_ontrack", "hclusKladd_gold_ontrack;Ladder;Clusters_{K,OnTrack}", 24, 0, 24);
@@ -618,6 +628,8 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
   }
   TH1* hclusSladd_good = (TH1*)(histos->FindObject("hclusSladd_good"));
   TH1* hclusKladd_good = (TH1*)(histos->FindObject("hclusKladd_good"));
+  TH1* hclusSladd_good_ontrack = (TH1*)(histos->FindObject("hclusSladd_good_ontrack"));
+  TH1* hclusKladd_good_ontrack = (TH1*)(histos->FindObject("hclusKladd_good_ontrack"));
 
   TH1* occupancy_ontrack[NJINF*NTDRS];
   TH1* occupancy_ontrack_posS[NJINF*NTDRS];
@@ -642,6 +654,8 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
   chargeK_ave = (TH1*)(histos->FindObject("chargeK"));
   charge2D_ave = (TH2*)(histos->FindObject("charge"));
 
+  TH1* hclusSladd_gold = (TH1*)(histos->FindObject("hclusSladd_gold"));
+  TH1* hclusKladd_gold = (TH1*)(histos->FindObject("hclusKladd_gold"));
   TH1* hclusSladd_gold_ontrack = (TH1*)(histos->FindObject("hclusSladd_gold_ontrack"));
   TH1* hclusKladd_gold_ontrack = (TH1*)(histos->FindObject("hclusKladd_gold_ontrack"));
   
@@ -690,11 +704,17 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
       occupancy_posS[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
       //      v_cog_all_laddS[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
       hclusSladd_good->Fill(ladder);
+      if (strackok) {
+	hclusSladd_gold->Fill(ladder);
+      }
     }
     else {
       occupancy_posK[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
       //      v_cog_all_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
       hclusKladd_good->Fill(ladder);
+      if (ktrackok) {
+	hclusKladd_gold->Fill(ladder);
+      }
     }
             
     if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
@@ -703,6 +723,7 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
       
     if (side==0) {
     occupancy_ontrack_posS[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
+    hclusSladd_good_ontrack->Fill(ladder);
       if (strackok) {
 	residual_S[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));
 	//	v_cog_laddS[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
@@ -711,6 +732,7 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
     }
     else {
       occupancy_ontrack_posK[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
+      hclusKladd_good_ontrack->Fill(ladder);
       if (ktrackok) {
 	residual_K[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));
 	//	v_cog_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
@@ -760,10 +782,15 @@ void NormalizePlots(TObjArray* histos, Long64_t cleanevs, Long64_t preselevs, Lo
   
   TH1* hclusSladd_good = (TH1*)(histos->FindObject("hclusSladd_good"));
   TH1* hclusKladd_good = (TH1*)(histos->FindObject("hclusKladd_good"));
-  
+  TH1* hclusSladd_good_ontrack = (TH1*)(histos->FindObject("hclusSladd_good_ontrack"));
+  TH1* hclusKladd_good_ontrack = (TH1*)(histos->FindObject("hclusKladd_good_ontrack"));
+
+  TH1* hclusSladd_gold = (TH1*)(histos->FindObject("hclusSladd_gold"));
+  TH1* hclusKladd_gold = (TH1*)(histos->FindObject("hclusKladd_gold"));  
   TH1* hclusSladd_gold_ontrack = (TH1*)(histos->FindObject("hclusSladd_gold_ontrack"));
   TH1* hclusKladd_gold_ontrack = (TH1*)(histos->FindObject("hclusKladd_gold_ontrack"));
 
+  
   //-----------------------------------------------
 
   hclusSladd_clean->Scale(1.0/cleanevs);
@@ -774,7 +801,11 @@ void NormalizePlots(TObjArray* histos, Long64_t cleanevs, Long64_t preselevs, Lo
   
   hclusSladd_good->Scale(1.0/goodtracks);
   hclusKladd_good->Scale(1.0/goodtracks);
+  hclusSladd_good_ontrack->Scale(1.0/goodtracks);
+  hclusKladd_good_ontrack->Scale(1.0/goodtracks);
 
+  hclusSladd_gold->Scale(1.0/goldStracks);
+  hclusKladd_gold->Scale(1.0/goldKtracks);
   hclusSladd_gold_ontrack->Scale(1.0/goldStracks);
   hclusKladd_gold_ontrack->Scale(1.0/goldKtracks);
   
