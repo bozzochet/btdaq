@@ -49,11 +49,13 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
 template <class Event, class RH>
 void FillAllHistos(TObjArray* histos, int NClusTot, int index_event);
 template <class Event, class RH>
-void FillCleanHistos(TObjArray* histos, int NClusTot, int index_event);
+void FillCleanHistos(TObjArray* histos, int NClusTot, Event* ev, int index_event);
 template <class Event, class RH>
-void FillPreselHistos(TObjArray* histos, int NClusTot, int index_event);
+void FillPreselHistos(TObjArray* histos, int NClusTot, Event* ev, int index_event);
 template <class Event, class RH>
 void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TChain* chain, bool strackok, bool ktrackok);
+void NormalizePlots(TObjArray* histos, Long64_t cleanevs, Long64_t preselevs, Long64_t goodtracks, Long64_t goldStracks, Long64_t goldKtracks);
+void CleanEmptyHistos(TObjArray* histos);
 
 //----------------------------------------
 
@@ -194,7 +196,7 @@ int ProcessChain(TChain* chain, TString output_filename){
   */
   
   for (int index_event=0; index_event<entries; index_event++) {
-    Double_t pperc=1000.0*((index_event+1.0)/entries);
+    Double_t pperc=100.0*((index_event+1.0)/entries);
     if (pperc>=perc) {
       printf("Processed %d out of %lld: %d%%\n", (index_event+1), entries, (int)(100.0*(index_event+1.0)/entries));
       perc++;
@@ -216,14 +218,14 @@ int ProcessChain(TChain* chain, TString output_filename){
     if (!cleanevent) continue;
     cleanevs++;//in this way this number is giving the "complete reasonable sample"
 
-    FillCleanHistos<Event, RH>(histos, NClusTot, index_event);
+    FillCleanHistos<Event, RH>(histos, NClusTot, ev, index_event);
     
     //    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 3, 3, 0, 0);//valid for TIC TB?
     bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 200, 50, 50, 0, 0);
     if (!preselevent) continue;
     preselevs++;
 
-    FillPreselHistos<Event, RH>(histos, NClusTot, index_event);
+    FillPreselHistos<Event, RH>(histos, NClusTot, ev, index_event);
     
     //at least 4 points on S, and 4 points on K, not verbose
     // ev->FindTrackAndFit(4, 4, false);
@@ -320,6 +322,9 @@ int ProcessChain(TChain* chain, TString output_filename){
     //    printf(" \n ");
   }
 
+  NormalizePlots(histos, cleanevs, preselevs, goodtracks, goldStracks, goldKtracks);
+  CleanEmptyHistos(histos);
+
   sw.Stop();
   sw.Print();
   
@@ -368,6 +373,10 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
   histos->Add(hclus_vs_event_clean);
   TH1F* hclus_clean = new TH1F("hclus_clean", "hclus_clean;Clusters;Entries", 1000, 0, 1000);
   histos->Add(hclus_clean);
+  TH1F* hclusSladd_clean = new TH1F("hclusSladd_clean", "hclusSladd_clean;Ladder;Clusters_{S}", 24, 0, 24);//total per ladder
+  histos->Add(hclusSladd_clean);
+  TH1F* hclusKladd_clean = new TH1F("hclusKladd_clean", "hclusKladd_clean;Ladder;Clusters_{K}", 24, 0, 24);//total per ladder
+  histos->Add(hclusKladd_clean);
 
   //----------------------------------------------------------------------------
 
@@ -376,6 +385,11 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
   histos->Add(hclus_vs_event_presel);
   TH1F* hclus_presel = new TH1F("hclus_presel", "hclus_presel;Clusters;Entries", 1000, 0, 1000);
   histos->Add(hclus_presel);
+  TH1F* hclusSladd_presel = new TH1F("hclusSladd_presel", "hclusSladd_presel;Ladder;Clusters_{S}", 24, 0, 24);//total per ladder
+  histos->Add(hclusSladd_presel);
+  TH1F* hclusKladd_presel = new TH1F("hclusKladd_presel", "hclusKladd_presel;Ladder;Clusters_{K}", 24, 0, 24);//total per ladder
+  histos->Add(hclusKladd_presel);
+
 
   //----------------------------------------------------------------------------
   
@@ -420,10 +434,10 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
     occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", tdrnum), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", tdrnum), 2*NSTRIPSK, -NSTRIPSK*pitchK, NSTRIPSK*pitchK);
     histos->Add(occupancy_posK[tt]);
   }
-  TH1F* hclusSladd = new TH1F("hclusSladd", "hclusSladd;Ladder;Clusters_{S}", 24, 0, 24);//total per ladder
-  histos->Add(hclusSladd);
-  TH1F* hclusKladd = new TH1F("hclusKladd", "hclusKladd;Ladder;Clusters_{K}", 24, 0, 24);//total per ladder
-  histos->Add(hclusKladd);
+  TH1F* hclusSladd_good = new TH1F("hclusSladd_good", "hclusSladd_good;Ladder;Clusters_{S}", 24, 0, 24);//total per ladder
+  histos->Add(hclusSladd_good);
+  TH1F* hclusKladd_good = new TH1F("hclusKladd_good", "hclusKladd_good;Ladder;Clusters_{K}", 24, 0, 24);//total per ladder
+  histos->Add(hclusKladd_good);
 
   //only for clusters used in tracks
   TH1F* occupancy_ontrack[NJINF*NTDRS];
@@ -464,10 +478,10 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
 
   // gold tracks (S, K or S&K) and only for clusters used in tracks
 
-  TH1F* hclusSladdtrack = new TH1F("hclusSladdtrack", "hclusSladdtrack;Ladder;Clusters_{S,OnTrack}", 24, 0, 24);
-  histos->Add(hclusSladdtrack);
-  TH1F* hclusKladdtrack = new TH1F("hclusKladdtrack", "hclusKladdtrack;Ladder;Clusters_{K,OnTrack}", 24, 0, 24);
-  histos->Add(hclusKladdtrack);
+  TH1F* hclusSladd_gold_ontrack = new TH1F("hclusSladd_gold_ontrack", "hclusSladd_gold_ontrack;Ladder;Clusters_{S,OnTrack}", 24, 0, 24);
+  histos->Add(hclusSladd_gold_ontrack);
+  TH1F* hclusKladd_gold_ontrack = new TH1F("hclusKladd_gold_ontrack", "hclusKladd_gold_ontrack;Ladder;Clusters_{K,OnTrack}", 24, 0, 24);
+  histos->Add(hclusKladd_gold_ontrack);
   
   TH1F* residual_S[NJINF*NTDRS];
   TH1F* residual_K[NJINF*NTDRS];
@@ -502,25 +516,65 @@ void FillAllHistos(TObjArray* histos, int NClusTot, int index_event){
 }
 
 template <class Event, class RH>
-void FillCleanHistos(TObjArray* histos, int NClusTot, int index_event){
+void FillCleanHistos(TObjArray* histos, int NClusTot, Event* ev, int index_event){
 
+  Cluster *cl;
+  
   TH1* hclus_clean = (TH1*)(histos->FindObject("hclus_clean"));
   TH1* hclus_vs_event_clean = (TH1*)(histos->FindObject("hclus_vs_event_clean"));
+  TH1* hclusSladd_clean = (TH1*)(histos->FindObject("hclusSladd_clean"));
+  TH1* hclusKladd_clean = (TH1*)(histos->FindObject("hclusKladd_clean"));
   
   hclus_clean->Fill(NClusTot);
   hclus_vs_event_clean->Fill(index_event, NClusTot);
+
+  for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
+    
+    cl = ev->GetCluster(index_cluster);      
+    int ladder = cl->ladder;
+    //      printf("%d --> %d\n", ladder, ut->GetRH(chain)->FindPos(ladder));
+    int side=cl->side;
+    double charge=cl->GetCharge();//unused for now
+    
+    if (side==0) {
+      hclusSladd_clean->Fill(ladder);
+    }
+    else {
+      hclusKladd_clean->Fill(ladder);
+    }
+  }
   
   return;
 }
 
 template <class Event, class RH>
-void FillPreselHistos(TObjArray* histos, int NClusTot, int index_event){
+void FillPreselHistos(TObjArray* histos, int NClusTot, Event* ev, int index_event){
 
+  Cluster *cl;
+  
   TH1* hclus_presel = (TH1*)(histos->FindObject("hclus_presel"));
   TH1* hclus_vs_event_presel = (TH1*)(histos->FindObject("hclus_vs_event_presel"));
+  TH1* hclusSladd_presel = (TH1*)(histos->FindObject("hclusSladd_presel"));
+  TH1* hclusKladd_presel = (TH1*)(histos->FindObject("hclusKladd_presel"));
   
   hclus_presel->Fill(NClusTot);
   hclus_vs_event_presel->Fill(index_event, NClusTot);
+
+  for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
+    
+    cl = ev->GetCluster(index_cluster);      
+    int ladder = cl->ladder;
+    //      printf("%d --> %d\n", ladder, ut->GetRH(chain)->FindPos(ladder));
+    int side=cl->side;
+    double charge=cl->GetCharge();//unused for now
+    
+    if (side==0) {
+      hclusSladd_presel->Fill(ladder);
+    }
+    else {
+      hclusKladd_presel->Fill(ladder);
+    }
+  }
   
   return;
 }
@@ -562,8 +616,8 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
     occupancy_posS[tt] = (TH1*)(histos->FindObject(Form("occupancy_posS_0_%02d", tdrnum)));
     occupancy_posK[tt] = (TH1*)(histos->FindObject(Form("occupancy_posK_0_%02d", tdrnum)));
   }
-  TH1* hclusSladd = (TH1*)(histos->FindObject("hclusSladd"));
-  TH1* hclusKladd = (TH1*)(histos->FindObject("hclusKladd"));
+  TH1* hclusSladd_good = (TH1*)(histos->FindObject("hclusSladd_good"));
+  TH1* hclusKladd_good = (TH1*)(histos->FindObject("hclusKladd_good"));
 
   TH1* occupancy_ontrack[NJINF*NTDRS];
   TH1* occupancy_ontrack_posS[NJINF*NTDRS];
@@ -588,8 +642,8 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
   chargeK_ave = (TH1*)(histos->FindObject("chargeK"));
   charge2D_ave = (TH2*)(histos->FindObject("charge"));
 
-  TH1* hclusSladdtrack = (TH1*)(histos->FindObject("hclusSladdtrack"));
-  TH1* hclusKladdtrack = (TH1*)(histos->FindObject("hclusKladdtrack"));
+  TH1* hclusSladd_gold_ontrack = (TH1*)(histos->FindObject("hclusSladd_gold_ontrack"));
+  TH1* hclusKladd_gold_ontrack = (TH1*)(histos->FindObject("hclusKladd_gold_ontrack"));
   
   TH1* residual_S[NJINF*NTDRS];
   TH1* residual_K[NJINF*NTDRS];
@@ -615,14 +669,16 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
 
   hclus_goodtracks->Fill(NClusTot);
 
+  /*
   std::vector<double> v_cog_all_laddS[NJINF*NTDRS];//good tracks (not gold), all clusters
   std::vector<double> v_cog_all_laddK[NJINF*NTDRS];//good tracks (not gold), all clusters
   std::vector<double> v_cog_laddS[NJINF*NTDRS];//gold S tracks, clusters on track
   std::vector<double> v_cog_laddK[NJINF*NTDRS];//gold K tracks, clusters on track
+  */
     
   for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
       
-    cl = ev->GetCluster(index_cluster);      
+    cl = ev->GetCluster(index_cluster);
     int ladder = cl->ladder;
     //      printf("%d --> %d\n", ladder, ut->GetRH(chain)->FindPos(ladder));
     int side=cl->side;
@@ -632,11 +688,13 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
       
     if (side==0) {
       occupancy_posS[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
-      v_cog_all_laddS[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+      //      v_cog_all_laddS[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+      hclusSladd_good->Fill(ladder);
     }
     else {
       occupancy_posK[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
-      v_cog_all_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+      //      v_cog_all_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+      hclusKladd_good->Fill(ladder);
     }
             
     if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
@@ -647,21 +705,21 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
     occupancy_ontrack_posS[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
       if (strackok) {
 	residual_S[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));
-	v_cog_laddS[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
-	hclusSladdtrack->Fill(ladder);
+	//	v_cog_laddS[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	hclusSladd_gold_ontrack->Fill(ladder);
       }
     }
     else {
       occupancy_ontrack_posK[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
       if (ktrackok) {
 	residual_K[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));
-	v_cog_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
-	hclusKladdtrack->Fill(ladder);
+	//	v_cog_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	hclusKladd_gold_ontrack->Fill(ladder);
       }
     }
-            
-  }
 
+  }
+  
   std::vector<std::pair<int, std::pair<int, int> > > vec_charge = ev->GetHitVector();//on track (good, not gold)
   for (unsigned int tt=0; tt<vec_charge.size(); tt++) {
     int ladder = vec_charge.at(tt).first;
@@ -681,10 +739,53 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
   chargeS_ave->Fill(ev->GetChargeTrack(0));
   chargeK_ave->Fill(ev->GetChargeTrack(1));
   charge2D_ave->Fill(ev->GetChargeTrack(0), ev->GetChargeTrack(1));
-    
+
+  /*
   for (int ll=0; ll<NJINF*NTDRS; ll++) {
-    hclusSladd->Fill(ut->GetRH(chain)->GetTdrNum(ll), v_cog_all_laddS[ll].size());
-    hclusKladd->Fill(ut->GetRH(chain)->GetTdrNum(ll), v_cog_all_laddK[ll].size());
+    hclusSladd_good->Fill(ut->GetRH(chain)->GetTdrNum(ll), v_cog_all_laddS[ll].size());
+    hclusKladd_good->Fill(ut->GetRH(chain)->GetTdrNum(ll), v_cog_all_laddK[ll].size());
+  }
+  */
+
+  return;
+}
+
+void NormalizePlots(TObjArray* histos, Long64_t cleanevs, Long64_t preselevs, Long64_t goodtracks, Long64_t goldStracks, Long64_t goldKtracks) {
+
+  TH1* hclusSladd_clean = (TH1*)(histos->FindObject("hclusSladd_clean"));
+  TH1* hclusKladd_clean = (TH1*)(histos->FindObject("hclusKladd_clean"));
+
+  TH1* hclusSladd_presel = (TH1*)(histos->FindObject("hclusSladd_presel"));
+  TH1* hclusKladd_presel = (TH1*)(histos->FindObject("hclusKladd_presel"));
+  
+  TH1* hclusSladd_good = (TH1*)(histos->FindObject("hclusSladd_good"));
+  TH1* hclusKladd_good = (TH1*)(histos->FindObject("hclusKladd_good"));
+  
+  TH1* hclusSladd_gold_ontrack = (TH1*)(histos->FindObject("hclusSladd_gold_ontrack"));
+  TH1* hclusKladd_gold_ontrack = (TH1*)(histos->FindObject("hclusKladd_gold_ontrack"));
+
+  //-----------------------------------------------
+
+  hclusSladd_clean->Scale(1.0/cleanevs);
+  hclusKladd_clean->Scale(1.0/cleanevs);
+
+  hclusSladd_presel->Scale(1.0/preselevs);
+  hclusKladd_presel->Scale(1.0/preselevs);
+  
+  hclusSladd_good->Scale(1.0/goodtracks);
+  hclusKladd_good->Scale(1.0/goodtracks);
+
+  hclusSladd_gold_ontrack->Scale(1.0/goldStracks);
+  hclusKladd_gold_ontrack->Scale(1.0/goldKtracks);
+  
+  return;
+}
+
+void CleanEmptyHistos(TObjArray* histos){
+
+  for (int ii=histos->GetEntries()-1; ii>=0; ii--) {
+    TH1* h = (TH1*)(histos->At(ii));
+    if (h->GetEntries() <= 0) h->Delete();
   }
 
   return;
