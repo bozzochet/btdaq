@@ -234,7 +234,7 @@ int ProcessChain(TChain* chain, TString output_filename){
     if (!cleanevent) continue;
     cleanevs++;//in this way this number is giving the "complete reasonable sample"
     
-    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 3, 3, 0, 0);//valid for TIC TB?
+    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 200, 50, 50, 0, 0);//ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 3, 3, 0, 0);//valid for TIC TB?
     if (!preselevent) continue;
     preselevs++;
     
@@ -261,7 +261,7 @@ int ProcessChain(TChain* chain, TString output_filename){
       //and requiring an higher S/N for the cluster
       //      trackfitok = ev->FindHigherChargeTrackAndFit(2, 5.0, 2, 5.0, false);
     }
-    //    if (!trackfitok) continue;
+    if (!trackfitok) continue;
     //    printf("%f %f %f %f %f\n", ev->GetChiTrack(), ev->GetThetaTrack(), ev->GetPhiTrack(), ev->GetS0Track(), ev->GetS0Track());    
     tracks++;
 
@@ -283,7 +283,7 @@ int ProcessChain(TChain* chain, TString output_filename){
     chiXY[2] = ev->GetChiTrack();
 
     double logchi = log10(ev->GetChiTrack());
-    //    if (logchi>6) continue;
+    if (logchi>6) continue;
     goodtracks++;
     
     bool strackok = false;
@@ -364,7 +364,7 @@ int ProcessChain(TChain* chain, TString output_filename){
 	v_cog_all_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
       }
             
-      //      if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
+      if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
 
       double charge=cl->GetCharge();//unused for now
       
@@ -401,6 +401,7 @@ int ProcessChain(TChain* chain, TString output_filename){
   printf("\t\t%lld gold S tracks found\n", goldStracks);
   printf("\t\t%lld gold K tracks found\n", goldKtracks);
   printf("\t\t%lld gold tracks found\n", goldtracks);
+  printf("%d volte \n", fitfatto);
   printf("---------------------------------------------\n");
   //T->Write();
   foutput->Write();
