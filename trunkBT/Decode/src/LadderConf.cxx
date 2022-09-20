@@ -4,11 +4,51 @@
 #include "EventUtils.hh"
 #include "LadderConf.hh"
 
-LadderConf::LadderConf(){};
+LadderConf* LadderConf::_head = nullptr;
+LadderParamsMap* LadderConf::_ladders = nullptr;
+size_t LadderConf::NJINF = -999;
+size_t LadderConf::NTDRS = -999;
+
 LadderConf::~LadderConf(){};
+
+LadderConf* LadderConf::Instance() { 
+  if (_head==nullptr) {
+    _head = new LadderConf();
+  }
+  return _head;
+}
+
+LadderConf::LadderConf(){
+  //  printf("LadderConf::default constructor\n");
+
+  if (_head==nullptr) {
+    _ladders = new LadderParamsMap();
+  }
+  else {
+    printf("You should not call this once the singleton has been created once!\n");
+  }
+
+  return;
+};
+
+LadderConf::LadderConf(LadderParamsMap* lpm){
+  //  printf("LadderConf::alternative constructor\n");
+
+  if (_head==nullptr) {
+    _ladders = lpm;
+    _head = this;
+  }
+  else {
+    printf("You should not call this once the singleton has been created once!\n");
+  }
+  
+  return;
+}
 
 void LadderConf::Init(TString filename, bool DEBUG) {
 
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
   int const dimline = 255;
   char line[dimline];
   double dummy;
@@ -68,9 +108,9 @@ void LadderConf::Init(TString filename, bool DEBUG) {
                        params->_nelements - n, filename.Data());
             }
             params->_HwId = 100 * jinfnum + tdrnum;
-            // params->Dump();
-            _ladders.insert(std::pair<int, LadderParams *>(params->_HwId, params));
-            // printf("%lu\n", _ladders.size());
+	    //	    params->Dump();
+            _ladders->GetMap().insert(std::pair<int, LadderParams *>(params->_HwId, params));
+	    //	    printf("%lu\n", _ladders->GetMap().size());
           } else {
             printf("Wrong JINF/TDR (%d, %d): maximum is (%ld,%ld)\n", jinfnum, tdrnum, NJINF, NTDRS);
           }
@@ -86,26 +126,54 @@ void LadderConf::Init(TString filename, bool DEBUG) {
   return;
 }
 
+void LadderConf::Dump(){
+
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
+  //  TObject::Dump();
+  
+  printf("LadderConf::Dump()\n");
+
+  printf("map %p\n", &_ladders);
+  printf("map.size() %d\n", (int)(_ladders->GetMap().size()));
+  
+  std::map<int, LadderParams *>::iterator it;
+
+  for (it = _ladders->GetMap().begin(); it != _ladders->GetMap().end(); it++) {
+    std::cout << it->first    // string (key)
+	      << ':'
+      //	      << it->second   // string's value 
+	      << std::endl;
+    it->second->Dump();
+  }
+  
+  return;
+}
+
 bool LadderConf::GetMultiplicityFlip(int jinfnum, int tdrnum) {
 
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
   int HwId = 100 * jinfnum + tdrnum;
 
   if (IsTDRConfigured(jinfnum, tdrnum))
-    return _ladders[HwId]->_kmultiflip;
+    return _ladders->GetMap()[HwId]->_kmultiflip;
   else
     return false;
 }
 
 bool LadderConf::GetStripMirroring(int jinfnum, int tdrnum, int side) {
 
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
   int HwId = 100 * jinfnum + tdrnum;
 
   if (side == 0) {
     if (IsTDRConfigured(jinfnum, tdrnum))
-      return _ladders[HwId]->_smirror;
+      return _ladders->GetMap()[HwId]->_smirror;
   } else if (side == 1) {
     if (IsTDRConfigured(jinfnum, tdrnum))
-      return _ladders[HwId]->_kmirror;
+      return _ladders->GetMap()[HwId]->_kmirror;
   }
 
   return false;
@@ -113,14 +181,16 @@ bool LadderConf::GetStripMirroring(int jinfnum, int tdrnum, int side) {
 
 double LadderConf::GetPitch(int jinfnum, int tdrnum, int side) {
 
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
   int HwId = 100 * jinfnum + tdrnum;
 
   if (side == 0) {
     if (IsTDRConfigured(jinfnum, tdrnum))
-      return _ladders[HwId]->_spitch;
+      return _ladders->GetMap()[HwId]->_spitch;
   } else if (side == 1) {
     if (IsTDRConfigured(jinfnum, tdrnum))
-      return _ladders[HwId]->_kpitch;
+      return _ladders->GetMap()[HwId]->_kpitch;
   }
 
   return -999.9;
@@ -128,14 +198,16 @@ double LadderConf::GetPitch(int jinfnum, int tdrnum, int side) {
 
 double LadderConf::GetResolution(int jinfnum, int tdrnum, int side) {
 
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
   int HwId = 100 * jinfnum + tdrnum;
 
   if (side == 0) {
     if (IsTDRConfigured(jinfnum, tdrnum))
-      return _ladders[HwId]->_sreso;
+      return _ladders->GetMap()[HwId]->_sreso;
   } else if (side == 1) {
     if (IsTDRConfigured(jinfnum, tdrnum))
-      return _ladders[HwId]->_kreso;
+      return _ladders->GetMap()[HwId]->_kreso;
   }
 
   return -999.9;
@@ -143,76 +215,92 @@ double LadderConf::GetResolution(int jinfnum, int tdrnum, int side) {
 
 int LadderConf::GetBondingType(int jinfnum, int tdrnum) {
 
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
   int HwId = 100 * jinfnum + tdrnum;
 
   if (IsTDRConfigured(jinfnum, tdrnum))
-    return _ladders[HwId]->_bondtype;
+    return _ladders->GetMap()[HwId]->_bondtype;
 
   return 0;
 }
 
 double LadderConf::GetSHiThreshold(int jinfnum, int tdrnum) {
 
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
   int HwId = 100 * jinfnum + tdrnum;
 
   if (IsTDRConfigured(jinfnum, tdrnum))
-    return _ladders[HwId]->_shithresh;
+    return _ladders->GetMap()[HwId]->_shithresh;
 
   return 0;
 }
 
 double LadderConf::GetKHiThreshold(int jinfnum, int tdrnum) {
 
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
   int HwId = 100 * jinfnum + tdrnum;
 
   if (IsTDRConfigured(jinfnum, tdrnum))
-    return _ladders[HwId]->_khithresh;
+    return _ladders->GetMap()[HwId]->_khithresh;
 
   return 0;
 }
 
 double LadderConf::GetSLoThreshold(int jinfnum, int tdrnum) {
 
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
   int HwId = 100 * jinfnum + tdrnum;
 
   if (IsTDRConfigured(jinfnum, tdrnum))
-    return _ladders[HwId]->_slothresh;
+    return _ladders->GetMap()[HwId]->_slothresh;
 
   return 0;
 }
 
 double LadderConf::GetKLoThreshold(int jinfnum, int tdrnum) {
 
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
   int HwId = 100 * jinfnum + tdrnum;
 
   if (IsTDRConfigured(jinfnum, tdrnum))
-    return _ladders[HwId]->_klothresh;
+    return _ladders->GetMap()[HwId]->_klothresh;
 
   return 0;
 }
 
 bool LadderConf::GetSideSwap(int jinfnum, int tdrnum) {
 
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
   int HwId = 100 * jinfnum + tdrnum;
 
   if (IsTDRConfigured(jinfnum, tdrnum))
-    return _ladders[HwId]->_sideswap;
+    return _ladders->GetMap()[HwId]->_sideswap;
   
   return 0;
 }
 
 void LadderConf::PrintLadderParams(int jinfnum, int tdrnum) {
 
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
   int HwId = 100 * jinfnum + tdrnum;
 
   if (IsTDRConfigured(jinfnum, tdrnum))
-    _ladders[HwId]->Dump();
+    _ladders->GetMap()[HwId]->Dump();
 
   return;
 }
 
 bool LadderConf::IsTDRConfigured(int jinfnum, int tdrnum) {
 
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
   int HwId = 100 * jinfnum + tdrnum;
 
   return IsTDRConfigured(HwId);
@@ -220,5 +308,7 @@ bool LadderConf::IsTDRConfigured(int jinfnum, int tdrnum) {
 
 bool LadderConf::IsTDRConfigured(int HwId) {
 
-  return _ladders.find(HwId) != end(_ladders);
+  if (!_head) printf("Please call a \"constructor\" before...\n");
+  
+  return _ladders->GetMap().find(HwId) != end(_ladders->GetMap());
 }

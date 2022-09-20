@@ -9,35 +9,29 @@
 
 #define MAXLENGHT 128
 
-// 110mum and 208mum
-/// now READOUT PITCH
-#define SPITCH 0.220 // 0.110//0.220
-//#define KPITCH 0.208
-#define KPITCH 0.22 // 0.208//0.220  // Viviana: fake K. MD: Ladderconf must override it
-
-// 10mum and 30mum
-#define SRESO 0.030
-//#define KRESO 0.030
-#define KRESO 0.03 // 0.010  // Viviana: fake K. MD: Ladderconf must override it
-
+/* defined by GenericEvent::AddCluster. Numbers by Viviana sostantially ignored...
 // Viviana: originally was 640 and 384 channels
 //#define SCHANN 640
 #define SCHANN 2048 // 4096 // 50cmx50cm sensors
 //#define KCHANN 384
 #define KCHANN 2048 // fake K same 50x50cm sensors
-// MD: we have to make it general
+*/
 
 // https://twiki.cern.ch/twiki/pub/Sandbox/HerdBT/HERDBT_Silicon_detector_details.pdf
 
 #define KREADCHANN 192
 #define KSENSPITCH 41.40
 
+//-------------------------------------------------------------------
+//unused:
 // 715 + 40 + 715 = 1470μm - this is the gap between two sensor on S
 // (the strip conceptually is just one but is the particle passes in this gap is not detected, both on K but also on S)
 #define SGAP 1470
 // 676 + 40 + 676 = 1392μm
 #define KGAP 1392
+//-------------------------------------------------------------------
 
+//unused:
 // 40007 + 1392 (KGAP)
 #define KACTIVE 41399
 
@@ -67,7 +61,17 @@ private:
 
   LadderConf *m_ladderConf; //!
 
+  int SCHANN;//MD: e' una merda, ma non ho trovato di meglio....
+  int KCHANN;//MD: e' una merda, ma non ho trovato di meglio...
+
 public:
+  void SetNChannels(int side, int _channels) {
+    if (side==0)
+      SCHANN=_channels;
+    else
+      KCHANN=_channels; 
+  }
+  
   //! Adress of the first strip of the cluster
   int address;
   //! Nstrips of the clusters
@@ -101,9 +105,7 @@ public:
   double GetNominalResolution(int side);
   static double GetPitch(int jinfnum, int tdrnum, int side);
   static double GetNominalResolution(int jinfnum, int tdrnum, int side);
-  // static double GetPitch(int side){ return (side==0)?SPITCH:KPITCH; };
-  // static double GetNominalResolution(int side){ return (side==0)?SRESO:KRESO; };
-  static int GetNChannels(int side) { return (side == 0) ? SCHANN : KCHANN; };
+  int GetNChannels(int side) { return (side == 0) ? SCHANN : KCHANN; };
 
   //! Get the VA a single strip belongs to from its address
   static int GetVA(int strip_address);
@@ -151,6 +153,8 @@ public:
   //! Apply VA Equalization from the file loaded by the function Event::ReadGainCorrection
   void ApplyVAEqualization();
 
+  //! Returns the position of the cluster (Cog), in mm units
+  double GetPosition(int mult = 0);
   //! Returns the position of the cluster (Cog), in mm units and after alignment
   double GetAlignedPosition(int mult = 0);
   //! Viviana: Returns the position of the cluster (Cog), in mm units and after alignment for MC

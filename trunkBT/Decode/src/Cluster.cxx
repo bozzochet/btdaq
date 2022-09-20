@@ -3,8 +3,6 @@
 #include <cmath>
 #include <string.h>
 
-ClassImp(Cluster);
-
 Cluster::Cluster() {
   address = 0;
   length = 0;
@@ -17,6 +15,8 @@ Cluster::Cluster() {
   golden = 0;
   ladder = -1;
   side = -1;
+  SCHANN=-1;
+  KCHANN=-1;
 }
 
 Cluster::Cluster(Cluster &orig) : TObject(orig) {
@@ -34,6 +34,8 @@ Cluster::Cluster(Cluster &orig) : TObject(orig) {
   }
   bad = orig.bad;
   golden = orig.golden;
+  SCHANN=orig.SCHANN;
+  KCHANN=orig.KCHANN;
 }
 
 void Cluster::Build(int lad, int sid, int add, int len, float *sig, float *noi, int *stat, int Sig2NoiRatio,
@@ -219,8 +221,7 @@ double Cluster::GetPitch(int side) { return GetPitch(GetJinf(), GetTDR(), side);
 double Cluster::GetNominalResolution(int side) { return GetNominalResolution(GetJinf(), GetTDR(), side); };
 
 double Cluster::GetPitch(int jinfnum, int tdrnum, int side) {
-  // printf("Called Cluster::GetPitch(%d, %d, %d) = %lf\n", jinfnum, tdrnum, side,
-  // LadderConf::Instance()->GetPitch(jinfnum, tdrnum, side));
+  //  printf("Called Cluster::GetPitch(%d, %d, %d) = %lf\n", jinfnum, tdrnum, side, LadderConf::Instance()->GetPitch(jinfnum, tdrnum, side));
   return LadderConf::Instance()->GetPitch(jinfnum, tdrnum, side);
 };
 
@@ -244,7 +245,7 @@ void Cluster::ApplyVAEqualization() {
 
 // everything I'm making here is based on the cog but should have been done on the single strip address and only then
 // the cog should have been performed
-double Cluster::GetAlignedPosition(int mult) {
+double Cluster::GetPosition(int mult) {
 
   float cog = GetCoG();
   float cog2 = cog;
@@ -253,13 +254,15 @@ double Cluster::GetAlignedPosition(int mult) {
   float pitchcorr = 0.0;
 
   if (side == 0) { // S
-    // The gaps between 0 and 1 and 638 to 639 are doubled
+    // The gaps between 0 and 1 and 638 to 639 are doubled. MD 17/Sep/2022: most likely true only for AMS-02 sensors...
     if (cog2 >= 0.5)
       pitchcorr += 1.0;
-    if (cog2 >= 638.5)
+    //    if (cog2 >= 638.5)
+    if (cog2 >= GetNChannels(0)-1.5)
       pitchcorr += 1.0;
     if (LadderConf::Instance()->GetStripMirroring(GetJinf(), GetTDR(), side)) {
-      cog2 = 639 - cog2; // If the ladder is mirrored, reverse position
+      //      cog2 = 639 - cog2; // If the ladder is mirrored, reverse position
+      cog2 = (GetNChannels(0)-1) - cog2; // If the ladder is mirrored, reverse position
     }
   } else {                   // K (K5; K7 is not implemented)
     cog2 -= GetNChannels(0); // N channels of S --> cog in [0, 383]
@@ -275,18 +278,28 @@ double Cluster::GetAlignedPosition(int mult) {
     }
     mult_shift = GetSensPitchK() * sensor;
     if (LadderConf::Instance()->GetBondingType(GetJinf(), GetTDR()) != 3) {
-      if (cog2 > 191.5)
-        cog2 -= 192.0; //--> cog in [0, 191]
-      if (cog2 > 190.5)
-        pitchcorr = 0.5; // last strip of the sensor is half pitch more far
+      //      if (cog2 > 191.5)
+      if (cog2 > GetNChannels(1)/2-0.5)
+	//        cog2 -= 192.0; //--> cog in [0, 191]
+	cog2 -= GetNChannels(1);
+      //      if (cog2 > 190.5)
+      if (cog2 > GetNChannels(1)/2-1.5)
+        pitchcorr = 0.5; // last strip of the sensor is half pitch more far. MD 17/Sep/2022: most likely true only for AMS-02 sensors...
     }
     if (LadderConf::Instance()->GetStripMirroring(GetJinf(), GetTDR(), side)) {
-      cog2 = 383 - cog2; // If the ladder is mirrored, reverse position
+      //      cog2 = 383 - cog2; // If the ladder is mirrored, reverse position
+      cog2 = (GetNChannels(1)-1) - cog2; // If the ladder is mirrored, reverse position
     }
   }
 
+  //  printf("%f %f %f %d %f %f\n", GetCoG(), cog2, pitchcorr, side, GetPitch(side), mult_shift);
+  
+  return (cog2 + pitchcorr) * GetPitch(side) + mult_shift;
+}
+
+double Cluster::GetAlignedPosition(int mult) {
   double align_shift = AlignmentPars::Instance()->GetPar(GetJinf(), GetTDR(), side);
-  return (cog2 + pitchcorr) * GetPitch(side) + mult_shift - align_shift;
+  return GetPosition(mult) - align_shift;
 }
 
 // MD: must be a general function, cannot be divided for data and MC

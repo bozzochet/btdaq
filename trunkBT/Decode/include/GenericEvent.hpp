@@ -63,6 +63,8 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::gaincorrectionnotr
 // below [VF]
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GenericEvent() {
+  _eventkind = 0;
+  
   Cls = new TClonesArray("Cluster", NJINF * NTDRS); // if more than NJINFS*NTDRS anyhow the array will be expanded
   Cls->SetOwner();
 
@@ -118,6 +120,8 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::Clear() {
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 Cluster *GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::AddCluster(int Jinfnum, int lad, int side) {
   Cluster *pp = (Cluster *)Cls->New(NClusTot);
+  pp->SetNChannels(0, NCHAVA*NVASS);
+  pp->SetNChannels(1, NCHAVA*NVASK);
   NClus[Jinfnum][lad][side]++;
   NClusTot++;
   return pp;
@@ -447,12 +451,28 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::FindTrackAndFit(in
     }
   }
 
+  /*
+  for (int jinfnum=0; jinfnum<NJINF; jinfnum++) {
+    for (int tdrnum=0; tdrnum<NTDRS; tdrnum++) {
+      printf("JINF: %d, TDR: %d: ", jinfnum, tdrnum);
+      for (int ss=0; ss<(int)(v_cog_laddS[jinfnum][tdrnum].size()); ss++) {
+	printf("(%d, (%f,%f)) ", v_cog_laddS[jinfnum][tdrnum].at(ss).first, v_cog_laddS[jinfnum][tdrnum].at(ss).second.first, v_cog_laddS[jinfnum][tdrnum].at(ss).second.second);
+      }
+      for (int kk=0; kk<(int)(v_cog_laddK[jinfnum][tdrnum].size()); kk++) {
+	printf("(%d, (%f,%f)) ", v_cog_laddK[jinfnum][tdrnum].at(kk).first, v_cog_laddK[jinfnum][tdrnum].at(kk).second.first, v_cog_laddK[jinfnum][tdrnum].at(kk).second.second);
+      }
+      printf("\n");
+    }
+  }
+  */
+
   std::vector<std::pair<int, std::pair<double, double>>>
       vecS; // actually used just for compatibility with the telescopic function
   std::vector<std::pair<int, std::pair<double, double>>>
       vecK; // actually used just for compatibility with the telescopic function
   double chisq = CombinatorialFit(v_cog_laddS, v_cog_laddK, NJINF, NTDRS, vecS, vecK, nptsS, nptsK, verbose);
   //  printf("chisq = %f\n", chisq);
+  //  sleep(10);
 
   bool ret = true;
   if (chisq >= 999999999.9)

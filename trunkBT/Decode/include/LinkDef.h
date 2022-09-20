@@ -4,15 +4,19 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class std::pair < int, std::pair < double, double>> + ;
+#pragma link C++ class std::pair < int, std::pair < double, double > > + ;
+
+#pragma link C++ class LadderParams + ;
+#pragma link C++ class std::map < int, LadderParams* > +;
+#pragma link C++ class LadderParamsMap + ;
 
 #pragma link C++ class Cluster + ;
-#pragma link C++ class RHClass < 1, 24> + ;
+#pragma link C++ class RHClass < 1, 24 > + ;
 //AMS
-#pragma link C++ class GenericEvent < 1, 24, 64, 3, 16, 10> + ;
+#pragma link C++ class GenericEvent < 1, 24, 64, 3, 16, 10 > + ;
 //OCA
-#pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0> + ;
+#pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0 > + ;
 //FOOT
-#pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0> + ;
+#pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0 > + ;
 
 #endif
