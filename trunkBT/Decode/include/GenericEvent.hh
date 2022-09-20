@@ -151,9 +151,13 @@ public:
   void RecombineXY(double);
   // TH2F* h1;
 
-  int GetEvtnum() { return Evtnum;} ;
+  int GetEvtnum() { return Evtnum; };
+
+  int GetEventKind() { return _eventkind; };
   
 private:
+  int _eventkind;
+  
   static bool ladderconfnotread;
   static bool alignmentnotread;
   static bool gaincorrectionnotread;

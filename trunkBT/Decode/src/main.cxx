@@ -324,6 +324,8 @@ int main(int argc, char **argv) {
      	throw std::runtime_error("DecodeData object is not of type DecodeDataAMS nor DecodeDataOCA...");
       }
     }
+    //    LadderConf::Instance()->Dump();
+    t4->GetUserInfo()->Add(LadderConf::Instance()->GetLadderParamsMap());
 
     TObjArray *obj = t4->GetListOfBranches();
     for (int ii = 0; ii < obj->GetEntries(); ii++) {

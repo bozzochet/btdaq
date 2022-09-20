@@ -3,9 +3,6 @@
 using EventAMS = GenericEvent<1, 24, 64, 3, 16, 10>;//MD: the "16" I think should be "10" and the "10" should be "6"
 using RHClassAMS = RHClass<EventAMS::GetNJINF(), EventAMS::GetNTDRS()>;
 
-ClassImp(RHClassAMS);
-ClassImp(EventAMS);
-
 // we can keep everything hardcoded since we define specialized constructors for each flavor
 template <> EventAMS::GenericEvent() {
   Cls = new TClonesArray("Cluster",

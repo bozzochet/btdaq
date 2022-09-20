@@ -8,7 +8,9 @@
 #include "TString.h"
 #include "math.h"
 
-struct LadderParams {
+class LadderParams: public TObject {
+public:
+  
   // HwId is the combination of 2 elements in ladder conf
   // Ladderconf version 0 has  9 _nelements
   // Ladderconf version 1 has 10 _nelements
@@ -30,6 +32,7 @@ struct LadderParams {
   bool _sideswap;
 
   void Dump() {
+    printf("-----------------------------------------\n");
     std::cout << "HwID       = " << _HwId << std::endl;
     std::cout << "spitch     = " << _spitch << std::endl;
     std::cout << "kpitch     = " << _kpitch << std::endl;
@@ -44,45 +47,62 @@ struct LadderParams {
     std::cout << "slothresh  = " << _slothresh << std::endl;
     std::cout << "klothresh  = " << _slothresh << std::endl;
     std::cout << "sideswap   = " << _sideswap << std::endl;
+    printf("-----------------------------------------\n");
   }
+
+  ClassDef(LadderParams, 2)
 };
 
-class LadderConf {
+class LadderParamsMap: public TObject {
 public:
-  static LadderConf *Instance() {
-    static LadderConf instance;
-    return &instance;
-  };
+  std::map< int, LadderParams* > & GetMap() { return _ladders; };
+  
+private:
+  std::map< int, LadderParams* > _ladders;
+
+  ClassDef(LadderParamsMap, 2)
+};
+
+class LadderConf: public TObject {
+public:
+  static LadderConf *Instance();
   ~LadderConf();
 
-  void Init(TString conffilename = "ladderconf.dat", bool DEBUG = false);
-  void InitSize(size_t nJinf, size_t nTdrs) {
+  static void Init(TString conffilename = "ladderconf.dat", bool DEBUG = false);
+  static void InitSize(size_t nJinf, size_t nTdrs) {
     NJINF = nJinf;
     NTDRS = nTdrs;
   }
 
-  bool GetMultiplicityFlip(int jinfnum, int tdrnum);
-  bool GetStripMirroring(int jinfnum, int tdrnum, int side);
-  double GetPitch(int jinfnum, int tdrnum, int side);
-  double GetResolution(int jinfnum, int tdrnum, int side);
-  int GetBondingType(int jinfnum, int tdrnum);
-  double GetSHiThreshold(int jinfnum, int tdrnum);
-  double GetKHiThreshold(int jinfnum, int tdrnum);
-  double GetSLoThreshold(int jinfnum, int tdrnum);
-  double GetKLoThreshold(int jinfnum, int tdrnum);
-  bool GetSideSwap(int jinfnum, int tdrnum);
+  static bool GetMultiplicityFlip(int jinfnum, int tdrnum);
+  static bool GetStripMirroring(int jinfnum, int tdrnum, int side);
+  static double GetPitch(int jinfnum, int tdrnum, int side);
+  static double GetResolution(int jinfnum, int tdrnum, int side);
+  static int GetBondingType(int jinfnum, int tdrnum);
+  static double GetSHiThreshold(int jinfnum, int tdrnum);
+  static double GetKHiThreshold(int jinfnum, int tdrnum);
+  static double GetSLoThreshold(int jinfnum, int tdrnum);
+  static double GetKLoThreshold(int jinfnum, int tdrnum);
+  static bool GetSideSwap(int jinfnum, int tdrnum);
 
-  bool IsTDRConfigured(int jinfnum, int tdrnum);
-  bool IsTDRConfigured(int HwId);
+  static bool IsTDRConfigured(int jinfnum, int tdrnum);
+  static bool IsTDRConfigured(int HwId);
 
-  void PrintLadderParams(int jinfnum, int tdrnum);
+  static void PrintLadderParams(int jinfnum, int tdrnum);
 
+  void Dump();
+
+  LadderParamsMap* GetLadderParamsMap() const { return _ladders; };
+
+  LadderConf(LadderParamsMap* lpm);
+  
 private:
+  static LadderConf* _head;
   LadderConf();
-  std::map<int, LadderParams *> _ladders;
+  static LadderParamsMap* _ladders;//!
 
-  size_t NJINF;
-  size_t NTDRS;
+  static size_t NJINF;
+  static size_t NTDRS;
 };
 
 #endif
