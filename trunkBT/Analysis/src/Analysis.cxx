@@ -18,6 +18,7 @@
 
 /* from the 'Decode' API */
 #include "GenericEvent.hpp"
+#include "LadderConf.hh"
 /* end */
 
 /* from the CommonTool dir */
@@ -47,7 +48,7 @@ int ProcessChain(TChain* ch, TString output_filename);
 template <class Event, class RH>
 void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain);
 template <class Event, class RH>
-void FillAllHistos(TObjArray* histos, int NClusTot, int index_event);
+void FillAllHistos(TObjArray* histos, int NClusTot, Event* ev, int index_event);
 template <class Event, class RH>
 void FillCleanHistos(TObjArray* histos, int NClusTot, Event* ev, int index_event);
 template <class Event, class RH>
@@ -122,8 +123,8 @@ int ProcessChain(TChain* chain, TString output_filename){
   static constexpr int NVAS = Event::GetNVAS();
   static constexpr int NCHAVA = Event::GetNCHAVA();
   static constexpr int NADCS = Event::GetNADCS();
-  
-  Event* ev = new Event();
+
+  Event* ev = NULL;
   //  Cluster *cl;
   
   Long64_t entries = chain->GetEntries();
@@ -132,6 +133,8 @@ int ProcessChain(TChain* chain, TString output_filename){
 
   chain->SetBranchAddress("cluster_branch", &ev);
   chain->GetEntry(0);
+  printf("ev->GetEventKind() = %d\n", ev->GetEventKind());
+  LadderConf* ladderconf = ut->GetLadderConf(chain);
   
   int _maxtdr = NJINF*NTDRS;
   
@@ -207,7 +210,7 @@ int ProcessChain(TChain* chain, TString output_filename){
     int NClusTot = ev->GetNClusTot();
     //    printf("\t\tnclusters = %d\n", NClusTot);
 
-    FillAllHistos<Event, RH>(histos, NClusTot, index_event);
+    FillAllHistos<Event, RH>(histos, NClusTot, ev, index_event);
     
     //at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
     //and at most 100 (to avoid too much noise around and too much combinatorial)
@@ -221,7 +224,7 @@ int ProcessChain(TChain* chain, TString output_filename){
     FillCleanHistos<Event, RH>(histos, NClusTot, ev, index_event);
     
     //    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 3, 3, 0, 0);//valid for TIC TB?
-    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 200, 50, 50, 0, 0);
+    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 10, 10, 0, 0);
     if (!preselevent) continue;
     preselevs++;
 
@@ -268,7 +271,7 @@ int ProcessChain(TChain* chain, TString output_filename){
     // printf("K %d %d %d %d\n", ev->IsTDRInTrack(1, 20)?1:0, ev->IsTDRInTrack(1, 22)?1:0, ev->IsTDRInTrack(1, 22)?1:0, ev->IsTDRInTrack(1, 23)?1:0);
 
     double logchi = log10(ev->GetChiTrack());
-    if (logchi>6) continue;
+    if (logchi>10) continue;
     goodtracks++;
     
     bool strackok = false;
@@ -354,22 +357,30 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
   static constexpr int NJINF = Event::GetNJINF();
   static constexpr int NTDRS = Event::GetNTDRS();
   static constexpr int NVAS = Event::GetNVAS();
+  static constexpr int NVASS = Event::GetNVASS();
+  static constexpr int NVASK = Event::GetNVASK();
   static constexpr int NCHAVA = Event::GetNCHAVA();
   static constexpr int NADCS = Event::GetNADCS();
   
-  int NSTRIPSS=Cluster::GetNChannels(0);
-  int NSTRIPSK=Cluster::GetNChannels(1);
+  // int NSTRIPSS=Cluster::GetNChannels(0);
+  // int NSTRIPSK=Cluster::GetNChannels(1);
+  int NSTRIPSS=NCHAVA*NVASS;
+  int NSTRIPSK=NCHAVA*NVASK;
 
   //all events
-  TH2F* hclus_vs_event = new TH2F("hclus_vs_event", "hclus_vs_event;Event Number;Clusters", entries, 0, entries, 1000, 0, 1000);
+  TH1F* hclus_vs_event = new TH1F("hclus_vs_event", "hclus_vs_event;Event Number;Clusters", entries, 0, entries);
   histos->Add(hclus_vs_event);
   TH1F* hclus = new TH1F("hclus", "hclus;Clusters;Entries", 1000, 0, 1000);
   histos->Add(hclus);
+  TH2F* hclusSladd_vs_event = new TH2F("hclusSladd_vs_event", "hclusSladd_vs_event;Event Number;Ladder;Clusters", entries, 0, entries, NJINF*NTDRS, 0, NJINF*NTDRS);
+  histos->Add(hclusSladd_vs_event);
+  TH2F* hclusKladd_vs_event = new TH2F("hclusKladd_vs_event", "hclusKladd_vs_event;Event Number;Ladder;Clusters", entries, 0, entries, NJINF*NTDRS, 0, NJINF*NTDRS);
+  histos->Add(hclusKladd_vs_event);
 
   //----------------------------------------------------------------------------
-
+  
   //clean events
-  TH2F* hclus_vs_event_clean = new TH2F("hclus_vs_event_clean", "hclus_vs_event;Event Number;Clusters", entries, 0, entries, 1000, 0, 1000);
+  TH1F* hclus_vs_event_clean = new TH1F("hclus_vs_event_clean", "hclus_vs_event;Event Number;Clusters", entries, 0, entries);
   histos->Add(hclus_vs_event_clean);
   TH1F* hclus_clean = new TH1F("hclus_clean", "hclus_clean;Clusters;Entries", 1000, 0, 1000);
   histos->Add(hclus_clean);
@@ -377,11 +388,15 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
   histos->Add(hclusSladd_clean);
   TH1F* hclusKladd_clean = new TH1F("hclusKladd_clean", "hclusKladd_clean;Ladder;Clusters_{K}", 24, 0, 24);//total per ladder
   histos->Add(hclusKladd_clean);
-
+  TH2F* hclusSladd_vs_event_clean = new TH2F("hclusSladd_vs_event_clean", "hclusSladd_vs_event_clean;Event Number;Ladder;Clusters", entries, 0, entries, NJINF*NTDRS, 0, NJINF*NTDRS);
+  histos->Add(hclusSladd_vs_event_clean);
+  TH2F* hclusKladd_vs_event_clean = new TH2F("hclusKladd_vs_event_clean", "hclusKladd_vs_event_clean;Event Number;Ladder;Clusters", entries, 0, entries, NJINF*NTDRS, 0, NJINF*NTDRS);
+  histos->Add(hclusKladd_vs_event_clean);
+  
   //----------------------------------------------------------------------------
 
   //presel events
-  TH2F* hclus_vs_event_presel = new TH2F("hclus_vs_event_presel", "hclus_vs_event;Event Number;Clusters", entries, 0, entries, 1000, 0, 1000);
+  TH1F* hclus_vs_event_presel = new TH1F("hclus_vs_event_presel", "hclus_vs_event;Event Number;Clusters", entries, 0, entries);
   histos->Add(hclus_vs_event_presel);
   TH1F* hclus_presel = new TH1F("hclus_presel", "hclus_presel;Clusters;Entries", 1000, 0, 1000);
   histos->Add(hclus_presel);
@@ -389,50 +404,69 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
   histos->Add(hclusSladd_presel);
   TH1F* hclusKladd_presel = new TH1F("hclusKladd_presel", "hclusKladd_presel;Ladder;Clusters_{K}", 24, 0, 24);//total per ladder
   histos->Add(hclusKladd_presel);
-
+  TH2F* hclusSladd_vs_event_presel = new TH2F("hclusSladd_vs_event_presel", "hclusSladd_vs_event_presel;Event Number;Ladder;Clusters", entries, 0, entries, NJINF*NTDRS, 0, NJINF*NTDRS);
+  histos->Add(hclusSladd_vs_event_presel);
+  TH2F* hclusKladd_vs_event_presel = new TH2F("hclusKladd_vs_event_presel", "hclusKladd_vs_event_presel;Event Number;Ladder;Clusters", entries, 0, entries, NJINF*NTDRS, 0, NJINF*NTDRS);
+  histos->Add(hclusKladd_vs_event_presel);
 
   //----------------------------------------------------------------------------
   
   // good tracks
-  TH1F* chi = new TH1F("chi", "chi;log10(#chi^{2});Entries", 1000, -5, 10);
-  histos->Add(chi);
-  TH1F* theta = new TH1F("theta", "theta;#theta (rad);Entries", 10000, -1.0, 1.0);
-  histos->Add(theta);
-  TH1F* phi = new TH1F("phi", "phi;#phi (rad);Entries", 1000, -TMath::Pi(), TMath::Pi());
-  histos->Add(phi);
-  TH2F* thetaphi = new TH2F("thetaphi", "thetaphi;#theta (rad);#phi (rad);Entries", 10000, -1.0, 1.0, 1000, -TMath::Pi(), TMath::Pi());
-  histos->Add(thetaphi);
-  TH1F* X0 = new TH1F("X0", "X0;X_{Z=0} (mm);Entries", 1000, -100, 100);
-  histos->Add(X0);
-  TH1F* Y0 = new TH1F("Y0", "Y0;Y_{Z=0} (mm);Entries", 1000, -100, 100);
-  histos->Add(Y0);
-  TH2F* X0Y0 = new TH2F("X0Y0", "X0Y0;X_{Z=0} (mm);Y_{Z=0} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
-  histos->Add(X0Y0);
-  TH1F* X0TARGETDET = new TH1F("X0TARGETDET", "X0TARGETDET;X_{Z=TARGETDET} (mm);Entries", 1000, -100, 100);
-  histos->Add(X0TARGETDET);
-  TH1F* Y0TARGETDET = new TH1F("Y0TARGETDET", "Y0TARGETDET;Y_{Z=TARGETDET} (mm);Entries", 1000, -100, 100);
-  histos->Add(Y0TARGETDET);
-  TH2F* X0Y0TARGETDET = new TH2F("X0Y0TARGETDET", "X0Y0TARGETDET;X_{Z=TARGETDET} (mm);Y_{Z=TARGETDET} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
-  histos->Add(X0Y0TARGETDET);
+  TH1F* chi_good = new TH1F("chi_good", "chi;log10(#chi^{2});Entries", 1000, -5, 10);
+  histos->Add(chi_good);
+  TH1F* theta_good = new TH1F("theta_good", "theta;#theta (rad);Entries", 10000, -1.0, 1.0);
+  histos->Add(theta_good);
+  TH1F* phi_good = new TH1F("phi_good", "phi;#phi (rad);Entries", 1000, -TMath::Pi(), TMath::Pi());
+  histos->Add(phi_good);
+  TH2F* thetaphi_good = new TH2F("thetaphi_good", "thetaphi;#theta (rad);#phi (rad);Entries", 10000, -1.0, 1.0, 1000, -TMath::Pi(), TMath::Pi());
+  histos->Add(thetaphi_good);
+  TH1F* X0_good = new TH1F("X0_good", "X0;X_{Z=0} (mm);Entries", 1000, -100, 100);
+  histos->Add(X0_good);
+  TH1F* Y0_good = new TH1F("Y0_good", "Y0;Y_{Z=0} (mm);Entries", 1000, -100, 100);
+  histos->Add(Y0_good);
+  TH2F* X0Y0_good = new TH2F("X0Y0_good", "X0Y0;X_{Z=0} (mm);Y_{Z=0} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
+  histos->Add(X0Y0_good);
+  TH1F* X0TARGETDET_good = new TH1F("X0TARGETDET_good", "X0TARGETDET;X_{Z=TARGETDET} (mm);Entries", 1000, -100, 100);
+  histos->Add(X0TARGETDET_good);
+  TH1F* Y0TARGETDET_good = new TH1F("Y0TARGETDET_good", "Y0TARGETDET;Y_{Z=TARGETDET} (mm);Entries", 1000, -100, 100);
+  histos->Add(Y0TARGETDET_good);
+  TH2F* X0Y0TARGETDET_good = new TH2F("X0Y0TARGETDET_good", "X0Y0TARGETDET;X_{Z=TARGETDET} (mm);Y_{Z=TARGETDET} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
+  histos->Add(X0Y0TARGETDET_good);
   
-  TH1F* hclus_goodtracks = new TH1F("hclus_goodtracks", "hclus_goodtracks;Clusters;Entries", 1000, 0, 1000);
-  histos->Add(hclus_goodtracks);
-
+  TH1F* hclus_good = new TH1F("hclus_good", "hclus_good;Clusters;Entries", 1000, 0, 1000);
+  histos->Add(hclus_good);
+  
   // also for clusters not used in tracks
   TH1F* occupancy[NJINF*NTDRS];
-  TH1F* occupancy_posS[NJINF*NTDRS];
-  TH1F* occupancy_posK[NJINF*NTDRS];
+  TH1F* occupancy_posX[NJINF*NTDRS];
+  TH1F* occupancy_posY[NJINF*NTDRS];
   for (int tt=0; tt<_maxtdr; tt++) {
     int jinfnum = 0;
     int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
-    double pitchS = std::max(Cluster::GetPitch(jinfnum, tdrnum, 0), 0.01);
-    double pitchK = std::max(Cluster::GetPitch(jinfnum, tdrnum, 1), 0.01);
+    double pitchS = std::max(LadderConf::GetPitch(jinfnum, tdrnum, 0), 0.01);
+    double pitchK = std::max(LadderConf::GetPitch(jinfnum, tdrnum, 1), 0.01);
+    double pitchX = pitchS;
+    double pitchY = pitchK;
+    int nstripsX = NSTRIPSS;
+    int nstripsY = NSTRIPSK;
+    if (LadderConf::GetSideSwap(jinfnum, tdrnum)) {
+      pitchX = pitchK;
+      pitchY = pitchS;
+      nstripsX = NSTRIPSK;
+      nstripsY = NSTRIPSS;
+    }
+    //    printf("%d) %f %f -> %f %f\n", tdrnum, Cluster::GetPitch(jinfnum, tdrnum, 0), Cluster::GetPitch(jinfnum, tdrnum, 1), pitchS, pitchK);
+    //    printf("%d %d\n", NSTRIPSS, NSTRIPSK);
     occupancy[tt] = new TH1F(Form("occupancy_0_%02d", tdrnum), Form("occupancy_0_%02d;Channel number;Occupancy", tdrnum), 1024, 0, 1024);
     histos->Add(occupancy[tt]);
-    occupancy_posS[tt] = new TH1F(Form("occupancy_posS_0_%02d", tdrnum), Form("occupancy_posS_0_%02d;Position_{S} (mm);Occupancy", tdrnum), 2*NSTRIPSS, -NSTRIPSS*pitchS, NSTRIPSS*pitchS);
-    histos->Add(occupancy_posS[tt]);
-    occupancy_posK[tt] = new TH1F(Form("occupancy_posK_0_%02d", tdrnum), Form("occupancy_posK_0_%02d;Position_{K} (mm);Occupancy", tdrnum), 2*NSTRIPSK, -NSTRIPSK*pitchK, NSTRIPSK*pitchK);
-    histos->Add(occupancy_posK[tt]);
+    if (nstripsX>0) {
+      occupancy_posX[tt] = new TH1F(Form("occupancy_posX_0_%02d", tdrnum), Form("occupancy_posX_0_%02d;Position_{X} (mm);Occupancy", tdrnum), 2*nstripsX, -nstripsX*pitchX, nstripsX*pitchX);
+      histos->Add(occupancy_posX[tt]);
+    }
+    if (nstripsY>0) {
+      occupancy_posY[tt] = new TH1F(Form("occupancy_posY_0_%02d", tdrnum), Form("occupancy_posY_0_%02d;Position_{Y} (mm);Occupancy", tdrnum), 2*nstripsY, -nstripsY*pitchY, nstripsY*pitchY);
+      histos->Add(occupancy_posY[tt]);
+    }
   }
   TH1F* hclusSladd_good = new TH1F("hclusSladd_good", "hclusSladd_good;Ladder;Clusters_{S}", 24, 0, 24);//total per ladder
   histos->Add(hclusSladd_good);
@@ -443,12 +477,10 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
   TH1F* hclusKladd_good_ontrack = new TH1F("hclusKladd_good_ontrack", "hclusKladd_good_ontrack;Ladder;Clusters_{K,OnTrack}", 24, 0, 24);
   histos->Add(hclusKladd_good_ontrack);
 
-  histos->Add(hclusKladd_good);
-
   //only for clusters used in tracks
   TH1F* occupancy_ontrack[NJINF*NTDRS];
-  TH1F* occupancy_ontrack_posS[NJINF*NTDRS];
-  TH1F* occupancy_ontrack_posK[NJINF*NTDRS];
+  TH1F* occupancy_ontrack_posX[NJINF*NTDRS];
+  TH1F* occupancy_ontrack_posY[NJINF*NTDRS];
   TH1F* chargeS[NJINF*NTDRS];
   TH1F* chargeK[NJINF*NTDRS];
   TH2F* charge2D[NJINF*NTDRS];
@@ -458,14 +490,28 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
   for (int tt=0; tt<_maxtdr; tt++) {
     int jinfnum = 0;
     int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
-    double pitchS = std::max(Cluster::GetPitch(jinfnum, tdrnum, 0), 0.01);
-    double pitchK = std::max(Cluster::GetPitch(jinfnum, tdrnum, 1), 0.01);
+    double pitchS = std::max(LadderConf::GetPitch(jinfnum, tdrnum, 0), 0.01);
+    double pitchK = std::max(LadderConf::GetPitch(jinfnum, tdrnum, 1), 0.01);
+    double pitchX = pitchS;
+    double pitchY = pitchK;
+    int nstripsX = NSTRIPSS;
+    int nstripsY = NSTRIPSK;
+    if (LadderConf::GetSideSwap(jinfnum, tdrnum)) {
+      pitchX = pitchK;
+      pitchY = pitchS;
+      nstripsX = NSTRIPSK;
+      nstripsY = NSTRIPSS;
+    }
     occupancy_ontrack[tt] = new TH1F(Form("occupancy_ontrack_0_%02d", tdrnum), Form("occupancy_ontrack_0_%02d;Channel number;Occupancy", tdrnum), 1024, 0, 1024);
     histos->Add(occupancy_ontrack[tt]);
-    occupancy_ontrack_posS[tt] = new TH1F(Form("occupancy_ontrack_posS_0_%02d", tdrnum), Form("occupancy_ontrack_posS_0_%02d;Position_{S} (mm);Occupancy", tdrnum), 2*NSTRIPSS, -NSTRIPSS*pitchS, NSTRIPSS*pitchS);
-    histos->Add(occupancy_ontrack_posS[tt]);
-    occupancy_ontrack_posK[tt] = new TH1F(Form("occupancy_ontrack_posK_0_%02d", tdrnum), Form("occupancy_ontrack_posK_0_%02d;Position_{K} (mm);Occupancy", tdrnum), 2*NSTRIPSK, -NSTRIPSK*pitchK, NSTRIPSK*pitchK);
-    histos->Add(occupancy_ontrack_posK[tt]);
+    if (nstripsX>0) {
+      occupancy_ontrack_posX[tt] = new TH1F(Form("occupancy_ontrack_posX_0_%02d", tdrnum), Form("occupancy_ontrack_posX_0_%02d;Position_{X} (mm);Occupancy", tdrnum), 2*nstripsX, -nstripsX*pitchX, nstripsX*pitchX);
+      histos->Add(occupancy_ontrack_posX[tt]);
+    }
+    if (nstripsY>0) {
+      occupancy_ontrack_posY[tt] = new TH1F(Form("occupancy_ontrack_posY_0_%02d", tdrnum), Form("occupancy_ontrack_posY_0_%02d;Position_{Y} (mm);Occupancy", tdrnum), 2*nstripsY, -nstripsY*pitchY, nstripsY*pitchY);
+      histos->Add(occupancy_ontrack_posY[tt]);
+    }
     chargeS[tt] = new TH1F(Form("chargeS_0_%02d", tdrnum), Form("chargeS_0_%02d;Q_{S} (c.u.);Entries", tdrnum), 1000, 0, 100);
     histos->Add(chargeS[tt]);
     chargeK[tt] = new TH1F(Form("chargeK_0_%02d", tdrnum), Form("chargeK_0_%02d;Q_{K} (c.u.);Entries", tdrnum), 1000, 0, 100);
@@ -482,6 +528,28 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
   
   //----------------------------------------------------------------------------
 
+  // gold tracks (S, K or S&K)
+  TH1F* chi_gold = new TH1F("chi_gold", "chi;log10(#chi^{2});Entries", 1000, -5, 10);
+  histos->Add(chi_gold);
+  TH1F* theta_gold = new TH1F("theta_gold", "theta;#theta (rad);Entries", 10000, -1.0, 1.0);
+  histos->Add(theta_gold);
+  TH1F* phi_gold = new TH1F("phi_gold", "phi;#phi (rad);Entries", 1000, -TMath::Pi(), TMath::Pi());
+  histos->Add(phi_gold);
+  TH2F* thetaphi_gold = new TH2F("thetaphi_gold", "thetaphi;#theta (rad);#phi (rad);Entries", 10000, -1.0, 1.0, 1000, -TMath::Pi(), TMath::Pi());
+  histos->Add(thetaphi_gold);
+  TH1F* X0_gold = new TH1F("X0_gold", "X0;X_{Z=0} (mm);Entries", 1000, -100, 100);
+  histos->Add(X0_gold);
+  TH1F* Y0_gold = new TH1F("Y0_gold", "Y0;Y_{Z=0} (mm);Entries", 1000, -100, 100);
+  histos->Add(Y0_gold);
+  TH2F* X0Y0_gold = new TH2F("X0Y0_gold", "X0Y0;X_{Z=0} (mm);Y_{Z=0} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
+  histos->Add(X0Y0_gold);
+  TH1F* X0TARGETDET_gold = new TH1F("X0TARGETDET_gold", "X0TARGETDET;X_{Z=TARGETDET} (mm);Entries", 1000, -100, 100);
+  histos->Add(X0TARGETDET_gold);
+  TH1F* Y0TARGETDET_gold = new TH1F("Y0TARGETDET_gold", "Y0TARGETDET;Y_{Z=TARGETDET} (mm);Entries", 1000, -100, 100);
+  histos->Add(Y0TARGETDET_gold);
+  TH2F* X0Y0TARGETDET_gold = new TH2F("X0Y0TARGETDET_gold", "X0Y0TARGETDET;X_{Z=TARGETDET} (mm);Y_{Z=TARGETDET} (mm);Entries", 1000, -100, 100, 1000, -100, 100);
+  histos->Add(X0Y0TARGETDET_gold);
+  
   // gold tracks (S, K or S&K) and only for clusters used in tracks
 
   TH1F* hclusSladd_gold = new TH1F("hclusSladd_gold", "hclusSladd_gold;Ladder;Clusters_{S}", 24, 0, 24);//total per ladder
@@ -493,34 +561,71 @@ void BookHistos(TObjArray* histos, Long64_t entries, int _maxtdr, TChain* chain)
   TH1F* hclusKladd_gold_ontrack = new TH1F("hclusKladd_gold_ontrack", "hclusKladd_gold_ontrack;Ladder;Clusters_{K,OnTrack}", 24, 0, 24);
   histos->Add(hclusKladd_gold_ontrack);
   
-  TH1F* residual_S[NJINF*NTDRS];
-  TH1F* residual_K[NJINF*NTDRS];
+  TH1F* residual_X[NJINF*NTDRS];
+  TH1F* residual_Y[NJINF*NTDRS];
   for (int tt=0; tt<_maxtdr; tt++) {
     int jinfnum = 0;
     int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
-    double pitchS = std::max(Cluster::GetPitch(jinfnum, tdrnum, 0), 0.01);
-    double pitchK = std::max(Cluster::GetPitch(jinfnum, tdrnum, 1), 0.01);
-    residual_S[tt] = new TH1F(Form("residual_S_0_%02d", tdrnum), Form("residual_S_0_%02d;Residual_{S} (mm);Entries", tdrnum),
-			      2*NSTRIPSS, -float(NSTRIPSS)/100.*pitchS, float(NSTRIPSS)/100.*pitchS);
-    histos->Add(residual_S[tt]);
-    residual_K[tt] = new TH1F(Form("residual_K_0_%02d", tdrnum), Form("residual_K_0_%02d;Residual_{K} (mm);Entries", tdrnum),
-			      40*NSTRIPSK, -20*float(NSTRIPSK)/100.*pitchK, 20*float(NSTRIPSK)/100.*pitchK);
-    histos->Add(residual_K[tt]);
+    double pitchS = std::max(LadderConf::GetPitch(jinfnum, tdrnum, 0), 0.01);
+    double pitchK = std::max(LadderConf::GetPitch(jinfnum, tdrnum, 1), 0.01);
+    double pitchX = pitchS;
+    double pitchY = pitchK;
+    int nstripsX = NSTRIPSS;
+    int nstripsY = NSTRIPSK;
+    if (LadderConf::GetSideSwap(jinfnum, tdrnum)) {
+      pitchX = pitchK;
+      pitchY = pitchS;
+      nstripsX = NSTRIPSK;
+      nstripsY = NSTRIPSS;
+    }
+    if (nstripsX>0) {
+      residual_X[tt] = new TH1F(Form("residual_X_0_%02d", tdrnum), Form("residual_X_0_%02d;Residual_{X} (mm);Entries", tdrnum),
+				2*nstripsX, -float(nstripsX)/100.*pitchX, float(nstripsX)/100.*pitchX);
+      histos->Add(residual_X[tt]);
+    }
+    if (nstripsY>0) {
+      residual_Y[tt] = new TH1F(Form("residual_Y_0_%02d", tdrnum), Form("residual_Y_0_%02d;Residual_{Y} (mm);Entries", tdrnum),
+				40*nstripsY, -20*float(nstripsY)/100.*pitchY, 20*float(nstripsY)/100.*pitchY);
+      histos->Add(residual_Y[tt]);
+    }
   }
-
+  
   //----------------------------------------------------------------------------
   
   return;
 }
 
 template <class Event, class RH>
-void FillAllHistos(TObjArray* histos, int NClusTot, int index_event){
+void FillAllHistos(TObjArray* histos, int NClusTot, Event* ev, int index_event){
 
+  Cluster *cl;
+  
   TH1* hclus = (TH1*)(histos->FindObject("hclus"));
   TH1* hclus_vs_event = (TH1*)(histos->FindObject("hclus_vs_event"));
+  TH2* hclusSladd_vs_event = (TH2*)(histos->FindObject("hclusSladd_vs_event"));
+  TH2* hclusKladd_vs_event = (TH2*)(histos->FindObject("hclusKladd_vs_event"));
   
   hclus->Fill(NClusTot);
   hclus_vs_event->Fill(index_event, NClusTot);
+
+  for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
+    
+    cl = ev->GetCluster(index_cluster);      
+    int ladder = cl->ladder;
+    //      printf("%d --> %d\n", ladder, ut->GetRH(chain)->FindPos(ladder));
+    int jinfnum = cl->GetJinf();
+    int tdrnum = cl->GetTDR();
+    int side=cl->side;
+    double charge=cl->GetCharge();//unused for now
+    //    printf("%d %d) %d %d\n", jinfnum, tdrnum, side, LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum));
+    
+    if (side==0 || (side==1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
+      hclusSladd_vs_event->Fill(index_event, ladder);
+    }
+    else {
+      hclusKladd_vs_event->Fill(index_event, ladder);
+    }
+  }
   
   return;
 }
@@ -534,6 +639,8 @@ void FillCleanHistos(TObjArray* histos, int NClusTot, Event* ev, int index_event
   TH1* hclus_vs_event_clean = (TH1*)(histos->FindObject("hclus_vs_event_clean"));
   TH1* hclusSladd_clean = (TH1*)(histos->FindObject("hclusSladd_clean"));
   TH1* hclusKladd_clean = (TH1*)(histos->FindObject("hclusKladd_clean"));
+  TH2* hclusSladd_vs_event_clean = (TH2*)(histos->FindObject("hclusSladd_vs_event_clean"));
+  TH2* hclusKladd_vs_event_clean = (TH2*)(histos->FindObject("hclusKladd_vs_event_clean"));
   
   hclus_clean->Fill(NClusTot);
   hclus_vs_event_clean->Fill(index_event, NClusTot);
@@ -543,14 +650,18 @@ void FillCleanHistos(TObjArray* histos, int NClusTot, Event* ev, int index_event
     cl = ev->GetCluster(index_cluster);      
     int ladder = cl->ladder;
     //      printf("%d --> %d\n", ladder, ut->GetRH(chain)->FindPos(ladder));
+    int jinfnum = cl->GetJinf();
+    int tdrnum = cl->GetTDR();
     int side=cl->side;
     double charge=cl->GetCharge();//unused for now
-    
-    if (side==0) {
+
+    if (side==0 || (side==1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
       hclusSladd_clean->Fill(ladder);
+      hclusSladd_vs_event_clean->Fill(index_event, ladder);
     }
     else {
       hclusKladd_clean->Fill(ladder);
+      hclusKladd_vs_event_clean->Fill(index_event, ladder);
     }
   }
   
@@ -566,23 +677,29 @@ void FillPreselHistos(TObjArray* histos, int NClusTot, Event* ev, int index_even
   TH1* hclus_vs_event_presel = (TH1*)(histos->FindObject("hclus_vs_event_presel"));
   TH1* hclusSladd_presel = (TH1*)(histos->FindObject("hclusSladd_presel"));
   TH1* hclusKladd_presel = (TH1*)(histos->FindObject("hclusKladd_presel"));
+  TH2* hclusSladd_vs_event_presel = (TH2*)(histos->FindObject("hclusSladd_vs_event_presel"));
+  TH2* hclusKladd_vs_event_presel = (TH2*)(histos->FindObject("hclusKladd_vs_event_presel"));
   
   hclus_presel->Fill(NClusTot);
   hclus_vs_event_presel->Fill(index_event, NClusTot);
 
   for (int index_cluster=0; index_cluster<NClusTot; index_cluster++) {
     
-    cl = ev->GetCluster(index_cluster);      
+    cl = ev->GetCluster(index_cluster);
     int ladder = cl->ladder;
     //      printf("%d --> %d\n", ladder, ut->GetRH(chain)->FindPos(ladder));
+    int jinfnum = cl->GetJinf();
+    int tdrnum = cl->GetTDR();
     int side=cl->side;
     double charge=cl->GetCharge();//unused for now
-    
-    if (side==0) {
+
+    if (side==0 || (side==1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
       hclusSladd_presel->Fill(ladder);
+      hclusSladd_vs_event_presel->Fill(index_event, ladder);
     }
     else {
       hclusKladd_presel->Fill(ladder);
+      hclusKladd_vs_event_presel->Fill(index_event, ladder);
     }
   }
   
@@ -603,28 +720,28 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
   static constexpr int NCHAVA = Event::GetNCHAVA();
   static constexpr int NADCS = Event::GetNADCS();
   
-  TH1* chi = (TH1*)(histos->FindObject("chi"));
-  TH1* theta = (TH1*)(histos->FindObject("theta"));
-  TH1* phi = (TH1*)(histos->FindObject("phi"));
-  TH2* thetaphi = (TH2*)(histos->FindObject("thetaphi"));
-  TH1* X0 = (TH1*)(histos->FindObject("X0"));
-  TH1* Y0 = (TH1*)(histos->FindObject("Y0"));
-  TH2* X0Y0 = (TH2*)(histos->FindObject("X0Y0"));
-  TH1* X0TARGETDET = (TH1*)(histos->FindObject("X0TARGETDET"));
-  TH1* Y0TARGETDET = (TH1*)(histos->FindObject("Y0TARGETDET"));
-  TH2* X0Y0TARGETDET = (TH2*)(histos->FindObject("X0Y0TARGETDET"));
+  TH1* chi_good = (TH1*)(histos->FindObject("chi_good"));
+  TH1* theta_good = (TH1*)(histos->FindObject("theta_good"));
+  TH1* phi_good = (TH1*)(histos->FindObject("phi_good"));
+  TH2* thetaphi_good = (TH2*)(histos->FindObject("thetaphi_good"));
+  TH1* X0_good = (TH1*)(histos->FindObject("X0_good"));
+  TH1* Y0_good = (TH1*)(histos->FindObject("Y0_good"));
+  TH2* X0Y0_good = (TH2*)(histos->FindObject("X0Y0_good"));
+  TH1* X0TARGETDET_good = (TH1*)(histos->FindObject("X0TARGETDET_good"));
+  TH1* Y0TARGETDET_good = (TH1*)(histos->FindObject("Y0TARGETDET_good"));
+  TH2* X0Y0TARGETDET_good = (TH2*)(histos->FindObject("X0Y0TARGETDET_good"));
 
-  TH1* hclus_goodtracks = (TH1*)(histos->FindObject("hclus_goodtracks"));
+  TH1* hclus_good = (TH1*)(histos->FindObject("hclus_good"));
 
   TH1* occupancy[NJINF*NTDRS];
-  TH1* occupancy_posS[NJINF*NTDRS];
-  TH1* occupancy_posK[NJINF*NTDRS];
+  TH1* occupancy_posX[NJINF*NTDRS];
+  TH1* occupancy_posY[NJINF*NTDRS];
   for (int tt=0; tt<_maxtdr; tt++) {
     int jinfnum = 0;
     int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
     occupancy[tt] = (TH1*)(histos->FindObject(Form("occupancy_0_%02d", tdrnum)));
-    occupancy_posS[tt] = (TH1*)(histos->FindObject(Form("occupancy_posS_0_%02d", tdrnum)));
-    occupancy_posK[tt] = (TH1*)(histos->FindObject(Form("occupancy_posK_0_%02d", tdrnum)));
+    occupancy_posX[tt] = (TH1*)(histos->FindObject(Form("occupancy_posX_0_%02d", tdrnum)));
+    occupancy_posY[tt] = (TH1*)(histos->FindObject(Form("occupancy_posY_0_%02d", tdrnum)));
   }
   TH1* hclusSladd_good = (TH1*)(histos->FindObject("hclusSladd_good"));
   TH1* hclusKladd_good = (TH1*)(histos->FindObject("hclusKladd_good"));
@@ -632,8 +749,8 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
   TH1* hclusKladd_good_ontrack = (TH1*)(histos->FindObject("hclusKladd_good_ontrack"));
 
   TH1* occupancy_ontrack[NJINF*NTDRS];
-  TH1* occupancy_ontrack_posS[NJINF*NTDRS];
-  TH1* occupancy_ontrack_posK[NJINF*NTDRS];
+  TH1* occupancy_ontrack_posX[NJINF*NTDRS];
+  TH1* occupancy_ontrack_posY[NJINF*NTDRS];
   TH1* chargeS[NJINF*NTDRS];
   TH1* chargeK[NJINF*NTDRS];
   TH2* charge2D[NJINF*NTDRS];
@@ -644,8 +761,8 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
     int jinfnum = 0;
     int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
     occupancy_ontrack[tt] = (TH1*)(histos->FindObject(Form("occupancy_ontrack_0_%02d", tdrnum)));
-    occupancy_ontrack_posS[tt] = (TH1*)(histos->FindObject(Form("occupancy_ontrack_posS_0_%02d", tdrnum)));
-    occupancy_ontrack_posK[tt] = (TH1*)(histos->FindObject(Form("occupancy_ontrack_posK_0_%02d", tdrnum)));
+    occupancy_ontrack_posX[tt] = (TH1*)(histos->FindObject(Form("occupancy_ontrack_posX_0_%02d", tdrnum)));
+    occupancy_ontrack_posY[tt] = (TH1*)(histos->FindObject(Form("occupancy_ontrack_posY_0_%02d", tdrnum)));
     chargeS[tt] = (TH1*)(histos->FindObject(Form("chargeS_0_%02d", tdrnum)));
     chargeK[tt] = (TH1*)(histos->FindObject(Form("chargeK_0_%02d", tdrnum)));
     charge2D[tt] = (TH2*)(histos->FindObject(Form("charge_0_%02d", tdrnum)));
@@ -654,34 +771,58 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
   chargeK_ave = (TH1*)(histos->FindObject("chargeK"));
   charge2D_ave = (TH2*)(histos->FindObject("charge"));
 
+  TH1* chi_gold = (TH1*)(histos->FindObject("chi_gold"));
+  TH1* theta_gold = (TH1*)(histos->FindObject("theta_gold"));
+  TH1* phi_gold = (TH1*)(histos->FindObject("phi_gold"));
+  TH2* thetaphi_gold = (TH2*)(histos->FindObject("thetaphi_gold"));
+  TH1* X0_gold = (TH1*)(histos->FindObject("X0_gold"));
+  TH1* Y0_gold = (TH1*)(histos->FindObject("Y0_gold"));
+  TH2* X0Y0_gold = (TH2*)(histos->FindObject("X0Y0_gold"));
+  TH1* X0TARGETDET_gold = (TH1*)(histos->FindObject("X0TARGETDET_gold"));
+  TH1* Y0TARGETDET_gold = (TH1*)(histos->FindObject("Y0TARGETDET_gold"));
+  TH2* X0Y0TARGETDET_gold = (TH2*)(histos->FindObject("X0Y0TARGETDET_gold"));
+  
   TH1* hclusSladd_gold = (TH1*)(histos->FindObject("hclusSladd_gold"));
   TH1* hclusKladd_gold = (TH1*)(histos->FindObject("hclusKladd_gold"));
   TH1* hclusSladd_gold_ontrack = (TH1*)(histos->FindObject("hclusSladd_gold_ontrack"));
   TH1* hclusKladd_gold_ontrack = (TH1*)(histos->FindObject("hclusKladd_gold_ontrack"));
   
-  TH1* residual_S[NJINF*NTDRS];
-  TH1* residual_K[NJINF*NTDRS];
+  TH1* residual_X[NJINF*NTDRS];
+  TH1* residual_Y[NJINF*NTDRS];
   for (int tt=0; tt<_maxtdr; tt++) {
     int jinfnum = 0;
     int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
-    residual_S[tt] = (TH1*)(histos->FindObject(Form("residual_S_0_%02d", tdrnum)));
-    residual_K[tt] = (TH1*)(histos->FindObject(Form("residual_K_0_%02d", tdrnum)));
+    residual_X[tt] = (TH1*)(histos->FindObject(Form("residual_X_0_%02d", tdrnum)));
+    residual_Y[tt] = (TH1*)(histos->FindObject(Form("residual_Y_0_%02d", tdrnum)));
   }
   
   //-----------------------------------------------------------------------------------------
   
-  chi->Fill(log10(ev->GetChiTrack()));
-  theta->Fill(ev->GetThetaTrack());
-  phi->Fill(ev->GetPhiTrack());
-  thetaphi->Fill(ev->GetThetaTrack(), ev->GetPhiTrack());
-  X0->Fill(ev->GetS0Track());
-  Y0->Fill(ev->GetK0Track());
-  X0Y0->Fill(ev->GetS0Track(), ev->GetK0Track());
-  X0TARGETDET->Fill(ev->ExtrapolateTrack(ZTARGETDET, 0));
-  Y0TARGETDET->Fill(ev->ExtrapolateTrack(ZTARGETDET, 1));
-  X0Y0TARGETDET->Fill(ev->ExtrapolateTrack(ZTARGETDET, 0), ev->ExtrapolateTrack(ZTARGETDET, 1));
+  chi_good->Fill(log10(ev->GetChiTrack()));
+  theta_good->Fill(ev->GetThetaTrack());
+  phi_good->Fill(ev->GetPhiTrack());
+  thetaphi_good->Fill(ev->GetThetaTrack(), ev->GetPhiTrack());
+  X0_good->Fill(ev->GetS0Track());
+  Y0_good->Fill(ev->GetK0Track());
+  X0Y0_good->Fill(ev->GetS0Track(), ev->GetK0Track());
+  X0TARGETDET_good->Fill(ev->ExtrapolateTrack(ZTARGETDET, 0));
+  Y0TARGETDET_good->Fill(ev->ExtrapolateTrack(ZTARGETDET, 1));
+  X0Y0TARGETDET_good->Fill(ev->ExtrapolateTrack(ZTARGETDET, 0), ev->ExtrapolateTrack(ZTARGETDET, 1));
 
-  hclus_goodtracks->Fill(NClusTot);
+  if (strackok || ktrackok) {
+    chi_gold->Fill(log10(ev->GetChiTrack()));
+    theta_gold->Fill(ev->GetThetaTrack());
+    phi_gold->Fill(ev->GetPhiTrack());
+    thetaphi_gold->Fill(ev->GetThetaTrack(), ev->GetPhiTrack());
+    if (strackok) X0_gold->Fill(ev->GetS0Track());
+    if (ktrackok) Y0_gold->Fill(ev->GetK0Track());
+    X0Y0_gold->Fill(ev->GetS0Track(), ev->GetK0Track());
+    if (strackok) X0TARGETDET_gold->Fill(ev->ExtrapolateTrack(ZTARGETDET, 0));
+    if (ktrackok) Y0TARGETDET_gold->Fill(ev->ExtrapolateTrack(ZTARGETDET, 1));
+    X0Y0TARGETDET_gold->Fill(ev->ExtrapolateTrack(ZTARGETDET, 0), ev->ExtrapolateTrack(ZTARGETDET, 1));
+  }
+  
+  hclus_good->Fill(NClusTot);
 
   /*
   std::vector<double> v_cog_all_laddS[NJINF*NTDRS];//good tracks (not gold), all clusters
@@ -695,13 +836,22 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
     cl = ev->GetCluster(index_cluster);
     int ladder = cl->ladder;
     //      printf("%d --> %d\n", ladder, ut->GetRH(chain)->FindPos(ladder));
+    int jinfnum = cl->GetJinf();
+    int tdrnum = cl->GetTDR();
     int side=cl->side;
     double charge=cl->GetCharge();//unused for now
       
     occupancy[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetCoG());
-      
+    //    printf("%d, %d) %f -> %f %f\n", ladder, side, cl->GetCoG(), cl->GetPosition(), cl->GetAlignedPosition());
+
     if (side==0) {
-      occupancy_posS[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
+      occupancy_posX[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
+    }
+    else {
+      occupancy_posY[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
+    }
+    
+    if (side==0 || (side==1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
       //      v_cog_all_laddS[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
       hclusSladd_good->Fill(ladder);
       if (strackok) {
@@ -709,37 +859,45 @@ void FillGoodHistos(TObjArray* histos, int NClusTot, Event* ev, int _maxtdr, TCh
       }
     }
     else {
-      occupancy_posK[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
       //      v_cog_all_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
       hclusKladd_good->Fill(ladder);
       if (ktrackok) {
 	hclusKladd_gold->Fill(ladder);
       }
     }
-            
+    
     if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
-
+    
     occupancy_ontrack[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetCoG());
-      
+
     if (side==0) {
-    occupancy_ontrack_posS[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
-    hclusSladd_good_ontrack->Fill(ladder);
+      occupancy_ontrack_posX[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
       if (strackok) {
-	residual_S[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));
+	residual_X[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 0));
+      }
+    }
+    else {
+      occupancy_ontrack_posY[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
+      if (ktrackok) {
+	residual_Y[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));
+      }
+    }
+    
+    if (side==0 || (side==1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
+      hclusSladd_good_ontrack->Fill(ladder);
+      if (strackok) {
 	//	v_cog_laddS[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
 	hclusSladd_gold_ontrack->Fill(ladder);
       }
     }
     else {
-      occupancy_ontrack_posK[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
       hclusKladd_good_ontrack->Fill(ladder);
       if (ktrackok) {
-	residual_K[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition()-ev->ExtrapolateTrack(cl->GetZPosition(), 1));
 	//	v_cog_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
 	hclusKladd_gold_ontrack->Fill(ladder);
       }
     }
-
+    
   }
   
   std::vector<std::pair<int, std::pair<int, int> > > vec_charge = ev->GetHitVector();//on track (good, not gold)
