@@ -16,3 +16,22 @@ RH* Utilities<Event, RH>::GetRH(TChain* chain){
 
   return rh;
 }
+
+template <class Event, class RH>
+LadderConf* Utilities<Event, RH>::GetLadderConf(TChain* chain){
+
+  static LadderConf* ladderconf = NULL;
+
+  if (!ladderconf) {
+    ladderconf = new LadderConf((LadderParamsMap*)chain->GetTree()->GetUserInfo()->At(1));
+  }
+  else {
+    ladderconf = LadderConf::Instance();
+  }
+  
+  printf("ladderconf = %p\n", ladderconf);
+  printf("ladderconf name = %s\n", ladderconf->GetName());
+  //  ladderconf->Dump();
+
+  return ladderconf;
+}
