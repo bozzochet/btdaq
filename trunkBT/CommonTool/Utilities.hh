@@ -6,6 +6,7 @@
 
 /* from the 'Decode' API */
 #include "GenericEvent.hpp"
+#include "LadderConf.hh"
 /* end */
 
 template <class Event, class RH> class Utilities {
@@ -13,6 +14,7 @@ template <class Event, class RH> class Utilities {
 public:
 
   static RH* GetRH(TChain* chain);
+  static LadderConf* GetLadderConf(TChain* chain);
 
 };
   
