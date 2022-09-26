@@ -93,10 +93,10 @@ public:
   TH2F **hsignalvsocc;
   TH1F ***hson;
 
-  double shighthreshold;
-  double slowthreshold;
-  double khighthreshold;
-  double klowthreshold;
+  double shighthreshold = 3.5;
+  double slowthreshold = 1.0;
+  double khighthreshold = 3.5;
+  double klowthreshold = 1.0;
 
   bool kClusterize;
   int cworkaround;
