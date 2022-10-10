@@ -4,17 +4,17 @@ using EventAMS = GenericEvent<1, 24, 64, 3, 16, 10>;//MD: the "16" I think shoul
 using RHClassAMS = RHClass<EventAMS::GetNJINF(), EventAMS::GetNTDRS()>;
 
 // we can keep everything hardcoded since we define specialized constructors for each flavor
-template <> EventAMS::GenericEvent() {
+template <> EventAMS::GenericEvent(char* ladderconf, char* gaincorr) {
   Cls = new TClonesArray("Cluster",
                          GetNJINF() * GetNTDRS()); // if more than NJINFS*NTDRS anyhow the array will be expanded
   Cls->SetOwner();
 
   // MD: this must be fixed, cannot be hardcoded
   if (ladderconfnotread)
-    ReadLadderConf("ladderconf.dat");
+    ReadLadderConf(ladderconf);
 
   if (gaincorrectionnotread) {
-    ReadGainCorrection("gaincorrection.dat");
+    ReadGainCorrection(gaincorr);
   }
 
   ClearTrack();

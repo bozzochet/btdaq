@@ -36,7 +36,7 @@ DecodeDataFOOT::DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned 
   pri = true;
   int ret;
 
-  ev = new EventFOOT();
+  ev = new EventFOOT("laddercorrection_FOOT.dat","gaincorrection_FOOT.dat");
 
   DecodeDataFOOT::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runn, -1);
   // we assume we also have the corresponding calibration file
@@ -145,7 +145,7 @@ int DecodeDataFOOT::ProcessCalibration() {
   std::cout << "Processing calibration... \n";
   auto start = std::chrono::system_clock::now();
 
-  auto event = std::make_unique<EventFOOT>();
+  auto event = std::make_unique<EventFOOT>((char*)"ladderconf_FOOT.dat",(char*)"gaincorr_FOOT.dat");
   std::vector<std::vector<std::vector<float>>> signals(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
 
   unsigned int nEvents{0};
