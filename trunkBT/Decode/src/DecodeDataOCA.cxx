@@ -132,7 +132,7 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
   // Create the ROOT run header
   rh = new RHClassOCA();
   
-  ev = new EventOCA();
+  ev = new EventOCA((char*)"ladderconf_OCA.dat",(char*)"gaincorrection.dat");
   //  std::cout << "ev: " << ev << '\n';
 
   DecodeDataOCA::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runn, -1);
@@ -311,7 +311,7 @@ bool DecodeDataOCA::ProcessCalibration() {
   printf("Processing calibration (%s)... \n", calFilePath.c_str());
   auto start = std::chrono::system_clock::now();
   
-  auto event = std::make_unique<EventOCA>();
+  auto event = std::make_unique<EventOCA>((char*)"ladderconf_OCA.dat",(char*)"gaincorrection_OCA.dat");
   std::vector<std::vector<std::vector<float>>> signals(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
   std::vector<std::vector<std::vector<float>>> signals_sorted(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
   // std::vector<std::vector<std::vector<float> > > signals;

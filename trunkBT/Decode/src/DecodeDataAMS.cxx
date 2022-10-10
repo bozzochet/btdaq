@@ -119,7 +119,7 @@ DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary,
   }
 
   // Create the ROOT Classes for the ROOT data format
-  ev = new EventAMS();
+  ev = new EventAMS("ladderconf.dat","gaincorrection.dat");
 
   mysort(tdrMap, ntdrRaw + ntdrCmp);
   // Update the ROOT run header
