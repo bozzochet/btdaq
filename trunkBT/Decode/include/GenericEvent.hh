@@ -51,7 +51,7 @@ public:
 public:
   //! Default contructor
   GenericEvent() = delete;
-  GenericEvent(char* ladderconf, char* gaincorr);
+  GenericEvent(const char* ladderconf, const char* gaincorr);
 
   //! Default destructor
   ~GenericEvent();
