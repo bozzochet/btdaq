@@ -222,6 +222,7 @@ double Cluster::GetNominalResolution(int side) { return GetNominalResolution(Get
 
 double Cluster::GetPitch(int jinfnum, int tdrnum, int side) {
   //  printf("Called Cluster::GetPitch(%d, %d, %d) = %lf\n", jinfnum, tdrnum, side, LadderConf::Instance()->GetPitch(jinfnum, tdrnum, side));
+
   return LadderConf::Instance()->GetPitch(jinfnum, tdrnum, side);
 };
 
