@@ -10,50 +10,61 @@
 
 class DecodeDataOCA : public DecodeData {
 public:
-  using EventOCA = GenericEvent<1, 24, 64, 5, 10, 0>;
-  using calibOCA = calib<EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;
-  using RHClassOCA = RHClass<EventOCA::GetNJINF(), EventOCA::GetNTDRS()>;
+    using EventOCA = GenericEvent<1, 24, 64, 5, 10, 0>;
+    using calibOCA = calib<EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;
+    using RHClassOCA = RHClass<EventOCA::GetNJINF(), EventOCA::GetNTDRS()>;
 
 public:
-  EventOCA *ev;
-  RHClassOCA *rh;
+    EventOCA *ev;
+    RHClassOCA *rh;
 
-  DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum);
-  virtual ~DecodeDataOCA();
-  
-  virtual ::FlavorConfig FlavorConfig() final {
-    return {EventOCA::GetNJINF(), EventOCA::GetNTDRS(), EventOCA::GetNCHAVA(), EventOCA::GetNADCS(),
-            EventOCA::GetNVAS()};
-  };
-  virtual TString EventClassname() final {return ev->ClassName(); };
+    DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum);
 
-  virtual int ReadOneEvent() final;
-  virtual void ClearEvent() final { ev->Clear(); };
+    virtual ~DecodeDataOCA();
 
-  // dummy for now
-  virtual int SkipOneEvent(int evskip = 1) final { return 0; };
-  virtual int GetTdrNum(size_t pos) final;
-  virtual int GetTdrType(size_t pos) final;
-  
+    virtual ::FlavorConfig FlavorConfig() final {
+        return {EventOCA::GetNJINF(), EventOCA::GetNTDRS(), EventOCA::GetNCHAVA(), EventOCA::GetNADCS(),
+                EventOCA::GetNVAS()};
+    };
+
+    virtual TString EventClassname() final { return ev->ClassName(); };
+
+    bool ReadFileHeader(FILE *file, RHClassOCA* rhc);
+
+    virtual int ReadOneEvent() final;
+
+    virtual void ClearEvent() final { ev->Clear(); };
+
+    // dummy for now
+    virtual int SkipOneEvent(int evskip = 1) final { return 0; };
+
+    virtual int GetTdrNum(size_t pos) final;
+
+    virtual int GetTdrType(size_t pos) final;
+
 private:
-  std::string m_rawDir;
-  std::string m_calDir;
+    std::string m_rawDir;
+    std::string m_calDir;
 
-  std::string m_filename;
-  std::string m_calFilename;
+    std::string m_filename;
+    std::string m_calFilename;
 
-  FILE *calfile = nullptr;
-  calibOCA cals[EventOCA::GetNJINF() * EventOCA::GetNTDRS()]{};
-  EventOCA::JArray<int> JinfMap{0};
-  
-  unsigned int m_numBoards = 12;//maximum
-  unsigned int m_numBoardsFound = 0;//found during ReadOneEventFromFile
+    FILE *calfile = nullptr;
+    calibOCA cals[EventOCA::GetNJINF() * EventOCA::GetNTDRS()]{};
+    EventOCA::JArray<int> JinfMap{0};
 
-  void DumpRunHeader() override;
-  void InitHistos();
-  void OpenFile(const char *rawDir, const char *calDir, int runNum, int ancillary) final;
-  bool ProcessCalibration();
-  int ReadOneEventFromFile(FILE *file, EventOCA *event);
+    unsigned int m_numBoards = 12;//maximum
+    unsigned int m_numBoardsFound = 0;//found during ReadOneEventFromFile
+
+    void DumpRunHeader() override;
+
+    void InitHistos();
+
+    void OpenFile(const char *rawDir, const char *calDir, int runNum, int ancillary) final;
+
+    bool ProcessCalibration();
+
+    int ReadOneEventFromFile(FILE *file, EventOCA *event);
 };
 
 #endif // DECODE_DECODEDATAOCA_HH
