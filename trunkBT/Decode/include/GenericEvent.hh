@@ -50,7 +50,7 @@ public:
 
 public:
   //! Default contructor
-  GenericEvent() = delete;
+  GenericEvent() = default;
   GenericEvent(const char* ladderconf, const char* gaincorr);
 
   //! Default destructor
@@ -91,7 +91,7 @@ public:
   static float GetMultiplicityFlip(int jinfnum, int tdrnum);
   //! Get Gain Correction "component" for the vanum VA of the tdrnum TDR for the jinfnum JINF
   static float GetGainCorrectionPar(int jinfnum, int tdrnum, int vanum, int component);
-  
+
   void ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side,
                            bool verbose = true); // to be called just one, before event loop, or, for a "temporary ban"
                                                  // call, afterwards, 'IncludeBack'
@@ -143,6 +143,11 @@ public:
   double GetCN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int va, int Jinfnum = 0);
   float GetRawSoN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum = 0);
   double GetCalStatus(RHClass<NJINF, NTDRS> *rh, int tdrposnum, int va, int Jinfnum = 0);
+
+  uint64_t GetTimeStamp() { return TimeStamp; }
+  uint64_t GetTimeStamp_ns() { return TimeStamp_ns; }
+  uint64_t GetBoardClock() { return BoardClock; }
+
   // CB:
   bool FindTracksAndVertex(bool vertex = false);
   std::pair<double, double> GetVertexK();
@@ -155,10 +160,10 @@ public:
   int GetEvtnum() { return Evtnum; };
 
   int GetEventKind() { return _eventkind; };
-  
+
 private:
   int _eventkind;
-  
+
   static bool ladderconfnotread;
   static bool alignmentnotread;
   static bool gaincorrectionnotread;
@@ -194,6 +199,12 @@ private:
 
   //! Progressive Event number
   int Evtnum{0};
+  //! Event timestamp
+  uint64_t TimeStamp{0};
+  //! Event timestamp fractional part (in ns)
+  uint64_t TimeStamp_ns{0};
+  //! Event board clock
+  uint64_t BoardClock{0};
   //! Jinj Status
   int JINJStatus{0};
   //! Jinf Status
@@ -269,6 +280,6 @@ private:
   std::vector<int> _v_ladderS_to_ignore; //!
   std::vector<int> _v_ladderK_to_ignore; //!
 
-  ClassDef(GenericEvent, 1)
+  ClassDef(GenericEvent, 2)
 };
 #endif
