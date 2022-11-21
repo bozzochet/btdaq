@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  bool kOca = false;
+  bool kOca = true;
   bool kFoot = false;
 
   TString exename = argv[0];
@@ -206,7 +206,8 @@ int ProcessChain(TChain* chain, TString output_filename){
     }
     //    printf("----- new event %d/%lld = %d%%\n", index_event, entries, (int)(100.0*(index_event+1.0)/entries));
     chain->GetEntry(index_event);
-    
+    // std::cout << "TimeStamp: " << ev->GetTimeStamp() << "." << ev->GetTimeStamp_ns() << "   Board clock: " << ev->GetBoardClock() << '\n';
+
     int NClusTot = ev->GetNClusTot();
     //    printf("\t\tnclusters = %d\n", NClusTot);
 
