@@ -87,3 +87,5 @@ clean:
 
 cleanALL: clean
 	make -C $(DECODE) clean
+
+all: Analysis
