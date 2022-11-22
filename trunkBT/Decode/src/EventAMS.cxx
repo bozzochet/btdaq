@@ -5,6 +5,8 @@ using RHClassAMS = RHClass<EventAMS::GetNJINF(), EventAMS::GetNTDRS()>;
 
 // we can keep everything hardcoded since we define specialized constructors for each flavor
 template <> EventAMS::GenericEvent(const char* ladderconf, const char* gaincorr) {
+  _eventkind = 1; // 0: generic, 1: AMS, 2: OCA, 3: FOOT, 4: AMSL0
+
   Cls = new TClonesArray("Cluster",
                          GetNJINF() * GetNTDRS()); // if more than NJINFS*NTDRS anyhow the array will be expanded
   Cls->SetOwner();

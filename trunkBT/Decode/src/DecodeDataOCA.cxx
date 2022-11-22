@@ -727,11 +727,13 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
         fstat = ReadFile(&IntTimestamp, sizeof(IntTimestamp), 1, file);
         if (fstat == -1)
             return 1;
+        IntTimestamp = (IntTimestamp >> 32) + ((IntTimestamp & 0xFFFF) << 32);
 
         uint64_t ExtTimestamp;
         fstat = ReadFile(&ExtTimestamp, sizeof(ExtTimestamp), 1, file);
         if (fstat == -1)
             return 1;
+        ExtTimestamp = (ExtTimestamp >> 32) + ((ExtTimestamp & 0xFFFF) << 32);
 
         // FIXME: we save only the first board clock
         if (iBoard == 0)
