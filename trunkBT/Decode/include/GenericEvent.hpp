@@ -1308,26 +1308,48 @@ double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ComputeCN(int si
                                                                           float *RawSoN, int *status,
                                                                           double threshold) {
 
-  double mean = 0.0;
-  int n = 0;
-
-  for (int ii = 0; ii < size; ii++) {
-    // printf("%d %f %f %d\n", ii, RawSoN[ii], threshold, status[ii]);
-    if (RawSoN[ii] < threshold && status[ii] == 0) { // to avoid real signal...
-      n++;
-      //      printf("    %d) %f %f\n", ii, RawSignal[ii]/8.0, pede[ii]);
-      mean += (RawSignal[ii] - pede[ii]);
+  auto fill_signals = [&](float _threshold) {
+    std::vector<float> sig;
+    for (size_t ich = 0; ich < size_t(size); ++ich) {
+      if (RawSoN[ich] < _threshold && status[ich] == 0) {
+        sig.push_back(float(RawSignal[ich]) - pede[ich]);
+      }
     }
+
+    return sig;
+  };
+
+  auto sig = fill_signals(threshold);
+  // let's try again with a higher threshold
+  while (sig.size() < 2) {
+    threshold += 1.0;
+    sig = fill_signals(threshold);
   }
 
-  if (n > 1) {
-    mean /= n;
-  } else { // let's try again with an higher threshold
-    mean = ComputeCN(size, RawSignal, pede, RawSoN, status, threshold + 1.0);
-  }
-  //  printf("    CN = %f\n", mean);
+  std::sort(begin(sig), end(sig));
+  float median = (sig.size() % 2) ? sig[sig.size() / 2] : 0.5f * (sig[(sig.size() / 2) - 1] + sig[sig.size() / 2]);
+  return median;
 
-  return mean;
+  //  double mean = 0.0;
+  //  int n = 0;
+  //
+  //  for (int ii = 0; ii < size; ii++) {
+  //    // printf("%d %f %f %d\n", ii, RawSoN[ii], threshold, status[ii]);
+  //    if (RawSoN[ii] < threshold && status[ii] == 0) { // to avoid real signal...
+  //      n++;
+  //      //      printf("    %d) %f %f\n", ii, RawSignal[ii]/8.0, pede[ii]);
+  //      mean += (RawSignal[ii] - pede[ii]);
+  //    }
+  //  }
+  //
+  //  if (n > 1) {
+  //    mean /= n;
+  //  } else { // let's try again with an higher threshold
+  //    mean = ComputeCN(size, RawSignal, pede, RawSoN, status, threshold + 1.0);
+  //  }
+  //  //  printf("    CN = %f\n", mean);
+  //
+  //  return mean;
 }
 
 //------------CB: Qui iniziano le cose che ho aggiunto------------//

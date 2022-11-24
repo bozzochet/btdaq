@@ -148,7 +148,7 @@ public:
 
   uint64_t GetTimeStamp() { return TimeStamp; }
   uint64_t GetTimeStamp_ns() { return TimeStamp_ns; }
-  uint64_t GetBoardClock() { return BoardClock; }
+  uint64_t GetExternalTimeStamp() { return ExtTimeStamp; }
 
   // CB:
   bool FindTracksAndVertex(bool vertex = false);
@@ -207,7 +207,7 @@ private:
   //! Event timestamp fractional part (in ns)
   uint64_t TimeStamp_ns{0};
   //! Event board clock
-  uint64_t BoardClock{0};
+  double ExtTimeStamp{0};
   //! I2C event ID
   uint32_t I2CEventID{0};
   //! Jinj Status

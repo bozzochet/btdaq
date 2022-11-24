@@ -1,9 +1,9 @@
 #ifndef DecodeData_h
 #define DecodeData_h
 #include <cstdio>
+#include <numeric>
 #include <unistd.h>
 #include <vector>
-#include <numeric>
 
 #include "TBranch.h"
 #include "TFile.h"
@@ -117,7 +117,8 @@ public:
                   int CNStatus, int PowBits, int bad, float *sig, bool kRaw = false);
   template <class Event, class calib> void Clusterize(int numnum, int Jinfnum, Event *ev, calib *cal);
   template <class Event, class calib> void FillRawHistos(int numnum, int Jinfnum, Event *ev, calib *cal);
-  template <class Event, class calib> void ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals);
+  template <class Event, class calib>
+  void ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals);
 
   virtual inline int GetNTdrRaw() { return ntdrRaw; }
   virtual inline int GetNTdrCmp() { return ntdrCmp; }
@@ -212,7 +213,7 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
 
   hocc[numnum + NTDRS * Jinfnum]->Fill(cog);
   hoccseed[numnum + NTDRS * Jinfnum]->Fill(seedadd);
-  // #define TOTCHARGE
+#define TOTCHARGE
 #ifndef TOTCHARGE
   hcharge[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetSeedCharge());
   hsignal[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetSeedVal());
@@ -504,7 +505,7 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
     for (int va = 0; va < nvas; va++) {
       CN[va] = Event::ComputeCN(nchava, &(array[va * nchava]), &(pede[va * nchava]), &(arraySoN[va * nchava]),
                                 &(status[va * nchava]));
-              // printf("%d) %f\n", va, CN[va]);
+      // printf("%d) %f\n", va, CN[va]);
       //      headerstringtodump += Form("CN[%d] = %f\n", va, CN[va]);
     }
 
@@ -640,7 +641,7 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
 }
 
 template <class Event, class calib>
-void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib* cals) {
+void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals) {
   constexpr auto NJINF = Event::GetNJINF();
   constexpr auto NTDRS = Event::GetNTDRS();
   constexpr auto NVAS = Event::GetNVAS();
@@ -648,6 +649,14 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
   constexpr auto NADCS = Event::GetNADCS();
 
   auto signals_sorted = signals;
+
+  // FIXME: Some test calibrations contain too many events, stop at 10k and use the first half for ped and sigma raw,
+  // and the second half for sigma
+  // MD: tipo che MD: fai vector reserved da 5k MD: inizi a leggere e vedi a quanto arrivi
+  // MD: se <5k resizi
+  // MD: se sono più a 5k smetti e fai mean e sigma_raw
+  // MD: e poi ricominci (fino a massimo 5k) fillando 0, 1, 2, etc... fino a dove arrivi
+  // MD: se sono più di 10k li hai sostituiti tutti
 
 #define PERCENTILE 0.02
 
@@ -658,6 +667,11 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
       unsigned int skipped_ch = PERCENTILE * signals_sorted[iTdr][iCh].size();
       auto beginItr = std::next(begin(signals_sorted[iTdr][iCh]), skipped_ch);
       auto endItr = std::prev(end(signals_sorted[iTdr][iCh]), skipped_ch);
+
+      if (signals_sorted.size() >= 10000) {
+        endItr = std::next(beginItr, std::distance(beginItr, endItr) / 2);
+      }
+
       auto nCh = std::distance(beginItr, endItr);
       //      printf("%ld %f\n", nCh, (1.0-2.0*PERCENTILE)*signals[iTdr][iCh].size());
 
@@ -818,11 +832,31 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
       }
     }
   }
+
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      if (processed_events[iTdr][iCh] == 0 && cals[iTdr].sig[iCh] != 0)
-        std::cout << "     *****" << cals[iTdr].sig[iCh] << std::endl;
-      cals[iTdr].sig[iCh] = std::sqrt(cals[iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
+      unsigned int skipped_ch = PERCENTILE * signals_sorted[iTdr][iCh].size();
+      auto beginItr = std::next(begin(signals_sorted[iTdr][iCh]), skipped_ch);
+      auto endItr = std::prev(end(signals_sorted[iTdr][iCh]), skipped_ch);
+
+      if (signals_sorted.size() >= 10000) {
+        beginItr = std::next(beginItr, std::distance(beginItr, endItr) / 2);
+      }
+
+      unsigned int thisVA = iCh / NCHAVA;
+
+      cals[iTdr].sig[iCh] =
+          std::sqrt(std::accumulate(beginItr, endItr, 0.0f,
+                                    [&](float acc, float curr) {
+                                      return acc + (curr - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
+                                                       (curr - cals[iTdr].ped[iCh] - common_noise[thisVA]);
+                                    }) /
+                    static_cast<float>(std::distance(beginItr, endItr)));
+
+      //      if (processed_events[iTdr][iCh] == 0 && cals[iTdr].sig[iCh] != 0)
+      //        std::cout << "     *****" << cals[iTdr].sig[iCh] << std::endl;
+
+      // cals[iTdr].sig[iCh] = std::sqrt(cals[iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
     }
   }
 }
