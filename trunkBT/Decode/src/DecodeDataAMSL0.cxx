@@ -252,7 +252,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
     // MD: se sono più di 10k li hai sostituiti tutti
 
     unsigned int nEvents{0};
-    while (!feof(calfile)) {
+    while (!feof(calfile) && nEvents < 10000) {
       ReadOneEventFromFile(calfile, event.get());
       nEvents++;
       // std::cout << "\rRead " << nEvents << " events" << std::flush;

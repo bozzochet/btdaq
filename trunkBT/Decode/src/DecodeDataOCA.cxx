@@ -326,11 +326,6 @@ bool DecodeDataOCA::ProcessCalibration() {
 
   auto event = std::make_unique<EventOCA>((char *)"ladderconf_OCA.dat", (char *)"gaincorrection_OCA.dat");
   std::vector<std::vector<std::vector<float>>> signals(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
-  // std::vector<std::vector<std::vector<float> > > signals;
-  // signals.resize(NTDRS);
-  // for (int ii=0; ii<NTDRS; ii++) {
-  //   signals[ii].resize(NVAS * NCHAVA);
-  // }
 
   // #define CALPLOTS // in generale deve stare spento, a differenza di AMS non abbiamo i cluster, quando fa il decode
   // qui fa qualche plot di occupancy.
@@ -343,8 +338,10 @@ bool DecodeDataOCA::ProcessCalibration() {
   // MD: e poi ricominci (fino a massimo 5k) fillando 0, 1, 2, etc... fino a dove arrivi
   // MD: se sono più di 10k li hai sostituiti tutti
 
+
+
   unsigned int nEvents{0};
-  while (!feof(calfile)) {
+  while (!feof(calfile) && nEvents < 10000) {
     // while (nEvents<1000) {
     ReadOneEventFromFile(calfile, event.get());
     nEvents++;
@@ -577,7 +574,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
 
     // FIXME: we save only the first board clock
     if (iBoard == 0)
-      event->BoardClock = ExtTimestamp;
+      event->ExtTimeStamp = double(ExtTimestamp) / 1e6; // assume 1 Mhz clock
 
     unsigned int numChannels = NVAS * NCHAVA;
     uint32_t nFrames = messageLength - 10;
