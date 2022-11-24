@@ -18,7 +18,7 @@ constexpr auto NCHAVA = DecodeDataFOOT::EventFOOT::GetNCHAVA();
 constexpr auto NADCS = DecodeDataFOOT::EventFOOT::GetNADCS();
 } // namespace
 
-DecodeDataFOOT::DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned int runNum)
+DecodeDataFOOT::DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calNum)
     : m_rawDir{std::move(rawDir)}, m_calDir{std::move(calDir)} {
 
   // Init base-class members
@@ -36,9 +36,9 @@ DecodeDataFOOT::DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned 
   pri = true;
   int ret;
 
-  ev = new EventFOOT("laddercorrection_FOOT.dat","gaincorrection_FOOT.dat");
+  ev = new EventFOOT("laddercorrection_FOOT.dat", "gaincorrection_FOOT.dat");
 
-  DecodeDataFOOT::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runn, -1);
+  DecodeDataFOOT::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runn, int(calNum));
   // we assume we also have the corresponding calibration file
   std::cout << "Raw file: " << m_filename << '\n';
   std::cout << "Calibration file: " << m_calFilename << '\n';
@@ -72,7 +72,7 @@ DecodeDataFOOT::DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned 
   InitHistos();
 }
 
-void DecodeDataFOOT::OpenFile(const char *rawDir, const char *calDir, int runNum, int ancillary) {
+void DecodeDataFOOT::OpenFile(const char *rawDir, const char *calDir, int runNum, int calNum) {
   auto fileList = FSUtils::ListDir(rawDir);
 
   auto fileName_it = std::find_if(begin(fileList), end(fileList), [this](const std::string &_filename) {
@@ -86,11 +86,24 @@ void DecodeDataFOOT::OpenFile(const char *rawDir, const char *calDir, int runNum
   }
   m_filename = *fileName_it;
 
-  auto calFilename_it = std::find_if(std::reverse_iterator<decltype(fileName_it)>(fileName_it), rend(fileList),
-                                     [](const std::string &_filename) { return _filename.substr(13, 3) == "CAL"; });
+  if (calNum > 0) {
+    auto calFilename_it = std::find_if(begin(fileList), end(fileList), [calNum](const std::string &_filename) {
+      // all our files begin with 'SCD_RUN' followed by zero-padded run numbers
+      bool is_cal = _filename.substr(13, 3) == "CAL";
+      unsigned int runNum = std::atoi(_filename.substr(7, 5).c_str());
+      return is_cal && (runNum == static_cast<unsigned int>(calNum));
+    });
 
-  if (calFilename_it != rend(fileList)) {
-    m_calFilename = *calFilename_it;
+    if (calFilename_it != end(fileList)) {
+      m_calFilename = *calFilename_it;
+    }
+  } else {
+    auto calFilename_it = std::find_if(std::reverse_iterator<decltype(fileName_it)>(fileName_it), rend(fileList),
+                                       [](const std::string &_filename) { return _filename.substr(13, 3) == "CAL"; });
+
+    if (calFilename_it != rend(fileList)) {
+      m_calFilename = *calFilename_it;
+    }
   }
 }
 
@@ -145,7 +158,7 @@ int DecodeDataFOOT::ProcessCalibration() {
   std::cout << "Processing calibration... \n";
   auto start = std::chrono::system_clock::now();
 
-  auto event = std::make_unique<EventFOOT>((char*)"ladderconf_FOOT.dat",(char*)"gaincorr_FOOT.dat");
+  auto event = std::make_unique<EventFOOT>((char *)"ladderconf_FOOT.dat", (char *)"gaincorr_FOOT.dat");
   std::vector<std::vector<std::vector<float>>> signals(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
 
   unsigned int nEvents{0};
