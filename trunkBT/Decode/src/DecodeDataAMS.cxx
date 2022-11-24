@@ -736,7 +736,7 @@ int DecodeDataAMS::ReadOneEvent_mc() {
         ev->CalPed[jinfnum][nl][kk] = cal->ped[kk];
         ev->CalSigma[jinfnum][nl][kk] = cal->sig[kk];
         ev->RawSignal[jinfnum][nl][kk] = int(rn.Gaus(420., 1.125)); // simnoise --> OK?
-        ev->RawSoN[jinfnum][nl][kk] = (ev->RawSignal[jinfnum][nl][kk] / 8.0 - cal->ped[kk]) / cal->sig[kk];
+        ev->RawSoN[jinfnum][nl][kk] = (ev->RawSignal[jinfnum][nl][kk] - cal->ped[kk]) / cal->sig[kk];
       }
 
       for (int nh = 0; nh < ntothits; nh++) { // ntothits>nlayers
@@ -760,7 +760,7 @@ int DecodeDataAMS::ReadOneEvent_mc() {
           // ev->RawSignal[hvol[nh]][sch]+=int(hitDep->at(nhi)*dEdX2ADC);
           ev->RawSignal[jinfnum][hvol[nh]][sch] += int(simDep->at(nhi) * dEdX2ADC);
           ev->RawSoN[jinfnum][hvol[nh]][sch] =
-              (ev->RawSignal[jinfnum][hvol[nh]][sch] / 8.0 - cal->ped[sch]) / cal->sig[sch];
+              (ev->RawSignal[jinfnum][hvol[nh]][sch] - cal->ped[sch]) / cal->sig[sch];
           if (pri)
             printf("HITSIG %d: %d %f %f %f\n", sch, ev->RawSignal[jinfnum][hvol[nh]][sch],
                    ev->RawSoN[jinfnum][hvol[nh]][sch], cal->ped[sch], cal->sig[sch]);
@@ -938,7 +938,7 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
         if (cal->sig[cc] > 0.125 && // not a dead channel
             cal->sig[cc] < 10.0) {  // not a noisy channel
           ev->RawSoN[Jinfnum][tdrnumraw][cc] =
-              (ev->RawSignal[Jinfnum][tdrnumraw][cc] / 8.0 - cal->ped[cc]) / cal->sig[cc];
+              (ev->RawSignal[Jinfnum][tdrnumraw][cc] - cal->ped[cc]) / cal->sig[cc];
         } else {
           ev->RawSoN[Jinfnum][tdrnumraw][cc] = 0.0;
         }

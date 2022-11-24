@@ -35,23 +35,25 @@ struct FlavorConfig {
   size_t NVASK;
 };
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK> class GenericEvent : public TObject {
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+class GenericEvent : public TObject {
   // handy shortcuts for common types
   template <typename T> using JArray = Array1<T, NJINF>;
   template <typename T> using TdrArray = Array2<T, NJINF, NTDRS>;
-  template <typename T> using VAArray = Array3<T, NJINF, NTDRS, NVASS+NVASK>;
-  template <typename T> using ChArray = Array3<T, NJINF, NTDRS, NCHAVA*(NVASS+NVASK)>;
+  template <typename T> using VAArray = Array3<T, NJINF, NTDRS, NVASS + NVASK>;
+  template <typename T> using ChArray = Array3<T, NJINF, NTDRS, NCHAVA *(NVASS + NVASK)>;
 
 public:
   friend class DecodeData;
   friend class DecodeDataAMS;
+  friend class DecodeDataAMSL0;
   friend class DecodeDataOCA;
   friend class DecodeDataFOOT;
 
 public:
   //! Default contructor
   GenericEvent() = default;
-  GenericEvent(const char* ladderconf, const char* gaincorr);
+  GenericEvent(const char *ladderconf, const char *gaincorr);
 
   //! Default destructor
   ~GenericEvent();
@@ -60,10 +62,10 @@ public:
   static constexpr size_t GetNTDRS() { return NTDRS; }
   static constexpr size_t GetNADCS() { return NADCS; }
   static constexpr size_t GetNCHAVA() { return NCHAVA; }
-  static constexpr size_t GetNVAS() { return NVASS+NVASK; }
+  static constexpr size_t GetNVAS() { return NVASS + NVASK; }
   static constexpr size_t GetNVASS() { return NVASS; }
   static constexpr size_t GetNVASK() { return NVASK; }
-  static constexpr size_t GetNCH() { return (NVASS+NVASK)*NCHAVA; }
+  static constexpr size_t GetNCH() { return (NVASS + NVASK) * NCHAVA; }
 
   //! Clear the event
   void Clear();
@@ -105,10 +107,10 @@ public:
   double GetSlopeSerrTrack() { return _mSerr; };
   double GetSlopeKTrack() { return _mK; };
   double GetSlopeKerrTrack() { return _mKerr; };
-  double GetInterceptSTrack() { return -_mS/_S0; };
-  double GetInterceptSerrTrack() { return _mS/_S0*sqrt(pow(_mSerr/_mS,2)+pow(_S0err/_S0,2)); };
-  double GetInterceptKTrack() { return -_mK/_K0; };
-  double GetInterceptKerrTrack() { return _mK/_K0*sqrt(pow(_mKerr/_mK,2)+pow(_K0err/_K0,2)); };
+  double GetInterceptSTrack() { return -_mS / _S0; };
+  double GetInterceptSerrTrack() { return _mS / _S0 * sqrt(pow(_mSerr / _mS, 2) + pow(_S0err / _S0, 2)); };
+  double GetInterceptKTrack() { return -_mK / _K0; };
+  double GetInterceptKerrTrack() { return _mK / _K0 * sqrt(pow(_mKerr / _mK, 2) + pow(_K0err / _K0, 2)); };
   double GetThetaTrack() { return _theta; };
   double GetPhiTrack() { return _phi; };
   double GetS0Track() { return _S0; };
@@ -158,6 +160,7 @@ public:
   // TH2F* h1;
 
   int GetEvtnum() { return Evtnum; };
+  void SetEvtNum(int num) { Evtnum = num; }
 
   int GetEventKind() { return _eventkind; };
 
@@ -205,6 +208,8 @@ private:
   uint64_t TimeStamp_ns{0};
   //! Event board clock
   uint64_t BoardClock{0};
+  //! I2C event ID
+  uint32_t I2CEventID{0};
   //! Jinj Status
   int JINJStatus{0};
   //! Jinf Status
@@ -238,11 +243,11 @@ private:
   TdrArray<short> ReadTDR{{0}};
 
   //------------CB:qui salvo gli output di FindTracksAndVertex()------------//
-  int _NTrks;//!
-  trackColl _TrS;//!
-  trackColl _TrK;//!
-  std::pair<double, double> _vertexK;//!
-  std::pair<double, double> _vertexS;//!
+  int _NTrks;                         //!
+  trackColl _TrS;                     //!
+  trackColl _TrK;                     //!
+  std::pair<double, double> _vertexK; //!
+  std::pair<double, double> _vertexS; //!
 
   // track parameters and points
   double _chisq;    //!

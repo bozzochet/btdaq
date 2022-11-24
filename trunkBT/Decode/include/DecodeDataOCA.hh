@@ -18,7 +18,7 @@ public:
     EventOCA *ev;
     RHClassOCA *rh;
 
-    DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum);
+    DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calnum);
 
     virtual ~DecodeDataOCA();
 
@@ -60,7 +60,7 @@ private:
 
     void InitHistos();
 
-    void OpenFile(const char *rawDir, const char *calDir, int runNum, int ancillary) final;
+    void OpenFile(const char *rawDir, const char *calDir, int runNum, int calNum) final;
 
     bool ProcessCalibration();
 

@@ -1402,7 +1402,7 @@ double Event::GetCalPed_PosNum(int tdrnum, int channel, int Jinfnum) { return Ca
 double Event::GetCalSigma_PosNum(int tdrnum, int channel, int Jinfnum) { return CalSigma[Jinfnum][tdrnum][channel]; }
 
 double Event::GetRawSignal_PosNum(int tdrnum, int channel, int Jinfnum) {
-  return RawSignal[Jinfnum][tdrnum][channel] / 8.0;
+  return RawSignal[Jinfnum][tdrnum][channel];
 }
 
 double Event::GetCalStatus_PosNum(int tdrnum, int channel, int Jinfnum) { return CalStatus[Jinfnum][tdrnum][channel]; }
@@ -1430,7 +1430,7 @@ double Event::GetCN_PosNum(int tdrnum, int va, int Jinfnum) {
 }
 
 float Event::GetRawSoN_PosNum(int tdrnum, int channel, int Jinfnum) {
-  return (RawSignal[Jinfnum][tdrnum][channel] / 8.0 - CalPed[Jinfnum][tdrnum][channel]) /
+  return (RawSignal[Jinfnum][tdrnum][channel] - CalPed[Jinfnum][tdrnum][channel]) /
          CalSigma[Jinfnum][tdrnum][channel];
 }
 
@@ -1474,7 +1474,7 @@ double Event::ComputeCN(int size, short int *RawSignal, float *pede, float *RawS
     if (RawSoN[ii] < threshold && status[ii] == 0) { // to avoid real signal...
       n++;
       //      printf("    %d) %f %f\n", ii, RawSignal[ii]/8.0, pede[ii]);
-      mean += (RawSignal[ii] / 8.0 - pede[ii]);
+      mean += (RawSignal[ii] - pede[ii]);
     }
   }
   if (n > 1) {

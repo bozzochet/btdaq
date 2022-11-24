@@ -16,7 +16,7 @@ public:
 public:
   EventFOOT *ev;
 
-  DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned int runNum);
+  DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calNum);
 
   virtual ::FlavorConfig FlavorConfig() final {
     return {EventFOOT::GetNJINF(), EventFOOT::GetNTDRS(), EventFOOT::GetNCHAVA(), EventFOOT::GetNADCS(),

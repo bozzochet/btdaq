@@ -1,8 +1,9 @@
 #ifndef DecodeData_h
 #define DecodeData_h
-#include <unistd.h>
 #include <cstdio>
+#include <unistd.h>
 #include <vector>
+#include <numeric>
 
 #include "TBranch.h"
 #include "TFile.h"
@@ -116,6 +117,7 @@ public:
                   int CNStatus, int PowBits, int bad, float *sig, bool kRaw = false);
   template <class Event, class calib> void Clusterize(int numnum, int Jinfnum, Event *ev, calib *cal);
   template <class Event, class calib> void FillRawHistos(int numnum, int Jinfnum, Event *ev, calib *cal);
+  template <class Event, class calib> void ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals);
 
   virtual inline int GetNTdrRaw() { return ntdrRaw; }
   virtual inline int GetNTdrCmp() { return ntdrCmp; }
@@ -150,7 +152,7 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
   //  constexpr auto NVASK = Event::GetNVASK();
   constexpr auto NCHAVA = Event::GetNCHAVA();
 
-  pri = 1;
+  // pri = 1;
 
   LadderConf *ladderconf = LadderConf::Instance();
   int _bondingtype = 0;
@@ -164,7 +166,7 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
   //  printf("bondingtype = %d\n", _bondingtype);
 
   int newclusadd = clusadd;
-  
+
   if (!kRaw) { // otherwise the swap has been already done when clustering (if we were clustering, otherwise the cluster
                // is not present and we never reach this function...)
     if (_bondingtype == 2) {
@@ -179,19 +181,21 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
   }
 
   int sid = 0;
-  if (!kMC && clusadd >= (NCHAVA*NVASS))
+  if (!kMC && clusadd >= (NCHAVA * NVASS))
     sid = 1;
   if (kMC)
     sid = !tdrAlign[numnum]; // check alignment. MD: why we need this in the MC case?
 
   if (ladderconf->GetSideSwap(Jinfnum, numnum)) {
-    if (sid==0) sid=1;
-    else if (sid==1) sid=0;
+    if (sid == 0)
+      sid = 1;
+    else if (sid == 1)
+      sid = 0;
     else {
       printf("Side is %d so I don't know hot to swap...\n", sid);
     }
   }
-  
+
   Cluster *pp = ev->AddCluster(Jinfnum, numnum + 100 * Jinfnum, sid);
   pp->SetLadderConf(ladderconf);
 
@@ -208,7 +212,7 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
 
   hocc[numnum + NTDRS * Jinfnum]->Fill(cog);
   hoccseed[numnum + NTDRS * Jinfnum]->Fill(seedadd);
-  //#define TOTCHARGE
+  // #define TOTCHARGE
 #ifndef TOTCHARGE
   hcharge[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetSeedCharge());
   hsignal[numnum + NTDRS * Jinfnum][sid]->Fill(pp->GetSeedVal());
@@ -249,7 +253,8 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
   return;
 }
 
-template <class Event, class calib> inline void DecodeData::FillRawHistos(int numnum, int Jinfnum, Event *ev, calib *cal) {
+template <class Event, class calib>
+inline void DecodeData::FillRawHistos(int numnum, int Jinfnum, Event *ev, calib *cal) {
   //  constexpr auto NJINF = Event::GetNJINF();
   constexpr auto NTDRS = Event::GetNTDRS();
   constexpr auto NVAS = Event::GetNVAS();
@@ -257,7 +262,7 @@ template <class Event, class calib> inline void DecodeData::FillRawHistos(int nu
   //  constexpr auto NVASK = Event::GetNVASK();
   constexpr auto NCHAVA = Event::GetNCHAVA();
 
-  pri = 1;
+  // pri = 1;
 
   int tdrnumraw = FindPos(numnum + 100 * Jinfnum);
 
@@ -265,28 +270,27 @@ template <class Event, class calib> inline void DecodeData::FillRawHistos(int nu
   double shithresh = ladderconf->GetSHiThreshold(Jinfnum, numnum);
   double khithresh = ladderconf->GetKHiThreshold(Jinfnum, numnum);
   // double slothresh = ladderconf->GetSLoThreshold(Jinfnum, numnum);
-  // double klothresh = ladderconf->GetKLoThreshold(Jinfnum, numnum);  
-  
+  // double klothresh = ladderconf->GetKLoThreshold(Jinfnum, numnum);
+
   // printf("Thresholds: %f %f\n", shithresh, khithresh);
   // sleep(3);
-  
-  for (int cc = 0; cc < (NCHAVA*NVAS); cc++) {
-    
+
+  for (int cc = 0; cc < (NCHAVA * NVAS); cc++) {
+
     double threshold = shithresh;
-    int side=0;
-    if (cc >= NCHAVA*NVASS) {
+    int side = 0;
+    if (cc >= NCHAVA * NVASS) {
       threshold = khithresh;
-      side=1;
+      side = 1;
     }
-    
+
     if (ladderconf->GetSideSwap(Jinfnum, numnum)) {
-      if (side==0) {
-	side=1;
-	threshold = khithresh;
-      }
-      else {
-	side=0;
-	threshold = shithresh;
+      if (side == 0) {
+        side = 1;
+        threshold = khithresh;
+      } else {
+        side = 0;
+        threshold = shithresh;
       }
     }
 
@@ -299,12 +303,12 @@ template <class Event, class calib> inline void DecodeData::FillRawHistos(int nu
       hocc[numnum + NTDRS * Jinfnum]->Fill(cc, ev->RawSoN[Jinfnum][tdrnumraw][cc]);
       // hoccseed not filled in this case...
       // hcharge not filled in this case...
-      hsignal[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSignal[Jinfnum][tdrnumraw][cc]/m_adcUnits);
+      hsignal[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSignal[Jinfnum][tdrnumraw][cc] / m_adcUnits);
       hson[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSoN[Jinfnum][tdrnumraw][cc]);
     }
   }
-  
-  return;  
+
+  return;
 }
 
 template <class Event, class calib> inline void DecodeData::Clusterize(int numnum, int Jinfnum, Event *ev, calib *cal) {
@@ -315,7 +319,7 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
   constexpr auto NVASK = Event::GetNVASK();
   constexpr auto NCHAVA = Event::GetNCHAVA();
 
-  pri = 1;
+  // pri = 1;
 
   int _bondingtype = 0;
   bool defaultThresholds =
@@ -409,7 +413,7 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
 
   // MD: there're still a couple of 640, 320, 384, etc... hardcoded
   // are inside particular "bondingtype"s so let's keep hardcoded...
-  
+
   for (int side = 0; side < 2; side++) {
     if (added)
       continue;
@@ -463,7 +467,7 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
           added = true;
         }
       }
-    } // side=0
+    }      // side=0
     else { // side=1
       if (_bondingtype == 2) {
         continue;
@@ -500,7 +504,7 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
     for (int va = 0; va < nvas; va++) {
       CN[va] = Event::ComputeCN(nchava, &(array[va * nchava]), &(pede[va * nchava]), &(arraySoN[va * nchava]),
                                 &(status[va * nchava]));
-      //      printf("%d) %f\n", va, CN[va]);
+              // printf("%d) %f\n", va, CN[va]);
       //      headerstringtodump += Form("CN[%d] = %f\n", va, CN[va]);
     }
 
@@ -531,7 +535,9 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
 
       int va = (int)(count / nchava);
 
+      // std::cout << array[count] << " " << m_adcUnits << " " << pede[count] << " " << CN[va] << '\n';
       float ssun = (array[count] / m_adcUnits - pede[count] - CN[va]) / sigma[count];
+      // std::cout << ssun << '\n';
       // if (ssun>highthreshold) printf("%d) %f %f %f %f -> %f\n", count, array[count]/8.0, pede[count], CN[va],
       // sigma[count], ssun);
 
@@ -631,6 +637,194 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
   }
 
   return;
+}
+
+template <class Event, class calib>
+void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib* cals) {
+  constexpr auto NJINF = Event::GetNJINF();
+  constexpr auto NTDRS = Event::GetNTDRS();
+  constexpr auto NVAS = Event::GetNVAS();
+  constexpr auto NCHAVA = Event::GetNCHAVA();
+  constexpr auto NADCS = Event::GetNADCS();
+
+  auto signals_sorted = signals;
+
+#define PERCENTILE 0.02
+
+  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+
+      std::sort(begin(signals_sorted[iTdr][iCh]), end(signals_sorted[iTdr][iCh]));
+      unsigned int skipped_ch = PERCENTILE * signals_sorted[iTdr][iCh].size();
+      auto beginItr = std::next(begin(signals_sorted[iTdr][iCh]), skipped_ch);
+      auto endItr = std::prev(end(signals_sorted[iTdr][iCh]), skipped_ch);
+      auto nCh = std::distance(beginItr, endItr);
+      //      printf("%ld %f\n", nCh, (1.0-2.0*PERCENTILE)*signals[iTdr][iCh].size());
+
+      //      cals[iTdr].ped[iCh] = std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f) /
+      cals[iTdr].ped[iCh] = std::accumulate(beginItr, endItr, 0.0f) /
+                            //	static_cast<float>(signals[iTdr][iCh].size());
+                            float(nCh);
+
+      cals[iTdr].rsig[iCh] =
+          //	std::sqrt(std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f,
+          //	std::sqrt(std::accumulate(begin(signals[iTdr][iCh])+((int)(PERCENTILE*signals[iTdr][iCh].size())),
+          // end(signals[iTdr][iCh])-((int)(PERCENTILE*signals[iTdr][iCh].size())), 0.0f,
+          std::sqrt(std::accumulate(beginItr, endItr, 0.0f,
+                                    [&](float acc, float curr) {
+                                      return acc + (curr - cals[iTdr].ped[iCh]) * (curr - cals[iTdr].ped[iCh]);
+                                    }) /
+                    //		  static_cast<float>(signals[iTdr][iCh].size()));
+                    //		  ((1.0-2.0*PERCENTILE)*static_cast<float>(signals[iTdr][iCh].size())));
+                    float(nCh));
+      // initialize this for later
+      cals[iTdr].sig[iCh] = 0;
+      cals[iTdr].status[iCh] = 0;
+    }
+  }
+
+  //------------------------------------
+
+#ifdef CALPLOTS
+  TH1F *hrawsig[NTDRS];
+  TH1F *hrawsig_each_ch[NVAS * NCHAVA];       // only for Tdr 0
+  TH1F *hrawsig_each_ch_vs_ev[NVAS * NCHAVA]; // only for Tdr 0
+  TH1F *hADC_each_ch[NVAS * NCHAVA];          // only for Tdr 0
+  TH1F *hADC_each_ch_vs_ev[NVAS * NCHAVA];    // only for Tdr 0
+  TH1F *hrawsig_filtered[NTDRS];
+  TH1F *hsig[NTDRS];
+  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh)
+      if (iTdr == 0) {
+        hrawsig_each_ch[iCh] =
+            new TH1F(Form("rawsigma_ch%d", iCh), Form("ch=%d; #Event; Sigma Raw", iCh), 1000, -500, 500);
+        hrawsig_each_ch_vs_ev[iCh] = new TH1F(Form("rawsigma_vs_ev_ch%d", iCh), Form("ch=%d; #Event; Sigma Raw", iCh),
+                                              signals[iTdr][iCh].size(), 0, signals[iTdr][iCh].size());
+        hADC_each_ch[iCh] = new TH1F(Form("ADC_ch%d", iCh), Form("ch=%d; #Event; ADC", iCh), 1000, 0, 1000);
+        hADC_each_ch_vs_ev[iCh] = new TH1F(Form("ADC_vs_ev_ch%d", iCh), Form("ch=%d; #Event; ADC", iCh),
+                                           signals[iTdr][iCh].size(), 0, signals[iTdr][iCh].size());
+      }
+    hrawsig[iTdr] = new TH1F(Form("rawsigma_%d", iTdr), "rawsigma", 1000, -500, 500);
+    hrawsig_filtered[iTdr] = new TH1F(Form("rawsigma_filtered_%d", iTdr), "rawsigma", 1000, -500, 500);
+    hsig[iTdr] = new TH1F(Form("sigma_%d", iTdr), "sigma", 1000, -500, 500);
+    //    printf("%d) %p %p %p\n", iTdr, hrawsig[iTdr], hrawsig_filtered[iTdr], hsig[iTdr]);
+  }
+
+  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+      for (unsigned int iEv = 0; iEv < signals[iTdr][iCh].size(); iEv++) {
+        hrawsig[iTdr]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+        if (iTdr == 0) {
+          hADC_each_ch[iCh]->Fill(signals[iTdr][iCh].at(iEv));
+          hADC_each_ch_vs_ev[iCh]->SetBinContent(iEv + 1, signals[iTdr][iCh].at(iEv));
+          hrawsig_each_ch[iCh]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+          hrawsig_each_ch_vs_ev[iCh]->SetBinContent(iEv + 1, signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+        }
+      }
+      for (unsigned int iEv = ((int)(PERCENTILE * signals[iTdr][iCh].size()));
+           iEv < ((int)((1.0 - PERCENTILE) * signals[iTdr][iCh].size())); iEv++) {
+        hrawsig_filtered[iTdr]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+      }
+    }
+  }
+#endif
+
+  //----------------------------------
+
+  unsigned int lastVA = std::numeric_limits<unsigned int>::max();
+  std::vector<float> common_noise(NVAS);
+  std::vector<std::vector<unsigned int>> processed_events(NTDRS, std::vector<unsigned int>(NVAS * NCHAVA));
+  // std::vector<std::vector<unsigned int> > processed_events;
+  // processed_events.resize(NTDRS);
+  // for (int ii=0; ii<NTDRS; ii++) {
+  //   processed_events[ii].resize(NVAS * NCHAVA);
+  // }
+
+#ifdef CALPLOTS
+  //  TH1F* h_sig_eachVA[1][NCHAVA][signals[0][0].size()];//uno per ogni VA e per ogni evento - se non necessario,
+  //  meglio tenere commentato che sono molti plot
+#endif
+  for (unsigned int iEv = 0; iEv < signals[0][0].size(); ++iEv) {
+    for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+        double low_cut = signals_sorted[iTdr][iCh][PERCENTILE * signals_sorted[iTdr][iCh].size()];
+        double high_cut = signals_sorted[iTdr][iCh][(1. - PERCENTILE) * signals_sorted[iTdr][iCh].size()];
+        unsigned int thisVA = iCh / NCHAVA;
+        //	printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
+
+        if (thisVA != lastVA) {
+#ifdef CALPLOTS
+          h_sig_eachVA[0][thisVA][iEv] = new TH1F(Form("sig_Tdr%d_VA%d_Ev%d", iTdr, thisVA, iEv),
+                                                  Form("sig_Tdr%d_VA%d_Ev%d", iTdr, thisVA, iEv), 1000, -500, 500);
+#endif
+          std::vector<float> values;
+          for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
+            double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
+            double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
+            double sig_to_rawnoise = sig / rawnoise;
+#ifdef CALPLOTS
+            h_sig_eachVA[0][thisVA][iEv]->Fill(sig);
+#endif
+            // this relies in sorted vectors (i.e. signals), done in preveious loop (sigma raw)
+            //             if (iEv>=((int)(PERCENTILE*signals[iTdr][thisVA * NCHAVA + iVACh].size())) &&
+            //             iEv<((int)((1.0-PERCENTILE)*signals[iTdr][thisVA * NCHAVA + iVACh].size()))) { //probabilemte
+            //             non serve e comunque questo è sbagliato
+            if (fabs(sig_to_rawnoise) < 50.0) {
+              if (sig > low_cut && sig < high_cut)
+                values.push_back(sig);
+            }
+            // }
+          }
+
+          //	  printf("%d) Board=%d VA=%d -> %lu events for CN evaluation\n", iEv, iTdr, thisVA, values.size());
+          // get the median
+          std::sort(begin(values), end(values));
+          if (values.size() > 0) {
+            common_noise[thisVA] = 0.5 * (values[(values.size() / 2) - 1] + values[values.size() / 2]);
+          } else {
+            /*
+              for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
+                  double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
+                  double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
+                  double sig_to_rawnoise = sig/rawnoise;
+                  printf("Event = %d) board=%d, ch=%lu --> sig=%f, ped=%f, S/N=%f\n", iEv, iTdr, thisVA * NCHAVA +
+              iVACh, signals[iTdr][thisVA * NCHAVA + iVACh][iEv], cals[iTdr].ped[thisVA * NCHAVA + iVACh],
+              sig_to_rawnoise);
+              }
+            */
+            common_noise[thisVA] = 0.0;
+          }
+          // printf("%f\n", common_noise[thisVA]);
+        }
+
+        /*
+            if (std::fabs(common_noise[thisVA]) > 10) {//not used for the sigma evaluation
+              continue;
+            }
+        */
+
+        // this relies in sorted vectors (i.e. signals), done in preveious loop (sigma raw)
+        if (signals[iTdr][iCh][iEv] > low_cut && signals[iTdr][iCh][iEv] < high_cut) {
+          ++processed_events[iTdr][iCh];
+          cals[iTdr].sig[iCh] += (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
+                                 (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
+        }
+
+#ifdef CALPLOTS
+        hsig[iTdr]->Fill(signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
+#endif
+
+        lastVA = thisVA;
+      }
+    }
+  }
+  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+      if (processed_events[iTdr][iCh] == 0 && cals[iTdr].sig[iCh] != 0)
+        std::cout << "     *****" << cals[iTdr].sig[iCh] << std::endl;
+      cals[iTdr].sig[iCh] = std::sqrt(cals[iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
+    }
+  }
 }
 
 #endif
