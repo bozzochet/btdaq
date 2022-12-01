@@ -127,7 +127,7 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
   // Create the ROOT run header
   rh = new RHClassOCA();
 
-  ev = new EventOCA((char *)"ladderconf_OCA.dat", (char *)"gaincorrection.dat");
+  ev = new EventOCA((char *)"ladderconf_OCA.dat", (char *)"gaincorrection_OCA.dat");
   //  std::cout << "ev: " << ev << '\n';
 
   DecodeDataOCA::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runn, int(calNum));
@@ -338,8 +338,6 @@ bool DecodeDataOCA::ProcessCalibration() {
   // MD: e poi ricominci (fino a massimo 5k) fillando 0, 1, 2, etc... fino a dove arrivi
   // MD: se sono più di 10k li hai sostituiti tutti
 
-
-
   unsigned int nEvents{0};
   while (!feof(calfile) && nEvents < 10000) {
     // while (nEvents<1000) {
@@ -369,7 +367,12 @@ bool DecodeDataOCA::ProcessCalibration() {
   sprintf(calfileprefix, "%s/%ld", m_calDir.c_str(), runnum);
 
   //  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
-  for (unsigned int iTdr = 0; iTdr < (2 * m_numBoardsFound); ++iTdr) {
+  for (unsigned int iTdr = 0; iTdr < 2 * m_numBoardsFound; ++iTdr) {
+//    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+//      printf("%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
+//             cals[iTdr].ped[iCh], cals[iTdr].rsig[iCh], cals[iTdr].sig[iCh], 0.0, 0);
+//    }
+
     char calfilename[255];
     sprintf(calfilename, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
     FILE *calfil = fopen(calfilename, "w");

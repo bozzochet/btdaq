@@ -54,10 +54,10 @@ struct ClusterSummary {
 class Cluster : public TObject {
 
 private:
-  float GetCSignal(int aa);
+  float GetCSignal(int aa) const;
 
-  int GetReadChannelK() { return KREADCHANN; };
-  float GetSensPitchK() { return KSENSPITCH; };
+  int GetReadChannelK() const { return KREADCHANN; };
+  float GetSensPitchK() const { return KSENSPITCH; };
 
   LadderConf *m_ladderConf; //!
 
@@ -65,6 +65,8 @@ private:
   int KCHANN;//MD: e' una merda, ma non ho trovato di meglio...
 
 public:
+  static void SetMip(double mips, double mipk) { MIPSIG[0] = mips; MIPSIG[1] = mipk; }
+
   void SetNChannels(int side, int _channels) {
     if (side==0)
       SCHANN=_channels;
@@ -101,11 +103,11 @@ public:
   // Power bits
   int powbits;
 
-  double GetPitch(int side);
-  double GetNominalResolution(int side);
+  double GetPitch(int side) const;
+  double GetNominalResolution(int side) const;
   static double GetPitch(int jinfnum, int tdrnum, int side);
   static double GetNominalResolution(int jinfnum, int tdrnum, int side);
-  int GetNChannels(int side) { return (side == 0) ? SCHANN : KCHANN; };
+  int GetNChannels(int side) const { return (side == 0) ? SCHANN : KCHANN; };
 
   //! Get the VA a single strip belongs to from its address
   static int GetVA(int strip_address);
@@ -113,67 +115,67 @@ public:
   //! std constructor (create an empty cluster)
   Cluster();
   //! copy constructor
-  Cluster(Cluster &orig);
+  Cluster(const Cluster &orig);
   //! std destructor
-  virtual ~Cluster(){};
+  virtual ~Cluster() = default;
   //! Fill the hit object with the right infos
   void Build(int lad, int sid, int add, int len, float *sig, float *noi, int *stat, int Sig2NoiRatio, int CNStatus,
              int PowBits, int badin = 0);
   //! reset the cluster object
   void Clear();
   //! Returns the address of the first strip in the cluster
-  int GetAddress();
+  int GetAddress() const;
   //! Returns the lenght of the cluster
-  int GetLength();
-  int GetLength(float val);
+  int GetLength() const;
+  int GetLength(float val) const;
   //! Returns the position of the seed in the Signal vector
-  int GetSeed();
+  int GetSeed() const ;
   //! Returns the strip number of the seed
-  int GetSeedAdd();
+  int GetSeedAdd() const;
   //! Returns the signal of the seed strip
-  float GetSeedVal();
+  float GetSeedVal() const;
   //! Returns the SN of the seed strip
-  float GetSeedSN();
+  float GetSeedSN() const;
   //! Returns the total CLe noise (sq. mean)
-  float GetTotNoise();
+  float GetTotNoise() const;
   //! Calculate the CoG of the cluster using 2 strips
-  float GetCoG();
+  float GetCoG() const;
   //! Returns the Total Signal of the cluster using 2 strips
-  float GetSig();
+  float GetSig() const;
   //! Returns the Total Signal of the cluster
-  float GetTotSig();
+  float GetTotSig() const;
   //! Return the Cluster SN
-  float GetTotSN();
+  float GetTotSN() const;
   //! Caclulate the eta (0.,1.)
-  float GetEta();
+  float GetEta() const;
   //! Calculate Etaraw (-0.5,0.5)
-  float GetEtaRaw();
+  float GetEtaRaw() const;
   //! printout the cluster infos
   void Print();
   //! Apply VA Equalization from the file loaded by the function Event::ReadGainCorrection
   void ApplyVAEqualization();
 
   //! Returns the position of the cluster (Cog), in mm units
-  double GetPosition(int mult = 0);
+  double GetPosition(int mult = 0) const;
   //! Returns the position of the cluster (Cog), in mm units and after alignment
-  double GetAlignedPosition(int mult = 0);
+  double GetAlignedPosition(int mult = 0) const;
   //! Viviana: Returns the position of the cluster (Cog), in mm units and after alignment for MC
   // MD: cannot be like this. Must be general
-  double GetAlignedPositionMC();
+  double GetAlignedPositionMC() const;
 
   //! Returns the Z position
-  double GetZPosition();
+  double GetZPosition() const;
 
-  double GetSeedCharge() { return sqrt(GetSeedVal()) / sqrt(MIPSIG[side]); };
-  double GetCharge() { return sqrt(GetTotSig()) / sqrt(MIPSIG[side]); };
+  double GetSeedCharge() const { return sqrt(GetSeedVal()) / sqrt(MIPSIG[side]); };
+  double GetCharge() const { return sqrt(GetTotSig()) / sqrt(MIPSIG[side]); };
 
   int GoldRegion();
   bool BorderRegion();
 
   void SetLadderConf(LadderConf *lConf) { m_ladderConf = lConf; }
 
-  int GetTDR() { return ladder % 100; };
-  int GetJinf() { return (int)(ladder / 100); };
+  int GetTDR() const { return ladder % 100; };
+  int GetJinf() const { return (int)(ladder / 100); };
 
   ClassDef(Cluster, 2)
 };

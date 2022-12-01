@@ -19,7 +19,7 @@ Cluster::Cluster() {
   KCHANN=-1;
 }
 
-Cluster::Cluster(Cluster &orig) : TObject(orig) {
+Cluster::Cluster(const Cluster &orig) : TObject(orig) {
 
   ladder = orig.ladder;
   side = orig.side;
@@ -76,9 +76,9 @@ void Cluster::Clear() {
   side = -1;
 }
 
-int Cluster::GetAddress() { return address; }
+int Cluster::GetAddress() const { return address; }
 
-int Cluster::GetSeed() {
+int Cluster::GetSeed() const {
   float max = -1000;
   int seed = -1;
   for (int ii = 0; ii < length; ii++) {
@@ -90,9 +90,9 @@ int Cluster::GetSeed() {
   return seed;
 }
 
-int Cluster::GetSeedAdd() { return address + GetSeed(); }
+int Cluster::GetSeedAdd() const { return address + GetSeed(); }
 
-float Cluster::GetCSignal(int aa) {
+float Cluster::GetCSignal(int aa) const {
 
   //  int stadd=address+aa;
   //   int vanum=stadd/64;
@@ -118,7 +118,7 @@ float Cluster::GetCSignal(int aa) {
   return correctSignal;
 }
 
-float Cluster::GetTotNoise() {
+float Cluster::GetTotNoise() const {
   int se = GetSeed();
   int se_r = se + 1;
   int se_l = se - 1;
@@ -138,7 +138,7 @@ float Cluster::GetTotNoise() {
     return sqrt(val_r * val_r + Noise[se] * Noise[se]);
 }
 
-float Cluster::GetSig() {
+float Cluster::GetSig() const {
   int se = GetSeed();
   int se_r = se + 1;
   int se_l = se - 1;
@@ -158,7 +158,7 @@ float Cluster::GetSig() {
     return val_r + GetCSignal(se);
 }
 
-float Cluster::GetTotSig() {
+float Cluster::GetTotSig() const {
   float val = 0;
   for (int ii = 0; ii < length; ii++) {
     val += GetCSignal(ii);
@@ -166,7 +166,7 @@ float Cluster::GetTotSig() {
   return val;
 }
 
-float Cluster::GetEtaRaw() {
+float Cluster::GetEtaRaw() const {
   float ee;
   int se = GetSeed();
   int se_r = se + 1;
@@ -189,7 +189,7 @@ float Cluster::GetEtaRaw() {
   return ee;
 }
 
-float Cluster::GetEta() {
+float Cluster::GetEta() const {
   float ee = GetEtaRaw();
   if (ee < 0)
     return -3;
@@ -197,7 +197,7 @@ float Cluster::GetEta() {
     return ee - trunc(ee);
 }
 
-float Cluster::GetCoG() {
+float Cluster::GetCoG() const {
   int se = GetSeed();
   float ee = GetEtaRaw();
   if (ee < 0)
@@ -216,9 +216,9 @@ int Cluster::GetVA(int strip_address) {
   return vanum;
 }
 
-double Cluster::GetPitch(int side) { return GetPitch(GetJinf(), GetTDR(), side); };
+double Cluster::GetPitch(int side) const { return GetPitch(GetJinf(), GetTDR(), side); };
 
-double Cluster::GetNominalResolution(int side) { return GetNominalResolution(GetJinf(), GetTDR(), side); };
+double Cluster::GetNominalResolution(int side) const { return GetNominalResolution(GetJinf(), GetTDR(), side); };
 
 double Cluster::GetPitch(int jinfnum, int tdrnum, int side) {
   //  printf("Called Cluster::GetPitch(%d, %d, %d) = %lf\n", jinfnum, tdrnum, side, LadderConf::Instance()->GetPitch(jinfnum, tdrnum, side));
@@ -246,7 +246,7 @@ void Cluster::ApplyVAEqualization() {
 
 // everything I'm making here is based on the cog but should have been done on the single strip address and only then
 // the cog should have been performed
-double Cluster::GetPosition(int mult) {
+double Cluster::GetPosition(int mult) const {
 
   float cog = GetCoG();
   float cog2 = cog;
@@ -298,14 +298,14 @@ double Cluster::GetPosition(int mult) {
   return (cog2 + pitchcorr) * GetPitch(side) + mult_shift;
 }
 
-double Cluster::GetAlignedPosition(int mult) {
+double Cluster::GetAlignedPosition(int mult) const {
   double align_shift = AlignmentPars::Instance()->GetPar(GetJinf(), GetTDR(), side);
   return GetPosition(mult) - align_shift;
 }
 
 // MD: must be a general function, cannot be divided for data and MC
 // tried otherwise S K pitch and hardcoded things must be changed everywhere
-double Cluster::GetAlignedPositionMC() {
+double Cluster::GetAlignedPositionMC() const {
   double align_shift = AlignmentPars::Instance()->GetPar(GetJinf(), GetTDR(), side);
   float cog = GetCoG();
   double mult_shift = 0.0;
@@ -317,18 +317,18 @@ double Cluster::GetAlignedPositionMC() {
   return (cog + pitchcorr) * GetPitch(side) + mult_shift - align_shift;
 }
 
-double Cluster::GetZPosition() { return AlignmentPars::Instance()->GetPar(GetJinf(), GetTDR(), 2); }
+double Cluster::GetZPosition() const { return AlignmentPars::Instance()->GetPar(GetJinf(), GetTDR(), 2); }
 
-float Cluster::GetSeedVal() { return GetCSignal(GetSeed()); }
+float Cluster::GetSeedVal() const { return GetCSignal(GetSeed()); }
 
-float Cluster::GetSeedSN() { return GetCSignal(GetSeed()) / Noise[GetSeed()]; }
+float Cluster::GetSeedSN() const { return GetCSignal(GetSeed()) / Noise[GetSeed()]; }
 
-float Cluster::GetTotSN() { return GetTotSig() / GetTotNoise(); }
+float Cluster::GetTotSN() const { return GetTotSig() / GetTotNoise(); }
 
-int Cluster::GetLength() { return length; }
+int Cluster::GetLength() const { return length; }
 
 // length above a passed threshold
-int Cluster::GetLength(float val) {
+int Cluster::GetLength(float val) const {
   int se = GetSeed();
   int myle = 1;
   for (int ii = se - 1; ii >= 0; ii--)
