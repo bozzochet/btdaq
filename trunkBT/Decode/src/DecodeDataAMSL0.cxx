@@ -92,7 +92,7 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
   // Create the ROOT run header
   rh = new RHClassAMSL0();
 
-  ev = new EventAMSL0((char *)"ladderconf_L0.dat", (char *)"gaincorrection.dat");
+  ev = new EventAMSL0((char *)"ladderconf_L0.dat", (char *)"gaincorrection_L0.dat");
 
   DecodeDataAMSL0::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runNum, runStop, calStart, calStop);
 
@@ -227,6 +227,10 @@ void DecodeDataAMSL0::OpenFile(const char *rawDir, const char *calDir, int runSt
 bool DecodeDataAMSL0::ProcessCalibration() {
   int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
 
+  auto start = std::chrono::system_clock::now();
+
+  std::vector<std::vector<std::vector<float>>> signals(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
+
   for (const auto &calFilePath : m_calFilenames) {
     m_total_size_consumed = 0;
     auto event = std::make_unique<EventAMSL0>((char *)"ladderconf_L0.dat", (char *)"gaincorrection_L0.dat");
@@ -239,18 +243,8 @@ bool DecodeDataAMSL0::ProcessCalibration() {
     }
 
     printf("Processing calibration (%s)... \n", calFilePath.c_str());
-    auto start = std::chrono::system_clock::now();
 
-    std::vector<std::vector<std::vector<float>>> signals(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
-
-    // FIXME: Some test calibrations contain too many events, stop at 10k and use the first half for ped and sigma raw,
-    // and the second half for sigma
-    // MD: tipo che MD: fai vector reserved da 5k MD: inizi a leggere e vedi a quanto arrivi
-    // MD: se <5k resizi
-    // MD: se sono più a 5k smetti e fai mean e sigma_raw
-    // MD: e poi ricominci (fino a massimo 5k) fillando 0, 1, 2, etc... fino a dove arrivi
-    // MD: se sono più di 10k li hai sostituiti tutti
-
+    // Some test calibrations contain too many events, stop at 10k
     unsigned int nEvents{0};
     while (!feof(calfile) && nEvents < 10000) {
       ReadOneEventFromFile(calfile, event.get());
@@ -267,13 +261,13 @@ bool DecodeDataAMSL0::ProcessCalibration() {
       }
     }
     std::cout << '\n';
-
-    ComputeCalibration<EventAMSL0, calibAMSL0>(signals, cals);
-
-    auto stop = std::chrono::system_clock::now();
-    std::cout << "DecodeDataAMSL0::ProcessCalibration took "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
   }
+
+  ComputeCalibration<EventAMSL0, calibAMSL0>(signals, cals);
+
+  auto stop = std::chrono::system_clock::now();
+  std::cout << "DecodeDataAMSL0::ProcessCalibration took "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
 
   return true;
 }

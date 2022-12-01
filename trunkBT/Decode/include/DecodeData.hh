@@ -668,10 +668,6 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
       auto beginItr = std::next(begin(signals_sorted[iTdr][iCh]), skipped_ch);
       auto endItr = std::prev(end(signals_sorted[iTdr][iCh]), skipped_ch);
 
-      if (signals_sorted.size() >= 10000) {
-        endItr = std::next(beginItr, std::distance(beginItr, endItr) / 2);
-      }
-
       auto nCh = std::distance(beginItr, endItr);
       //      printf("%ld %f\n", nCh, (1.0-2.0*PERCENTILE)*signals[iTdr][iCh].size());
 
@@ -835,28 +831,10 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
 
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      unsigned int skipped_ch = PERCENTILE * signals_sorted[iTdr][iCh].size();
-      auto beginItr = std::next(begin(signals_sorted[iTdr][iCh]), skipped_ch);
-      auto endItr = std::prev(end(signals_sorted[iTdr][iCh]), skipped_ch);
+      if (processed_events[iTdr][iCh] == 0 && cals[iTdr].sig[iCh] != 0)
+        std::cout << "     *****" << cals[iTdr].sig[iCh] << std::endl;
 
-      if (signals_sorted.size() >= 10000) {
-        beginItr = std::next(beginItr, std::distance(beginItr, endItr) / 2);
-      }
-
-      unsigned int thisVA = iCh / NCHAVA;
-
-      cals[iTdr].sig[iCh] =
-          std::sqrt(std::accumulate(beginItr, endItr, 0.0f,
-                                    [&](float acc, float curr) {
-                                      return acc + (curr - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
-                                                       (curr - cals[iTdr].ped[iCh] - common_noise[thisVA]);
-                                    }) /
-                    static_cast<float>(std::distance(beginItr, endItr)));
-
-      //      if (processed_events[iTdr][iCh] == 0 && cals[iTdr].sig[iCh] != 0)
-      //        std::cout << "     *****" << cals[iTdr].sig[iCh] << std::endl;
-
-      // cals[iTdr].sig[iCh] = std::sqrt(cals[iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
+      cals[iTdr].sig[iCh] = std::sqrt(cals[iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
     }
   }
 }

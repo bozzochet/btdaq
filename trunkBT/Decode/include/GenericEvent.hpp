@@ -1308,6 +1308,7 @@ double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ComputeCN(int si
                                                                           float *RawSoN, int *status,
                                                                           double threshold) {
 
+  // ------------- MEDIAN method -------------
   auto fill_signals = [&](float _threshold) {
     std::vector<float> sig;
     for (size_t ich = 0; ich < size_t(size); ++ich) {
@@ -1330,6 +1331,7 @@ double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ComputeCN(int si
   float median = (sig.size() % 2) ? sig[sig.size() / 2] : 0.5f * (sig[(sig.size() / 2) - 1] + sig[sig.size() / 2]);
   return median;
 
+  // ------------- MEAN method -------------
   //  double mean = 0.0;
   //  int n = 0;
   //
