@@ -42,7 +42,7 @@ INCLUDES=-I./ -I$(ROOTINC) -isystem$(ROOTINC) -I$(DECODE)/include -isystem$(DECO
 
 .PHONY: ViewerGUI
 
-default: Analysis create_tree
+all: Analysis create_tree
 
 Viewer: ./obj/viewer.o
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) -o$@
@@ -58,6 +58,7 @@ Analysis: ./obj/Analysis.o libEvent
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@
 	ln -fs $@ AnalysisFOOT
 	ln -fs $@ AnalysisOCA
+	ln -fs $@ AnalysisAMSL0
 
 create_tree: ./obj/create_tree.o libEvent
 	$(CXX) $(CFLAGS) $< $(ADDLDFLAGS) $(ROOTDYNAMICLIBS) $(DECODELIBS) -o$@
