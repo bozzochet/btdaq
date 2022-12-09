@@ -180,9 +180,9 @@ float Cluster::GetEtaRaw() const {
     val_r = GetCSignal(se_r);
 
   if (val_l > val_r && val_l / Noise[se_l] > 0)
-    ee = (val_seed * se + val_l * se_l) / (val_l + val_seed);
+    ee = (val_l) / (val_l + val_seed);
   else if (val_r > val_l && val_r / Noise[se_r] > 0)
-    ee = (val_r * se_r + val_seed * se) / (val_r + val_seed);
+    ee = (val_r) / (val_r + val_seed);
   else
     return -3;
 
