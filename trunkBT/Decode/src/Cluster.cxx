@@ -205,7 +205,7 @@ float Cluster::GetCoG() const {
     return address + se;
   else if (ee< 0)
     return address + se + fabs(ee) - 1; // starting of the cluster + position of the seed respect to the cluster + (EtaRaw+1) 
-  else if (ee> 0)
+  else
     return address + se + ee; // starting of the cluster + position of the seed respect to the cluster + EtaRaw 
 }
 
