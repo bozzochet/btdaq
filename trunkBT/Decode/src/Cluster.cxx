@@ -179,10 +179,11 @@ float Cluster::GetEtaRaw() const {
   if (se_r < length)
     val_r = GetCSignal(se_r);
 
-  if (val_l > val_r && val_l / Noise[se_l] > 0)
-    ee = - (val_l) / (val_l + val_seed); // negative etaraw indicate that the secondary strip is on the seed left
-  else if (val_r > val_l && val_r / Noise[se_r] > 0)
-    ee = (val_r) / (val_r + val_seed);// positive etaraw indicate that the secondary strip is on the seed right 
+  // seed definition: SR / (SR+SL)
+  if (val_l > val_r && val_l / Noise[se_l] > 0) // the secondary is on the left
+    ee = - (val_seed) / (val_l + val_seed); // negative etaraw indicate that secondary is on the left
+  else if (val_r > val_l && val_r / Noise[se_r] > 0) // the secondary is on the right
+    ee = (val_r) / (val_r + val_seed);// positive etaraw indicate that secondary is on the right 
   else
     return -3;
 
@@ -191,10 +192,10 @@ float Cluster::GetEtaRaw() const {
 
 float Cluster::GetEta() const { // remove the sign (i.e. information about the position of the secondary respect to seed) on the etaRaw
   float ee = GetEtaRaw();
-  if (ee < 0)
+  if (ee < -1 || ee > 1)
     return -3;
   else
-    return ee - fabs(trunc(ee));
+    return fabs(ee);
 }
 
 float Cluster::GetCoG() const {
