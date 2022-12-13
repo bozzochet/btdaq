@@ -201,7 +201,7 @@ float Cluster::GetEta() const { // remove the sign (i.e. information about the p
 float Cluster::GetCoG() const {
   int se = GetSeed();
   float ee = GetEtaRaw();
-  if (ee < 0)
+  if (ee < -1 || ee > 1)
     return address + se;
   else
     return address + se + ee; // starting of the cluster + position of the seed respect to the cluster + EtaRaw 
