@@ -31,7 +31,7 @@ LDFLAGS = $(shell root-config --ldflags)
 # LDFLAGS += -fsanitize=address
 
 ### For Release:
-CFLAGS:= -g -O3 -fPIC -Wall -Wno-overloaded-virtual -Wno-deprecated -Wno-unused-but-set-variable
+CFLAGS:= -g -O3 -fPIC -Wall -Wno-overloaded-virtual -Wno-deprecated -Wno-unused-but-set-variable -Wno-unused-variable
 
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags)
 
