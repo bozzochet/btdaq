@@ -1,6 +1,0 @@
-*  $Id: usrcom.inc,v 1.1.1.1 2007/11/13 09:56:12 zuccon Exp $
-      INTEGER MXVAR
-      PARAMETER (MXVAR=222)
-      CHARACTER*20 VARLIS(MXVAR)
-      INTEGER NVAR
-      COMMON /USRCOM/ NVAR, VARLIS

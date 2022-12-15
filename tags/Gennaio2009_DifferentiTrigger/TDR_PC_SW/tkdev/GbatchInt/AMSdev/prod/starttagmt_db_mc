@@ -1,2 +1,0 @@
-$AMSServerJob  -M  -b1   -m   -R$AMSProdDir/prod/RunTable.mc -P$AMSProdDir/prod/NominalMCProducer -H$AMSProdDir/prod/NominalHost -S$AMSProdDir/prod/NominalServer -F$AMSProdDir/prod/NominalInterface -N$AMSProdDir/prod/NominalMCNtuple -Idefault -D1 -K$AMSProdDir/prod/NominalKiller $1 $2
-

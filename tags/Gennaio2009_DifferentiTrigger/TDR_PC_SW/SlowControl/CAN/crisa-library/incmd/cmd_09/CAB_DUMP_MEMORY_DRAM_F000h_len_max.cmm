@@ -1,3 +1,0 @@
-0A 09 07
-// DATA RAM len max (245 = F5 ) offset = F000
-AD F5 F000

@@ -1,4 +1,0 @@
-3b53            // cal extern trig, official, with dac, 52 2 without calib, init without calib, daq7608
-01c0 a000       // page 4 contains evbld at 0x2000
-0406 e000       // page 5 contains calibration at 0x2000
-0c00 0000       // page 0 contains main program (must come last)

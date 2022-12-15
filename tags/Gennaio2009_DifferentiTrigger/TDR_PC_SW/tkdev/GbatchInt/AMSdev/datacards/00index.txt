@@ -1,6 +1,0 @@
-#  $Id: 00index.txt,v 1.1.1.1 2007/11/13 09:56:10 zuccon Exp $
-sh0.job   // datacards example (see also ../doc/datacards.doc)
-sh_ll.job // cards for sp2 loadlevel 
-{c,ap,he,pos,pr}.job    Simulate corr particles
-shD.job  // write   dbase (proton example)
-shD_r.job // read dbase (proton example)

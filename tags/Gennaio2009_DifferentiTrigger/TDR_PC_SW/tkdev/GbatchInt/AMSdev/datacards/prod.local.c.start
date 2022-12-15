@@ -1,2 +1,0 @@
-//  $Id: prod.local.c.start,v 1.1.1.1 2007/11/13 09:56:11 zuccon Exp $
-nice -10 prod.local.c $1 $2 1>/Offline/logs.local/$1.c.log 2>/Offline/logs.local/$1.c.e.log &

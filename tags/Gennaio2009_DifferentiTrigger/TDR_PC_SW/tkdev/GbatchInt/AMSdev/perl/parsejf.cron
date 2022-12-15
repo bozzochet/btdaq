@@ -1,6 +1,0 @@
-#!/bin/bash
-# parsejf daily 
-/var/www/cgi-bin/mon/parsejf.o.cgi -c
-exit 0
-
-

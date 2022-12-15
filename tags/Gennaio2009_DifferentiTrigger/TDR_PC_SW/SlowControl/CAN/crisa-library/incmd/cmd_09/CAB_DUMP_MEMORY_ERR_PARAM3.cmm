@@ -1,4 +1,0 @@
-// dump error in param 3
-0A 09 07
-// PROM len FF offset = FFFF
-A1 10 FFFF

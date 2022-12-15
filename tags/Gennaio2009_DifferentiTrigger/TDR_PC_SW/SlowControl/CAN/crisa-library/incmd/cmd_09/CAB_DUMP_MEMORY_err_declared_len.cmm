@@ -1,4 +1,0 @@
-// length minor than allowed for this command
-0A 09 06
-// DATA RAM len 04 offset = 0000
-AD 01 00
