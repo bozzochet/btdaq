@@ -1,4 +1,0 @@
-3ad3            // trackertest slow2 (pedestals and sraw, only 1st and 2nd step)
-01c2 a000       // page 4 contains evbld at 0x2000
-058c e000       // page 5 contains calibration at 0x2000
-0bf4 0000       // page 0 contains main program (must come last)

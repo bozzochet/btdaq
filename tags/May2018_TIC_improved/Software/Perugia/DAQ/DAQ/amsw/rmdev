@@ -1,9 +1,0 @@
-#!/bin/sh
-  
-module="amswire"
-device="amsw"
-
-# remove module
-/sbin/rmmod ${module}
-
-#rm -f /dev/amsw*

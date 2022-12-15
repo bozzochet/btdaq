@@ -1,8 +1,0 @@
- E.Choumilov, 10.07.2007
- 
-  The TofAccPedDBWriter, TofAccPedDBWriter.pl and TofAccPedDBWriterHelp.txt
-files are the reference files. They can be copied to /f2users/tofaccuser/pedcalib
-directory for updating the old ones stored in this directory. When you are in 
-this directory the ./TofAntPedDBWriter.pl command will start real data TOF|ACC-peds
-DB-update session. See more details in readme file of this directory. 
- 
