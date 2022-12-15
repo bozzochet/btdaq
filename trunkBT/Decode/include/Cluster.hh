@@ -71,9 +71,9 @@ public:
     if (side==0)
       SCHANN=_channels;
     else
-      KCHANN=_channels; 
+      KCHANN=_channels;
   }
-  
+
   //! Adress of the first strip of the cluster
   int address;
   //! Nstrips of the clusters
@@ -134,6 +134,10 @@ public:
   int GetSeedAdd() const;
   //! Returns the signal of the seed strip
   float GetSeedVal() const;
+  //| Returns position of the secondary strip in the Signal vector
+  int GetSec() const;
+  //! Returns the signal of the secondary strip
+  float GetSecVal() const;
   //! Returns the SN of the seed strip
   float GetSeedSN() const;
   //! Returns the total CLe noise (sq. mean)

@@ -409,6 +409,24 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
                                        entries, 0, entries, NJINF * NTDRS, 0, NJINF * NTDRS);
   histos->Add(hclusKladd_vs_event);
 
+  //new, added by alessio:
+  TH1F *hlength = new TH1F("hlength", "hlength; Cluster length; Entries",128,-0.5,128.5);
+  histos->Add(hlength);
+
+  TH2F *hTotSignal_vs_cog = new TH2F("hTotSignal_vs_cog", "hTotSignal_vs_cog (Cl with highest TotSig); Cog; TotSig(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 15000);
+  histos->Add(hTotSignal_vs_cog);
+  TH2F *hSeedSignal_vs_cog = new TH2F("hSeedSignal_vs_cog", "hSeedSignal_vs_cog (Cl with highest TotSig); Cog; SeedSig(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 15000);
+  histos->Add(hSeedSignal_vs_cog);
+  TH2F *hSecSignal_vs_cog = new TH2F("hSecSignal_vs_cog", "hSecSignal_vs_cog (Cl with highest TotSig); Cog; SecSig(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 15000);
+  histos->Add(hSecSignal_vs_cog);
+
+  TH2F *hTotSignal_vs_eta = new TH2F("hTotSignal_vs_eta", "hTotSignal_vs_eta (Cl with highest TotSig); Eta; TotSig(ADC)",250,0,1,4200,-100,15000);
+  histos->Add(hTotSignal_vs_eta);
+  TH2F *hSeedSignal_vs_eta = new TH2F("hSeedSignal_vs_eta", "hSeedSignal_vs_eta (Cl with highest TotSig); Eta; SeedSig(ADC)",250,0,1,4200,-100,15000);
+  histos->Add(hSeedSignal_vs_eta);
+  TH2F *hSecSignal_vs_eta = new TH2F("hSecSignal_vs_eta", "hSecSignal_vs_eta (Cl with highest TotSig); Eta; SecSig(ADC)",250,0,1,4200,-100,2000);
+  histos->Add(hSecSignal_vs_eta);
+
   //----------------------------------------------------------------------------
 
   // clean events
@@ -680,8 +698,18 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
   TH2 *hclusSladd_vs_event = (TH2 *)(histos->FindObject("hclusSladd_vs_event"));
   TH2 *hclusKladd_vs_event = (TH2 *)(histos->FindObject("hclusKladd_vs_event"));
 
+  TH1 *hlength = (TH1 *)(histos->FindObject("hlength"));
+  TH2 *hTotSignal_vs_cog = (TH2 *)(histos->FindObject("hTotSignal_vs_cog"));
+  TH2 *hSeedSignal_vs_cog = (TH2 *)(histos->FindObject("hSeedSignal_vs_cog"));
+  TH2 *hSecSignal_vs_cog = (TH2 *)(histos->FindObject("hSecSignal_vs_cog"));
+  TH2 *hTotSignal_vs_eta = (TH2 *)(histos->FindObject("hTotSignal_vs_eta"));
+  TH2 *hSeedSignal_vs_eta = (TH2 *)(histos->FindObject("hSeedSignal_vs_eta"));
+  TH2 *hSecSignal_vs_eta = (TH2 *)(histos->FindObject("hSecSignal_vs_eta"));
+
   hclus->Fill(NClusTot);
   hclus_vs_event->Fill(index_event, NClusTot);
+  //new
+  std::vector<float> totSignal;
 
   for (int index_cluster = 0; index_cluster < NClusTot; index_cluster++) {
 
@@ -699,7 +727,29 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
     } else {
       hclusKladd_vs_event->Fill(index_event, ladder);
     }
+
+    hlength->Fill(cl->GetLength());
+    totSignal.push_back(cl->GetTotSig());
   }
+  if (totSignal.size() > 0) {
+    int max_index=0;
+    float max = totSignal[0];
+    for (int i=0; i<NClusTot; i++)
+      if (totSignal[i]>max) {
+        max = totSignal[i];
+        max_index=i;
+      }
+    Cluster *clmax = ev->GetCluster(max_index);
+    hTotSignal_vs_cog->Fill(clmax->GetCoG(),clmax->GetTotSig());
+    hSeedSignal_vs_cog->Fill(clmax->GetCoG(),clmax->GetSeedVal());
+    hSecSignal_vs_cog->Fill(clmax->GetCoG(),clmax->GetSecVal());
+    hTotSignal_vs_eta->Fill(clmax->GetEta(),clmax->GetTotSig());
+    hSeedSignal_vs_eta->Fill(clmax->GetEta(),clmax->GetSeedVal());
+    hSecSignal_vs_eta->Fill(clmax->GetEta(),clmax->GetSecVal());
+  }
+
+
+
 
   return;
 }
