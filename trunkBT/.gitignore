@@ -1,0 +1,3 @@
+# ignore all emacs stubs
+*~
+.DS_Store

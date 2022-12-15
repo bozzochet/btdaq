@@ -22,17 +22,21 @@
 #include "TString.h"
 #include "TApplication.h"
 #include "TFile.h"
-#include <TGClient.h>
-#include <TF1.h>
-#include <TRandom.h>
-#include <TGButton.h>
-#include <TGLabel.h>
-#include <TGFrame.h>
-#include <TRootEmbeddedCanvas.h>
-#include <RQ_OBJECT.h>
-#include <TGMenu.h>
-#include <TGNumberEntry.h>
-#include <TGResourcePool.h>
+#include "TGClient.h"
+#include "TF1.h"
+#include "TRandom.h"
+#include "TGButton.h"
+#include "TGLabel.h"
+#include "TGFrame.h"
+#include "TRootEmbeddedCanvas.h"
+#include "RQ_OBJECT.h"
+#include "TGMenu.h"
+#include "TGNumberEntry.h"
+#include "TGResourcePool.h"
+#include "TFrame.h"
+
+bool calnohist=false;
+bool calred=false;
 
 /* for GUI START */
 double y1_min=0;
@@ -275,7 +279,9 @@ void plotta_cal(){
 
   const int namsl0fepfiles = 1;
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519"};
-  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/626"};
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/626"};
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_SIPMTRG/0003/917"};
+  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_BLatPS/0008/090"};
   
   std::vector<TH1F*> comparison[3];//3 since there're 3 comparisons: pedestal, sigma and sigmawas
 
@@ -1083,8 +1089,8 @@ void SummaryCal(std::vector<TH1F*> histos, const char* filename, const char* nam
     nch_for_va = 64;
     max_ped = 4000;
     max_ave = 10.0;
-    max_sig = 10;
-    max_rsig = 10;
+    max_sig = 15;
+    max_rsig = 15;
   }
   else {//type=0, AMS, FOOT/POX, ...
     nva=10;
@@ -1123,7 +1129,13 @@ void SummaryCal(std::vector<TH1F*> histos, const char* filename, const char* nam
     fram->Draw();
     TH1F *isto = histos.at(0);
     //  printf("%p\n", isto);
-    isto->Draw("samehist");
+    if (calnohist) {
+      for (int ii=0; ii<=isto->GetNbinsX()+1; ii++) {
+	isto->SetBinError(ii, 0);
+      }
+      isto->Draw("sameP");
+    }
+    else isto->Draw("samehist");
     gPad->Update();
     LinesVas(nva, ((int)(nch/nva)));
     gPad->Update();
@@ -1138,7 +1150,13 @@ void SummaryCal(std::vector<TH1F*> histos, const char* filename, const char* nam
     /* for (int bb=0; bb<=isto4->GetNbinsX()+1; bb++){ */
     /*   printf("%d) %f\n", bb, isto4->GetBinContent(bb)); */
     /* } */
-    isto4->Draw("samehist");
+    if (calnohist) {
+      for (int ii=0; ii<=isto4->GetNbinsX()+1; ii++) {
+	isto4->SetBinError(ii, 0);
+      }
+      isto4->Draw("sameP");
+    }
+    else isto4->Draw("samehist");
     gPad->Update();
     LinesVas(nva, ((int)(nch/nva)));
     gPad->Update();
@@ -1149,7 +1167,13 @@ void SummaryCal(std::vector<TH1F*> histos, const char* filename, const char* nam
     fram2->SetStats(0);
     fram2->Draw();
     TH1F *isto2 = histos.at(1);
-    isto2->Draw("samehist");
+    if (calnohist) {
+      for (int ii=0; ii<=isto2->GetNbinsX()+1; ii++) {
+	isto2->SetBinError(ii, 0);
+      }
+      isto2->Draw("sameP");
+    }
+    else isto2->Draw("samehist");
     gPad->Update();
     LinesVas(nva, ((int)(nch/nva)));
     gPad->Update();
@@ -1160,7 +1184,13 @@ void SummaryCal(std::vector<TH1F*> histos, const char* filename, const char* nam
     fram3->SetStats(0);
     fram3->Draw();
     TH1F *isto3 = histos.at(2);
-    isto3->Draw("samehist");
+    if (calnohist) {
+      for (int ii=0; ii<=isto3->GetNbinsX()+1; ii++) {
+	isto3->SetBinError(ii, 0);
+      }
+      isto3->Draw("sameP");
+    }
+    else isto3->Draw("samehist");
     gPad->Update();
     LinesVas(nva, ((int)(nch/nva)));
     gPad->Update();
@@ -1224,7 +1254,8 @@ int InitStyle() {
 
     linecol=kWhite*style+kBlack*(1-style);
     bkgndcol=kBlack*style+kWhite*(1-style);
-    histcol=kYellow*style+kBlack*(1-style); // was 95
+    if (calred) histcol=kRed+2;
+    else histcol=kYellow*style+kBlack*(1-style); // was 95
 
     myStyle[style]->Copy(*tempo);
 
@@ -1254,12 +1285,19 @@ int InitStyle() {
     myStyle[style]->SetTitleTextColor(linecol);
     myStyle[style]->SetLineColor(linecol);
     myStyle[style]->SetMarkerColor(histcol);
+    myStyle[style]->SetMarkerStyle(20);
+    if (calnohist) {
+      myStyle[style]->SetMarkerSize(0.5);
+    }
     myStyle[style]->SetTextColor(linecol);
 
     myStyle[style]->SetGridColor((style)?13:kBlack);
     myStyle[style]->SetHistFillStyle(1001*(1-style));
     myStyle[style]->SetHistLineColor(histcol);
-    myStyle[style]->SetHistFillColor((style)?bkgndcol:kYellow);
+    if (!calred) {
+      myStyle[style]->SetHistFillColor((style)?bkgndcol:kYellow);
+      //      myStyle[style]->SetHistFillColor(histcol);
+    }
     myStyle[style]->SetOptDate(22);
     myStyle[style]->GetAttDate()->SetTextColor(linecol);
     myStyle[style]->GetAttDate()->SetTextAngle(90);

@@ -22,7 +22,10 @@ LadderConf* Utilities<Event, RH>::GetLadderConf(TChain* chain){
 
   static LadderConf* ladderconf = NULL;
 
-  if (!ladderconf) {
+  int oldtreenumber = -10;
+  
+  if (!ladderconf || oldtreenumber!=chain->GetTreeNumber()) {
+    oldtreenumber = chain->GetTreeNumber();
     ladderconf = new LadderConf((LadderParamsMap*)chain->GetTree()->GetUserInfo()->At(1));
   }
   else {
