@@ -1,9 +1,0 @@
-echo $1
-
-/home/testsys/src/TDRv4.91j/bin/TESTepp 0 40000b3f 52 0
-/home/testsys/src/TDRv4.91j/bin/TESTepp 0 40000b3f 42
-/home/testsys/src/TDRv4.91j/bin/TESTepp 0 40000b3f 53 0 8008
-sleep 1
-/home/testsys/src/TDRv4.91j/bin/TESTepp 0 ffff ff10 093f 2e53 0 32 $1
-sleep 3
-/home/testsys/src/TDRv4.91j/bin/TESTepp 0 ffff ff10 093f 2e53 1

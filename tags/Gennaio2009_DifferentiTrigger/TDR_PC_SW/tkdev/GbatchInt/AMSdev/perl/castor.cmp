@@ -1,7 +1,0 @@
-#!/usr/bin/perl -w
-
-use strict;
-use lib::CastorCopy;
-
- my $mover=newCmp CastorCopy();
- $mover->doCmp();

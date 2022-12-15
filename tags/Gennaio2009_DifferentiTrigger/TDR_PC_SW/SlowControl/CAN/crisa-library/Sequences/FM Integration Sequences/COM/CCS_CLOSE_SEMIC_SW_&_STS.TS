@@ -1,5 +1,0 @@
-   1:SEND COMMAND                  :CAN-02, C53, CCS_COMMANDING_ARM_DISARM_ARM.CMM, 0
-   2:SEND COMMAND                  :CAN-02, C4B, CCS_OPEN_CLOSE_SEMIC_SW_CLOSE.CMM, 0
-   3:SEND COMMAND                  :CAN-02, C53, CCS_COMMANDING_ARM_DISARM_DISARM.CMM, 0
-   4:SEND COMMAND                  :CAN-02, C03, CAB_GET_ESSENTIAL_STATUS.CMM, 0
-   5:REQUEST MESSAGE               :GEP-05, This is a request message example, NONE
