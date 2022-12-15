@@ -1,6 +1,0 @@
-<<<<<<< HEAD
-ciaooooo
-=======
-d
-prova
->>>>>>> e98138eba89904b25855d0acf05507bcf9d942ee
