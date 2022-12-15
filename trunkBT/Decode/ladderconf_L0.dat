@@ -1,5 +1,0 @@
-#JINF TDR SPITCH (mm) KPITCH (mm) SRESO (mm) KRESO(mm) MultiplicyFlip SMirror KMirror BondType SHiThresh SLoThresh KHiThresh KLoThresh SideSwap
-#Y0
-0     0	  0.220	      0.220	      0.030	     0.030     0	          0	      0	      0	       3.5	     1.0	   3.5	     1.0       0
-#X0
-0     1	  0.220	      0.220	      0.030	     0.030     0	          0	      0	      0	       3.5	     1.0	   3.5	     1.0       0
