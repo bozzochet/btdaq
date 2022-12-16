@@ -1,1 +1,0 @@
-g++ -lusb -lquickusb test.cc -o test

@@ -1,6 +1,0 @@
-        DirFrom=/Offline/AMSDataDir
-        DirTo=/Offline/AMSDataDir.local
-        export DirFrom
-        export  DirTo
-        cp /Offline/vdev/slow/backup /Offline/logs.local/backup
-        /Offline/logs.local/backup  1>/Offline/logs.local/backup1.log 2>/Offline/logs.local/backup1.e.log&

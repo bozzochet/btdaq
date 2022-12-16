@@ -1,4 +1,0 @@
-3e73		// new daq . version 20091017
-0680 a000	// page 4 contains evbld at 0x2000 
-091c e000	// page 5 contains calibration at 0x2000
-0ce2 0000	// page 0 contains main program (must come last)

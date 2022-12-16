@@ -1,4 +1,0 @@
-3fc3		// daq 9c01 and red/cal. version 20100802 TDR R15 source tdrxxx_c.asm
-091c a000	// page 4 contains evbld at 0x2000 
-096e e000	// page 5 contains calibration at 0x2000
-0ce2 0000	// page 0 contains main program (must come last)

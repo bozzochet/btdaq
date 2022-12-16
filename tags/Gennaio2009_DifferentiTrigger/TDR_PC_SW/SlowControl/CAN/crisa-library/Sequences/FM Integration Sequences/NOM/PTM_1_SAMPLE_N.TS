@@ -1,1 +1,0 @@
-   1:PTM  ACQUIRE                  :CAN-06, 1, 0

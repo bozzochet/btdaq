@@ -1,2 +1,0 @@
-gcc -o aps1 aps1.c mylib.c klib.c
-./aps1

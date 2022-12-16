@@ -1,4 +1,0 @@
-3c03            // cal ext trig, dac, 52 2 w/o calib, init w/o cal, daq7608, red 7310_01
-01b0 a000       // page 4 contains evbld at 0x2000
-0406 e000       // page 5 contains calibration at 0x2000
-0c00 0000       // page 0 contains main program (must come last)

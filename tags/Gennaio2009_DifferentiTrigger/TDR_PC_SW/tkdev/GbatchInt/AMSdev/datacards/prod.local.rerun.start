@@ -1,1 +1,0 @@
-nice -20 /offline/vdev/datacards/prod.local.rerun $1 $2 $3 1>/Offline/logs.local/$1.$3.log 2>/Offline/logs.local/$1.$3.e.log &

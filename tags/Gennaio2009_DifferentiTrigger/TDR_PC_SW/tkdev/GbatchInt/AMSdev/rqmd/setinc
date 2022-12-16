@@ -1,4 +1,0 @@
-ln -s scatter7.f scatter7
-ln -s partblk7.f partblk7
-ln -s sigmasx.f sigmasx
-ln -s storbig.f storbig

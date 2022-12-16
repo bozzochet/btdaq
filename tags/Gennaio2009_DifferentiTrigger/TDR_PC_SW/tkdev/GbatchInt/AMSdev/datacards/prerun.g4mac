@@ -1,7 +1,0 @@
-/vis/open OGLSX
-/vis/viewer/set/viewpointThetaPhi 90 0 
-/vis/drawVolume AMSG
-/vis/viewer/zoom 1.5
-/vis/viewer/set/sectionPlane on 0 0 0 mm 1 0 0
-/vis/viewer/pan 500 0 0 
-/vis/viewer/flush
