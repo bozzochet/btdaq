@@ -515,7 +515,7 @@ int DecodeDataAMSL0::ReadOneEvent() {
   static auto filenameIt = begin(m_dataFilenames);
   if (first_call) {
     std::string filename = *filenameIt;
-    std::cout << "Opening data file " << filename << '\n';
+    std::cout << "\rOpening data file " << filename << '\n';
     rawfile = fopen(filename.c_str(), "r");
     first_call = false;
 
@@ -525,7 +525,7 @@ int DecodeDataAMSL0::ReadOneEvent() {
   if (feof(rawfile)) {
     if (++filenameIt != end(m_dataFilenames)) {
       std::string filename = *filenameIt;
-      std::cout << "Opening data file " << filename << '\n';
+      std::cout << "\rOpening data file " << filename << '\n';
       rawfile = fopen(filename.c_str(), "r");
     } else {
       m_end_of_file = true;

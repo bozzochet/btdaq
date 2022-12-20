@@ -601,6 +601,13 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
           //            printf("Cluster: add=%d  lenght=%d, seed=%d\n", clusadd + shift, cluslen, seedaddmax + shift);
           //	  clusterstringtodump += Form("Cluster: add=%d  lenght=%d, seed=%d\n", clusadd+shift, cluslen,
           // seedaddmax+shift);
+
+          // NOTE [VF]: Add two more strips to the cluster, just for safety, as done on flight data.
+          // one to the left
+          clusadd -= 1;
+          // one to the right
+          cluslen += 1;
+
           for (int hh = clusadd; hh < (clusadd + cluslen); hh++) {
             int _va = (int)(hh / nchava);
             float s = array[hh] / m_adcUnits - pede[hh] - CN[_va];
