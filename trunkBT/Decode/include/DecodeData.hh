@@ -604,9 +604,10 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
 
           // NOTE [VF]: Add two more strips to the cluster, just for safety, as done on flight data.
           // one to the left
-          clusadd -= 1;
+          if (clusadd > 0)
+            clusadd -= 1;
           // one to the right
-          cluslen += 1;
+          cluslen += 2;
 
           for (int hh = clusadd; hh < (clusadd + cluslen); hh++) {
             int _va = (int)(hh / nchava);
