@@ -2,6 +2,7 @@
 #include "EventUtils.hh"
 #include <cmath>
 #include <string.h>
+#include <functional>
 
 Cluster::Cluster() {
   address = 0;
@@ -370,6 +371,17 @@ int Cluster::GetLength(float val) const {
     else
       break;
   return myle;
+}
+
+std::vector <float> Cluster::Sort() {
+  std::vector<float> v;
+  int temp;
+  for (int i=0; i<length; i++)
+    v.push_back(Signal[i]);
+
+  std::sort(begin(v), end(v), std::greater<float>{});
+  return v;
+
 }
 
 void Cluster::Print() {
