@@ -121,10 +121,10 @@ int main(int argc, char **argv) {
                 "(default is OFF)");
   opt->addUsage("");
   opt->addUsage("  --calrunstart ....................................... Run/file number of calibration (first) "
-                "(needed for AMSL0)");
+                "(needed for AMSL0 or possible for (OCA, FOOT) to choose the calibration by hand)");
   opt->addUsage("  --calrunstop ....................................... Run/file number of calibration (last) (needed "
                 "for AMSL0)");
-  opt->addUsage("  --ancillary ....................................... Ancillary file number (for AMS)");
+  opt->addUsage("  --ancillary ....................................... Ancillary file number (only possible for AMS)");
   opt->addUsage("Arguments: ");
   opt->addUsage("  <runnum> [runstop (for AMSL0)]");
 

@@ -88,11 +88,13 @@ void DecodeDataFOOT::OpenFile(const char *rawDir, const char *calDir, int runNum
 
   if (calNum > 0) {
     auto calFilename_it = std::find_if(begin(fileList), end(fileList), [calNum](const std::string &_filename) {
-      // all our files begin with 'SCD_RUN' followed by zero-padded run numbers
-      bool is_cal = _filename.substr(13, 3) == "CAL";
-      unsigned int runNum = std::atoi(_filename.substr(7, 5).c_str());
-      return is_cal && (runNum == static_cast<unsigned int>(calNum));
-    });
+	// all our files begin with 'SCD_RUN' followed by zero-padded run numbers
+        // the substr below can throw an error with filename, in the same dir, like 171_0000.cal (that shouldn't be there, but...).
+	// In DecodeDataOCA I added a check on the filename size
+	bool is_cal = _filename.substr(13, 3) == "CAL";
+	unsigned int runNum = std::atoi(_filename.substr(7, 5).c_str());
+	return is_cal && (runNum == static_cast<unsigned int>(calNum));
+      });
 
     if (calFilename_it != end(fileList)) {
       m_calFilename = *calFilename_it;

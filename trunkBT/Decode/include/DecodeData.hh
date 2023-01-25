@@ -174,15 +174,15 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
       // if (clusadd>=(3*NCHAVA) && clusadd<(5*NCHAVA)) newclusadd+=3*NCHAVA;
       // if (clusadd>=(5*NCHAVA) && clusadd<(8*NCHAVA)) newclusadd-=2*NCHAVA;
       // questo cura in parte dei problemi sui bordi ancora da capire
-      if (clusadd >= (3 * NCHAVA) && (clusadd + cluslen - 1) < (5 * NCHAVA))
+      if ((unsigned int)clusadd >= (3 * NCHAVA) && (unsigned int)(clusadd + cluslen - 1) < (5 * NCHAVA))
         newclusadd += 3 * NCHAVA;
-      if ((clusadd + cluslen - 1) >= (5 * NCHAVA) && clusadd < (8 * NCHAVA))
+      if ((unsigned int)(clusadd + cluslen - 1) >= (5 * NCHAVA) && (unsigned int)clusadd < (8 * NCHAVA))
         newclusadd -= 2 * NCHAVA;
     }
   }
 
   int sid = 0;
-  if (!kMC && clusadd >= (NCHAVA * NVASS))
+  if (!kMC && (unsigned int)clusadd >= (NCHAVA * NVASS))
     sid = 1;
   if (kMC)
     sid = !tdrAlign[numnum]; // check alignment. MD: why we need this in the MC case?
@@ -276,7 +276,7 @@ inline void DecodeData::FillRawHistos(int numnum, int Jinfnum, Event *ev, calib 
   // printf("Thresholds: %f %f\n", shithresh, khithresh);
   // sleep(3);
 
-  for (int cc = 0; cc < (NCHAVA * NVAS); cc++) {
+  for (unsigned int cc = 0; cc < (NCHAVA * NVAS); cc++) {
 
     double threshold = shithresh;
     int side = 0;
