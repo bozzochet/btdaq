@@ -252,7 +252,7 @@ void DecodeDataOCA::OpenFile(const char *rawDir, const char *calDir, int runNum,
 	}
 	bool is_cal = _filename.substr(13, 3) == "CAL";
 	unsigned int runNum = std::atoi(_filename.substr(7, 5).c_str());
-	printf("runNum: %u\n", runNum);
+	//	printf("runNum: %u\n", runNum);
 	return is_cal && (runNum == static_cast<unsigned int>(calNum));
       });
     
