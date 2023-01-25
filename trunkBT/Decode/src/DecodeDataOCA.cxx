@@ -376,9 +376,9 @@ bool DecodeDataOCA::ProcessCalibration() {
 
   char calfileprefix[255];
   sprintf(calfileprefix, "%s/%ld", m_calDir.c_str(), runnum);
-  printf("calfileprefix: %s\n", calfileprefix);
+  //  printf("calfileprefix: %s\n", calfileprefix);
 
-  printf("m_numBoardsFound: %d\n", m_numBoardsFound);
+  //  printf("m_numBoardsFound: %d\n", m_numBoardsFound);
   //  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
   for (unsigned int iTdr = 0; iTdr < 2 * m_numBoardsFound; ++iTdr) {
 //    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -521,6 +521,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
   if (fstat == -1) {
     return 1;
   }
+  m_numBoardsFound = num_boards;
 
   uint16_t dummy;
   fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
