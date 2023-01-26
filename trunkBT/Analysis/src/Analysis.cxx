@@ -180,38 +180,39 @@ template <class Event, class RH> int ProcessChain(TChain *chain, TString output_
   double perc = 0;
 
   // valid for TIC BT?
-//  ts->ExcludeTDR(ev, 0, 2, 0);
-//  ts->ExcludeTDR(ev, 0, 2, 1);
-//  ts->ExcludeTDR(ev, 0, 3, 0);
-//  ts->ExcludeTDR(ev, 0, 3, 1);
-//  ts->ExcludeTDR(ev, 0, 6, 0);
-//  ts->ExcludeTDR(ev, 0, 6, 1);
-//  ts->ExcludeTDR(ev, 0, 7, 0);
-//  ts->ExcludeTDR(ev, 0, 7, 1);
-  ts->ExcludeTDR(ev, 0, 8, 0);
-  ts->ExcludeTDR(ev, 0, 8, 1);
-  ts->ExcludeTDR(ev, 0, 9, 0);
-  ts->ExcludeTDR(ev, 0, 9, 1);
-  ts->ExcludeTDR(ev, 0, 10, 0);
-  ts->ExcludeTDR(ev, 0, 10, 1);
-  ts->ExcludeTDR(ev, 0, 11, 0);
-  ts->ExcludeTDR(ev, 0, 11, 1);
-  ts->ExcludeTDR(ev, 0, 14, 0);
-  ts->ExcludeTDR(ev, 0, 14, 1);
-  ts->ExcludeTDR(ev, 0, 15, 0);
-  ts->ExcludeTDR(ev, 0, 15, 1);
-  ts->ExcludeTDR(ev, 0, 18, 0);
-  ts->ExcludeTDR(ev, 0, 18, 1);
-  ts->ExcludeTDR(ev, 0, 19, 0);
-  ts->ExcludeTDR(ev, 0, 19, 1);
-  ts->ExcludeTDR(ev, 0, 20, 0);
-  ts->ExcludeTDR(ev, 0, 20, 1);
-  ts->ExcludeTDR(ev, 0, 21, 0);
-  ts->ExcludeTDR(ev, 0, 21, 1);
-  ts->ExcludeTDR(ev, 0, 22, 0);
-  ts->ExcludeTDR(ev, 0, 22, 1);
-  ts->ExcludeTDR(ev, 0, 23, 0);
-  ts->ExcludeTDR(ev, 0, 23, 1);
+  //  ts->ExcludeTDR(ev, 0, 2, 0);
+  //  ts->ExcludeTDR(ev, 0, 2, 1);
+  //  ts->ExcludeTDR(ev, 0, 3, 0);
+  //  ts->ExcludeTDR(ev, 0, 3, 1);
+  //  ts->ExcludeTDR(ev, 0, 6, 0);
+  //  ts->ExcludeTDR(ev, 0, 6, 1);
+  //  ts->ExcludeTDR(ev, 0, 7, 0);
+  //  ts->ExcludeTDR(ev, 0, 7, 1);
+  // valid for 2021 SPS HERD BT
+  //  ts->ExcludeTDR(ev, 0, 8, 0);
+  //  ts->ExcludeTDR(ev, 0, 8, 1);
+  //  ts->ExcludeTDR(ev, 0, 9, 0);
+  //  ts->ExcludeTDR(ev, 0, 9, 1);
+  //  ts->ExcludeTDR(ev, 0, 10, 0);
+  //  ts->ExcludeTDR(ev, 0, 10, 1);
+  //  ts->ExcludeTDR(ev, 0, 11, 0);
+  //  ts->ExcludeTDR(ev, 0, 11, 1);
+  //  ts->ExcludeTDR(ev, 0, 14, 0);
+  //  ts->ExcludeTDR(ev, 0, 14, 1);
+  //  ts->ExcludeTDR(ev, 0, 15, 0);
+  //  ts->ExcludeTDR(ev, 0, 15, 1);
+  //  ts->ExcludeTDR(ev, 0, 18, 0);
+  //  ts->ExcludeTDR(ev, 0, 18, 1);
+  //  ts->ExcludeTDR(ev, 0, 19, 0);
+  //  ts->ExcludeTDR(ev, 0, 19, 1);
+  //  ts->ExcludeTDR(ev, 0, 20, 0);
+  //  ts->ExcludeTDR(ev, 0, 20, 1);
+  //  ts->ExcludeTDR(ev, 0, 21, 0);
+  //  ts->ExcludeTDR(ev, 0, 21, 1);
+  //  ts->ExcludeTDR(ev, 0, 22, 0);
+  //  ts->ExcludeTDR(ev, 0, 22, 1);
+  //  ts->ExcludeTDR(ev, 0, 23, 0);
+  //  ts->ExcludeTDR(ev, 0, 23, 1);
 
 
   for (int index_event = 0; index_event < entries; index_event++) {
