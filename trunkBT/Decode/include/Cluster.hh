@@ -71,9 +71,9 @@ public:
     if (side==0)
       SCHANN=_channels;
     else
-      KCHANN=_channels; 
+      KCHANN=_channels;
   }
-  
+
   //! Adress of the first strip of the cluster
   int address;
   //! Nstrips of the clusters
@@ -134,24 +134,30 @@ public:
   int GetSeedAdd() const;
   //! Returns the signal of the seed strip
   float GetSeedVal() const;
+  //| Returns position of the secondary strip in the Signal vector
+  int GetSec() const;
+  //! Returns the signal of the secondary strip
+  float GetSecVal() const;
   //! Returns the SN of the seed strip
   float GetSeedSN() const;
   //! Returns the total CLe noise (sq. mean)
   float GetTotNoise() const;
-  //! Calculate the CoG of the cluster using 2 strips
+  //! Calculates the CoG of the cluster using 2 strips
   float GetCoG() const;
   //! Returns the Total Signal of the cluster using 2 strips
   float GetSig() const;
   //! Returns the Total Signal of the cluster
   float GetTotSig() const;
-  //! Return the Cluster SN
+  //! Returns the Cluster SN
   float GetTotSN() const;
-  //! Caclulate the eta (0.,1.)
+  //! Caclulate sthe eta (0.,1.)
   float GetEta() const;
-  //! Calculate Etaraw (-0.5,0.5)
+  //! Calculates Etaraw (-0.5,0.5)
   float GetEtaRaw() const;
   //! printout the cluster infos
   void Print();
+  //! Returns a new Signal vector in descending order
+  std::vector<float> Sort();
   //! Apply VA Equalization from the file loaded by the function Event::ReadGainCorrection
   void ApplyVAEqualization();
 

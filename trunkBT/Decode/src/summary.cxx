@@ -117,14 +117,14 @@ int main(int argc, char **argv) {
 
 void RefMask(ConfPars *CPars, int run_number, int jinfnum, const char *nameprefixin) {
   CPars->refmask=0; 
-  char calfileprefix[255];
+  char calfileprefix[512];
   char prefix[255];
   sprintf(prefix,"%s",nameprefixin);
   if (prefix[0]!=0) sprintf(prefix,"%s_",prefix);
   //  sprintf(calfileprefix,"%s/%s%06d", CPars->CALPATH, prefix, run_number);
   sprintf(calfileprefix,"%s/%s%d", CPars->CALPATH, prefix, run_number);
   
-  char calfilename[255];
+  char calfilename[512];
   
   for (int ii=0;ii<24;ii++) {
     sprintf(calfilename,"%s_%02d%02d.cal", calfileprefix, jinfnum, ii);

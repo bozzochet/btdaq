@@ -61,6 +61,9 @@ void CleanEmptyHistos(TObjArray *histos);
 
 //----------------------------------------
 
+//new, added by Alessio
+int cLen = 30;
+
 int main(int argc, char *argv[]) {
 
   if (argc < 3) {
@@ -104,6 +107,8 @@ int main(int argc, char *argv[]) {
   } else if (kAMSL0) {
     EventAMSL0::ReadAlignment("alignment_L0.dat");
     EventAMSL0::ReadGainCorrection("gaincorrection_L0.dat");
+    //new, added by Alessio
+    Cluster::SetMip(100,100);
     return ProcessChain<EventAMSL0, RHClassFOOT>(chain, output_filename);
   } else {
     EventAMS::ReadAlignment("alignment.dat");
@@ -410,6 +415,62 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
                                        entries, 0, entries, NJINF * NTDRS, 0, NJINF * NTDRS);
   histos->Add(hclusKladd_vs_event);
 
+  //new, added by alessio:
+  TH1F *hlength = new TH1F("hlength", "hlength; Cluster length; Entries",128,-0.5,128.5);
+  histos->Add(hlength);
+  TH1F *hcog = new TH1F("hcog", "hcog; Cog; Entries",1024,0,1024);
+  histos->Add(hcog);
+
+  TH2F *hTotSignal_vs_cog = new TH2F("hTotSignal_vs_cog", "hTotSignal_vs_cog (Cl with highest TotSig); Cog; TotSig(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 15000);
+  histos->Add(hTotSignal_vs_cog);
+  TH2F *hSeedSignal_vs_cog = new TH2F("hSeedSignal_vs_cog", "hSeedSignal_vs_cog (Cl with highest TotSig); Cog; SeedSig(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 15000);
+  histos->Add(hSeedSignal_vs_cog);
+  TH2F *hSecSignal_vs_cog = new TH2F("hSecSignal_vs_cog", "hSecSignal_vs_cog (Cl with highest TotSig); Cog; SecSig(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 15000);
+  histos->Add(hSecSignal_vs_cog);
+  //TH2F *hTotSignalCorr_vs_cog = new TH2F("hTotSignalCorr_vs_cog", "hTotSignalCorr_vs_cog (Cl with highest TotSig); Cog (Length<=30); TotSig Corrected(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 15000);
+  //histos->Add(hTotSignalCorr_vs_cog);
+
+  TH2F *hTotSignal_vs_eta = new TH2F("hTotSignal_vs_eta", "hTotSignal_vs_eta (Cl with highest TotSig); Eta; TotSig(ADC)",250,0,1,4200,-100,30000);
+  histos->Add(hTotSignal_vs_eta);
+  TH2F *hSeedSignal_vs_eta = new TH2F("hSeedSignal_vs_eta", "hSeedSignal_vs_eta (Cl with highest TotSig); Eta; SeedSig(ADC)",250,0,1,4200,-100,15000);
+  histos->Add(hSeedSignal_vs_eta);
+  TH2F *hSecSignal_vs_eta = new TH2F("hSecSignal_vs_eta", "hSecSignal_vs_eta (Cl with highest TotSig); Eta; SecSig(ADC)",250,0,1,4200,-100,15000);
+  histos->Add(hSecSignal_vs_eta);
+  TH2F *hTotSignalCorr_vs_eta= new TH2F("hTotSignalCorr_vs_eta", "hTotSignalCorr_vs_eta(Cl with highest TotSig); Eta; TotSig Corrected(ADC)",250,0,1,4200,-100,40000);
+  histos->Add(hTotSignalCorr_vs_eta);
+
+  TH2F *htotQ_vs_cog = new TH2F("htotQ_vs_cog","htotQ_vs_cog (Cl with highest TotSig); Cog; TotCharge",NVAS * NCHAVA, 0, NVAS * NCHAVA,4200,0,15);
+  histos->Add(htotQ_vs_cog);
+  //TH2F *htotQCorr_vs_cog = new TH2F("htotQCorr_vs_cog","htotQCorr_vs_cog (Cl with highest TotSig); Cog (Length<=30); TotChargeCorr",10,0.5,10.5,2100,-100,15000);
+  //histos->Add(htotQCorr_vs_cog);
+  TH2F *htotQ_vs_eta = new TH2F("htotQ_vs_eta","htotQ_vs_eta (Cl with highest TotSig); Eta; TotCharge",500,0,1,4200,0,15);
+  histos->Add(htotQ_vs_eta);
+  TH2F *htotQCorr_vs_eta = new TH2F("htotQCorr_vs_eta","htotQCorr_vs_eta (Cl with highest TotSig); eta ; TotChargeCorr",500,0,1,4200,0,15);
+  histos->Add(htotQCorr_vs_eta);
+  TH2F *sqrtTotSig_vs_eta = new TH2F("sqrtTotSig_vs_eta", "sqrtTotSig_vs_eta (Cl with highest TotSig); eta; sqrt(TotSig) (ADC) ",500,0,1,250,0,500);
+  histos->Add(sqrtTotSig_vs_eta);
+
+  TH2F *htotQ_vs_eta_noCut = new TH2F("htotQ_vs_eta_noCut","htotQ_vs_eta_noCut; eta; TotCharge",500,0,1,4200,0,15);
+  histos->Add(htotQ_vs_eta_noCut);
+  TH2F *hlength_vs_cog = new TH2F("hlength_vs_cog", "hlength_vs_cog; cog; Cluster Length",1024,0,1024,128,0,128);
+  histos->Add(hlength_vs_cog);
+  TH2F *hlength_vs_totSig = new TH2F("hlength_vs_totSig","hlength_vs_totSig; totSig (ADC); Cl length",4200,0,15000,45,0,45);
+  histos->Add(hlength_vs_totSig);
+  TH2F *hlength_vs_seedSig = new TH2F("hlength_vs_seedSig","hlength_vs_seedSig; seedSig (ADC); Cl length",4200,0,15000,45,0,45);
+  histos->Add(hlength_vs_seedSig);
+  TH2F *hlength_vs_secSig = new TH2F("hlength_vs_secSig","hlength_vs_secSig; secSig (ADC); Cl length",4200,0,15000,45,0,45);
+  histos->Add(hlength_vs_secSig);
+
+  TH2F *hseedOsec_vs_eta = new TH2F("hseedOsec_vs_eta","hseedOsec_vs_eta; eta; Seed/Sec",500,0,1,250,0,200);
+  histos->Add(hseedOsec_vs_eta);
+  TH2F *hsecOthird_vs_eta = new TH2F("hsecOthird_vs_eta","hsecOthird_vs_eta; eta; Sec/Third",500,0,1,250,0,1000);
+  histos->Add(hsecOthird_vs_eta);
+  TH2F *hSigMinusSeed_vs_eta = new TH2F("hSigMinusSeed_vs_eta","hSigMinusSeed_vs_eta; eta; TotSig-Seed",500,0,1,250,0,10000);
+  histos->Add(hSigMinusSeed_vs_eta);
+  TH2F *hSigMinusSeed_Sec_vs_eta = new TH2F("SigMinusSeed_Sec_vs_eta","SigMinusSeed_Sec_vs_eta; eta; TotSig-Seed-Sec",500,0,1,5200,0,40000);
+  histos->Add(hSigMinusSeed_Sec_vs_eta);
+
+
   //----------------------------------------------------------------------------
 
   // clean events
@@ -675,14 +736,43 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
 template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event) {
 
   Cluster *cl;
+  TF1 *func = new TF1("func","3100/(-4381.65*x+4381.65*x*x+3100)",0,10000);
+  //TF1 *func2 = new TF1("func2","14.02-0.68*x+0.04*pow(x,2)-0.001*pow(x,3)+1.63e-05*pow(x,4)-1.22e-07*pow(x,5)+3.72e-10*pow(x,6)",0,10000);
+
 
   TH1 *hclus = (TH1 *)(histos->FindObject("hclus"));
   TH1 *hclus_vs_event = (TH1 *)(histos->FindObject("hclus_vs_event"));
   TH2 *hclusSladd_vs_event = (TH2 *)(histos->FindObject("hclusSladd_vs_event"));
   TH2 *hclusKladd_vs_event = (TH2 *)(histos->FindObject("hclusKladd_vs_event"));
 
+  TH1 *hlength = (TH1 *)(histos->FindObject("hlength"));
+  TH1 *hcog = (TH1 *)(histos->FindObject("hcog"));
+
+  TH2 *htotQ_vs_eta_noCut = (TH2 *)(histos->FindObject("htotQ_vs_eta_noCut"));
+  TH2 *hTotSignal_vs_cog = (TH2 *)(histos->FindObject("hTotSignal_vs_cog"));
+  TH2 *hSeedSignal_vs_cog = (TH2 *)(histos->FindObject("hSeedSignal_vs_cog"));
+  TH2 *hSecSignal_vs_cog = (TH2 *)(histos->FindObject("hSecSignal_vs_cog"));
+  TH2 *hTotSignal_vs_eta = (TH2 *)(histos->FindObject("hTotSignal_vs_eta"));
+  TH2 *hSeedSignal_vs_eta = (TH2 *)(histos->FindObject("hSeedSignal_vs_eta"));
+  TH2 *hSecSignal_vs_eta = (TH2 *)(histos->FindObject("hSecSignal_vs_eta"));
+  TH2 *hTotSignalCorr_vs_eta = (TH2 *)(histos->FindObject("hTotSignalCorr_vs_eta"));
+  TH2 *htotQ_vs_cog = (TH2 *)(histos->FindObject("htotQ_vs_cog"));
+  TH2 *htotQ_vs_eta = (TH2 *)(histos->FindObject("htotQ_vs_eta"));
+  TH2 *htotQCorr_vs_eta = (TH2 *)(histos->FindObject("htotQCorr_vs_eta"));
+  TH2 *sqrtTotSig_vs_eta = (TH2 *)(histos->FindObject("sqrtTotSig_vs_eta"));
+  TH2 *hlength_vs_cog = (TH2 *)(histos->FindObject("hlength_vs_cog"));
+  TH2 *hlength_vs_totSig = (TH2 *)(histos->FindObject("hlength_vs_totSig"));
+  TH2 *hlength_vs_seedSig = (TH2 *)(histos->FindObject("hlength_vs_seedSig"));
+  TH2 *hlength_vs_secSig = (TH2 *)(histos->FindObject("hlength_vs_secSig"));
+  TH2 *hseedOsec_vs_eta = (TH2 *)(histos->FindObject("hseedOsec_vs_eta"));
+  TH2 *hsecOthird_vs_eta = (TH2 *)(histos->FindObject("hsecOthird_vs_eta"));
+  TH2 *hSigMinusSeed_vs_eta = (TH2 *)(histos->FindObject("hSigMinusSeed_vs_eta"));
+  TH2 *hSigMinusSeed_Sec_vs_eta = (TH2 *)(histos->FindObject("hSigMinusSeed_Sec_vs_eta"));
+
   hclus->Fill(NClusTot);
   hclus_vs_event->Fill(index_event, NClusTot);
+  //new, added by Alessio
+  std::vector<float> totSignal;
 
   for (int index_cluster = 0; index_cluster < NClusTot; index_cluster++) {
 
@@ -692,7 +782,7 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
     int jinfnum = cl->GetJinf();
     int tdrnum = cl->GetTDR();
     int side = cl->side;
-    double charge = cl->GetCharge(); // unused for now
+    //double charge = cl->GetCharge(); // unused for now
     //    printf("%d %d) %d %d\n", jinfnum, tdrnum, side, LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum));
 
     if (side == 0 || (side == 1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
@@ -700,7 +790,76 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
     } else {
       hclusKladd_vs_event->Fill(index_event, ladder);
     }
+
+    int l = cl->GetLength();
+    hlength->Fill(l);
+    hcog->Fill(cl->GetCoG());
+    //htotQ_vs_eta_noCut->Fill(cl->GetEta(),sqrt(cl->GetTotSig()));
+    hlength_vs_cog->Fill(cl->GetCoG(),l);
+    hlength_vs_totSig->Fill(cl->GetTotSig(),l);
+    hlength_vs_seedSig->Fill(cl->GetSeedVal(),l);
+    hlength_vs_secSig->Fill(cl->GetSecVal(),l);
+
+
+    totSignal.push_back(cl->GetTotSig());
   }
+
+  if (totSignal.size() > 0) {
+    int max_index=0;
+    float max = totSignal[0];
+    for (int i=0; i<totSignal.size(); i++)
+      if (totSignal[i]>max) {
+        max = totSignal[i];
+        max_index=i;
+      }
+
+    Cluster *clmax = ev->GetCluster(max_index);
+    if (clmax->GetLength() >= 3) {
+        std::vector<float> orderedSig = clmax->Sort();
+        float eta = clmax->GetEta();
+        float cog = clmax->GetCoG();
+        float totSig = clmax->GetTotSig();
+        float seedSig = orderedSig[0];
+        float secSig = orderedSig[1];
+        float thirdSig = orderedSig[2];
+        /*float seedSig = clmax->GetSeedVal();
+        float secSig = clmax->GetSecVal();*/
+        //double totCh = clmax->GetCharge();
+        int len = clmax->GetLength();
+
+        hTotSignal_vs_cog->Fill(cog , totSig);
+        hSeedSignal_vs_cog->Fill(cog , seedSig);
+        hSecSignal_vs_cog->Fill(cog , secSig);
+
+        hTotSignal_vs_eta->Fill(eta, totSig);
+        hSeedSignal_vs_eta->Fill(eta, seedSig);
+        hSecSignal_vs_eta->Fill(eta, secSig);
+        //hTotSignalCorr_vs_eta->Fill(eta,totSig*func->Eval(eta) );
+
+        //htotQ_vs_cog->Fill(cog, totCh);
+        //htotQ_vs_eta->Fill(eta, totCh );
+        //htotQCorr_vs_eta->Fill(eta, totCh*sqrt(func->Eval(eta)) );
+
+        sqrtTotSig_vs_eta->Fill(eta,sqrt(totSig));
+
+        if (secSig != 0) {
+
+          hseedOsec_vs_eta->Fill(eta,seedSig/secSig);
+
+        }
+        if (thirdSig != 0) {
+
+          hsecOthird_vs_eta->Fill(eta,secSig/thirdSig);
+        }
+        float tot_seed = totSig-seedSig;
+        float tot_seed_sec = totSig-seedSig - secSig;
+        hSigMinusSeed_vs_eta->Fill(eta,tot_seed);
+        //hSigMinusSeed_Sec_vs_eta->Fill(eta,tot_seed_sec);
+    }
+  }
+  delete func;
+
+
 
   return;
 }

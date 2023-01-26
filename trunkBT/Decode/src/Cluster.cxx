@@ -2,6 +2,7 @@
 #include "EventUtils.hh"
 #include <cmath>
 #include <string.h>
+#include <functional>
 
 Cluster::Cluster() {
   address = 0;
@@ -166,6 +167,31 @@ float Cluster::GetTotSig() const {
   return val;
 }
 
+int Cluster::GetSec() const {
+  int se = GetSeed();
+  int se_r = se+1;
+  int se_l = se-1;
+  if (se==0)
+    return 0; //if there is only one element in the cluster eg. seed
+
+  float val_l = 0;
+  float val_r = 0;
+
+  if (se_l > 0)
+    val_l = GetCSignal(se_l);
+  if (se_r < length)
+    val_r = GetCSignal(se_r);
+
+  if (val_r > val_l && val_r / Noise[se_r] > 0)
+    return se_r;
+  if (val_l > val_r && val_l / Noise[se_l] > 0)
+    return se_l;
+  else
+    return 0;
+};
+
+float Cluster::GetSecVal() const { return GetCSignal(GetSec()); }
+
 float Cluster::GetEtaRaw() const {
   float ee;
   int se = GetSeed();
@@ -179,11 +205,11 @@ float Cluster::GetEtaRaw() const {
   if (se_r < length)
     val_r = GetCSignal(se_r);
 
-  // seed definition: SR / (SR+SL)
+  // eta definition: SR / (SR+SL)
   if (val_l > val_r && val_l / Noise[se_l] > 0) // the secondary is on the left
     ee = - (val_seed) / (val_l + val_seed); // negative etaraw indicate that secondary is on the left
   else if (val_r > val_l && val_r / Noise[se_r] > 0) // the secondary is on the right
-    ee = (val_r) / (val_r + val_seed);// positive etaraw indicate that secondary is on the right 
+    ee = (val_r) / (val_r + val_seed);// positive etaraw indicate that secondary is on the right
   else
     return -3;
 
@@ -204,9 +230,9 @@ float Cluster::GetCoG() const {
   if (ee < -1 || ee > 1)
     return address + se;
   else if (ee< 0)
-    return address + se + fabs(ee) - 1; // starting of the cluster + position of the seed respect to the cluster + (EtaRaw+1) 
+    return address + se + fabs(ee) - 1; // starting of the cluster + position of the seed respect to the cluster + (EtaRaw+1)
   else
-    return address + se + ee; // starting of the cluster + position of the seed respect to the cluster + EtaRaw 
+    return address + se + ee; // starting of the cluster + position of the seed respect to the cluster + EtaRaw
 }
 
 int Cluster::GetVA(int strip_address) {
@@ -297,7 +323,7 @@ double Cluster::GetPosition(int mult) const {
   }
 
   //  printf("%f %f %f %d %f %f\n", GetCoG(), cog2, pitchcorr, side, GetPitch(side), mult_shift);
-  
+
   return (cog2 + pitchcorr) * GetPitch(side) + mult_shift;
 }
 
@@ -345,6 +371,17 @@ int Cluster::GetLength(float val) const {
     else
       break;
   return myle;
+}
+
+std::vector <float> Cluster::Sort() {
+  std::vector<float> v;
+  int temp;
+  for (int i=0; i<length; i++)
+    v.push_back(Signal[i]);
+
+  std::sort(begin(v), end(v), std::greater<float>{});
+  return v;
+
 }
 
 void Cluster::Print() {

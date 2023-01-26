@@ -377,6 +377,9 @@ int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL
 
     uint16_t utime_sec_lsb = dummy;
     uint32_t utime_sec = (utime_sec_msb << 16) + utime_sec_lsb;
+    if (event->TimeStamp == 0) {
+      event->TimeStamp = utime_sec;
+    }
 
     fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
     m_total_size_consumed += sizeof(dummy);
@@ -394,6 +397,9 @@ int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL
 
     uint16_t utime_usec_lsb = dummy;
     uint32_t utime_usec = (utime_usec_msb << 16) + utime_usec_lsb;
+    if (event->TimeStamp_ns == 0) {
+      event->TimeStamp_ns = 1000 * utime_usec;
+    }
 
     unsigned int current_read_bytes = m_total_size_consumed;
     // int ret = ProcessBlock(file, read_bytes, ev_found, signals_by_ev, nesting_level + 1);
@@ -515,7 +521,7 @@ int DecodeDataAMSL0::ReadOneEvent() {
   static auto filenameIt = begin(m_dataFilenames);
   if (first_call) {
     std::string filename = *filenameIt;
-    std::cout << "Opening data file " << filename << '\n';
+    std::cout << "\rOpening data file " << filename << '\n';
     rawfile = fopen(filename.c_str(), "r");
     first_call = false;
 
@@ -525,7 +531,7 @@ int DecodeDataAMSL0::ReadOneEvent() {
   if (feof(rawfile)) {
     if (++filenameIt != end(m_dataFilenames)) {
       std::string filename = *filenameIt;
-      std::cout << "Opening data file " << filename << '\n';
+      std::cout << "\rOpening data file " << filename << '\n';
       rawfile = fopen(filename.c_str(), "r");
     } else {
       m_end_of_file = true;
