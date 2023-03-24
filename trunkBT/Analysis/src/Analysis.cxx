@@ -49,7 +49,7 @@ using RHClassAMS = RHClass<EventAMS::GetNJINF(), EventAMS::GetNTDRS()>;
 
 template <class Event, class RH> int ProcessChain(TChain *ch, TString output_filename);
 template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t entries, int _maxtdr, TChain *chain);
-template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event);
+template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event, TChain *chain);
 template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event);
 template <class Event, class RH> void FillPreselHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event);
 template <class Event, class RH>
@@ -185,39 +185,48 @@ template <class Event, class RH> int ProcessChain(TChain *chain, TString output_
   double perc = 0;
 
   // valid for TIC BT?
-  //  ts->ExcludeTDR(ev, 0, 2, 0);
-  //  ts->ExcludeTDR(ev, 0, 2, 1);
-  //  ts->ExcludeTDR(ev, 0, 3, 0);
-  //  ts->ExcludeTDR(ev, 0, 3, 1);
-  //  ts->ExcludeTDR(ev, 0, 6, 0);
-  //  ts->ExcludeTDR(ev, 0, 6, 1);
-  //  ts->ExcludeTDR(ev, 0, 7, 0);
-  //  ts->ExcludeTDR(ev, 0, 7, 1);
-  // valid for 2021 SPS HERD BT
-  //  ts->ExcludeTDR(ev, 0, 8, 0);
-  //  ts->ExcludeTDR(ev, 0, 8, 1);
-  //  ts->ExcludeTDR(ev, 0, 9, 0);
-  //  ts->ExcludeTDR(ev, 0, 9, 1);
-  //  ts->ExcludeTDR(ev, 0, 10, 0);
-  //  ts->ExcludeTDR(ev, 0, 10, 1);
-  //  ts->ExcludeTDR(ev, 0, 11, 0);
-  //  ts->ExcludeTDR(ev, 0, 11, 1);
-  //  ts->ExcludeTDR(ev, 0, 14, 0);
-  //  ts->ExcludeTDR(ev, 0, 14, 1);
-  //  ts->ExcludeTDR(ev, 0, 15, 0);
-  //  ts->ExcludeTDR(ev, 0, 15, 1);
-  //  ts->ExcludeTDR(ev, 0, 18, 0);
-  //  ts->ExcludeTDR(ev, 0, 18, 1);
-  //  ts->ExcludeTDR(ev, 0, 19, 0);
-  //  ts->ExcludeTDR(ev, 0, 19, 1);
-  //  ts->ExcludeTDR(ev, 0, 20, 0);
-  //  ts->ExcludeTDR(ev, 0, 20, 1);
-  //  ts->ExcludeTDR(ev, 0, 21, 0);
-  //  ts->ExcludeTDR(ev, 0, 21, 1);
-  //  ts->ExcludeTDR(ev, 0, 22, 0);
-  //  ts->ExcludeTDR(ev, 0, 22, 1);
-  //  ts->ExcludeTDR(ev, 0, 23, 0);
-  //  ts->ExcludeTDR(ev, 0, 23, 1);
+
+  // valid for TIC BT?
+//  ts->ExcludeTDR(ev, 0, 2, 0);
+//  ts->ExcludeTDR(ev, 0, 2, 1);
+//  ts->ExcludeTDR(ev, 0, 3, 0);
+//  ts->ExcludeTDR(ev, 0, 3, 1);
+//  ts->ExcludeTDR(ev, 0, 6, 0);
+//  ts->ExcludeTDR(ev, 0, 6, 1);
+//  ts->ExcludeTDR(ev, 0, 7, 0);
+//  ts->ExcludeTDR(ev, 0, 7, 1);
+ 
+  ts->ExcludeTDR(ev, 0, 8, 0);
+  ts->ExcludeTDR(ev, 0, 8, 1);
+  ts->ExcludeTDR(ev, 0, 9, 0);
+  ts->ExcludeTDR(ev, 0, 9, 1);
+  ts->ExcludeTDR(ev, 0, 10, 0);
+  ts->ExcludeTDR(ev, 0, 10, 1);
+  ts->ExcludeTDR(ev, 0, 11, 0);
+  ts->ExcludeTDR(ev, 0, 11, 1);
+  ts->ExcludeTDR(ev, 0, 12, 0);
+  ts->ExcludeTDR(ev, 0, 12, 1);
+  ts->ExcludeTDR(ev, 0, 13, 0);
+  ts->ExcludeTDR(ev, 0, 13, 1);
+  ts->ExcludeTDR(ev, 0, 14, 0);
+  ts->ExcludeTDR(ev, 0, 14, 1);
+  ts->ExcludeTDR(ev, 0, 15, 0);
+  ts->ExcludeTDR(ev, 0, 15, 1);
+  ts->ExcludeTDR(ev, 0, 16, 0);
+  ts->ExcludeTDR(ev, 0, 17, 1);
+  ts->ExcludeTDR(ev, 0, 18, 0);
+  ts->ExcludeTDR(ev, 0, 18, 1);
+  ts->ExcludeTDR(ev, 0, 19, 0);
+  ts->ExcludeTDR(ev, 0, 19, 1);
+  ts->ExcludeTDR(ev, 0, 20, 0);
+  ts->ExcludeTDR(ev, 0, 20, 1);
+  ts->ExcludeTDR(ev, 0, 21, 0);
+  ts->ExcludeTDR(ev, 0, 21, 1);
+  ts->ExcludeTDR(ev, 0, 22, 0);
+  ts->ExcludeTDR(ev, 0, 22, 1);
+  ts->ExcludeTDR(ev, 0, 23, 0);
+  ts->ExcludeTDR(ev, 0, 23, 1);
+
 
 
   for (int index_event = 0; index_event < entries; index_event++) {
@@ -236,7 +245,7 @@ template <class Event, class RH> int ProcessChain(TChain *chain, TString output_
     int NClusTot = ev->GetNClusTot();
     //    printf("\t\tnclusters = %d\n", NClusTot);
 
-    FillAllHistos<Event, RH>(histos, NClusTot, ev, index_event);
+    FillAllHistos<Event, RH>(histos, NClusTot, ev, index_event, chain);
 
     // at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
     // and at most 100 (to avoid too much noise around and too much combinatorial)
@@ -414,7 +423,6 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
   TH2F *hclusKladd_vs_event = new TH2F("hclusKladd_vs_event", "hclusKladd_vs_event;Event Number;Ladder;Clusters",
                                        entries, 0, entries, NJINF * NTDRS, 0, NJINF * NTDRS);
   histos->Add(hclusKladd_vs_event);
-
   //new, added by alessio:
   TH1F *hlength = new TH1F("hlength", "hlength; Cluster length; Entries",128,-0.5,128.5);
   histos->Add(hlength);
@@ -728,12 +736,402 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
     }
   }
 
+//------------------------------------------------------------------------------
+
+  TH2F *MAX_hADCClustervseta_S[NJINF*NTDRS];
+  TH2F *MAX_hADCClustervseta_K[NJINF*NTDRS];
+  
+ for (int tt = 0; tt < _maxtdr; tt++) {
+    int jinfnum = 0;
+    int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
+
+  MAX_hADCClustervseta_S[tt] = new TH2F(Form("MAX_hADCClustervseta_S%02d",tdrnum), Form("MAX_hADCClustervseta_S%02d",tdrnum), 140, -0.2, 1.2, 1200, 0, 120);
+  MAX_hADCClustervseta_S[tt]->GetXaxis()->SetTitle("eta");
+  MAX_hADCClustervseta_S[tt]->GetYaxis()->SetTitle("sqrt_ADC");
+  MAX_hADCClustervseta_S[tt]->GetZaxis()->SetTitle("eventi");
+  histos->Add(MAX_hADCClustervseta_S[tt]);
+  
+  MAX_hADCClustervseta_K[tt] = new TH2F(Form("MAX_hADCClustervseta_K%02d",tdrnum), Form("MAX_hADCClustervseta_K%02d",tdrnum), 140, -0.2, 1.2, 1200, 0, 120);
+  MAX_hADCClustervseta_K[tt]->GetXaxis()->SetTitle("eta");
+  MAX_hADCClustervseta_K[tt]->GetYaxis()->SetTitle("sqrt_ADC");
+  MAX_hADCClustervseta_K[tt]->GetZaxis()->SetTitle("eventi");
+  histos->Add(MAX_hADCClustervseta_K[tt]);
+
+
+
+
+}
   //----------------------------------------------------------------------------
 
   return;
 }
 
-template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event) {
+template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event,TChain *chain) {
+
+  using UT = Utilities<Event, RH>;
+  UT *ut = new UT();
+  int _maxtdr = ut->GetRH(chain)->GetNTdrs();
+
+
+ if (ev->GetEventKind()==2){
+ 
+ 
+  TH2 *MAX_hADCClustervseta_S[_maxtdr];
+  TH2* MAX_hADCClustervseta_K[_maxtdr];
+  
+  for (int tt = 0; tt < _maxtdr; tt++) {
+    int jinfnum = 0;
+    int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
+  
+   MAX_hADCClustervseta_S[tt]=(TH2 *)(histos->FindObject(Form("MAX_hADCClustervseta_S%02d",tdrnum))); 
+   MAX_hADCClustervseta_K[tt]=(TH2 *)(histos->FindObject(Form("MAX_hADCClustervseta_K%02d",tdrnum)));
+  
+  }
+   
+   Cluster *cl;
+double maxsig1 = -1000;
+double maxsig2 = -1000;
+double maxsig3 = -1000;
+double maxsig4 = -1000;
+double maxsig5 = -1000;
+double maxsig6 = -1000;
+double maxsig7 = -1000;
+double maxsig8 = -1000;
+
+double maxsig1a = -1000;
+double maxsig2a = -1000;
+double maxsig3a = -1000;
+double maxsig4a = -1000;
+double maxsig5a = -1000;
+double maxsig6a = -1000;
+double maxsig7a = -1000;
+double maxsig8a = -1000;
+
+ int indexmaxsig1 = -1;
+ int indexmaxsig2 = -1;
+ int indexmaxsig3 = -1;
+ int indexmaxsig4 = -1;
+ int indexmaxsig5 = -1;
+ int indexmaxsig6 = -1;
+ int indexmaxsig7 = -1;
+ int indexmaxsig8 = -1;
+ 
+ int indexmaxsig1a = -1;
+ int indexmaxsig2a = -1;
+ int indexmaxsig3a = -1;
+ int indexmaxsig4a= -1;
+ int indexmaxsig5a = -1;
+ int indexmaxsig6a = -1;
+ int indexmaxsig7a = -1;
+ int indexmaxsig8a = -1;
+ 
+  if (NClusTot>= 1) {
+ std::vector<int> tdr0;
+ std::vector<int> tdr1;
+ std::vector<int> tdr2;
+ std::vector<int> tdr3;
+ std::vector<int> tdr4;
+ std::vector<int> tdr5;
+ std::vector<int> tdr6;
+ std::vector<int> tdr7;
+ for (int index_cluster = 0; index_cluster < NClusTot; index_cluster++) {
+ 
+ cl = ev->GetCluster(index_cluster);
+ 
+    int tdrnum = cl->GetTDR();
+
+ if (tdrnum==0) {
+  tdr0.push_back(index_cluster);
+ }
+ if (tdrnum==1) {
+  tdr1.push_back(index_cluster);
+ }
+ if (tdrnum==2) {
+  tdr2.push_back(index_cluster);
+ }
+ if (tdrnum==3) {
+  tdr3.push_back(index_cluster);
+ }
+ if (tdrnum==4) {
+  tdr4.push_back(index_cluster);
+ }
+ if (tdrnum==5) {
+  tdr5.push_back(index_cluster);
+ }
+ if (tdrnum==6) {
+  tdr6.push_back(index_cluster);
+ }
+ if (tdrnum==7) {
+  tdr7.push_back(index_cluster);
+ }
+  }
+  
+  
+  int size_tdr0 = tdr0.size();
+  int size_tdr1 = tdr1.size();
+  int size_tdr2 = tdr2.size();
+  int size_tdr3 = tdr3.size();
+  int size_tdr4 = tdr4.size();
+  int size_tdr5 = tdr5.size();
+  int size_tdr6 = tdr6.size();
+  int size_tdr7 = tdr7.size();
+  
+  for (int ii = 0; ii < size_tdr0; ii++) {
+  
+   int index_cluster = tdr0.at(ii);
+   cl = ev->GetCluster(index_cluster);
+   double totsig =cl->GetTotSig();
+   int length=cl->GetLength();
+   int add = cl->GetSeedAdd();
+   int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig1 && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va) {
+      maxsig1 = totsig;
+      indexmaxsig1 = index_cluster;
+    }
+  }
+  
+    for (int ii = 0; ii < size_tdr0; ii++) {
+      int index_cluster = tdr0.at(ii);
+      cl = ev->GetCluster(index_cluster);
+      double totsig =cl->GetTotSig();
+      int length=cl->GetLength();
+      int add = cl->GetSeedAdd();
+      int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig1a && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va&&ii!= indexmaxsig1) {
+      maxsig1a = totsig;
+      indexmaxsig1a = index_cluster;
+    }
+  }
+  
+  
+  for (int ii = 0; ii < size_tdr1; ii++) {
+     int index_cluster = tdr1.at(ii);
+     cl = ev->GetCluster(index_cluster);
+     double totsig =cl->GetTotSig();
+     int length=cl->GetLength();
+     int add = cl->GetSeedAdd();
+     int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig2 && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va) {
+      maxsig2 = totsig;
+      indexmaxsig2 = index_cluster;
+    }
+  }
+  
+  for (int ii = 0; ii < size_tdr1; ii++) {
+     int index_cluster = tdr1.at(ii);
+     cl = ev->GetCluster(index_cluster);
+     double totsig =cl->GetTotSig();
+     int length=cl->GetLength();
+     int add = cl->GetSeedAdd();
+     int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig2a && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va&&ii!= indexmaxsig2) {
+      maxsig2a = totsig;
+      indexmaxsig2a = index_cluster;
+    }
+  }
+  
+  
+    for (int ii = 0; ii < size_tdr2; ii++) {
+       int index_cluster = tdr2.at(ii);
+       cl = ev->GetCluster(index_cluster);
+       double totsig =cl->GetTotSig();
+       int length=cl->GetLength();
+       int add = cl->GetSeedAdd();
+       int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig3 && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va) {
+      maxsig3 = totsig;
+      indexmaxsig3 = index_cluster;
+    }
+  }
+  
+   for (int ii = 0; ii < size_tdr2; ii++) {
+      int index_cluster = tdr2.at(ii);
+      cl = ev->GetCluster(index_cluster);
+      double totsig =cl->GetTotSig();
+      int length=cl->GetLength();
+      int add = cl->GetSeedAdd();
+      int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig3a && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va&&ii!= indexmaxsig3) {
+      maxsig3a = totsig;
+      indexmaxsig3a = index_cluster;
+    }
+  }
+  
+  
+   for (int ii = 0; ii < size_tdr3; ii++) {
+      int index_cluster = tdr3.at(ii);
+      cl = ev->GetCluster(index_cluster);
+      double totsig =cl->GetTotSig();
+      int length=cl->GetLength();
+      int add = cl->GetSeedAdd();
+      int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig4 && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va) {
+      maxsig4 = totsig;
+      indexmaxsig4 = index_cluster;
+    }
+  }
+  
+   for (int ii = 0; ii < size_tdr3; ii++) {
+      int index_cluster = tdr3.at(ii);
+      cl = ev->GetCluster(index_cluster);
+      double totsig =cl->GetTotSig();
+      int length=cl->GetLength();
+      int add = cl->GetSeedAdd();
+      int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig4a && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va&&ii!= indexmaxsig4) {
+      maxsig4a = totsig;
+      indexmaxsig4a = index_cluster;
+    }
+  }
+  
+  
+     for (int ii = 0; ii < size_tdr4; ii++) {
+       int index_cluster = tdr4.at(ii);
+       cl = ev->GetCluster(index_cluster);
+       double totsig =cl->GetTotSig();
+       int length=cl->GetLength();
+       int add = cl->GetSeedAdd();
+       int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig5 && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va) {
+      maxsig5 = totsig;
+      indexmaxsig5 = index_cluster;
+    }
+  }
+  
+    for (int ii = 0; ii < size_tdr4; ii++) {
+       int index_cluster = tdr4.at(ii);
+       cl = ev->GetCluster(index_cluster);
+       double totsig =cl->GetTotSig();
+       int length=cl->GetLength();
+       int add = cl->GetSeedAdd();
+       int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig5a && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va&&ii!= indexmaxsig5) {
+      maxsig5a = totsig;
+      indexmaxsig5a = index_cluster;
+    }
+  }
+  
+    for (int ii = 0; ii < size_tdr5; ii++) {
+       int index_cluster = tdr5.at(ii);
+       cl = ev->GetCluster(index_cluster);
+       double totsig =cl->GetTotSig();
+       int length=cl->GetLength();
+       int add = cl->GetSeedAdd();
+       int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig6 && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va) {
+      maxsig6 = totsig;
+      indexmaxsig6 = index_cluster;
+    }
+  }
+  
+    for (int ii = 0; ii < size_tdr5; ii++) {
+       int index_cluster = tdr5.at(ii);
+       cl = ev->GetCluster(index_cluster);
+       double totsig =cl->GetTotSig();
+       int length=cl->GetLength();
+       int add = cl->GetSeedAdd();
+       int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig6a && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va&&ii!= indexmaxsig6) {
+      maxsig6a = totsig;
+      indexmaxsig6a = index_cluster;
+    }
+  }
+  
+      for (int ii = 0; ii < size_tdr6; ii++) {
+         int index_cluster = tdr6.at(ii);
+         cl = ev->GetCluster(index_cluster);
+         double totsig =cl->GetTotSig();
+         int length=cl->GetLength();
+         int add = cl->GetSeedAdd();
+         int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig7 && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va) {
+      maxsig7 = totsig;
+      indexmaxsig7 = index_cluster;
+    }
+  }
+  
+      for (int ii = 0; ii < size_tdr6; ii++) {
+         int index_cluster = tdr6.at(ii);
+         cl = ev->GetCluster(index_cluster);
+         double totsig =cl->GetTotSig();
+         int length=cl->GetLength();
+         int add = cl->GetSeedAdd();
+         int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig7a && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va&&ii!= indexmaxsig7) {
+      maxsig7a = totsig;
+      indexmaxsig7a = index_cluster;
+    }
+  }
+  
+       for (int ii = 0; ii < size_tdr7; ii++) {
+           int index_cluster = tdr7.at(ii);
+           cl = ev->GetCluster(index_cluster);
+           double totsig =cl->GetTotSig();
+           int length=cl->GetLength();
+           int add = cl->GetSeedAdd();
+           int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig8 && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va) {
+      maxsig8 = totsig;
+      indexmaxsig8 = index_cluster;
+    }
+  }
+  
+      for (int ii = 0; ii < size_tdr7; ii++) {
+         int index_cluster = tdr7.at(ii);
+         cl = ev->GetCluster(index_cluster);
+         double totsig =cl->GetTotSig();
+         int length=cl->GetLength();
+         int add = cl->GetSeedAdd();
+         int va = cl->GetVA(add);
+   
+    if ( totsig >= maxsig8a && cl->GetVA(cl->GetAddress())==va && cl->GetVA(length+cl->GetAddress())==va&&ii!= indexmaxsig8) {
+      maxsig8a = totsig;
+      indexmaxsig8a = index_cluster;
+    }
+  }
+  
+  
+  int balance[16] = {indexmaxsig1,indexmaxsig2,indexmaxsig3,indexmaxsig4,indexmaxsig5,indexmaxsig6,indexmaxsig7,indexmaxsig8,indexmaxsig1a,indexmaxsig2a,indexmaxsig3a,indexmaxsig4a,indexmaxsig5a,indexmaxsig6a,indexmaxsig7a,indexmaxsig8a};
+
+  for (int ii = 0; ii < 8; ii++) {
+    if (balance[ii] >= 0) {
+     cl = ev->GetCluster(balance[ii]);   
+     int side = cl->side;
+     float eta=ev->GetCluster(balance[ii])->GetEta();
+    
+    if (side == 0) {
+  
+      MAX_hADCClustervseta_S[cl->GetTDR()]->Fill(eta, sqrt(cl->GetTotSig()));
+    }
+   
+   if (side == 1) {
+  
+      MAX_hADCClustervseta_K[cl->GetTDR()]->Fill(eta, sqrt(cl->GetTotSig()));
+    }
+   
+   
+  }
+  
+   }
+    }
+     }
+     
+ if (ev->GetEventKind()==4){
 
   Cluster *cl;
   TF1 *func = new TF1("func","3100/(-4381.65*x+4381.65*x*x+3100)",0,10000);
@@ -771,6 +1169,9 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
 
   hclus->Fill(NClusTot);
   hclus_vs_event->Fill(index_event, NClusTot);
+  
+ 
+  
   //new, added by Alessio
   std::vector<float> totSignal;
 
@@ -859,7 +1260,7 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
   }
   delete func;
 
-
+}
 
   return;
 }
