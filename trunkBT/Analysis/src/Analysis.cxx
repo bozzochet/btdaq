@@ -735,6 +735,9 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
 
 template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event) {
 
+  
+  
+  if (ev->GetEventKind()==4){
   Cluster *cl;
   TF1 *func = new TF1("func","3100/(-4381.65*x+4381.65*x*x+3100)",0,10000);
   //TF1 *func2 = new TF1("func2","14.02-0.68*x+0.04*pow(x,2)-0.001*pow(x,3)+1.63e-05*pow(x,4)-1.22e-07*pow(x,5)+3.72e-10*pow(x,6)",0,10000);
@@ -860,7 +863,7 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
   delete func;
 
 
-
+}
   return;
 }
 
