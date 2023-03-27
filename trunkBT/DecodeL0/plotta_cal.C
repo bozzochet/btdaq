@@ -284,8 +284,8 @@ void plotta_cal(){
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519"};
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/626"};
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_SIPMTRG/0003/917"};
-  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_BLatPS/0008/090"};
-  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_MUONS23/0007/119"}; 
+  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_BLatPS/0008/090"};
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_MUONS23/0007/119"}; 
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/BTData/USBLF_PG_TRENTO2023/0000/019"}; 
   
   std::vector<TH1F*> comparison[3];//3 since there're 3 comparisons: pedestal, sigma and sigmawas
@@ -1446,7 +1446,9 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
   unsigned short int size;
   unsigned short int size_ext;
   unsigned int size_full;
-    
+
+  bool RW=false;
+  
   unsigned short int na;
     
   unsigned short int dt;
@@ -1486,8 +1488,9 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
   if (openL0FEP_debug_level>3)
     printf("15: %u\n", bit(15, dummy16));
 
+  RW = (bool)(bit(14, dummy16));
   if (openL0FEP_debug_level>3)
-    printf("14 (RW): %u\n", bit(14, dummy16));
+    printf("14 (RW): %d\n", RW);
 
   na = bit(5, 13, dummy16); //from bit 5 to bit 13
   if (openL0FEP_debug_level>3)
@@ -1520,12 +1523,34 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
   // dt_full == 0x4
 
   if (dt_full == 0x1f0205) {//control Q-List
-    /*
-    fstat = ReadFile(&dummy16, sizeof(dummy16), 1, file);
-    size_consumed+=sizeof(dummy16);
-    size_to_read-=sizeof(dummy16);
-    if (fstat == -1) return 1;
-    */
+    if (RW) {
+      fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
+      if (fstat == -1) return 1;
+      if (openL0FEP_debug_level>1)
+	printf("Item number: 0x%hx\n", dummy16);
+      
+      if (size_to_read==0) {//"Delete item in time based Q-List"
+      }
+      else if (size_to_read==2) {//"Control or delete a range of items in time based Q-List"
+	printf("Reading not implemented\n");
+      }
+      else if (size_to_read>=4) {//"Change item start time in time based Q-List" or following
+	fstat = ReadFile(dummy32, size_consumed, size_to_read, file);
+	if (fstat == -1) return 1;
+	if (openL0FEP_debug_level>1)
+	  printf("Start time: %u\n", dummy32);
+	
+	if (size_to_read>=10) {//"Add items in time based Q-List"
+	  fstat = ReadFile(dummy32, size_consumed, size_to_read, file);
+	  if (fstat == -1) return 1;
+	  if (openL0FEP_debug_level>1)
+	    printf("Repeat time: %u\n", dummy32);
+	}
+      }
+    }
+    else {//RW=0
+
+    }
   }
   else if (dt_full == 0x1f0383) {//fine time envelope
     fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
