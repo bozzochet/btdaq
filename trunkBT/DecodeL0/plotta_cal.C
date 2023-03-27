@@ -167,11 +167,11 @@ int InitStyle();
 void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos);
 void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos, bool kCal=true);
 void OpenAMSL0FEPFile_EvDisp(TString filename, std::vector<TH1F*>& histos, bool kCal=true);
-int openL0FEP_debug_level = 0;
+//int openL0FEP_debug_level = 0;
 //int openL0FEP_debug_level = 1;
 //int openL0FEP_debug_level = 2;
 //int openL0FEP_debug_level = 3;
-//int openL0FEP_debug_level = 4;
+int openL0FEP_debug_level = 4;
 //int openL0FEP_debug_level = 5;//with also the sleep
 
 void ReOrderVladimir(std::vector<unsigned char>& data,  std::vector<unsigned short>& data_ord);
@@ -179,8 +179,12 @@ void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signal
 //#define COMPCALVLAD_DEBUG
 void ComputeBeamVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev, std::vector<std::vector<unsigned short>>& signals, int nev, TString filename, std::vector<TH1F*>& histos);
 
+int ReadFile(unsigned int& dummy, unsigned int& ize_consumed, unsigned int& size_to_read, FILE* stream);
+int ReadFile(unsigned short int& dummy, unsigned int& ize_consumed, unsigned int& size_to_read, FILE* stream);
+int ReadFile(void* ptr, size_t size, size_t nitems, FILE* stream);
 unsigned short int bit(int bitno, unsigned short int data);
 unsigned short int bit(int bitnofirst, int bitnolast, unsigned short int data);
+
 int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::vector<std::vector<unsigned short>>& signals_by_ev, int nesting_level=0);
 
 void OpenGigiFile(TString filename, std::vector<TH1F*>& histos);
@@ -190,7 +194,6 @@ void CreateAMSFlightHistos(std::vector<TH1F*>& histos);
 
 std::pair<TH1F*, TH1F*> VectorToHisto(std::vector<double> values, const char* name, const char* filename, int nch=640, int nspread=4096);
 std::vector<double> HistoToVector(TH1F* histo);
-int ReadFile(void *ptr, size_t size, size_t nitems, FILE *stream);
 
 void SummaryCal(std::vector<TH1F*> histos, const char* filename, const char* nameout, int type=0);
 void SummaryBeam(std::vector<TH1F*> histos, const char* filename, const char* nameout, int type=0);
@@ -221,7 +224,7 @@ void plotta_beam(){
   //  gStyle->SetPaperSize(27,20);
 
   char nameout[255];
-  sprintf(nameout, "Beam.pdf");
+  snprintf(nameout, sizeof(nameout), "Beam.pdf");
   
   // TString amsl0fepcalfile = "./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519";
   // TString amsl0fepcalfile = "./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/235";
@@ -239,7 +242,7 @@ void plotta_beam(){
   OpenAMSL0FEPFile(amsl0fepbeamfile, histos_beam, false);
 
   char nameouttemp[255];
-  sprintf(nameouttemp, "%s", nameout);
+  snprintf(nameouttemp, sizeof(nameouttemp), "%s", nameout);
   SummaryBeam(histos_beam, amsl0fepbeamfile, nameouttemp, 1);
   
   return;  
@@ -261,7 +264,7 @@ void plotta_cal(){
   //  gStyle->SetPaperSize(27,20);
   
   char nameout[255];
-  sprintf(nameout, "Calibrations.pdf");
+  snprintf(nameout, sizeof(nameout), "Calibrations.pdf");
 
   const int npoxfiles = 4;
   TString poxfiles[npoxfiles] = {"POX02.root", "POX12_newVA.root", "POX12_VAonly.root", "POX12_completo_50Vbias.root"};
@@ -281,14 +284,16 @@ void plotta_cal(){
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519"};
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/626"};
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_SIPMTRG/0003/917"};
-  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_BLatPS/0008/090"};
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_BLatPS/0008/090"};
+  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_MUONS23/0007/119"}; 
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/BTData/USBLF_PG_TRENTO2023/0000/019"}; 
   
   std::vector<TH1F*> comparison[3];//3 since there're 3 comparisons: pedestal, sigma and sigmawas
 
   {
     std::vector<TH1F*> histos;
     char nameouttemp[255];
-    sprintf(nameouttemp, "%s[", nameout);
+    snprintf(nameouttemp, sizeof(nameouttemp), "%s[", nameout);
     SummaryCal(histos, "", nameouttemp);
   }
   
@@ -296,7 +301,7 @@ void plotta_cal(){
     std::vector<TH1F*> histos;
     CreateAMSFlightHistos(histos);
     char nameouttemp[255];
-    sprintf(nameouttemp, "%s", nameout);
+    snprintf(nameouttemp, sizeof(nameouttemp), "%s", nameout);
     SummaryCal(histos, "AMS-flight", nameouttemp);
     for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
       comparison[jj].push_back(histos[4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
@@ -308,7 +313,7 @@ void plotta_cal(){
       std::vector<TH1F*> histos;
       OpenGigiFile(poxfiles[ii], histos);
       char nameouttemp[255];
-      sprintf(nameouttemp, "%s", nameout);
+      snprintf(nameouttemp, sizeof(nameouttemp), "%s", nameout);
       SummaryCal(histos, poxfiles[ii], nameouttemp);
       if (poxfiles[ii]=="POX12_completo_50Vbias.root") {
 	for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
@@ -323,7 +328,7 @@ void plotta_cal(){
       std::vector<TH1F*> histos;
       OpenAMSL0VladimirFile(amsl0vladfiles[ii], histos);
       char nameouttemp[255];
-      sprintf(nameouttemp, "%s", nameout);
+      snprintf(nameouttemp, sizeof(nameouttemp), "%s", nameout);
       SummaryCal(histos, amsl0vladfiles[ii], nameouttemp, 1);
       if (amsl0vladfiles[ii].Contains("LEFP03_")) {
 	for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
@@ -338,7 +343,7 @@ void plotta_cal(){
       std::vector<TH1F*> histos;
       OpenAMSL0FEPFile(amsl0fepfiles[ii], histos);
       char nameouttemp[255];
-      sprintf(nameouttemp, "%s", nameout);
+      snprintf(nameouttemp, sizeof(nameouttemp), "%s", nameout);
       SummaryCal(histos, amsl0fepfiles[ii], nameouttemp, 1);
       //      if (amsl0fepfiles[ii].Contains("LEFP03_")) {
       for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
@@ -350,20 +355,40 @@ void plotta_cal(){
   
   if (!nocomparison){
     char nameouttemp[255];
-    sprintf(nameouttemp, "%s)", nameout);
+    snprintf(nameouttemp, sizeof(nameouttemp), "%s)", nameout);
     Comparison(comparison, nameouttemp);
   }
   else {
     std::vector<TH1F*> histos;
     char nameouttemp[255];
-    sprintf(nameouttemp, "%s]", nameout);
+    snprintf(nameouttemp, sizeof(nameouttemp), "%s]", nameout);
     SummaryCal(histos, "", nameouttemp);
   }
       
   return;
 }
 
-int ReadFile(void *ptr, size_t size, size_t nitems, FILE *stream) {
+int ReadFile(unsigned int& dummy, unsigned int& size_consumed, unsigned int& size_to_read, FILE* stream){
+  int fstat = 0;
+
+  fstat = ReadFile(&dummy, sizeof(dummy), 1, stream);
+  size_consumed+=sizeof(dummy);
+  size_to_read-=sizeof(dummy);
+  
+  return fstat;
+}
+
+int ReadFile(unsigned short int& dummy, unsigned int& size_consumed, unsigned int& size_to_read, FILE* stream){
+  int fstat = 0;
+
+  fstat = ReadFile(&dummy, sizeof(dummy), 1, stream);
+  size_consumed+=sizeof(dummy);
+  size_to_read-=sizeof(dummy);
+  
+  return fstat;
+}
+
+int ReadFile(void* ptr, size_t size, size_t nitems, FILE* stream){
   
   int ret = 0;
   ret = fread(ptr, size, nitems, stream);
@@ -1405,6 +1430,8 @@ unsigned short int bit(int bitnofirst, int bitnolast, unsigned short int data) {
   return (data & mask)>>bitnofirst;
 }
 
+
+
 int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::vector<std::vector<unsigned short>>& signals_by_ev, int nesting_level){
 
   if (openL0FEP_debug_level>4 && nesting_level==0)
@@ -1413,7 +1440,8 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
   int fstat = 0;
   unsigned int size_to_read;
   size_consumed = 0;
-  unsigned short int dummy;
+  unsigned short int dummy16;//16 bit word
+  unsigned int dummy32;//32 bit word
     
   unsigned short int size;
   unsigned short int size_ext;
@@ -1451,34 +1479,30 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
   if (openL0FEP_debug_level>0)
     printf("size_full: %u\n", size_full);
   size_to_read = size_full;
-    
-  fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
-  size_consumed+=sizeof(dummy);
-  size_to_read-=sizeof(dummy);
+
+  fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
   if (fstat == -1) return 1;
 
   if (openL0FEP_debug_level>3)
-    printf("15: %u\n", bit(15, dummy));
+    printf("15: %u\n", bit(15, dummy16));
 
   if (openL0FEP_debug_level>3)
-    printf("14 (RW): %u\n", bit(14, dummy));
+    printf("14 (RW): %u\n", bit(14, dummy16));
 
-  na = bit(5, 13, dummy); //from bit 5 to bit 13
+  na = bit(5, 13, dummy16); //from bit 5 to bit 13
   if (openL0FEP_debug_level>3)
     printf("5-13 (NA): 0x%hx\n", na);
   if (openL0FEP_debug_level>1)
     printf("NA: 0x%hx\n", na);
 
-  dt = bit(0, 4, dummy); //from bit 0 to bit 4
+  dt = bit(0, 4, dummy16); //from bit 0 to bit 4
   if (openL0FEP_debug_level>3)
     printf("0-4 (DT): 0x%hx\n", dt);
   if (openL0FEP_debug_level>1)
     printf("DT: 0x%hx\n", dt);
   
   if (dt == 0x1f) {
-    fstat = ReadFile(&dt_ext, sizeof(dt_ext), 1, file);
-    size_consumed+=sizeof(dt_ext);
-    size_to_read-=sizeof(dt_ext);
+    fstat = ReadFile(dt_ext, size_consumed, size_to_read, file);
     if (fstat == -1) return 1;
     if (openL0FEP_debug_level>2)
       printf("DT (ext): 0x%hx\n", dt_ext);
@@ -1494,62 +1518,60 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
   // other cases in the file are:
   // dt_full == 0x1f0205
   // dt_full == 0x4
-  
-  if (dt_full == 0x1f0383) {//fine time envelope
-    fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
-    size_consumed+=sizeof(dummy);
-    size_to_read-=sizeof(dummy);
+
+  if (dt_full == 0x1f0205) {//control Q-List
+    /*
+    fstat = ReadFile(&dummy16, sizeof(dummy16), 1, file);
+    size_consumed+=sizeof(dummy16);
+    size_to_read-=sizeof(dummy16);
+    if (fstat == -1) return 1;
+    */
+  }
+  else if (dt_full == 0x1f0383) {//fine time envelope
+    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
     if (fstat == -1) return 1;
 
-    unsigned short int status = bit(12, 15, dummy); //from bit 12 to bit 15
+    unsigned short int status = bit(12, 15, dummy16); //from bit 12 to bit 15
     if (openL0FEP_debug_level>3)
       printf("12-15 (Status): 0x%hx\n", status);
     if (openL0FEP_debug_level>1)
       printf("Status: 0x%hx\n", status);
     
-    unsigned short int tag = bit(0, 11, dummy); //from bit 0 to bit 11
+    unsigned short int tag = bit(0, 11, dummy16); //from bit 0 to bit 11
     if (openL0FEP_debug_level>3)
       printf("0-11 (Tag): 0x%hx\n", tag);
     if (openL0FEP_debug_level>1)
       printf("Tag: 0x%hx\n", tag);
 
-    fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
-    size_consumed+=sizeof(dummy);
-    size_to_read-=sizeof(dummy);
+    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
     if (fstat == -1) return 1;
       
-    unsigned short int utime_sec_msb = bit(0, 15, dummy);
+    unsigned short int utime_sec_msb = bit(0, 15, dummy16);
     if (openL0FEP_debug_level>2)
       printf("utime_sec_msb: %u\n", utime_sec_msb);
 
-    fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
-    size_consumed+=sizeof(dummy);
-    size_to_read-=sizeof(dummy);
+    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
     if (fstat == -1) return 1;
 
-    unsigned short int utime_sec_lsb = bit(0, 15, dummy);
+    unsigned short int utime_sec_lsb = bit(0, 15, dummy16);
     if (openL0FEP_debug_level>2)
       printf("utime_sec_lsb: %u\n", utime_sec_lsb);
 
     unsigned int utime_sec = (utime_sec_msb<<16) + utime_sec_lsb;
     if (openL0FEP_debug_level>2)
       printf("UTime_sec: %u\n", utime_sec);
-
-    fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
-    size_consumed+=sizeof(dummy);
-    size_to_read-=sizeof(dummy);
+    
+    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
     if (fstat == -1) return 1;
       
-    unsigned short int utime_usec_msb = bit(0, 15, dummy);
+    unsigned short int utime_usec_msb = bit(0, 15, dummy16);
     if (openL0FEP_debug_level>2)
       printf("utime_usec_msb: %u\n", utime_usec_msb);
 
-    fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
-    size_consumed+=sizeof(dummy);
-    size_to_read-=sizeof(dummy);
+    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
     if (fstat == -1) return 1;
 
-    unsigned short int utime_usec_lsb = bit(0, 15, dummy);
+    unsigned short int utime_usec_lsb = bit(0, 15, dummy16);
     if (openL0FEP_debug_level>2)
       printf("utime_usec_lsb: %u\n", utime_usec_lsb);
 
@@ -1564,38 +1586,32 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
     size_to_read-=read_bytes;
   }
   else if (dt_full == 0x13) {// SCI/CAL/CFG/HK/ (0x5, 0x6, 0x7, 0x8) + LVL3 + GPS data
-    fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
-    size_consumed+=sizeof(dummy);
-    size_to_read-=sizeof(dummy);
+    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
     if (fstat == -1) return 1;
 
-    unsigned short int status = bit(12, 15, dummy); //from bit 12 to bit 15
+    unsigned short int status = bit(12, 15, dummy16); //from bit 12 to bit 15
     if (openL0FEP_debug_level>3)
       printf("12-15 (Status): 0x%hx\n", status);
     if (openL0FEP_debug_level>1)
       printf("Status: 0x%hx\n", status);
     
-    unsigned short int tag = bit(0, 11, dummy); //from bit 0 to bit 11
+    unsigned short int tag = bit(0, 11, dummy16); //from bit 0 to bit 11
     if (openL0FEP_debug_level>3)
       printf("0-11 (Tag): 0x%hx\n", tag);
     if (openL0FEP_debug_level>1)
       printf("Tag: 0x%hx\n", tag);
 
-    fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
-    size_consumed+=sizeof(dummy);
-    size_to_read-=sizeof(dummy);
+    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
     if (fstat == -1) return 1;
       
-    unsigned short int utime_sec_msb = bit(0, 15, dummy);
+    unsigned short int utime_sec_msb = bit(0, 15, dummy16);
     if (openL0FEP_debug_level>2)
       printf("utime_sec_msb: %u\n", utime_sec_msb);
 
-    fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
-    size_consumed+=sizeof(dummy);
-    size_to_read-=sizeof(dummy);
+    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
     if (fstat == -1) return 1;
 
-    unsigned short int utime_sec_lsb = bit(0, 15, dummy);
+    unsigned short int utime_sec_lsb = bit(0, 15, dummy16);
     if (openL0FEP_debug_level>2)
       printf("utime_sec_lsb: %u\n", utime_sec_lsb);
 
@@ -1607,12 +1623,10 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
       printf("Empty event...\n");
     }
     else if (size_to_read == 1794) {//Vladimir raw event
-      fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
-      size_consumed+=sizeof(dummy);
-      size_to_read-=sizeof(dummy);
+      fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
       if (fstat == -1) return 1;
 
-      unsigned short int evtn = bit(0, 7, dummy);//from bit 0 to bit 7
+      unsigned short int evtn = bit(0, 7, dummy16);//from bit 0 to bit 7
       if (openL0FEP_debug_level>1)
 	printf("Event number: %u\n", evtn);
       
@@ -1657,7 +1671,7 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
     }
   }
 
-  if (openL0FEP_debug_level>0)
+  if (openL0FEP_debug_level>0 && size_to_read>0)
     printf("Still to read %d bytes. Skipping them...\n", size_to_read);
     
   // skip all the block data
