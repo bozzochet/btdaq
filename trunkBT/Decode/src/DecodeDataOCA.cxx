@@ -579,7 +579,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
     fstat = ReadFile(&IntTimestamp, sizeof(IntTimestamp), 1, file);
     if (fstat == -1)
       return 1;
-    IntTimestamp = (IntTimestamp >> 32) + ((IntTimestamp & 0xFFFF) << 32);
+    IntTimestamp = (IntTimestamp >> 32) + ((IntTimestamp &  0xFFFFFFFF) << 32);
     // FIXME: we save only the first board clock
     if (iBoard == 0)
       event->I2CEventID = IntTimestamp >> 32;
@@ -588,7 +588,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
     fstat = ReadFile(&ExtTimestamp, sizeof(ExtTimestamp), 1, file);
     if (fstat == -1)
       return 1;
-    ExtTimestamp = (ExtTimestamp >> 32) + ((ExtTimestamp & 0xFFFF) << 32);
+    ExtTimestamp = (ExtTimestamp >> 32) + ((ExtTimestamp & 0xFFFFFFFF) << 32);
 
     // FIXME: we save only the first board clock
     if (iBoard == 0)

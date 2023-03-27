@@ -666,15 +666,12 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
   // MD: e poi ricominci (fino a massimo 5k) fillando 0, 1, 2, etc... fino a dove arrivi
   // MD: se sono più di 10k li hai sostituiti tutti
 
-#define PERCENTILE 0.02
-
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
 
       std::sort(begin(signals_sorted[iTdr][iCh]), end(signals_sorted[iTdr][iCh]));
-      unsigned int skipped_ch = PERCENTILE * signals_sorted[iTdr][iCh].size();
-      auto beginItr = std::next(begin(signals_sorted[iTdr][iCh]), skipped_ch);
-      auto endItr = std::prev(end(signals_sorted[iTdr][iCh]), skipped_ch);
+      auto beginItr = std::begin(signals_sorted[iTdr][iCh]);
+      auto endItr = std::end(signals_sorted[iTdr][iCh]);
 
       auto nCh = std::distance(beginItr, endItr);
       //      printf("%ld %f\n", nCh, (1.0-2.0*PERCENTILE)*signals[iTdr][iCh].size());
@@ -739,8 +736,8 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
           hrawsig_each_ch_vs_ev[iCh]->SetBinContent(iEv + 1, signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
         }
       }
-      for (unsigned int iEv = ((int)(PERCENTILE * signals[iTdr][iCh].size()));
-           iEv < ((int)((1.0 - PERCENTILE) * signals[iTdr][iCh].size())); iEv++) {
+      for (unsigned int iEv = ((int)(signals[iTdr][iCh].size()));
+           iEv < ((int)(signals[iTdr][iCh].size())); iEv++) {
         hrawsig_filtered[iTdr]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
       }
     }
@@ -765,8 +762,6 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
   for (unsigned int iEv = 0; iEv < signals[0][0].size(); ++iEv) {
     for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-        double low_cut = signals_sorted[iTdr][iCh][PERCENTILE * signals_sorted[iTdr][iCh].size()];
-        double high_cut = signals_sorted[iTdr][iCh][(1. - PERCENTILE) * signals_sorted[iTdr][iCh].size()];
         unsigned int thisVA = iCh / NCHAVA;
         //	printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
 
@@ -787,10 +782,9 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
             //             if (iEv>=((int)(PERCENTILE*signals[iTdr][thisVA * NCHAVA + iVACh].size())) &&
             //             iEv<((int)((1.0-PERCENTILE)*signals[iTdr][thisVA * NCHAVA + iVACh].size()))) { //probabilemte
             //             non serve e comunque questo è sbagliato
-            if (fabs(sig_to_rawnoise) < 50.0) {
-              if (sig > low_cut && sig < high_cut)
-                values.push_back(sig);
-            }
+            // if (fabs(sig_to_rawnoise) < 50.0) {
+              values.push_back(sig);
+            // }
             // }
           }
 
@@ -821,12 +815,9 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
             }
         */
 
-        // this relies in sorted vectors (i.e. signals), done in preveious loop (sigma raw)
-        if (signals[iTdr][iCh][iEv] > low_cut && signals[iTdr][iCh][iEv] < high_cut) {
-          ++processed_events[iTdr][iCh];
-          cals[iTdr].sig[iCh] += (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
-                                 (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
-        }
+        ++processed_events[iTdr][iCh];
+        cals[iTdr].sig[iCh] += (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
+                               (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
 
 #ifdef CALPLOTS
         hsig[iTdr]->Fill(signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
