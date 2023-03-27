@@ -179,13 +179,17 @@ void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signal
 //#define COMPCALVLAD_DEBUG
 void ComputeBeamVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev, std::vector<std::vector<unsigned short>>& signals, int nev, TString filename, std::vector<TH1F*>& histos);
 
-int ReadFile(unsigned int& dummy, unsigned int& ize_consumed, unsigned int& size_to_read, FILE* stream);
-int ReadFile(unsigned short int& dummy, unsigned int& ize_consumed, unsigned int& size_to_read, FILE* stream);
 int ReadFile(void* ptr, size_t size, size_t nitems, FILE* stream);
 unsigned short int bit(int bitno, unsigned short int data);
 unsigned short int bit(int bitnofirst, int bitnolast, unsigned short int data);
-
-int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::vector<std::vector<unsigned short>>& signals_by_ev, int nesting_level=0);
+int ReadAMSBlockFile(unsigned int& dummy, unsigned int& ize_consumed, unsigned int& size_to_read, FILE* stream);
+int ReadAMSBlockFile(unsigned short int& dummy, unsigned int& ize_consumed, unsigned int& size_to_read, FILE* stream);
+int ReadAMSBlockSize(unsigned int& size_full, unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
+int ReadAMSBlockRWNADT(bool& RW, unsigned short int& na, unsigned int& dt_full, unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
+int ReadAMSBlockStatusTag(unsigned short int& status, unsigned short int& tag, unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
+int ReadAMSBlockFineTime(unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
+int ReadAMSBlockTime(unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
+int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::vector<std::vector<unsigned short>>& signals_by_ev, int nesting_level=0);
 
 void OpenGigiFile(TString filename, std::vector<TH1F*>& histos);
 std::pair<TH1F*, TH1F*> GigiGraphToHisto(const char* name, const char* filename, bool dummy=false);
@@ -367,45 +371,6 @@ void plotta_cal(){
       
   return;
 }
-
-int ReadFile(unsigned int& dummy, unsigned int& size_consumed, unsigned int& size_to_read, FILE* stream){
-  int fstat = 0;
-
-  fstat = ReadFile(&dummy, sizeof(dummy), 1, stream);
-  size_consumed+=sizeof(dummy);
-  size_to_read-=sizeof(dummy);
-  
-  return fstat;
-}
-
-int ReadFile(unsigned short int& dummy, unsigned int& size_consumed, unsigned int& size_to_read, FILE* stream){
-  int fstat = 0;
-
-  fstat = ReadFile(&dummy, sizeof(dummy), 1, stream);
-  size_consumed+=sizeof(dummy);
-  size_to_read-=sizeof(dummy);
-  
-  return fstat;
-}
-
-int ReadFile(void* ptr, size_t size, size_t nitems, FILE* stream){
-  
-  int ret = 0;
-  ret = fread(ptr, size, nitems, stream);
-  if (feof(stream)) {
-    printf("\n");
-    printf("End of File \n");
-    return -1;
-  }
-  if (ferror(stream)) {
-    printf("Error reading \n");
-    return -2;
-  }
-
-  return ret;
-}
-
-
 
 void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos){
 
@@ -1415,6 +1380,23 @@ void Comparison(std::vector<TH1F*> histos[3], const char* nameout) {
   return;
 }
 
+int ReadFile(void* ptr, size_t size, size_t nitems, FILE* stream){
+  
+  int ret = 0;
+  ret = fread(ptr, size, nitems, stream);
+  if (feof(stream)) {
+    printf("\n");
+    printf("End of File \n");
+    return -1;
+  }
+  if (ferror(stream)) {
+    printf("Error reading \n");
+    return -2;
+  }
+
+  return ret;
+}
+
 unsigned short int bit(int bitno, unsigned short int data) {
 
   return (data & 1<<bitno)>>bitno;
@@ -1430,44 +1412,43 @@ unsigned short int bit(int bitnofirst, int bitnolast, unsigned short int data) {
   return (data & mask)>>bitnofirst;
 }
 
-
-
-int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::vector<std::vector<unsigned short>>& signals_by_ev, int nesting_level){
-
-  if (openL0FEP_debug_level>4 && nesting_level==0)
-    sleep(10);
-  
+int ReadAMSBlockFile(unsigned int& dummy, unsigned int& size_consumed, unsigned int& size_to_read, FILE* stream){
   int fstat = 0;
-  unsigned int size_to_read;
-  size_consumed = 0;
-  unsigned short int dummy16;//16 bit word
-  unsigned int dummy32;//32 bit word
-    
+
+  fstat = ReadFile(&dummy, sizeof(dummy), 1, stream);
+  size_consumed+=sizeof(dummy);
+  size_to_read-=sizeof(dummy);
+  
+  return fstat;
+}
+
+int ReadAMSBlockFile(unsigned short int& dummy, unsigned int& size_consumed, unsigned int& size_to_read, FILE* stream){
+  int fstat = 0;
+
+  fstat = ReadFile(&dummy, sizeof(dummy), 1, stream);
+  size_consumed+=sizeof(dummy);
+  size_to_read-=sizeof(dummy);
+  
+  return fstat;
+}
+
+int ReadAMSBlockSize(unsigned int& size_full, unsigned int& size_consumed, unsigned int& size_to_read, FILE* file){
+
+  int fstat=0;
+  
   unsigned short int size;
   unsigned short int size_ext;
-  unsigned int size_full;
-
-  bool RW=false;
-  
-  unsigned short int na;
-    
-  unsigned short int dt;
-  unsigned short int dt_ext;
-  unsigned int dt_full;
-
-  if (openL0FEP_debug_level>0)
-    printf("*************** New block (level %d) **************\n", nesting_level);
   
   fstat = ReadFile(&size, sizeof(size), 1, file);
   size_consumed+=sizeof(size);
-  if (fstat == -1) return 1;
+  if (fstat == -1) return fstat;
   if (openL0FEP_debug_level>1)
     printf("size: %u\n", size);
-    
+  
   if (bit(15, size)) {
     fstat = ReadFile(&size_ext, sizeof(size_ext), 1, file);
     size_consumed+=sizeof(size_ext);
-    if (fstat == -1) return 1;
+    if (fstat == -1) return fstat;
     if (openL0FEP_debug_level>1)
       printf("size_ext: %u\n", size_ext);
     size &= 0x7fff;//mask the first bit
@@ -1482,31 +1463,43 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
     printf("size_full: %u\n", size_full);
   size_to_read = size_full;
 
-  fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
-  if (fstat == -1) return 1;
+  return fstat;
+}
 
+int ReadAMSBlockRWNADT(bool& RW, unsigned short int& na, unsigned int& dt_full, unsigned int& size_consumed, unsigned int& size_to_read, FILE* file){
+
+  int fstat=0;
+    
+  unsigned short int dummy16;//16 bit word
+
+  unsigned short int dt;
+  unsigned short int dt_ext;
+  
+  fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
+  if (fstat == -1) return fstat;
+    
   if (openL0FEP_debug_level>3)
     printf("15: %u\n", bit(15, dummy16));
-
+    
   RW = (bool)(bit(14, dummy16));
   if (openL0FEP_debug_level>3)
     printf("14 (RW): %d\n", RW);
-
+    
   na = bit(5, 13, dummy16); //from bit 5 to bit 13
   if (openL0FEP_debug_level>3)
     printf("5-13 (NA): 0x%hx\n", na);
   if (openL0FEP_debug_level>1)
     printf("NA: 0x%hx\n", na);
-
+    
   dt = bit(0, 4, dummy16); //from bit 0 to bit 4
   if (openL0FEP_debug_level>3)
     printf("0-4 (DT): 0x%hx\n", dt);
   if (openL0FEP_debug_level>1)
     printf("DT: 0x%hx\n", dt);
-  
+    
   if (dt == 0x1f) {
-    fstat = ReadFile(dt_ext, size_consumed, size_to_read, file);
-    if (fstat == -1) return 1;
+    fstat = ReadAMSBlockFile(dt_ext, size_consumed, size_to_read, file);
+    if (fstat == -1) return fstat;
     if (openL0FEP_debug_level>2)
       printf("DT (ext): 0x%hx\n", dt_ext);
     dt_full = (dt<<16)  + dt_ext;
@@ -1514,17 +1507,142 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
   else {
     dt_full = dt;
   }
-  
+    
   if (openL0FEP_debug_level>1)
     printf("DT (full): 0x%x\n", dt_full);
 
-  // other cases in the file are:
-  // dt_full == 0x1f0205
-  // dt_full == 0x4
+  return fstat;
+}
 
+int ReadAMSBlockStatusTag(unsigned short int& status, unsigned short int& tag, unsigned int& size_consumed, unsigned int& size_to_read, FILE* file){
+
+  int fstat = 0;
+  
+  unsigned short int dummy16;//16 bit word
+  
+  fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
+  if (fstat == -1) return 1;
+
+  status = bit(12, 15, dummy16); //from bit 12 to bit 15
+  if (openL0FEP_debug_level>3)
+    printf("12-15 (Status): 0x%hx\n", status);
+  if (openL0FEP_debug_level>1)
+    printf("Status: 0x%hx\n", status);
+      
+  tag = bit(0, 11, dummy16); //from bit 0 to bit 11
+  if (openL0FEP_debug_level>3)
+    printf("0-11 (Tag): 0x%hx\n", tag);
+  if (openL0FEP_debug_level>1)
+    printf("Tag: 0x%hx\n", tag);
+
+  return fstat;
+}
+
+int ReadAMSBlockFineTime(unsigned int& size_consumed, unsigned int& size_to_read, FILE* file){
+
+  int fstat = 0;
+
+  unsigned short int dummy16;//16 bit word
+    
+  fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
+  if (fstat == -1) return fstat;
+      
+  unsigned short int utime_sec_msb = bit(0, 15, dummy16);
+  if (openL0FEP_debug_level>2)
+    printf("utime_sec_msb: %u\n", utime_sec_msb);
+      
+  fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
+  if (fstat == -1) return fstat;
+      
+  unsigned short int utime_sec_lsb = bit(0, 15, dummy16);
+  if (openL0FEP_debug_level>2)
+    printf("utime_sec_lsb: %u\n", utime_sec_lsb);
+      
+  unsigned int utime_sec = (utime_sec_msb<<16) + utime_sec_lsb;
+  if (openL0FEP_debug_level>2)
+    printf("UTime_sec: %u\n", utime_sec);
+      
+  fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
+  if (fstat == -1) return fstat;
+      
+  unsigned short int utime_usec_msb = bit(0, 15, dummy16);
+  if (openL0FEP_debug_level>2)
+    printf("utime_usec_msb: %u\n", utime_usec_msb);
+      
+  fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
+  if (fstat == -1) return fstat;
+      
+  unsigned short int utime_usec_lsb = bit(0, 15, dummy16);
+  if (openL0FEP_debug_level>2)
+    printf("utime_usec_lsb: %u\n", utime_usec_lsb);
+      
+  unsigned int utime_usec = (utime_usec_msb<<16) + utime_usec_lsb;
+  if (openL0FEP_debug_level>2)
+    printf("UTime_usec: %u\n", utime_usec);
+
+  return fstat;
+}
+
+int ReadAMSBlockTime(unsigned int& size_consumed, unsigned int& size_to_read, FILE* file){
+
+  int fstat = 0;
+
+  unsigned short int dummy16;//16 bit word
+  
+  fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
+  if (fstat == -1) return fstat;
+      
+  unsigned short int utime_sec_msb = bit(0, 15, dummy16);
+  if (openL0FEP_debug_level>2)
+    printf("utime_sec_msb: %u\n", utime_sec_msb);
+      
+  fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
+  if (fstat == -1) return fstat;
+      
+  unsigned short int utime_sec_lsb = bit(0, 15, dummy16);
+  if (openL0FEP_debug_level>2)
+    printf("utime_sec_lsb: %u\n", utime_sec_lsb);
+      
+  unsigned int utime_sec = (utime_sec_msb<<16) + utime_sec_lsb;
+  if (openL0FEP_debug_level>2)
+    printf("UTime_sec: %u\n", utime_sec);
+
+  return fstat;
+}
+
+int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::vector<std::vector<unsigned short>>& signals_by_ev, int nesting_level){
+
+  if (openL0FEP_debug_level>4 && nesting_level==0)
+    sleep(10);
+  
+  int fstat = 0;
+  unsigned int size_to_read;
+  size_consumed = 0;
+  unsigned short int dummy16;//16 bit word
+  unsigned int dummy32;//32 bit word
+    
+  unsigned int size_full;
+
+  bool RW=false;
+  unsigned short int na;
+  unsigned int dt_full;
+
+  unsigned short int status;
+  unsigned short int tag;
+
+  if (openL0FEP_debug_level>0)
+    printf("*************** New block (level %d) **************\n", nesting_level);
+
+  fstat = ReadAMSBlockSize(size_full, size_consumed, size_to_read, file);
+  if (fstat == -1) return 1;
+
+  fstat = ReadAMSBlockRWNADT(RW, na, dt_full, size_consumed, size_to_read, file);
+  if (fstat == -1) return 1;
+
+  // DT cases
   if (dt_full == 0x1f0205) {//control Q-List
     if (RW) {
-      fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
+      fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
       if (fstat == -1) return 1;
       if (openL0FEP_debug_level>1)
 	printf("Item number: 0x%hx\n", dummy16);
@@ -1535,13 +1653,13 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
 	printf("Reading not implemented\n");
       }
       else if (size_to_read>=4) {//"Change item start time in time based Q-List" or following
-	fstat = ReadFile(dummy32, size_consumed, size_to_read, file);
+	fstat = ReadAMSBlockFile(dummy32, size_consumed, size_to_read, file);
 	if (fstat == -1) return 1;
 	if (openL0FEP_debug_level>1)
 	  printf("Start time: %u\n", dummy32);
 	
 	if (size_to_read>=10) {//"Add items in time based Q-List"
-	  fstat = ReadFile(dummy32, size_consumed, size_to_read, file);
+	  fstat = ReadAMSBlockFile(dummy32, size_consumed, size_to_read, file);
 	  if (fstat == -1) return 1;
 	  if (openL0FEP_debug_level>1)
 	    printf("Repeat time: %u\n", dummy32);
@@ -1553,104 +1671,36 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
     }
   }
   else if (dt_full == 0x1f0383) {//fine time envelope
-    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
+    fstat = ReadAMSBlockStatusTag(status, tag, size_consumed, size_to_read, file);
     if (fstat == -1) return 1;
 
-    unsigned short int status = bit(12, 15, dummy16); //from bit 12 to bit 15
-    if (openL0FEP_debug_level>3)
-      printf("12-15 (Status): 0x%hx\n", status);
-    if (openL0FEP_debug_level>1)
-      printf("Status: 0x%hx\n", status);
-    
-    unsigned short int tag = bit(0, 11, dummy16); //from bit 0 to bit 11
-    if (openL0FEP_debug_level>3)
-      printf("0-11 (Tag): 0x%hx\n", tag);
-    if (openL0FEP_debug_level>1)
-      printf("Tag: 0x%hx\n", tag);
-
-    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
-    if (fstat == -1) return 1;
-      
-    unsigned short int utime_sec_msb = bit(0, 15, dummy16);
-    if (openL0FEP_debug_level>2)
-      printf("utime_sec_msb: %u\n", utime_sec_msb);
-
-    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
+    fstat = ReadAMSBlockFineTime(size_consumed, size_to_read, file);
     if (fstat == -1) return 1;
 
-    unsigned short int utime_sec_lsb = bit(0, 15, dummy16);
-    if (openL0FEP_debug_level>2)
-      printf("utime_sec_lsb: %u\n", utime_sec_lsb);
-
-    unsigned int utime_sec = (utime_sec_msb<<16) + utime_sec_lsb;
-    if (openL0FEP_debug_level>2)
-      printf("UTime_sec: %u\n", utime_sec);
-    
-    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
-    if (fstat == -1) return 1;
-      
-    unsigned short int utime_usec_msb = bit(0, 15, dummy16);
-    if (openL0FEP_debug_level>2)
-      printf("utime_usec_msb: %u\n", utime_usec_msb);
-
-    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
-    if (fstat == -1) return 1;
-
-    unsigned short int utime_usec_lsb = bit(0, 15, dummy16);
-    if (openL0FEP_debug_level>2)
-      printf("utime_usec_lsb: %u\n", utime_usec_lsb);
-
-    unsigned int utime_usec = (utime_usec_msb<<16) + utime_usec_lsb;
-    if (openL0FEP_debug_level>2)
-      printf("UTime_usec: %u\n", utime_usec);
-
+    //let's call recursively the same function to process the sub-block...
     unsigned int read_bytes = 0;
-    int ret = ProcessBlock(file, read_bytes, ev_found, signals_by_ev, nesting_level+1);
+    int ret = ProcessAMSBlock(file, read_bytes, ev_found, signals_by_ev, nesting_level+1);
     if (ret!=0) return ret;
     size_consumed+=read_bytes;
     size_to_read-=read_bytes;
   }
   else if (dt_full == 0x13) {// SCI/CAL/CFG/HK/ (0x5, 0x6, 0x7, 0x8) + LVL3 + GPS data
-    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
+
+    fstat = ReadAMSBlockStatusTag(status, tag, size_consumed, size_to_read, file);
     if (fstat == -1) return 1;
 
-    unsigned short int status = bit(12, 15, dummy16); //from bit 12 to bit 15
-    if (openL0FEP_debug_level>3)
-      printf("12-15 (Status): 0x%hx\n", status);
-    if (openL0FEP_debug_level>1)
-      printf("Status: 0x%hx\n", status);
+    fstat = ReadAMSBlockTime(size_consumed, size_to_read, file);
+    if (fstat == -1) return 1;
+
+    // and now, finally, the event...
     
-    unsigned short int tag = bit(0, 11, dummy16); //from bit 0 to bit 11
-    if (openL0FEP_debug_level>3)
-      printf("0-11 (Tag): 0x%hx\n", tag);
-    if (openL0FEP_debug_level>1)
-      printf("Tag: 0x%hx\n", tag);
-
-    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
-    if (fstat == -1) return 1;
-      
-    unsigned short int utime_sec_msb = bit(0, 15, dummy16);
-    if (openL0FEP_debug_level>2)
-      printf("utime_sec_msb: %u\n", utime_sec_msb);
-
-    fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
-    if (fstat == -1) return 1;
-
-    unsigned short int utime_sec_lsb = bit(0, 15, dummy16);
-    if (openL0FEP_debug_level>2)
-      printf("utime_sec_lsb: %u\n", utime_sec_lsb);
-
-    unsigned int utime_sec = (utime_sec_msb<<16) + utime_sec_lsb;
-    if (openL0FEP_debug_level>2)
-      printf("UTime_sec: %u\n", utime_sec);
-
     if (size_to_read==0 && openL0FEP_debug_level>0) {
       printf("Empty event...\n");
     }
     else if (size_to_read == 1794) {//Vladimir raw event
-      fstat = ReadFile(dummy16, size_consumed, size_to_read, file);
+      fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
       if (fstat == -1) return 1;
-
+      
       unsigned short int evtn = bit(0, 7, dummy16);//from bit 0 to bit 7
       if (openL0FEP_debug_level>1)
 	printf("Event number: %u\n", evtn);
@@ -1660,12 +1710,12 @@ int ProcessBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::ve
       //      printf("data size (FEP): %d\n", size_to_read);
       data_end_nc.resize(size_to_read);
       data.resize(size_to_read);
-
+      
       fstat = ReadFile(&data_end_nc[0], size_to_read, 1, file);
       size_consumed+=size_to_read;
       size_to_read-=size_to_read;
       if (fstat == -1) return 1;
-
+      
       //Endianess correction
       for (int ii=0; ii<((int)(data_end_nc.size())); ii+=2) {
 	data[ii] = data_end_nc[ii+1];
@@ -1732,7 +1782,7 @@ void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos, bool kCal){
   int nev=0;
   while (1) {
     unsigned int read_bytes = 0;
-    int ret = ProcessBlock(file, read_bytes, nev, signals_by_ev, 0);
+    int ret = ProcessAMSBlock(file, read_bytes, nev, signals_by_ev, 0);
     if (ret!=0) break;
   }
   printf("We read %d events\n", nev);
@@ -1772,7 +1822,7 @@ void SaveAMSL0FEPFileGigi(TString filename){
   int nev=0;
   while (1) {
     unsigned int read_bytes = 0;
-    int ret = ProcessBlock(file, read_bytes, nev, signals_by_ev, 0);
+    int ret = ProcessAMSBlock(file, read_bytes, nev, signals_by_ev, 0);
     if (ret!=0) break;
   }
   printf("We read %d events\n", nev);
