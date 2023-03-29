@@ -185,7 +185,7 @@ unsigned short int bit(int bitnofirst, int bitnolast, unsigned short int data);
 int ReadAMSBlockFile(unsigned int& dummy, unsigned int& ize_consumed, unsigned int& size_to_read, FILE* stream);
 int ReadAMSBlockFile(unsigned short int& dummy, unsigned int& ize_consumed, unsigned int& size_to_read, FILE* stream);
 int ReadAMSBlockSize(unsigned int& size_full, unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
-int ReadAMSBlockRWNADT(bool& RW, unsigned short int& na, unsigned int& dt_full, unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
+int ReadAMSBlockRPRWNADT(bool& RP, bool& RW, unsigned short int& na, unsigned int& dt_full, unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
 int ReadAMSBlockStatusTag(unsigned short int& status, unsigned short int& tag, unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
 int ReadAMSBlockFineTime(unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
 int ReadAMSBlockTime(unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
@@ -288,9 +288,9 @@ void plotta_cal(){
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519"};
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/626"};
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_SIPMTRG/0003/917"};
-  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_BLatPS/0008/090"};
-  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_MUONS23/0007/119"}; 
-  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/BTData/USBLF_PG_TRENTO2023/0000/019"}; 
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_BLatPS/0008/090"};//USB-LEF
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_MUONS23/0007/119"}; //USB-LEF
+  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/BTData/USBLF_PG_TRENTO2023/0000/019"};//USB-LF with 2 LEFs 
   
   std::vector<TH1F*> comparison[3];//3 since there're 3 comparisons: pedestal, sigma and sigmawas
 
@@ -1466,7 +1466,7 @@ int ReadAMSBlockSize(unsigned int& size_full, unsigned int& size_consumed, unsig
   return fstat;
 }
 
-int ReadAMSBlockRWNADT(bool& RW, unsigned short int& na, unsigned int& dt_full, unsigned int& size_consumed, unsigned int& size_to_read, FILE* file){
+int ReadAMSBlockRPRWNADT(bool& RP, bool& RW, unsigned short int& na, unsigned int& dt_full, unsigned int& size_consumed, unsigned int& size_to_read, FILE* file){
 
   int fstat=0;
     
@@ -1477,10 +1477,13 @@ int ReadAMSBlockRWNADT(bool& RW, unsigned short int& na, unsigned int& dt_full, 
   
   fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
   if (fstat == -1) return fstat;
-    
+
+  RP = (bool)(bit(15, dummy16));
   if (openL0FEP_debug_level>3)
-    printf("15: %u\n", bit(15, dummy16));
-    
+    printf("15: %d\n", RP);
+  if (openL0FEP_debug_level>1)
+    printf("Reply: %s\n", RP?"yes":"no");
+  
   RW = (bool)(bit(14, dummy16));
   if (openL0FEP_debug_level>3)
     printf("14 (RW): %d\n", RW);
@@ -1623,6 +1626,7 @@ int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std:
     
   unsigned int size_full;
 
+  bool RP=false;
   bool RW=false;
   unsigned short int na;
   unsigned int dt_full;
@@ -1630,53 +1634,143 @@ int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std:
   unsigned short int status;
   unsigned short int tag;
 
+  bool call_recursively=false;
+  
   if (openL0FEP_debug_level>0)
     printf("*************** New block (level %d) **************\n", nesting_level);
 
   fstat = ReadAMSBlockSize(size_full, size_consumed, size_to_read, file);
   if (fstat == -1) return 1;
 
-  fstat = ReadAMSBlockRWNADT(RW, na, dt_full, size_consumed, size_to_read, file);
+  fstat = ReadAMSBlockRPRWNADT(RP, RW, na, dt_full, size_consumed, size_to_read, file);
   if (fstat == -1) return 1;
 
-  // DT cases
-  if (dt_full == 0x1f0205) {//control Q-List
-    if (RW) {
-      fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
-      if (fstat == -1) return 1;
-      if (openL0FEP_debug_level>1)
-	printf("Item number: 0x%hx\n", dummy16);
+  if (RP==false) {//RP=false, command
+    printf("Decoding of commands, not implemented. Only replies...\n");
+  }
+  else {//RP=true, reply 
+    // DT cases
+    if (dt_full == 0x1f0205) {//control Q-List (but not sure at all)
+      if (RW) {
+	fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
+	if (fstat == -1) return 1;
+	if (openL0FEP_debug_level>1)
+	  printf("Item number: 0x%hx\n", dummy16);
       
-      if (size_to_read==0) {//"Delete item in time based Q-List"
+	if (size_to_read==0) {//"Delete item in time based Q-List"
+	}
+	else if (size_to_read==2) {//"Control or delete a range of items in time based Q-List"
+	  printf("Decoding not implemented\n");
+	}
+	else if (size_to_read>=4) {//"Change item start time in time based Q-List" or following
+	  fstat = ReadAMSBlockFile(dummy32, size_consumed, size_to_read, file);
+	  if (fstat == -1) return 1;
+	  if (openL0FEP_debug_level>1)
+	    printf("Start time: %u\n", dummy32);
+	
+	  if (size_to_read>=10) {//"Add items in time based Q-List"
+	    fstat = ReadAMSBlockFile(dummy32, size_consumed, size_to_read, file);
+	    if (fstat == -1) return 1;
+	    if (openL0FEP_debug_level>1)
+	      printf("Repeat time: %u\n", dummy32);
+	  }
+	}
       }
-      else if (size_to_read==2) {//"Control or delete a range of items in time based Q-List"
-	printf("Reading not implemented\n");
-      }
-      else if (size_to_read>=4) {//"Change item start time in time based Q-List" or following
+      else {//RW=0
+	//"Read one item in time based Q-List" or //"Read whole time based Q-List" ? Something else?
+	fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
+	if (fstat == -1) return 1;
+	if (openL0FEP_debug_level>1)
+	  printf("Item number: 0x%hx\n", dummy16);
+
 	fstat = ReadAMSBlockFile(dummy32, size_consumed, size_to_read, file);
 	if (fstat == -1) return 1;
 	if (openL0FEP_debug_level>1)
 	  printf("Start time: %u\n", dummy32);
 	
-	if (size_to_read>=10) {//"Add items in time based Q-List"
-	  fstat = ReadAMSBlockFile(dummy32, size_consumed, size_to_read, file);
-	  if (fstat == -1) return 1;
-	  if (openL0FEP_debug_level>1)
-	    printf("Repeat time: %u\n", dummy32);
+	fstat = ReadAMSBlockFile(dummy32, size_consumed, size_to_read, file);
+	if (fstat == -1) return 1;
+	if (openL0FEP_debug_level>1)
+	  printf("Repeat time: %u\n", dummy32);
+
+	/* not working since I find a size that is crazy...
+	   call_recursively=true;
+	*/
+      }
+    }
+    else if (dt_full == 0x1f0383) {//fine time envelope
+      fstat = ReadAMSBlockStatusTag(status, tag, size_consumed, size_to_read, file);
+      if (fstat == -1) return 1;
+
+      fstat = ReadAMSBlockFineTime(size_consumed, size_to_read, file);
+      if (fstat == -1) return 1;
+
+      call_recursively=true;
+    }
+    else if (dt_full == 0x13) {// SCI/CAL/CFG/HK/ (0x5, 0x6, 0x7, 0x8) + LVL3 + GPS data
+
+      fstat = ReadAMSBlockStatusTag(status, tag, size_consumed, size_to_read, file);
+      if (fstat == -1) return 1;
+
+      fstat = ReadAMSBlockTime(size_consumed, size_to_read, file);
+      if (fstat == -1) return 1;
+
+      // and now, finally, the event...
+    
+      if (size_to_read==0 && openL0FEP_debug_level>0) {
+	printf("Empty event...\n");
+      }
+      else if (size_to_read == 1794) {//Vladimir raw event
+	fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
+	if (fstat == -1) return 1;
+      
+	unsigned short int evtn = bit(0, 7, dummy16);//from bit 0 to bit 7
+	if (openL0FEP_debug_level>1)
+	  printf("Event number: %u\n", evtn);
+      
+	std::vector<unsigned char> data_end_nc;
+	std::vector<unsigned char> data;
+	//      printf("data size (FEP): %d\n", size_to_read);
+	data_end_nc.resize(size_to_read);
+	data.resize(size_to_read);
+      
+	fstat = ReadFile(&data_end_nc[0], size_to_read, 1, file);
+	size_consumed+=size_to_read;
+	size_to_read-=size_to_read;
+	if (fstat == -1) return 1;
+      
+	//Endianess correction
+	for (int ii=0; ii<((int)(data_end_nc.size())); ii+=2) {
+	  data[ii] = data_end_nc[ii+1];
+	  data[ii+1] = data_end_nc[ii];
+	}
+
+	if (openL0FEP_debug_level>3) {
+	  for (int ii=0; ii<((int)data.size()); ii++) {
+	    printf("0x%02x\n", data[ii]);
+	  }
+	}
+
+	std::vector<unsigned short> data_ord;
+	ReOrderVladimir(data, data_ord);
+	if (openL0FEP_debug_level>3) {
+	  for (int ii=0; ii<((int)data_ord.size()); ii++) {
+	    printf("%d\n", data_ord[ii]);
+	  }
+	}
+	signals_by_ev.push_back(data_ord);
+
+	ev_found++;
+      }
+      else {
+	if (openL0FEP_debug_level>1) {
+	  printf("Wrong raw event size (%d): it should be 0 or 1794...\n", size_to_read);
 	}
       }
     }
-    else {//RW=0
-
-    }
   }
-  else if (dt_full == 0x1f0383) {//fine time envelope
-    fstat = ReadAMSBlockStatusTag(status, tag, size_consumed, size_to_read, file);
-    if (fstat == -1) return 1;
 
-    fstat = ReadAMSBlockFineTime(size_consumed, size_to_read, file);
-    if (fstat == -1) return 1;
-
+  if (call_recursively) {
     //let's call recursively the same function to process the sub-block...
     unsigned int read_bytes = 0;
     int ret = ProcessAMSBlock(file, read_bytes, ev_found, signals_by_ev, nesting_level+1);
@@ -1684,77 +1778,29 @@ int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std:
     size_consumed+=read_bytes;
     size_to_read-=read_bytes;
   }
-  else if (dt_full == 0x13) {// SCI/CAL/CFG/HK/ (0x5, 0x6, 0x7, 0x8) + LVL3 + GPS data
 
-    fstat = ReadAMSBlockStatusTag(status, tag, size_consumed, size_to_read, file);
-    if (fstat == -1) return 1;
+  if (size_to_read>0) {
+    if (openL0FEP_debug_level>0)
+      printf("Still to read %d bytes. Skipping them...\n", size_to_read);
 
-    fstat = ReadAMSBlockTime(size_consumed, size_to_read, file);
-    if (fstat == -1) return 1;
-
-    // and now, finally, the event...
-    
-    if (size_to_read==0 && openL0FEP_debug_level>0) {
-      printf("Empty event...\n");
-    }
-    else if (size_to_read == 1794) {//Vladimir raw event
-      fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
-      if (fstat == -1) return 1;
-      
-      unsigned short int evtn = bit(0, 7, dummy16);//from bit 0 to bit 7
-      if (openL0FEP_debug_level>1)
-	printf("Event number: %u\n", evtn);
-      
-      std::vector<unsigned char> data_end_nc;
-      std::vector<unsigned char> data;
-      //      printf("data size (FEP): %d\n", size_to_read);
-      data_end_nc.resize(size_to_read);
-      data.resize(size_to_read);
-      
-      fstat = ReadFile(&data_end_nc[0], size_to_read, 1, file);
-      size_consumed+=size_to_read;
-      size_to_read-=size_to_read;
-      if (fstat == -1) return 1;
-      
-      //Endianess correction
-      for (int ii=0; ii<((int)(data_end_nc.size())); ii+=2) {
-	data[ii] = data_end_nc[ii+1];
-	data[ii+1] = data_end_nc[ii];
+    if (openL0FEP_debug_level>3) {
+      printf("Skipped 16 bit words...\n");
+      while (size_to_read>0) {
+	fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
+	if (fstat == -1) return 1;
+	printf("0x%hx\n", dummy16);
       }
-
-      if (openL0FEP_debug_level>3) {
-	for (int ii=0; ii<((int)data.size()); ii++) {
-	  printf("0x%02x\n", data[ii]);
-	}
-      }
-
-      std::vector<unsigned short> data_ord;
-      ReOrderVladimir(data, data_ord);
-      if (openL0FEP_debug_level>3) {
-	for (int ii=0; ii<((int)data_ord.size()); ii++) {
-	  printf("%d\n", data_ord[ii]);
-	}
-      }
-      signals_by_ev.push_back(data_ord);
-
-      ev_found++;
     }
     else {
-      if (openL0FEP_debug_level>1) {
-	printf("Wrong raw event size (%d): it should be 0 or 1794...\n", size_to_read);
+      // skip all the block data
+      if (int ret0 = fseek(file, size_to_read, SEEK_CUR)) {
+	printf("Fatal: error during file skip ret0=%d \n", ret0);
+	return -99;
       }
+      size_consumed+=size_to_read;
     }
   }
-
-  if (openL0FEP_debug_level>0 && size_to_read>0)
-    printf("Still to read %d bytes. Skipping them...\n", size_to_read);
-    
-  // skip all the block data
-  if (int ret0 = fseek(file, size_to_read, SEEK_CUR)) {
-    printf("Fatal: error during file skip ret0=%d \n", ret0);
-    return -99;
-  }
-  size_consumed+=size_to_read;
+  
   if (openL0FEP_debug_level>0)
     printf("Size consumed: %d\n", size_consumed);
 
