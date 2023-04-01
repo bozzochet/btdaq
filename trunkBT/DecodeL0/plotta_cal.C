@@ -1810,15 +1810,19 @@ int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found,
 	if (openL0FEP_debug_level>1)
 	  printf("Item number: 0x%hx\n", dummy16);
 
-	fstat = ReadAMSBlockFile(dummy32, size_consumed, size_to_read, file);
-	if (fstat == -1) return 1;
-	if (openL0FEP_debug_level>1)
-	  printf("Start time: %u\n", dummy32);
-	
-	fstat = ReadAMSBlockFile(dummy32, size_consumed, size_to_read, file);
-	if (fstat == -1) return 1;
-	if (openL0FEP_debug_level>1)
-	  printf("Repeat time: %u\n", dummy32);
+	if (size_to_read>=2) {
+	  fstat = ReadAMSBlockFile(dummy32, size_consumed, size_to_read, file);
+	  if (fstat == -1) return 1;
+	  if (openL0FEP_debug_level>1)
+	    printf("Start time: %u\n", dummy32);
+	}
+
+	if (size_to_read>=2) {
+	  fstat = ReadAMSBlockFile(dummy32, size_consumed, size_to_read, file);
+	  if (fstat == -1) return 1;
+	  if (openL0FEP_debug_level>1)
+	    printf("Repeat time: %u\n", dummy32);
+	}
 
 	/* not working since I find a size that is crazy...
 	   call_recursively=true;
@@ -1942,7 +1946,7 @@ int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found,
       printf("Still to read %d bytes. Skipping them...\n", size_to_read);
 
     if (openL0FEP_debug_level>3) {
-      printf("Skipped 16 bit words...\n");
+      printf("Skipped 16 bit words:\n");
       while (size_to_read>0) {
 	fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
 	if (fstat == -1) return 1;
