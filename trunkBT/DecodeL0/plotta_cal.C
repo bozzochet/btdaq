@@ -238,12 +238,14 @@ void plotta_beam(){
   
   // TString amsl0fepcalfile = "./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519";
   // TString amsl0fepcalfile = "./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/235";
-  TString amsl0fepcalfile = "/media/gsilvest/gigi/USBL0_PG_LSR00/0000/002";
+  //  TString amsl0fepcalfile = "/media/gsilvest/gigi/USBL0_PG_LSR00/0000/002";
+  TString amsl0fepcalfile = "./Data/L0/BLOCKS/PG/USBLF_PG_TRENTO2023/0000/031";//USB-LF with 2 LEFs, CAL
   
   //  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/525";
   //  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/238_244";
   //  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/238_244";
-  TString amsl0fepbeamfile = "/media/gsilvest/gigi/USBL0_PG_LSR00/0000/014";
+  //  TString amsl0fepbeamfile = "/media/gsilvest/gigi/USBL0_PG_LSR00/0000/014";
+  TString amsl0fepbeamfile = "./Data/L0/BLOCKS/PG/USBLF_PG_TRENTO2023/0000/031";//USB-LF with 2 LEFs, CAL
 
   std::vector<std::vector<TH1F*>> histos_cal;
   OpenAMSL0FEPFile(amsl0fepcalfile, histos_cal, true);
@@ -462,9 +464,22 @@ void ComputeBeamVladimir(std::vector<std::vector<std::vector<unsigned short>>>& 
 			 std::vector<std::vector<std::vector<unsigned short>>>& signals,
 			 int nev, TString filename, std::vector<std::vector<TH1F*>>& histos){
 
+  //we expect the caller to have equally sized the input (signals_by_ev) and the output (signals and histos), but to be sure...
+  if ((histos.size() != signals_by_ev.size()) || (signals.size() != signals_by_ev.size())) {
+    printf("We have different sizes for the input (signals_by_ev=%d) and the output (signals=%d, histos=%d)\n",
+	   ((int)(histos.size())),
+	   ((int)(signals_by_ev.size())),
+	   ((int)(signals_by_ev.size())));
+    histos.resize(signals_by_ev.size());
+    signals.resize(signals_by_ev.size());
+  }
+  
   //loop on ladders
   for (int ll=0; ll<((int)signals_by_ev.size()); ll++) {
-  
+
+    if (((int)(signals_by_ev[ll].size()))<=0) //this ladders has zero events
+      continue;
+    
     int nch = ((int)(signals_by_ev[ll][0].size()));
     // printf("nch = %d\n", nch);
     // printf("nev = %d\n", nev);
@@ -520,7 +535,7 @@ void ComputeBeamVladimir(std::vector<std::vector<std::vector<unsigned short>>>& 
       unsigned int NCHAVA = 64;     
       unsigned int lastVA = std::numeric_limits<unsigned int>::max();
       std::vector<float> common_noise(NVAS);
-      for (unsigned int iEv = 0; iEv < signals[ll][0].size(); ++iEv) {
+      for (unsigned int iEv = 0; iEv < signals_by_ev[ll].size(); ++iEv) {
 	for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
 	  unsigned int thisVA = iCh / NCHAVA;
 	  if (thisVA != lastVA) {
@@ -597,8 +612,6 @@ void ComputeCalibrationVladimir(std::vector<std::vector<std::vector<unsigned sho
   TFile* fdebug = new TFile(Form("fdebug_%s.root", Path2Name(filename.Data(), "/", "").Data()), "RECREATE");
   fdebug->cd();
 #endif
-
-  //FARE LE STESSE MODIFICHE SU BEAM
 
   //we expect the caller to have equally sized the input (signals_by_ev) and the output (signals and histos), but to be sure...
   if ((histos.size() != signals_by_ev.size()) || (signals.size() != signals_by_ev.size())) {
