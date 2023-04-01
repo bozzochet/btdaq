@@ -207,6 +207,8 @@ std::vector<double> HistoToVector(TH1F* histo);
 
 void SummaryCal(std::vector<std::vector<TH1F*>> histos, const char* filename, const char* nameout, int type=0);
 void SummaryBeam(std::vector<std::vector<TH1F*>> histos, const char* filename, const char* nameout, int type=0);
+void FillComparison(std::vector<std::vector<TH1F*>>* comparison,
+		    std::vector<std::vector<TH1F*>> histos);
 void Comparison(std::vector<std::vector<TH1F*>> histos[3], const char* nameout);
 
 TString Path2Name(const char *name, const char *sep, const char *exten);
@@ -260,6 +262,28 @@ void plotta_beam(){
   return;  
 }
 
+void FillComparison(std::vector<std::vector<TH1F*>>* comparison,
+		    std::vector<std::vector<TH1F*>> histos) {
+  
+#define COMPARISON_BETWEEN_LADDERS_OF_SAME_FILE
+  
+  for (int ll=0; ll<((int)histos.size()); ll++) {
+    if (histos[ll].size()>0) {
+      for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmaraws
+#ifdef COMPARISON_BETWEEN_LADDERS_OF_SAME_FILE
+	comparison[jj].resize(1);
+	comparison[jj][0].push_back(histos[ll][4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma
+#else
+	comparison[jj].resize(histos.size());
+	comparison[jj][ll].push_back(histos[ll][4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
+#endif
+      }
+    }
+  }
+
+  return;
+}
+
 void plotta_cal(){
   
   bool amsflight=false;
@@ -267,7 +291,7 @@ void plotta_cal(){
   bool amsl0vlad=false;
   bool amsl0fep=true;
   
-  bool nocomparison=true;
+  bool nocomparison=false;
   
   InitStyle();
   
@@ -298,8 +322,8 @@ void plotta_cal(){
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_BLatPS/0008/090"};//USB-LEF
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_MUONS23/0007/119"}; //USB-LEF
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBLF_PG_TRENTO2023/0000/019"};//USB-LF with XX LEFs... Not sure...
-  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBLF_PG_TRENTO2023/0000/031"};//USB-LF with 2 LEFs, CAL
-  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBLF_PG_TRENTO2023/0000/221"};//USB-LF with 1 LEF, no silicon, lab in PG
+  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBLF_PG_TRENTO2023/0000/031"};//USB-LF with 2 LEFs, CAL
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBLF_PG_TRENTO2023/0000/221"};//USB-LF with 1 LEF, no silicon, lab in PG
 
   std::vector<std::vector<TH1F*>> comparison[3];//3 since there're 3 comparisons: pedestal, sigma and sigmawas
   
@@ -316,9 +340,13 @@ void plotta_cal(){
     char nameouttemp[255];
     snprintf(nameouttemp, sizeof(nameouttemp), "%s", nameout);
     SummaryCal(histos, "AMS-flight", nameouttemp);
-    for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
-      comparison[jj].resize(1);//since only one ladder
-      comparison[jj][0].push_back(histos[0][4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
+    for (int ll=0; ll<((int)histos.size()); ll++) {
+      if (histos[ll].size()>0) {
+	for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
+	  comparison[jj].resize(histos.size());
+	  comparison[jj][ll].push_back(histos[0][4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
+	}
+      }
     }
   }
   
@@ -330,9 +358,13 @@ void plotta_cal(){
       snprintf(nameouttemp, sizeof(nameouttemp), "%s", nameout);
       SummaryCal(histos, poxfiles[ii], nameouttemp);
       if (poxfiles[ii]=="POX12_completo_50Vbias.root") {
-	for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
-	  comparison[jj].resize(1);//since only one ladder
-	  comparison[jj][0].push_back(histos[0][4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
+	for (int ll=0; ll<((int)histos.size()); ll++) {
+	  if (histos[ll].size()>0) {
+	    for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
+	      comparison[jj].resize(histos.size());
+	      comparison[jj][ll].push_back(histos[0][4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
+	    }
+	  }
 	}
       }
     }
@@ -347,8 +379,11 @@ void plotta_cal(){
       SummaryCal(histos, amsl0vladfiles[ii], nameouttemp, 1);
       if (amsl0vladfiles[ii].Contains("LEFP03_")) {
 	for (int ll=0; ll<((int)histos.size()); ll++) {
-	  for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
-	    comparison[jj][ll].push_back(histos[ll][4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
+	  if (histos[ll].size()>0) {
+	    for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
+	      comparison[jj].resize(histos.size());
+	      comparison[jj][ll].push_back(histos[ll][4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
+	    }
 	  }
 	}
       }
@@ -363,12 +398,8 @@ void plotta_cal(){
       snprintf(nameouttemp, sizeof(nameouttemp), "%s", nameout);
       SummaryCal(histos, amsl0fepfiles[ii], nameouttemp, 1);
       //      if (amsl0fepfiles[ii].Contains("LEFP03_")) {
-      for (int ll=0; ll<((int)histos.size()); ll++) {
-	for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
-	  comparison[jj][ll].push_back(histos[ll][4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
-	}
-	//      }
-      }
+      FillComparison(comparison, histos);	
+      //      }
     }
   }
   
@@ -1394,10 +1425,12 @@ int InitStyle() {
 }
 
 void Comparison(std::vector<std::vector<TH1F*>> histos[3], const char* nameout) {
-
+  
   //loop on ladders
   for (int ll=0; ll<((int)histos[0].size()); ll++) {//component 0, 1 and 2 must be identical...
 
+    if (histos[0][ll].size()<=0) continue; 
+    
     static int count=-1;
     count++;
 
@@ -1408,7 +1441,7 @@ void Comparison(std::vector<std::vector<TH1F*>> histos[3], const char* nameout) 
   
     TCanvas *c;
     
-    c = new TCanvas(Form("comp_c_%d", count), Form("%d",0),0*100,0*10,600,400);
+    c = new TCanvas(Form("comp_c_%d", count), Form("%d", ll),0*100,0*10,600,400);
     c->Update();
     c->Divide(2,2);
     c->SetFillStyle(0);
@@ -1416,7 +1449,7 @@ void Comparison(std::vector<std::vector<TH1F*>> histos[3], const char* nameout) 
     gPad->SetFillStyle(0);
   
     c->cd(1);
-    TH2F *fram=new TH2F(Form("comp_fram_%d", count), Form("pedestals"), 200, 0, 2000, 100, 0, 100);
+    TH2F *fram=new TH2F(Form("comp_fram_%d", count), Form("pedestals %d", ll), 200, 0, 2000, 100, 0, 100);
     fram->GetXaxis()->SetTitle("ADC");
     fram->GetYaxis()->SetTitle("Channels");
     fram->SetStats(0);
@@ -1432,7 +1465,7 @@ void Comparison(std::vector<std::vector<TH1F*>> histos[3], const char* nameout) 
   
     c->cd(3);
     gPad->SetFillStyle(0);
-    TH2F *fram2=new TH2F(Form("comp_fram2_%d", count), Form("sigma"), 1000, 0, 10, 450, 0, 450);
+    TH2F *fram2=new TH2F(Form("comp_fram2_%d", count), Form("sigma %d", ll), 1000, 0, 10, 450, 0, 450);
     fram2->GetXaxis()->SetTitle("ADC");
     fram2->GetYaxis()->SetTitle("Channels");
     fram2->SetStats(0);
@@ -1448,7 +1481,7 @@ void Comparison(std::vector<std::vector<TH1F*>> histos[3], const char* nameout) 
   
     c->cd(4);
     gPad->SetFillStyle(0);
-    TH2F *fram3=new TH2F(Form("comp_fram3_%d", count), Form("sigma raw"), 1500, 0, 15, 200, 0, 200);
+    TH2F *fram3=new TH2F(Form("comp_fram3_%d", count), Form("sigma raw %d", ll), 1500, 0, 15, 200, 0, 200);
     fram3->GetXaxis()->SetTitle("ADC");
     fram3->GetYaxis()->SetTitle("Channels");
     fram3->SetStats(0);
