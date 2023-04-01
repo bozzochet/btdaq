@@ -55,7 +55,7 @@ std::vector<std::vector<unsigned short>> vec_of_signals;
 std::vector<unsigned short> vec_of_ped; //ped-common noise, one for each channel
 std::vector<unsigned short> vec_of_noise;
 
-#define EV_DISP
+//#define EV_DISP
 /*   for GUI END  */
 
 enum ETestCommandIdentifiers {
@@ -164,20 +164,24 @@ static inline unsigned long long bswap_64(unsigned long long x) {
 void LinesVas(int nva=16, int nch_for_va=64);
 int InitStyle();
 
-void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos);
-void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos, bool kCal=true);
-void OpenAMSL0FEPFile_EvDisp(TString filename, std::vector<TH1F*>& histos, bool kCal=true);
-//int openL0FEP_debug_level = 0;
+void OpenAMSL0VladimirFile(TString filename, std::vector<std::vector<TH1F*>>& histos);
+void OpenAMSL0FEPFile(TString filename, std::vector<std::vector<TH1F*>>& histos, bool kCal=true);
+void OpenAMSL0FEPFile_EvDisp(TString filename, std::vector<std::vector<TH1F*>>& histos, bool kCal=true);
+int openL0FEP_debug_level = 0;
 //int openL0FEP_debug_level = 1;
 //int openL0FEP_debug_level = 2;
 //int openL0FEP_debug_level = 3;
-int openL0FEP_debug_level = 4;
+//int openL0FEP_debug_level = 4;
 //int openL0FEP_debug_level = 5;//with also the sleep
 
 void ReOrderVladimir(std::vector<unsigned char>& data,  std::vector<unsigned short>& data_ord);
-void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev, std::vector<std::vector<unsigned short>>& signals, int nev, TString filename, std::vector<TH1F*>& histos);
+void ComputeCalibrationVladimir(std::vector<std::vector<std::vector<unsigned short>>>& signals_by_ev,
+				std::vector<std::vector<std::vector<unsigned short>>>& signals,
+				int nev, TString filename, std::vector<std::vector<TH1F*>>& histos);
 //#define COMPCALVLAD_DEBUG
-void ComputeBeamVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev, std::vector<std::vector<unsigned short>>& signals, int nev, TString filename, std::vector<TH1F*>& histos);
+void ComputeBeamVladimir(std::vector<std::vector<std::vector<unsigned short>>>& signals_by_ev,
+			 std::vector<std::vector<std::vector<unsigned short>>>& signals,
+			 int nev, TString filename, std::vector<std::vector<TH1F*>>& histos);
 
 int ReadFile(void* ptr, size_t size, size_t nitems, FILE* stream);
 unsigned short int bit(int bitno, unsigned short int data);
@@ -189,19 +193,21 @@ int ReadAMSBlockRPRWNADT(bool& RP, bool& RW, unsigned short int& na, unsigned in
 int ReadAMSBlockStatusTag(unsigned short int& status, unsigned short int& tag, unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
 int ReadAMSBlockFineTime(unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
 int ReadAMSBlockTime(unsigned int& size_consumed, unsigned int& size_to_read, FILE* file);
-int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::vector<std::vector<unsigned short>>& signals_by_ev, int nesting_level=0);
+int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found,
+		    std::vector<std::vector<std::vector<unsigned short>>>& signals_by_ev,
+		    int nesting_level=0);
 
-void OpenGigiFile(TString filename, std::vector<TH1F*>& histos);
+void OpenGigiFile(TString filename, std::vector<std::vector<TH1F*>>& histos);
 std::pair<TH1F*, TH1F*> GigiGraphToHisto(const char* name, const char* filename, bool dummy=false);
 
-void CreateAMSFlightHistos(std::vector<TH1F*>& histos);
+void CreateAMSFlightHistos(std::vector<std::vector<TH1F*>>& histos);
 
-std::pair<TH1F*, TH1F*> VectorToHisto(std::vector<double> values, const char* name, const char* filename, int nch=640, int nspread=4096);
+std::pair<TH1F*, TH1F*> VectorToHisto(std::vector<double> values, const char* name, const char* filename, int nch=640, int ladder=-999, int nspread=4096);
 std::vector<double> HistoToVector(TH1F* histo);
 
-void SummaryCal(std::vector<TH1F*> histos, const char* filename, const char* nameout, int type=0);
-void SummaryBeam(std::vector<TH1F*> histos, const char* filename, const char* nameout, int type=0);
-void Comparison(std::vector<TH1F*> histos[3], const char* nameout);
+void SummaryCal(std::vector<std::vector<TH1F*>> histos, const char* filename, const char* nameout, int type=0);
+void SummaryBeam(std::vector<std::vector<TH1F*>> histos, const char* filename, const char* nameout, int type=0);
+void Comparison(std::vector<std::vector<TH1F*>> histos[3], const char* nameout);
 
 TString Path2Name(const char *name, const char *sep, const char *exten);
 
@@ -215,7 +221,7 @@ void EventDisplay(TString filename){
   gROOT->SetStyle("StyleWhite");
   //  gStyle->SetPaperSize(27,20);
   
-  std::vector<TH1F*> histos;
+  std::vector<std::vector<TH1F*>> histos;
   OpenAMSL0FEPFile(filename, histos);
    
   return;
@@ -239,10 +245,10 @@ void plotta_beam(){
   //  TString amsl0fepbeamfile = "./Data_hacked/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/238_244";
   TString amsl0fepbeamfile = "/media/gsilvest/gigi/USBL0_PG_LSR00/0000/014";
 
-  std::vector<TH1F*> histos_cal;
+  std::vector<std::vector<TH1F*>> histos_cal;
   OpenAMSL0FEPFile(amsl0fepcalfile, histos_cal, true);
 
-  std::vector<TH1F*> histos_beam = histos_cal;//I have to pass the cal (will be overwritten) to the below function
+  std::vector<std::vector<TH1F*>> histos_beam = histos_cal;//I have to pass the cal (will be overwritten) to the below function
   OpenAMSL0FEPFile(amsl0fepbeamfile, histos_beam, false);
 
   char nameouttemp[255];
@@ -252,27 +258,26 @@ void plotta_beam(){
   return;  
 }
 
-
 void plotta_cal(){
-
+  
   bool amsflight=false;
   bool pox=false;
   bool amsl0vlad=false;
   bool amsl0fep=true;
-
+  
   bool nocomparison=true;
   
   InitStyle();
-
+  
   gROOT->SetStyle("StyleWhite");
   //  gStyle->SetPaperSize(27,20);
   
   char nameout[255];
   snprintf(nameout, sizeof(nameout), "Calibrations.pdf");
-
+  
   const int npoxfiles = 4;
   TString poxfiles[npoxfiles] = {"POX02.root", "POX12_newVA.root", "POX12_VAonly.root", "POX12_completo_50Vbias.root"};
-
+  
   /*
     const int namsl0vladfiles = 3;
     TString amsl0vladfiles[namsl0vladfiles] = {"LEFP01_noVA.bin", "LEFP03_2.bin", "LEFP03_3.bin"};
@@ -283,45 +288,49 @@ void plotta_cal(){
   */
   const int namsl0vladfiles = 5;
   TString amsl0vladfiles[namsl0vladfiles] = {"LEFP03_18.bin", "LEFP03_19.bin", "LEFP03_20.bin", "LEFP03_21.bin", "LEFP03_22.bin"};
-
+  
   const int namsl0fepfiles = 1;
-  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0005/519"};
-  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_LEFV2BEAM1/0000/626"};
-  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/USBL0_PG_SIPMTRG/0003/917"};
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_LEFV2BEAM1/0005/519"};
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_LEFV2BEAM1/0000/626"};
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_SIPMTRG/0003/917"};
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_BLatPS/0008/090"};//USB-LEF
   //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBL0_PG_MUONS23/0007/119"}; //USB-LEF
-  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/BTData/USBLF_PG_TRENTO2023/0000/019"};//USB-LF with 2 LEFs 
-  
-  std::vector<TH1F*> comparison[3];//3 since there're 3 comparisons: pedestal, sigma and sigmawas
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBLF_PG_TRENTO2023/0000/019"};//USB-LF with XX LEFs... Not sure...
+  //  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBLF_PG_TRENTO2023/0000/031"};//USB-LF with 2 LEFs, CAL
+  TString amsl0fepfiles[namsl0vladfiles] = {"./Data/L0/BLOCKS/PG/USBLF_PG_TRENTO2023/0000/221"};//USB-LF with 1 LEF, no silicon, lab in PG
 
+  std::vector<std::vector<TH1F*>> comparison[3];//3 since there're 3 comparisons: pedestal, sigma and sigmawas
+  
   {
-    std::vector<TH1F*> histos;
+    std::vector<std::vector<TH1F*>> histos(1);
     char nameouttemp[255];
     snprintf(nameouttemp, sizeof(nameouttemp), "%s[", nameout);
     SummaryCal(histos, "", nameouttemp);
   }
   
   if (amsflight) {
-    std::vector<TH1F*> histos;
+    std::vector<std::vector<TH1F*>> histos(1);//(1) since only one ladder
     CreateAMSFlightHistos(histos);
     char nameouttemp[255];
     snprintf(nameouttemp, sizeof(nameouttemp), "%s", nameout);
     SummaryCal(histos, "AMS-flight", nameouttemp);
     for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
-      comparison[jj].push_back(histos[4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
+      comparison[jj].resize(1);//since only one ladder
+      comparison[jj][0].push_back(histos[0][4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
     }
   }
-
+  
   if (pox) {
     for (int ii=0; ii<npoxfiles; ii++) {
-      std::vector<TH1F*> histos;
+      std::vector<std::vector<TH1F*>> histos(1);//(1) since only one ladder
       OpenGigiFile(poxfiles[ii], histos);
       char nameouttemp[255];
       snprintf(nameouttemp, sizeof(nameouttemp), "%s", nameout);
       SummaryCal(histos, poxfiles[ii], nameouttemp);
       if (poxfiles[ii]=="POX12_completo_50Vbias.root") {
 	for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
-	  comparison[jj].push_back(histos[4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
+	  comparison[jj].resize(1);//since only one ladder
+	  comparison[jj][0].push_back(histos[0][4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
 	}
       }
     }
@@ -329,14 +338,16 @@ void plotta_cal(){
 
   if (amsl0vlad) {
     for (int ii=0; ii<namsl0vladfiles; ii++) {
-      std::vector<TH1F*> histos;
+      std::vector<std::vector<TH1F*>> histos;
       OpenAMSL0VladimirFile(amsl0vladfiles[ii], histos);
       char nameouttemp[255];
       snprintf(nameouttemp, sizeof(nameouttemp), "%s", nameout);
       SummaryCal(histos, amsl0vladfiles[ii], nameouttemp, 1);
       if (amsl0vladfiles[ii].Contains("LEFP03_")) {
-	for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
-	  comparison[jj].push_back(histos[4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
+	for (int ll=0; ll<((int)histos.size()); ll++) {
+	  for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
+	    comparison[jj][ll].push_back(histos[ll][4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
+	  }
 	}
       }
     }
@@ -344,16 +355,18 @@ void plotta_cal(){
 
   if (amsl0fep) {
     for (int ii=0; ii<namsl0fepfiles; ii++) {
-      std::vector<TH1F*> histos;
+      std::vector<std::vector<TH1F*>> histos;
       OpenAMSL0FEPFile(amsl0fepfiles[ii], histos);
       char nameouttemp[255];
       snprintf(nameouttemp, sizeof(nameouttemp), "%s", nameout);
       SummaryCal(histos, amsl0fepfiles[ii], nameouttemp, 1);
       //      if (amsl0fepfiles[ii].Contains("LEFP03_")) {
-      for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
-	comparison[jj].push_back(histos[4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
+      for (int ll=0; ll<((int)histos.size()); ll++) {
+	for (int jj=0; jj<3; jj++) {//3 since there're 3 comparisons: pedestal, sigma and sigmawas
+	  comparison[jj][ll].push_back(histos[ll][4+jj]);//4+jj since the first 4 plots are other stuff (pedestal, sigma, sigma raw and average signal)
+	}
+	//      }
       }
-      //      }
     }
   }
   
@@ -363,7 +376,7 @@ void plotta_cal(){
     Comparison(comparison, nameouttemp);
   }
   else {
-    std::vector<TH1F*> histos;
+    std::vector<std::vector<TH1F*>> histos;
     char nameouttemp[255];
     snprintf(nameouttemp, sizeof(nameouttemp), "%s]", nameout);
     SummaryCal(histos, "", nameouttemp);
@@ -372,7 +385,7 @@ void plotta_cal(){
   return;
 }
 
-void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos){
+void OpenAMSL0VladimirFile(TString filename, std::vector<std::vector<TH1F*>>& histos){
 
   FILE* rawfile = fopen(filename.Data(), "r");
   if (rawfile == NULL) {
@@ -385,8 +398,9 @@ void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos){
 
   int ret=0;
 
-  std::vector<std::vector<unsigned short>> signals_by_ev;
-  std::vector<std::vector<unsigned short>> signals;
+  histos.resize(1);//since is a single ladder
+  std::vector<std::vector<std::vector<unsigned short>>> signals_by_ev(1);//(1) since is a single ladder
+  std::vector<std::vector<std::vector<unsigned short>>> signals(1);//(1) since is a single ladder
   
   int nev=0;
   while (ret>=0) {
@@ -428,7 +442,7 @@ void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos){
       printf("%d\n", data_ord[ii]);
     }
     */
-    signals_by_ev.push_back(data_ord);
+    signals_by_ev[0].push_back(data_ord);
     
     nev++;
     //    printf("We read %d events\n", nev);
@@ -444,309 +458,373 @@ void OpenAMSL0VladimirFile(TString filename, std::vector<TH1F*>& histos){
   return;
 }
 
-void ComputeBeamVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev, std::vector<std::vector<unsigned short>>& signals, int nev, TString filename, std::vector<TH1F*>& histos){
+void ComputeBeamVladimir(std::vector<std::vector<std::vector<unsigned short>>>& signals_by_ev,
+			 std::vector<std::vector<std::vector<unsigned short>>>& signals,
+			 int nev, TString filename, std::vector<std::vector<TH1F*>>& histos){
+
+  //loop on ladders
+  for (int ll=0; ll<((int)signals_by_ev.size()); ll++) {
   
-  int nch = ((int)(signals_by_ev[0].size()));
-  // printf("nch = %d\n", nch);
-  // printf("nev = %d\n", nev);
-  signals.resize(nch);
-  for (int ch = 0; ch < ((int)(signals.size())); ch++) {
-    signals[ch].resize(nev);
-    for (int ev = 0; ev < ((int)(signals[ch].size())); ev++) {
-      signals[ch][ev] = signals_by_ev[ev][ch];
+    int nch = ((int)(signals_by_ev[ll][0].size()));
+    // printf("nch = %d\n", nch);
+    // printf("nev = %d\n", nev);
+    signals[ll].resize(nch);
+    for (int ch = 0; ch < ((int)(signals[ll].size())); ch++) {
+      signals[ll][ch].resize(nev);
+      for (int ev = 0; ev < ((int)(signals[ll][ch].size())); ev++) {
+	signals[ll][ch][ev] = signals_by_ev[ll][ev][ch];
+      }
     }
-  }
 
   
-  std::vector<double> values[4];
-  for (int ii=0; ii<4; ii++) {
-    values[ii] = HistoToVector(histos[ii]);
-  }
+    std::vector<double> values[4];
+    for (int ii=0; ii<4; ii++) {
+      values[ii] = HistoToVector(histos[ll][ii]);
+    }
 
-  TH1F* histo_example = histos[0];
+    TH1F* histo_example = histos[ll][0];
   
-  histos.clear();
-  // clone, clear and rename histos
-  histos.push_back((TH1F*)histo_example->Clone());
-  histos[0]->Reset();
-  histos[0]->SetName(Form("%s_%s", "occupancy", filename.Data()));
-  histos[0]->SetTitle(Form("%s_%s", "occupancy", filename.Data()));
-  histos.push_back((TH1F*)histo_example->Clone());
-  histos[1]->Reset();
-  histos[1]->SetName(Form("%s_%s", "weighted_occupancy", filename.Data()));
-  histos[1]->SetTitle(Form("%s_%s", "weighted_occupancy", filename.Data()));
-  {
-    TH1F* h = new TH1F(Form("%s_%s", "signal", filename.Data()), Form("%s_%s", "signal", filename.Data()), 4096, 0, 4096);
-    histos.push_back(h);
-  }
-  {
-    TH1F* h = new TH1F(Form("%s_%s", "signal_abovethresh", filename.Data()), Form("%s_%s", "signal", filename.Data()), 4096, 0, 4096);
-    histos.push_back(h);
-  }
-  {
-    TH1F* h = new TH1F(Form("%s_%s", "signal_to_noise", filename.Data()), Form("%s_%s", "signal", filename.Data()), 1000, 0, 100);
-    histos.push_back(h);
-  }
+    histos[ll].clear();
+    // clone, clear and rename histos
+    histos[ll].push_back((TH1F*)histo_example->Clone());
+    histos[ll][0]->Reset();
+    histos[ll][0]->SetName(Form("%s_%s_%d", "occupancy", filename.Data(), ll));
+    histos[ll][0]->SetTitle(Form("%s_%s_%d", "occupancy", filename.Data(), ll));
+    histos[ll].push_back((TH1F*)histo_example->Clone());
+    histos[ll][1]->Reset();
+    histos[ll][1]->SetName(Form("%s_%s_%d", "weighted_occupancy", filename.Data(), ll));
+    histos[ll][1]->SetTitle(Form("%s_%s_%d", "weighted_occupancy", filename.Data(), ll));
+    {
+      TH1F* h = new TH1F(Form("%s_%s_%d", "signal", filename.Data(), ll), Form("%s_%s_%d", "signal", filename.Data(), ll), 4096, 0, 4096);
+      histos[ll].push_back(h);
+    }
+    {
+      TH1F* h = new TH1F(Form("%s_%s_%d", "signal_abovethresh", filename.Data(), ll), Form("%s_%s_%d", "signal", filename.Data(), ll), 4096, 0, 4096);
+      histos[ll].push_back(h);
+    }
+    {
+      TH1F* h = new TH1F(Form("%s_%s_%d", "signal_to_noise", filename.Data(), ll), Form("%s_%s_%d", "signal", filename.Data(), ll), 1000, 0, 100);
+      histos[ll].push_back(h);
+    }
   
-  /*
-  for (int ii=0; ii<4; ii++) {
-    for (int ch=0; ch<((int)(values[ii].size())); ch++){
+    /*
+      for (int ii=0; ii<4; ii++) {
+      for (int ch=0; ch<((int)(values[ii].size())); ch++){
       printf("values[%d][%d] = %f\n", ii, ch, values[ii][ch]);
-    }
-  }
-  */
+      }
+      }
+    */
   
-  {
-    unsigned int NVAS = 16;
-    unsigned int NCHAVA = 64;     
-    unsigned int lastVA = std::numeric_limits<unsigned int>::max();
-    std::vector<float> common_noise(NVAS);
-    for (unsigned int iEv = 0; iEv < signals[0].size(); ++iEv) {
-      for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
-	unsigned int thisVA = iCh / NCHAVA;
-	if (thisVA != lastVA) {
+    {
+      unsigned int NVAS = 16;
+      unsigned int NCHAVA = 64;     
+      unsigned int lastVA = std::numeric_limits<unsigned int>::max();
+      std::vector<float> common_noise(NVAS);
+      for (unsigned int iEv = 0; iEv < signals[ll][0].size(); ++iEv) {
+	for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
+	  unsigned int thisVA = iCh / NCHAVA;
+	  if (thisVA != lastVA) {
 	  
-	  std::vector<float> sig_mean_sub;
-	  for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
-	    double sig = signals[thisVA * NCHAVA + iVACh][iEv] - values[0][thisVA * NCHAVA + iVACh];
-	    double noise = values[1][thisVA * NCHAVA + iVACh];
-	    double sig_to_noise = sig/noise;
-	    if (fabs(sig_to_noise)<3.5) {
-	      sig_mean_sub.push_back(sig);
-	      //	      printf("%f\n", sig_mean_sub[iVACh]);
+	    std::vector<float> sig_mean_sub;
+	    for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
+	      double sig = signals[ll][thisVA * NCHAVA + iVACh][iEv] - values[0][thisVA * NCHAVA + iVACh];
+	      double noise = values[1][thisVA * NCHAVA + iVACh];
+	      double sig_to_noise = sig/noise;
+	      if (fabs(sig_to_noise)<3.5) {
+		sig_mean_sub.push_back(sig);
+		//	      printf("%f\n", sig_mean_sub[iVACh]);
+	      }
 	    }
-	  }
 
-	  if (((int)(sig_mean_sub.size()))>0) {
-	    if (((int)(sig_mean_sub.size()))>16) {
-	      // get the median
-	      std::sort(begin(sig_mean_sub), end(sig_mean_sub));
-	      //	  common_noise[thisVA] = 0.5 * (sig_mean_sub[(NCHAVA / 2) - 1] + sig_mean_sub[NCHAVA / 2]);
-	      common_noise[thisVA] = 0.5 * (sig_mean_sub[(((int)(sig_mean_sub.size())) / 2) - 1] + sig_mean_sub[((int)(sig_mean_sub.size())) / 2]);
+	    if (((int)(sig_mean_sub.size()))>0) {
+	      if (((int)(sig_mean_sub.size()))>16) {
+		// get the median
+		std::sort(begin(sig_mean_sub), end(sig_mean_sub));
+		//	  common_noise[thisVA] = 0.5 * (sig_mean_sub[(NCHAVA / 2) - 1] + sig_mean_sub[NCHAVA / 2]);
+		common_noise[thisVA] = 0.5 * (sig_mean_sub[(((int)(sig_mean_sub.size())) / 2) - 1] + sig_mean_sub[((int)(sig_mean_sub.size())) / 2]);
+	      }
+	      else {
+		printf("event=%d) the common noise vector (VA=%d) has less than 16 entries (%d)...\n", iEv, thisVA, ((int)(sig_mean_sub.size())));
+		common_noise[thisVA] = 0.0;
+	      }
 	    }
 	    else {
-	      printf("event=%d) the common noise vector (VA=%d) has less than 16 entries (%d)...\n", iEv, thisVA, ((int)(sig_mean_sub.size())));
+	      printf("event=%d) The common noise vector (VA=%d) is empty...\n", iEv, thisVA);
 	      common_noise[thisVA] = 0.0;
 	    }
 	  }
-	  else {
-	    printf("event=%d) The common noise vector (VA=%d) is empty...\n", iEv, thisVA);
-	    common_noise[thisVA] = 0.0;
-	  }
-	}
 
-	double sig = (signals[iCh][iEv] - values[0][iCh] - common_noise[thisVA]);
-      	double noise = values[1][iCh];
-	double sig_to_noise = sig/noise;
+	  double sig = (signals[ll][iCh][iEv] - values[0][iCh] - common_noise[thisVA]);
+	  double noise = values[1][iCh];
+	  double sig_to_noise = sig/noise;
           if (sig_to_noise>0) {
-	  if (sig_to_noise>3.5) {
-	    histos[0]->Fill(iCh);
-	    histos[3]->Fill(sig);
+	    if (sig_to_noise>3.5) {
+	      histos[ll][0]->Fill(iCh);
+	      histos[ll][3]->Fill(sig);
+	    }
+	    histos[ll][1]->Fill(iCh, sig);
 	  }
-	  histos[1]->Fill(iCh, sig);
+	  histos[ll][2]->Fill(sig);
+	  histos[ll][4]->Fill(sig_to_noise);
+#ifdef EV_DISP
+	  if (iEv==0){
+	    for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
+	      unsigned int thisVA = iCh / NCHAVA;
+	      if (thisVA != lastVA) {
+		vec_of_ped.push_back(values[0][iCh]);
+		vec_of_noise.push_back(values[1][iCh]);
+	      }
+	    }
+	  }
+#endif
+	  lastVA = thisVA;
 	}
-	histos[2]->Fill(sig);
-	histos[4]->Fill(sig_to_noise);
 #ifdef EV_DISP
-        if (iEv==0){
-          for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
-            unsigned int thisVA = iCh / NCHAVA;
-            if (thisVA != lastVA) {
-              vec_of_ped.push_back(values[0][iCh]);
-              vec_of_noise.push_back(values[1][iCh]);
-            }
-          }
-        }
+	vec_of_signals.push_back(signals_by_ev[ll][iEv]);
 #endif
-        lastVA = thisVA;
       }
-#ifdef EV_DISP
-      vec_of_signals.push_back(signals_by_ev[iEv]);
-#endif
     }
   }
 
   return;
 }
 
-void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signals_by_ev, std::vector<std::vector<unsigned short>>& signals, int nev, TString filename, std::vector<TH1F*>& histos){
+void ComputeCalibrationVladimir(std::vector<std::vector<std::vector<unsigned short>>>& signals_by_ev,
+				std::vector<std::vector<std::vector<unsigned short>>>& signals,
+				int nev, TString filename, std::vector<std::vector<TH1F*>>& histos){
 
 #ifdef COMPCALVLAD_DEBUG
   TFile* fdebug = new TFile(Form("fdebug_%s.root", Path2Name(filename.Data(), "/", "").Data()), "RECREATE");
   fdebug->cd();
 #endif
-  
-  int nch = ((int)(signals_by_ev[0].size()));
-  //  printf("nch = %d\n", nch);
-  signals.resize(nch);
-  for (int ch = 0; ch < ((int)(signals.size())); ch++) {
-    signals[ch].resize(nev);
-    for (int ev = 0; ev < ((int)(signals[ch].size())); ev++) {
-      signals[ch][ev] = signals_by_ev[ev][ch];
-    }
-  }
 
-  std::vector<double> values[4];
-  for (int ii=0; ii<4; ii++) {
-    values[ii].resize(signals.size());
+  //FARE LE STESSE MODIFICHE SU BEAM
+
+  //we expect the caller to have equally sized the input (signals_by_ev) and the output (signals and histos), but to be sure...
+  if ((histos.size() != signals_by_ev.size()) || (signals.size() != signals_by_ev.size())) {
+    printf("We have different sizes for the input (signals_by_ev=%d) and the output (signals=%d, histos=%d)\n",
+	   ((int)(histos.size())),
+	   ((int)(signals_by_ev.size())),
+	   ((int)(signals_by_ev.size())));
+    histos.resize(signals_by_ev.size());
+    signals.resize(signals_by_ev.size());
   }
+  
+  //loop on ladders
+  for (int ll=0; ll<((int)signals_by_ev.size()); ll++) {
+    
+    if (((int)(signals_by_ev[ll].size()))<=0) //this ladders has zero events
+      continue;
+
+    int nch = ((int)(signals_by_ev[ll][0].size()));
+    signals[ll].resize(nch);
+    for (int ch = 0; ch < ((int)(signals[ll].size())); ch++) {
+      signals[ll][ch].resize(nev);
+      for (int ev = 0; ev < ((int)(signals[ll][ch].size())); ev++) {
+	signals[ll][ch][ev] = signals_by_ev[ll][ev][ch];
+      }
+    }
+
+    std::vector<double> values[4];
+    for (int ii=0; ii<4; ii++) {
+      values[ii].resize(signals[ll].size());
+    }
 
 #ifdef COMPCALVLAD_DEBUG
-  TH1F** hsig = NULL;
-  hsig = new TH1F*[((int)(signals.size()))];
-  for (int ch = 0; ch < ((int)(signals.size())); ch++) {
-    hsig[ch] = new TH1F(Form("hsig_%d", ch), Form("hsig_%d", ch), 4096, 0, 4096);
-  }
-#endif
-  
-  for (int ch = 0; ch < ((int)(signals.size())); ch++) {
-
-#ifdef COMPCALVLAD_DEBUG
-    for (int ev=0; ev<((int)(signals[ch].size())); ev++) {
-      hsig[ch]->Fill(signals[ch].at(ev));
+    TH1F** hsig = NULL;
+    hsig = new TH1F*[((int)(signals[ll].size()))];
+    for (int ch = 0; ch < ((int)(signals[ll].size())); ch++) {
+      hsig[ch] = new TH1F(Form("hsig_%d_%d", ch, ll), Form("hsig_%d_%d", ch, ll), 4096, 0, 4096);
     }
 #endif
     
-    values[0][ch] = std::accumulate(begin(signals[ch]), end(signals[ch]), 0.0) /
-      static_cast<float>(signals[ch].size());
-    //    printf("ped[%d]) %f\n", ch, values[0][ch]);
+    for (int ch = 0; ch < ((int)(signals[ll].size())); ch++) {
+      
+#ifdef COMPCALVLAD_DEBUG
+      for (int ev=0; ev<((int)(signals[ll][ch].size())); ev++) {
+	hsig[ch]->Fill(signals[ll][ch].at(ev));
+      }
+#endif
+      
+      values[0][ch] = std::accumulate(begin(signals[ll][ch]), end(signals[ll][ch]), 0.0) /
+	static_cast<float>(signals[ll][ch].size());
+      //    printf("ped[%d]) %f\n", ch, values[0][ch]);
     
-    values[2][ch] =
-      std::sqrt(std::accumulate(begin(signals[ch]), end(signals[ch]), 0.0,
-				[&](float acc, float curr) {
-				  return acc + (curr - values[0][ch]) * (curr - values[0][ch]);
-				}) /
-		// this is the `real` RMS. Not ok
-		//      std::sqrt((std::inner_product(signals[ch].begin(), signals[ch].end(), signals[ch].begin(), 0.0f) - values[0][ch]*values[0][ch]) /
-		static_cast<float>(signals[ch].size()));
-    //    printf("rsig[%d]) %f\n", ch, values[2][ch]);
+      values[2][ch] =
+	std::sqrt(std::accumulate(begin(signals[ll][ch]), end(signals[ll][ch]), 0.0,
+				  [&](float acc, float curr) {
+				    return acc + (curr - values[0][ch]) * (curr - values[0][ch]);
+				  }) /
+		  // this is the `real` RMS. Not ok
+		  //      std::sqrt((std::inner_product(signals[ch].begin(), signals[ch].end(), signals[ch].begin(), 0.0f) - values[0][ch]*values[0][ch]) /
+		  static_cast<float>(signals[ll][ch].size()));
+      //    printf("rsig[%d]) %f\n", ch, values[2][ch]);
     
-    // initialize this for later
-    values[1][ch] = 0;
-    values[3][ch] = 0;
-  }
-  
-  {
-    unsigned int NVAS = 16;
-    unsigned int NCHAVA = 64;     
-    unsigned int lastVA = std::numeric_limits<unsigned int>::max();
-    std::vector<float> common_noise(NVAS);
-    std::vector<unsigned int> processed_events(NVAS * NCHAVA);
-    for (unsigned int iEv = 0; iEv < signals[0].size(); ++iEv) {
-      for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
-	unsigned int thisVA = iCh / NCHAVA;
-	if (thisVA != lastVA) {
-	  
-	  std::vector<float> sig_mean_sub;
-	  for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
-	    double sig = signals[thisVA * NCHAVA + iVACh][iEv] - values[0][thisVA * NCHAVA + iVACh];
-	    double rawnoise = values[2][thisVA * NCHAVA + iVACh];
-	    double sig_to_rawnoise = sig/rawnoise;
-	    if (fabs(sig_to_rawnoise)<3) {
-	      sig_mean_sub.push_back(sig);
+      // initialize this for later
+      values[1][ch] = 0;
+      values[3][ch] = 0;
+    }
+
+    {
+      unsigned int NVAS = 16;
+      unsigned int NCHAVA = 64;     
+      unsigned int lastVA = std::numeric_limits<unsigned int>::max();
+      std::vector<float> common_noise(NVAS);
+      std::vector<unsigned int> processed_events(NVAS * NCHAVA);
+      for (unsigned int iEv = 0; iEv < signals_by_ev[ll].size(); ++iEv) {
+	for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
+	  unsigned int thisVA = iCh / NCHAVA;
+
+	  //	  printf("this = %d, last = %d\n", thisVA, lastVA);
+	  if (thisVA != lastVA) {
+
+	    std::vector<float> sig_mean_sub;
+	    for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
+	      double sig = signals[ll][thisVA * NCHAVA + iVACh][iEv] - values[0][thisVA * NCHAVA + iVACh];
+	      double rawnoise = values[2][thisVA * NCHAVA + iVACh];
+	      double sig_to_rawnoise = sig/rawnoise;
+	      if (fabs(sig_to_rawnoise)<3) {
+		sig_mean_sub.push_back(sig);
+	      }
+	      /* else { */
+	      /*   printf("%d) %f\n", thisVA * NCHAVA + iVACh, sig_to_rawnoise); */
+	      /* } */
 	    }
-	    /* else { */
-	    /*   if (iEv==43) printf("%d) %f\n", thisVA * NCHAVA + iVACh, sig_to_rawnoise); */
+	  
+	    // get the median
+	    std::sort(begin(sig_mean_sub), end(sig_mean_sub));
+	    //	  common_noise[thisVA] = 0.5 * (sig_mean_sub[(NCHAVA / 2) - 1] + sig_mean_sub[NCHAVA / 2]);
+	    if (sig_mean_sub.size()>16) {
+	      common_noise[thisVA] = 0.5 * (sig_mean_sub[(((int)(sig_mean_sub.size())) / 2) - 1] + sig_mean_sub[((int)(sig_mean_sub.size())) / 2]);
+	    }
+	    else {
+	      common_noise[thisVA] = 0.0;
+	    }
+	    //	    printf("VA=%d) CN for sigma=%f (%lu/%d)\n", thisVA, common_noise[thisVA], sig_mean_sub.size(), NCHAVA);
+	  }
+	
+	  if (std::fabs(common_noise[thisVA]) > 10) {//not used for the sigma evaluation
+	    continue;
+	  }
+
+	  ++processed_events[iCh];
+	
+	  values[1][iCh] += (signals[ll][iCh][iEv] - values[0][iCh] - common_noise[thisVA]) *
+	    (signals[ll][iCh][iEv] - values[0][iCh] - common_noise[thisVA]);
+	
+	  lastVA = thisVA;
+	}
+      }
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+	values[1][iCh] = std::sqrt(values[1][iCh] / static_cast<float>(processed_events[iCh]));
+	//	printf("sig[%d]) %f\n", iCh, values[1][iCh]);
+      }
+
+      for (unsigned int iEv = 0; iEv < signals[ll][0].size(); ++iEv) {
+	for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
+	  unsigned int thisVA = iCh / NCHAVA;
+
+	  if (thisVA != lastVA) {
+	  
+	    std::vector<float> sig_mean_sub;
+	    for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
+	      double sig = signals[ll][thisVA * NCHAVA + iVACh][iEv] - values[0][thisVA * NCHAVA + iVACh];
+	      double noise = values[1][thisVA * NCHAVA + iVACh];
+	      double sig_to_noise = sig/noise;
+	      if (fabs(sig_to_noise)<3.5) {
+		sig_mean_sub.push_back(sig);
+		//	      printf("%f\n", sig_mean_sub[iVACh]);
+	      }
+	    }
+
+	    // get the median
+	    std::sort(begin(sig_mean_sub), end(sig_mean_sub));
+	    //	  common_noise[thisVA] = 0.5 * (sig_mean_sub[(NCHAVA / 2) - 1] + sig_mean_sub[NCHAVA / 2]);
+	    if (sig_mean_sub.size()>16) {
+	      common_noise[thisVA] = 0.5 * (sig_mean_sub[(((int)(sig_mean_sub.size())) / 2) - 1] + sig_mean_sub[((int)(sig_mean_sub.size())) / 2]);
+	    }
+	    else {
+	      common_noise[thisVA] = 0.0;
+	    }
+	    //	  if (iEv==0) printf("VA=%d) CN for average=%f (%lu/%d)\n", thisVA, common_noise[thisVA], sig_mean_sub.size(), NCHAVA);
+	    /* if (fabs(common_noise[thisVA])>100.0){ */
+	    /*   for (int ii=0; ii<((int)(sig_mean_sub.size())); ii++) { */
+	    /*     printf("%d) %f (%f)\n", ii, sig_mean_sub[ii], common_noise[thisVA]); */
+	    /*   } */
 	    /* } */
 	  }
-	  
-	  // get the median
-	  std::sort(begin(sig_mean_sub), end(sig_mean_sub));
-	  //	  common_noise[thisVA] = 0.5 * (sig_mean_sub[(NCHAVA / 2) - 1] + sig_mean_sub[NCHAVA / 2]);
-	  common_noise[thisVA] = 0.5 * (sig_mean_sub[(((int)(sig_mean_sub.size())) / 2) - 1] + sig_mean_sub[((int)(sig_mean_sub.size())) / 2]);
-	  //	  if (iEv==0) printf("VA=%d) CN for sigma=%f (%lu/%d)\n", thisVA, common_noise[thisVA], sig_mean_sub.size(), NCHAVA);
-	}
-	
-	if (std::fabs(common_noise[thisVA]) > 10) {//not used for the sigma evaluation
-	  continue;
-	}
 
-	++processed_events[iCh];
-	
-	values[1][iCh] += (signals[iCh][iEv] - values[0][iCh] - common_noise[thisVA]) *
-	  (signals[iCh][iEv] - values[0][iCh] - common_noise[thisVA]);
-	
-	lastVA = thisVA;
-      }
-    }
-    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      values[1][iCh] = std::sqrt(values[1][iCh] / static_cast<float>(processed_events[iCh]));
-      //      printf("sig[%d]) %f\n", iCh, values[1][iCh]);
-    }
-    
-    for (unsigned int iEv = 0; iEv < signals[0].size(); ++iEv) {
-      for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
-	unsigned int thisVA = iCh / NCHAVA;
-	if (thisVA != lastVA) {
-        
-	  std::vector<float> sig_mean_sub;
-	  for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
-	    double sig = signals[thisVA * NCHAVA + iVACh][iEv] - values[0][thisVA * NCHAVA + iVACh];
-	    double noise = values[1][thisVA * NCHAVA + iVACh];
-	    double sig_to_noise = sig/noise;
-            if (fabs(sig_to_noise)<3.5) {
-	      sig_mean_sub.push_back(sig);
-	      //	      printf("%f\n", sig_mean_sub[iVACh]);
-	    }
+	  double sig = (signals[ll][iCh][iEv] - values[0][iCh] - common_noise[thisVA]);
+	  double noise = values[1][iCh];
+	  double sig_to_noise = sig/noise;
+	  if (sig_to_noise>3.5) {
+	    values[3][iCh] += sig;
 	  }
-	  
-	  // get the median
-	  std::sort(begin(sig_mean_sub), end(sig_mean_sub));
-	  //	  common_noise[thisVA] = 0.5 * (sig_mean_sub[(NCHAVA / 2) - 1] + sig_mean_sub[NCHAVA / 2]);
-	  common_noise[thisVA] = 0.5 * (sig_mean_sub[(((int)(sig_mean_sub.size())) / 2) - 1] + sig_mean_sub[((int)(sig_mean_sub.size())) / 2]);
-	  //	  if (iEv==0) printf("VA=%d) CN for average=%f (%lu/%d)\n", thisVA, common_noise[thisVA], sig_mean_sub.size(), NCHAVA);
-	  /* if (fabs(common_noise[thisVA])>100.0){ */
-	  /*   for (int ii=0; ii<((int)(sig_mean_sub.size())); ii++) { */
-	  /*     printf("%d) %f (%f)\n", ii, sig_mean_sub[ii], common_noise[thisVA]); */
-	  /*   } */
-	  /* } */
-	}
-
-	double sig = (signals[iCh][iEv] - values[0][iCh] - common_noise[thisVA]);
-	double noise = values[1][iCh];
-	double sig_to_noise = sig/noise;
-	if (sig_to_noise>3.5) {
-	  values[3][iCh] += sig;
-	}
-	/* if (iCh==959 && fabs(sig_to_noise)>100.0) */
-	/*   printf("%d %d -> %f (%f) [%hu %f %f %f]\n", iEv, iCh, sig_to_noise, values[3][iCh], signals[iCh][iEv], values[0][iCh], common_noise[thisVA], values[1][iCh]); */
+	  /* if (iCh==959 && fabs(sig_to_noise)>100.0) */
+	  /*   printf("%d %d -> %f (%f) [%hu %f %f %f]\n", iEv, iCh, sig_to_noise, values[3][iCh], signals[ll][iCh][iEv], values[0][iCh], common_noise[thisVA], values[1][iCh]); */
 		
 #ifdef EV_DISP
-        if (iEv==0){
-          for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
-            unsigned int thisVA = iCh / NCHAVA;
-            if (thisVA != lastVA) {
-              vec_of_ped.push_back(values[0][iCh] - common_noise[thisVA]);
-              vec_of_noise.push_back(values[1][iCh]);
-            }
-          }
-        }
+	  if (iEv==0){
+	    for (unsigned int iCh = 0; iCh < (NVAS * NCHAVA); ++iCh) {
+	      unsigned int thisVA = iCh / NCHAVA;
+	      if (thisVA != lastVA) {
+		vec_of_ped.push_back(values[0][iCh] - common_noise[thisVA]);
+		vec_of_noise.push_back(values[1][iCh]);
+	      }
+	    }
+	  }
 #endif
-	lastVA = thisVA;
-      }
+	  lastVA = thisVA;
+	}
 #ifdef EV_DISP
-      vec_of_signals.push_back(signals_by_ev[iEv]);
+	vec_of_signals.push_back(signals_by_ev[ll][iEv]);
 #endif
+      }
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+	values[3][iCh] = (values[3][iCh] / static_cast<float>(signals[ll][0].size()));
+	//      printf("ave_sig[%d]) %f\n", iCh, values[3][iCh]);	    
+      }
     }
-    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      values[3][iCh] = (values[3][iCh] / static_cast<float>(signals[0].size()));
-      //      printf("ave_sig[%d]) %f\n", iCh, values[3][iCh]);	    
+    /*
+      {
+      unsigned int NVAS = 16;
+      unsigned int NCHAVA = 64;     
+      for (unsigned int ch = 0; ch < NVAS * NCHAVA; ch++) {
+      printf("%04d)", ch);
+      printf("\t ped=%f", values[0][ch]);
+      printf("\t rsig=%f", values[2][ch]);
+      printf("\t sig=%f", values[1][ch]);
+      printf("\t ave_sig=%f\n", values[3][ch]);
+      }
+      }
+    */
+
+    const char* names[4] = {"Pedestals", "Sigma", "RawSigma", "AverageSignal"};
+
+    std::vector<TH1F*> histos2;
+
+    for (int ii=0; ii<4; ii++) {
+      
+      std::pair<TH1F*, TH1F*> coppia = VectorToHisto(values[ii], names[ii], filename.Data(), nch, ll);
+      TH1F* h = coppia.first;
+      TH1F* h2 = coppia.second;
+      //      printf("%s %s %p %p\n", "AMS-L0", names[ii], h, h2);
+      /*
+	h->Dump();
+	for (int bb=0; bb<=h->GetNbinsX()+1; bb++){
+	printf("%d) %f\n", bb, h->GetBinContent(bb));
+	}
+      */
+      histos[ll].push_back(h);
+      histos2.push_back(h2);
     }
+    
+    for (int ii=0; ii<3; ii++) {//not including the spread on the average signal
+      histos[ll].push_back(histos2.at(ii));
+    }
+    
   }
-  /*
-    {
-    unsigned int NVAS = 16;
-    unsigned int NCHAVA = 64;     
-    for (unsigned int ch = 0; ch < NVAS * NCHAVA; ch++) {
-    printf("%04d)", ch);
-    printf("\t ped=%f", values[0][ch]);
-    printf("\t rsig=%f", values[2][ch]);
-    printf("\t sig=%f", values[1][ch]);
-    printf("\t ave_sig=%f\n", values[3][ch]);
-    }
-    }
-  */
-  
+    
 #ifdef COMPCALVLAD_DEBUG
   fdebug->Write();
   fdebug->Close();
@@ -756,29 +834,6 @@ void ComputeCalibrationVladimir(std::vector<std::vector<unsigned short>>& signal
   // delete[] hsig;
 #endif
   
-  const char* names[4] = {"Pedestals", "Sigma", "RawSigma", "AverageSignal"};
-  
-  std::vector<TH1F*> histos2;
-  
-  for (int ii=0; ii<4; ii++) {
-    std::pair<TH1F*, TH1F*> coppia = VectorToHisto(values[ii], names[ii], filename.Data(), nch);
-    TH1F* h = coppia.first;
-    TH1F* h2 = coppia.second;
-    //    printf("%s %s %p %p\n", "AMS-L0", names[ii], h, h2);
-    /*
-      h->Dump();
-      for (int bb=0; bb<=h->GetNbinsX()+1; bb++){
-      printf("%d) %f\n", bb, h->GetBinContent(bb));
-      }
-    */
-    histos.push_back(h);
-    histos2.push_back(h2);
-  }
-
-  for (int ii=0; ii<3; ii++) {//not including the spread on the average signal
-    histos.push_back(histos2.at(ii));
-  }
-
   return;
 }
 
@@ -825,7 +880,7 @@ void ReOrderVladimir(std::vector<unsigned char>& data,  std::vector<unsigned sho
   return;
 }
 
-void OpenGigiFile(TString filename, std::vector<TH1F*>& histos){
+void OpenGigiFile(TString filename, std::vector<std::vector<TH1F*>>& histos){
 
   std::vector<TH1F*> histos2;
   
@@ -836,7 +891,7 @@ void OpenGigiFile(TString filename, std::vector<TH1F*>& histos){
     TH1F* h = coppia.first;
     TH1F* h2 = coppia.second;
     //    printf("%s %s %p %p\n", filename.Data(), names[ii], h, h2);
-    histos.push_back(h);
+    histos[0].push_back(h);
     histos2.push_back(h2);
   }
   {//dummy
@@ -845,12 +900,12 @@ void OpenGigiFile(TString filename, std::vector<TH1F*>& histos){
     TH1F* h = coppia.first;
     TH1F* h2 = coppia.second;
     //    printf("%s %s %p %p\n", filename.Data(), names[ii], h, h2);
-    histos.push_back(h);
+    histos[0].push_back(h);
     histos2.push_back(h2);
   }
   
   for (int ii=0; ii<3; ii++) {
-    histos.push_back(histos2.at(ii));
+    histos[0].push_back(histos2.at(ii));
   }
   
   return;
@@ -883,8 +938,8 @@ std::pair<TH1F*, TH1F*> GigiGraphToHisto(const char* name, const char* filename,
   return coppia;
 }
 
-void CreateAMSFlightHistos(std::vector<TH1F*>& histos){
-
+void CreateAMSFlightHistos(std::vector<std::vector<TH1F*>>& histos){
+  
   // HwID 010, TkID +109: JLayer 2, Slot 9
   // extracted from CalDB_1646913042.root
   
@@ -911,12 +966,12 @@ void CreateAMSFlightHistos(std::vector<TH1F*>& histos){
     // if (ii!=3) {
     //   printf("%s %s %p %p\n", "AMS-flight", names[ii], h, h2);
     // }
-    histos.push_back(h);
+    histos[0].push_back(h);
     histos2.push_back(h2);
   }
 
   for (int ii=0; ii<3; ii++) {//not including the spread on the average signal
-    histos.push_back(histos2.at(ii));
+    histos[0].push_back(histos2.at(ii));
   }
   
   return;
@@ -933,11 +988,20 @@ std::vector<double> HistoToVector(TH1F* histo){
   return values;
 }
 
-std::pair<TH1F*, TH1F*> VectorToHisto(std::vector<double> values, const char* name, const char* filename, int nch, int nspread){
+std::pair<TH1F*, TH1F*> VectorToHisto(std::vector<double> values, const char* name, const char* filename, int nch, int ladder, int nspread){
 
-  TH1F* h = new TH1F(Form("%s_%s", name, filename), Form("%s_%s", name, filename), nch, 0, nch);
-  TH1F* h2 = new TH1F(Form("%s_spread_%s", name, filename), Form("%s_spread_%s", name, filename), nspread*100, 0, nspread);
+  TH1F* h = NULL;
+  TH1F* h2 = NULL;
+  if (ladder==-999) {
+    h = new TH1F(Form("%s_%s", name, filename), Form("%s_%s", name, filename), nch, 0, nch);
+    h2 = new TH1F(Form("%s_spread_%s", name, filename), Form("%s_spread_%s", name, filename), nspread*100, 0, nspread);
+  }
+  else {
+    h = new TH1F(Form("%s_%s_%d", name, filename, ladder), Form("%s_%s_%d", name, filename, ladder), nch, 0, nch);
+    h2 = new TH1F(Form("%s_spread_%s_%d", name, filename, ladder), Form("%s_spread_%s_%d", name, filename, ladder), nspread*100, 0, nspread);
+  }
 
+  
   TString name_ = name;
   TString filename_ = filename;
   
@@ -960,7 +1024,7 @@ std::pair<TH1F*, TH1F*> VectorToHisto(std::vector<double> values, const char* na
   return coppia;
 }
 
-void SummaryBeam(std::vector<TH1F*> histos, const char* filename, const char* nameout, int type) {
+void SummaryBeam(std::vector<std::vector<TH1F*>> histos, const char* filename, const char* nameout, int type) {
 
   int nva = 10;
   int nch_for_va = 64;
@@ -978,94 +1042,99 @@ void SummaryBeam(std::vector<TH1F*> histos, const char* filename, const char* na
 
   int nch = nva*nch_for_va;
 
-  static int count=-1;
-  count++;
-  
-  TCanvas *c;
-  
-  if (((int)histos.size())!=0) {
-    TLatex *comment=new TLatex(1-0.01,0.01,Form("%s",filename));
-    comment->SetNDC();  
-    comment->SetTextAngle(90);
-    comment->SetTextAlign(11);
-    comment->SetTextSize(0.025);
+  //loop on ladders
+  for (int ll=0; ll<((int)histos.size()); ll++) {
     
-    c = new TCanvas(Form("c_%d", count), Form("%s_%d",filename,0),0*100,0*10,900,400);
-    comment->Draw();
+    static int count=-1;
+    count++;
+    
+    TCanvas *c;
+    
+    if (((int)histos[ll].size())!=0) {
+      TLatex *comment=new TLatex(1-0.01,0.01, Form("%s", filename));
+      comment->SetNDC();  
+      comment->SetTextAngle(90);
+      comment->SetTextAlign(11);
+      comment->SetTextSize(0.025);
+      
+      c = new TCanvas(Form("c_%d", count), Form("%s_%d", filename, ll),0*100,0*10,900,400);
+      comment->Draw();
+      c->Update();
+      c->Divide(3,2);
+      c->SetFillStyle(0);
+      c->cd(1);
+      gPad->SetFillStyle(0);
+      
+      c->cd(1);
+      TH2F *fram=new TH2F(Form("fram1_%d", count), Form("%s_%d: occupancy", filename, ll),nch,1,nch,1000,0,max_occ);
+      fram->SetStats(0);
+      fram->Draw();
+      TH1F *isto = histos[ll].at(0);
+      isto->DrawNormalized("samehist");
+      gPad->Update();
+      LinesVas(nva, ((int)(nch/nva)));
+      gPad->Update();
+      
+      c->cd(4);
+      gPad->SetFillStyle(0);
+      TH2F *fram4=new TH2F(Form("fram4_%d", count), Form("%s_%d: weighted_occupancy", filename, ll),nch,1,nch,1000,0,max_wei);
+      fram4->SetStats(0);
+      fram4->Draw();
+      TH1F *isto4 = histos[ll].at(1);
+      isto4->DrawNormalized("samehist");
+      gPad->Update();
+      LinesVas(nva, ((int)(nch/nva)));
+      gPad->Update();
+      
+      c->cd(2);
+      gPad->SetLogy();
+      gPad->SetFillStyle(0);
+      TH2F *fram2=new TH2F(Form("fram2_%d", count), Form("%s_%d: signal", filename, ll),200,0,200, 1000, 0, 1);
+      fram2->SetStats(0);
+      fram2->Draw();
+      TH1F *isto2 = histos[ll].at(2);
+      isto2->DrawNormalized("samehist");
+      gPad->Update();
+      
+      c->cd(5);
+      gPad->SetLogy();
+      gPad->SetFillStyle(0);
+      TH2F *fram3=new TH2F(Form("fram3_%d", count), Form("%s_%d: signal_abovethresh", filename, ll),200,0,200, 1000, 0, 1);
+      fram3->SetStats(0);
+      fram3->Draw();
+      TH1F *isto3 = histos[ll].at(3);
+      isto3->DrawNormalized("samehist");
+      gPad->Update();
+      
+      c->cd(3);
+      gPad->SetLogy();
+      gPad->SetFillStyle(0);
+      TH2F *fram5=new TH2F(Form("fram5_%d", count), Form("%s_%d: signal_to_noise", filename, ll),10,0,10, 1000, 0, 1);
+      fram5->SetStats(0);
+      fram5->Draw();
+      TH1F *isto5 = histos[ll].at(4);
+      isto5->DrawNormalized("samehist");
+      gPad->Update();
+    }
+    else {
+      c = new TCanvas("c", "",0*100,0*10,600,400);
+    }
+    
+    gROOT->SetStyle("StyleWhite");
     c->Update();
-    c->Divide(3,2);
-    c->SetFillStyle(0);
-    c->cd(1);
-    gPad->SetFillStyle(0);
     
-    c->cd(1);
-    TH2F *fram=new TH2F(Form("fram1_%d", count), Form("%s: occupancy",filename),nch,1,nch,1000,0,max_occ);
-    fram->SetStats(0);
-    fram->Draw();
-    TH1F *isto = histos.at(0);
-    isto->DrawNormalized("samehist");
-    gPad->Update();
-    LinesVas(nva, ((int)(nch/nva)));
-    gPad->Update();
-
-    c->cd(4);
-    gPad->SetFillStyle(0);
-    TH2F *fram4=new TH2F(Form("fram4_%d", count), Form("%s: weighted_occupancy",filename),nch,1,nch,1000,0,max_wei);
-    fram4->SetStats(0);
-    fram4->Draw();
-    TH1F *isto4 = histos.at(1);
-    isto4->DrawNormalized("samehist");
-    gPad->Update();
-    LinesVas(nva, ((int)(nch/nva)));
-    gPad->Update();
+    c->Print(nameout);
     
-    c->cd(2);
-    gPad->SetLogy();
-    gPad->SetFillStyle(0);
-    TH2F *fram2=new TH2F(Form("fram2_%d", count), Form("%s: signal",filename),200,0,200, 1000, 0, 1);
-    fram2->SetStats(0);
-    fram2->Draw();
-    TH1F *isto2 = histos.at(2);
-    isto2->DrawNormalized("samehist");
-    gPad->Update();
+    if (((int)histos[ll].size())==0) {
+      if (c) delete c;
+    }
+
+  }
     
-    c->cd(5);
-    gPad->SetLogy();
-    gPad->SetFillStyle(0);
-    TH2F *fram3=new TH2F(Form("fram3_%d", count), Form("%s: signal_abovethresh",filename),200,0,200, 1000, 0, 1);
-    fram3->SetStats(0);
-    fram3->Draw();
-    TH1F *isto3 = histos.at(3);
-    isto3->DrawNormalized("samehist");
-    gPad->Update();
-
-    c->cd(3);
-    gPad->SetLogy();
-    gPad->SetFillStyle(0);
-    TH2F *fram5=new TH2F(Form("fram5_%d", count), Form("%s: signal_to_noise",filename),10,0,10, 1000, 0, 1);
-    fram5->SetStats(0);
-    fram5->Draw();
-    TH1F *isto5 = histos.at(4);
-    isto5->DrawNormalized("samehist");
-    gPad->Update();
-  }
-  else {
-    c = new TCanvas("c", "",0*100,0*10,600,400);
-  }
-  
-  gROOT->SetStyle("StyleWhite");
-  c->Update();
-  
-  c->Print(nameout);
-
-  if (((int)histos.size())==0) {
-    if (c) delete c;
-  }
-
   return;
 }
 
-void SummaryCal(std::vector<TH1F*> histos, const char* filename, const char* nameout, int type) {
+void SummaryCal(std::vector<std::vector<TH1F*>> histos, const char* filename, const char* nameout, int type) {
   
   int nva = 10;
   int nch_for_va = 64;
@@ -1092,117 +1161,122 @@ void SummaryCal(std::vector<TH1F*> histos, const char* filename, const char* nam
   }
 
   int nch = nva*nch_for_va;
-  
-  static int count=-1;
-  count++;
 
-  TCanvas *c;
-
-  if (((int)histos.size())!=0) {
-    TLatex *comment=new TLatex(1-0.01,0.01,Form("%s",filename));
-    comment->SetNDC();  
-    comment->SetTextAngle(90);
-    comment->SetTextAlign(11);
-    comment->SetTextSize(0.025);
-
-    c = new TCanvas(Form("c_%d", count), Form("%s_%d",filename,0),0*100,0*10,600,400);
-    comment->Draw();
-    c->Update();
-    c->Divide(2,2);
-    c->SetFillStyle(0);
-    c->cd(1);
-    gPad->SetFillStyle(0);
-  
-    c->cd(1);
-    TH2F *fram=new TH2F(Form("fram_%d", count), Form("%s: pedestals",filename),nch,1,nch,max_ped,0,max_ped);
-    fram->SetStats(0);
-    fram->Draw();
-    TH1F *isto = histos.at(0);
-    //  printf("%p\n", isto);
-    if (calnohist) {
-      for (int ii=0; ii<=isto->GetNbinsX()+1; ii++) {
-	isto->SetBinError(ii, 0);
-      }
-      isto->Draw("sameP");
-    }
-    else isto->Draw("samehist");
-    gPad->Update();
-    LinesVas(nva, ((int)(nch/nva)));
-    gPad->Update();
-
-    c->cd(2);
-    gPad->SetFillStyle(0);
-    TH2F *fram4=new TH2F(Form("fram4_%d", count), Form("%s: average signal",filename),nch,1,nch,max_ave,0,max_ave);
-    fram4->SetStats(0);
-    fram4->Draw();
-    TH1F *isto4 = histos.at(3);
-    /* isto4->Dump(); */
-    /* for (int bb=0; bb<=isto4->GetNbinsX()+1; bb++){ */
-    /*   printf("%d) %f\n", bb, isto4->GetBinContent(bb)); */
-    /* } */
-    if (calnohist) {
-      for (int ii=0; ii<=isto4->GetNbinsX()+1; ii++) {
-	isto4->SetBinError(ii, 0);
-      }
-      isto4->Draw("sameP");
-    }
-    else isto4->Draw("samehist");
-    gPad->Update();
-    LinesVas(nva, ((int)(nch/nva)));
-    gPad->Update();
+  //loop on ladders
+  for (int ll=0; ll<((int)histos.size()); ll++) {
     
-    c->cd(3);
-    gPad->SetFillStyle(0);
-    TH2F *fram2=new TH2F(Form("fram2_%d", count), Form("%s: sigma",filename),nch,1,nch,max_sig,0,max_sig);
-    fram2->SetStats(0);
-    fram2->Draw();
-    TH1F *isto2 = histos.at(1);
-    if (calnohist) {
-      for (int ii=0; ii<=isto2->GetNbinsX()+1; ii++) {
-	isto2->SetBinError(ii, 0);
+    static int count=-1;
+    count++;
+    
+    TCanvas *c;
+    
+    if (((int)histos[ll].size())!=0) {
+      TLatex *comment=new TLatex(1-0.01,0.01, Form("%s",filename));
+      comment->SetNDC();  
+      comment->SetTextAngle(90);
+      comment->SetTextAlign(11);
+      comment->SetTextSize(0.025);
+      
+      c = new TCanvas(Form("c_%d", count), Form("%s_%d", filename, ll),0*100,0*10,600,400);
+      comment->Draw();
+      c->Update();
+      c->Divide(2,2);
+      c->SetFillStyle(0);
+      c->cd(1);
+      gPad->SetFillStyle(0);
+      
+      c->cd(1);
+      TH2F *fram=new TH2F(Form("fram_%d", count), Form("%s_%d: pedestals", filename, ll),nch,1,nch,max_ped,0,max_ped);
+      fram->SetStats(0);
+      fram->Draw();
+      TH1F *isto = histos[ll].at(0);
+      //  printf("%p\n", isto);
+      if (calnohist) {
+	for (int ii=0; ii<=isto->GetNbinsX()+1; ii++) {
+	  isto->SetBinError(ii, 0);
+	}
+	isto->Draw("sameP");
       }
-      isto2->Draw("sameP");
-    }
-    else isto2->Draw("samehist");
-    gPad->Update();
-    LinesVas(nva, ((int)(nch/nva)));
-    gPad->Update();
-  
-    c->cd(4);
-    gPad->SetFillStyle(0);
-    TH2F *fram3=new TH2F(Form("fram3_%d", count), Form("%s: sigma raw",filename),nch,1,nch,max_rsig,0,max_rsig);
-    fram3->SetStats(0);
-    fram3->Draw();
-    TH1F *isto3 = histos.at(2);
-    if (calnohist) {
-      for (int ii=0; ii<=isto3->GetNbinsX()+1; ii++) {
-	isto3->SetBinError(ii, 0);
+      else isto->Draw("samehist");
+      gPad->Update();
+      LinesVas(nva, ((int)(nch/nva)));
+      gPad->Update();
+      
+      c->cd(2);
+      gPad->SetFillStyle(0);
+      TH2F *fram4=new TH2F(Form("fram4_%d", count), Form("%s_%d: average signal", filename, ll),nch,1,nch,max_ave,0,max_ave);
+      fram4->SetStats(0);
+      fram4->Draw();
+      TH1F *isto4 = histos[ll].at(3);
+      /* isto4->Dump(); */
+      /* for (int bb=0; bb<=isto4->GetNbinsX()+1; bb++){ */
+      /*   printf("%d) %f\n", bb, isto4->GetBinContent(bb)); */
+      /* } */
+      if (calnohist) {
+	for (int ii=0; ii<=isto4->GetNbinsX()+1; ii++) {
+	  isto4->SetBinError(ii, 0);
+	}
+	isto4->Draw("sameP");
       }
-      isto3->Draw("sameP");
+      else isto4->Draw("samehist");
+      gPad->Update();
+      LinesVas(nva, ((int)(nch/nva)));
+      gPad->Update();
+      
+      c->cd(3);
+      gPad->SetFillStyle(0);
+      TH2F *fram2=new TH2F(Form("fram2_%d", count), Form("%s_%d: sigma", filename, ll),nch,1,nch,max_sig,0,max_sig);
+      fram2->SetStats(0);
+      fram2->Draw();
+      TH1F *isto2 = histos[ll].at(1);
+      if (calnohist) {
+	for (int ii=0; ii<=isto2->GetNbinsX()+1; ii++) {
+	  isto2->SetBinError(ii, 0);
+	}
+	isto2->Draw("sameP");
+      }
+      else isto2->Draw("samehist");
+      gPad->Update();
+      LinesVas(nva, ((int)(nch/nva)));
+      gPad->Update();
+      
+      c->cd(4);
+      gPad->SetFillStyle(0);
+      TH2F *fram3=new TH2F(Form("fram3_%d", count), Form("%s_%d: sigma raw", filename, ll),nch,1,nch,max_rsig,0,max_rsig);
+      fram3->SetStats(0);
+      fram3->Draw();
+      TH1F *isto3 = histos[ll].at(2);
+      if (calnohist) {
+	for (int ii=0; ii<=isto3->GetNbinsX()+1; ii++) {
+	  isto3->SetBinError(ii, 0);
+	}
+	isto3->Draw("sameP");
+      }
+      else isto3->Draw("samehist");
+      gPad->Update();
+      LinesVas(nva, ((int)(nch/nva)));
+      gPad->Update();
     }
-    else isto3->Draw("samehist");
-    gPad->Update();
-    LinesVas(nva, ((int)(nch/nva)));
-    gPad->Update();
-  }
-  else {
-    c = new TCanvas("c", "",0*100,0*10,600,400);
-  }
-  
-  gROOT->SetStyle("StyleWhite");
-  c->Update();
-  
-  c->Print(nameout);
+    else {
+      c = new TCanvas("c", "",0*100,0*10,600,400);
+    }
+    
+    gROOT->SetStyle("StyleWhite");
+    c->Update();
+    
+    c->Print(nameout);
+    
+    if (((int)histos[ll].size())==0) {
+      /* if (comment) delete comment; */
+      if (c) delete c;
+      /* if (fram) delete fram; */
+      /* if (fram2) delete fram2; */
+      /* if (fram3) delete fram3; */
+      /* if (isto) delete isto; */
+      /* if (isto2) delete isto2; */
+      /* if (isto3) delete isto3; */
+    }
 
-  if (((int)histos.size())==0) {
-    /* if (comment) delete comment; */
-    if (c) delete c;
-    /* if (fram) delete fram; */
-    /* if (fram2) delete fram2; */
-    /* if (fram3) delete fram3; */
-    /* if (isto) delete isto; */
-    /* if (isto2) delete isto2; */
-    /* if (isto3) delete isto3; */
   }
 
   return;
@@ -1306,76 +1380,81 @@ int InitStyle() {
   return 0;
 }
 
-void Comparison(std::vector<TH1F*> histos[3], const char* nameout) {
+void Comparison(std::vector<std::vector<TH1F*>> histos[3], const char* nameout) {
 
-  static int count=-1;
-  count++;
+  //loop on ladders
+  for (int ll=0; ll<((int)histos[0].size()); ll++) {//component 0, 1 and 2 must be identical...
 
-  Color_t colors[11] = {kRed+2, kGreen+2, kBlue+2, kCyan, kBlack, kPink, kRed, kGreen, kBlue, kOrange, kYellow};
-  if ((int)(histos[0].size())>11) {
-    printf("I'll crash...\n");
-  }
+    static int count=-1;
+    count++;
+
+    Color_t colors[11] = {kRed+2, kGreen+2, kBlue+2, kCyan, kBlack, kPink, kRed, kGreen, kBlue, kOrange, kYellow};
+    if ((int)(histos[0][ll].size())>11) {
+      printf("I'll crash...\n");
+    }
   
-  TCanvas *c;
+    TCanvas *c;
     
-  c = new TCanvas(Form("comp_c_%d", count), Form("%d",0),0*100,0*10,600,400);
-  c->Update();
-  c->Divide(2,2);
-  c->SetFillStyle(0);
-  c->cd(1);
-  gPad->SetFillStyle(0);
+    c = new TCanvas(Form("comp_c_%d", count), Form("%d",0),0*100,0*10,600,400);
+    c->Update();
+    c->Divide(2,2);
+    c->SetFillStyle(0);
+    c->cd(1);
+    gPad->SetFillStyle(0);
   
-  c->cd(1);
-  TH2F *fram=new TH2F(Form("comp_fram_%d", count), Form("pedestals"), 200, 0, 2000, 100, 0, 100);
-  fram->GetXaxis()->SetTitle("ADC");
-  fram->GetYaxis()->SetTitle("Channels");
-  fram->SetStats(0);
-  fram->Draw();
-  for (int ii=0; ii<(int)(histos[0].size()); ii++) {
-    histos[0].at(ii)->SetFillStyle(0);
-    histos[0].at(ii)->SetLineColor(colors[ii]);
-    histos[0].at(ii)->SetLineWidth(3);
-    histos[0].at(ii)->Rebin(pow(2, 10));
-    histos[0].at(ii)->Draw("samehist");
-  }
-  gPad->Update();
+    c->cd(1);
+    TH2F *fram=new TH2F(Form("comp_fram_%d", count), Form("pedestals"), 200, 0, 2000, 100, 0, 100);
+    fram->GetXaxis()->SetTitle("ADC");
+    fram->GetYaxis()->SetTitle("Channels");
+    fram->SetStats(0);
+    fram->Draw();
+    for (int ii=0; ii<(int)(histos[0][ll].size()); ii++) {
+      histos[0][ll].at(ii)->SetFillStyle(0);
+      histos[0][ll].at(ii)->SetLineColor(colors[ii]);
+      histos[0][ll].at(ii)->SetLineWidth(3);
+      histos[0][ll].at(ii)->Rebin(pow(2, 10));
+      histos[0][ll].at(ii)->Draw("samehist");
+    }
+    gPad->Update();
   
-  c->cd(3);
-  gPad->SetFillStyle(0);
-  TH2F *fram2=new TH2F(Form("comp_fram2_%d", count), Form("sigma"), 1000, 0, 10, 450, 0, 450);
-  fram2->GetXaxis()->SetTitle("ADC");
-  fram2->GetYaxis()->SetTitle("Channels");
-  fram2->SetStats(0);
-  fram2->Draw();
-  for (int ii=0; ii<(int)(histos[1].size()); ii++) {
-    histos[1].at(ii)->SetFillStyle(0);
-    histos[1].at(ii)->SetLineColor(colors[ii]);
-    histos[1].at(ii)->SetLineWidth(3);
-    histos[1].at(ii)->Rebin(pow(2, 2));
-    histos[1].at(ii)->Draw("samehist");
-  }
-  gPad->Update();
+    c->cd(3);
+    gPad->SetFillStyle(0);
+    TH2F *fram2=new TH2F(Form("comp_fram2_%d", count), Form("sigma"), 1000, 0, 10, 450, 0, 450);
+    fram2->GetXaxis()->SetTitle("ADC");
+    fram2->GetYaxis()->SetTitle("Channels");
+    fram2->SetStats(0);
+    fram2->Draw();
+    for (int ii=0; ii<(int)(histos[1][ll].size()); ii++) {
+      histos[1][ll].at(ii)->SetFillStyle(0);
+      histos[1][ll].at(ii)->SetLineColor(colors[ii]);
+      histos[1][ll].at(ii)->SetLineWidth(3);
+      histos[1][ll].at(ii)->Rebin(pow(2, 2));
+      histos[1][ll].at(ii)->Draw("samehist");
+    }
+    gPad->Update();
   
-  c->cd(4);
-  gPad->SetFillStyle(0);
-  TH2F *fram3=new TH2F(Form("comp_fram3_%d", count), Form("sigma raw"), 1500, 0, 15, 200, 0, 200);
-  fram3->GetXaxis()->SetTitle("ADC");
-  fram3->GetYaxis()->SetTitle("Channels");
-  fram3->SetStats(0);
-  fram3->Draw();
-  for (int ii=0; ii<(int)(histos[2].size()); ii++) {
-    histos[2].at(ii)->SetFillStyle(0);
-    histos[2].at(ii)->SetLineColor(colors[ii]);
-    histos[2].at(ii)->SetLineWidth(3);
-    histos[2].at(ii)->Rebin(pow(2, 2));
-    histos[2].at(ii)->Draw("samehist");
-  }
-  gPad->Update();
+    c->cd(4);
+    gPad->SetFillStyle(0);
+    TH2F *fram3=new TH2F(Form("comp_fram3_%d", count), Form("sigma raw"), 1500, 0, 15, 200, 0, 200);
+    fram3->GetXaxis()->SetTitle("ADC");
+    fram3->GetYaxis()->SetTitle("Channels");
+    fram3->SetStats(0);
+    fram3->Draw();
+    for (int ii=0; ii<(int)(histos[2][ll].size()); ii++) {
+      histos[2][ll].at(ii)->SetFillStyle(0);
+      histos[2][ll].at(ii)->SetLineColor(colors[ii]);
+      histos[2][ll].at(ii)->SetLineWidth(3);
+      histos[2][ll].at(ii)->Rebin(pow(2, 2));
+      histos[2][ll].at(ii)->Draw("samehist");
+    }
+    gPad->Update();
 
-  gROOT->SetStyle("StyleWhite");
-  c->Update();
+    gROOT->SetStyle("StyleWhite");
+    c->Update();
 
-  c->Print(nameout);
+    c->Print(nameout);
+
+  }
 
   return;
 }
@@ -1613,7 +1692,9 @@ int ReadAMSBlockTime(unsigned int& size_consumed, unsigned int& size_to_read, FI
   return fstat;
 }
 
-int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std::vector<std::vector<unsigned short>>& signals_by_ev, int nesting_level){
+int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found,
+		    std::vector<std::vector<std::vector<unsigned short>>>& signals_by_ev,
+		    int nesting_level){
 
   if (openL0FEP_debug_level>4 && nesting_level==0)
     sleep(10);
@@ -1716,50 +1797,72 @@ int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std:
       if (fstat == -1) return 1;
 
       // and now, finally, the event...
-    
+      unsigned int raweventsize = 1794;
       if (size_to_read==0 && openL0FEP_debug_level>0) {
 	printf("Empty event...\n");
       }
-      else if (size_to_read == 1794) {//Vladimir raw event
-	fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
-	if (fstat == -1) return 1;
-      
-	unsigned short int evtn = bit(0, 7, dummy16);//from bit 0 to bit 7
-	if (openL0FEP_debug_level>1)
-	  printf("Event number: %u\n", evtn);
-      
-	std::vector<unsigned char> data_end_nc;
-	std::vector<unsigned char> data;
-	//      printf("data size (FEP): %d\n", size_to_read);
-	data_end_nc.resize(size_to_read);
-	data.resize(size_to_read);
-      
-	fstat = ReadFile(&data_end_nc[0], size_to_read, 1, file);
-	size_consumed+=size_to_read;
-	size_to_read-=size_to_read;
-	if (fstat == -1) return 1;
-      
-	//Endianess correction
-	for (int ii=0; ii<((int)(data_end_nc.size())); ii+=2) {
-	  data[ii] = data_end_nc[ii+1];
-	  data[ii+1] = data_end_nc[ii];
+      else if (size_to_read%raweventsize==0) {//Vladimir raw event
+	if (openL0FEP_debug_level>3) {
+	  printf("Data to read: %u\n", size_to_read);
+	}
+	unsigned int total_size_to_read = size_to_read;
+	for (int ii=0; ii<((int)(total_size_to_read/raweventsize)); ii++) {
+	  
+	  fstat = ReadAMSBlockFile(dummy16, size_consumed, size_to_read, file);
+	  if (fstat == -1) return 1;
+	  
+	  unsigned short int evtn = bit(0, 7, dummy16);//from bit 0 to bit 7
+	  if (openL0FEP_debug_level>1)
+	    printf("Event number: %u\n", evtn);
+	  
+	  unsigned short int link = bit(8, 15, dummy16);//from bit 8 to bit 15
+	  if (openL0FEP_debug_level>1)
+	    printf("Link: %u\n", link);
+	  if ((link+1)>signals_by_ev.size()) {
+	    signals_by_ev.resize(link+1);
+	  }
+	  
+	  std::vector<unsigned char> data_end_nc;
+	  std::vector<unsigned char> data;
+	  data_end_nc.resize(raweventsize-2);
+	  data.resize(raweventsize-2);
+	  
+	  fstat = ReadFile(&data_end_nc[0], raweventsize-2, 1, file);
+	  size_consumed+=(raweventsize-2);
+	  size_to_read-=(raweventsize-2);
+	  if (fstat == -1) return 1;
+	  
+	  //Endianess correction
+	  for (int ii=0; ii<((int)(data_end_nc.size())); ii+=2) {
+	    data[ii] = data_end_nc[ii+1];
+	    data[ii+1] = data_end_nc[ii];
+	  }
+	  
+	  if (openL0FEP_debug_level>3) {
+	    for (int ii=0; ii<((int)data.size()); ii++) {
+	      printf("0x%02x\n", data[ii]);
+	    }
+	  }
+	  
+	  std::vector<unsigned short> data_ord;
+	  ReOrderVladimir(data, data_ord);
+	  if (openL0FEP_debug_level>3) {
+	    for (int ii=0; ii<((int)data_ord.size()); ii++) {
+	      printf("%d\n", data_ord[ii]);
+	    }
+	  }
+	  
+	  if (openL0FEP_debug_level>1) {
+	    printf("Array of signals has size %d\n", ((int)(data_ord.size())));
+	  }
+	  signals_by_ev[((int)link)].push_back(data_ord);
 	}
 
-	if (openL0FEP_debug_level>3) {
-	  for (int ii=0; ii<((int)data.size()); ii++) {
-	    printf("0x%02x\n", data[ii]);
+	if (openL0FEP_debug_level>1) {
+	  for (int ll=0; ll<((int)(signals_by_ev.size())); ll++) {
+	    printf("Component %d of array of events has size %d\n", ll, ((int)(signals_by_ev[ll].size())));
 	  }
 	}
-
-	std::vector<unsigned short> data_ord;
-	ReOrderVladimir(data, data_ord);
-	if (openL0FEP_debug_level>3) {
-	  for (int ii=0; ii<((int)data_ord.size()); ii++) {
-	    printf("%d\n", data_ord[ii]);
-	  }
-	}
-	signals_by_ev.push_back(data_ord);
-
 	ev_found++;
       }
       else {
@@ -1767,6 +1870,15 @@ int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std:
 	  printf("Wrong raw event size (%d): it should be 0 or 1794...\n", size_to_read);
 	}
       }
+    }
+    else if (dt_full == 0x4) {//Trigger and DAQ Control write/read (still not clear and complete...)
+      //      if (RW) {
+      fstat = ReadAMSBlockStatusTag(status, tag, size_consumed, size_to_read, file);
+      if (fstat == -1) return 1;
+      
+      fstat = ReadAMSBlockTime(size_consumed, size_to_read, file);
+      if (fstat == -1) return 1;
+      //      }
     }
   }
 
@@ -1810,7 +1922,7 @@ int ProcessAMSBlock(FILE* file, unsigned int& size_consumed, int& ev_found, std:
   return 0;
 }
 
-void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos, bool kCal){
+void OpenAMSL0FEPFile(TString filename, std::vector<std::vector<TH1F*>>& histos, bool kCal){
   
   // File open
   FILE* file = fopen(filename.Data(), "rb");
@@ -1822,8 +1934,8 @@ void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos, bool kCal){
     printf("File %s opened\n", filename.Data());
   }
   
-  std::vector<std::vector<unsigned short>> signals_by_ev;
-  std::vector<std::vector<unsigned short>> signals;
+  std::vector<std::vector<std::vector<unsigned short>>> signals_by_ev;
+  std::vector<std::vector<std::vector<unsigned short>>> signals;
   
   int nev=0;
   while (1) {
@@ -1833,10 +1945,24 @@ void OpenAMSL0FEPFile(TString filename, std::vector<TH1F*>& histos, bool kCal){
   }
   printf("We read %d events\n", nev);
 
+  if (openL0FEP_debug_level>0) {
+    printf("Signals has %d components\n", ((int)(signals_by_ev.size())));
+    for (int ii=0; ii<((int)(signals_by_ev.size())); ii++) {
+      printf("Component %d has %d events\n", ii, ((int)(signals_by_ev[ii].size())));
+      if (((int)(signals_by_ev[ii].size()))>0) {
+	printf("Event 0 has %d values\n", ((int)(signals_by_ev[ii][0].size())));
+      }
+    }
+  }
+
   if (file)
     fclose(file);
   file = NULL;
 
+  //the ComputeXXXVladimir functions will re-do this to be sure, but would be correct to provide equally sized vectors
+  histos.resize(signals_by_ev.size());
+  signals.resize(signals_by_ev.size());
+  
   if (kCal) {
     ComputeCalibrationVladimir(signals_by_ev, signals, nev, filename, histos);
   }
@@ -1862,8 +1988,8 @@ void SaveAMSL0FEPFileGigi(TString filename){
     printf("File %s opened\n", filename.Data());
   }
   
-  std::vector<std::vector<unsigned short>> signals_by_ev;
-  std::vector<std::vector<unsigned short>> signals;
+  std::vector<std::vector<std::vector<unsigned short>>> signals_by_ev(1);
+  std::vector<std::vector<std::vector<unsigned short>>> signals(1);
   
   int nev=0;
   while (1) {
@@ -1880,7 +2006,7 @@ void SaveAMSL0FEPFileGigi(TString filename){
   TTree *raw_events_tree = new TTree("raw_events", "raw_events");
   raw_events_tree->Branch("RAW Event", &raw_event_buffer);
   
-  for (auto & evt: signals_by_ev)
+  for (auto & evt: signals_by_ev[0])
   {
     raw_event_buffer.clear();
     raw_event_buffer = evt;
