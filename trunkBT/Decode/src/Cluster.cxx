@@ -2,6 +2,7 @@
 #include "EventUtils.hh"
 #include <cmath>
 #include <string.h>
+#include <functional>
 
 Cluster::Cluster() {
   address = 0;
@@ -204,7 +205,7 @@ float Cluster::GetEtaRaw() const {
   if (se_r < length)
     val_r = GetCSignal(se_r);
 
-  // seed definition: SR / (SR+SL)
+  // eta definition: SR / (SR+SL)
   if (val_l > val_r && val_l / Noise[se_l] > 0) // the secondary is on the left
     ee = - (val_seed) / (val_l + val_seed); // negative etaraw indicate that secondary is on the left
   else if (val_r > val_l && val_r / Noise[se_r] > 0) // the secondary is on the right
@@ -370,6 +371,17 @@ int Cluster::GetLength(float val) const {
     else
       break;
   return myle;
+}
+
+std::vector <float> Cluster::Sort() {
+  std::vector<float> v;
+  int temp;
+  for (int i=0; i<length; i++)
+    v.push_back(Signal[i]);
+
+  std::sort(begin(v), end(v), std::greater<float>{});
+  return v;
+
 }
 
 void Cluster::Print() {
