@@ -239,20 +239,31 @@ void DecodeDataOCA::OpenFile(const char *rawDir, const char *calDir, int runNum,
   }
   m_filename = *fileName_it;
 
-  if (calNum > 0) {
-    auto calFilename_it = std::find_if(begin(fileList), end(fileList), [calNum](const std::string &_filename) {
-      // all our files begin with 'SCD_RUN' followed by zero-padded run numbers
-      bool is_cal = _filename.substr(13, 3) == "CAL";
-      unsigned int runNum = std::atoi(_filename.substr(7, 5).c_str());
-      return is_cal && (runNum == static_cast<unsigned int>(calNum));
-    });
+  unsigned int calNumLenght = 36;
 
+  if (calNum > 0) {
+    auto calFilename_it = std::find_if(begin(fileList), end(fileList), [calNum, calNumLenght](const std::string &_filename) {
+      // all our files begin with 'SCD_RUN' followed by zero-padded run numbers
+	//	printf("_filename = %s\n", _filename.c_str());
+	// the substr below can throw an error with filename, in the same dir, like 171_0000.cal (that shouldn't be there, but...). So I added this check on the filename size
+	if (_filename.length()!=calNumLenght) {
+	  //	  printf("_filename.length() = %d\n", (int)_filename.length());
+	  return false;
+	}
+	bool is_cal = _filename.substr(13, 3) == "CAL";
+	unsigned int runNum = std::atoi(_filename.substr(7, 5).c_str());
+	//	printf("runNum: %u\n", runNum);
+	return is_cal && (runNum == static_cast<unsigned int>(calNum));
+      });
+    
     if (calFilename_it != end(fileList)) {
       m_calFilename = *calFilename_it;
     }
   } else {
     auto calFilename_it = std::find_if(std::reverse_iterator<decltype(fileName_it)>(fileName_it), rend(fileList),
-                                       [](const std::string &_filename) { return _filename.substr(13, 3) == "CAL"; });
+                                       [calNumLenght](const std::string &_filename) {
+					 return _filename.length()==calNumLenght && _filename.substr(13, 3) == "CAL";
+				       });
 
     if (calFilename_it != rend(fileList)) {
       m_calFilename = *calFilename_it;
@@ -344,7 +355,7 @@ bool DecodeDataOCA::ProcessCalibration() {
     ReadOneEventFromFile(calfile, event.get());
     nEvents++;
     // std::cout << "\rRead " << nEvents << " events" << std::flush;
-    // std::cout << "\rRead " << nEvents << " events" << " (found " << m_numBoardsFound << " boards)" << std::flush;
+    std::cout << "\rRead " << nEvents << " events" << " (found " << m_numBoardsFound << " boards)" << std::flush;
 
     for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -365,7 +376,9 @@ bool DecodeDataOCA::ProcessCalibration() {
 
   char calfileprefix[255];
   sprintf(calfileprefix, "%s/%ld", m_calDir.c_str(), runnum);
+  //  printf("calfileprefix: %s\n", calfileprefix);
 
+  //  printf("m_numBoardsFound: %d\n", m_numBoardsFound);
   //  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
   for (unsigned int iTdr = 0; iTdr < 2 * m_numBoardsFound; ++iTdr) {
 //    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -375,6 +388,7 @@ bool DecodeDataOCA::ProcessCalibration() {
 
     char calfilename[255];
     sprintf(calfilename, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
+    printf("calfilename: %s\n", calfilename);
     FILE *calfil = fopen(calfilename, "w");
     if (!calfil) {
       printf("problem in opening the %s cal file...\n", calfilename);
@@ -507,6 +521,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
   if (fstat == -1) {
     return 1;
   }
+  m_numBoardsFound = num_boards;
 
   uint16_t dummy;
   fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
@@ -564,7 +579,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
     fstat = ReadFile(&IntTimestamp, sizeof(IntTimestamp), 1, file);
     if (fstat == -1)
       return 1;
-    IntTimestamp = (IntTimestamp >> 32) + ((IntTimestamp & 0xFFFF) << 32);
+    IntTimestamp = (IntTimestamp >> 32) + ((IntTimestamp &  0xFFFFFFFF) << 32);
     // FIXME: we save only the first board clock
     if (iBoard == 0)
       event->I2CEventID = IntTimestamp >> 32;
@@ -573,7 +588,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
     fstat = ReadFile(&ExtTimestamp, sizeof(ExtTimestamp), 1, file);
     if (fstat == -1)
       return 1;
-    ExtTimestamp = (ExtTimestamp >> 32) + ((ExtTimestamp & 0xFFFF) << 32);
+    ExtTimestamp = (ExtTimestamp >> 32) + ((ExtTimestamp & 0xFFFFFFFF) << 32);
 
     // FIXME: we save only the first board clock
     if (iBoard == 0)

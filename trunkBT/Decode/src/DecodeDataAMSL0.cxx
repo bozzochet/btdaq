@@ -247,7 +247,9 @@ bool DecodeDataAMSL0::ProcessCalibration() {
     // Some test calibrations contain too many events, stop at 10k
     unsigned int nEvents{0};
     while (!feof(calfile) && nEvents < 10000) {
-      ReadOneEventFromFile(calfile, event.get());
+      bool result = ReadOneEventFromFile(calfile, event.get());
+      if (result)
+        continue;
       nEvents++;
       // std::cout << "\rRead " << nEvents << " events" << std::flush;
 
@@ -348,7 +350,9 @@ int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL
     dt_full = dt;
   }
 
-  if (dt_full == fine_time_env_dt) { // fine time envelope
+  // std::cout << "DT: " << std::hex << dt_full << " size: " << std::dec << size_full << '\n';
+
+  if (dt_full == fine_time_env_dt && size_full > 24) { // fine time envelope
     fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
     m_total_size_consumed += sizeof(dummy);
     size_to_read -= sizeof(dummy);
@@ -503,6 +507,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL
       size_t iTDR = 0;
 
       std::copy(std::begin(data_ord), std::end(data_ord), std::begin(event->RawSignal[0][iTDR]));
+      // std::cout << "Ch0 signal = " << event->RawSignal[0][iTDR][0] << '\n';
     }
   }
 
@@ -511,7 +516,13 @@ int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL
     printf("Fatal: error during file skip ret0=%d \n", ret0);
     return -99;
   }
+
   m_total_size_consumed += size_to_read;
+
+  // if we last skipped data, let our caller know
+  if (size_to_read) {
+    return 1;
+  }
 
   return 0;
 }
