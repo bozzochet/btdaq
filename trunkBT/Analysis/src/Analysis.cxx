@@ -68,15 +68,15 @@ double y[9][6];
 double y_err[9][6];
 const Int_t size = 6;
 TGraphErrors *va[9];
+Cluster *cTTree;
+const int splitLevel = 99;
+TTree t1("t1","clusters");
 
 
 //----------------------------------------
 
-<<<<<<< HEAD
-=======
 //new, added by Alessio
 int cLen = 30;
->>>>>>> 0374635d697110b15fb74ed07ee6b642fd327599
 
 int main(int argc, char *argv[]) {
 
@@ -122,11 +122,7 @@ int main(int argc, char *argv[]) {
     EventAMSL0::ReadAlignment("alignment_L0.dat");
     EventAMSL0::ReadGainCorrection("gaincorrection_L0.dat");
     //new, added by Alessio
-<<<<<<< HEAD
     //Cluster::SetMip(260,260);
-=======
-    Cluster::SetMip(100,100);
->>>>>>> 0374635d697110b15fb74ed07ee6b642fd327599
     return ProcessChain<EventAMSL0, RHClassFOOT>(chain, output_filename);
   } else {
     EventAMS::ReadAlignment("alignment.dat");
@@ -180,7 +176,16 @@ template <class Event, class RH> int ProcessChain(TChain *chain, TString output_
   // }
 
   TFile *foutput = new TFile(output_filename.Data(), "RECREATE");
+  //new
+  TString path1 = "/home/alessio/ams/cluster/"; //path to save the clusters manually changeable
+  std::size_t start = output_filename.Last('/')+1; //find the last '/' from the input /../.../.root
+  std::size_t end = output_filename.Last('t'); //find the last 't' fomr the input /.../.../.root (t of root)
+  TString name = ( output_filename(start,end) ); //take the name
+  TString clus = path1.Append("clusters_");
+  TString cluster_output = clus.Append(name); //append the name to the path
+  TFile *ftree = new TFile(cluster_output.Data(),"RECREATE");
   foutput->cd();
+  //test
 
   //--------------------------------------------------------------------------------------------------------------
 
@@ -400,10 +405,49 @@ template <class Event, class RH> int ProcessChain(TChain *chain, TString output_
   foutput->Write();
   foutput->Close();
 
+  //new
+  ftree->cd();
+  t1.Write();
+
   return 0;
 }
 
 template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t entries, int _maxtdr, TChain *chain) {
+
+  //new
+  fstream file;
+  file.open("/home/alessio/ams/macros/fitValueVA5to13.txt", ios::in);
+
+  //read fit values
+  for (int i=0; i<9; i++)
+    for (int k=0; k<7; k++)
+      file >> ch[i][k] >> ch_err[i][k];
+  file.close();
+
+  //creates ratios for every VA with respect to VA 10, except for Z=1 (kk=0)
+  for (int ii=0; ii<9; ii++)
+    for (int kk=0; kk<7; kk++)
+      for (int jj=0; jj<6; jj++) {
+            y[ii][jj] = ch[5][jj+1]/ch[ii][jj+1];
+            y_err[ii][jj] = ch_err[5][jj+1]/ch[ii][jj+1];
+      }
+
+  //ridimensiona ch[ii]
+  double x[9][6],x_err[9][6];
+  for (int ii=0; ii<9; ii++)
+    for (int kk=0; kk<7; kk++)
+      for (int jj=0; jj<6; jj++) {
+          x[ii][jj] = ch[ii][jj+1];
+          x_err[ii][jj] = ch_err[ii][jj+1];
+        }
+
+  //create the gain curve for every VA (TGraph)
+  for (int ii=0; ii<9; ii++) {
+    va[ii] = new TGraphErrors (size,x[ii],y[ii],x_err[ii],y_err[ii]);
+  }
+
+  //create the branch
+  t1.Branch("cl", &cTTree, splitLevel);
 
   using UT = Utilities<Event, RH>;
   UT *ut = new UT();
@@ -438,38 +482,32 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
   histos->Add(hlength);
   TH1F *hcog = new TH1F("hcog", "hcog; Cog; Entries",1024,0,1024);
   histos->Add(hcog);
-<<<<<<< HEAD
-  TH1F *hTotSigCorr = new TH1F("hTotSigCorr","hTotSigCorr; TotSigCorr; Entries",5000,0,300);
+  TH1F *hTotSigCorr = new TH1F("hTotSigCorr","hTotSigCorr; TotSigCorr; Entries",5000,0,1000);
   histos->Add(hTotSigCorr);
-  TH1F *hTotSig = new TH1F("hTotSig","hTotSig; TotSig; Entries",5000,0,20000);
+  TH1F *hTotSig = new TH1F("hTotSig","hTotSig; TotSig; Entries",5000,0,1000);
   histos->Add(hTotSig);
   TH1F *hTotSigMaxCl = new TH1F("hTotSigMaxCl","hTotSigMaxCl; TotSig; Entries",2000,0,10000);
   histos->Add(hTotSigMaxCl);
   TH1F *heta = new TH1F("heta","heta; eta; Entries",250,0,1);
   histos->Add(heta);
 
-  TH2F *hTotSignal_vs_cog = new TH2F("hTotSignal_vs_cog", "hTotSignal_vs_cog (Cl with highest TotSig); Cog; TotSig(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 25000);
-=======
+  //TH2F *hTotSignal_vs_cog = new TH2F("hTotSignal_vs_cog", "hTotSignal_vs_cog (Cl with highest TotSig); Cog; TotSig(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 25000);
 
   TH2F *hTotSignal_vs_cog = new TH2F("hTotSignal_vs_cog", "hTotSignal_vs_cog (Cl with highest TotSig); Cog; TotSig(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 15000);
->>>>>>> 0374635d697110b15fb74ed07ee6b642fd327599
   histos->Add(hTotSignal_vs_cog);
   TH2F *hSeedSignal_vs_cog = new TH2F("hSeedSignal_vs_cog", "hSeedSignal_vs_cog (Cl with highest TotSig); Cog; SeedSig(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 15000);
   histos->Add(hSeedSignal_vs_cog);
   TH2F *hSecSignal_vs_cog = new TH2F("hSecSignal_vs_cog", "hSecSignal_vs_cog (Cl with highest TotSig); Cog; SecSig(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 15000);
   histos->Add(hSecSignal_vs_cog);
-<<<<<<< HEAD
   TH2F *hTotSignalCorr_vs_cog = new TH2F("hTotSignalCorr_vs_cog", "hTotSignalCorr_vs_cog (Cl with highest TotSig);Cog; TotSig Corrected(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 15000);
   histos->Add(hTotSignalCorr_vs_cog);
   TH2F *hTotSigCorr_vs_cog_readout = new TH2F("hTotSigCorr_vs_cog_readout","hTotSigCorr_vs_cog_readout (max CL); cog; TotSig(ADC)",NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 15000);
   histos->Add(hTotSigCorr_vs_cog_readout);
 
 
-=======
   //TH2F *hTotSignalCorr_vs_cog = new TH2F("hTotSignalCorr_vs_cog", "hTotSignalCorr_vs_cog (Cl with highest TotSig); Cog (Length<=30); TotSig Corrected(ADC)", NVAS * NCHAVA, 0, NVAS * NCHAVA, 4200, -100, 15000);
   //histos->Add(hTotSignalCorr_vs_cog);
 
->>>>>>> 0374635d697110b15fb74ed07ee6b642fd327599
   TH2F *hTotSignal_vs_eta = new TH2F("hTotSignal_vs_eta", "hTotSignal_vs_eta (Cl with highest TotSig); Eta; TotSig(ADC)",250,0,1,4200,-100,30000);
   histos->Add(hTotSignal_vs_eta);
   TH2F *hSeedSignal_vs_eta = new TH2F("hSeedSignal_vs_eta", "hSeedSignal_vs_eta (Cl with highest TotSig); Eta; SeedSig(ADC)",250,0,1,4200,-100,15000);
@@ -487,11 +525,8 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
   histos->Add(htotQ_vs_eta);
   TH2F *htotQCorr_vs_eta = new TH2F("htotQCorr_vs_eta","htotQCorr_vs_eta (Cl with highest TotSig); eta ; TotChargeCorr",500,0,1,4200,0,15);
   histos->Add(htotQCorr_vs_eta);
-<<<<<<< HEAD
-  TH2F *sqrtTotSig_vs_eta = new TH2F("sqrtTotSig_vs_eta", "sqrtTotSig_vs_eta (Cl with highest TotSig); eta; sqrt(TotSig) (ADC) ",500,0,1,1500,0,500);
-=======
+  //TH2F *sqrtTotSig_vs_eta = new TH2F("sqrtTotSig_vs_eta", "sqrtTotSig_vs_eta (Cl with highest TotSig); eta; sqrt(TotSig) (ADC) ",500,0,1,1500,0,500);
   TH2F *sqrtTotSig_vs_eta = new TH2F("sqrtTotSig_vs_eta", "sqrtTotSig_vs_eta (Cl with highest TotSig); eta; sqrt(TotSig) (ADC) ",500,0,1,250,0,500);
->>>>>>> 0374635d697110b15fb74ed07ee6b642fd327599
   histos->Add(sqrtTotSig_vs_eta);
 
   TH2F *htotQ_vs_eta_noCut = new TH2F("htotQ_vs_eta_noCut","htotQ_vs_eta_noCut; eta; TotCharge",500,0,1,4200,0,15);
@@ -513,7 +548,6 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
   histos->Add(hSigMinusSeed_vs_eta);
   TH2F *hSigMinusSeed_Sec_vs_eta = new TH2F("SigMinusSeed_Sec_vs_eta","SigMinusSeed_Sec_vs_eta; eta; TotSig-Seed-Sec",500,0,1,5200,0,40000);
   histos->Add(hSigMinusSeed_Sec_vs_eta);
-<<<<<<< HEAD
   TH2F *sqrt_vs_eta_corrected = new TH2F("sqrt_vs_eta_corrected","sqrt_vs_eta_corrected; eta; sqrt corrected",500,0,1,4200,0,500);
   histos->Add(sqrt_vs_eta_corrected);
   TH2F *sqrt_vs_cog_raw = new TH2F("sqrt_vs_cog_raw","sqrt_vs_cog_raw; cog; sqrt(adc)",1024,0,1024,4200,0,500);
@@ -528,40 +562,6 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
   histos->Add(sqrt_corr);
   TH1F *sqrt_eq= new TH1F("sqrt_eq","sqrt_eq; sqrt_eq(ADC); Entries",2000,0,500);
   histos->Add(sqrt_eq);
-
-  //new
-  fstream file;
-  file.open("/home/alessio/ams/macros/fitValueVA5to13.txt", ios::in);
-
-  //read fit values
-  for (int i=0; i<9; i++)
-    for (int k=0; k<7; k++)
-      file >> ch[i][k] >> ch_err[i][k];
-  file.close();
-
-  //creates ratios for every VA with respect to VA 10, except for Z=1 (kk=0)
-  for (int ii=0; ii<9; ii++)
-    for (int kk=0; kk<7; kk++)
-      for (int jj=0; jj<6; jj++) {
-            y[ii][jj] = ch[5][jj+1]/ch[ii][jj+1];
-            y_err[ii][jj] = ch_err[5][jj+1]/ch[ii][jj+1];
-      }
-
-  //ridimensiona ch[ii]
-  double x[9][6],x_err[9][6];
-  for (int ii=0; ii<9; ii++)
-    for (int kk=0; kk<7; kk++)
-      for (int jj=0; jj<6; jj++) {
-          x[ii][jj] = ch[ii][jj+1];
-          x_err[ii][jj] = ch_err[ii][jj+1];
-        }
-
-  //create the gain curve for every VA (TGraph)
-  for (int ii=0; ii<9; ii++) {
-    va[ii] = new TGraphErrors (size,x[ii],y[ii],x_err[ii],y_err[ii]);
-  }
-=======
->>>>>>> 0374635d697110b15fb74ed07ee6b642fd327599
 
 
   //----------------------------------------------------------------------------
@@ -828,19 +828,17 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
 
 template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event) {
 
-  
-  
+
+
   if (ev->GetEventKind()==4){
   Cluster *cl;
-<<<<<<< HEAD
+
+  //new
   //TF1 *func = new TF1("func","3100/(-4381.65*x+4381.65*x*x+3100)",0,10000);
   TF1 *func_adc = new TF1("func_adc","449/(-495*x+498*x*x+449)",0,10000); //Z=2
   //TF1 *func_sqrt = new TF1("func_sqrt","21.19/(-12.63*x+12.7*x*x+21.19)",0,10000); //SQRT Z=2
-=======
   TF1 *func = new TF1("func","3100/(-4381.65*x+4381.65*x*x+3100)",0,10000);
   //TF1 *func2 = new TF1("func2","14.02-0.68*x+0.04*pow(x,2)-0.001*pow(x,3)+1.63e-05*pow(x,4)-1.22e-07*pow(x,5)+3.72e-10*pow(x,6)",0,10000);
-
->>>>>>> 0374635d697110b15fb74ed07ee6b642fd327599
 
   TH1 *hclus = (TH1 *)(histos->FindObject("hclus"));
   TH1 *hclus_vs_event = (TH1 *)(histos->FindObject("hclus_vs_event"));
@@ -849,13 +847,10 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
 
   TH1 *hlength = (TH1 *)(histos->FindObject("hlength"));
   TH1 *hcog = (TH1 *)(histos->FindObject("hcog"));
-<<<<<<< HEAD
   TH1 *hTotSigCorr = (TH1 *)(histos->FindObject("hTotSigCorr"));
   TH1 *hTotSigCorrEq = (TH1 *)(histos->FindObject("hTotSigCorrEq"));
   TH1 *hTotSig = (TH1 *)(histos->FindObject("hTotSig"));
   TH1 *hTotSigMaxCl =(TH1 *)(histos->FindObject("hTotSigMaxCl"));
-=======
->>>>>>> 0374635d697110b15fb74ed07ee6b642fd327599
 
   TH2 *htotQ_vs_eta_noCut = (TH2 *)(histos->FindObject("htotQ_vs_eta_noCut"));
   TH2 *hTotSignal_vs_cog = (TH2 *)(histos->FindObject("hTotSignal_vs_cog"));
@@ -877,7 +872,6 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
   TH2 *hsecOthird_vs_eta = (TH2 *)(histos->FindObject("hsecOthird_vs_eta"));
   TH2 *hSigMinusSeed_vs_eta = (TH2 *)(histos->FindObject("hSigMinusSeed_vs_eta"));
   TH2 *hSigMinusSeed_Sec_vs_eta = (TH2 *)(histos->FindObject("hSigMinusSeed_Sec_vs_eta"));
-<<<<<<< HEAD
   TH2 *hTotSignalCorr_vs_cog = (TH2 *)(histos->FindObject("hTotSignalCorr_vs_cog"));
   TH2 *hsqrtADC_vs_z = (TH2 *)(histos->FindObject("hsqrtADC_vs_z"));
   TH2 *hTotSigCorr_vs_cog_readout = (TH2 *)(histos->FindObject("hTotSigCorr_vs_cog_readout"));
@@ -889,9 +883,6 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
   TH1 *sqrt_raw = (TH1F *)(histos->FindObject("sqrt_raw") );
   TH1 *sqrt_corr = (TH1F *)(histos->FindObject("sqrt_corr"));
   TH1 *sqrt_eq = (TH1F *)(histos->FindObject("sqrt_eq"));
-
-=======
->>>>>>> 0374635d697110b15fb74ed07ee6b642fd327599
 
   hclus->Fill(NClusTot);
   hclus_vs_event->Fill(index_event, NClusTot);
@@ -909,14 +900,13 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
     //double charge = cl->GetCharge(); // unused for now
     //    printf("%d %d) %d %d\n", jinfnum, tdrnum, side, LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum));
 
-    if (side == 0 || (side == 1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
+    /*if (side == 0 || (side == 1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
       hclusSladd_vs_event->Fill(index_event, ladder);
     } else {
       hclusKladd_vs_event->Fill(index_event, ladder);
-    }
+    }*/
 
     int l = cl->GetLength();
-<<<<<<< HEAD
     float totsig= cl->GetTotSig();
 
     hlength->Fill(l);
@@ -927,7 +917,6 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
     hlength_vs_secSig->Fill(cl->GetSecVal(),l);
     hTotSigCorr->Fill(totsig*func_adc->Eval(cl->GetEta()));
     hTotSig->Fill(totsig);
-=======
     hlength->Fill(l);
     hcog->Fill(cl->GetCoG());
     //htotQ_vs_eta_noCut->Fill(cl->GetEta(),sqrt(cl->GetTotSig()));
@@ -935,7 +924,6 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
     hlength_vs_totSig->Fill(cl->GetTotSig(),l);
     hlength_vs_seedSig->Fill(cl->GetSeedVal(),l);
     hlength_vs_secSig->Fill(cl->GetSecVal(),l);
->>>>>>> 0374635d697110b15fb74ed07ee6b642fd327599
 
 
     totSignal.push_back(cl->GetTotSig());
@@ -949,9 +937,10 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
         max = totSignal[i];
         max_index=i;
       }
-<<<<<<< HEAD
 
     Cluster *clmax = ev->GetCluster(max_index);
+    cTTree = clmax;
+    t1.Fill();
     if (clmax->GetLength() >= 1) {
         std::vector<float> orderedSig = clmax->Sort();
         float eta = clmax->GetEta();
@@ -1000,11 +989,11 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
         hTotSignalCorr_vs_cog->Fill(cog, adcCorrected );
         //hsqrtADC_vs_z->Fill(clmax->GetCharge(),sqrt(totSig));
 
-        if (secSig != 0) {
+        /*if (secSig != 0) {
 
           hseedOsec_vs_eta->Fill(eta,seedSig/secSig);
 
-        }
+        }*/
 
         /*if (thirdSig != 0) {
 
@@ -1024,60 +1013,10 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
     }
   }
   delete func_adc;
-  //delete func_sqrt;
-
-=======
-
-    Cluster *clmax = ev->GetCluster(max_index);
-    if (clmax->GetLength() >= 3) {
-        std::vector<float> orderedSig = clmax->Sort();
-        float eta = clmax->GetEta();
-        float cog = clmax->GetCoG();
-        float totSig = clmax->GetTotSig();
-        float seedSig = orderedSig[0];
-        float secSig = orderedSig[1];
-        float thirdSig = orderedSig[2];
-        /*float seedSig = clmax->GetSeedVal();
-        float secSig = clmax->GetSecVal();*/
-        //double totCh = clmax->GetCharge();
-        int len = clmax->GetLength();
-
-        hTotSignal_vs_cog->Fill(cog , totSig);
-        hSeedSignal_vs_cog->Fill(cog , seedSig);
-        hSecSignal_vs_cog->Fill(cog , secSig);
-
-        hTotSignal_vs_eta->Fill(eta, totSig);
-        hSeedSignal_vs_eta->Fill(eta, seedSig);
-        hSecSignal_vs_eta->Fill(eta, secSig);
-        //hTotSignalCorr_vs_eta->Fill(eta,totSig*func->Eval(eta) );
-
-        //htotQ_vs_cog->Fill(cog, totCh);
-        //htotQ_vs_eta->Fill(eta, totCh );
-        //htotQCorr_vs_eta->Fill(eta, totCh*sqrt(func->Eval(eta)) );
-
-        sqrtTotSig_vs_eta->Fill(eta,sqrt(totSig));
-
-        if (secSig != 0) {
-
-          hseedOsec_vs_eta->Fill(eta,seedSig/secSig);
-
-        }
-        if (thirdSig != 0) {
-
-          hsecOthird_vs_eta->Fill(eta,secSig/thirdSig);
-        }
-        float tot_seed = totSig-seedSig;
-        float tot_seed_sec = totSig-seedSig - secSig;
-        hSigMinusSeed_vs_eta->Fill(eta,tot_seed);
-        //hSigMinusSeed_Sec_vs_eta->Fill(eta,tot_seed_sec);
-    }
-  }
   delete func;
-
-
-}
->>>>>>> 0374635d697110b15fb74ed07ee6b642fd327599
+  //delete func_sqrt;
   return;
+}
 }
 
 template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event) {
