@@ -1,4 +1,3 @@
 # btdaq
-Perugia BT DAQ software
-Alessio Ubaldi fork
-***I work on Analysis.cxx***
+Perugia BT DAQ software.
+my fork. ***I work on Analysis.cxx***.
