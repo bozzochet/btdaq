@@ -48,7 +48,7 @@ else
 	SOFLAGS = -shared
 endif
 
-all: Decode lib PlotCalib
+all: Decode lib PlotCalib libdecode_l0
 
 lib: libEvent.so libEventa.a
 
@@ -58,9 +58,14 @@ libEvent.so:$(LIB_OBJ)
 libEventa.a:$(LIB_OBJ)
 	@ar rv $@ $^
 
+libdecode_l0:
+	@ if ! [ -d ./l0_libdecode ] ; then mkdir -p l0_libdecode; fi
+	cd l0_libdecode && cmake ../l0_firmware/libdecode/ && make -j
+	ln -sf l0_libdecode/src/TBDecode/AMSL0/libtbdecode.dylib ./
+
 Decode: $(ANYOPTION)/anyoption.o $(DEC_OBJ)
 	@echo Linking $@ ...;
-	@$(CXX) $(LDFLAGS) -o$@ $^ -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
+	@$(CXX) $(LDFLAGS) -o$@ $^ -I$(ANYOPTION) $(ROOTDYNAMICLIBS) -Wl,-rpath,./ -L./ -ltbdecode
 
 obj/%.o:src/%.cxx
 	@echo Compiling $< ...;
@@ -81,7 +86,7 @@ PlotCalib: obj/summary.o
 	@ln -fs $@ $@Mute
 
 clean:
-	@rm -Rfv libEventa.a libEvent.so Decode src/rootElibdict.cxx include/rootElibdict.h obj PlotCalib PlotCalibMute
+	@rm -Rfv libEventa.a libEvent.so Decode src/rootElibdict.cxx include/rootElibdict.h obj PlotCalib PlotCalibMute l0_libdecode libtbdecode.dylib
 	@make -C $(ANYOPTION) clean
 	@rm -f rootElibdict_rdict.pcm
 

@@ -128,7 +128,11 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
 
   ProcessCalibration();
 
+  printf("Qui!\n");
+  
   InitHistos();
+
+  printf("Qui!\n");
 }
 
 DecodeDataAMSL0::~DecodeDataAMSL0() {
@@ -213,15 +217,15 @@ void DecodeDataAMSL0::OpenFile(const char *rawDir, const char *calDir, int runSt
   AMSRawFile calStopFile = to_rawFile(calDir, calNumStop);
 
   m_calFilenames = get_filelist(calStartFile, calStopFile);
-  // std::cout << "CAL files:\n";
-  // std::copy(begin(m_calFilenames), end(m_calFilenames), std::ostream_iterator<std::string>(std::cout, "\n"));
+  std::cout << "CAL files:\n";
+  std::copy(begin(m_calFilenames), end(m_calFilenames), std::ostream_iterator<std::string>(std::cout, "\n"));
 
   AMSRawFile dataStartFile = to_rawFile(rawDir, runStart);
   AMSRawFile dataStopFile = to_rawFile(rawDir, runStop);
 
   m_dataFilenames = get_filelist(dataStartFile, dataStopFile);
-  // std::cout << "BEAM files:\n";
-  // std::copy(begin(m_dataFilenames), end(m_dataFilenames), std::ostream_iterator<std::string>(std::cout, "\n"));
+  std::cout << "BEAM files:\n";
+  std::copy(begin(m_dataFilenames), end(m_dataFilenames), std::ostream_iterator<std::string>(std::cout, "\n"));
 }
 
 bool DecodeDataAMSL0::ProcessCalibration() {
