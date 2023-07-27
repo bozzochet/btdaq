@@ -385,9 +385,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL
 
     uint16_t utime_sec_lsb = dummy;
     uint32_t utime_sec = (utime_sec_msb << 16) + utime_sec_lsb;
-    if (event->TimeStamp == 0) {
-      event->TimeStamp = utime_sec;
-    }
+    event->TimeStamp = utime_sec;
 
     fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
     m_total_size_consumed += sizeof(dummy);
@@ -405,9 +403,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL
 
     uint16_t utime_usec_lsb = dummy;
     uint32_t utime_usec = (utime_usec_msb << 16) + utime_usec_lsb;
-    if (event->TimeStamp_ns == 0) {
-      event->TimeStamp_ns = 1000 * utime_usec;
-    }
+    event->TimeStamp_ns = 1000 * utime_usec;
 
     unsigned int current_read_bytes = m_total_size_consumed;
     // int ret = ProcessBlock(file, read_bytes, ev_found, signals_by_ev, nesting_level + 1);
