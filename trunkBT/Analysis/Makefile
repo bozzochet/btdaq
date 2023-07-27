@@ -78,13 +78,15 @@ libEvent:
 	make -C $(DECODE)
 
 clean:
-	rm -Rf ./obj
-	rm -fv ./Analysis
-	rm -fv ./AnalysisFOOT
-	rm -fv ./AnalysisOCA
-	rm -f ./ViewerGUI
-	rm -f ./ViewerFOOT
-	rm -f ./guiDict.cxx
+	@rm -Rf ./obj
+	@rm -fv ./Analysis
+	@rm -fv ./AnalysisFOOT
+	@rm -fv ./AnalysisOCA
+	@rm -fv ./AnalysisAMSL0
+	@rm -f ./ViewerGUI
+	@rm -f ./ViewerFOOT
+	@rm -f ./guiDict.cxx
+	@rm -f create_tree
 
 cleanALL: clean
 	make -C $(DECODE) clean
