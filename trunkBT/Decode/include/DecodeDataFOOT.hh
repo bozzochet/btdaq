@@ -27,13 +27,11 @@ public:
   int ReadOneEvent() override;
   virtual void ClearEvent() final { ev->Clear(); };
 
+  void GetCalFilePrefix(char *calfileprefix, long int runnum) override {
+    sprintf(calfileprefix, "%s/%ld", m_calDir.c_str(), runnum);
+  }
+
 private:
-  std::string m_rawDir;
-  std::string m_calDir;
-
-  std::string m_filename;
-  std::string m_calFilename;
-
   FILE *calfile = nullptr;
   calibFOOT cals[EventFOOT::GetNJINF() * EventFOOT::GetNTDRS()]{};
 

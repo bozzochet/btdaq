@@ -104,8 +104,10 @@ char *DateFromFilename(std::string m_filename) {
   return ret;
 }
 
-DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calNum)
-    : m_rawDir{std::move(rawDir)}, m_calDir{std::move(calDir)} {
+DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calNum) {
+
+  m_rawDir = rawDir;
+  m_calDir = calDir;
 
   // Init base-class members
   kMC = false;
@@ -132,10 +134,10 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
 
   DecodeDataOCA::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runn, int(calNum));
   // we assume we also have the corresponding calibration file
-  std::cout << "Raw file: " << m_filename << '\n';
-  std::cout << "Calibration file: " << m_calFilename << '\n';
+  std::cout << "Raw file: " << m_dataFilenames.at(0) << '\n';
+  std::cout << "Calibration file: " << m_calFilenames.at(0) << '\n';
 
-  std::string filePath = m_rawDir + "/" + m_filename;
+  std::string filePath = m_rawDir + "/" + m_dataFilenames.at(0);
   rawfile = fopen(filePath.c_str(), "r");
   if (!rawfile) {
     printf("Error file %s not found \n", filePath.c_str());
@@ -146,8 +148,8 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
     throw std::runtime_error("Failed to read MAKA run header");
   }
 
-  //  long int runnum = UnixTimeFromFilename(m_filename);
-  char *date = DateFromFilename(m_filename);
+  //  long int runnum = UnixTimeFromFilename(m_dataFilenames);
+  char *date = DateFromFilename(m_dataFilenames.at(0));
   rh->SetRun(runNum);
   rh->SetDate(date);
 
@@ -237,36 +239,39 @@ void DecodeDataOCA::OpenFile(const char *rawDir, const char *calDir, int runNum,
   if (fileName_it == end(fileList)) {
     return;
   }
-  m_filename = *fileName_it;
+  std::string m_dataFilename = *fileName_it;
+  m_dataFilenames.push_back(m_dataFilename);
 
   unsigned int calNumLenght = 36;
 
   if (calNum > 0) {
-    auto calFilename_it = std::find_if(begin(fileList), end(fileList), [calNum, calNumLenght](const std::string &_filename) {
-      // all our files begin with 'SCD_RUN' followed by zero-padded run numbers
-	//	printf("_filename = %s\n", _filename.c_str());
-	// the substr below can throw an error with filename, in the same dir, like 171_0000.cal (that shouldn't be there, but...). So I added this check on the filename size
-	if (_filename.length()!=calNumLenght) {
-	  //	  printf("_filename.length() = %d\n", (int)_filename.length());
-	  return false;
-	}
-	bool is_cal = _filename.substr(13, 3) == "CAL";
-	unsigned int runNum = std::atoi(_filename.substr(7, 5).c_str());
-	//	printf("runNum: %u\n", runNum);
-	return is_cal && (runNum == static_cast<unsigned int>(calNum));
-      });
-    
+    auto calFilename_it =
+        std::find_if(begin(fileList), end(fileList), [calNum, calNumLenght](const std::string &_filename) {
+          // all our files begin with 'SCD_RUN' followed by zero-padded run numbers
+          //	printf("_filename = %s\n", _filename.c_str());
+          // the substr below can throw an error with filename, in the same dir, like 171_0000.cal (that shouldn't be
+          // there, but...). So I added this check on the filename size
+          if (_filename.length() != calNumLenght) {
+            //	  printf("_filename.length() = %d\n", (int)_filename.length());
+            return false;
+          }
+          bool is_cal = _filename.substr(13, 3) == "CAL";
+          unsigned int runNum = std::atoi(_filename.substr(7, 5).c_str());
+          //	printf("runNum: %u\n", runNum);
+          return is_cal && (runNum == static_cast<unsigned int>(calNum));
+        });
+
     if (calFilename_it != end(fileList)) {
-      m_calFilename = *calFilename_it;
+      m_calFilenames.push_back(*calFilename_it);
     }
   } else {
     auto calFilename_it = std::find_if(std::reverse_iterator<decltype(fileName_it)>(fileName_it), rend(fileList),
                                        [calNumLenght](const std::string &_filename) {
-					 return _filename.length()==calNumLenght && _filename.substr(13, 3) == "CAL";
-				       });
+                                         return _filename.length() == calNumLenght && _filename.substr(13, 3) == "CAL";
+                                       });
 
     if (calFilename_it != rend(fileList)) {
-      m_calFilename = *calFilename_it;
+      m_calFilenames.push_back(*calFilename_it);
     }
   }
 }
@@ -301,7 +306,7 @@ bool DecodeDataOCA::ProcessCalibration() {
 
   int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
 
-  std::istringstream is(m_calFilename);
+  std::istringstream is(m_calFilenames.at(0));
   std::string part;
   std::string prefix = "RUN";
   std::string srunnum = "";
@@ -318,7 +323,7 @@ bool DecodeDataOCA::ProcessCalibration() {
   }
 
   // open the calibration file
-  std::string calFilePath = m_rawDir + "/" + m_calFilename;
+  std::string calFilePath = m_rawDir + "/" + m_calFilenames.at(0);
   calfile = fopen(calFilePath.c_str(), "r");
   if (!calfile) {
     printf("Error file %s not found \n", calFilePath.c_str());
@@ -355,7 +360,8 @@ bool DecodeDataOCA::ProcessCalibration() {
     ReadOneEventFromFile(calfile, event.get());
     nEvents++;
     // std::cout << "\rRead " << nEvents << " events" << std::flush;
-    std::cout << "\rRead " << nEvents << " events" << " (found " << m_numBoardsFound << " boards)" << std::flush;
+    std::cout << "\rRead " << nEvents << " events"
+              << " (found " << m_numBoardsFound << " boards)" << std::flush;
 
     for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -374,40 +380,7 @@ bool DecodeDataOCA::ProcessCalibration() {
   std::cout << "DecodeDataOCA::ProcessCalibration took "
             << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
 
-  char calfileprefix[255];
-  sprintf(calfileprefix, "%s/%ld", m_calDir.c_str(), runnum);
-  //  printf("calfileprefix: %s\n", calfileprefix);
-
-  //  printf("m_numBoardsFound: %d\n", m_numBoardsFound);
-  //  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
-  for (unsigned int iTdr = 0; iTdr < 2 * m_numBoardsFound; ++iTdr) {
-//    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-//      printf("%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
-//             cals[iTdr].ped[iCh], cals[iTdr].rsig[iCh], cals[iTdr].sig[iCh], 0.0, 0);
-//    }
-
-    char calfilename[255];
-    sprintf(calfilename, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
-    printf("calfilename: %s\n", calfilename);
-    FILE *calfil = fopen(calfilename, "w");
-    if (!calfil) {
-      printf("problem in opening the %s cal file...\n", calfilename);
-      return true;
-    }
-
-    // writing the common noise (average?)
-    for (unsigned int iVa = 0; iVa < NVAS; ++iVa) {
-      fprintf(calfil, "%02d,\t%lf,\t%lf\n", iVa, 0.0, 0.0);
-    }
-
-    // reading channels
-    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      fprintf(calfil, "%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
-              cals[iTdr].ped[iCh], cals[iTdr].rsig[iCh], cals[iTdr].sig[iCh], 0.0, 0);
-    }
-
-    fclose(calfil);
-  }
+  SaveCalibration<EventOCA, calibOCA>(signals, cals, runn, 2 * m_numBoardsFound, iJinf);
 
   return true;
 }

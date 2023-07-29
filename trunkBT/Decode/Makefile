@@ -63,9 +63,9 @@ libdecode_l0:
 	cd l0_libdecode && cmake ../l0_firmware/libdecode/ && make -j
 	ln -sf l0_libdecode/src/TBDecode/AMSL0/libtbdecode.dylib ./
 
-Decode: $(ANYOPTION)/anyoption.o $(DEC_OBJ)
+Decode: $(ANYOPTION)/anyoption.o $(DEC_OBJ) libdecode_l0
 	@echo Linking $@ ...;
-	@$(CXX) $(LDFLAGS) -o$@ $^ -I$(ANYOPTION) $(ROOTDYNAMICLIBS) -Wl,-rpath,./ -L./ -ltbdecode
+	@$(CXX) $(LDFLAGS) -o$@ $(ANYOPTION)/anyoption.o $(DEC_OBJ) -I$(ANYOPTION) $(ROOTDYNAMICLIBS) -Wl,-rpath,./ -L./ -ltbdecode
 
 obj/%.o:src/%.cxx
 	@echo Compiling $< ...;
@@ -80,7 +80,7 @@ src/rootElibdict.cxx: $(CLASSES_HEADERS) $(TEMPLATE_CLASSES_HEADERS) include/Lin
 	@$(ROOTSYS)/bin/rootcint -f $@ $(CFLAGSFORCINT) $^
 	ln -fs src/rootElibdict_rdict.pcm ./
 
-PlotCalib: obj/summary.o
+PlotCalib: $(ANYOPTION)/anyoption.o obj/summary.o
 	@echo Linking $@ ...;
 	@$(CXX) $(LDFLAGS) -o$@ $^ -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
 	@ln -fs $@ $@Mute

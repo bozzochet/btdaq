@@ -18,8 +18,10 @@ constexpr auto NCHAVA = DecodeDataFOOT::EventFOOT::GetNCHAVA();
 constexpr auto NADCS = DecodeDataFOOT::EventFOOT::GetNADCS();
 } // namespace
 
-DecodeDataFOOT::DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calNum)
-    : m_rawDir{std::move(rawDir)}, m_calDir{std::move(calDir)} {
+DecodeDataFOOT::DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calNum) {
+
+  m_rawDir = rawDir;
+  m_calDir = calDir;
 
   // Init base-class members
   kMC = false;
@@ -40,10 +42,10 @@ DecodeDataFOOT::DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned 
 
   DecodeDataFOOT::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runn, int(calNum));
   // we assume we also have the corresponding calibration file
-  std::cout << "Raw file: " << m_filename << '\n';
-  std::cout << "Calibration file: " << m_calFilename << '\n';
+  std::cout << "Raw file: " << m_dataFilenames.at(0) << '\n';
+  std::cout << "Calibration file: " << m_calFilenames.at(0) << '\n';
 
-  std::string filePath = m_rawDir + "/" + m_filename;
+  std::string filePath = m_rawDir + "/" + m_dataFilenames.at(0);
   rawfile = fopen(filePath.c_str(), "r");
   if (!rawfile) {
     printf("Error file %s not found \n", filePath.c_str());
@@ -84,27 +86,28 @@ void DecodeDataFOOT::OpenFile(const char *rawDir, const char *calDir, int runNum
   if (fileName_it == end(fileList)) {
     return;
   }
-  m_filename = *fileName_it;
+  m_dataFilenames.push_back(*fileName_it);
 
   if (calNum > 0) {
     auto calFilename_it = std::find_if(begin(fileList), end(fileList), [calNum](const std::string &_filename) {
-	// all our files begin with 'SCD_RUN' followed by zero-padded run numbers
-        // the substr below can throw an error with filename, in the same dir, like 171_0000.cal (that shouldn't be there, but...).
-	// In DecodeDataOCA I added a check on the filename size
-	bool is_cal = _filename.substr(13, 3) == "CAL";
-	unsigned int runNum = std::atoi(_filename.substr(7, 5).c_str());
-	return is_cal && (runNum == static_cast<unsigned int>(calNum));
-      });
+      // all our files begin with 'SCD_RUN' followed by zero-padded run numbers
+      // the substr below can throw an error with filename, in the same dir, like 171_0000.cal (that shouldn't be there,
+      // but...).
+      // In DecodeDataOCA I added a check on the filename size
+      bool is_cal = _filename.substr(13, 3) == "CAL";
+      unsigned int runNum = std::atoi(_filename.substr(7, 5).c_str());
+      return is_cal && (runNum == static_cast<unsigned int>(calNum));
+    });
 
     if (calFilename_it != end(fileList)) {
-      m_calFilename = *calFilename_it;
+      m_calFilenames.push_back(*calFilename_it);
     }
   } else {
     auto calFilename_it = std::find_if(std::reverse_iterator<decltype(fileName_it)>(fileName_it), rend(fileList),
                                        [](const std::string &_filename) { return _filename.substr(13, 3) == "CAL"; });
 
     if (calFilename_it != rend(fileList)) {
-      m_calFilename = *calFilename_it;
+      m_calFilenames.push_back(*calFilename_it);
     }
   }
 }
@@ -150,7 +153,7 @@ int DecodeDataFOOT::ProcessCalibration() {
   int iJinf = 0; // in the FOOT case we have just one "collector" (the DAQ PC itself)
 
   // open the calibration file
-  std::string calFilePath = m_rawDir + "/" + m_calFilename;
+  std::string calFilePath = m_rawDir + "/" + m_calFilenames.at(0);
   calfile = fopen(calFilePath.c_str(), "r");
   if (!calfile) {
     printf("Error file %s not found \n", calFilePath.c_str());

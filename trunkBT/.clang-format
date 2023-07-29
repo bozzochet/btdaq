@@ -1,0 +1,6 @@
+# Generated from CLion C/C++ Code Style settings
+BasedOnStyle: LLVM
+Language: Cpp
+ColumnLimit: 120
+TabWidth: 2
+UseTab: Never

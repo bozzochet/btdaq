@@ -41,6 +41,9 @@ private:
 
   bool kMC;
 
+  // in principle not needed, but is a virtual from mother class
+  void GetCalFilePrefix(char *calfileprefix, long int runnum) override{};
+
 public:
   EventAMS *ev;
   RHClassAMS *rh;

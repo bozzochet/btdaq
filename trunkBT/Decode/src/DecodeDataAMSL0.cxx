@@ -70,8 +70,11 @@ bool operator<(const AMSRawFile &lhs, const AMSRawFile &rhs) {
 bool operator<=(const AMSRawFile &lhs, const AMSRawFile &rhs) { return lhs < rhs || lhs == rhs; }
 
 DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int runStop,
-                                 unsigned int calStart, unsigned int calStop)
-    : m_rawDir{std::move(rawDir)}, m_calDir{std::move(calDir)} {
+                                 unsigned int calStart, unsigned int calStop) {
+
+  m_rawDir = rawDir;
+  m_calDir = calDir;
+
   // Init base-class members
   kMC = false;
   runn = runNum;
@@ -86,6 +89,8 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
   m_adcUnits = 1.0;
 
   tdrMap = new laddernumtype[NJINF * NTDRS];
+
+  rawfile = NULL;
 
   pri = false;
 
@@ -128,11 +133,7 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
 
   ProcessCalibration();
 
-  printf("Qui!\n");
-  
   InitHistos();
-
-  printf("Qui!\n");
 }
 
 DecodeDataAMSL0::~DecodeDataAMSL0() {
@@ -174,7 +175,7 @@ DecodeDataAMSL0::~DecodeDataAMSL0() {
       }
     }
   }
-
+  
   if (pri)
     std::cout << "In the destructor..." << std::endl;
   if (rawfile)
@@ -274,6 +275,8 @@ bool DecodeDataAMSL0::ProcessCalibration() {
   auto stop = std::chrono::system_clock::now();
   std::cout << "DecodeDataAMSL0::ProcessCalibration took "
             << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
+
+  SaveCalibration<EventAMSL0, calibAMSL0>(signals, cals, runn, NTDRS, iJinf);
 
   return true;
 }

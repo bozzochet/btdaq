@@ -14,7 +14,6 @@ public:
   using calibAMSL0 = calib<EventAMSL0::GetNCHAVA() * EventAMSL0::GetNVAS()>;
   using RHClassAMSL0 = RHClass<EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>;
 
-public:
   EventAMSL0 *ev;
   RHClassAMSL0 *rh;
 
@@ -45,18 +44,20 @@ public:
 
   int EndOfFile() final;
 
+  void GetCalFilePrefix(char *calfileprefix, long int runnum) override {
+    // First 4 digits: dir number
+    unsigned int dirNum = runnum / 1000;
+    // Last 4 digits: block number
+    unsigned int blockNum = runnum % 1000;
+    sprintf(calfileprefix, "%s/%04d/%03d", m_calDir.c_str(), dirNum, blockNum);
+  }
+
 private:
   bool pri = false;
   bool m_end_of_file{false};
   size_t m_total_size_consumed{0};
 
-  std::string m_rawDir;
-  std::string m_calDir;
-
   size_t m_read_events{0};
-
-  std::vector<std::string> m_dataFilenames{};
-  std::vector<std::string> m_calFilenames{};
 
   FILE *calfile = nullptr;
   calibAMSL0 cals[EventAMSL0::GetNJINF() * EventAMSL0::GetNTDRS()]{};

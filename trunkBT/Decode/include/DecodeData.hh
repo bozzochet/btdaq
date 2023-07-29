@@ -119,6 +119,10 @@ public:
   template <class Event, class calib> void FillRawHistos(int numnum, int Jinfnum, Event *ev, calib *cal);
   template <class Event, class calib>
   void ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals);
+  template <class Event, class calib>
+  void SaveCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals, long int runnum,
+                       unsigned int nTDRs, int iJinf);
+  virtual void GetCalFilePrefix(char *calfileprefix, long int runnum) = 0;
 
   virtual inline int GetNTdrRaw() { return ntdrRaw; }
   virtual inline int GetNTdrCmp() { return ntdrCmp; }
@@ -133,6 +137,14 @@ public:
   virtual void CloseFile();
   virtual int EndOfFile();
 
+protected:
+  std::string m_rawDir;
+  std::string m_calDir;
+
+  std::vector<std::string> m_dataFilenames{};
+  std::vector<std::string> m_calFilenames{};
+
+public:
   // mc
   void SetPrintOff() { pri = 0; }
   void SetPrintOn() { pri = 1; }
@@ -140,7 +152,7 @@ public:
   void SetEvPrintOn() { evpri = 1; }
 
   virtual TTree *GetMCTruth() { return nullptr; }; // CB
-};
+  };
 
 template <class Event, class calib>
 inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnum, int clusadd, int cluslen,
@@ -649,6 +661,55 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
 }
 
 template <class Event, class calib>
+void DecodeData::SaveCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals,
+                                 long int runnum, unsigned int nTDRs, int iJinf) {
+  constexpr auto NJINF = Event::GetNJINF();
+  constexpr auto NTDRS = Event::GetNTDRS();
+  constexpr auto NVAS = Event::GetNVAS();
+  constexpr auto NCHAVA = Event::GetNCHAVA();
+  constexpr auto NADCS = Event::GetNADCS();
+
+  char calfileprefix[255];
+
+  GetCalFilePrefix(calfileprefix, runnum);
+  printf("calfileprefix: %s\n", calfileprefix);
+
+  //  printf("numBoards: %d\n", numBoards);
+  //  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+  for (unsigned int iTdr = 0; iTdr < nTDRs; ++iTdr) {
+    //    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+    //      printf("%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
+    //             cals[iTdr].ped[iCh], cals[iTdr].rsig[iCh], cals[iTdr].sig[iCh], 0.0, 0);
+    //    }
+
+    char calfilename[255];
+    sprintf(calfilename, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
+    printf("calfilename: %s\n", calfilename);
+
+    // FIXME: add a flag in the main to have a different cal dir for output
+    // this is needed if the source cal dir is not writeable
+    FILE *calfil = fopen(calfilename, "w");
+    if (!calfil) {
+      printf("problem in opening the %s cal file...\n", calfilename);
+      return;
+    }
+
+    // writing the common noise (average?)
+    for (unsigned int iVa = 0; iVa < NVAS; ++iVa) {
+      fprintf(calfil, "%02d,\t%lf,\t%lf\n", iVa, 0.0, 0.0);
+    }
+
+    // reading channels
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+      fprintf(calfil, "%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
+              cals[iTdr].ped[iCh], cals[iTdr].rsig[iCh], cals[iTdr].sig[iCh], 0.0, 0);
+    }
+
+    fclose(calfil);
+  }
+}
+
+template <class Event, class calib>
 void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals) {
   constexpr auto NJINF = Event::GetNJINF();
   constexpr auto NTDRS = Event::GetNTDRS();
@@ -736,8 +797,7 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
           hrawsig_each_ch_vs_ev[iCh]->SetBinContent(iEv + 1, signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
         }
       }
-      for (unsigned int iEv = ((int)(signals[iTdr][iCh].size()));
-           iEv < ((int)(signals[iTdr][iCh].size())); iEv++) {
+      for (unsigned int iEv = ((int)(signals[iTdr][iCh].size())); iEv < ((int)(signals[iTdr][iCh].size())); iEv++) {
         hrawsig_filtered[iTdr]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
       }
     }
@@ -783,7 +843,7 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
             //             iEv<((int)((1.0-PERCENTILE)*signals[iTdr][thisVA * NCHAVA + iVACh].size()))) { //probabilemte
             //             non serve e comunque questo è sbagliato
             // if (fabs(sig_to_rawnoise) < 50.0) {
-              values.push_back(sig);
+            values.push_back(sig);
             // }
             // }
           }
