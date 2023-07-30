@@ -217,12 +217,18 @@ void DecodeDataAMSL0::OpenFile(const char *rawDir, const char *calDir, int runSt
   AMSRawFile calStartFile = to_rawFile(calDir, calNumStart);
   AMSRawFile calStopFile = to_rawFile(calDir, calNumStop);
 
+  for (int calNum = calNumStart; calNum <= calNumStop; calNum++)
+    m_calRunnums.push_back(calNum);
+
   m_calFilenames = get_filelist(calStartFile, calStopFile);
   std::cout << "CAL files:\n";
   std::copy(begin(m_calFilenames), end(m_calFilenames), std::ostream_iterator<std::string>(std::cout, "\n"));
 
   AMSRawFile dataStartFile = to_rawFile(rawDir, runStart);
   AMSRawFile dataStopFile = to_rawFile(rawDir, runStop);
+
+  for (int runNum = runStart; runNum <= runStop; runNum++)
+    m_dataRunnums.push_back(runNum);
 
   m_dataFilenames = get_filelist(dataStartFile, dataStopFile);
   std::cout << "BEAM files:\n";
@@ -276,7 +282,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
   std::cout << "DecodeDataAMSL0::ProcessCalibration took "
             << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
 
-  SaveCalibration<EventAMSL0, calibAMSL0>(signals, cals, runn, NTDRS, iJinf);
+  SaveCalibration<EventAMSL0, calibAMSL0>(signals, cals, m_calRunnums.at(0), NTDRS, iJinf);
 
   return true;
 }

@@ -87,6 +87,7 @@ void DecodeDataFOOT::OpenFile(const char *rawDir, const char *calDir, int runNum
     return;
   }
   m_dataFilenames.push_back(*fileName_it);
+  m_dataRunnums.push_back(runNum);
 
   if (calNum > 0) {
     auto calFilename_it = std::find_if(begin(fileList), end(fileList), [calNum](const std::string &_filename) {
@@ -101,6 +102,7 @@ void DecodeDataFOOT::OpenFile(const char *rawDir, const char *calDir, int runNum
 
     if (calFilename_it != end(fileList)) {
       m_calFilenames.push_back(*calFilename_it);
+      m_calRunnums.push_back(calNum);
     }
   } else {
     auto calFilename_it = std::find_if(std::reverse_iterator<decltype(fileName_it)>(fileName_it), rend(fileList),
@@ -108,6 +110,8 @@ void DecodeDataFOOT::OpenFile(const char *rawDir, const char *calDir, int runNum
 
     if (calFilename_it != rend(fileList)) {
       m_calFilenames.push_back(*calFilename_it);
+      // FIX ME: in this second case we should extract the found cal num
+      m_calRunnums.push_back(calNum);
     }
   }
 }

@@ -241,6 +241,7 @@ void DecodeDataOCA::OpenFile(const char *rawDir, const char *calDir, int runNum,
   }
   std::string m_dataFilename = *fileName_it;
   m_dataFilenames.push_back(m_dataFilename);
+  m_dataRunnums.push_back(runNum);
 
   unsigned int calNumLenght = 36;
 
@@ -263,6 +264,7 @@ void DecodeDataOCA::OpenFile(const char *rawDir, const char *calDir, int runNum,
 
     if (calFilename_it != end(fileList)) {
       m_calFilenames.push_back(*calFilename_it);
+      m_calRunnums.push_back(calNum);
     }
   } else {
     auto calFilename_it = std::find_if(std::reverse_iterator<decltype(fileName_it)>(fileName_it), rend(fileList),
@@ -272,6 +274,8 @@ void DecodeDataOCA::OpenFile(const char *rawDir, const char *calDir, int runNum,
 
     if (calFilename_it != rend(fileList)) {
       m_calFilenames.push_back(*calFilename_it);
+      // FIX ME: in this second case we should extract the found cal num
+      m_calRunnums.push_back(calNum);
     }
   }
 }
@@ -380,7 +384,7 @@ bool DecodeDataOCA::ProcessCalibration() {
   std::cout << "DecodeDataOCA::ProcessCalibration took "
             << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
 
-  SaveCalibration<EventOCA, calibOCA>(signals, cals, runn, 2 * m_numBoardsFound, iJinf);
+  SaveCalibration<EventOCA, calibOCA>(signals, cals, m_calRunnums.at(0), 2 * m_numBoardsFound, iJinf);
 
   return true;
 }

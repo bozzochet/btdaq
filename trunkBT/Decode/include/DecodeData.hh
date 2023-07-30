@@ -142,7 +142,9 @@ protected:
   std::string m_calDir;
 
   std::vector<std::string> m_dataFilenames{};
+  std::vector<long int> m_dataRunnums{};
   std::vector<std::string> m_calFilenames{};
+  std::vector<long int> m_calRunnums{};
 
 public:
   // mc
@@ -672,7 +674,7 @@ void DecodeData::SaveCalibration(const std::vector<std::vector<std::vector<float
   char calfileprefix[255];
 
   GetCalFilePrefix(calfileprefix, runnum);
-  printf("calfileprefix: %s\n", calfileprefix);
+  //  printf("calfileprefix: %s\n", calfileprefix);
 
   //  printf("numBoards: %d\n", numBoards);
   //  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
@@ -684,7 +686,7 @@ void DecodeData::SaveCalibration(const std::vector<std::vector<std::vector<float
 
     char calfilename[255];
     sprintf(calfilename, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
-    printf("calfilename: %s\n", calfilename);
+    //    printf("calfilename: %s\n", calfilename);
 
     // FIXME: add a flag in the main to have a different cal dir for output
     // this is needed if the source cal dir is not writeable
