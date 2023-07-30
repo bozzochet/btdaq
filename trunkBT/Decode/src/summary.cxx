@@ -21,6 +21,7 @@
 
 #include "anyoption.h"
 
+#define NTDR 24  // maximum number of TDR
 #define NJINF 24 // maximum number of JINF
 
 void LinesVas(int nva = 16, int nch_for_va = 64);
@@ -34,7 +35,8 @@ class ConfPars {
 
 public:
   char CALPATH[255];
-  unsigned int refmask;
+  unsigned int TDRrefmask;
+  unsigned int JINFrefmask;
   int flavour; // 0: AMS, 1: FOOT; 2: OCA, 3: AMSL0
   double PedYLim;
   ConfPars();
@@ -43,7 +45,8 @@ public:
 ConfPars::ConfPars() {
   sprintf(CALPATH, "./");
   flavour = 0;
-  refmask = 0;
+  TDRrefmask = 0;
+  JINFrefmask = 0;
   PedYLim = 2000.0;
 }
 
@@ -157,7 +160,7 @@ int main(int argc, char **argv) {
     sprintf(caldir, "%s/", opt->getValue("caldir"));
   }
   sprintf(CPars->CALPATH, "%s", caldir);
-  printf("-- %s --\n", CPars->CALPATH);
+  //  printf("-- %s --\n", CPars->CALPATH);
 
   char nameprefix[255] = "";
   if (opt->getValue("prefix")) {
@@ -189,7 +192,8 @@ int main(int argc, char **argv) {
 
 void RefMask(int run_number, int jinfnum, const char *nameprefixin) {
 
-  CPars->refmask = 0;
+  CPars->TDRrefmask = 0;
+  CPars->JINFrefmask = 0;
 
   char calfileprefix[512];
 
@@ -217,11 +221,12 @@ void RefMask(int run_number, int jinfnum, const char *nameprefixin) {
 
   char calfilename[512];
 
-  for (int ii = 0; ii < 24; ii++) {
+  for (int ii = 0; ii < NTDR; ii++) {
     sprintf(calfilename, "%s_%02d%02d.cal", calfileprefix, jinfnum, ii);
     struct stat buf;
     if (stat(calfilename, &buf) == 0) {
-      CPars->refmask = CPars->refmask | 1 << ii;
+      CPars->TDRrefmask = CPars->TDRrefmask | 1 << ii;
+      CPars->JINFrefmask = CPars->JINFrefmask | 1 << jinfnum;
       printf("I,ve found %s for TDR number %d\n", calfilename, ii);
     }
   }
@@ -230,59 +235,72 @@ void RefMask(int run_number, int jinfnum, const char *nameprefixin) {
 
 int SummaryComplete(char *dir, int run_number, int jinfnum, const char *outkind, const char *nameprefix) {
   int ret = 0;
-  int lasttdr = 0;
-  int tdrcount = 0;
 
-  char calfileprefix[255];
-  char nameouttemp[255];
-  char nameout[255];
-  char nameprefixtemp[255];
-  //  char systemcommand[255];
+  if (CPars->JINFrefmask & (1 << jinfnum)) {
+    int lasttdr = 0;
+    int tdrcount = 0;
 
-  if (nameprefix[0] != 0)
-    sprintf(nameprefixtemp, "summary-%s_", nameprefix);
-  else
-    sprintf(nameprefixtemp, "summary-%s", nameprefix);
+    char calfileprefix[255];
+    char nameouttemp[255];
+    char nameout[255];
+    char nameprefixtemp[255];
+    //  char systemcommand[255];
 
-  //  sprintf(calfileprefix,"%s/%s%02d_%06d", dir, nameprefixtemp, jinfnum, run_number);
-  sprintf(calfileprefix, "%s/%s%02d_%d", dir, nameprefixtemp, jinfnum, run_number);
-  //  printf("%s\n", calfileprefix);
-  sprintf(nameout, "%s.cal.%s", calfileprefix, outkind);
+    if (nameprefix[0] != 0)
+      sprintf(nameprefixtemp, "summary-%s_", nameprefix);
+    else
+      sprintf(nameprefixtemp, "summary-%s", nameprefix);
 
-  //  sprintf(systemcommand,"evince %s &",nameout);
-
-  for (int ii = 0; ii < 24; ii++) {
-    //    LPRINTF("%d : %d\n", ii, CPars->refmask&(1<<ii)); //only for debug
-    if (CPars->refmask & (1 << ii)) {
-      tdrcount++;
+    if (CPars->flavour == 3) { // AMSL0
+      // First 4 digits: dir number
+      unsigned int dirNum = run_number / 1000;
+      // Last 4 digits: block number
+      unsigned int blockNum = run_number % 1000;
+      sprintf(calfileprefix, "%s/%04d/%s%02d_%03d", dir, dirNum, nameprefixtemp, jinfnum, blockNum);
+    } else {
+      //  sprintf(calfileprefix,"%s/%s%02d_%06d", dir, nameprefixtemp, jinfnum, run_number);
+      sprintf(calfileprefix, "%s/%s%02d_%d", dir, nameprefixtemp, jinfnum, run_number);
     }
-  }
-  if (tdrcount != 0)
-    printf("We have %d file of calibrations for run #%d, Jinf #%d, in the directory \"%s\" with prefix name \"%s\"\n",
-           tdrcount, run_number, jinfnum, dir, nameprefix);
+    //    printf("calfileprefix: %s\n", calfileprefix);
+    sprintf(nameout, "%s.cal.%s", calfileprefix, outkind);
+    //    printf("nameout: %s\n", nameout);
 
-  for (int ii = 0; ii < 24; ii++) {
-    //    LPRINTF("%d : %d\n", ii, CPars->refmask&(1<<ii)); //only for debug
-    if (CPars->refmask & (1 << ii)) {
-      lasttdr++;
-      printf("Summarizing %dth calibration file...\n", lasttdr);
-      if (lasttdr == tdrcount) {
-        printf("last TDR (# %d)..\n", ii);
-        sprintf(nameouttemp, "%s)", nameout);
-      } else if (lasttdr == 1) {
-        sprintf(nameouttemp, "%s(", nameout);
-        printf("first TDR (# %d)...\n", ii);
-      } else {
-        sprintf(nameouttemp, "%s", nameout);
-        printf("n-th TDR (# %d)...\n", ii);
+    //  sprintf(systemcommand,"evince %s &",nameout);
+
+    for (int ii = 0; ii < NTDR; ii++) {
+      //    LPRINTF("%d : %d\n", ii, CPars->TDRrefmask&(1<<ii)); //only for debug
+      if (CPars->TDRrefmask & (1 << ii)) {
+        tdrcount++;
       }
-      ret = Summary(dir, run_number, jinfnum, ii, nameprefix, nameouttemp, outkind);
     }
+    if (tdrcount != 0)
+      printf("We have %d file of calibrations for run #%d, Jinf #%d, in the directory \"%s\" with prefix name \"%s\"\n",
+             tdrcount, run_number, jinfnum, dir, nameprefix);
+
+    for (int ii = 0; ii < NTDR; ii++) {
+      //    LPRINTF("%d : %d\n", ii, CPars->TDRrefmask&(1<<ii)); //only for debug
+      if (CPars->TDRrefmask & (1 << ii)) {
+        lasttdr++;
+        printf("Summarizing %dth calibration file...\n", lasttdr);
+        if (lasttdr == tdrcount) {
+          printf("last TDR (# %d)..\n", ii);
+          sprintf(nameouttemp, "%s)", nameout);
+        } else if (lasttdr == 1) {
+          sprintf(nameouttemp, "%s(", nameout);
+          printf("first TDR (# %d)...\n", ii);
+        } else {
+          sprintf(nameouttemp, "%s", nameout);
+          printf("n-th TDR (# %d)...\n", ii);
+        }
+        ret = Summary(dir, run_number, jinfnum, ii, nameprefix, nameouttemp, outkind);
+      }
+    }
+    //  struct stat buff;
+    // if (!mute) {
+    //   if (stat(nameout,&buff)==0) system(systemcommand);
+    // }
   }
-  //  struct stat buff;
-  // if (!mute) {
-  //   if (stat(nameout,&buff)==0) system(systemcommand);
-  // }
+
   return ret;
 }
 
@@ -311,7 +329,7 @@ Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, const char
   }
 
   sprintf(filename, "%s_%02d%02d.cal", calfileprefix, jinfnum, tdr_number);
-  printf("filename: %s\n", filename);
+  //  printf("filename: %s\n", filename);
 
   ret = Summary(filename, nameout, outkind);
 
