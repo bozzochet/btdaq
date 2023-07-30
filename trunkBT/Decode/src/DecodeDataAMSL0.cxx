@@ -69,6 +69,14 @@ bool operator<(const AMSRawFile &lhs, const AMSRawFile &rhs) {
 
 bool operator<=(const AMSRawFile &lhs, const AMSRawFile &rhs) { return lhs < rhs || lhs == rhs; }
 
+void DecodeDataAMSL0::DumpRunHeader() {
+  if (pri) {
+    printf("********* READVALS: %d %d %d %d \n", (ntdrRaw + ntdrCmp), nJinf, ntdrRaw, ntdrCmp);
+    printf("Dumping the file headers that are going to be written in the ROOT files...\n");
+  }
+  rh->Print();
+}
+
 DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int runStop,
                                  unsigned int calStart, unsigned int calStop) {
 
@@ -103,30 +111,12 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
 
   // FIXME: I don't think this info is available for AMSL0 files...
   // char *date = DateFromFilename(m_filename);
-  // rh->SetRun(runNum);
+  rh->SetRun(runNum);
   // rh->SetDate(date);
 
-  // FIXME: This is where we would read a run header if we had one...
-  // if (!ReadFileHeader(rawfile, rh)) {
-  //   throw std::runtime_error("Failed to read AMSL0 run header");
-  // }
-
-  // we assume that from now on we know how many boards are in the DAQ
-  ntdrRaw = NTDRS;
-  ntdrCmp = 0;
-  for (unsigned int iTdr = 0; iTdr < NJINF * NTDRS; ++iTdr) {
-    tdrMap[iTdr] = {iTdr, 0}; // putting type at 0 since they're all RAW, so far...
+  if (!ReadFileHeader(rawfile, rh)) {
+    throw std::runtime_error("Failed to read AMSL0 run header");
   }
-
-  // Jinf has no real meaning
-  nJinf = 1;
-  JinfMap[0] = 1;
-
-  // Update the ROOT run header
-  rh->SetJinfMap(JinfMap);
-  rh->SetNTdrsRaw(ntdrRaw);
-  rh->SetNTdrsCmp(ntdrCmp);
-  rh->SetTdrMap(tdrMap);
 
   // what is a run header for AMSL0 anyway?
   DecodeDataAMSL0::DumpRunHeader();
@@ -236,11 +226,11 @@ void DecodeDataAMSL0::OpenFile(const char *rawDir, const char *calDir, int runSt
 }
 
 bool DecodeDataAMSL0::ProcessCalibration() {
-  int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
-
+  int iJinf = 0; // so far only the 1 Jinf case is managed
   auto start = std::chrono::system_clock::now();
 
-  std::vector<std::vector<std::vector<float>>> signals(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
+  std::vector<std::vector<std::vector<float>>> signals((ntdrRaw + ntdrCmp),
+                                                       std::vector<std::vector<float>>(NVAS * NCHAVA));
 
   for (const auto &calFilePath : m_calFilenames) {
     m_total_size_consumed = 0;
@@ -262,12 +252,12 @@ bool DecodeDataAMSL0::ProcessCalibration() {
       if (result)
         continue;
       nEvents++;
-      // std::cout << "\rRead " << nEvents << " events" << std::flush;
+      std::cout << "\rRead " << nEvents << " events" << std::flush;
 
       //      if (nEvents > 1000)
       //        break;
 
-      for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+      for (unsigned int iTdr = 0; iTdr < (ntdrRaw + ntdrCmp); ++iTdr) {
         for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
           signals[iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
         }
@@ -282,7 +272,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
   std::cout << "DecodeDataAMSL0::ProcessCalibration took "
             << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
 
-  SaveCalibration<EventAMSL0, calibAMSL0>(signals, cals, m_calRunnums.at(0), NTDRS, iJinf);
+  SaveCalibration<EventAMSL0, calibAMSL0>(signals, cals, m_calRunnums.at(0), (ntdrRaw + ntdrCmp), iJinf);
 
   return true;
 }
@@ -302,6 +292,93 @@ int DecodeDataAMSL0::GetTdrType(size_t pos) {
   }
   return tdrMap[pos].second;
 }
+
+bool DecodeDataAMSL0::ReadFileHeader(FILE *file, RHClassAMSL0 *rhc) {
+
+  /*
+  constexpr uint32_t c_bRunHeader = 0xb01adeee;
+
+  int fstat = 0;
+
+  uint32_t bRunHeader;
+  fstat = ReadFile(&bRunHeader, sizeof(bRunHeader), 1, file);
+  if (fstat == -1 || bRunHeader != c_bRunHeader) {
+    printf("Mismatch in run header %x (expected %x)\n", bRunHeader, c_bRunHeader);
+    return false;
+  }
+
+  uint32_t runUnixTime;
+  fstat = ReadFile(&runUnixTime, sizeof(runUnixTime), 1, file);
+  if (fstat == -1)
+    return false;
+  rhc->SetUnixTime(runUnixTime);
+
+  uint32_t gitSHA;
+  fstat = ReadFile(&gitSHA, sizeof(gitSHA), 1, file);
+  if (fstat == -1)
+    return false;
+  std::stringstream stream;
+  stream << std::hex << gitSHA;
+  rhc->SetGitSHA(stream.str());
+
+  uint32_t dummy{0};
+  fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
+  if (fstat == -1)
+    return false;
+  unsigned int numBoards = dummy & 0xFF;
+  dummy >>= 16;
+  unsigned int patch = dummy & 0xF;
+  dummy >>= 4;
+  unsigned int minor = dummy & 0xF;
+  dummy >>= 4;
+  unsigned int major = dummy & 0xF;
+  dummy >>= 4;
+  std::bitset<4> runtype = dummy & 0xF;
+  // make sure only one bit is set
+  if (runtype.count() != 1) {
+    throw std::runtime_error("More than one bit set for runtype");
+  }
+  rhc->SetRunType(static_cast<RHClassOCA::RunType>(runtype.to_ulong()));
+
+  rhc->SetNumBoards(numBoards);
+  rhc->SetDataVersion(major, minor, patch);
+
+  m_numBoards = numBoards;
+
+  for (unsigned int i = 0; i < numBoards; ++i) {
+    uint16_t boardID;
+    fstat = ReadFile(&boardID, sizeof(boardID), 1, file);
+    if (fstat == -1)
+      return false;
+    rhc->AddBoardID(boardID);
+  }
+  */
+
+  ntdrCmp = 0;
+  ntdrRaw = 1;
+  nJinf = 1; // number of LINFs
+  JinfMap[0] = 1;
+
+  // we assume that from now on we know how many boards are in the DAQ
+  for (unsigned int iTdr = 0; iTdr < nJinf * (ntdrCmp + ntdrRaw); ++iTdr) {
+    tdrMap[iTdr] = {iTdr, 0}; // putting type at 0 since they're all RAW, so far...
+  }
+
+  // Update the ROOT run header
+  rh->SetJinfMap(JinfMap);
+  rh->SetNTdrsRaw(ntdrRaw);
+  rh->SetNTdrsCmp(ntdrCmp);
+  rh->SetTdrMap(tdrMap);
+  rhc->AddBoardID(0);
+  rhc->SetNumBoards(1);
+
+  // rhc->SetUnixTime(runUnixTime);
+  // rhc->SetGitSHA(stream.str());
+  rhc->SetRunType(RHClassAMSL0::RunType::SC);
+  // rhc->SetDataVersion(major, minor, patch);
+
+  return true;
+};
 
 int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL0 *event) {
   static constexpr uint32_t fine_time_env_dt = 0x1f0383;
@@ -559,15 +636,15 @@ int DecodeDataAMSL0::ReadOneEvent() {
     }
   }
 
-  int iJinf = 0; // in the L0 case we have just one "collector" (the DAQ PC itself)
-  // FIXME: For now only one board (2022/11/23)
-  int iTdr = 0;
-
-  // copy calibration data...
-  for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-    ev->CalPed[iJinf][iTdr][iCh] = cals[iTdr].ped[iCh];
-    ev->CalSigma[iJinf][iTdr][iCh] = cals[iTdr].sig[iCh];
-    ev->CalStatus[iJinf][iTdr][iCh] = cals[iTdr].status[iCh];
+  for (unsigned int iJinf = 0; iJinf < nJinf; ++iJinf) {
+    for (unsigned int iTdr = 0; iTdr < (ntdrRaw + ntdrCmp); ++iTdr) {
+      // copy calibration data...
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+        ev->CalPed[iJinf][iTdr][iCh] = cals[iTdr].ped[iCh];
+        ev->CalSigma[iJinf][iTdr][iCh] = cals[iTdr].sig[iCh];
+        ev->CalStatus[iJinf][iTdr][iCh] = cals[iTdr].status[iCh];
+      }
+    }
   }
 
   pri = false;
@@ -582,11 +659,13 @@ int DecodeDataAMSL0::ReadOneEvent() {
 
   // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this
   // point, so it should return.
-  for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
-    if (kClusterize) {
-      Clusterize(iTDR, 0, ev, &cals[iTDR]);
-    } else {
-      FillRawHistos(iTDR, 0, ev, &cals[iTDR]);
+  for (unsigned int iJinf = 0; iJinf < nJinf; ++iJinf) {
+    for (unsigned int iTdr = 0; iTdr < (ntdrRaw + ntdrCmp); ++iTdr) {
+      if (kClusterize) {
+        Clusterize(iTdr, iJinf, ev, &cals[iTdr]);
+      } else {
+        FillRawHistos(iTdr, iJinf, ev, &cals[iTdr]);
+      }
     }
   }
 

@@ -10,7 +10,7 @@
 
 class DecodeDataAMSL0 : public DecodeData {
 public:
-  using EventAMSL0 = GenericEvent<1, 2, 64, 8, 16, 0>;
+  using EventAMSL0 = GenericEvent<1, 9, 64, 8, 16, 0>;
   using calibAMSL0 = calib<EventAMSL0::GetNCHAVA() * EventAMSL0::GetNVAS()>;
   using RHClassAMSL0 = RHClass<EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>;
 
@@ -66,7 +66,7 @@ private:
   unsigned int m_numBoards = 12;     // maximum
   unsigned int m_numBoardsFound = 0; // found during ReadOneEventFromFile
 
-  void DumpRunHeader() override{};
+  void DumpRunHeader() override;
 
   void InitHistos();
 

@@ -719,7 +719,13 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
   constexpr auto NCHAVA = Event::GetNCHAVA();
   constexpr auto NADCS = Event::GetNADCS();
 
+  // FIX me: it manages only 1 Jinf
+  // signals is vector<vector<vector>>> --> [tdr][ch][ev]
+
   auto signals_sorted = signals;
+
+  // FIXME:
+  //  I'm not sure at all it can manage many Jinfs
 
   // FIXME: Some test calibrations contain too many events, stop at 10k and use the first half for ped and sigma raw,
   // and the second half for sigma
@@ -729,7 +735,7 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
   // MD: e poi ricominci (fino a massimo 5k) fillando 0, 1, 2, etc... fino a dove arrivi
   // MD: se sono più di 10k li hai sostituiti tutti
 
-  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+  for (unsigned int iTdr = 0; iTdr < signals.size(); ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
 
       std::sort(begin(signals_sorted[iTdr][iCh]), end(signals_sorted[iTdr][iCh]));
@@ -771,7 +777,7 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
   TH1F *hADC_each_ch_vs_ev[NVAS * NCHAVA];    // only for Tdr 0
   TH1F *hrawsig_filtered[NTDRS];
   TH1F *hsig[NTDRS];
-  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+  for (unsigned int iTdr = 0; iTdr < signals.size(); ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh)
       if (iTdr == 0) {
         hrawsig_each_ch[iCh] =
@@ -788,7 +794,7 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
     //    printf("%d) %p %p %p\n", iTdr, hrawsig[iTdr], hrawsig_filtered[iTdr], hsig[iTdr]);
   }
 
-  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+  for (unsigned int iTdr = 0; iTdr < signals.size(); ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
       for (unsigned int iEv = 0; iEv < signals[iTdr][iCh].size(); iEv++) {
         hrawsig[iTdr]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
@@ -810,10 +816,10 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
 
   unsigned int lastVA = std::numeric_limits<unsigned int>::max();
   std::vector<float> common_noise(NVAS);
-  std::vector<std::vector<unsigned int>> processed_events(NTDRS, std::vector<unsigned int>(NVAS * NCHAVA));
+  std::vector<std::vector<unsigned int>> processed_events(signals.size(), std::vector<unsigned int>(NVAS * NCHAVA));
   // std::vector<std::vector<unsigned int> > processed_events;
-  // processed_events.resize(NTDRS);
-  // for (int ii=0; ii<NTDRS; ii++) {
+  // processed_events.resize(signals.size());
+  // for (int ii=0; ii<signals.size(); ii++) {
   //   processed_events[ii].resize(NVAS * NCHAVA);
   // }
 
@@ -822,7 +828,7 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
   //  meglio tenere commentato che sono molti plot
 #endif
   for (unsigned int iEv = 0; iEv < signals[0][0].size(); ++iEv) {
-    for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+    for (unsigned int iTdr = 0; iTdr < signals.size(); ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
         unsigned int thisVA = iCh / NCHAVA;
         //	printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
@@ -890,7 +896,7 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
     }
   }
 
-  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+  for (unsigned int iTdr = 0; iTdr < signals.size(); ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
       if (processed_events[iTdr][iCh] == 0 && cals[iTdr].sig[iCh] != 0)
         std::cout << "     *****" << cals[iTdr].sig[iCh] << std::endl;

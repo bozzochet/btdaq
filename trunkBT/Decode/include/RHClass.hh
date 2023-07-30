@@ -25,7 +25,7 @@ public:
 private:
     //! Run number
     int Run{0};
-    char date[50]{""};
+    std::string date{""};
     int nJinf{0};
     int JinfMap[NJINF]{0};
     int ntdrRaw{0};
@@ -61,11 +61,11 @@ public:
     inline int GetRun() { return Run; }
 
     inline void SetDate(char *_date) {
-        snprintf(date, 50, "%s", _date);
+        date = _date;
         return;
     }
 
-    inline const char *GetDate() { return date; }
+    inline const std::string GetDate() { return date; }
 
     constexpr inline int GetNJinfs() { return NJINF; }
 
