@@ -17,7 +17,8 @@ TEMPLATE_CLASSES_HEADERS = $(TEMPLATE_CLASSES:%=include/%)
 
 ANYOPTION=AnyOption
 
-LIBDECODE_L0=libdecode_l0
+L0_FIRMWARE=deps/l0_firmware
+LIBDECODE_L0=deps/libdecode_l0
 
 ROOTVERSION      := $(shell $(ROOTSYS)/bin/root-config --version | cut -b1-1)
 
@@ -61,9 +62,9 @@ libEventa.a:$(LIB_OBJ)
 	@ar rv $@ $^
 
 $(LIBDECODE_L0)_install/lib/libtbdecode.so:
-	ln -sf ./l0_firmware/libdecode ./$(LIBDECODE_L0)
-	@ if ! [ -d ./$(LIBDECODE_L0)_build ] ; then mkdir -p $(LIBDECODE_L0)_build; fi
-	cd $(LIBDECODE_L0)_build && cmake ../$(LIBDECODE_L0)/ -DCMAKE_INSTALL_PREFIX=../$(LIBDECODE_L0)_install/ && make -j && make install
+	cmake -S $(L0_FIRMWARE)/libdecode -B $(LIBDECODE_L0)_build -DCMAKE_INSTALL_PREFIX=$(LIBDECODE_L0)_install
+	cmake --build $(LIBDECODE_L0)_build -- -j
+	cmake --build $(LIBDECODE_L0)_build --target install
 	@ if ! [ -f $(LIBDECODE_L0)_install/lib/libtbdecode.so ] ; then cd $(LIBDECODE_L0)_install/lib && ln -sf libtbdecode.dylib libtbdecode.so; fi
 
 Decode: $(ANYOPTION)/anyoption.o $(LIBDECODE_L0)_install/lib/libtbdecode.so $(DEC_OBJ)
