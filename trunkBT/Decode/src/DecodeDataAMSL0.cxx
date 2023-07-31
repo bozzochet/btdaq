@@ -114,7 +114,15 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
   rh->SetRun(runNum);
   // rh->SetDate(date);
 
-  if (!ReadFileHeader(rawfile, rh)) {
+  bool rfherr = false;
+  if (decodestyle == 0) {
+    if (!ReadFileHeader(rawfile, rh))
+      rfherr = true;
+  } else {
+    if (!ReadFileHeader(&rawdatastream, rh))
+      rfherr = true;
+  }
+  if (rfherr) {
     throw std::runtime_error("Failed to read AMSL0 run header");
   }
 
@@ -213,6 +221,9 @@ void DecodeDataAMSL0::OpenFile(const char *rawDir, const char *calDir, int runSt
   m_calFilenames = get_filelist(calStartFile, calStopFile);
   std::cout << "CAL files:\n";
   std::copy(begin(m_calFilenames), end(m_calFilenames), std::ostream_iterator<std::string>(std::cout, "\n"));
+  for (const auto &calFilePath : m_calFilenames) {
+    rawcalstream.AddFile(calFilePath);
+  }
 
   AMSRawFile dataStartFile = to_rawFile(rawDir, runStart);
   AMSRawFile dataStopFile = to_rawFile(rawDir, runStop);
@@ -223,6 +234,9 @@ void DecodeDataAMSL0::OpenFile(const char *rawDir, const char *calDir, int runSt
   m_dataFilenames = get_filelist(dataStartFile, dataStopFile);
   std::cout << "BEAM files:\n";
   std::copy(begin(m_dataFilenames), end(m_dataFilenames), std::ostream_iterator<std::string>(std::cout, "\n"));
+  for (const auto &dataFilePath : m_dataFilenames) {
+    rawdatastream.AddFile(dataFilePath);
+  }
 }
 
 bool DecodeDataAMSL0::ProcessCalibration() {
@@ -248,7 +262,11 @@ bool DecodeDataAMSL0::ProcessCalibration() {
     // Some test calibrations contain too many events, stop at 10k
     unsigned int nEvents{0};
     while (!feof(calfile) && nEvents < 10000) {
-      bool result = ReadOneEventFromFile(calfile, event.get());
+      bool result = true;
+      if (decodestyle == 0)
+        result = ReadOneEventFromFile(calfile, event.get());
+      else
+        result = ReadOneEventFromFile(&rawcalstream, event.get());
       if (result)
         continue;
       nEvents++;
@@ -294,65 +312,8 @@ int DecodeDataAMSL0::GetTdrType(size_t pos) {
 }
 
 bool DecodeDataAMSL0::ReadFileHeader(FILE *file, RHClassAMSL0 *rhc) {
-
-  /*
-  constexpr uint32_t c_bRunHeader = 0xb01adeee;
-
-  int fstat = 0;
-
-  uint32_t bRunHeader;
-  fstat = ReadFile(&bRunHeader, sizeof(bRunHeader), 1, file);
-  if (fstat == -1 || bRunHeader != c_bRunHeader) {
-    printf("Mismatch in run header %x (expected %x)\n", bRunHeader, c_bRunHeader);
-    return false;
-  }
-
-  uint32_t runUnixTime;
-  fstat = ReadFile(&runUnixTime, sizeof(runUnixTime), 1, file);
-  if (fstat == -1)
-    return false;
-  rhc->SetUnixTime(runUnixTime);
-
-  uint32_t gitSHA;
-  fstat = ReadFile(&gitSHA, sizeof(gitSHA), 1, file);
-  if (fstat == -1)
-    return false;
-  std::stringstream stream;
-  stream << std::hex << gitSHA;
-  rhc->SetGitSHA(stream.str());
-
-  uint32_t dummy{0};
-  fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
-  if (fstat == -1)
-    return false;
-  unsigned int numBoards = dummy & 0xFF;
-  dummy >>= 16;
-  unsigned int patch = dummy & 0xF;
-  dummy >>= 4;
-  unsigned int minor = dummy & 0xF;
-  dummy >>= 4;
-  unsigned int major = dummy & 0xF;
-  dummy >>= 4;
-  std::bitset<4> runtype = dummy & 0xF;
-  // make sure only one bit is set
-  if (runtype.count() != 1) {
-    throw std::runtime_error("More than one bit set for runtype");
-  }
-  rhc->SetRunType(static_cast<RHClassOCA::RunType>(runtype.to_ulong()));
-
-  rhc->SetNumBoards(numBoards);
-  rhc->SetDataVersion(major, minor, patch);
-
-  m_numBoards = numBoards;
-
-  for (unsigned int i = 0; i < numBoards; ++i) {
-    uint16_t boardID;
-    fstat = ReadFile(&boardID, sizeof(boardID), 1, file);
-    if (fstat == -1)
-      return false;
-    rhc->AddBoardID(boardID);
-  }
-  */
+  // essentially this is not reading anything from the file
+  // is just assigning things
 
   ntdrCmp = 0;
   ntdrRaw = 1;
@@ -378,7 +339,48 @@ bool DecodeDataAMSL0::ReadFileHeader(FILE *file, RHClassAMSL0 *rhc) {
   // rhc->SetDataVersion(major, minor, patch);
 
   return true;
+}
+
+bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream, RHClassAMSL0 *rhc) {
+
+  int empty_blocks = 1;
+
+  printf("Qui 1!\n");
+
+  size_t nblocks{0};
+  while (!rawfilestream->EndOfStream() && nblocks < 20) {
+    auto block = TBDecode::L0::AMSBlock::DecodeAMSBlock(rawfilestream->CurrentFile());
+    std::visit(
+        TBDecode::Utils::overloaded{
+            [&empty_blocks](TBDecode::L0::AMSBlock::EmptyBlock &block) {
+              empty_blocks++;
+              if (empty_blocks > 1) {
+                printf("**** %d empty blocks found:", empty_blocks);
+              }
+            },
+            [](TBDecode::L0::AMSBlock::UnknownBlock &block) { printf("Unknown!\n"); },
+            [](TBDecode::L0::AMSBlock::SCIData &block) { printf("SCI!\n"); },
+            [](TBDecode::L0::AMSBlock::FineTimeEnvelope &block) { printf("FineTimeEnvelope\n"); },
+            [](TBDecode::L0::AMSBlock::ServerConfigInfo &block) { printf("ServerConfigInfo\n"); },
+            [](TBDecode::L0::AMSBlock::ConfigInfo &block) { printf("Config\n"); },
+            [](TBDecode::L0::AMSBlock::ControlQList &block) { printf("ControlQList\n"); },
+            [](TBDecode::L0::AMSBlock::CommandEnvelope &block) { printf("CommandEnvelope\n"); },
+            [](TBDecode::L0::AMSBlock::BufferPointers &block) { printf("BufferPointers\n"); },
+            [](TBDecode::L0::AMSBlock::EventBuilderStart &block) { printf("EvenBuilderStart\n"); },
+            [](TBDecode::L0::AMSBlock::EventBuilderStop &block) { printf("EvenBuilderStop\n"); },
+            [](TBDecode::L0::AMSBlock::SetEventBuilderPollingList &block) { printf("SetEvenBuilderPollingList\n"); },
+            [](TBDecode::L0::AMSBlock::TriggerAndDAQControl &block) { printf("TriggerAndDAQControl\n"); },
+        },
+        block);
+    ++nblocks;
+  }
+
+  printf("Qui 2!\n");
+
+  return true;
 };
+
+int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event) { return 0; }
 
 int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL0 *event) {
   static constexpr uint32_t fine_time_env_dt = 0x1f0383;
@@ -614,25 +616,28 @@ int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL
 }
 
 int DecodeDataAMSL0::ReadOneEvent() {
-  static bool first_call = true;
-  static auto filenameIt = begin(m_dataFilenames);
-  if (first_call) {
-    std::string filename = *filenameIt;
-    std::cout << "\rOpening data file " << filename << '\n';
-    rawfile = fopen(filename.c_str(), "r");
-    first_call = false;
 
-    m_total_size_consumed = 0;
-  }
-
-  if (feof(rawfile)) {
-    if (++filenameIt != end(m_dataFilenames)) {
+  if (decodestyle == 0) {
+    static bool first_call = true;
+    static auto filenameIt = begin(m_dataFilenames);
+    if (first_call) {
       std::string filename = *filenameIt;
       std::cout << "\rOpening data file " << filename << '\n';
       rawfile = fopen(filename.c_str(), "r");
-    } else {
-      m_end_of_file = true;
-      return 0;
+      first_call = false;
+
+      m_total_size_consumed = 0;
+    }
+
+    if (feof(rawfile)) {
+      if (++filenameIt != end(m_dataFilenames)) {
+        std::string filename = *filenameIt;
+        std::cout << "\rOpening data file " << filename << '\n';
+        rawfile = fopen(filename.c_str(), "r");
+      } else {
+        m_end_of_file = true;
+        return 0;
+      }
     }
   }
 
@@ -648,7 +653,11 @@ int DecodeDataAMSL0::ReadOneEvent() {
   }
 
   pri = false;
-  int retVal = ReadOneEventFromFile(rawfile, ev);
+  int retVal = 0;
+  if (decodestyle == 0)
+    retVal = ReadOneEventFromFile(rawfile, ev);
+  else
+    retVal = ReadOneEventFromFile(&rawdatastream, ev);
   if (!retVal) {
     ev->SetEvtNum(m_read_events);
     m_read_events++;

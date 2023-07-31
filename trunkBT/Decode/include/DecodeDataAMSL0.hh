@@ -8,6 +8,9 @@
 #include "DecodeData.hh"
 #include "GenericEvent.hh"
 
+#include "TBDecode/AMSL0/AMSBlock.h"
+#include "TBDecode/AMSL0/AMSBlockStream.h"
+
 class DecodeDataAMSL0 : public DecodeData {
 public:
   using EventAMSL0 = GenericEvent<1, 9, 64, 8, 16, 0>;
@@ -30,6 +33,7 @@ public:
   virtual TString EventClassname() final { return ev->ClassName(); };
 
   bool ReadFileHeader(FILE *file, RHClassAMSL0 *rhc);
+  bool ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream, RHClassAMSL0 *rhc);
 
   int ReadOneEvent() final;
 
@@ -52,14 +56,21 @@ public:
     sprintf(calfileprefix, "%s/%04d/%03d", m_calDir.c_str(), dirNum, blockNum);
   }
 
+  void SetDecodeStyle(int _style) { decodestyle = _style; }
+
 private:
-  bool pri = false;
+  int decodestyle{false};
+
+  TBDecode::L0::AMSBlockStream rawdatastream;
+  TBDecode::L0::AMSBlockStream rawcalstream;
+
+  bool pri{false};
   bool m_end_of_file{false};
   size_t m_total_size_consumed{0};
 
   size_t m_read_events{0};
 
-  FILE *calfile = nullptr;
+  FILE *calfile{nullptr};
   calibAMSL0 cals[EventAMSL0::GetNJINF() * EventAMSL0::GetNTDRS()]{};
   EventAMSL0::JArray<int> JinfMap{0};
 
@@ -78,6 +89,7 @@ private:
   bool ProcessCalibration();
 
   int ReadOneEventFromFile(FILE *file, EventAMSL0 *event);
+  int ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event);
 };
 
 #endif // DECODE_DECODEDATAAMSL0_HH

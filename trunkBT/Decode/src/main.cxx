@@ -47,6 +47,7 @@ int main(int argc, char **argv) {
   bool kOca = false;
   bool kFoot = false;
   bool kL0 = false;
+  bool kL0old = false;
 
   bool kOnlyProcessCal = false;
 
@@ -82,7 +83,8 @@ int main(int argc, char **argv) {
       "  --rootdata <path/to/dir/for/root> ........... Directory where to put ROOT file (%s is the default)", DirRoot));
   opt->addUsage("  --oca  ....................................... Read the OCA boards");
   opt->addUsage("  --foot ....................................... Read files from FOOT Bo TDAQ");
-  opt->addUsage("  --l0 ....................................... Read files from AMSL0 DAQ");
+  opt->addUsage("  --l0 ....................................... Read files from AMSL0 DAQ (USB-LF and v>=5)");
+  opt->addUsage("  --l0old .................................... Read files from AMSL0 DAQ (USB-LEF)");
   opt->addUsage(
       "  -c, --clusterize ............................ To perform an offline clusterization to the RAW event");
   opt->addUsage("                                                    (the bonding type is defined in ladderconf.dat");
@@ -138,6 +140,7 @@ int main(int argc, char **argv) {
   opt->setFlag("oca");
   opt->setFlag("foot");
   opt->setFlag("l0");
+  opt->setFlag("l0old");
 
   //***********
   // set Options
@@ -190,6 +193,10 @@ int main(int argc, char **argv) {
 
   if (opt->getFlag("l0")) {
     kL0 = true;
+  }
+
+  if (opt->getFlag("l0old")) {
+    kL0old = true;
   }
 
   //*********
@@ -300,9 +307,13 @@ int main(int argc, char **argv) {
     fConf = dd->FlavorConfig();
     t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), 64000, 2);
     dd1 = static_cast<DecodeData *>(dd);
-  } else if (kL0) {
+  } else if (kL0 || kL0old) {
     auto *dd = new DecodeDataAMSL0(DirRaw, DirCal, run, runstop, calrunstart, calrunstop);
     fConf = dd->FlavorConfig();
+    dd->SetDecodeStyle(1);
+    if (kL0old)
+      dd->SetDecodeStyle(0);
+    kL0 = true; // in the kL0old case we set also kL0 since now the right DecodeStyle is set already
     t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), 64000, 2);
     dd1 = static_cast<DecodeData *>(dd);
   } else {
