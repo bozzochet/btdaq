@@ -17,6 +17,8 @@ TEMPLATE_CLASSES_HEADERS = $(TEMPLATE_CLASSES:%=include/%)
 
 ANYOPTION=AnyOption
 
+LIBDECODE_L0=libdecode_l0
+
 ROOTVERSION      := $(shell $(ROOTSYS)/bin/root-config --version | cut -b1-1)
 
 ROOTINC = $(shell root-config --incdir) -I./ -I./include
@@ -31,7 +33,7 @@ LDFLAGS = $(shell root-config --ldflags)
 # LDFLAGS += -fsanitize=address
 
 ### For Release:
-CFLAGS:= -g -O3 -fPIC -Wall -Wno-overloaded-virtual -Wno-deprecated -Wno-unused-but-set-variable -Wno-unused-variable
+CFLAGS:= -g -O3 -fPIC -Wall -Wno-overloaded-virtual -Wno-deprecated -Wno-unused-but-set-variable -Wno-unused-variable -DSPDLOG_FMT_EXTERNAL
 
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags)
 
@@ -48,7 +50,7 @@ else
 	SOFLAGS = -shared
 endif
 
-all: Decode lib PlotCalib libdecode_l0
+all: Decode lib PlotCalib $(LIBDECODE_L0)_install/lib/libtbdecode.so
 
 lib: libEvent.so libEventa.a
 
@@ -58,19 +60,20 @@ libEvent.so:$(LIB_OBJ)
 libEventa.a:$(LIB_OBJ)
 	@ar rv $@ $^
 
-libdecode_l0:
-	@ if ! [ -d ./l0_libdecode ] ; then mkdir -p l0_libdecode; fi
-	cd l0_libdecode && cmake ../l0_firmware/libdecode/ && make -j
-	ln -sf l0_libdecode/src/TBDecode/AMSL0/libtbdecode.dylib ./
+$(LIBDECODE_L0)_install/lib/libtbdecode.so:
+	ln -sf ./l0_firmware/libdecode ./$(LIBDECODE_L0)
+	@ if ! [ -d ./$(LIBDECODE_L0)_build ] ; then mkdir -p $(LIBDECODE_L0)_build; fi
+	cd $(LIBDECODE_L0)_build && cmake ../$(LIBDECODE_L0)/ -DCMAKE_INSTALL_PREFIX=../$(LIBDECODE_L0)_install/ && make -j && make install
+	@ if ! [ -f $(LIBDECODE_L0)_install/lib/libtbdecode.so ] ; then cd $(LIBDECODE_L0)_install/lib && ln -sf libtbdecode.dylib libtbdecode.so; fi
 
-Decode: $(ANYOPTION)/anyoption.o $(DEC_OBJ) libdecode_l0
+Decode: $(ANYOPTION)/anyoption.o $(LIBDECODE_L0)_install/lib/libtbdecode.so $(DEC_OBJ)
 	@echo Linking $@ ...;
-	@$(CXX) $(LDFLAGS) -o$@ $(ANYOPTION)/anyoption.o $(DEC_OBJ) -I$(ANYOPTION) $(ROOTDYNAMICLIBS) -Wl,-rpath,./ -L./ -ltbdecode
+	@$(CXX) $(LDFLAGS) -o$@ $(ANYOPTION)/anyoption.o $(DEC_OBJ) -I$(ANYOPTION) -I$(LIBDECODE_L0)_install/include $(ROOTDYNAMICLIBS) -Wl,-rpath,./$(LIBDECODE_L0)_install/lib -L./$(LIBDECODE_L0)_install/lib -ltbdecode
 
-obj/%.o:src/%.cxx
+obj/%.o: src/%.cxx $(LIBDECODE_L0)_install/lib/libtbdecode.so
 	@echo Compiling $< ...;
 	@ if ! [ -d ./obj ] ; then  mkdir -p obj; fi
-	@$(CXX) $(CFLAGS) -c $< -o$@ -I$(ROOTINC) -I$(ANYOPTION)
+	@$(CXX) $(CFLAGS) -c $< -o$@ -I$(ROOTINC) -I$(ANYOPTION) -I$(LIBDECODE_L0)_install/include
 
 $(ANYOPTION)/anyoption.o :
 	@make -C $(ANYOPTION)
@@ -86,7 +89,7 @@ PlotCalib: $(ANYOPTION)/anyoption.o obj/summary.o
 	@ln -fs $@ $@Mute
 
 clean:
-	@rm -Rfv libEventa.a libEvent.so Decode src/rootElibdict.cxx include/rootElibdict.h obj PlotCalib PlotCalibMute l0_libdecode libtbdecode.dylib
+	@rm -Rfv libEventa.a libEvent.so Decode src/rootElibdict.cxx include/rootElibdict.h obj PlotCalib PlotCalibMute $(LIBDECODE_L0) $(LIBDECODE_L0)_build $(LIBDECODE_L0)_install
 	@make -C $(ANYOPTION) clean
 	@rm -f rootElibdict_rdict.pcm
 
