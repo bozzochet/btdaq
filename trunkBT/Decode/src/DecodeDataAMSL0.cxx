@@ -8,6 +8,7 @@
 #include "GenericEvent.hpp"
 
 #include <algorithm>
+#include <sstream>
 
 namespace {
 constexpr auto NJINF = DecodeDataAMSL0::EventAMSL0::GetNJINF();
@@ -78,7 +79,9 @@ void DecodeDataAMSL0::DumpRunHeader() {
 }
 
 DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int runStop,
-                                 unsigned int calStart, unsigned int calStop) {
+                                 unsigned int calStart, unsigned int calStop, int _style) {
+
+  decodestyle = _style;
 
   m_rawDir = rawDir;
   m_calDir = calDir;
@@ -114,12 +117,14 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
   rh->SetRun(runNum);
   // rh->SetDate(date);
 
+  //  printf("DecodeStyle = %d\n", decodestyle);
+
   bool rfherr = false;
   if (decodestyle == 0) {
     if (!ReadFileHeader(rawfile, rh))
       rfherr = true;
   } else {
-    if (!ReadFileHeader(&rawdatastream, rh))
+    if (!ReadFileHeader(&rawdatastream, m_dataFilenames, rh))
       rfherr = true;
   }
   if (rfherr) {
@@ -240,57 +245,113 @@ void DecodeDataAMSL0::OpenFile(const char *rawDir, const char *calDir, int runSt
 }
 
 bool DecodeDataAMSL0::ProcessCalibration() {
-  int iJinf = 0; // so far only the 1 Jinf case is managed
+
   auto start = std::chrono::system_clock::now();
 
-  std::vector<std::vector<std::vector<float>>> signals((ntdrRaw + ntdrCmp),
-                                                       std::vector<std::vector<float>>(NVAS * NCHAVA));
+  std::vector<std::vector<std::vector<std::vector<float>>>> signals(
+      nJinf,
+      std::vector<std::vector<std::vector<float>>>(ntdrRaw + ntdrCmp, std::vector<std::vector<float>>(NVAS * NCHAVA)));
+  unsigned int nEvents{0};
 
-  for (const auto &calFilePath : m_calFilenames) {
-    m_total_size_consumed = 0;
-    auto event = std::make_unique<EventAMSL0>((char *)"ladderconf_L0.dat", (char *)"gaincorrection_L0.dat");
+  auto event = std::make_unique<EventAMSL0>((char *)"ladderconf_L0.dat", (char *)"gaincorrection_L0.dat");
 
-    // open the calibration file
-    calfile = fopen(calFilePath.c_str(), "r");
-    if (!calfile) {
-      printf("Error file %s not found \n", calFilePath.c_str());
-      exit(2);
+  if (decodestyle == 0) {
+    for (const auto &calFilePath : m_calFilenames) {
+      m_total_size_consumed = 0;
+
+      // open the calibration file
+      calfile = fopen(calFilePath.c_str(), "r");
+      if (!calfile) {
+        printf("Error file %s not found \n", calFilePath.c_str());
+        exit(2);
+      }
+
+      printf("Processing calibration (%s)... \n", calFilePath.c_str());
+
+      // Some test calibrations contain too many events, stop at 10k
+      while (!feof(calfile) && nEvents < 10000) {
+        event.get()->Clear();
+        bool result = ReadOneEventFromFile(calfile, event.get());
+        if (result)
+          continue;
+        nEvents++;
+        std::cout << "\rRead " << nEvents << " events" << std::flush;
+
+        //      if (nEvents > 1000)
+        //        break;
+
+        // only 1 Jinf is managed by ComputeCalibration()
+        // treat everything (also in the case with two LINFs as if we have just one
+        int iJinf = 0;
+        for (unsigned int iTdr = 0; iTdr < (ntdrRaw + ntdrCmp); ++iTdr) {
+          for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+            signals[iJinf][iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+          }
+        }
+      }
+      std::cout << '\n';
     }
+  } else { // decodestyle>0
+    // this is to check the config of the calib is the same of the run
+    ReadFileHeader(&rawcalstream, m_calFilenames, NULL);
 
-    printf("Processing calibration (%s)... \n", calFilePath.c_str());
+    printf("Processing calibration (%s)... \n", rawcalstream.CurrentFilePath().c_str());
 
     // Some test calibrations contain too many events, stop at 10k
-    unsigned int nEvents{0};
-    while (!feof(calfile) && nEvents < 10000) {
-      bool result = true;
-      if (decodestyle == 0)
-        result = ReadOneEventFromFile(calfile, event.get());
-      else
-        result = ReadOneEventFromFile(&rawcalstream, event.get());
-      if (result)
-        continue;
-      nEvents++;
-      std::cout << "\rRead " << nEvents << " events" << std::flush;
+    while (nEvents < 10000) {
+      event.get()->Clear();
+      int result = ReadOneBlockFromFile(&rawcalstream, event.get(), nEvents);
+      if (result) {
+        if (result < 0) {
+          break;
+        } else {
+          continue;
+        }
+      }
+      std::cout << "\rRead " << nEvents << " events  " << std::flush;
 
       //      if (nEvents > 1000)
       //        break;
 
-      for (unsigned int iTdr = 0; iTdr < (ntdrRaw + ntdrCmp); ++iTdr) {
-        for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-          signals[iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+      // only 1 Jinf is managed by ComputeCalibration()
+      // treat everything (also in the case with two LINFs as if we have just one
+      for (unsigned int iJinf = 0; iJinf < nJinf; ++iJinf) {
+        for (unsigned int iTdr = 0; iTdr < (ntdrRaw + ntdrCmp); ++iTdr) {
+          for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+            if (event->ValidTDR[iJinf][iTdr]) {
+              if (pri)
+                printf("signals: %d %d %d %d\n", iJinf, iTdr, iCh, event->RawSignal[iJinf][iTdr][iCh]);
+              signals[iJinf][iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+            } else { // is important to have all the vectors in sync each other
+              signals[iJinf][iTdr][iCh].push_back(0);
+            }
+          }
         }
       }
     }
     std::cout << '\n';
   }
 
-  ComputeCalibration<EventAMSL0, calibAMSL0>(signals, cals);
-
   auto stop = std::chrono::system_clock::now();
-  std::cout << "DecodeDataAMSL0::ProcessCalibration took "
+  std::cout << "DecodeDataAMSL0::ProcessCalibration (reading) took "
             << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
 
-  SaveCalibration<EventAMSL0, calibAMSL0>(signals, cals, m_calRunnums.at(0), (ntdrRaw + ntdrCmp), iJinf);
+  if (pri) {
+    printf("signals.size()=%lu, signals.at(0).size()=%lu, signals.at(0).at(0).size()=%lu\n", signals.size(),
+           signals.at(0).size(), signals.at(0).at(0).size());
+  }
+
+  for (unsigned int iJinf = 0; iJinf < nJinf; ++iJinf) {
+
+    ComputeCalibration<EventAMSL0, calibAMSL0>(signals[iJinf], cals[iJinf]);
+
+    SaveCalibration<EventAMSL0, calibAMSL0>(signals[iJinf], cals[iJinf], m_calRunnums.at(0), (ntdrRaw + ntdrCmp),
+                                            iJinf);
+  }
+
+  auto stop2 = std::chrono::system_clock::now();
+  std::cout << "DecodeDataAMSL0::ProcessCalibration (computing and saving) took "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(stop2 - stop).count() << "ms\n";
 
   return true;
 }
@@ -318,7 +379,7 @@ bool DecodeDataAMSL0::ReadFileHeader(FILE *file, RHClassAMSL0 *rhc) {
   ntdrCmp = 0;
   ntdrRaw = 1;
   nJinf = 1; // number of LINFs
-  JinfMap[0] = 1;
+  JinfMap[0] = 0;
 
   // we assume that from now on we know how many boards are in the DAQ
   for (unsigned int iTdr = 0; iTdr < nJinf * (ntdrCmp + ntdrRaw); ++iTdr) {
@@ -326,10 +387,11 @@ bool DecodeDataAMSL0::ReadFileHeader(FILE *file, RHClassAMSL0 *rhc) {
   }
 
   // Update the ROOT run header
-  rh->SetJinfMap(JinfMap);
-  rh->SetNTdrsRaw(ntdrRaw);
-  rh->SetNTdrsCmp(ntdrCmp);
-  rh->SetTdrMap(tdrMap);
+  rhc->SetNJinf(nJinf);
+  rhc->SetJinfMap(JinfMap);
+  rhc->SetNTdrsRaw(ntdrRaw);
+  rhc->SetNTdrsCmp(ntdrCmp);
+  rhc->SetTdrMap(tdrMap);
   rhc->AddBoardID(0);
   rhc->SetNumBoards(1);
 
@@ -341,14 +403,43 @@ bool DecodeDataAMSL0::ReadFileHeader(FILE *file, RHClassAMSL0 *rhc) {
   return true;
 }
 
-bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream, RHClassAMSL0 *rhc) {
+bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream, std::vector<std::string> rawfilenames,
+                                     RHClassAMSL0 *rhc) {
+
+  // special case:
+  //  a call to this method, with the calibration, to check if the config is the same
+  //  (i.e. if is really a calibration of the same setup)
+  //  this special case is "dry run" (i.e. nothing is changed, for example in the RHClass)
+  //  and this is checked/protected looking to a NULL RHClass pointer
+  bool not_same_config = false;
+  std::string current_config_info = "";
+
+  if (rhc) {
+    ntdrCmp = 0;
+    ntdrRaw = 0;
+    nJinf = 0;
+  }
+  unsigned int runUnixTime = 0;
+
+  std::string slinf = "LINF";
+  std::string slef = "LEF";
 
   int empty_blocks = 1;
 
-  printf("Qui 1!\n");
+  printf("---------------------------------------------------------------\n");
+  printf("Reading file header from file:");
+  if (rhc)
+    printf("\n");
+  else
+    printf(" (Calibration)\n");
+  //  printf("(%s)\n", rawfilenames.at(0).c_str());
+  printf("(%s)\n", rawfilestream->CurrentFilePath().c_str());
 
-  size_t nblocks{0};
-  while (!rawfilestream->EndOfStream() && nblocks < 20) {
+  bool kConfigInfoNotFound = true;
+  bool kEventBuilderStartNotFound = true;
+  bool kTriggerAndDAQControlNotFound = true;
+  while (!rawfilestream->EndOfStream() &&
+         (kConfigInfoNotFound || kEventBuilderStartNotFound || kTriggerAndDAQControlNotFound)) {
     auto block = TBDecode::L0::AMSBlock::DecodeAMSBlock(rawfilestream->CurrentFile());
     std::visit(
         TBDecode::Utils::overloaded{
@@ -358,29 +449,314 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
                 printf("**** %d empty blocks found:", empty_blocks);
               }
             },
-            [](TBDecode::L0::AMSBlock::UnknownBlock &block) { printf("Unknown!\n"); },
-            [](TBDecode::L0::AMSBlock::SCIData &block) { printf("SCI!\n"); },
-            [](TBDecode::L0::AMSBlock::FineTimeEnvelope &block) { printf("FineTimeEnvelope\n"); },
-            [](TBDecode::L0::AMSBlock::ServerConfigInfo &block) { printf("ServerConfigInfo\n"); },
-            [](TBDecode::L0::AMSBlock::ConfigInfo &block) { printf("Config\n"); },
-            [](TBDecode::L0::AMSBlock::ControlQList &block) { printf("ControlQList\n"); },
-            [](TBDecode::L0::AMSBlock::CommandEnvelope &block) { printf("CommandEnvelope\n"); },
-            [](TBDecode::L0::AMSBlock::BufferPointers &block) { printf("BufferPointers\n"); },
-            [](TBDecode::L0::AMSBlock::EventBuilderStart &block) { printf("EvenBuilderStart\n"); },
-            [](TBDecode::L0::AMSBlock::EventBuilderStop &block) { printf("EvenBuilderStop\n"); },
-            [](TBDecode::L0::AMSBlock::SetEventBuilderPollingList &block) { printf("SetEvenBuilderPollingList\n"); },
-            [](TBDecode::L0::AMSBlock::TriggerAndDAQControl &block) { printf("TriggerAndDAQControl\n"); },
+            [](TBDecode::L0::AMSBlock::UnknownBlock &block) {},
+            [](TBDecode::L0::AMSBlock::SCIData &block) {},
+            [](TBDecode::L0::AMSBlock::FineTimeEnvelope &block) {},
+            [](TBDecode::L0::AMSBlock::ServerConfigInfo &block) {},
+            [&not_same_config, &current_config_info, rhc, &kConfigInfoNotFound, slinf, slef,
+             this](TBDecode::L0::AMSBlock::ConfigInfo &block) {
+              printf("Read a ConfigInfo block from node %02x", block.node_address);
+              if (rhc)
+                printf("\n");
+              else
+                printf(" (Calibration)\n");
+              current_config_info = block.config;
+              if (rhc)
+                this->config_info = block.config;
+              else {
+                // check if the config is the same
+                if (current_config_info == this->config_info) {
+                  not_same_config = false;
+                } else {
+                  not_same_config = true;
+                }
+              }
+              printf("  config:  %s\n", block.config.c_str());
+              printf("Dumping all devices:\n");
+              printf(" Device type: %s, version: %d, node_address: %02x\n",
+                     TBDecode::L0::AMSBlock::main_box.name.c_str(), TBDecode::L0::AMSBlock::main_box.version,
+                     TBDecode::L0::AMSBlock::main_box.node_address);
+              for (TBDecode::L0::AMSBlock::AMSL0Node &device : TBDecode::L0::AMSBlock::main_box.links) {
+                if (!device.fake) {
+                  printf("  |- Device: %6s (%7s), node_ID: %04x, link_number: %d, version: %d\n", device.name.c_str(),
+                         device.unique_name.c_str(), device.node_ID, device.link_number, device.version);
+                  if (rhc) {
+                    if (device.name.find(slinf) != std::string::npos) {
+                      this->JinfMap[nJinf] = device.link_number - 1;
+                      this->nJinf++;
+                    } else if (device.name.find(slef) != std::string::npos) {
+                      this->tdrMap[ntdrRaw] = {(device.link_number - 1), 0}; // {board number, RAW}
+                      this->ntdrRaw++;
+                    } else {
+                      printf("This is not a recognized kind of device: %s\n", device.name.c_str());
+                    }
+                  }
+                  for (TBDecode::L0::AMSBlock::AMSL0Node &sec_device : device.links) {
+                    printf("    |- Device: %6s (%7s), node_ID: %04x, link_number: %d, version: %d\n",
+                           sec_device.name.c_str(), sec_device.unique_name.c_str(), sec_device.node_ID,
+                           sec_device.link_number, sec_device.version);
+                    if (rhc) {
+                      if (sec_device.name.find(slef) != std::string::npos) {
+                        this->tdrMap[this->ntdrRaw] = {100 * (device.link_number - 1) + (sec_device.link_number - 1),
+                                                       0}; // {board number, RAW}
+                        this->ntdrRaw++;
+                      } else {
+                        printf("This is not a recognized kind of device: %s\n", sec_device.name.c_str());
+                      }
+                    }
+                  }
+                }
+              }
+              kConfigInfoNotFound = false;
+            },
+            [](TBDecode::L0::AMSBlock::ControlQList &block) {},
+            [](TBDecode::L0::AMSBlock::CommandEnvelope &block) {},
+            [](TBDecode::L0::AMSBlock::BufferPointers &block) {},
+            [&runUnixTime, &kEventBuilderStartNotFound](TBDecode::L0::AMSBlock::EventBuilderStart &block) {
+              printf("EventBuilderStart:\n");
+              std::time_t t = block.utime_sec;
+              std::tm tm = *std::gmtime(&t);
+              std::stringstream transTime;
+              transTime << std::put_time(&tm, "%c %Z");
+              printf("  Time: %u (%s)\n", block.utime_sec, transTime.str().c_str());
+              runUnixTime = block.utime_sec;
+              kEventBuilderStartNotFound = false;
+            },
+            [](TBDecode::L0::AMSBlock::EventBuilderStop &block) {},
+            [](TBDecode::L0::AMSBlock::SetEventBuilderPollingList &block) {},
+            [&kTriggerAndDAQControlNotFound](TBDecode::L0::AMSBlock::TriggerAndDAQControl &block) {
+              printf("TriggerAndDAQControl:\n");
+              // so far (2/Aug/2023) the Xudong's SW is not reading the TriggerAndDAQControl
+              // so we just have an empty W packet
+              if (block.is_reply && !block.is_rw) {
+                printf("  Enable Auto Trigger: %d\n", block.enable_auto_trigger);
+                printf("  Last trigger number: %d\n", block.last_trigger_number);
+              }
+              kTriggerAndDAQControlNotFound = false;
+            },
         },
         block);
-    ++nblocks;
   }
 
-  printf("Qui 2!\n");
+  if (rhc) {
+    m_numBoardsFound = ntdrCmp + ntdrRaw;
+
+    // Update the ROOT run header
+    rhc->SetNJinf(nJinf);
+    rhc->SetJinfMap(JinfMap);
+    rhc->SetNTdrsRaw(ntdrRaw);
+    rhc->SetNTdrsCmp(ntdrCmp);
+    rhc->SetTdrMap(tdrMap);
+    for (int ii = 0; ii < ntdrRaw + ntdrCmp; ii++) {
+      rhc->AddBoardID(tdrMap[ii].first);
+    }
+    rhc->SetNumBoards(m_numBoardsFound);
+
+    rhc->SetUnixTime(runUnixTime);
+    // rhc->SetGitSHA(stream.str());
+    rhc->SetRunType(RHClassAMSL0::RunType::SC);
+    // rhc->SetDataVersion(major, minor, patch);
+  } else {
+    if (not_same_config) {
+      std::string message = Form("The config is changed:\n current config: %s\n previous config: %s",
+                                 current_config_info.c_str(), config_info.c_str());
+      throw std::runtime_error(message);
+    }
+  }
 
   return true;
 };
 
-int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event) { return 0; }
+int DecodeDataAMSL0::ReadOneBlockFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event,
+                                          unsigned int &nEvents) {
+
+  // as a fact is a circular buffer: the event number cannot be more than 255
+  static std::map<uint16_t, std::map<std::pair<uint16_t, uint16_t>, std::vector<uint16_t>>> buffer;
+
+  // SAREBBE DA VERIFICARE, QUANDO CAMBIA FILE, CHE DENTRO NON CI SIA UNA CONFIG:
+  //  1. PERCHE'?
+  //  2. E' CAMBIATA
+  //  FORSE DEVO ANCHE CONTROLLARE CHE NON CI SIA STATO UNO STOP
+
+  int empty_blocks = 1;
+
+  int last_evno = -10;
+
+  static bool kEventBuilderStopNotFound = true;
+  static bool kTriggerAndDAQControlNotFound = true;
+  if (nEvents == 0) {
+    kEventBuilderStopNotFound = true;
+    kTriggerAndDAQControlNotFound = true;
+  }
+  if (pri) {
+    printf("%d %d %d -> %d\n", !stream->EndOfStream(), kEventBuilderStopNotFound, kTriggerAndDAQControlNotFound,
+           (!stream->EndOfStream() && (kEventBuilderStopNotFound || kTriggerAndDAQControlNotFound)));
+  }
+  if (!stream->EndOfStream() && (kEventBuilderStopNotFound || kTriggerAndDAQControlNotFound)) {
+    auto block = TBDecode::L0::AMSBlock::DecodeAMSBlock(stream->CurrentFile());
+    std::visit(TBDecode::Utils::overloaded{
+                   [&empty_blocks](TBDecode::L0::AMSBlock::EmptyBlock &block) {
+                     empty_blocks++;
+                     if (empty_blocks > 1) {
+                       printf("**** %d empty blocks found:", empty_blocks);
+                     }
+                   },
+                   [this](TBDecode::L0::AMSBlock::UnknownBlock &block) {
+                     if (this->pri)
+                       printf("Unknown!\n");
+                   },
+                   [this](TBDecode::L0::AMSBlock::SCIData &block) {
+                     if (this->pri)
+                       printf("SCI!\n");
+                   },
+                   [this, &last_evno, event](TBDecode::L0::AMSBlock::FineTimeEnvelope &block) {
+                     if (this->pri) {
+                       printf("FineTimeEnvelope\n");
+                       printf("Time: %u\n", block.utime_sec);
+                     }
+                     event->TimeStamp = block.utime_sec;
+                     event->TimeStamp_ns = 1000 * block.utime_sec;
+                     TBDecode::L0::AMSBlock::SCIData data = block.data;
+                     if (pri) {
+                       printf("Tag = %x\n", block.tag);
+                       printf("raw_data.size() = %lu\n", data.raw_data.size());
+                     }
+                     for (auto i = data.raw_data.begin(); i != data.raw_data.end(); i++) {
+                       uint16_t evno = i->first;
+                       last_evno = evno;
+                       unsigned long nLEFs = i->second.size();
+                       if (pri)
+                         printf("i) evno=%u,  nLEFs=%lu\n", evno, nLEFs);
+                       for (auto j = i->second.begin(); j != i->second.end(); j++) {
+                         uint16_t LINF = j->first.first - 1; // to start from 0
+                         uint16_t LEF = j->first.second - 1; // to start from 0
+                         unsigned long size_data = j->second.size();
+                         if (pri)
+                           printf("j) LINF=%d, LEF=%d, size_data=%lu\n", LINF, LEF, size_data);
+                         std::pair linf_lef = std::make_pair(LINF, LEF);
+                         std::vector<uint16_t> data_ord = ReOrderVladimir(j->second);
+                         buffer[i->first][linf_lef] = data_ord;
+                       }
+                     }
+                   },
+                   [this](TBDecode::L0::AMSBlock::ServerConfigInfo &block) {
+                     if (this->pri)
+                       printf("ServerConfigInfo\n");
+                   },
+                   [this](TBDecode::L0::AMSBlock::ConfigInfo &block) {
+                     if (this->pri)
+                       printf("Config\n");
+                   },
+                   [this](TBDecode::L0::AMSBlock::ControlQList &block) {
+                     if (this->pri)
+                       printf("ControlQList\n");
+                   },
+                   [this](TBDecode::L0::AMSBlock::CommandEnvelope &block) {
+                     if (this->pri)
+                       printf("CommandEnvelope\n");
+                   },
+                   [](TBDecode::L0::AMSBlock::BufferPointers &block) {},
+                   [this](TBDecode::L0::AMSBlock::EventBuilderStart &block) {
+                     if (this->pri)
+                       printf("EvenBuilderStart\n");
+                   },
+                   [this](TBDecode::L0::AMSBlock::EventBuilderStop &block) {
+                     if (this->pri)
+                       printf("EvenBuilderStop\n");
+                     kEventBuilderStopNotFound = false;
+                   },
+                   [this](TBDecode::L0::AMSBlock::SetEventBuilderPollingList &block) {
+                     if (this->pri)
+                       printf("SetEvenBuilderPollingList\n");
+                   },
+                   [this](TBDecode::L0::AMSBlock::TriggerAndDAQControl &block) {
+                     if (this->pri)
+                       printf("TriggerAndDAQControl\n");
+                     kTriggerAndDAQControlNotFound = false;
+                   },
+               },
+               block);
+  }
+
+  bool FileIsOver = (stream->EndOfStream() || (!kEventBuilderStopNotFound && !kTriggerAndDAQControlNotFound));
+  if (pri) {
+    printf("%d %d %d -> %d\n", stream->EndOfStream(), !kEventBuilderStopNotFound, !kTriggerAndDAQControlNotFound,
+           FileIsOver);
+  }
+  if (FileIsOver) {
+    if (pri) {
+      printf("buffer.size() = %lu\n", buffer.size());
+    }
+    if (buffer.size() == 0)
+      return -99;
+  }
+
+  auto oldness_check = [](auto a, auto b) {
+    if ((a - b % 256) > 10 || (b % 256 - a) > (256 / 2)) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  // MD: maybe is just a workaround. To double-check
+  auto get_LINF = [](auto readLINF) {
+    if (readLINF == 0 || readLINF == 2)
+      return 1;
+    else if (readLINF == 3 || readLINF == 4)
+      return 2;
+    else {
+      printf("not valid LINF number: %d\n", readLINF);
+      return -99;
+    }
+  };
+
+  static uint16_t evno_to_process = 0;
+  auto i = buffer.find(evno_to_process % 256);
+  bool old_enough = oldness_check(last_evno, evno_to_process);
+  evno_to_process++;
+  if (i != buffer.end()) { // event
+    //  for (auto i = buffer.begin(); i != buffer.end(); i++) {
+    uint16_t evno = i->first;
+    unsigned long nLEFs = i->second.size();
+    if (pri)
+      printf("i) evno=%u,  nLEFs=%lu\n", evno, nLEFs);
+    if (!old_enough && !FileIsOver) {
+      evno_to_process--; // we have to reprocess this
+      if (pri)
+        printf("Too early: evno=%d (next evno_to_process=%d), last_evno=%d\n", evno, evno_to_process, last_evno);
+      return 3;
+    }
+    if (pri)
+      printf("Good: evno=%d, nLEFs=%lu (next evno_to_process=%d), last_evno=%d\n", evno, nLEFs, evno_to_process,
+             last_evno);
+    for (auto j = i->second.begin(); j != i->second.end(); j++) {
+      uint16_t LINF = get_LINF(j->first.first);
+      uint16_t LINF_index = rh->FindJinfPos(LINF);
+      uint16_t LEF = j->first.second + 100 * LINF;
+      uint16_t LEF_index = rh->FindPos(LEF);
+      unsigned long size_data = j->second.size();
+      if (pri)
+        printf("j) LINF=%d (%d, %d), LEF=%d (%d, %d), size_data=%lu\n", LINF, LINF_index, j->first.first, LEF,
+               LEF_index, j->first.second, size_data);
+      std::copy(std::begin(j->second), std::end(j->second), std::begin(event->RawSignal[LINF_index][LEF_index]));
+      //      std::cout << "Ch0 signal = " << event->RawSignal[LINF_index][LEF_index][0] << '\n';
+      event->ValidTDR[LINF_index][LEF_index] = true;
+    }
+    nEvents++;
+    buffer.erase(evno);
+    return 0;
+  } else {
+    if (!old_enough) {
+      evno_to_process--; // we have to reprocess this
+    }
+    if (pri)
+      printf("evno_to_process=%d not found (last_evno=%d)\n", evno_to_process, last_evno);
+    return 2;
+  }
+
+  return 1;
+}
 
 int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL0 *event) {
   static constexpr uint32_t fine_time_env_dt = 0x1f0383;
@@ -559,36 +935,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL
         std::swap(data[ii], data[ii + 1]);
       }
 
-      // ReOrderVladimir(data, data_ord);
-      size_t new_size = 8 * data.size() / 14;
-      std::vector<uint16_t> data_ord(new_size);
-      std::vector<uint16_t> data_ord_tmp(new_size);
-      int ch_in_2va = -1;
-
-      // We take the first 14 8-bit chunks.
-      for (size_t offset = 0; offset < data.size(); offset += 14) {
-        // these all refer to the same channel
-        ch_in_2va++;
-
-        // we loop on each signal bit
-        for (int bit_nec = 0; bit_nec < 14; bit_nec++) {
-          std::bitset<8> data_bits{data[offset + bit_nec]};
-
-          for (int adc = 0; adc < 8; adc++) {
-            int ch = adc * 128 + ch_in_2va;
-            data_ord_tmp[ch] |= data_bits[adc] << bit_nec;
-          }
-        }
-      }
-
-      for (int ch = 0; ch < ((int)data_ord_tmp.size()); ch++) {
-        int va = ch / 64;
-        int ch_in_va = ch % 64;
-        //    int new_ch = (16-va-1)*64 + (64-ch_in_va-1);//MD: I undersootd like
-        //    this, but VK did differently (31 Mar 2022)
-        int new_ch = (16 - va - 1) * 64 + ch_in_va;
-        data_ord[new_ch] = data_ord_tmp[ch];
-      }
+      std::vector<uint16_t> data_ord = ReOrderVladimir(data);
 
       // signals_by_ev.push_back(data_ord);
       // FIXME: figure out how to compute iTDR from data, iJINF should be always 0?
@@ -613,6 +960,41 @@ int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL
   }
 
   return 0;
+}
+
+std::vector<uint16_t> DecodeDataAMSL0::ReOrderVladimir(std::vector<uint8_t> data) {
+
+  size_t new_size = 8 * data.size() / 14;
+  std::vector<uint16_t> data_ord(new_size);
+  std::vector<uint16_t> data_ord_tmp(new_size);
+  int ch_in_2va = -1;
+
+  // We take the first 14 8-bit chunks.
+  for (size_t offset = 0; offset < data.size(); offset += 14) {
+    // these all refer to the same channel
+    ch_in_2va++;
+
+    // we loop on each signal bit
+    for (int bit_nec = 0; bit_nec < 14; bit_nec++) {
+      std::bitset<8> data_bits{data[offset + bit_nec]};
+
+      for (int adc = 0; adc < 8; adc++) {
+        int ch = adc * 128 + ch_in_2va;
+        data_ord_tmp[ch] |= data_bits[adc] << bit_nec;
+      }
+    }
+  }
+
+  for (int ch = 0; ch < ((int)data_ord_tmp.size()); ch++) {
+    int va = ch / 64;
+    int ch_in_va = ch % 64;
+    //    int new_ch = (16-va-1)*64 + (64-ch_in_va-1);//MD: I undersootd like
+    //    this, but VK did differently (31 Mar 2022)
+    int new_ch = (16 - va - 1) * 64 + ch_in_va;
+    data_ord[new_ch] = data_ord_tmp[ch];
+  }
+
+  return data_ord;
 }
 
 int DecodeDataAMSL0::ReadOneEvent() {
@@ -645,19 +1027,15 @@ int DecodeDataAMSL0::ReadOneEvent() {
     for (unsigned int iTdr = 0; iTdr < (ntdrRaw + ntdrCmp); ++iTdr) {
       // copy calibration data...
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-        ev->CalPed[iJinf][iTdr][iCh] = cals[iTdr].ped[iCh];
-        ev->CalSigma[iJinf][iTdr][iCh] = cals[iTdr].sig[iCh];
-        ev->CalStatus[iJinf][iTdr][iCh] = cals[iTdr].status[iCh];
+        ev->CalPed[iJinf][iTdr][iCh] = cals[iJinf][iTdr].ped[iCh];
+        ev->CalSigma[iJinf][iTdr][iCh] = cals[iJinf][iTdr].sig[iCh];
+        ev->CalStatus[iJinf][iTdr][iCh] = cals[iJinf][iTdr].status[iCh];
       }
     }
   }
 
   pri = false;
-  int retVal = 0;
-  if (decodestyle == 0)
-    retVal = ReadOneEventFromFile(rawfile, ev);
-  else
-    retVal = ReadOneEventFromFile(&rawdatastream, ev);
+  int retVal = ReadOneEventFromFile(rawfile, ev);
   if (!retVal) {
     ev->SetEvtNum(m_read_events);
     m_read_events++;
@@ -671,9 +1049,9 @@ int DecodeDataAMSL0::ReadOneEvent() {
   for (unsigned int iJinf = 0; iJinf < nJinf; ++iJinf) {
     for (unsigned int iTdr = 0; iTdr < (ntdrRaw + ntdrCmp); ++iTdr) {
       if (kClusterize) {
-        Clusterize(iTdr, iJinf, ev, &cals[iTdr]);
+        Clusterize(iTdr, iJinf, ev, &cals[iJinf][iTdr]);
       } else {
-        FillRawHistos(iTdr, iJinf, ev, &cals[iTdr]);
+        FillRawHistos(iTdr, iJinf, ev, &cals[iJinf][iTdr]);
       }
     }
   }

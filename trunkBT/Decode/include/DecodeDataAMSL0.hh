@@ -13,7 +13,7 @@
 
 class DecodeDataAMSL0 : public DecodeData {
 public:
-  using EventAMSL0 = GenericEvent<1, 9, 64, 8, 16, 0>;
+  using EventAMSL0 = GenericEvent<4, 9, 64, 8, 16, 0>;
   using calibAMSL0 = calib<EventAMSL0::GetNCHAVA() * EventAMSL0::GetNVAS()>;
   using RHClassAMSL0 = RHClass<EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>;
 
@@ -21,7 +21,7 @@ public:
   RHClassAMSL0 *rh;
 
   DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int runStop,
-                  unsigned int calStart, unsigned int calStop);
+                  unsigned int calStart, unsigned int calStop, int _style = 0);
 
   virtual ~DecodeDataAMSL0();
 
@@ -33,7 +33,8 @@ public:
   virtual TString EventClassname() final { return ev->ClassName(); };
 
   bool ReadFileHeader(FILE *file, RHClassAMSL0 *rhc);
-  bool ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream, RHClassAMSL0 *rhc);
+  bool ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream, std::vector<std::string> rawfilenames,
+                      RHClassAMSL0 *rhc);
 
   int ReadOneEvent() final;
 
@@ -56,10 +57,9 @@ public:
     sprintf(calfileprefix, "%s/%04d/%03d", m_calDir.c_str(), dirNum, blockNum);
   }
 
-  void SetDecodeStyle(int _style) { decodestyle = _style; }
-
 private:
   int decodestyle{false};
+  std::string config_info = "";
 
   TBDecode::L0::AMSBlockStream rawdatastream;
   TBDecode::L0::AMSBlockStream rawcalstream;
@@ -71,10 +71,10 @@ private:
   size_t m_read_events{0};
 
   FILE *calfile{nullptr};
-  calibAMSL0 cals[EventAMSL0::GetNJINF() * EventAMSL0::GetNTDRS()]{};
+  calibAMSL0 cals[EventAMSL0::GetNJINF()][EventAMSL0::GetNTDRS()];
   EventAMSL0::JArray<int> JinfMap{0};
 
-  unsigned int m_numBoards = 12;     // maximum
+  unsigned int m_numBoards = EventAMSL0::GetNJINF() * EventAMSL0::GetNTDRS(); // maximum
   unsigned int m_numBoardsFound = 0; // found during ReadOneEventFromFile
 
   void DumpRunHeader() override;
@@ -89,7 +89,9 @@ private:
   bool ProcessCalibration();
 
   int ReadOneEventFromFile(FILE *file, EventAMSL0 *event);
-  int ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event);
+  int ReadOneBlockFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event, unsigned int &nEvents);
+
+  std::vector<uint16_t> ReOrderVladimir(std::vector<uint8_t> data);
 };
 
 #endif // DECODE_DECODEDATAAMSL0_HH

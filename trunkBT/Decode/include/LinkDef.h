@@ -12,12 +12,12 @@
 
 #pragma link C++ class Cluster + ;
 #pragma link C++ class RHClass < 1, 24> + ;
-#pragma link C++ class RHClass < 1, 9> + ;
+#pragma link C++ class RHClass < 4, 9> + ;
 #pragma link C++ class DataVersion + ;
 // AMS
 #pragma link C++ class GenericEvent < 1, 24, 64, 3, 16, 10> + ;
 // AMS L0
-#pragma link C++ class GenericEvent < 1, 9, 64, 8, 16, 0> + ;
+#pragma link C++ class GenericEvent < 4, 9, 64, 8, 16, 0> + ;
 // OCA
 #pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0> + ;
 // FOOT

@@ -677,37 +677,40 @@ void DecodeData::SaveCalibration(const std::vector<std::vector<std::vector<float
   //  printf("calfileprefix: %s\n", calfileprefix);
 
   //  printf("numBoards: %d\n", numBoards);
+  //  printf("nTDRs = %d\n", nTDRs);
   //  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
   for (unsigned int iTdr = 0; iTdr < nTDRs; ++iTdr) {
-    //    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-    //      printf("%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
-    //             cals[iTdr].ped[iCh], cals[iTdr].rsig[iCh], cals[iTdr].sig[iCh], 0.0, 0);
-    //    }
+    if (cals[iTdr].valid) {
+      //    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+      //      printf("%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
+      //             cals[iTdr].ped[iCh], cals[iTdr].rsig[iCh], cals[iTdr].sig[iCh], 0.0, 0);
+      //    }
 
-    char calfilename[255];
-    sprintf(calfilename, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
-    //    printf("calfilename: %s\n", calfilename);
+      char calfilename[255];
+      sprintf(calfilename, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
+      //    printf("calfilename: %s\n", calfilename);
 
-    // FIXME: add a flag in the main to have a different cal dir for output
-    // this is needed if the source cal dir is not writeable
-    FILE *calfil = fopen(calfilename, "w");
-    if (!calfil) {
-      printf("problem in opening the %s cal file...\n", calfilename);
-      return;
+      // FIXME: add a flag in the main to have a different cal dir for output
+      // this is needed if the source cal dir is not writeable
+      FILE *calfil = fopen(calfilename, "w");
+      if (!calfil) {
+        printf("problem in opening the %s cal file...\n", calfilename);
+        return;
+      }
+
+      // writing the common noise (average?)
+      for (unsigned int iVa = 0; iVa < NVAS; ++iVa) {
+        fprintf(calfil, "%02d,\t%lf,\t%lf\n", iVa, 0.0, 0.0);
+      }
+
+      // reading channels
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+        fprintf(calfil, "%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
+                cals[iTdr].ped[iCh], cals[iTdr].rsig[iCh], cals[iTdr].sig[iCh], 0.0, 0);
+      }
+
+      fclose(calfil);
     }
-
-    // writing the common noise (average?)
-    for (unsigned int iVa = 0; iVa < NVAS; ++iVa) {
-      fprintf(calfil, "%02d,\t%lf,\t%lf\n", iVa, 0.0, 0.0);
-    }
-
-    // reading channels
-    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      fprintf(calfil, "%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
-              cals[iTdr].ped[iCh], cals[iTdr].rsig[iCh], cals[iTdr].sig[iCh], 0.0, 0);
-    }
-
-    fclose(calfil);
   }
 }
 
@@ -719,13 +722,37 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
   constexpr auto NCHAVA = Event::GetNCHAVA();
   constexpr auto NADCS = Event::GetNADCS();
 
-  // FIX me: it manages only 1 Jinf
+  // it manages only 1 Jinf
   // signals is vector<vector<vector>>> --> [tdr][ch][ev]
+  // must be called for each Jinf
 
-  auto signals_sorted = signals;
+  /*
+  {
+    printf("signals sizes:\n");
+    unsigned long int nLEFs = signals.size();
+    printf("signals.size() = %lu\n", nLEFs);
+    for (unsigned long int iTdr = 0; iTdr < nLEFs; ++iTdr) {
+      printf("signals.at(%lu) size() = %lu\n", iTdr, signals.at(iTdr).size());
+      if (signals.at(iTdr).size() != NVAS * NCHAVA)
+        printf("**** should have been = %lu\n", NVAS * NCHAVA);
+      unsigned long int nEvents = signals.at(iTdr).at(0).size();
+      printf("signals.at(%lu).at(0) size() = %lu\n", iTdr, nEvents);
+      for (unsigned long int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+        for (unsigned long int iEv = 0; iEv < signals.at(iTdr).at(iCh).size(); ++iEv) {
+          if (signals[iTdr][iCh].size() != nEvents) {
+            printf("Ev=%lu) signals[%lu][%lu].size() = %lu\n", iEv, iTdr, iCh, signals[iTdr][iCh].size());
+          }
+          unsigned int thisVA = iCh / NCHAVA;
+          //          printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
+        }
+      }
+    }
+  }
+  */
 
-  // FIXME:
-  //  I'm not sure at all it can manage many Jinfs
+  auto signals_filtered = signals;        // later in the code, each element will be filtered
+  auto signals_sorted = signals;          // later in the code, each element will be sorted
+  auto signals_sorted_filtered = signals; // later in the code, each element will be sorted and filtered
 
   // FIXME: Some test calibrations contain too many events, stop at 10k and use the first half for ped and sigma raw,
   // and the second half for sigma
@@ -734,21 +761,39 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
   // MD: se sono più a 5k smetti e fai mean e sigma_raw
   // MD: e poi ricominci (fino a massimo 5k) fillando 0, 1, 2, etc... fino a dove arrivi
   // MD: se sono più di 10k li hai sostituiti tutti
+  // MD: sicuramente conviene fermare la lettura a 10k in chi gli passa signals
+  // MD: però qui deve essere fatta la logica 5k per mean e sigma_raw
+  // MD: e 5k per il resto
 
-  for (unsigned int iTdr = 0; iTdr < signals.size(); ++iTdr) {
-    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+  //  printf("signals.size() = %lu\n", signals_sorted.size());
+  for (unsigned long int iTdr = 0; iTdr < signals_sorted.size(); ++iTdr) {
+    //    printf("signals.at(%u) size() = %lu\n", iTdr, signals_sorted.at(iTdr).size());
+    for (unsigned long int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+
+      signals_filtered[iTdr][iCh].clear();
+      std::copy_if(signals[iTdr][iCh].begin(), signals[iTdr][iCh].end(),
+                   std::back_inserter(signals_filtered[iTdr][iCh]), [](auto i) { return i > 0; });
 
       std::sort(begin(signals_sorted[iTdr][iCh]), end(signals_sorted[iTdr][iCh]));
-      auto beginItr = std::begin(signals_sorted[iTdr][iCh]);
-      auto endItr = std::end(signals_sorted[iTdr][iCh]);
 
-      auto nCh = std::distance(beginItr, endItr);
-      //      printf("%ld %f\n", nCh, (1.0-2.0*PERCENTILE)*signals[iTdr][iCh].size());
+      signals_sorted_filtered[iTdr][iCh].clear();
+      std::copy_if(signals_sorted[iTdr][iCh].begin(), signals_sorted[iTdr][iCh].end(),
+                   std::back_inserter(signals_sorted_filtered[iTdr][iCh]), [](auto i) { return i > 0; });
+
+      auto beginItr = std::begin(signals_sorted_filtered[iTdr][iCh]);
+      auto endItr = std::end(signals_sorted_filtered[iTdr][iCh]);
+
+      auto nEv = std::distance(beginItr, endItr);
+      //      printf("%ld %f\n", nEv, (1.0-2.0*PERCENTILE)*signals[iTdr][iCh].size());
+      if (nEv < 100) {
+        cals[iTdr].valid = false;
+        //        printf("iTdr=%lu, iCh=%lu) calib not valid\n", iTdr, iCh);
+      }
 
       //      cals[iTdr].ped[iCh] = std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f) /
       cals[iTdr].ped[iCh] = std::accumulate(beginItr, endItr, 0.0f) /
                             //	static_cast<float>(signals[iTdr][iCh].size());
-                            float(nCh);
+                            float(nEv);
 
       cals[iTdr].rsig[iCh] =
           //	std::sqrt(std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f,
@@ -760,7 +805,7 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
                                     }) /
                     //		  static_cast<float>(signals[iTdr][iCh].size()));
                     //		  ((1.0-2.0*PERCENTILE)*static_cast<float>(signals[iTdr][iCh].size())));
-                    float(nCh));
+                    float(nEv));
       // initialize this for later
       cals[iTdr].sig[iCh] = 0;
       cals[iTdr].status[iCh] = 0;
@@ -777,16 +822,17 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
   TH1F *hADC_each_ch_vs_ev[NVAS * NCHAVA];    // only for Tdr 0
   TH1F *hrawsig_filtered[NTDRS];
   TH1F *hsig[NTDRS];
-  for (unsigned int iTdr = 0; iTdr < signals.size(); ++iTdr) {
+  for (unsigned int iTdr = 0; iTdr < signals_filtered.size(); ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh)
       if (iTdr == 0) {
         hrawsig_each_ch[iCh] =
             new TH1F(Form("rawsigma_ch%d", iCh), Form("ch=%d; #Event; Sigma Raw", iCh), 1000, -500, 500);
-        hrawsig_each_ch_vs_ev[iCh] = new TH1F(Form("rawsigma_vs_ev_ch%d", iCh), Form("ch=%d; #Event; Sigma Raw", iCh),
-                                              signals[iTdr][iCh].size(), 0, signals[iTdr][iCh].size());
+        hrawsig_each_ch_vs_ev[iCh] =
+            new TH1F(Form("rawsigma_vs_ev_ch%d", iCh), Form("ch=%d; #Event; Sigma Raw", iCh),
+                     signals_filtered[iTdr][iCh].size(), 0, signals_filtered[iTdr][iCh].size());
         hADC_each_ch[iCh] = new TH1F(Form("ADC_ch%d", iCh), Form("ch=%d; #Event; ADC", iCh), 1000, 0, 1000);
         hADC_each_ch_vs_ev[iCh] = new TH1F(Form("ADC_vs_ev_ch%d", iCh), Form("ch=%d; #Event; ADC", iCh),
-                                           signals[iTdr][iCh].size(), 0, signals[iTdr][iCh].size());
+                                           signals_filtered[iTdr][iCh].size(), 0, signals_filtered[iTdr][iCh].size());
       }
     hrawsig[iTdr] = new TH1F(Form("rawsigma_%d", iTdr), "rawsigma", 1000, -500, 500);
     hrawsig_filtered[iTdr] = new TH1F(Form("rawsigma_filtered_%d", iTdr), "rawsigma", 1000, -500, 500);
@@ -794,19 +840,20 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
     //    printf("%d) %p %p %p\n", iTdr, hrawsig[iTdr], hrawsig_filtered[iTdr], hsig[iTdr]);
   }
 
-  for (unsigned int iTdr = 0; iTdr < signals.size(); ++iTdr) {
+  for (unsigned int iTdr = 0; iTdr < signals_filtered.size(); ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      for (unsigned int iEv = 0; iEv < signals[iTdr][iCh].size(); iEv++) {
-        hrawsig[iTdr]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+      for (unsigned int iEv = 0; iEv < signals_filtered[iTdr][iCh].size(); iEv++) {
+        hrawsig[iTdr]->Fill(signals_filtered[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
         if (iTdr == 0) {
-          hADC_each_ch[iCh]->Fill(signals[iTdr][iCh].at(iEv));
-          hADC_each_ch_vs_ev[iCh]->SetBinContent(iEv + 1, signals[iTdr][iCh].at(iEv));
-          hrawsig_each_ch[iCh]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
-          hrawsig_each_ch_vs_ev[iCh]->SetBinContent(iEv + 1, signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+          hADC_each_ch[iCh]->Fill(signals_filtered[iTdr][iCh].at(iEv));
+          hADC_each_ch_vs_ev[iCh]->SetBinContent(iEv + 1, signals_filtered[iTdr][iCh].at(iEv));
+          hrawsig_each_ch[iCh]->Fill(signals_filtered[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+          hrawsig_each_ch_vs_ev[iCh]->SetBinContent(iEv + 1, signals_filtered[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
         }
       }
-      for (unsigned int iEv = ((int)(signals[iTdr][iCh].size())); iEv < ((int)(signals[iTdr][iCh].size())); iEv++) {
-        hrawsig_filtered[iTdr]->Fill(signals[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
+      for (unsigned int iEv = ((int)(signals_filtered[iTdr][iCh].size()));
+           iEv < ((int)(signals_filtered[iTdr][iCh].size())); iEv++) {
+        hrawsig_filtered[iTdr]->Fill(signals_filtered[iTdr][iCh].at(iEv) - cals[iTdr].ped[iCh]);
       }
     }
   }
@@ -816,92 +863,146 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
 
   unsigned int lastVA = std::numeric_limits<unsigned int>::max();
   std::vector<float> common_noise(NVAS);
-  std::vector<std::vector<unsigned int>> processed_events(signals.size(), std::vector<unsigned int>(NVAS * NCHAVA));
+  std::vector<std::vector<unsigned long int>> processed_events(signals_filtered.size(),
+                                                               std::vector<unsigned long int>(NVAS * NCHAVA));
   // std::vector<std::vector<unsigned int> > processed_events;
-  // processed_events.resize(signals.size());
-  // for (int ii=0; ii<signals.size(); ii++) {
+  // processed_events.resize(signals_filtered.size());
+  // for (int ii=0; ii<signals_filtered.size(); ii++) {
   //   processed_events[ii].resize(NVAS * NCHAVA);
   // }
 
-#ifdef CALPLOTS
-  //  TH1F* h_sig_eachVA[1][NCHAVA][signals[0][0].size()];//uno per ogni VA e per ogni evento - se non necessario,
-  //  meglio tenere commentato che sono molti plot
-#endif
-  for (unsigned int iEv = 0; iEv < signals[0][0].size(); ++iEv) {
-    for (unsigned int iTdr = 0; iTdr < signals.size(); ++iTdr) {
-      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-        unsigned int thisVA = iCh / NCHAVA;
-        //	printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
-
-        if (thisVA != lastVA) {
-#ifdef CALPLOTS
-          h_sig_eachVA[0][thisVA][iEv] = new TH1F(Form("sig_Tdr%d_VA%d_Ev%d", iTdr, thisVA, iEv),
-                                                  Form("sig_Tdr%d_VA%d_Ev%d", iTdr, thisVA, iEv), 1000, -500, 500);
-#endif
-          std::vector<float> values;
-          for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
-            double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
-            double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
-            double sig_to_rawnoise = sig / rawnoise;
-#ifdef CALPLOTS
-            h_sig_eachVA[0][thisVA][iEv]->Fill(sig);
-#endif
-            // this relies in sorted vectors (i.e. signals), done in preveious loop (sigma raw)
-            //             if (iEv>=((int)(PERCENTILE*signals[iTdr][thisVA * NCHAVA + iVACh].size())) &&
-            //             iEv<((int)((1.0-PERCENTILE)*signals[iTdr][thisVA * NCHAVA + iVACh].size()))) { //probabilemte
-            //             non serve e comunque questo è sbagliato
-            // if (fabs(sig_to_rawnoise) < 50.0) {
-            values.push_back(sig);
-            // }
-            // }
+  /*
+  {
+    printf("signals_filtered sizes:\n");
+    unsigned long int nLEFs = signals_filtered.size();
+    printf("signals_filtered.size() = %lu\n", nLEFs);
+    for (unsigned long int iTdr = 0; iTdr < nLEFs; ++iTdr) {
+      printf("signals_filtered.at(%lu) size() = %lu\n", iTdr, signals_filtered.at(iTdr).size());
+      if (signals_filtered.at(iTdr).size() != NVAS * NCHAVA)
+        printf("**** should have been = %lu\n", NVAS * NCHAVA);
+      unsigned long int nEvents = signals_filtered.at(iTdr).at(0).size();
+      printf("signals_filtered.at(%lu).at(0) size() = %lu\n", iTdr, nEvents);
+      for (unsigned long int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+        for (unsigned long int iEv = 0; iEv < signals_filtered.at(iTdr).at(iCh).size(); ++iEv) {
+          if (signals_filtered[iTdr][iCh].size() != nEvents) {
+            printf("Ev=%lu) signals_filtered[%lu][%lu].size() = %lu\n", iEv, iTdr, iCh,
+                   signals_filtered[iTdr][iCh].size());
           }
-
-          //	  printf("%d) Board=%d VA=%d -> %lu events for CN evaluation\n", iEv, iTdr, thisVA, values.size());
-          // get the median
-          std::sort(begin(values), end(values));
-          if (values.size() > 0) {
-            common_noise[thisVA] = 0.5 * (values[(values.size() / 2) - 1] + values[values.size() / 2]);
-          } else {
-            /*
-              for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
-                  double sig = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
-                  double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
-                  double sig_to_rawnoise = sig/rawnoise;
-                  printf("Event = %d) board=%d, ch=%lu --> sig=%f, ped=%f, S/N=%f\n", iEv, iTdr, thisVA * NCHAVA +
-              iVACh, signals[iTdr][thisVA * NCHAVA + iVACh][iEv], cals[iTdr].ped[thisVA * NCHAVA + iVACh],
-              sig_to_rawnoise);
-              }
-            */
-            common_noise[thisVA] = 0.0;
-          }
-          // printf("%f\n", common_noise[thisVA]);
+          unsigned int thisVA = iCh / NCHAVA;
+          //          printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
         }
-
-        /*
-            if (std::fabs(common_noise[thisVA]) > 10) {//not used for the sigma evaluation
-              continue;
-            }
-        */
-
-        ++processed_events[iTdr][iCh];
-        cals[iTdr].sig[iCh] += (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
-                               (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
+      }
+    }
+  }
+  */
 
 #ifdef CALPLOTS
-        hsig[iTdr]->Fill(signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
+  // this has some problems:
+  // can work with only one TDR
+  // now we can have vectors, for a given TDR (and hopefully for all the channels)
+  // with zero entries
+  TH1F *h_sig_eachVA[1][NCHAVA][signals_filtered[0][0].size()]; // uno per ogni VA e per ogni evento
+#endif
+      //    printf("signals_filtered.size() = %lu\n", signals_filtered.size());
+  for (unsigned long int iTdr = 0; iTdr < signals_filtered.size(); ++iTdr) {
+    if (cals[iTdr].valid) {
+      //        printf("signals_filtered.at(%lu) size() = %lu\n", iTdr, signals_filtered.at(iTdr).size());
+      // the loop over events must be done before the one the channels for the CN
+      // so below we assume all the channels have the same number of events
+      for (unsigned long int iEv = 0; iEv < signals_filtered[iTdr][0].size(); ++iEv) {
+        for (unsigned long int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+          //        printf("signals_filtered[%d][%d].size() = %lu\n", iTdr, iCh, signals_filtered[iTdr][iCh].size());
+          unsigned long int thisVA = iCh / NCHAVA;
+          //        printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
+
+          if (thisVA != lastVA) {
+#ifdef CALPLOTS
+            h_sig_eachVA[0][thisVA][iEv] = new TH1F(Form("sig_Tdr%d_VA%d_Ev%d", iTdr, thisVA, iEv),
+                                                    Form("sig_Tdr%d_VA%d_Ev%d", iTdr, thisVA, iEv), 1000, -500, 500);
+#endif
+            std::vector<float> values;
+            for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
+              double sig =
+                  signals_filtered[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
+              double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh];
+              double sig_to_rawnoise = sig / rawnoise;
+#ifdef CALPLOTS
+              h_sig_eachVA[0][thisVA][iEv]->Fill(sig);
+#endif
+              // this relies in sorted vectors (i.e. signals), done in preveious loop (sigma raw)
+              //             if (iEv>=((int)(PERCENTILE*signals_filtered[iTdr][thisVA * NCHAVA + iVACh].size())) &&
+              //             iEv<((int)((1.0-PERCENTILE)*signals_filtered[iTdr][thisVA * NCHAVA + iVACh].size()))) {
+              //             //probabilemte non serve e comunque questo è sbagliato
+              // if (fabs(sig_to_rawnoise) < 50.0) {
+              values.push_back(sig);
+              // }
+              // }
+            }
+
+            //	  printf("%d) Board=%d VA=%d -> %lu events for CN evaluation\n", iEv, iTdr, thisVA, values.size());
+            // get the median
+            std::sort(begin(values), end(values));
+            if (values.size() > 0) {
+              common_noise[thisVA] = 0.5 * (values[(values.size() / 2) - 1] + values[values.size() / 2]);
+            } else {
+              /*
+                for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
+                    double sig = signals_filtered[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA +
+                iVACh]; double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh]; double sig_to_rawnoise =
+                sig/rawnoise; printf("Event = %d) board=%d, ch=%lu --> sig=%f, ped=%f, S/N=%f\n", iEv, iTdr, thisVA *
+                NCHAVA + iVACh, signals_filtered[iTdr][thisVA * NCHAVA + iVACh][iEv], cals[iTdr].ped[thisVA * NCHAVA +
+                iVACh], sig_to_rawnoise);
+                }
+              */
+              common_noise[thisVA] = 0.0;
+            }
+            //            printf("iEv=%lu, iTdr=%lu) %f\n", iEv, iTdr, common_noise[thisVA]);
+          }
+
+          /*
+              if (std::fabs(common_noise[thisVA]) > 10) {//not used for the sigma evaluation
+                continue;
+              }
+          */
+
+          ++processed_events[iTdr][iCh];
+          cals[iTdr].sig[iCh] += (signals_filtered[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
+                                 (signals_filtered[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
+          // printf("iEv=%lu, iTdr=%lu) %f (proc. evs = %lu)\n", iEv, iTdr, cals[iTdr].sig[iCh],
+          //        processed_events[iTdr][iCh]);
+
+#ifdef CALPLOTS
+          hsig[iTdr]->Fill(signals_filtered[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
 #endif
 
-        lastVA = thisVA;
+          lastVA = thisVA;
+        }
       }
     }
   }
 
-  for (unsigned int iTdr = 0; iTdr < signals.size(); ++iTdr) {
-    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      if (processed_events[iTdr][iCh] == 0 && cals[iTdr].sig[iCh] != 0)
-        std::cout << "     *****" << cals[iTdr].sig[iCh] << std::endl;
+  //  printf("Calibs:\n");
+  for (unsigned long int iTdr = 0; iTdr < signals_filtered.size(); ++iTdr) {
+    if (cals[iTdr].valid) {
+      auto beginItr = std::begin(processed_events[iTdr]);
+      auto endItr = std::end(processed_events[iTdr]);
+      auto nCh = std::distance(beginItr, endItr);
+      //      printf("%lu valid: processed events %lu (%f)\n", iTdr, processed_events[iTdr][0],
+      //      std::accumulate(beginItr, endItr, 0.0f) / float(nCh));
+    }
+  }
 
-      cals[iTdr].sig[iCh] = std::sqrt(cals[iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
+  for (unsigned long int iTdr = 0; iTdr < signals_filtered.size(); ++iTdr) {
+    if (cals[iTdr].valid) {
+      for (unsigned long int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+        if (processed_events[iTdr][iCh] == 0 && cals[iTdr].sig[iCh] != 0)
+          std::cout << "     *****" << cals[iTdr].sig[iCh] << std::endl;
+
+        cals[iTdr].sig[iCh] = std::sqrt(cals[iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
+        // if (cals[iTdr].sig[iCh] < 0 || cals[iTdr].sig[iCh] > 20 || cals[iTdr].sig[iCh] != cals[iTdr].sig[iCh]) {
+        //   printf("iTdr=%lu) %f, %f\n", iTdr, cals[iTdr].sig[iCh], static_cast<float>(processed_events[iTdr][iCh]));
+        // }
+      }
     }
   }
 }

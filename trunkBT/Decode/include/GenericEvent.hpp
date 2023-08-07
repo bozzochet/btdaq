@@ -97,6 +97,7 @@ void GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::Clear() {
     // ->kk to run onto nlayers?
     for (size_t ii = 0; ii < NTDRS; ii++) { // Viviana: was kk<8
       ReadTDR[jj][ii] = 0;
+      ValidTDR[jj][ii] = false;
       for (size_t iv = 0; iv < (NVASS + NVASK); iv++)
         CNoise[jj][ii][iv] = 0;
       NClus[jj][ii][0] = 0;

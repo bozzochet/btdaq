@@ -67,7 +67,7 @@ public:
 
     inline const std::string GetDate() { return date; }
 
-    constexpr inline int GetNJinfs() { return NJINF; }
+    constexpr inline int GetNJinfs() { return nJinf; }
 
     inline int GetNTdrs() { return ntdrRaw + ntdrCmp; }
 
@@ -85,6 +85,11 @@ public:
         return;
     }
 
+    inline void SetNJinf(int _nJinf) {
+        nJinf = _nJinf;
+        return;
+    }
+
     void SetJinfMap(int *_JinfMap);
 
     void SetTdrMap(laddernumtype *_TdrMap);
@@ -97,6 +102,7 @@ public:
     int GetTdrType(int tdrpos);
 
     int FindPos(int tdrnum);
+    int FindJinfPos(int jinfnum);
 
     void SetUnixTime(unsigned int utime) { unixTime = utime; }
 

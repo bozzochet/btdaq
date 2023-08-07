@@ -11,22 +11,21 @@
 //   */
 // }
 
-template<size_t NJINF, size_t NTDRS>
-std::string RHClass<NJINF, NTDRS>::to_string(RunType runtype) {
-    switch (runtype) {
-        case RunType::Unknown:
-            return "Unknown";
-        case RunType::SC:
-            return "SC";
-        case RunType::CAL:
-            return "CAL";
-        case RunType::HK:
-            return "HK";
-        case RunType::TC:
-            return "TC";
-    }
+template <size_t NJINF, size_t NTDRS> std::string RHClass<NJINF, NTDRS>::to_string(RunType runtype) {
+  switch (runtype) {
+  case RunType::Unknown:
+    return "Unknown";
+  case RunType::SC:
+    return "SC";
+  case RunType::CAL:
+    return "CAL";
+  case RunType::HK:
+    return "HK";
+  case RunType::TC:
+    return "TC";
+  }
 
-    return {};
+  return {};
 }
 
 template <size_t NJINF, size_t NTDRS> void RHClass<NJINF, NTDRS>::Print() {
@@ -78,20 +77,29 @@ template <size_t NJINF, size_t NTDRS> void RHClass<NJINF, NTDRS>::Print() {
     return;
 }
 
-template<size_t NJINF, size_t NTDRS>
-int RHClass<NJINF, NTDRS>::FindPos(int tdrnum) {
+template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::FindPos(int tdrnum) {
 
     // Print();
 
     for (int ii = 0; ii < GetNTdrs(); ii++)
-        if (tdrMap[ii].first == tdrnum)
-            return ii;
+            if (tdrMap[ii].first == tdrnum)
+              return ii;
 
     return -1;
 }
 
-template<size_t NJINF, size_t NTDRS>
-void RHClass<NJINF, NTDRS>::SetJinfMap(int *_JinfMap) {
+template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::FindJinfPos(int jinfnum) {
+
+    // Print();
+
+    for (int ii = 0; ii < GetNJinfs(); ii++)
+            if (JinfMap[ii] == jinfnum)
+              return ii;
+
+    return -1;
+}
+
+template <size_t NJINF, size_t NTDRS> void RHClass<NJINF, NTDRS>::SetJinfMap(int *_JinfMap) {
 
     // for (int ii=0;ii<NJINF;ii++) {
     //   JinfMap[ii]=_JinfMap[ii];
@@ -101,27 +109,24 @@ void RHClass<NJINF, NTDRS>::SetJinfMap(int *_JinfMap) {
     return;
 }
 
-template<size_t NJINF, size_t NTDRS>
-void RHClass<NJINF, NTDRS>::SetTdrMap(laddernumtype *_TdrMap) {
+template <size_t NJINF, size_t NTDRS> void RHClass<NJINF, NTDRS>::SetTdrMap(laddernumtype *_TdrMap) {
 
     // for (int ii=0;ii<NTDRS;ii++) {
     //   tdrMap[ii]=_TdrMap[ii];
     // }
-    memcpy(tdrMap, _TdrMap, NTDRS * sizeof(tdrMap[0]));
+    memcpy(tdrMap, _TdrMap, NJINF * NTDRS * sizeof(tdrMap[0]));
 
     return;
 }
 
-template<size_t NJINF, size_t NTDRS>
-int RHClass<NJINF, NTDRS>::GetTdrNum(int tdrpos) {
+template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::GetTdrNum(int tdrpos) {
     if (tdrpos < NTDRS) {
         return tdrMap[tdrpos].first;
     }
     return -1;
 }
 
-template<size_t NJINF, size_t NTDRS>
-int RHClass<NJINF, NTDRS>::GetTdrType(int tdrpos) {
+template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::GetTdrType(int tdrpos) {
     if (tdrpos < NTDRS) {
         return tdrMap[tdrpos].second;
     }

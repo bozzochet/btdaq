@@ -308,12 +308,9 @@ int main(int argc, char **argv) {
     t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), 64000, 2);
     dd1 = static_cast<DecodeData *>(dd);
   } else if (kL0 || kL0old) {
-    auto *dd = new DecodeDataAMSL0(DirRaw, DirCal, run, runstop, calrunstart, calrunstop);
-    fConf = dd->FlavorConfig();
-    dd->SetDecodeStyle(1);
-    if (kL0old)
-      dd->SetDecodeStyle(0);
     kL0 = true; // in the kL0old case we set also kL0 since now the right DecodeStyle is set already
+    auto *dd = new DecodeDataAMSL0(DirRaw, DirCal, run, runstop, calrunstart, calrunstop, kL0old ? 0 : 1);
+    fConf = dd->FlavorConfig();
     t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), 64000, 2);
     dd1 = static_cast<DecodeData *>(dd);
   } else {

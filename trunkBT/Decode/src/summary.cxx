@@ -367,11 +367,16 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
     status[ii] = 0;
   }
 
+  std::string s_filename = filename;
+  std::string tdrname_ext = s_filename.substr(s_filename.find_last_of("_\\") + 1);
+  typename std::string::size_type const p(tdrname_ext.find_last_of('.'));
+  std::string tdrname = (p > 0 && p != std::string::npos) ? tdrname_ext.substr(0, p) : tdrname_ext;
+
   TLatex *comment = new TLatex(1 - 0.01, 0.01, Form("%s", filename));
   comment->SetNDC();
   comment->SetTextAngle(90);
   comment->SetTextAlign(11);
-  comment->SetTextSize(0.025);
+  comment->SetTextSize(0.015);
 
   FILE *calfil = NULL;
   calfil = fopen(filename, "r");
@@ -421,7 +426,7 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
 
   printf("I did read: %d VAs and %d channels\n", nva, nch);
 
-  c = new TCanvas(Form("c_%d", count), Form("%s_%d", filename, 0), 0 * 100, 0 * 10, 600, 400);
+  c = new TCanvas(Form("c_%d", count), Form("%s_%d", tdrname.c_str(), 0), 0 * 100, 0 * 10, 600, 400);
   comment->Draw();
   c->Update();
   c->Divide(2, 2);
@@ -430,11 +435,11 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
   gPad->SetFillStyle(0);
 
   c->cd(1);
-  TH2F *fram =
-      new TH2F(Form("fram_%d", count), Form("%s: pedestals", filename), nch, 1, nch, CPars->PedYLim, 0, CPars->PedYLim);
+  TH2F *fram = new TH2F(Form("fram_%d", count), Form("%s: pedestals", tdrname.c_str()), nch, 1, nch, CPars->PedYLim, 0,
+                        CPars->PedYLim);
   fram->SetStats(0);
   fram->Draw();
-  TH1F *isto = new TH1F(Form("isto_%d", count), Form("%s: pedestals", filename), nch, 1, nch);
+  TH1F *isto = new TH1F(Form("isto_%d", count), Form("%s: pedestals", tdrname.c_str()), nch, 1, nch);
   for (Int_t ii = 0; ii < nch; ii++)
     isto->SetBinContent(ii, ped[ii]);
   isto->Draw("same");
@@ -444,10 +449,10 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
 
   c->cd(2);
   gPad->SetFillStyle(0);
-  TH2F *fram2 = new TH2F(Form("fram2_%d", count), Form("%s: sigma", filename), nch, 1, nch, 11, 0, 10);
+  TH2F *fram2 = new TH2F(Form("fram2_%d", count), Form("%s: sigma", tdrname.c_str()), nch, 1, nch, 11, 0, 10);
   fram2->SetStats(0);
   fram2->Draw();
-  TH1F *isto2 = new TH1F(Form("isto2_%d", count), Form("%s: sigma", filename), nch, 1, nch);
+  TH1F *isto2 = new TH1F(Form("isto2_%d", count), Form("%s: sigma", tdrname.c_str()), nch, 1, nch);
   for (int ii = 0; ii < nch; ii++)
     isto2->SetBinContent(ii, sig[ii]);
   isto2->Draw("same");
@@ -457,10 +462,10 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
 
   c->cd(3);
   gPad->SetFillStyle(0);
-  TH2F *fram3 = new TH2F(Form("fram3_%d", count), Form("%s: sigma raw", filename), nch, 1, nch, 21, 0, 20);
+  TH2F *fram3 = new TH2F(Form("fram3_%d", count), Form("%s: sigma raw", tdrname.c_str()), nch, 1, nch, 21, 0, 20);
   fram3->SetStats(0);
   fram3->Draw();
-  TH1F *isto3 = new TH1F(Form("isto3_%d", count), Form("%s: sigma raw", filename), nch, 1, nch);
+  TH1F *isto3 = new TH1F(Form("isto3_%d", count), Form("%s: sigma raw", tdrname.c_str()), nch, 1, nch);
   for (int ii = 0; ii < nch; ii++)
     isto3->SetBinContent(ii, rsig[ii]);
   isto3->Draw("same");
@@ -470,10 +475,10 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
 
   c->cd(4);
   gPad->SetFillStyle(0);
-  TH2F *fram4 = new TH2F(Form("fram4_%d", count), Form("%s: strip status", filename), nch, 1, nch, 11, 0, 10);
+  TH2F *fram4 = new TH2F(Form("fram4_%d", count), Form("%s: strip status", tdrname.c_str()), nch, 1, nch, 11, 0, 10);
   fram4->SetStats(0);
   fram4->Draw();
-  TH1F *isto4 = new TH1F(Form("isto4_%d", count), Form("%s: strip status", filename), nch, 1, nch);
+  TH1F *isto4 = new TH1F(Form("isto4_%d", count), Form("%s: strip status", tdrname.c_str()), nch, 1, nch);
   // int chip=0;
   // int channelofchip=0;
   for (int jj = 0; jj < nch; jj++) {

@@ -17,8 +17,10 @@ public:
   float *rsig;
   float *sig;
   int *status;
+  bool valid;
 
   calib() {
+    valid = true;
     ped = new float[NCh];  // was [1024]: is backward compatible?
     rsig = new float[NCh]; // was [1024]: is backward compatible?
     sig = new float[NCh];  // was [1024]: is backward compatible?
@@ -240,7 +242,9 @@ private:
   ChArray<short> RawSignal{{{0}}};
   ChArray<float> RawSoN{{{0}}}; //! (do not stream on file! Can be recomputed easily!)
   ChArray<int> CalStatus{{{0}}};
-  TdrArray<short> ReadTDR{{0}};
+  TdrArray<short> ReadTDR{{0}}; // MD: what is used for?!
+
+  TdrArray<bool> ValidTDR{{false}};
 
   //------------CB:qui salvo gli output di FindTracksAndVertex()------------//
   int _NTrks;                         //!
