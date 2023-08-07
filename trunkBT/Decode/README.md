@@ -1,13 +1,27 @@
-#This is the dir for:
+# This is the dir with the core of the packet: the tools to decode binary files, clusterize raw file and output ROOT files. The code contain also the code to create high level objects like tracks and charge measurements
 
-#/bin/bash
+Some decoding examples:
 
-# AMS-LO USB-LF+LINF and version >=5
+## AMS-L0
+
+- ### AMS-LO USB-LF+LINF and version >=5
+```
 ./Decode --rawdata "/Volumes/DATI/OneDrive - Istituto Nazionale di Fisica Nucleare/Work/AMS-L0/Data/L0/BLOCKS/PG/TEST_LINF" --caldata "/Volumes/DATI/OneDrive - Istituto Nazionale di Fisica Nucleare/Work/AMS-L0/Data/L0/BLOCKS/PG/TEST_LINF" --l0 -c --calrunstart 0001717 --calrunstop 0001717 0001718 0001718
-
+```
+```
 ./PlotCalib --l0 --caldir="/Volumes/DATI/OneDrive - Istituto Nazionale di Fisica Nucleare/Work/AMS-L0/Data/L0/BLOCKS/PG/TEST_LINF/" 0001717
+```
 
-# AMS-L0 LEF directly to USB-LEF (not USB-LF, I think)
+- ### AMS-L0 LEF directly to USB-LEF (not USB-LF, I think)
+```
 ./Decode --rawdata "/Volumes/DATI/OneDrive - Istituto Nazionale di Fisica Nucleare/Work/AMS-L0/Data/L0/BLOCKS/PG/202212_AMSL0_data" --caldata "/Volumes/DATI/OneDrive - Istituto Nazionale di Fisica Nucleare/Work/AMS-L0/Data/L0/BLOCKS/PG/202212_AMSL0_data" --l0old -c --calrunstart 0009870 --calrunstop 0009870 0009876 0009880
-
+```
+```
 ./PlotCalib --l0 --caldir="/Volumes/DATI/OneDrive - Istituto Nazionale di Fisica Nucleare/Work/AMS-L0/Data/L0/BLOCKS/PG/202212_AMSL0_data" 0009870
+```
+
+## AMS
+
+## OCA
+
+## FOOT
