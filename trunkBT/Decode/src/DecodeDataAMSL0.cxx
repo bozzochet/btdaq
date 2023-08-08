@@ -251,7 +251,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
   std::vector<std::vector<std::vector<std::vector<float>>>> signals(
       nJinf,
       std::vector<std::vector<std::vector<float>>>(ntdrRaw + ntdrCmp, std::vector<std::vector<float>>(NVAS * NCHAVA)));
-  unsigned int nEvents{0};
+  unsigned long int nEvents{0};
 
   auto event = std::make_unique<EventAMSL0>((char *)"ladderconf_L0.dat", (char *)"gaincorrection_L0.dat");
 
@@ -300,7 +300,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
     // Some test calibrations contain too many events, stop at 10k
     while (nEvents < 10000) {
       event.get()->Clear();
-      int result = ReadOneBlockFromFile(&rawcalstream, event.get(), nEvents);
+      int result = ReadOneEventFromFile(&rawcalstream, event.get(), nEvents, 0xC);
       if (result) {
         if (result < 0) {
           break;
@@ -308,6 +308,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
           continue;
         }
       }
+      nEvents++;
       std::cout << "\rRead " << nEvents << " events  " << std::flush;
 
       //      if (nEvents > 1000)
@@ -567,20 +568,16 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
   return true;
 };
 
-int DecodeDataAMSL0::ReadOneBlockFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event,
-                                          unsigned int &nEvents) {
+int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event,
+                                          unsigned long int nEvents, uint16_t expTag) {
 
-  // as a fact is a circular buffer: the event number cannot be more than 255
-  static std::map<uint16_t, std::map<std::pair<uint16_t, uint16_t>, std::vector<uint16_t>>> buffer;
+  constexpr int bufferlenght = 256;
+  constexpr int dumpshift = 10;
 
-  // SAREBBE DA VERIFICARE, QUANDO CAMBIA FILE, CHE DENTRO NON CI SIA UNA CONFIG:
-  //  1. PERCHE'?
-  //  2. E' CAMBIATA
-  //  FORSE DEVO ANCHE CONTROLLARE CHE NON CI SIA STATO UNO STOP
+  bool kConfigFound = false;
+  bool kWrongTag = false;
 
   int empty_blocks = 1;
-
-  int last_evno = -10;
 
   static bool kEventBuilderStopNotFound = true;
   static bool kTriggerAndDAQControlNotFound = true;
@@ -592,7 +589,10 @@ int DecodeDataAMSL0::ReadOneBlockFromFile(TBDecode::L0::AMSBlockStream *stream, 
     printf("%d %d %d -> %d\n", !stream->EndOfStream(), kEventBuilderStopNotFound, kTriggerAndDAQControlNotFound,
            (!stream->EndOfStream() && (kEventBuilderStopNotFound || kTriggerAndDAQControlNotFound)));
   }
-  if (!stream->EndOfStream() && (kEventBuilderStopNotFound || kTriggerAndDAQControlNotFound)) {
+  if (pri)
+    printf("buffer.size() = %lu\n", buffer.size());
+  if (buffer.size() < bufferlenght / 2 && !stream->EndOfStream() &&
+      (kEventBuilderStopNotFound || kTriggerAndDAQControlNotFound)) {
     auto block = TBDecode::L0::AMSBlock::DecodeAMSBlock(stream->CurrentFile());
     std::visit(TBDecode::Utils::overloaded{
                    [&empty_blocks](TBDecode::L0::AMSBlock::EmptyBlock &block) {
@@ -609,7 +609,7 @@ int DecodeDataAMSL0::ReadOneBlockFromFile(TBDecode::L0::AMSBlockStream *stream, 
                      if (this->pri)
                        printf("SCI!\n");
                    },
-                   [this, &last_evno, event](TBDecode::L0::AMSBlock::FineTimeEnvelope &block) {
+                   [expTag, &kWrongTag, this, event](TBDecode::L0::AMSBlock::FineTimeEnvelope &block) {
                      if (this->pri) {
                        printf("FineTimeEnvelope\n");
                        printf("Time: %u\n", block.utime_sec);
@@ -621,9 +621,15 @@ int DecodeDataAMSL0::ReadOneBlockFromFile(TBDecode::L0::AMSBlockStream *stream, 
                        printf("Tag = %x\n", block.tag);
                        printf("raw_data.size() = %lu\n", data.raw_data.size());
                      }
+                     if (expTag) {
+                       if ((block.tag >> 8) != expTag) {
+                         printf("**** We found the wrong Tag. We were expecting 0x%XXX, we found 0x%X\n", expTag,
+                                block.tag);
+                         kWrongTag = true;
+                       }
+                     }
                      for (auto i = data.raw_data.begin(); i != data.raw_data.end(); i++) {
                        uint16_t evno = i->first;
-                       last_evno = evno;
                        unsigned long nLEFs = i->second.size();
                        if (pri)
                          printf("i) evno=%u,  nLEFs=%lu\n", evno, nLEFs);
@@ -635,7 +641,16 @@ int DecodeDataAMSL0::ReadOneBlockFromFile(TBDecode::L0::AMSBlockStream *stream, 
                            printf("j) LINF=%d, LEF=%d, size_data=%lu\n", LINF, LEF, size_data);
                          std::pair linf_lef = std::make_pair(LINF, LEF);
                          std::vector<uint16_t> data_ord = ReOrderVladimir(j->second);
-                         buffer[i->first][linf_lef] = data_ord;
+                         //                         buffer[i->first][linf_lef] = data_ord;
+                         auto it = std::find_if(buffer.begin(), buffer.end(),
+                                                [evno](auto element) { return element.first == evno; });
+                         if (it != std::end(buffer)) { // event already present
+                           it->second[linf_lef] = data_ord;
+                         } else {
+                           std::map<std::pair<uint16_t, uint16_t>, std::vector<uint16_t>> el_to_push;
+                           el_to_push[linf_lef] = data_ord;
+                           buffer.push_back(std::make_pair(evno, el_to_push));
+                         }
                        }
                      }
                    },
@@ -643,9 +658,11 @@ int DecodeDataAMSL0::ReadOneBlockFromFile(TBDecode::L0::AMSBlockStream *stream, 
                      if (this->pri)
                        printf("ServerConfigInfo\n");
                    },
-                   [this](TBDecode::L0::AMSBlock::ConfigInfo &block) {
+                   [&kConfigFound, this](TBDecode::L0::AMSBlock::ConfigInfo &block) {
                      if (this->pri)
                        printf("Config\n");
+                     printf("**** We found a config. In principle we're inside a run...\n");
+                     kConfigFound = true;
                    },
                    [this](TBDecode::L0::AMSBlock::ControlQList &block) {
                      if (this->pri)
@@ -678,6 +695,13 @@ int DecodeDataAMSL0::ReadOneBlockFromFile(TBDecode::L0::AMSBlockStream *stream, 
                block);
   }
 
+  if (kConfigFound) {
+    return -1000;
+  }
+  if (kWrongTag) {
+    return -2000;
+  }
+
   bool FileIsOver = (stream->EndOfStream() || (!kEventBuilderStopNotFound && !kTriggerAndDAQControlNotFound));
   if (pri) {
     printf("%d %d %d -> %d\n", stream->EndOfStream(), !kEventBuilderStopNotFound, !kTriggerAndDAQControlNotFound,
@@ -692,7 +716,7 @@ int DecodeDataAMSL0::ReadOneBlockFromFile(TBDecode::L0::AMSBlockStream *stream, 
   }
 
   auto oldness_check = [](auto a, auto b) {
-    if ((a - b % 256) > 10 || (b % 256 - a) > (256 / 2)) {
+    if ((a - b) > dumpshift || (a + bufferlenght - b) > dumpshift) {
       return true;
     } else {
       return false;
@@ -711,25 +735,31 @@ int DecodeDataAMSL0::ReadOneBlockFromFile(TBDecode::L0::AMSBlockStream *stream, 
     }
   };
 
-  static uint16_t evno_to_process = 0;
-  auto i = buffer.find(evno_to_process % 256);
-  bool old_enough = oldness_check(last_evno, evno_to_process);
-  evno_to_process++;
-  if (i != buffer.end()) { // event
-    //  for (auto i = buffer.begin(); i != buffer.end(); i++) {
+  /*
+  printf("buffer content:\n");
+  for (auto it = buffer.cbegin(); it != buffer.cend(); ++it) {
+    printf("Ev: %u) nLEF=%lu\n", it->first, it->second.size());
+  }
+  printf("---------------\n");
+  */
+
+  auto i = buffer.begin();
+  if (i != buffer.end()) { // otherwise buffer is empty...
+    uint16_t evno_to_process = buffer.front().first;
+    uint16_t last_evno = buffer.back().first;
+    bool old_enough = oldness_check(last_evno, evno_to_process);
     uint16_t evno = i->first;
     unsigned long nLEFs = i->second.size();
     if (pri)
       printf("i) evno=%u,  nLEFs=%lu\n", evno, nLEFs);
     if (!old_enough && !FileIsOver) {
-      evno_to_process--; // we have to reprocess this
-      if (pri)
-        printf("Too early: evno=%d (next evno_to_process=%d), last_evno=%d\n", evno, evno_to_process, last_evno);
-      return 3;
+      //      if (pri)
+      printf("Too early: evno=%d (next evno_to_process=%d), last_evno=%d\n", evno, evno_to_process, last_evno);
+      return 1;
     }
     if (pri)
-      printf("Good: evno=%d, nLEFs=%lu (next evno_to_process=%d), last_evno=%d\n", evno, nLEFs, evno_to_process,
-             last_evno);
+      printf("Good: evno=%d, nLEFs=%lu (next evno_to_process=%d), last_evno=%d - nEvents=%lu\n", evno, nLEFs,
+             evno_to_process, last_evno, nEvents);
     for (auto j = i->second.begin(); j != i->second.end(); j++) {
       uint16_t LINF = get_LINF(j->first.first);
       uint16_t LINF_index = rh->FindJinfPos(LINF);
@@ -743,19 +773,15 @@ int DecodeDataAMSL0::ReadOneBlockFromFile(TBDecode::L0::AMSBlockStream *stream, 
       //      std::cout << "Ch0 signal = " << event->RawSignal[LINF_index][LEF_index][0] << '\n';
       event->ValidTDR[LINF_index][LEF_index] = true;
     }
-    nEvents++;
-    buffer.erase(evno);
+    buffer.pop_front();
     return 0;
   } else {
-    if (!old_enough) {
-      evno_to_process--; // we have to reprocess this
-    }
     if (pri)
-      printf("evno_to_process=%d not found (last_evno=%d)\n", evno_to_process, last_evno);
+      printf("buffer empty...\n");
     return 2;
   }
 
-  return 1;
+  return -3000;
 }
 
 int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL0 *event) {
@@ -1021,6 +1047,12 @@ int DecodeDataAMSL0::ReadOneEvent() {
         return 0;
       }
     }
+  } else { // decodestyle>0
+    static std::string oldfile = "";
+    if (rawdatastream.CurrentFilePath() != oldfile) {
+      std::cout << "\rOpening data file " << rawdatastream.CurrentFilePath() << '\n';
+    }
+    oldfile = rawdatastream.CurrentFilePath();
   }
 
   for (unsigned int iJinf = 0; iJinf < nJinf; ++iJinf) {
@@ -1034,8 +1066,13 @@ int DecodeDataAMSL0::ReadOneEvent() {
     }
   }
 
-  pri = false;
-  int retVal = ReadOneEventFromFile(rawfile, ev);
+  int retVal = 1;
+  if (decodestyle == 0)
+    retVal = ReadOneEventFromFile(rawfile, ev);
+  else
+    while (retVal >= 1 && retVal <= 2) { // 1: too early, 2: not found yet
+      retVal = ReadOneEventFromFile(&rawdatastream, ev, m_read_events, 0xD);
+    }
   if (!retVal) {
     ev->SetEvtNum(m_read_events);
     m_read_events++;
@@ -1059,7 +1096,13 @@ int DecodeDataAMSL0::ReadOneEvent() {
   return retVal;
 }
 
-int DecodeDataAMSL0::EndOfFile() { return m_end_of_file; }
+int DecodeDataAMSL0::EndOfFile() {
+  if (decodestyle == 0) {
+    return m_end_of_file;
+  } else {
+    return (rawdatastream.EndOfStream() && buffer.size() == 0);
+  }
+}
 
 void DecodeDataAMSL0::InitHistos() {
   // taken from DecodeData. Hidden down here so I don't throw up every time I open this file

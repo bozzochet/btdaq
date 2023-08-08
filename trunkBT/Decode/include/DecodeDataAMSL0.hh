@@ -11,6 +11,8 @@
 #include "TBDecode/AMSL0/AMSBlock.h"
 #include "TBDecode/AMSL0/AMSBlockStream.h"
 
+#include <deque>
+
 class DecodeDataAMSL0 : public DecodeData {
 public:
   using EventAMSL0 = GenericEvent<4, 9, 64, 8, 16, 0>;
@@ -75,7 +77,7 @@ private:
   EventAMSL0::JArray<int> JinfMap{0};
 
   unsigned int m_numBoards = EventAMSL0::GetNJINF() * EventAMSL0::GetNTDRS(); // maximum
-  unsigned int m_numBoardsFound = 0; // found during ReadOneEventFromFile
+  unsigned int m_numBoardsFound = 0;                                          // found during ReadOneEventFromFile
 
   void DumpRunHeader() override;
 
@@ -89,7 +91,12 @@ private:
   bool ProcessCalibration();
 
   int ReadOneEventFromFile(FILE *file, EventAMSL0 *event);
-  int ReadOneBlockFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event, unsigned int &nEvents);
+
+  // as a fact is a circular buffer: the event number cannot be more than 255
+  // [evno][linf][lef][data]
+  std::deque<std::pair<uint16_t, std::map<std::pair<uint16_t, uint16_t>, std::vector<uint16_t>>>> buffer;
+  int ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event, unsigned long int nEvents,
+                           uint16_t expTag = 0);
 
   std::vector<uint16_t> ReOrderVladimir(std::vector<uint8_t> data);
 };
