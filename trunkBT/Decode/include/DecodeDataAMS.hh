@@ -84,6 +84,10 @@ public:
 
   virtual void DumpRunHeader() override;
 
+  virtual int FindPos(int tdrnum, int jinfnum) final;
+  virtual int FindCalPos(int tdrnum, int jinfnum) final;
+  virtual int ComputeTdrNum(int tdrnum, int jinfnum) final;
+
 public:
   DecodeDataAMS() = default;
   DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary, bool _kMC = false);

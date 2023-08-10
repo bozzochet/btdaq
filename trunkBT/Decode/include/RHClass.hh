@@ -60,7 +60,7 @@ public:
 
     inline int GetRun() { return Run; }
 
-    inline void SetDate(char *_date) {
+    inline void SetDate(const char *_date) {
         date = _date;
         return;
     }
@@ -97,11 +97,13 @@ public:
     // FIXME: the methods below must include also the jinfnum
     // sometims infact I use tdrnum+100*jinfnum that CANNOT WORK (see above)!
 
+    static inline int ComputeTdrNum(int tdrnum, int jinfnum) { return 100 * jinfnum + tdrnum; }
+
     int GetTdrNum(int tdrpos);
-
     int GetTdrType(int tdrpos);
+    int GetJinfNum(int tdrpos);
 
-    int FindPos(int tdrnum);
+    int FindPos(int tdrnum, int jinfnum);
     int FindJinfPos(int jinfnum);
 
     void SetUnixTime(unsigned int utime) { unixTime = utime; }

@@ -12,9 +12,10 @@ class DecodeDataFOOT : public DecodeData {
 public:
   using EventFOOT = GenericEvent<1, 24, 64, 5, 10, 0>;
   using calibFOOT = calib<EventFOOT::GetNCHAVA() * EventFOOT::GetNVAS()>;
+  using RHClassFOOT = RHClass<EventFOOT::GetNJINF(), EventFOOT::GetNTDRS()>;
 
-public:
   EventFOOT *ev;
+  RHClassFOOT *rh;
 
   DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calNum);
 
@@ -47,6 +48,10 @@ private:
   virtual int SkipOneEvent(int evskip = 1) final { return 0; };
   virtual int GetTdrNum(size_t pos) override;
   virtual int GetTdrType(size_t pos) override;
+
+  virtual int FindPos(int tdrnum, int jinfnum) final;
+  virtual int FindCalPos(int tdrnum, int jinfnum) final;
+  virtual int ComputeTdrNum(int tdrnum, int jinfnum) final;
 };
 
 #endif // DECODE_DECODEDATAFOOT_HH

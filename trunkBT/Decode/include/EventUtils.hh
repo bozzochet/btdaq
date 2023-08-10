@@ -40,13 +40,21 @@ public:
   void InitSize(size_t nJinf, size_t nTdr, size_t nVA_S, size_t nVA_K);
   void Init(const std::string &filename);
   float GetPar(size_t jinfnum, size_t tdrnum, size_t vanum, size_t parnum) {
-    return m_pars[jinfnum][tdrnum][vanum][parnum];
+    try {
+      return m_pars.at(jinfnum).at(tdrnum).at(vanum)[parnum];
+    } catch (const std::out_of_range &e) {
+      printf("*** GainCorrectionPars for {Jinf=%lu, TDRnum=%lu, VAnum=%lu} not defined. Using default values...\n",
+             jinfnum, tdrnum, vanum);
+      m_pars[jinfnum][tdrnum][vanum][0] = 0.0;
+      m_pars[jinfnum][tdrnum][vanum][1] = 1.0;
+      return m_pars[jinfnum][tdrnum][vanum][parnum];
+    }
   };
 
 private:
   GainCorrectionPars() = default;
 
-  std::vector<std::vector<std::vector<std::array<float, 2>>>> m_pars;
+  std::map<size_t, std::map<size_t, std::map<size_t, std::array<float, 2>>>> m_pars;
 };
 
 class AlignmentPars {
@@ -59,15 +67,34 @@ public:
 
   void InitSize(size_t nJinf, size_t nTdr);
   void Init(const std::string &filename);
-  float GetPar(size_t jinfnum, size_t tdrnum, size_t parnum) { return m_pars[jinfnum][tdrnum][parnum]; };
-  bool GetMultiplicityFlip(size_t jinfnum, size_t tdrnum) { return m_multflip[jinfnum][tdrnum]; };
+  float GetPar(size_t jinfnum, size_t tdrnum, size_t parnum) {
+    try {
+      return m_pars.at(jinfnum).at(tdrnum)[parnum];
+    } catch (const std::out_of_range &e) {
+      printf("*** AlignmentPars for {Jinf=%lu, TDRnum=%lu} not defined. Using default values...\n", jinfnum, tdrnum);
+      m_pars[jinfnum][tdrnum][0] = 0.0;
+      m_pars[jinfnum][tdrnum][1] = 0.0;
+      m_pars[jinfnum][tdrnum][2] = 0.0;
+      return m_pars[jinfnum][tdrnum][parnum];
+    }
+  };
+  bool GetMultiplicityFlip(size_t jinfnum, size_t tdrnum) {
+    try {
+      return m_multflip.at(jinfnum).at(tdrnum);
+    } catch (const std::out_of_range &e) {
+      printf("*** AlignmentPars (MultiplicityFlip) for {Jinf=%lu, TDRnum=%lu} not defined. Using default values...\n",
+             jinfnum, tdrnum);
+      m_multflip[jinfnum][tdrnum] = false;
+      return m_multflip[jinfnum][tdrnum];
+    }
+  };
 
-private:
-  AlignmentPars() = default;
+  private:
+    AlignmentPars() = default;
 
-  std::vector<std::vector<std::array<float, 3>>> m_pars;
-  std::vector<std::vector<bool>> m_multflip;
-};
+    std::map<size_t, std::map<size_t, std::array<float, 3>>> m_pars;
+    std::map<size_t, std::map<size_t, bool>> m_multflip;
+  };
 
 using laddernumtype = std::pair<int, int>;
 using Hit = std::pair<int, std::pair<double, double>>;

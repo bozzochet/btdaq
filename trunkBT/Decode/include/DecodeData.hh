@@ -77,13 +77,15 @@ protected:
   unsigned int m_defaultShift = 640;
   unsigned int m_defaultArraySize = 384;
 
-  int FindPos(int tdrnum);
-  int FindCalPos(int tdrnum);
+  virtual int FindPos(int tdrnum, int jinfnum) = 0;
+  virtual int FindCalPos(int tdrnum, int jinfnum) = 0;
   int ReadFile(void *ptr, size_t size, size_t nitems, FILE *stream);
 
   bool kMC = false;
 
 public:
+  virtual int ComputeTdrNum(int tdrnum, int jinfnum) = 0;
+
   // TODO: put in DecodeDataAMS
 
   TH1F **hocc;
@@ -118,10 +120,10 @@ public:
   template <class Event, class calib> void Clusterize(int numnum, int Jinfnum, Event *ev, calib *cal);
   template <class Event, class calib> void FillRawHistos(int numnum, int Jinfnum, Event *ev, calib *cal);
   template <class Event, class calib>
-  void ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals);
+  void ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals, int iJinf = 0);
   template <class Event, class calib>
   void SaveCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals, long int runnum,
-                       unsigned int nTDRs, int iJinf);
+                       unsigned int nTDRs, int iJinf = 0);
   virtual void GetCalFilePrefix(char *calfileprefix, long int runnum) = 0;
 
   virtual inline int GetNTdrRaw() { return ntdrRaw; }
@@ -147,19 +149,17 @@ protected:
   std::vector<long int> m_calRunnums{};
 
 public:
-  // mc
   void SetPrintOff() { pri = 0; }
   void SetPrintOn() { pri = 1; }
   void SetEvPrintOff() { evpri = 0; }
   void SetEvPrintOn() { evpri = 1; }
 
   virtual TTree *GetMCTruth() { return nullptr; }; // CB
-  };
+};
 
 template <class Event, class calib>
 inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnum, int clusadd, int cluslen,
                                    int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float *sig, bool kRaw) {
-
   //  constexpr auto NJINF = Event::GetNJINF();
   constexpr auto NTDRS = Event::GetNTDRS();
   //  constexpr auto NVAS = Event::GetNVAS();
@@ -167,7 +167,7 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
   //  constexpr auto NVASK = Event::GetNVASK();
   constexpr auto NCHAVA = Event::GetNCHAVA();
 
-  // pri = 1;
+  //  printf("kMC = %d\n", kMC);
 
   LadderConf *ladderconf = LadderConf::Instance();
   int _bondingtype = 0;
@@ -207,20 +207,20 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
     else if (sid == 1)
       sid = 0;
     else {
-      printf("Side is %d so I don't know hot to swap...\n", sid);
+      printf("Side is %d so I don't know how to swap...\n", sid);
     }
   }
 
-  Cluster *pp = ev->AddCluster(Jinfnum, numnum + 100 * Jinfnum, sid);
+  Cluster *pp = ev->AddCluster(Jinfnum, ComputeTdrNum(numnum, Jinfnum), sid);
   pp->SetLadderConf(ladderconf);
 
-  //  pp->Build(numnum+100*Jinfnum,sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
+  //  pp->Build(ComputeTdrNum(numnum, Jinfnum),sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
   //	    &(cal->status[clusadd]), Sig2NoiStatus, CNStatus, PowBits, bad);
   // ONLY the 3rd field should be changed (clusadd->newclusadd) to move the cluster.
   // The 'clusadd' passed to the array should be left as it is to read the same signal values
   // for the 'sig' array there's no problem since already starting from 0
-  pp->Build(numnum + 100 * Jinfnum, sid, newclusadd, cluslen, sig, &(cal->sig[clusadd]), &(cal->status[clusadd]),
-            Sig2NoiStatus, CNStatus, PowBits, bad);
+  pp->Build(ComputeTdrNum(numnum, Jinfnum), sid, newclusadd, cluslen, sig, &(cal->sig[clusadd]),
+            &(cal->status[clusadd]), Sig2NoiStatus, CNStatus, PowBits, bad);
 
   double cog = pp->GetCoG();
   double seedadd = pp->GetSeedAdd();
@@ -277,9 +277,7 @@ inline void DecodeData::FillRawHistos(int numnum, int Jinfnum, Event *ev, calib 
   //  constexpr auto NVASK = Event::GetNVASK();
   constexpr auto NCHAVA = Event::GetNCHAVA();
 
-  // pri = 1;
-
-  int tdrnumraw = FindPos(numnum + 100 * Jinfnum);
+  int tdrnumraw = FindPos(numnum, Jinfnum);
 
   LadderConf *ladderconf = LadderConf::Instance();
   double shithresh = ladderconf->GetSHiThreshold(Jinfnum, numnum);
@@ -309,17 +307,20 @@ inline void DecodeData::FillRawHistos(int numnum, int Jinfnum, Event *ev, calib 
       }
     }
 
-    if (ev->RawSoN[Jinfnum][tdrnumraw][cc] > threshold) {
-      //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->RawSignal[tdrnumraw][cc])/8.0, cal->ped[cc],
-      // cal->sig[cc], (ev->RawSignal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
-      // printf("%04d) %f\n", cc, ev->RawSoN[tdrnumraw][cc]);
+    //    int tdrindex = tdrnumraw; //MD: I think is wrong if used in [Jinfnum][tdrindex] array...
+    int tdrindex = numnum;
+
+    if (ev->RawSoN[Jinfnum][tdrindex][cc] > threshold) {
+      //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->RawSignal[tdrindex][cc])/8.0, cal->ped[cc],
+      // cal->sig[cc], (ev->RawSignal[tdrindex][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
+      // printf("%04d) %f\n", cc, ev->RawSoN[tdrindex][cc]);
       // this fills the histogram for the raw events when NOT clustering,
       // if kClusterize anyhow, ALL the histos as for the compressed data, will be filled
-      hocc[numnum + NTDRS * Jinfnum]->Fill(cc, ev->RawSoN[Jinfnum][tdrnumraw][cc]);
+      hocc[numnum + NTDRS * Jinfnum]->Fill(cc, ev->RawSoN[Jinfnum][tdrindex][cc]);
       // hoccseed not filled in this case...
       // hcharge not filled in this case...
-      hsignal[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSignal[Jinfnum][tdrnumraw][cc] / m_adcUnits);
-      hson[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSoN[Jinfnum][tdrnumraw][cc]);
+      hsignal[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSignal[Jinfnum][tdrindex][cc] / m_adcUnits);
+      hson[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSoN[Jinfnum][tdrindex][cc]);
     }
   }
 
@@ -333,8 +334,6 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
   constexpr auto NVASS = Event::GetNVASS();
   constexpr auto NVASK = Event::GetNVASK();
   constexpr auto NCHAVA = Event::GetNCHAVA();
-
-  // pri = 1;
 
   int _bondingtype = 0;
   bool defaultThresholds =
@@ -387,11 +386,15 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
 
   _bondingtype = ladderconf->GetBondingType(Jinfnum, numnum);
 
-  int tdrnumraw = FindPos(numnum + 100 * Jinfnum);
+  int tdrnumraw = FindPos(numnum, Jinfnum);
+  //  printf("numnum = %d --> tdrnumraw = %d\n", numnum, tdrnumraw);
 
   //// numnum -> mapped to find the ntdr(=nlayer)
   if (kMC)
     tdrnumraw = numnum;
+
+  //    int tdrindex = tdrnumraw; //MD: I think is wrong if used in [Jinfnum][tdrindex] array...
+  int tdrindex = numnum;
 
   //// nvas were 16 total summing S and K
   //  int nvasS=10;
@@ -447,8 +450,8 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
       if (_bondingtype == 1) {
         arraysize = 320;
         for (int cc = 0; cc < arraysize; cc++) {
-          array[cc] = ev->RawSignal[Jinfnum][tdrnumraw][cc * 2];
-          arraySoN[cc] = ev->RawSoN[Jinfnum][tdrnumraw][cc * 2];
+          array[cc] = ev->RawSignal[Jinfnum][tdrindex][cc * 2];
+          arraySoN[cc] = ev->RawSoN[Jinfnum][tdrindex][cc * 2];
           pede[cc] = cal->ped[cc * 2];
           sigma[cc] = cal->sig[cc * 2];
           status[cc] = cal->status[cc * 2];
@@ -458,14 +461,13 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
         int halfarraysize = ((int)(arraysize / 2));
         int shift = ((int)(640 / 2));
         for (int cc = 0; cc < halfarraysize; cc++) {
-          //	  printf("%d %d %d\n", cc, cc+halfarraysize, cc+shift);
-          array[cc] = ev->RawSignal[Jinfnum][tdrnumraw][cc];
-          arraySoN[cc] = ev->RawSoN[Jinfnum][tdrnumraw][cc];
+          array[cc] = ev->RawSignal[Jinfnum][tdrindex][cc];
+          arraySoN[cc] = ev->RawSoN[Jinfnum][tdrindex][cc];
           pede[cc] = cal->ped[cc];
           sigma[cc] = cal->sig[cc];
           status[cc] = cal->status[cc];
-          array[cc + halfarraysize] = ev->RawSignal[Jinfnum][tdrnumraw][cc + shift];
-          arraySoN[cc + halfarraysize] = ev->RawSoN[Jinfnum][tdrnumraw][cc + shift];
+          array[cc + halfarraysize] = ev->RawSignal[Jinfnum][tdrindex][cc + shift];
+          arraySoN[cc + halfarraysize] = ev->RawSoN[Jinfnum][tdrindex][cc + shift];
           pede[cc + halfarraysize] = cal->ped[cc + shift];
           sigma[cc + halfarraysize] = cal->sig[cc + shift];
           status[cc + halfarraysize] = cal->status[cc + shift];
@@ -473,8 +475,8 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
       } else {
         // arraysize=640;
         //        arraysize = nvas * nchava; // changed by Viviana
-        memcpy(array, ev->RawSignal[Jinfnum][tdrnumraw], arraysize * sizeof(ev->RawSignal[Jinfnum][tdrnumraw][0]));
-        memcpy(arraySoN, ev->RawSoN[Jinfnum][tdrnumraw], arraysize * sizeof(ev->RawSoN[Jinfnum][tdrnumraw][0]));
+        memcpy(array, ev->RawSignal[Jinfnum][tdrindex], arraysize * sizeof(ev->RawSignal[Jinfnum][tdrindex][0]));
+        memcpy(arraySoN, ev->RawSoN[Jinfnum][tdrindex], arraysize * sizeof(ev->RawSoN[Jinfnum][tdrindex][0]));
         memcpy(pede, cal->ped, arraysize * sizeof(cal->ped[0]));
         memcpy(sigma, cal->sig, arraysize * sizeof(cal->sig[0]));
         memcpy(status, cal->status, arraysize * sizeof(cal->status[0]));
@@ -504,10 +506,9 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
         // the src is the same array as in the S-side case but passing the reference to the first element of K-side
         // (640)
 
-        memcpy(array, &(ev->RawSignal[Jinfnum][tdrnumraw][shift]),
-               arraysize * sizeof(ev->RawSignal[Jinfnum][tdrnumraw][0]));
-        memcpy(arraySoN, &(ev->RawSoN[Jinfnum][tdrnumraw][shift]),
-               arraysize * sizeof(ev->RawSoN[Jinfnum][tdrnumraw][0]));
+        memcpy(array, &(ev->RawSignal[Jinfnum][tdrindex][shift]),
+               arraysize * sizeof(ev->RawSignal[Jinfnum][tdrindex][0]));
+        memcpy(arraySoN, &(ev->RawSoN[Jinfnum][tdrindex][shift]), arraysize * sizeof(ev->RawSoN[Jinfnum][tdrindex][0]));
         memcpy(pede, &(cal->ped[shift]), arraysize * sizeof(cal->ped[0]));
         memcpy(sigma, &(cal->sig[shift]), arraysize * sizeof(cal->sig[0]));
         memcpy(status, &(cal->status[shift]), arraysize * sizeof(cal->sig[0]));
@@ -519,8 +520,8 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
     for (int va = 0; va < nvas; va++) {
       CN[va] = Event::ComputeCN(nchava, &(array[va * nchava]), &(pede[va * nchava]), &(arraySoN[va * nchava]),
                                 &(status[va * nchava]));
-      // printf("%d) %f\n", va, CN[va]);
-      //      headerstringtodump += Form("CN[%d] = %f\n", va, CN[va]);
+      if (evpri)
+        headerstringtodump += Form("CN[%d] = %f\n", va, CN[va]);
     }
 
     int bad = 0;
@@ -538,15 +539,14 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
     int seedaddmax = -1;
 
     TString clusterstringtodump = "--> New cluster\n";
-    // printf("--> New cluster\n");
 
     for (int count = 0; count < arraysize; count++) {
 
       if (status[count])
         continue;
 
-      // printf("count = %d\n", count);
-      //      clusterstringtodump += Form("count = %d\n", count);
+      if (evpri)
+        clusterstringtodump += Form("count = %d\n", count);
 
       int va = (int)(count / nchava);
 
@@ -558,63 +558,66 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
 
       // printf("%d) %f %f %f %f -> %f\n", count, array[count]/8.0, pede[count], CN[va], sigma[count], ssun);
 
-      //      clusterstringtodump += Form("%d) %f %f %f %f -> %f\n", count, array[count]/8.0, pede[count], CN[va],
-      //      sigma[count], ssun);
+      if (evpri)
+        clusterstringtodump +=
+            Form("%d) %f %f %f %f -> %f\n", count, array[count] / 8.0, pede[count], CN[va], sigma[count], ssun);
       TString stringtodump;
       if (ssun >= highthreshold) { // the seed that can also be the first of the cluster
-        //	printf("%d) >high\n", count);
-        //	clusterstringtodump += Form("%d) >high\n", count);
-        //	clusterstringtodump += Form("%d) %f %f %f %f -> %f\n", count, array[count]/8.0, pede[count], CN[va],
-        // sigma[count], ssun);
+        if (evpri) {
+          clusterstringtodump += Form("%d) >high\n", count);
+          clusterstringtodump +=
+              Form("%d) %f %f %f %f -> %f\n", count, array[count] / 8.0, pede[count], CN[va], sigma[count], ssun);
+        }
 
         if (ssun > ssonmax) {
           seedaddmax = count;
           ssonmax = ssun;
-          //	  printf("%d) New max %d %f\n", count, seedaddmax, ssonmax);
-          //	  clusterstringtodump += Form("%d) New max %d %f\n", count, seedaddmax, ssonmax);
+          if (evpri)
+            clusterstringtodump += Form("%d) New max %d %f\n", count, seedaddmax, ssonmax);
         }
 
         if (firstfound) { // this is the seed (maybe there was another seed previously, but doesn't matter...)
           seedfound = true;
           cluslen++;
-          //	  printf("%d) >high and first found already (cluslen=%d)\n", count, cluslen);
-          //	  clusterstringtodump += Form("%d) >high and first found already (cluslen=%d)\n", count, cluslen);
+          if (evpri)
+            clusterstringtodump += Form("%d) >high and first found already (cluslen=%d)\n", count, cluslen);
         } else { // is the seed but also the first of the cluster...
           firstfound = true;
           seedfound = true;
           clusadd = count;
           cluslen = 1;
-          //	  printf("%d) >high, is the seed and also the first of the cluster (cluslen=%d)\n", count, cluslen);
-          //	  clusterstringtodump += Form("%d) >high, is the seed and also the first of the cluster (cluslen=%d)\n",
-          // count, cluslen);
+          if (evpri)
+            clusterstringtodump +=
+                Form("%d) >high, is the seed and also the first of the cluster (cluslen=%d)\n", count, cluslen);
         }
       } else if (ssun >= lowthreshold) { // potentially the start of a cluster, or maybe another neighbour...
-        //	clusterstringtodump += Form("%d) >low\n", count);
+        if (evpri)
+          clusterstringtodump += Form("%d) >low\n", count);
         if (!firstfound) { // is the first of the potential cluster
           firstfound = true;
           clusadd = count;
           cluslen = 1;
-          //	  printf("%d) >low, is the first of the potential cluster (cluslen=%d)\n", count, cluslen);
-          //	  clusterstringtodump += Form("%d) >low, is the first of the potential cluster (cluslen=%d)\n", count,
-          // cluslen);
+          if (evpri)
+            clusterstringtodump +=
+                Form("%d) >low, is the first of the potential cluster (cluslen=%d)\n", count, cluslen);
         } else { // there was already a 'first' so this can be a neighbour between the first and the seed or a neighbour
                  // after
           cluslen++;
-          //	  printf("%d) >low but firstfound already (cluslen=%d)\n", count, cluslen);
-          //	  clusterstringtodump += Form("%d) >low but firstfound already (cluslen=%d)\n", count, cluslen);
+          if (evpri)
+            clusterstringtodump += Form("%d) >low but firstfound already (cluslen=%d)\n", count, cluslen);
         }
       } else if (ssun < lowthreshold ||
                  count == (arraysize - 1)) { // end of a cluster or end of a "potential" cluster or simply nothing
-        //	printf("%d) <low (cluslen=%d)\n", count, cluslen);
-        //	clusterstringtodump += Form("%d) <low (cluslen=%d)\n", count, cluslen);
+                                             // printf("%d) <low (cluslen=%d)\n", count, cluslen);
+        if (evpri)
+          clusterstringtodump += Form("%d) <low (cluslen=%d)\n", count, cluslen);
         if (seedfound) { // the cluster is done, let's save it!
-          //	  printf("%d) <low, seed found already: let's save the cluster (cluslen=%d)\n", count, cluslen);
-          //	  clusterstringtodump += Form("%d) <low, seed found already: let's save the cluster (cluslen=%d)\n",
-          // count, cluslen);
-          //          if (pri)
-          //            printf("Cluster: add=%d  lenght=%d, seed=%d\n", clusadd + shift, cluslen, seedaddmax + shift);
-          //	  clusterstringtodump += Form("Cluster: add=%d  lenght=%d, seed=%d\n", clusadd+shift, cluslen,
-          // seedaddmax+shift);
+          if (evpri) {
+            clusterstringtodump +=
+                Form("%d) <low, seed found already: let's save the cluster (cluslen=%d)\n", count, cluslen);
+            clusterstringtodump +=
+                Form("Cluster: add=%d  lenght=%d, seed=%d\n", clusadd + shift, cluslen, seedaddmax + shift);
+          }
 
           // NOTE [VF]: Add two more strips to the cluster, just for safety, as done on flight data.
           // one to the left
@@ -626,23 +629,22 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
           for (int hh = clusadd; hh < (clusadd + cluslen); hh++) {
             int _va = (int)(hh / nchava);
             float s = array[hh] / m_adcUnits - pede[hh] - CN[_va];
-            //	    clusterstringtodump += Form("Sig=%f from Array = %d, Ped=%f, CN=%f\n", s, array[hh], pede[hh],
-            // CN[_va]);
-            //            if (pri)
-            //              printf("Signal: %d, Pos:%d\n", (int)(m_adcUnits * s), hh + shift);
-            //	    clusterstringtodump += Form("Signal: %d, Pos:%d\n", (int)(8*s), hh+shift);
+            if (evpri) {
+              clusterstringtodump += Form("Sig=%f from Array = %d, Ped=%f, CN=%f\n", s, array[hh], pede[hh], CN[_va]);
+              clusterstringtodump += Form("Signal: %d, Pos:%d\n", (int)(8 * s), hh + shift);
+            }
             if ((hh - clusadd) < MAXLENGHT) {
               sig[hh - clusadd] = s;
-              //              if (pri)
-              //                printf("        %f, Pos: %d\n", sig[hh - clusadd], hh + shift);
-              //	      clusterstringtodump += Form("        %f, Pos: %d\n", sig[hh-clusadd], hh+shift);
+              if (evpri)
+                clusterstringtodump += Form("        %f, Pos: %d\n", sig[hh - clusadd], hh + shift);
             } else
               bad = 1;
           }
-          //	  clusterstringtodump += Form("Status[%d] = %d\n", seedaddmax+shift, status[seedaddmax]);
+          if (evpri)
+            clusterstringtodump += Form("Status[%d] = %d\n", seedaddmax + shift, status[seedaddmax]);
           stringtodump = headerstringtodump + clusterstringtodump;
           if (!(status[seedaddmax] & (1 << 3))) { // if is not a bad cluster
-            //	    printf("numnum = %d\n", numnum);
+                                                  //            printf("numnum = %d\n", numnum);
             AddCluster(ev, cal, numnum, Jinfnum, clusadd + shift, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
           }
           clusterstringtodump = "--> New cluster\n";
@@ -655,6 +657,8 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
         seedaddmax = -1;
         stringtodump = headerstringtodump + clusterstringtodump;
         clusterstringtodump = "--> New cluster\n";
+        if (evpri)
+          printf("%s\n", clusterstringtodump.Data());
       }
     }
   }
@@ -678,8 +682,8 @@ void DecodeData::SaveCalibration(const std::vector<std::vector<std::vector<float
 
   //  printf("numBoards: %d\n", numBoards);
   //  printf("nTDRs = %d\n", nTDRs);
-  //  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
-  for (unsigned int iTdr = 0; iTdr < nTDRs; ++iTdr) {
+  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+    //  for (unsigned int iTdr = 0; iTdr < nTDRs; ++iTdr) {
     if (cals[iTdr].valid) {
       //    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
       //      printf("%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
@@ -715,7 +719,8 @@ void DecodeData::SaveCalibration(const std::vector<std::vector<std::vector<float
 }
 
 template <class Event, class calib>
-void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals) {
+void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals,
+                                    int iJinf) {
   constexpr auto NJINF = Event::GetNJINF();
   constexpr auto NTDRS = Event::GetNTDRS();
   constexpr auto NVAS = Event::GetNVAS();
@@ -725,8 +730,13 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
   // it manages only 1 Jinf
   // signals is vector<vector<vector>>> --> [tdr][ch][ev]
   // must be called for each Jinf
+  // essentially iJinf is NOT used
 
   /*
+  for (unsigned int iTdr = 0; iTdr < NTDRS; iTdr++) {
+    printf("iTdr=%u valid: %d\n", iTdr, cals[iTdr].valid);
+  }
+
   {
     printf("signals sizes:\n");
     unsigned long int nLEFs = signals.size();
@@ -767,7 +777,8 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
 
   //  printf("signals.size() = %lu\n", signals_sorted.size());
   for (unsigned long int iTdr = 0; iTdr < signals_sorted.size(); ++iTdr) {
-    //    printf("signals.at(%u) size() = %lu\n", iTdr, signals_sorted.at(iTdr).size());
+    // printf("signals.at(%lu).size() = %lu\n", iTdr, signals_sorted.at(iTdr).size());
+    // printf("signals.at(%lu).at(0).size() = %lu\n", iTdr, signals_sorted.at(iTdr).at(0).size());
     for (unsigned long int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
 
       signals_filtered[iTdr][iCh].clear();
@@ -787,7 +798,8 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
       //      printf("%ld %f\n", nEv, (1.0-2.0*PERCENTILE)*signals[iTdr][iCh].size());
       if (nEv < 100) {
         cals[iTdr].valid = false;
-        //        printf("iTdr=%lu, iCh=%lu) calib not valid\n", iTdr, iCh);
+        // if (iCh == 0)
+        //   printf("iTdr=%lu, iCh=%lu) calib not valid\n", iTdr, iCh);
       }
 
       //      cals[iTdr].ped[iCh] = std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f) /
@@ -877,7 +889,8 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
     unsigned long int nLEFs = signals_filtered.size();
     printf("signals_filtered.size() = %lu\n", nLEFs);
     for (unsigned long int iTdr = 0; iTdr < nLEFs; ++iTdr) {
-      printf("signals_filtered.at(%lu) size() = %lu\n", iTdr, signals_filtered.at(iTdr).size());
+      printf("signals_filtered.at(%lu) size() = %lu (valid = %d)\n", iTdr, signals_filtered.at(iTdr).size(),
+             cals[iTdr].valid);
       if (signals_filtered.at(iTdr).size() != NVAS * NCHAVA)
         printf("**** should have been = %lu\n", NVAS * NCHAVA);
       unsigned long int nEvents = signals_filtered.at(iTdr).at(0).size();
@@ -903,7 +916,7 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
   // with zero entries
   TH1F *h_sig_eachVA[1][NCHAVA][signals_filtered[0][0].size()]; // uno per ogni VA e per ogni evento
 #endif
-      //    printf("signals_filtered.size() = %lu\n", signals_filtered.size());
+  //    printf("signals_filtered.size() = %lu\n", signals_filtered.size());
   for (unsigned long int iTdr = 0; iTdr < signals_filtered.size(); ++iTdr) {
     if (cals[iTdr].valid) {
       //        printf("signals_filtered.at(%lu) size() = %lu\n", iTdr, signals_filtered.at(iTdr).size());
@@ -947,7 +960,7 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
             } else {
               /*
                 for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
-                    double sig = signals_filtered[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA +
+    double sig = signals_filtered[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA +
                 iVACh]; double rawnoise = cals[iTdr].rsig[thisVA * NCHAVA + iVACh]; double sig_to_rawnoise =
                 sig/rawnoise; printf("Event = %d) board=%d, ch=%lu --> sig=%f, ped=%f, S/N=%f\n", iEv, iTdr, thisVA *
                 NCHAVA + iVACh, signals_filtered[iTdr][thisVA * NCHAVA + iVACh][iEv], cals[iTdr].ped[thisVA * NCHAVA +
@@ -960,9 +973,9 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
           }
 
           /*
-              if (std::fabs(common_noise[thisVA]) > 10) {//not used for the sigma evaluation
-                continue;
-              }
+      if (std::fabs(common_noise[thisVA]) > 10) {//not used for the sigma evaluation
+      continue;
+      }
           */
 
           ++processed_events[iTdr][iCh];
@@ -999,9 +1012,10 @@ void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<fl
           std::cout << "     *****" << cals[iTdr].sig[iCh] << std::endl;
 
         cals[iTdr].sig[iCh] = std::sqrt(cals[iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
-        // if (cals[iTdr].sig[iCh] < 0 || cals[iTdr].sig[iCh] > 20 || cals[iTdr].sig[iCh] != cals[iTdr].sig[iCh]) {
-        //   printf("iTdr=%lu) %f, %f\n", iTdr, cals[iTdr].sig[iCh], static_cast<float>(processed_events[iTdr][iCh]));
-        // }
+        if (cals[iTdr].sig[iCh] < 0 || cals[iTdr].sig[iCh] > 20 || cals[iTdr].sig[iCh] != cals[iTdr].sig[iCh]) {
+          printf("iTdr=%lu, iCh=%lu) %f, %f\n", iTdr, iCh, cals[iTdr].sig[iCh],
+                 static_cast<float>(processed_events[iTdr][iCh]));
+        }
       }
     }
   }

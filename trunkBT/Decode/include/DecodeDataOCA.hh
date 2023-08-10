@@ -62,6 +62,10 @@ private:
   bool ProcessCalibration();
 
   int ReadOneEventFromFile(FILE *file, EventOCA *event);
+
+  virtual int FindPos(int tdrnum, int jinfnum) final;
+  virtual int FindCalPos(int tdrnum, int jinfnum) final;
+  virtual int ComputeTdrNum(int tdrnum, int jinfnum) final;
 };
 
 #endif // DECODE_DECODEDATAOCA_HH

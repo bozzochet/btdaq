@@ -29,63 +29,63 @@ template <size_t NJINF, size_t NTDRS> std::string RHClass<NJINF, NTDRS>::to_stri
 }
 
 template <size_t NJINF, size_t NTDRS> void RHClass<NJINF, NTDRS>::Print() {
-    printf("---------------------------------------------\n");
-    printf("The header says:\n");
-    printf("Run: %d", Run);
-    if (!date.empty()) {
-            printf(" Date: %s\n", date.c_str());
-    } else {
-            printf("\n");
+  printf("---------------------------------------------\n");
+  printf("The header says:\n");
+  printf("Run: %d", Run);
+  if (!date.empty()) {
+    printf(" Date: %s\n", date.c_str());
+  } else {
+    printf("\n");
+  }
+
+  printf("Run type: %s\n", to_string(runType).c_str());
+
+  if (unixTime > 0) {
+    printf("UnixTime: %d\n", unixTime);
+  }
+
+  if (!gitSHA.empty()) {
+    printf("Software git commit SHA: %s\n", gitSHA.c_str());
+    printf("Data model version: %d, %d, %d\n", dataVersion.major, dataVersion.minor, dataVersion.patch);
+  }
+
+  printf("# Jinf = %d\n", nJinf);
+  for (int ii = 0; ii < nJinf; ii++)
+    printf("Jinf Map pos: %d Jinf num: %d\n", ii, JinfMap[ii]);
+
+  printf("# TDR RAW = %d\n", ntdrRaw);
+  for (int ii = 0; ii < ntdrRaw + ntdrCmp; ii++) {
+    if (tdrMap[ii].second == 0) {
+      printf("TDR RAW:    Map pos: %d tdrnum: %d\n", ii, tdrMap[ii].first);
     }
+  }
 
-    printf("Run type: %s\n", to_string(runType).c_str());
-
-    if (unixTime > 0) {
-            printf("UnixTime: %d\n", unixTime);
+  printf("# TDR CMP = %d\n", ntdrCmp);
+  for (int ii = 0; ii < ntdrRaw + ntdrCmp; ii++) {
+    if (tdrMap[ii].second == 1) {
+      printf("TDR CMP:    Map pos: %d tdrnum: %d\n", ii, tdrMap[ii].first);
     }
-
-    if (!gitSHA.empty()) {
-            printf("Software git commit SHA: %s\n", gitSHA.c_str());
-            printf("Data model version: %d, %d, %d\n", dataVersion.major, dataVersion.minor, dataVersion.patch);
+  }
+  printf("# TDR    = %d\n", ntdrCmp + ntdrRaw);
+  for (int ii = 0; ii < ntdrRaw + ntdrCmp; ii++) {
+    if (!(tdrMap[ii].second == 0 || tdrMap[ii].second == 1)) {
+      printf("TDR %2d???: Map pos: %d tdrnum: %d\n", tdrMap[ii].second, ii, tdrMap[ii].first);
     }
+  }
 
-    printf("# Jinf = %d\n", nJinf);
-    for (int ii = 0; ii < nJinf; ii++)
-            printf("Jinf Map pos: %d Jinf num: %d\n", ii, JinfMap[ii]);
-
-    printf("# TDR RAW = %d\n", ntdrRaw);
-    for (int ii = 0; ii < ntdrRaw + ntdrCmp; ii++) {
-            if (tdrMap[ii].second == 0) {
-              printf("TDR RAW:    Map pos: %d tdrnum: %d\n", ii, tdrMap[ii].first);
-            }
-    }
-
-    printf("# TDR CMP = %d\n", ntdrCmp);
-    for (int ii = 0; ii < ntdrRaw + ntdrCmp; ii++) {
-            if (tdrMap[ii].second == 1) {
-              printf("TDR CMP:    Map pos: %d tdrnum: %d\n", ii, tdrMap[ii].first);
-            }
-    }
-    printf("# TDR    = %d\n", ntdrCmp + ntdrRaw);
-    for (int ii = 0; ii < ntdrRaw + ntdrCmp; ii++) {
-            if (!(tdrMap[ii].second == 0 || tdrMap[ii].second == 1)) {
-              printf("TDR %2d???: Map pos: %d tdrnum: %d\n", tdrMap[ii].second, ii, tdrMap[ii].first);
-            }
-    }
-
-    printf("---------------------------------------------\n");
-    return;
+  printf("---------------------------------------------\n");
+  return;
 }
 
-template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::FindPos(int tdrnum) {
+template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::FindPos(int tdrnum, int jinfnum) {
 
-    // Print();
+  // Print();
 
-    for (int ii = 0; ii < GetNTdrs(); ii++)
-            if (tdrMap[ii].first == tdrnum)
-              return ii;
+  for (int ii = 0; ii < GetNTdrs(); ii++)
+    if (tdrMap[ii].first == ComputeTdrNum(tdrnum, jinfnum))
+      return ii;
 
-    return -1;
+  return -1;
 }
 
 template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::FindJinfPos(int jinfnum) {
@@ -120,15 +120,22 @@ template <size_t NJINF, size_t NTDRS> void RHClass<NJINF, NTDRS>::SetTdrMap(ladd
 }
 
 template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::GetTdrNum(int tdrpos) {
-    if (tdrpos < NTDRS) {
-        return tdrMap[tdrpos].first;
+    if (tdrpos < NJINF * NTDRS) {
+            return (tdrMap[tdrpos].first) % 100;
     }
     return -1;
 }
 
 template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::GetTdrType(int tdrpos) {
-    if (tdrpos < NTDRS) {
-        return tdrMap[tdrpos].second;
+    if (tdrpos < NJINF * NTDRS) {
+            return tdrMap[tdrpos].second;
+    }
+    return -1;
+}
+
+template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::GetJinfNum(int tdrpos) {
+    if (tdrpos < NJINF * NTDRS) {
+            return (int)(tdrMap[tdrpos].first / 100);
     }
     return -1;
 }

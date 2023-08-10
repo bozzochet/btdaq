@@ -17,16 +17,16 @@ using namespace std;
 //#define USEMINUIT
 
 void GainCorrectionPars::InitSize(size_t nJinf, size_t nTdr, size_t nVA_S, size_t nVA_K) {
-  
-  m_pars.resize(nJinf);
+
+  //  m_pars.resize(nJinf); //not needed if is a std::map
 
   for (size_t iJ = 0; iJ < nJinf; ++iJ) {
-    m_pars[iJ].resize(nTdr);
+    //    m_pars[iJ].resize(nTdr); //not needed if is a std::map
     for (size_t iT = 0; iT < nTdr; ++iT) {
-      m_pars[iJ][iT].resize(nVA_S+nVA_K);
-      for (size_t iV = 0; iV < (nVA_S+nVA_K); ++iV) {
+      //      m_pars[iJ][iT].resize(nVA_S+nVA_K); //not needed if is a std::map
+      for (size_t iV = 0; iV < (nVA_S + nVA_K); ++iV) {
         m_pars[iJ][iT][iV][0] = 0.0;
-        m_pars[iJ][iT][iV][1] = 0.0;
+        m_pars[iJ][iT][iV][1] = 1.0;
       }
     }
   }
@@ -66,7 +66,7 @@ void GainCorrectionPars::Init(const std::string &filename) {
           continue; /* ignore comment line */
         else {
           sscanf(line, "%d\t%d\t%d\t%f\t%f", &jinfnum, &tdrnum, &vanum, &dummy, &dummy);
-          //	  printf("%d %d %d\n", NJINF, NTDRS, NVAS);
+          //          printf("%d %d %d\n", jinfnum, tdrnum, vanum);
           if (static_cast<size_t>(jinfnum) < NJINF && static_cast<size_t>(tdrnum) < NTDRS &&
               static_cast<size_t>(vanum) < NVAS) {
             sscanf(line, "%d \t %d \t %d \t %f \t %f", &jinfnum, &tdrnum, &vanum, &m_pars[jinfnum][tdrnum][vanum][0],
@@ -86,13 +86,13 @@ void GainCorrectionPars::Init(const std::string &filename) {
 }
 
 void AlignmentPars::InitSize(size_t nJinf, size_t nTdr) {
-  
-  m_pars.resize(nJinf);
-  m_multflip.resize(nJinf);
+
+  // m_pars.resize(nJinf); //not needed if is a std::map
+  // m_multflip.resize(nJinf); //not needed if is a std::map
 
   for (size_t iJ = 0; iJ < nJinf; ++iJ) {
-    m_pars[iJ].resize(nTdr);
-    m_multflip[iJ].resize(nTdr);
+    // m_pars[iJ].resize(nTdr); //not needed if is a std::map
+    // m_multflip[iJ].resize(nTdr); //not needed if is a std::map
     for (size_t iT = 0; iT < nTdr; ++iT) {
       m_pars[iJ][iT][0] = 0.0;
       m_pars[iJ][iT][1] = 0.0;

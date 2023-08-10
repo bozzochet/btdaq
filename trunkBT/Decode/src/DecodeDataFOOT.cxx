@@ -35,8 +35,10 @@ DecodeDataFOOT::DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned 
   m_defaultShift = 0;
   m_defaultArraySize = NVAS * NCHAVA;
 
-  pri = true;
   int ret;
+
+  // Create the ROOT run header
+  rh = new RHClassFOOT();
 
   ev = new EventFOOT("laddercorrection_FOOT.dat", "gaincorrection_FOOT.dat");
 
@@ -62,11 +64,10 @@ DecodeDataFOOT::DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned 
     tdrMap[iTdr] = {iTdr, 1};
   }
 
-  ret = ProcessCalibration();
+  int calret = ProcessCalibration();
 
-  if (ret ==
-      -1) // We needed to compute the calibration but we had an error on the last word read, need to go back 4 bytes
-  {
+  // We needed to compute the calibration but we had an error on the last word read, need to go back 4 bytes
+  if (calret == -1) {
     fseek(rawfile, -4, SEEK_CUR);
   }
 
@@ -444,3 +445,25 @@ int DecodeDataFOOT::ReadOneEvent() {
 
   return retVal;
 };
+
+int DecodeDataFOOT::FindPos(int tdrnum, int jinfnum) {
+  if (rh) {
+    return rh->FindPos(tdrnum, jinfnum);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  return -1;
+}
+
+int DecodeDataFOOT::FindCalPos(int tdrnum, int jinfnum) {
+  if (rh) {
+    return rh->FindPos(tdrnum, jinfnum);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  return -1;
+}
+
+int DecodeDataFOOT::ComputeTdrNum(int tdrnum, int jinfnum) { return RHClassFOOT::ComputeTdrNum(tdrnum, jinfnum); }

@@ -72,9 +72,6 @@ DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary,
   memset(tdrMap, -1, NJINF * NTDRS * sizeof(tdrMap[0]));
   memset(tdrAlign, -1, NJINF * NTDRS * sizeof(tdrAlign[0])); // added by Viviana
 
-  pri = 1;
-  evpri = 0;
-
   OpenFile(ifname, caldir, run, ancillary);
   runn = run;
 
@@ -620,7 +617,7 @@ int DecodeDataAMS::ReadOneEvent_data() {
     dummy = 0;
     fstat = ReadFile(&dummy, sizeof(dummy), 1, rawfile);
     tdrnoeventmask += dummy;
-    
+
     if (fstat == -1)
       return 1;
     if (pri || evpri)
@@ -630,14 +627,15 @@ int DecodeDataAMS::ReadOneEvent_data() {
         if (pri || evpri)
           printf("A tdr (%02ld) replied with no event...\n", ii);
         if (!out_flag) {
-          //	  printf("tdrMap[%d].first = %d\n", ntdrRaw+ntdrCmp, ii+100*0);
+          //	  printf("tdrMap[%d].first = %d\n", ntdrRaw+ntdrCmp, ComputeTdrNum(ii, 0));
           tdrMap[ntdrRaw + ntdrCmp].first =
-              ii + 100 * 0; // In ReadOneJinf is 100*(status&0x1f) but here is in the case with just one Jinf...
+              ComputeTdrNum(ii, 0); // In ReadOneJinf is 100*(status&0x1f) but here is in the case with just one Jinf...
           tdrMap[ntdrRaw + ntdrCmp].second = 1;
           ntdrCmp++;
         }
       } else if (pri || evpri) {
-        int tdrnum = FindPos(ii);
+        int tdrnum =
+            rh->FindPos(ii, 0); // In ReadOneJinf is 100*(status&0x1f) but here is in the case with just one Jinf...
         //	  printf("%d\n", tdrnum);
         if (tdrnum >= 0)
           printf("A tdr (%02ld) replied...\n", ii);
@@ -836,7 +834,7 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
   int numnum = ((unsigned int)array[size - 1]) & 0x1f;
   //  printf("JINF=%d, NUMNUM=%d\n", Jinfnum, numnum);
   if (out_flag) {
-    tdrnum = FindPos(numnum + 100 * Jinfnum);
+    tdrnum = rh->FindPos(numnum, Jinfnum);
     //    printf("JINF=%d TDR=%d -> POS=%d\n", Jinfnum, numnum, tdrnum);
     if (tdrnum < 0) {
       printf("WARNING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
@@ -852,13 +850,13 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
   if (!out_flag) {
     if ((array[size - 1] & 64) > 0) {
       //      printf("RAW) numnum=%d, Jinfnum=%d, ntdrRaw=%d, ntdrCmp=%d\n", numnum, Jinfnum, ntdrRaw, ntdrCmp);
-      tdrMap[ntdrCmp + ntdrRaw].first = numnum + 100 * Jinfnum;
+      tdrMap[ntdrCmp + ntdrRaw].first = ComputeTdrNum(numnum, Jinfnum);
       tdrMap[ntdrCmp + ntdrRaw].second = 0;
       ntdrRaw++;
     }
     if ((array[size - 1] & 128) > 0) {
       //      printf("CMP) numnum=%d, Jinfnum=%d, ntdrRaw=%d, ntdrCmp=%d\n", numnum, Jinfnum, ntdrRaw, ntdrCmp);
-      tdrMap[ntdrRaw + ntdrCmp].first = numnum + 100 * Jinfnum;
+      tdrMap[ntdrRaw + ntdrCmp].first = ComputeTdrNum(numnum, Jinfnum);
       tdrMap[ntdrRaw + ntdrCmp].second = 1;
       ntdrCmp++;
     }
@@ -913,12 +911,12 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
     int tdrnumraw = 0;
     int count = 0;
     if (out_flag) {
-      tdrnumraw = FindPos(numnum + 100 * Jinfnum);
+      tdrnumraw = rh->FindPos(numnum, Jinfnum);
       if (tdrnumraw < 0) {
-        printf("DecodeDataAMS::ReadOneTDR::Cannot-Find-TDR-%d-RAW\n", numnum + 100 * Jinfnum);
+        printf("DecodeDataAMS::ReadOneTDR::Cannot-Find-TDR-%d-RAW\n", ComputeTdrNum(numnum, Jinfnum));
         exit(4);
       }
-      calibAMS *cal = &(cals[numnum + 100 * Jinfnum]);
+      calibAMS *cal = &(cals[ComputeTdrNum(numnum, Jinfnum)]);
       for (int kk = 0; kk < 320; kk++) {
         ev->RawSignal[Jinfnum][tdrnumraw][kk] = array[count];           // first ADC on S
         ev->RawSignal[Jinfnum][tdrnumraw][320 + kk] = array[count + 1]; // second ADC on S
@@ -937,20 +935,19 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
         ev->CalStatus[Jinfnum][tdrnumraw][cc] = cal->status[cc];
         if (cal->sig[cc] > 0.125 && // not a dead channel
             cal->sig[cc] < 10.0) {  // not a noisy channel
-          ev->RawSoN[Jinfnum][tdrnumraw][cc] =
-              (ev->RawSignal[Jinfnum][tdrnumraw][cc] - cal->ped[cc]) / cal->sig[cc];
+          ev->RawSoN[Jinfnum][tdrnumraw][cc] = (ev->RawSignal[Jinfnum][tdrnumraw][cc] - cal->ped[cc]) / cal->sig[cc];
         } else {
           ev->RawSoN[Jinfnum][tdrnumraw][cc] = 0.0;
         }
       }
-      
+
       //	if (!kClusterize) {//otherwise the histos will be filled better with the clusters
       if (!TESTBIT(array[size - 1], 7) && // if we're purely RAW is better to fill the histograms also in this
-	  // "naive" way (weighting of strip by signal). But if we're also in CMP
-	  // (-> we're in MIXED), the compressed ones would be better
-	  !kClusterize // if we're clusterizing the RAW event is better to fill the histograms with the clusters
-	  ) {
-	FillRawHistos(numnum, Jinfnum, ev, cal);
+                                          // "naive" way (weighting of strip by signal). But if we're also in CMP
+                                          // (-> we're in MIXED), the compressed ones would be better
+          !kClusterize // if we're clusterizing the RAW event is better to fill the histograms with the clusters
+      ) {
+        FillRawHistos(numnum, Jinfnum, ev, cal);
       }
 
       //      printf("%d %f %f %f %f\n", kClusterize, shighthreshold, slowthreshold, khighthreshold, klowthreshold);
@@ -1004,8 +1001,8 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
              !kClusterize) // we're not clusterizing offline, so is safe to AddCluster and is needed otherwise the
                            // cluster would be not present at all in the Tree
         ) {
-          calibAMS *cal = &(cals[numnum + 100 * Jinfnum]);
-	  //AddCluster is also taking care of filling the histos
+          calibAMS *cal = &(cals[ComputeTdrNum(numnum, Jinfnum)]);
+          // AddCluster is also taking care of filling the histos
           AddCluster(ev, cal, numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
         }
       }
@@ -1283,7 +1280,7 @@ int DecodeDataAMS::ReadOneJINF() {
       if (pri || evpri)
         printf("A tdr (%ld) replied with no event...\n", ii);
       if (!out_flag) {
-        tdrMap[ntdrRaw + ntdrCmp].first = ii + 100 * (status & 0x1f);
+        tdrMap[ntdrRaw + ntdrCmp].first = ComputeTdrNum(ii, (status & 0x1f));
         tdrMap[ntdrRaw + ntdrCmp].second = 1;
         ntdrCmp++;
       }
@@ -1336,3 +1333,25 @@ void DecodeDataAMS::mysort(laddernumtype *aa, int nel) {
 
   delete[] bb;
 }
+
+int DecodeDataAMS::FindPos(int tdrnum, int jinfnum) {
+  if (rh) {
+    return rh->FindPos(tdrnum, jinfnum);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  return -1;
+}
+
+int DecodeDataAMS::FindCalPos(int tdrnum, int jinfnum) {
+  if (rh) {
+    return rh->FindPos(tdrnum, jinfnum);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  return -1;
+}
+
+int DecodeDataAMS::ComputeTdrNum(int tdrnum, int jinfnum) { return RHClassAMS::ComputeTdrNum(tdrnum, jinfnum); }

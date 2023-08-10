@@ -8,15 +8,14 @@
 #include "TString.h"
 #include "math.h"
 
-class LadderParams: public TObject {
+class LadderParams : public TObject {
 public:
-  
-  // HwId is the combination of 2 elements in ladder conf
   // Ladderconf version 0 has  9 _nelements
   // Ladderconf version 1 has 10 _nelements
   // Ladderconf version 2 has 14 _nelements
   static const int _nelements = 15;
-  int _HwId;//two elements
+  int _JinfId;
+  int _TdrId;
   double _spitch;
   double _kpitch;
   double _sreso;
@@ -33,7 +32,8 @@ public:
 
   void Dump() {
     printf("-----------------------------------------\n");
-    std::cout << "HwID       = " << _HwId << std::endl;
+    std::cout << "JinfID     = " << _JinfId << std::endl;
+    std::cout << "TdrID      = " << _TdrId << std::endl;
     std::cout << "spitch     = " << _spitch << std::endl;
     std::cout << "kpitch     = " << _kpitch << std::endl;
     std::cout << "sreso      = " << _sreso << std::endl;
@@ -53,12 +53,12 @@ public:
   ClassDef(LadderParams, 2)
 };
 
-class LadderParamsMap: public TObject {
+class LadderParamsMap : public TObject {
 public:
-  std::map< int, LadderParams* > & GetMap() { return _ladders; };
-  
+  std::map<std::pair<int, int>, LadderParams *> &GetMap() { return _ladders; };
+
 private:
-  std::map< int, LadderParams* > _ladders;
+  std::map<std::pair<int, int>, LadderParams *> _ladders;
 
   ClassDef(LadderParamsMap, 2)
 };
@@ -86,7 +86,6 @@ public:
   static bool GetSideSwap(int jinfnum, int tdrnum);
 
   static bool IsTDRConfigured(int jinfnum, int tdrnum);
-  static bool IsTDRConfigured(int HwId);
 
   static void PrintLadderParams(int jinfnum, int tdrnum);
 

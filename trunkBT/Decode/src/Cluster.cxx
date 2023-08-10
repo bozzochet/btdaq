@@ -108,6 +108,7 @@ float Cluster::GetCSignal(int aa) const {
   //   if (side==1) return c1-corr;
   //   else return c1;
 
+  //  printf("%p\n", GainCorrectionPars::Instance());
   float par0 = GainCorrectionPars::Instance()->GetPar(GetJinf(), GetTDR(), GetVA(aa), 0);
   float par1 = GainCorrectionPars::Instance()->GetPar(GetJinf(), GetTDR(), GetVA(aa), 1);
   // float par2=GainCorrectionPars::Instance()->GetPar(GetJinf(), GetTDR(), GetVA(aa), 2);//PER ADESSO CE NE SONO SOLO
@@ -193,10 +194,12 @@ int Cluster::GetSec() const {
 float Cluster::GetSecVal() const { return GetCSignal(GetSec()); }
 
 float Cluster::GetEtaRaw() const {
+
   float ee;
   int se = GetSeed();
   int se_r = se + 1;
   int se_l = se - 1;
+
   float val_l = 0;
   float val_r = 0;
   float val_seed = GetCSignal(se);
@@ -206,10 +209,10 @@ float Cluster::GetEtaRaw() const {
     val_r = GetCSignal(se_r);
 
   // eta definition: SR / (SR+SL)
-  if (val_l > val_r && val_l / Noise[se_l] > 0) // the secondary is on the left
-    ee = - (val_seed) / (val_l + val_seed); // negative etaraw indicate that secondary is on the left
+  if (val_l > val_r && val_l / Noise[se_l] > 0)      // the secondary is on the left
+    ee = -(val_seed) / (val_l + val_seed);           // negative etaraw indicate that secondary is on the left
   else if (val_r > val_l && val_r / Noise[se_r] > 0) // the secondary is on the right
-    ee = (val_r) / (val_r + val_seed);// positive etaraw indicate that secondary is on the right
+    ee = (val_r) / (val_r + val_seed);               // positive etaraw indicate that secondary is on the right
   else
     return -3;
 

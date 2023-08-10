@@ -24,28 +24,6 @@ static TString stringtodump;
 
 //=============================================================================================
 
-int DecodeData::FindPos(int tdrnum) {
-
-  for (int ii = 0; ii < ntdrCmp + ntdrRaw; ii++)
-    if (tdrMap[ii].first == tdrnum)
-      return ii;
-
-  return -1;
-}
-//=============================================================================================
-
-int DecodeData::FindCalPos(int tdrnum) {
-
-  for (int ii = 0; ii < ntdrCmp + ntdrRaw; ii++)
-    if (tdrMap[ii].first == tdrnum)
-      return ii;
-
-  printf("DecodeData::FindCalPos:  Fatal Error can't find postion for TDR %d\n", tdrnum);
-
-  exit(4);
-}
-//=============================================================================================
-
 void DecodeData::CloseFile() {
 
   if (rawfile)

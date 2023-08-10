@@ -48,6 +48,8 @@ int main(int argc, char **argv) {
   bool kFoot = false;
   bool kL0 = false;
   bool kL0old = false;
+  bool kPri = false;
+  bool kEvPri = false;
 
   bool kOnlyProcessCal = false;
 
@@ -73,7 +75,9 @@ int main(int argc, char **argv) {
   opt->addUsage("Usage: ./Decode [options] [arguments]");
   opt->addUsage("");
   opt->addUsage("Options: ");
-  opt->addUsage("  -h, --help  ................................. Print this help ");
+  opt->addUsage("  -h, --help  ................................. Print this help");
+  opt->addUsage("  --pri  ...................................... Enable some general debug printouts");
+  opt->addUsage("  --evpri  .................................... Enable event base debug printouts");
   opt->addUsage("  --events  ................................... Number of events to decode (default is all events)");
   opt->addUsage(
       Form("  --rawdata <path/to/dir/with/raw> ............ Directory with raw data (%s is the default)", DirRaw));
@@ -134,6 +138,8 @@ int main(int argc, char **argv) {
   // set Flags
   //***********
   opt->setFlag("help", 'h');
+  opt->setFlag("pri");
+  opt->setFlag("evpri");
   opt->setFlag("clusterize", 'c');
   opt->setFlag("montecarlo", 'm');
   opt->setFlag("onlycal", 'l');
@@ -169,6 +175,14 @@ int main(int argc, char **argv) {
   if (opt->getFlag("help") || opt->getFlag('h')) {
     opt->printUsage();
     exit(2);
+  }
+
+  if (opt->getFlag("pri")) {
+    kPri = true;
+  }
+
+  if (opt->getFlag("evpri")) {
+    kEvPri = true;
   }
 
   if (opt->getFlag("clusterize") || opt->getFlag('c')) {
@@ -320,6 +334,15 @@ int main(int argc, char **argv) {
     dd1 = static_cast<DecodeData *>(dd);
   }
 
+  if (kPri)
+    dd1->SetPrintOn();
+  else
+    dd1->SetPrintOff();
+  if (kEvPri)
+    dd1->SetEvPrintOn();
+  else
+    dd1->SetEvPrintOff();
+
   if (!kOnlyProcessCal) {
     dd1->shighthreshold = shighthreshold;
     dd1->slowthreshold = slowthreshold;
@@ -355,19 +378,20 @@ int main(int argc, char **argv) {
     }
     sleep(3);
 
-    if (!kFoot) { // not yet implemented
-      auto *ddams = dynamic_cast<DecodeDataAMS *>(dd1);
-      auto *ddoca = dynamic_cast<DecodeDataOCA *>(dd1);
-      auto *ddamsl0 = dynamic_cast<DecodeDataAMSL0 *>(dd1);
-      if (ddams) {
-        t4->GetUserInfo()->Add(ddams->rh);
-      } else if (ddoca) {
-        t4->GetUserInfo()->Add(ddoca->rh);
-      } else if (ddamsl0) {
-        t4->GetUserInfo()->Add(ddamsl0->rh);
-      } else {
-        throw std::runtime_error("DecodeData object is not of type DecodeDataAMS nor DecodeDataOCA...");
-      }
+    auto *ddams = dynamic_cast<DecodeDataAMS *>(dd1);
+    auto *ddoca = dynamic_cast<DecodeDataOCA *>(dd1);
+    auto *ddfoot = dynamic_cast<DecodeDataOCA *>(dd1);
+    auto *ddamsl0 = dynamic_cast<DecodeDataAMSL0 *>(dd1);
+    if (ddams) {
+      t4->GetUserInfo()->Add(ddams->rh);
+    } else if (ddoca) {
+      t4->GetUserInfo()->Add(ddoca->rh);
+    } else if (ddfoot) {
+      t4->GetUserInfo()->Add(ddfoot->rh);
+    } else if (ddamsl0) {
+      t4->GetUserInfo()->Add(ddamsl0->rh);
+    } else {
+      throw std::runtime_error("DecodeData object is not of type DecodeDataAMS nor DecodeDataOCA...");
     }
     //    LadderConf::Instance()->Dump();
     t4->GetUserInfo()->Add(LadderConf::Instance()->GetLadderParamsMap());
@@ -416,7 +440,7 @@ int main(int argc, char **argv) {
       }
     };
 
-    auto fillRawArrays = [&chaK, &chaS, &sigK, &sigS, &sonK, &sonS](auto *dd) {
+    auto fillRawArrays = [dd1, &chaK, &chaS, &sigK, &sigS, &sonK, &sonS](auto *dd) {
       auto fConf = dd->FlavorConfig();
 
       memset(chaK, 0, fConf.NTDRS * sizeof(chaK[0]));
@@ -432,7 +456,7 @@ int main(int argc, char **argv) {
             //   iTDR, iCh, (dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf)); sleep(1);
             // }
 
-            int ladder = iTDR + 100 * iJinf;
+            int ladder = dd1->ComputeTdrNum(iTDR, iJinf);
             double signal = (dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf);
             double son = (dd->ev)->GetRawSoN_PosNum(iTDR, iCh, iJinf);
             if (son != son) { // NaN, not a ladder really present
@@ -517,10 +541,7 @@ int main(int argc, char **argv) {
         //      printf("%f %f %f %f %f %f\n", sigS[0], sigK[0], sigS[1], sigK[1], sigS[4], sigK[4]);
 
         t4->Fill();
-        if (processed % 1000 == 0) {
-          printf("\rProcessed %d events...", processed);
-          fflush(stdout);
-        }
+        std::cout << "\rProcessed " << processed << " events" << std::flush;
       } else if (ret1 == -1) {
         printf("=======================> END of FILE\n");
         break;

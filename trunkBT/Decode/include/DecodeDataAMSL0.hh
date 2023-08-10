@@ -46,7 +46,6 @@ public:
   virtual int SkipOneEvent(int evskip = 1) final { return 0; };
 
   virtual int GetTdrNum(size_t pos) final;
-
   virtual int GetTdrType(size_t pos) final;
 
   int EndOfFile() final;
@@ -99,6 +98,10 @@ private:
                            uint16_t expTag = 0);
 
   std::vector<uint16_t> ReOrderVladimir(std::vector<uint8_t> data);
+
+  virtual int FindPos(int tdrnum, int jinfnum) final;
+  virtual int FindCalPos(int tdrnum, int jinfnum) final;
+  virtual int ComputeTdrNum(int tdrnum, int jinfnum) final;
 };
 
 #endif // DECODE_DECODEDATAAMSL0_HH

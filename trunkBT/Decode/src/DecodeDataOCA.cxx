@@ -124,8 +124,6 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
 
   tdrMap = new laddernumtype[NJINF * NTDRS];
 
-  pri = false;
-
   // Create the ROOT run header
   rh = new RHClassOCA();
 
@@ -712,3 +710,25 @@ int DecodeDataOCA::ReadOneEvent() {
 
   return retVal;
 }
+
+int DecodeDataOCA::FindPos(int tdrnum, int jinfnum) {
+  if (rh) {
+    return rh->FindPos(tdrnum, jinfnum);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  return -1;
+}
+
+int DecodeDataOCA::FindCalPos(int tdrnum, int jinfnum) {
+  if (rh) {
+    return rh->FindPos(tdrnum, jinfnum);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  return -1;
+}
+
+int DecodeDataOCA::ComputeTdrNum(int tdrnum, int jinfnum) { return RHClassOCA::ComputeTdrNum(tdrnum, jinfnum); }

@@ -1265,42 +1265,42 @@ float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSoN_PosNum(
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalPed(RHClass<NJINF, NTDRS> *rh, int tdrnum,
                                                                           int channel, int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
+  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
   return GetCalPed_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalSigma(RHClass<NJINF, NTDRS> *rh, int tdrnum,
                                                                             int channel, int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
+  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
   return GetCalSigma_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSignal(RHClass<NJINF, NTDRS> *rh, int tdrnum,
                                                                              int channel, int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
+  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
   return GetRawSignal_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int va,
                                                                       int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
+  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
   return GetCN_PosNum(tdrnumraw, va, Jinfnum);
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 double GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalStatus(RHClass<NJINF, NTDRS> *rh, int tdrnum,
                                                                              int va, int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
+  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
   return GetCalStatus_PosNum(tdrnumraw, va, Jinfnum);
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 float GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSoN(RHClass<NJINF, NTDRS> *rh, int tdrnum,
                                                                          int channel, int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum + 100 * Jinfnum);
+  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
   return GetRawSoN_PosNum(tdrnumraw, channel, Jinfnum);
 }
 
