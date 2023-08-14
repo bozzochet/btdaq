@@ -8,6 +8,7 @@
 #include "GenericEvent.hpp"
 
 #include <algorithm>
+#include <iomanip>
 #include <sstream>
 
 namespace {
@@ -78,6 +79,21 @@ void DecodeDataAMSL0::DumpRunHeader() {
   rh->Print();
 }
 
+void DecodeDataAMSL0::ResetSetup() {
+
+  for (int iJinf = 0; iJinf < nJinf; iJinf++) {
+    JinfMap[iJinf] = 0;
+  }
+  nJinf = 0;
+  ntdrRaw = 0;
+  ntdrCmp = 0;
+  if (tdrMap)
+    delete[] tdrMap;
+  tdrMap = new laddernumtype[NJINF * NTDRS];
+
+  return;
+}
+
 DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int runStop,
                                  unsigned int calStart, unsigned int calStop, int _style) {
 
@@ -126,7 +142,6 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
     throw std::runtime_error("Failed to read AMSL0 run header");
   }
 
-  // what is a run header for AMSL0 anyway?
   DecodeDataAMSL0::DumpRunHeader();
 
   ProcessCalibration();
@@ -424,9 +439,7 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
   std::string current_config_info = "";
 
   if (rhc) {
-    ntdrCmp = 0;
-    ntdrRaw = 0;
-    nJinf = 0;
+    ResetSetup();
   }
   unsigned int runUnixTime = 0;
   std::string runDate = "";
@@ -456,69 +469,78 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
             [&empty_blocks](TBDecode::L0::AMSBlock::EmptyBlock &block) {
               empty_blocks++;
               if (empty_blocks > 1) {
-                printf("**** %d empty blocks found:", empty_blocks);
+                printf("**** %d empty blocks found...\n", empty_blocks);
               }
             },
-            [](TBDecode::L0::AMSBlock::UnknownBlock &block) {},
+            [](TBDecode::L0::AMSBlock::UnknownBlock &block) { printf("DT: 0x%x!\n", block.data_type); },
             [](TBDecode::L0::AMSBlock::SCIData &block) {},
             [](TBDecode::L0::AMSBlock::FineTimeEnvelope &block) {},
             [](TBDecode::L0::AMSBlock::ServerConfigInfo &block) {},
             [&not_same_config, &current_config_info, rhc, &kConfigInfoNotFound, slinf, slef,
              this](TBDecode::L0::AMSBlock::ConfigInfo &block) {
-              printf("Read a ConfigInfo block from node %02x", block.node_address);
-              if (rhc)
-                printf("\n");
-              else
-                printf(" (Calibration)\n");
-              current_config_info = block.config;
-              if (rhc)
-                this->config_info = block.config;
-              else {
-                // check if the config is the same
-                if (current_config_info == this->config_info) {
-                  not_same_config = false;
-                } else {
-                  not_same_config = true;
+              if (block.config != "") { // for some reason sometime is empty
+                if (!kConfigInfoNotFound) {
+                  printf("We already found a Config: considering only the last valid one!\n");
+                  ResetSetup();
                 }
-              }
-              printf("  config:  %s\n", block.config.c_str());
-              printf("Dumping all devices:\n");
-              printf(" Device type: %s, version: %d, node_address: %02x, device_ID: %02x\n",
-                     TBDecode::L0::AMSBlock::main_box.name.c_str(), TBDecode::L0::AMSBlock::main_box.version,
-                     TBDecode::L0::AMSBlock::main_box.node_address, TBDecode::L0::AMSBlock::main_box.device_ID);
-              for (TBDecode::L0::AMSBlock::AMSL0Node &device : TBDecode::L0::AMSBlock::main_box.links) {
-                if (!device.fake) {
-                  printf("  |- Device: %6s (%7s), node_ID: %02x, link_number: %d, version: %d\n", device.name.c_str(),
-                         device.unique_name.c_str(), device.node_ID, device.link_number, device.version);
-                  if (rhc) {
-                    if (device.name.find(slinf) != std::string::npos) {
-                      // this->JinfMap[nJinf] = device.link_number;
-                      this->JinfMap[nJinf] = device.node_ID;
-                      this->nJinf++;
-                    } else if (device.name.find(slef) != std::string::npos) {
-                      // this->tdrMap[ntdrRaw] = {device.link_number, 0}; // {board number, RAW}
-                      this->tdrMap[ntdrRaw] = {device.node_ID, 0}; // {board number, RAW}
-                      this->ntdrRaw++;
-                    } else {
-                      printf("This is not a recognized kind of device: %s\n", device.name.c_str());
-                    }
+                printf("Read a ConfigInfo block from node %02x", block.node_address);
+                if (rhc)
+                  printf("\n");
+                else
+                  printf(" (Calibration)\n");
+                current_config_info = block.config;
+                if (rhc)
+                  this->config_info = block.config;
+                else {
+                  // check if the config is the same
+                  if (current_config_info == this->config_info) {
+                    not_same_config = false;
+                  } else {
+                    not_same_config = true;
                   }
-                  for (TBDecode::L0::AMSBlock::AMSL0Node &sec_device : device.links) {
-                    printf("    |- Device: %6s (%7s), node_ID: %02x, link_number: %d, version: %d\n",
-                           sec_device.name.c_str(), sec_device.unique_name.c_str(), sec_device.node_ID,
-                           sec_device.link_number, sec_device.version);
+                }
+                printf("  config:  %s\n", block.config.c_str());
+                printf("Dumping all devices:\n");
+                printf(" Device type: %s, version: %d, node_address: %02x, device_ID: %02x\n",
+                       TBDecode::L0::AMSBlock::main_box.name.c_str(), TBDecode::L0::AMSBlock::main_box.version,
+                       TBDecode::L0::AMSBlock::main_box.node_address, TBDecode::L0::AMSBlock::main_box.device_ID);
+                for (TBDecode::L0::AMSBlock::AMSL0Node &device : TBDecode::L0::AMSBlock::main_box.links) {
+                  if (!device.fake) {
+                    printf("  |- Device: %6s (%7s), node_ID: %02x, node_address: %02x, link_number: %d, version: %d\n",
+                           device.name.c_str(), device.unique_name.c_str(), device.node_ID, device.node_address,
+                           device.link_number, device.version);
                     if (rhc) {
-                      if (sec_device.name.find(slef) != std::string::npos) {
-                        // this->tdrMap[this->ntdrRaw] = {ComputeTdrNum(sec_device.link_number, device.link_number),
-                        this->tdrMap[this->ntdrRaw] = {ComputeTdrNum(sec_device.node_ID, device.node_ID),
-                                                       0}; // {board number, RAW}
+                      if (device.name.find(slinf) != std::string::npos) {
+                        // this->JinfMap[nJinf] = device.link_number;
+                        this->JinfMap[nJinf] = device.node_ID;
+                        this->nJinf++;
+                      } else if (device.name.find(slef) != std::string::npos) {
+                        // this->tdrMap[ntdrRaw] = {device.link_number, 0}; // {board number, RAW}
+                        this->tdrMap[ntdrRaw] = {device.node_ID, 0}; // {board number, RAW}
                         this->ntdrRaw++;
                       } else {
-                        printf("This is not a recognized kind of device: %s\n", sec_device.name.c_str());
+                        printf("This is not a recognized kind of device: %s\n", device.name.c_str());
+                      }
+                    }
+                    for (TBDecode::L0::AMSBlock::AMSL0Node &sec_device : device.links) {
+                      printf("    |- Device: %6s (%7s), node_ID: %02x, link_number: %d, version: %d\n",
+                             sec_device.name.c_str(), sec_device.unique_name.c_str(), sec_device.node_ID,
+                             sec_device.link_number, sec_device.version);
+                      if (rhc) {
+                        if (sec_device.name.find(slef) != std::string::npos) {
+                          // this->tdrMap[this->ntdrRaw] = {ComputeTdrNum(sec_device.link_number, device.link_number),
+                          this->tdrMap[this->ntdrRaw] = {ComputeTdrNum(sec_device.node_ID, device.node_ID),
+                                                         0}; // {board number, RAW}
+                          this->ntdrRaw++;
+                        } else {
+                          printf("This is not a recognized kind of device: %s\n", sec_device.name.c_str());
+                        }
                       }
                     }
                   }
                 }
+              } else {
+                printf("**** the config string is empty. Why?\n");
               }
               kConfigInfoNotFound = false;
             },
@@ -540,14 +562,25 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
             [](TBDecode::L0::AMSBlock::SetEventBuilderPollingList &block) {},
             [&kTriggerAndDAQControlNotFound](TBDecode::L0::AMSBlock::TriggerAndDAQControl &block) {
               printf("TriggerAndDAQControl:\n");
-              // so far (2/Aug/2023) the Xudong's SW is not reading the TriggerAndDAQControl
-              // so we just have an empty W packet
               if (block.is_reply && !block.is_rw) {
                 printf("  Enable Auto Trigger: %d\n", block.enable_auto_trigger);
                 printf("  Last trigger number: %d\n", block.last_trigger_number);
               }
               kTriggerAndDAQControlNotFound = false;
             },
+            [](TBDecode::L0::AMSBlock::LINFPowerControl &block) {},
+            [](TBDecode::L0::AMSBlock::SpaceWireLink14Control &block) {
+              /*
+                    printf("SpaceWireLink1-4Control:\n");
+                    if (block.is_reply && !block.is_rw) {
+                      printf("  AutoStart: %d\n", block.AutoStart);
+                      printf("  LinkStart: %d\n", block.LinkStart);
+                      printf("  LinkDisconnect: %d\n", block.LinkDisconnect);
+                      printf("  Speed: %dMbps\n", block.Speed);
+                    }
+              */
+            },
+            [](TBDecode::L0::AMSBlock::INA260Registers &block) {},
         },
         block);
   }
@@ -574,10 +607,23 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
     // rhc->SetDataVersion(major, minor, patch);
   } else {
     if (not_same_config) {
-      std::string message = Form("The config is changed:\n current config: %s\n previous config: %s",
+      std::string message = Form("The config is changed:\n  current config: %s\n previous config: %s",
                                  current_config_info.c_str(), config_info.c_str());
       throw std::runtime_error(message);
     }
+  }
+
+  if (kConfigInfoNotFound || kEventBuilderStartNotFound || kTriggerAndDAQControlNotFound) {
+    if (kConfigInfoNotFound) {
+      printf("*** we didn't found the Config: invalid file\n");
+    }
+    if (kEventBuilderStartNotFound) {
+      printf("*** we didn't found the Event Builder start: invalid file\n");
+    }
+    if (kTriggerAndDAQControlNotFound) {
+      printf("*** we didn't found the Trigger and DAQ Control: invalid file\n");
+    }
+    return false;
   }
 
   return true;
@@ -705,6 +751,18 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
                      if (this->pri)
                        printf("TriggerAndDAQControl\n");
                      kTriggerAndDAQControlNotFound = false;
+                   },
+                   [this](TBDecode::L0::AMSBlock::LINFPowerControl &block) {
+                     if (this->pri)
+                       printf("LINFPowerControl\n");
+                   },
+                   [this](TBDecode::L0::AMSBlock::SpaceWireLink14Control &block) {
+                     if (this->pri)
+                       printf("SpaceWireLink1-4Control\n");
+                   },
+                   [this](TBDecode::L0::AMSBlock::INA260Registers &block) {
+                     if (this->pri)
+                       printf("INA260Registers\n");
                    },
                },
                block);

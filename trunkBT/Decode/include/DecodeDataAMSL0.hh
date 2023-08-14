@@ -79,6 +79,7 @@ private:
   unsigned int m_numBoardsFound = 0;                                          // found during ReadOneEventFromFile
 
   void DumpRunHeader() override;
+  void ResetSetup();
 
   void InitHistos();
 
