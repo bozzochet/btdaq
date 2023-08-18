@@ -66,6 +66,7 @@ $(LIBDECODE_L0)_install/lib/libtbdecode.so:
 	cmake --build $(LIBDECODE_L0)_build -- -j
 	cmake --build $(LIBDECODE_L0)_build --target install
 	@ if ! [ -f $(LIBDECODE_L0)_install/lib/libtbdecode.so ] ; then cd $(LIBDECODE_L0)_install/lib && ln -sf libtbdecode.dylib libtbdecode.so; fi
+	ln -s $(LIBDECODE_L0)_install/bin/filelogger ./AMSL0filelogger
 
 Decode: $(ANYOPTION)/anyoption.o $(LIBDECODE_L0)_install/lib/libtbdecode.so $(DEC_OBJ)
 	@echo Linking $@ ...;
