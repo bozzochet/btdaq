@@ -66,7 +66,7 @@ $(LIBDECODE_L0)_install/lib/libtbdecode.so:
 	cmake --build $(LIBDECODE_L0)_build -- -j
 	cmake --build $(LIBDECODE_L0)_build --target install
 	@ if ! [ -f $(LIBDECODE_L0)_install/lib/libtbdecode.so ] ; then cd $(LIBDECODE_L0)_install/lib && ln -sf libtbdecode.dylib libtbdecode.so; fi
-	ln -s $(LIBDECODE_L0)_install/bin/filelogger ./AMSL0filelogger
+	ln -fs $(LIBDECODE_L0)_install/bin/filelogger ./AMSL0filelogger
 
 Decode: $(ANYOPTION)/anyoption.o $(LIBDECODE_L0)_install/lib/libtbdecode.so $(DEC_OBJ)
 	@echo Linking $@ ...;
@@ -91,7 +91,7 @@ PlotCalib: $(ANYOPTION)/anyoption.o obj/summary.o
 	@ln -fs $@ $@Mute
 
 clean:
-	@rm -Rfv libEventa.a libEvent.so Decode src/rootElibdict.cxx include/rootElibdict.h obj PlotCalib PlotCalibMute $(LIBDECODE_L0) $(LIBDECODE_L0)_build $(LIBDECODE_L0)_install
+	@rm -Rfv libEventa.a libEvent.so Decode src/rootElibdict.cxx include/rootElibdict.h obj PlotCalib PlotCalibMute $(LIBDECODE_L0) $(LIBDECODE_L0)_build $(LIBDECODE_L0)_install AMSL0filelogger
 	@make -C $(ANYOPTION) clean
 	@rm -f rootElibdict_rdict.pcm
 
