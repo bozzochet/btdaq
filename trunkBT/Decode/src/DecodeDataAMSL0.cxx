@@ -472,10 +472,6 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
                 printf("**** %d empty blocks found...\n", empty_blocks);
               }
             },
-            [](TBDecode::L0::AMSBlock::UnknownBlock &block) { printf("DT: 0x%x!\n", block.data_type); },
-            [](TBDecode::L0::AMSBlock::SCIData &block) {},
-            [](TBDecode::L0::AMSBlock::FineTimeEnvelope &block) {},
-            [](TBDecode::L0::AMSBlock::ServerConfigInfo &block) {},
             [&not_same_config, &current_config_info, rhc, &kConfigInfoNotFound, slinf, slef,
              this](TBDecode::L0::AMSBlock::ConfigInfo &block) {
               if (block.config != "") { // for some reason sometime is empty
@@ -544,9 +540,6 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
               }
               kConfigInfoNotFound = false;
             },
-            [](TBDecode::L0::AMSBlock::ControlQList &block) {},
-            [](TBDecode::L0::AMSBlock::CommandEnvelope &block) {},
-            [](TBDecode::L0::AMSBlock::BufferPointers &block) {},
             [&runDate, &runUnixTime, &kEventBuilderStartNotFound](TBDecode::L0::AMSBlock::EventBuilderStart &block) {
               printf("EventBuilderStart:\n");
               std::time_t t = block.utime_sec;
@@ -559,7 +552,6 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
               kEventBuilderStartNotFound = false;
             },
             [](TBDecode::L0::AMSBlock::EventBuilderStop &block) {},
-            [](TBDecode::L0::AMSBlock::SetEventBuilderPollingList &block) {},
             [&kTriggerAndDAQControlNotFound](TBDecode::L0::AMSBlock::TriggerAndDAQControl &block) {
               printf("TriggerAndDAQControl:\n");
               if (block.is_reply && !block.is_rw) {
@@ -568,19 +560,7 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
               }
               kTriggerAndDAQControlNotFound = false;
             },
-            [](TBDecode::L0::AMSBlock::LINFPowerControl &block) {},
-            [](TBDecode::L0::AMSBlock::SpaceWireLink14Control &block) {
-              /*
-                    printf("SpaceWireLink1-4Control:\n");
-                    if (block.is_reply && !block.is_rw) {
-                      printf("  AutoStart: %d\n", block.AutoStart);
-                      printf("  LinkStart: %d\n", block.LinkStart);
-                      printf("  LinkDisconnect: %d\n", block.LinkDisconnect);
-                      printf("  Speed: %dMbps\n", block.Speed);
-                    }
-              */
-            },
-            [](TBDecode::L0::AMSBlock::INA260Registers &block) {},
+            [](auto &block) {},
         },
         block);
   }
@@ -662,14 +642,6 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
                        printf("**** %d empty blocks found:", empty_blocks);
                      }
                    },
-                   [this](TBDecode::L0::AMSBlock::UnknownBlock &block) {
-                     if (this->pri)
-                       printf("Unknown!\n");
-                   },
-                   [this](TBDecode::L0::AMSBlock::SCIData &block) {
-                     if (this->pri)
-                       printf("SCI!\n");
-                   },
                    [expTag, &kWrongTag, this, event](TBDecode::L0::AMSBlock::FineTimeEnvelope &block) {
                      if (this->pri) {
                        printf("FineTimeEnvelope\n");
@@ -715,23 +687,11 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
                        }
                      }
                    },
-                   [this](TBDecode::L0::AMSBlock::ServerConfigInfo &block) {
-                     if (this->pri)
-                       printf("ServerConfigInfo\n");
-                   },
                    [&kConfigFound, this](TBDecode::L0::AMSBlock::ConfigInfo &block) {
                      if (this->pri)
                        printf("Config\n");
                      printf("**** We found a config. In principle we're inside a run...\n");
                      kConfigFound = true;
-                   },
-                   [this](TBDecode::L0::AMSBlock::ControlQList &block) {
-                     if (this->pri)
-                       printf("ControlQList\n");
-                   },
-                   [this](TBDecode::L0::AMSBlock::CommandEnvelope &block) {
-                     if (this->pri)
-                       printf("CommandEnvelope\n");
                    },
                    [](TBDecode::L0::AMSBlock::BufferPointers &block) {},
                    [this](TBDecode::L0::AMSBlock::EventBuilderStart &block) {
@@ -743,27 +703,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
                        printf("EvenBuilderStop\n");
                      kEventBuilderStopNotFound = false;
                    },
-                   [this](TBDecode::L0::AMSBlock::SetEventBuilderPollingList &block) {
-                     if (this->pri)
-                       printf("SetEvenBuilderPollingList\n");
-                   },
-                   [this](TBDecode::L0::AMSBlock::TriggerAndDAQControl &block) {
-                     if (this->pri)
-                       printf("TriggerAndDAQControl\n");
-                     kTriggerAndDAQControlNotFound = false;
-                   },
-                   [this](TBDecode::L0::AMSBlock::LINFPowerControl &block) {
-                     if (this->pri)
-                       printf("LINFPowerControl\n");
-                   },
-                   [this](TBDecode::L0::AMSBlock::SpaceWireLink14Control &block) {
-                     if (this->pri)
-                       printf("SpaceWireLink1-4Control\n");
-                   },
-                   [this](TBDecode::L0::AMSBlock::INA260Registers &block) {
-                     if (this->pri)
-                       printf("INA260Registers\n");
-                   },
+                   [](auto &block) {},
                },
                block);
   }
@@ -789,7 +729,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
   }
 
   auto oldness_check = [](auto a, auto b) {
-    if ((a - b) > dumpshift || (a + bufferlenght - b) > dumpshift) {
+    if ((a - b) > dumpshift || (a + bufferlenght - b) % bufferlenght > dumpshift) {
       return true;
     } else {
       return false;
@@ -839,26 +779,27 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
       if (evpri)
         printf("Too early: evno=%d (next evno_to_process=%d), last_evno=%d\n", evno, evno_to_process, last_evno);
       return 1;
-    }
-    if (evpri)
-      printf("Good: evno=%d, nLEFs=%lu (next evno_to_process=%d), last_evno=%d - nEvents=%lu\n", evno, nLEFs,
-             evno_to_process, last_evno, nEvents);
-    for (auto j = i->second.begin(); j != i->second.end(); j++) {
-      uint16_t LINF = get_LINF(j->first.first);
-      uint16_t LINF_index = rh->FindJinfPos(LINF);
-      uint16_t LEF_glob_index = rh->FindPos(j->first.second, LINF);
-      uint16_t LEF_index = rh->GetTdrNum(LEF_glob_index);
-      uint16_t LEF = rh->ComputeTdrNum(j->first.second, LINF);
-      unsigned long size_data = j->second.size();
+    } else {
       if (evpri)
-        printf("j) LEF[%d][%d]: LINF=%d (%d), LEF=%d (%d, %d) -> size_data=%lu\n", LINF_index, LEF_index, LINF,
-               j->first.first, LEF, j->first.second, LEF_glob_index, size_data);
-      std::copy(std::begin(j->second), std::end(j->second), std::begin(event->RawSignal[LINF_index][LEF_index]));
-      //      std::cout << "Ch0 signal = " << event->RawSignal[LINF_index][LEF_index][0] << '\n';
-      event->ValidTDR[LINF_index][LEF_index] = true;
+        printf("Good: evno=%d, nLEFs=%lu (next evno_to_process=%d), last_evno=%d - nEvents=%lu\n", evno, nLEFs,
+               evno_to_process, last_evno, nEvents);
+      for (auto j = i->second.begin(); j != i->second.end(); j++) {
+        uint16_t LINF = get_LINF(j->first.first);
+        uint16_t LINF_index = rh->FindJinfPos(LINF);
+        uint16_t LEF_glob_index = rh->FindPos(j->first.second, LINF);
+        uint16_t LEF_index = rh->GetTdrNum(LEF_glob_index);
+        uint16_t LEF = rh->ComputeTdrNum(j->first.second, LINF);
+        unsigned long size_data = j->second.size();
+        if (evpri)
+          printf("j) LEF[%d][%d]: LINF=%d (%d), LEF=%d (%d, %d) -> size_data=%lu\n", LINF_index, LEF_index, LINF,
+                 j->first.first, LEF, j->first.second, LEF_glob_index, size_data);
+        std::copy(std::begin(j->second), std::end(j->second), std::begin(event->RawSignal[LINF_index][LEF_index]));
+        //      std::cout << "Ch0 signal = " << event->RawSignal[LINF_index][LEF_index][0] << '\n';
+        event->ValidTDR[LINF_index][LEF_index] = true;
+      }
+      buffer.pop_front();
+      return 0;
     }
-    buffer.pop_front();
-    return 0;
   } else {
     if (evpri)
       printf("buffer empty...\n");
