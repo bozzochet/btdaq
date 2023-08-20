@@ -38,7 +38,11 @@ template <size_t NJINF, size_t NTDRS> void RHClass<NJINF, NTDRS>::Print() {
     printf("\n");
   }
 
-  printf("Run type: %s\n", to_string(runType).c_str());
+  if (runType != RunType::Unknown)
+    printf("Run type: %s\n", to_string(runType).c_str());
+
+  if (runTag != 0)
+    printf("Run tag: 0x%X\n", runTag);
 
   if (unixTime > 0) {
     printf("UnixTime: %d\n", unixTime);

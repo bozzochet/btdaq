@@ -37,6 +37,7 @@ private:
     // OCA only
     unsigned int unixTime{0};
     RunType runType{RunType::Unknown};
+    unsigned int runTag{0};
     unsigned int numBoards{0};
     DataVersion dataVersion{};
 
@@ -109,6 +110,7 @@ public:
     void SetUnixTime(unsigned int utime) { unixTime = utime; }
 
     void SetRunType(RunType type) { runType = type; }
+    void SetRunTag(unsigned int tag) { runTag = tag; }
 
     void SetNumBoards(unsigned int nboards) { numBoards = nboards; }
 
@@ -125,6 +127,7 @@ public:
     unsigned int GetUnixTime() { return unixTime; }
 
     RunType GetRunType() { return runType; }
+    unsigned int GetRunTag() { return runTag; }
 
     unsigned int GetNumBoards() { return numBoards; }
 

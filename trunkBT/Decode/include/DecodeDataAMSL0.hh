@@ -36,7 +36,7 @@ public:
 
   bool ReadFileHeader(FILE *file, RHClassAMSL0 *rhc);
   bool ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream, std::vector<std::string> rawfilenames,
-                      RHClassAMSL0 *rhc);
+                      RHClassAMSL0 *rhc, uint16_t expTag = 0);
 
   int ReadOneEvent() final;
 
@@ -61,6 +61,8 @@ public:
 private:
   int decodestyle{false};
   std::string config_info = "";
+  uint16_t Tag = 0x0;
+  uint16_t CalTag = 0x0;
 
   TBDecode::L0::AMSBlockStream rawdatastream;
   TBDecode::L0::AMSBlockStream rawcalstream;
@@ -96,7 +98,7 @@ private:
   // [evno][linf][lef][data]
   std::deque<std::pair<uint16_t, std::map<std::pair<uint16_t, uint16_t>, std::vector<uint16_t>>>> buffer;
   int ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event, unsigned long int nEvents,
-                           uint16_t expTag = 0);
+                           uint16_t expTagType = 0, uint16_t expTag = 0);
 
   std::vector<uint16_t> ReOrderVladimir(std::vector<uint8_t> data);
 

@@ -32,5 +32,5 @@ Some logger examples:
 
 - ### AMS-LO USB-LF+LINF and version >=5
 ```
-./AMSL0filelogger --datadir="/Volumes/DATI/OneDrive - Istituto Nazionale di Fisica Nucleare/Work/AMS-L0/Data/L0/BLOCKS/CH/USBLF_PCGSC17" --runstart 0000435 --runstop 0000479
+./AMSL0filelogger --datadir="/path/to/BLOCKS/CH/USBLF_PCGSC17" --runstart 0000435 --runstop 0000479
 ```
