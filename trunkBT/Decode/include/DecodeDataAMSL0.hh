@@ -12,6 +12,7 @@
 #include "TBDecode/AMSL0/AMSBlockStream.h"
 
 #include <deque>
+#include <filesystem>
 
 class DecodeDataAMSL0 : public DecodeData {
 public:
@@ -56,6 +57,9 @@ public:
     // Last 4 digits: block number
     unsigned int blockNum = runnum % 1000;
     sprintf(calfileprefix, "%s/%04d/%03d", m_calDir.c_str(), dirNum, blockNum);
+    char dir[512] = "";
+    sprintf(dir, "%s/%04d", m_calDir.c_str(), dirNum);
+    std::filesystem::create_directory(dir);
   }
 
 private:

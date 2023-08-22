@@ -103,7 +103,8 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
 
   ev = new EventAMSL0((char *)"ladderconf_L0.dat", (char *)"gaincorrection_L0.dat");
 
-  DecodeDataAMSL0::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runNum, runStop, calStart, calStop);
+  //  DecodeDataAMSL0::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runNum, runStop, calStart, calStop);
+  DecodeDataAMSL0::OpenFile(m_rawDir.c_str(), m_rawDir.c_str(), runNum, runStop, calStart, calStop);
 
   rh->SetRun(runNum);
 

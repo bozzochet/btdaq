@@ -692,7 +692,7 @@ void DecodeData::SaveCalibration(const std::vector<std::vector<std::vector<float
 
       char calfilename[255];
       sprintf(calfilename, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
-      //    printf("calfilename: %s\n", calfilename);
+      //      printf("calfilename: %s\n", calfilename);
 
       // FIXME: add a flag in the main to have a different cal dir for output
       // this is needed if the source cal dir is not writeable

@@ -6,10 +6,10 @@ Some decoding examples:
 
 - ### AMS-LO USB-LF+LINF and version >=5
 ```
-./Decode --rawdata "/path/to/BLOCKS/PG/TEST_LINF" --caldata "/path/to/BLOCKS/PG/TEST_LINF" --l0 -c --calrunstart 0001717 --calrunstop 0001717 0001718 0001718
+./Decode --rawdata "/path/to/BLOCKS/PG/TEST_LINF" --caldata "./CalData" --l0 -c --calrunstart 0001717 --calrunstop 0001717 0001718 0001718
 ```
 ```
-./PlotCalib --l0 --caldir="path/to/BLOCKS/PG/TEST_LINF/" 0001717
+./PlotCalib --l0 --caldir="/CalData" 0001717
 ```
 
 - ### AMS-L0 LEF directly to USB-LEF (not USB-LF, I think)
