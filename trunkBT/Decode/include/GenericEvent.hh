@@ -237,12 +237,15 @@ private:
   // Viviana  changed to [NTDRS] what about CH 1024->4096
   // NCHA=NVAS*NCHAVA
   // TODO: check how much space we waste [MD]
-  ChArray<double> CalSigma{{{0}}};
-  ChArray<double> CalPed{{{0}}};
+  // ChArray<double> CalSigma{{{0}}};
+  static ChArray<double> CalSigma;
+  // ChArray<double> CalPed{{{0}}};
+  static ChArray<double> CalPed;
   ChArray<short> RawSignal{{{0}}};
   ChArray<float> RawSoN{{{0}}}; //! (do not stream on file! Can be recomputed easily!)
-  ChArray<int> CalStatus{{{0}}};
-  TdrArray<short> ReadTDR{{0}}; // MD: what is used for?!
+  // ChArray<int> CalStatus{{{0}}};
+  static ChArray<int> CalStatus;
+  TdrArray<short> ReadTDR{{0}}; //! not streamed since seems not used... // MD: what is used for?!
 
   TdrArray<bool> ValidTDR{{false}};
 

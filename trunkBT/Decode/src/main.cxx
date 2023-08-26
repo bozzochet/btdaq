@@ -494,6 +494,8 @@ int main(int argc, char **argv) {
       }
     };
 
+    auto start = std::chrono::system_clock::now();
+
     int ret1 = 0;
     while (true) {
       if (eventstoprocess != -1 && processed == eventstoprocess)
@@ -556,6 +558,10 @@ int main(int argc, char **argv) {
       dd1->ClearEvent();
     }
     printf("\n");
+
+    auto stop = std::chrono::system_clock::now();
+    std::cout << "Event processing took " << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()
+              << "ms\n";
 
     // CreatePdfWithPlots(dd1, pdf_filename);
     /// VV debug write to output file

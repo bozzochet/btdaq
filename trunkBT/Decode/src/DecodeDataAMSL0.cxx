@@ -594,6 +594,42 @@ int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL
         std::swap(data[ii], data[ii + 1]);
       }
 
+      auto ReOrderVladimir = [](std::vector<uint8_t> data) {
+        size_t new_size = 8 * data.size() / 14;
+        std::vector<uint16_t> data_ord(new_size);
+        std::vector<uint16_t> data_ord_tmp(new_size);
+        int ch_in_2va = -1;
+
+        // We take the first 14 8-bit chunks.
+        for (size_t offset = 0; offset < data.size(); offset += 14) {
+          // these all refer to the same channel
+          ch_in_2va++;
+
+          // we loop on each signal bit
+          for (int bit_nec = 0; bit_nec < 14; bit_nec++) {
+            std::bitset<8> data_bits{data[offset + bit_nec]};
+
+            for (int adc = 0; adc < 8; adc++) {
+              int ch = adc * 128 + ch_in_2va;
+              data_ord_tmp[ch] |= data_bits[adc] << bit_nec;
+            }
+          }
+        }
+
+        for (int ch = 0; ch < ((int)data_ord_tmp.size()); ch++) {
+          int va = ch / 64;
+          int ch_in_va = ch % 64;
+          //    int new_ch = (16-va-1)*64 + (64-ch_in_va-1);//MD: I undersootd like
+          //    this, but VK did differently (31 Mar 2022)
+          int new_ch = (16 - va - 1) * 64 + ch_in_va;
+          data_ord[new_ch] = data_ord_tmp[ch];
+        }
+
+        return data_ord;
+      };
+
+      //----------------------------------------------------------------------------------------------------------------
+
       std::vector<uint16_t> data_ord = ReOrderVladimir(data);
 
       // signals_by_ev.push_back(data_ord);
@@ -914,7 +950,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
                        if (kEventBuilderStartFound) {
                          // printf("0x%x 0x%x 0x%x 0x%x 0x%x\n", expTag, expTagType, this->Tag, this->CalTag,
                          // block.tag);
-                         for (auto i = data.raw_data.begin(); i != data.raw_data.end(); i++) {
+                         for (auto i = data.data.begin(); i != data.data.end(); i++) {
                            uint16_t evno = i->first;
                            unsigned long nLEFs = i->second.size();
                            if (evpri)
@@ -926,15 +962,13 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
                              if (evpri)
                                printf("j) LINF=%d, LEF=%d, size_data=%lu\n", LINF, LEF, size_data);
                              std::pair linf_lef = std::make_pair(LINF, LEF);
-                             std::vector<uint16_t> data_ord = ReOrderVladimir(j->second);
-                             //                         buffer[i->first][linf_lef] = data_ord;
                              auto it = std::find_if(buffer.begin(), buffer.end(),
                                                     [evno](auto element) { return element.first == evno; });
                              if (it != std::end(buffer)) { // event already present
-                               it->second[linf_lef] = data_ord;
+                               it->second[linf_lef] = j->second;
                              } else {
                                std::map<std::pair<uint16_t, uint16_t>, std::vector<uint16_t>> el_to_push;
-                               el_to_push[linf_lef] = data_ord;
+                               el_to_push[linf_lef] = j->second;
                                buffer.push_back(std::make_pair(evno, el_to_push));
                              }
                            }
@@ -1073,43 +1107,6 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
 }
 
 //------------------------------------------------------------------------------------------------------------------
-
-std::vector<uint16_t> DecodeDataAMSL0::ReOrderVladimir(std::vector<uint8_t> data) {
-
-  size_t new_size = 8 * data.size() / 14;
-  std::vector<uint16_t> data_ord(new_size);
-  std::vector<uint16_t> data_ord_tmp(new_size);
-  int ch_in_2va = -1;
-
-  // We take the first 14 8-bit chunks.
-  for (size_t offset = 0; offset < data.size(); offset += 14) {
-    // these all refer to the same channel
-    ch_in_2va++;
-
-    // we loop on each signal bit
-    for (int bit_nec = 0; bit_nec < 14; bit_nec++) {
-      std::bitset<8> data_bits{data[offset + bit_nec]};
-
-      for (int adc = 0; adc < 8; adc++) {
-        int ch = adc * 128 + ch_in_2va;
-        data_ord_tmp[ch] |= data_bits[adc] << bit_nec;
-      }
-    }
-  }
-
-  for (int ch = 0; ch < ((int)data_ord_tmp.size()); ch++) {
-    int va = ch / 64;
-    int ch_in_va = ch % 64;
-    //    int new_ch = (16-va-1)*64 + (64-ch_in_va-1);//MD: I undersootd like
-    //    this, but VK did differently (31 Mar 2022)
-    int new_ch = (16 - va - 1) * 64 + ch_in_va;
-    data_ord[new_ch] = data_ord_tmp[ch];
-  }
-
-  return data_ord;
-}
-
-//----------------------------------------------------------------------------------------------------------------
 
 void DecodeDataAMSL0::OpenFile(const char *rawDir, const char *calDir, int runStart, int runStop, int calNumStart,
                                int calNumStop) {

@@ -59,6 +59,18 @@ bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::alignmentnotread =
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::gaincorrectionnotread = true;
 
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+Array3<double, NJINF, NTDRS, NCHAVA *(NVASS + NVASK)> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::CalSigma{
+    {{0}}};
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+Array3<double, NJINF, NTDRS, NCHAVA *(NVASS + NVASK)> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::CalPed{
+    {{0}}};
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+Array3<int, NJINF, NTDRS, NCHAVA *(NVASS + NVASK)> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::CalStatus{
+    {{0}}};
+
 // NOTE: This constructor should not be used, if you create a new Event flavor, specialize its constructor as shown
 // below [VF]
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>

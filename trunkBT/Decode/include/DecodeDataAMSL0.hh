@@ -104,8 +104,6 @@ private:
   int ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event, unsigned long int nEvents,
                            uint16_t expTagType = 0, uint16_t expTag = 0);
 
-  std::vector<uint16_t> ReOrderVladimir(std::vector<uint8_t> data);
-
   virtual int FindPos(int tdrnum, int jinfnum) final;
   virtual int FindCalPos(int tdrnum, int jinfnum) final;
   virtual int ComputeTdrNum(int tdrnum, int jinfnum) final;
