@@ -60,6 +60,9 @@ template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS,
 bool GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::gaincorrectionnotread = true;
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+int GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::_eventkind = 0;
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 Array3<double, NJINF, NTDRS, NCHAVA *(NVASS + NVASK)> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::CalSigma{
     {{0}}};
 

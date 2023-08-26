@@ -167,7 +167,7 @@ public:
   int GetEventKind() { return _eventkind; };
 
 private:
-  int _eventkind;
+  static int _eventkind;
 
   static bool ladderconfnotread;
   static bool alignmentnotread;

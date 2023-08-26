@@ -301,7 +301,9 @@ int main(int argc, char **argv) {
     sprintf(filename, "%s/run_%06d_ANC_%d.root", DirRoot, run, ancillary);
   sprintf(pdf_filename, "%s.pdf", filename);
 
-  //  int complevel=ROOT::CompressionSettings(ROOT::kLZMA, 2);
+  //  int complevel = ROOT::CompressionSettings(ROOT::kLZMA, 8); // MD: gain factor 2 in size, but lose factor 4 in
+  //  speed int complevel = ROOT::CompressionSettings(ROOT::kLZMA, 2); // MD: the complevel seems that doesn't really
+  //  matter...
   int complevel = ROOT::CompressionSettings(ROOT::kZLIB, 2);
   printf("The choosen compression level is %d\n", complevel);
   TFile *foutput = new TFile(filename, "RECREATE", "File with the event tree", complevel);
@@ -309,30 +311,39 @@ int main(int argc, char **argv) {
   /// VV debug
   TTree *t4 = new TTree("t4", "My cluster tree");
 
+  // int bufsize = 64000;
+  // int splitlevel = 2;
+  int bufsize = 32000;
+  int splitlevel = 99;
+
   DecodeData *dd1 = nullptr;
   FlavorConfig fConf;
   if (kOca) {
     auto *dd = new DecodeDataOCA(DirRaw, DirCal, run, calrunstart);
     fConf = dd->FlavorConfig();
-    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), 64000, 2);
+    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
     dd1 = static_cast<DecodeData *>(dd);
   } else if (kFoot) {
     auto *dd = new DecodeDataFOOT(DirRaw, DirCal, run, calrunstart);
     fConf = dd->FlavorConfig();
-    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), 64000, 2);
+    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
     dd1 = static_cast<DecodeData *>(dd);
   } else if (kL0 || kL0old) {
     kL0 = true; // in the kL0old case we set also kL0 since now the right DecodeStyle is set already
     auto *dd = new DecodeDataAMSL0(DirRaw, DirCal, run, runstop, calrunstart, calrunstop, kL0old ? 0 : 1);
     fConf = dd->FlavorConfig();
-    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), 64000, 2);
+    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
     dd1 = static_cast<DecodeData *>(dd);
   } else {
     auto *dd = new DecodeDataAMS(DirRaw, DirCal, run, ancillary, kMC);
     fConf = dd->FlavorConfig();
-    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), 64000, 2);
+    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
     dd1 = static_cast<DecodeData *>(dd);
   }
+
+  TBranch *branch = t4->GetBranch("cluster_branch");
+  if (branch)
+    branch->SetCompressionLevel(6);
 
   if (kPri)
     dd1->SetPrintOn();
