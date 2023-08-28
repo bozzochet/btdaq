@@ -291,14 +291,16 @@ int DecodeDataAMSL0::ReadOneEvent() {
     oldfile = rawdatastream.CurrentFilePath();
   }
 
-  for (unsigned int iTdr_index = 0; iTdr_index < (ntdrRaw + ntdrCmp); ++iTdr_index) {
-    unsigned int iTdr = rh->GetTdrNum(iTdr_index);
-    unsigned int iJinf = rh->GetJinfNum(iTdr_index);
-    // copy calibration data...
-    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      ev->CalPed[iJinf][iTdr][iCh] = cals[iJinf][iTdr].ped[iCh];
-      ev->CalSigma[iJinf][iTdr][iCh] = cals[iJinf][iTdr].sig[iCh];
-      ev->CalStatus[iJinf][iTdr][iCh] = cals[iJinf][iTdr].status[iCh];
+  // copy calibration data... Just for first event (when > 0 we can start to skip), since are static
+  if (m_read_events == 0) {
+    for (unsigned int iTdr_index = 0; iTdr_index < (ntdrRaw + ntdrCmp); ++iTdr_index) {
+      unsigned int iTdr = rh->GetTdrNum(iTdr_index);
+      unsigned int iJinf = rh->GetJinfNum(iTdr_index);
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+        ev->CalPed[iJinf][iTdr][iCh] = cals[iJinf][iTdr].ped[iCh];
+        ev->CalSigma[iJinf][iTdr][iCh] = cals[iJinf][iTdr].sig[iCh];
+        ev->CalStatus[iJinf][iTdr][iCh] = cals[iJinf][iTdr].status[iCh];
+      }
     }
   }
 

@@ -391,7 +391,7 @@ int main(int argc, char **argv) {
 
     auto *ddams = dynamic_cast<DecodeDataAMS *>(dd1);
     auto *ddoca = dynamic_cast<DecodeDataOCA *>(dd1);
-    auto *ddfoot = dynamic_cast<DecodeDataOCA *>(dd1);
+    auto *ddfoot = dynamic_cast<DecodeDataFOOT *>(dd1);
     auto *ddamsl0 = dynamic_cast<DecodeDataAMSL0 *>(dd1);
     if (ddams) {
       t4->GetUserInfo()->Add(ddams->rh);
