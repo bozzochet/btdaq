@@ -131,3 +131,77 @@ Event processing took 91075ms
 $> ls -lh RootData/run_008861.root | awk '{ print $5 " " $9}'
 426M RootData/run_008861.root
 ```
+- ## filling `ev->CalSigma`, `ev->CalPed` and `ev->CalStatus` only first time, since are `static`
+```
+./Decode --rawdata "./USBLF_PCGSC17/C42_DDC-C4C_DE5/" --l0 -c --calrunstart 0008860 --calrunstop 0008861 0008861 0008862
+Processed 30407 events
+Event processing took 92939ms
+```
+```
+$> ls -lh RootData/run_008861.root | awk '{ print $5 " " $9}'
+426M RootData/run_008861.root
+```
+- ## streaming on disk `RawSignal` via
+#### `template <typename T, size_t N1, size_t N2, size_t N3> using Map3 = std::map<size_t, std::map<size_t, std::map<size_t, T>>>;`
+## instead of
+#### `template <typename T, size_t N1, size_t N2, size_t N3> using Array3 = T[N1][N2][N3];`
+```
+./Decode --rawdata "./USBLF_PCGSC17/C42_DDC-C4C_DE5/" --l0 -c --calrunstart 0008860 --calrunstop 0008861 0008861 0008862
+Processed 30407 events
+Event processing took 612979ms
+```
+```
+$> ls -lh RootData/run_008861.root | awk '{ print $5 " " $9}'
+1.8G RootData/run_008861.root
+```
+- ## streaming on disk `RawSignal` via
+#### `template <typename T, size_t N1, size_t N2, size_t N3> using Map3 = std::map<size_t, std::map<size_t, std::array<T, N3>>>;`
+## instead of
+#### `template <typename T, size_t N1, size_t N2, size_t N3> using Array3 = T[N1][N2][N3];`
+```
+./Decode --rawdata "./USBLF_PCGSC17/C42_DDC-C4C_DE5/" --l0 -c --calrunstart 0008860 --calrunstop 0008861 0008861 0008862
+Processed 30407 events
+Event processing took 611241ms
+```
+```
+$> ls -lh RootData/run_008861.root | awk '{ print $5 " " $9}'
+1.8G RootData/run_008861.root
+```
+and however there's a worring:
+```
+Error in <TGenCollectionProxy>: Unknown fundamental type short[1024]
+Error in <Pair Emulation Building>: short[1024] is not yet supported in pair emulation
+```
+- ## streaming on disk `RawSignal` via
+#### `template <typename T, size_t N1, size_t N2, size_t N3> using Map3 = std::map<size_t, std::map<size_t, T[N3]>>;`
+## instead of
+#### `template <typename T, size_t N1, size_t N2, size_t N3> using Array3 = T[N1][N2][N3];`
+```
+./Decode --rawdata "./USBLF_PCGSC17/C42_DDC-C4C_DE5/" --l0 -c --calrunstart 0008860 --calrunstop 0008861 0008861 0008862
+Processed 30407 events
+Event processing took 597869ms
+```
+```
+$> ls -lh RootData/run_008861.root | awk '{ print $5 " " $9}'
+1.8G RootData/run_008861.root
+```
+and however there's a worring:
+```
+Error in <TGenCollectionProxy>: Unknown fundamental type short[1024]
+Error in <Pair Emulation Building>: short[1024] is not yet supported in pair emulation
+```
+- ## going back to
+#### `template <typename T, size_t N1, size_t N2, size_t N3> using Array3 = T[N1][N2][N3];`
+## but setting
+####  `using EventAMSL0 = GenericEvent<2, 9, 64, 8, 16, 0>;`
+## instead
+#### `using EventAMSL0 = GenericEvent<4, 9, 64, 8, 16, 0>;`
+```
+./Decode --rawdata "./USBLF_PCGSC17/C42_DDC-C4C_DE5/" --l0 -c --calrunstart 0008860 --calrunstop 0008861 0008861 0008862
+Processed 30407 events
+Event processing took 85121ms
+```
+```
+$> ls -lh RootData/run_008861.root | awk '{ print $5 " " $9}'
+421M RootData/run_008861.root
+```
