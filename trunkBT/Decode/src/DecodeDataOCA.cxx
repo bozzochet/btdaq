@@ -1,3 +1,4 @@
+
 //
 // Created by Valerio Formato on 12/10/21.
 //
@@ -444,6 +445,12 @@ bool DecodeDataOCA::ReadFileHeader(FILE *file, RHClassOCA *rhc) {
       return false;
     rhc->AddBoardID(boardID);
   }
+  if (numBoards%2 == 1) {//read an additional 16-bit padding
+    uint16_t dummy16{0};
+    fstat = ReadFile(&dummy16, sizeof(dummy16), 1, file);
+  }
+  printf("*** Use the board ID above to build the TdrMap! ***\n");
+  sleep(5);
 
   return true;
 };
