@@ -362,13 +362,18 @@ bool DecodeDataOCA::ProcessCalibration() {
   // MD: se sono più di 10k li hai sostituiti tutti
 
   unsigned int nEvents{0};
+  unsigned int nRej{0};
   while (!feof(calfile) && nEvents < 10000) {
-    // while (nEvents<1000) {
-    ReadOneEventFromFile(calfile, event.get(), true);
-    nEvents++;
+    int retVal = ReadOneEventFromFile(calfile, event.get(), true);
+    if (retVal == 0) {
+      nEvents++;
+    } else {
+      nRej++;
+    }
     // std::cout << "\rRead " << nEvents << " events" << std::flush;
     std::cout << "\rRead " << nEvents << " events"
-              << " (found " << m_numBoardsFound << " boards)" << std::flush;
+              << " (found " << m_numBoardsFound << " boards)"
+              << " Rejected " << nRej << " events" << std::flush;
 
     for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -528,7 +533,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
         // We have less boards than expected? Stop reading this event and get ready for the next one
         // but first reset the file cursor back so that on the next call we'll read the event header
         fseek(file, -sizeof(decltype(c_bEvHeader)), SEEK_CUR);
-        return 0;
+        return 2;
       } else {
         printf("Mismatch in board header %x (expected %x)\n", bHeader, c_bHeader);
         return 1;
@@ -572,9 +577,20 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
       event->I2CSubSystem = (IntTimestamp >> 16) & 0x7F;
       event->I2CCRCStatus = (IntTimestamp >> 31) & 0x1;
       event->I2CEventID = IntTimestamp >> 32;
-      printf("SubSystem: %u, CRCStatus=%u, TryType=%u, EventID=%d\n", event->I2CSubSystem, event->I2CCRCStatus,
-             event->I2CTrigType, event->I2CEventID);
+      //      printf("SubSystem: %u, CRCStatus=%u, TrigType=%u, EventID=%d\n", event->I2CSubSystem, event->I2CCRCStatus,
+      //      event->I2CTrigType, event->I2CEventID);
+      if (event->I2CTrigType == 0 && event->I2CEventID != 0) {
+        printf("Strange) SubSystem: %u, CRCStatus=%u, TrigType=%u, EventID=%d\n", event->I2CSubSystem,
+               event->I2CCRCStatus, event->I2CTrigType, event->I2CEventID);
+      }
     }
+
+    if (kCal &&
+        event->I2CTrigType != 0) // we're reading cal and this trigger is not "CAL" (during MIX mode, for example)
+      return 3;
+    else if (!kCal &&
+             event->I2CTrigType == 0) // we're reading bea, and this trigger is "CAL" (during MIX mode, for example)
+      return 4;
 
     uint64_t ExtTimestamp;
     fstat = ReadFile(&ExtTimestamp, sizeof(ExtTimestamp), 1, file);
