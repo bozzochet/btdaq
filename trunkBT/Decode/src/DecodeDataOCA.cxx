@@ -568,9 +568,9 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
     IntTimestamp = (IntTimestamp >> 32) + ((IntTimestamp & 0xFFFFFFFF) << 32);
     // FIXME: we save only the first board clock
     if (iBoard == 0) {
-      event->I2CTrigType = IntTimestamp & 0xf;
-      event->I2CCRCStatus = (IntTimestamp >> 8) & 0x1;
+      event->I2CTrigType = IntTimestamp & 0xFF;
       event->I2CSubSystem = (IntTimestamp >> 16) & 0x7F;
+      event->I2CCRCStatus = (IntTimestamp >> 31) & 0x1;
       event->I2CEventID = IntTimestamp >> 32;
       printf("SubSystem: %u, CRCStatus=%u, TryType=%u, EventID=%d\n", event->I2CSubSystem, event->I2CCRCStatus,
              event->I2CTrigType, event->I2CEventID);
