@@ -479,47 +479,47 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
   fstat = ReadFile(&bEvHeader, sizeof(bEvHeader), 1, file);
   if (fstat == -1 || bEvHeader != c_bEvHeader) {
     printf("Mismatch in event header %x (expected %x)\n", bEvHeader, c_bEvHeader);
-    return 1;
+    return -1;
   }
 
   uint64_t timestamp;
   fstat = ReadFile(&timestamp, sizeof(timestamp), 1, file);
   if (fstat == -1) {
-    return 1;
+    return -1;
   }
   event->TimeStamp = timestamp;
 
   uint64_t timestamp_ns;
   fstat = ReadFile(&timestamp_ns, sizeof(timestamp_ns), 1, file);
   if (fstat == -1) {
-    return 1;
+    return -1;
   }
   event->TimeStamp_ns = timestamp_ns;
 
   uint32_t evLen;
   fstat = ReadFile(&evLen, sizeof(evLen), 1, file);
   if (fstat == -1) {
-    return 1;
+    return -1;
   }
 
   uint32_t evNum;
   fstat = ReadFile(&evNum, sizeof(evNum), 1, file);
   if (fstat == -1) {
-    return 1;
+    return -1;
   }
   // std::cout << "MAKA event number: " << evNum << '\n';
 
   uint16_t num_boards;
   fstat = ReadFile(&num_boards, sizeof(num_boards), 1, file);
   if (fstat == -1) {
-    return 1;
+    return -1;
   }
   m_numBoardsFound = num_boards;
 
   uint16_t dummy;
   fstat = ReadFile(&dummy, sizeof(dummy), 1, file);
   if (fstat == -1) {
-    return 1;
+    return -1;
   }
   uint16_t status = dummy & 0xFFF;
   dummy >>= 12;
@@ -529,49 +529,49 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
     uint32_t bHeader;
     fstat = ReadFile(&bHeader, sizeof(bHeader), 1, file);
     if (fstat == -1) {
-      return 1;
+      return -1;
     } else if (bHeader != c_bHeader) {
       if (bHeader == c_bEvHeader) {
         // We have less boards than expected? Stop reading this event and get ready for the next one
         // but first reset the file cursor back so that on the next call we'll read the event header
         fseek(file, -sizeof(decltype(c_bEvHeader)), SEEK_CUR);
-        return 2;
+        return -2;
       } else {
         printf("Mismatch in board header %x (expected %x)\n", bHeader, c_bHeader);
-        return 1;
+        return -1;
       }
     }
 
     uint32_t messageLength;
     fstat = ReadFile(&messageLength, sizeof(messageLength), 1, file);
     if (fstat == -1)
-      return 1;
+      return -1;
 
     uint32_t FWVersion;
     fstat = ReadFile(&FWVersion, sizeof(FWVersion), 1, file);
     if (fstat == -1)
-      return 1;
+      return -1;
 
     uint32_t TriggerNumber;
     fstat = ReadFile(&TriggerNumber, sizeof(TriggerNumber), 1, file);
     if (fstat == -1)
-      return 1;
+      return -1;
     event->Evtnum = TriggerNumber;
 
     uint16_t TriggerID;
     fstat = ReadFile(&TriggerID, sizeof(TriggerID), 1, file);
     if (fstat == -1)
-      return 1;
+      return -1;
 
     uint16_t DetectorID;
     fstat = ReadFile(&DetectorID, sizeof(DetectorID), 1, file);
     if (fstat == -1)
-      return 1;
+      return -1;
 
     uint64_t IntTimestamp;
     fstat = ReadFile(&IntTimestamp, sizeof(IntTimestamp), 1, file);
     if (fstat == -1)
-      return 1;
+      return -1;
     IntTimestamp = (IntTimestamp >> 32) + ((IntTimestamp & 0xFFFFFFFF) << 32);
     // FIXME: we save only the first board clock
     if (iBoard == 0) {
@@ -590,7 +590,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
     uint64_t ExtTimestamp;
     fstat = ReadFile(&ExtTimestamp, sizeof(ExtTimestamp), 1, file);
     if (fstat == -1)
-      return 1;
+      return -1;
     ExtTimestamp = (ExtTimestamp >> 32) + ((ExtTimestamp & 0xFFFFFFFF) << 32);
 
     // FIXME: we save only the first board clock
@@ -630,28 +630,28 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
     std::vector<uint16_t> adc_buf(2 * numChannels);
     fstat = ReadFile(adc_buf.data(), sizeof(decltype(adc_buf)::value_type) * adc_buf.size(), 1, file);
     if (fstat == -1)
-      return 1;
+      return -1;
     unpack_board_data(adc_buf, iBoard);
     //    printf("iTDRmax = %d\n", iTDRmax);
 
     uint32_t bFooter;
     fstat = ReadFile(&bFooter, sizeof(bFooter), 1, file);
     if (fstat == -1 || bFooter != c_bFooter)
-      return 1;
+      return -1;
 
     uint32_t CRC;
     fstat = ReadFile(&CRC, sizeof(CRC), 1, file);
     if (fstat == -1)
-      return 1;
+      return -1;
 
     // std::cout << "Board trigger number: " << TriggerNumber << " " << std::hex << IntTimestamp << '\n' << std::dec;
   }
 
   if (kCal && event->I2CTrigType != 0) // we're reading cal and this trigger is not "CAL" (during MIX mode, for example)
-    return 3;
+    return -3;
   else if (!kCal &&
            event->I2CTrigType == 0) // we're reading bea, and this trigger is "CAL" (during MIX mode, for example)
-    return 4;
+    return -4;
 
   // all good...
   return 0;
@@ -722,23 +722,24 @@ int DecodeDataOCA::ReadOneEvent() {
   }
 
   int retVal = ReadOneEventFromFile(rawfile, ev);
+  if (retVal == 0) {
+    // for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
+    //   for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+    //     if (ev->RawSignal[iJinf][iTDR][iCh]>(m_adcUnits*4095)) {
+    // 	printf("event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %d\n", ev->Evtnum, iJinf, iTDR, iCh,
+    // ev->RawSignal[iJinf][iTDR][iCh]); 	sleep(1);
+    //     }
+    //   }
+    // }
 
-  // for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
-  //   for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-  //     if (ev->RawSignal[iJinf][iTDR][iCh]>(m_adcUnits*4095)) {
-  // 	printf("event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %d\n", ev->Evtnum, iJinf, iTDR, iCh,
-  // ev->RawSignal[iJinf][iTDR][iCh]); 	sleep(1);
-  //     }
-  //   }
-  // }
-
-  // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this
-  // point, so it should return.
-  for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
-    if (kClusterize) {
-      Clusterize(iTDR, 0, ev, &cals[iTDR]);
-    } else {
-      FillRawHistos(iTDR, 0, ev, &cals[iTDR]);
+    // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this
+    // point, so it should return.
+    for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
+      if (kClusterize) {
+        Clusterize(iTDR, 0, ev, &cals[iTDR]);
+      } else {
+        FillRawHistos(iTDR, 0, ev, &cals[iTDR]);
+      }
     }
   }
 
