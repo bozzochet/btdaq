@@ -560,6 +560,7 @@ int main(int argc, char **argv) {
         break;
       } else if (ret1 < -1) {
         printf("=======================> READ Error Event Skipped\n");
+        printf("%d\n", ret1);
         readfailed++;
         break;
       } else {
