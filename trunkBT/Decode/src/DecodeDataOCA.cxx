@@ -30,6 +30,7 @@ long int UnixTimeFromFilename(std::string m_filename) {
   std::string prefix2 = "RUN";
   std::string prefix3 = "BEAM";
   std::string prefix4 = "CAL";
+  std::string prefix5 = "MIX";
   std::string suffix = ".dat";
   long int date = 0;
   long int time = 0;
@@ -37,7 +38,7 @@ long int UnixTimeFromFilename(std::string m_filename) {
   while (getline(is, part, '_')) {
     //    std::cout << part << std::endl;
     if (part.rfind(prefix1, 0) != 0 && part.rfind(prefix2, 0) != 0 && part.rfind(prefix3, 0) != 0 &&
-        part.rfind(prefix4, 0) != 0) {
+        part.rfind(prefix4, 0) != 0 && part.rfind(prefix5, 0) != 0) {
       //      std::cout << part << std::endl;
       if (part.find(suffix, 0) != std::string::npos) {
         //	printf("time\n");
@@ -72,6 +73,7 @@ char *DateFromFilename(std::string m_filename) {
   std::string prefix2 = "RUN";
   std::string prefix3 = "BEAM";
   std::string prefix4 = "CAL";
+  std::string prefix5 = "MIX";
   std::string suffix = ".dat";
   long int date = 0;
   long int time = 0;
@@ -79,7 +81,7 @@ char *DateFromFilename(std::string m_filename) {
   while (getline(is, part, '_')) {
     //    std::cout << part << std::endl;
     if (part.rfind(prefix1, 0) != 0 && part.rfind(prefix2, 0) != 0 && part.rfind(prefix3, 0) != 0 &&
-        part.rfind(prefix4, 0) != 0) {
+        part.rfind(prefix4, 0) != 0 && part.rfind(prefix5, 0) != 0) {
       //      std::cout << part << std::endl;
       if (part.find(suffix, 0) != std::string::npos) {
         std::string stime = part.substr(0, part.length() - 4);
@@ -256,6 +258,8 @@ void DecodeDataOCA::OpenFile(const char *rawDir, const char *calDir, int runNum,
             return false;
           }
           bool is_cal = _filename.substr(13, 3) == "CAL";
+          if (!is_ecal)
+            is_cal = _filename.substr(13, 3) == "MIX";
           unsigned int runNum = std::atoi(_filename.substr(7, 5).c_str());
           //	printf("runNum: %u\n", runNum);
           return is_cal && (runNum == static_cast<unsigned int>(calNum));
