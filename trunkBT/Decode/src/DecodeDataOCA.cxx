@@ -375,11 +375,13 @@ bool DecodeDataOCA::ProcessCalibration() {
               << " (found " << m_numBoardsFound << " boards)"
               << " Rejected " << nRej << " events" << std::flush;
 
-    for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
-      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-        signals[iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
-        //	printf("%d (%d %d)) %hd %f -> %f\n", nEvents, iTdr, iCh, event->RawSignal[iJinf][iTdr][iCh], m_adcUnits,
-        // event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+    if (retVal == 0) {
+      for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+        for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+          signals[iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+          //	printf("%d (%d %d)) %hd %f -> %f\n", nEvents, iTdr, iCh, event->RawSignal[iJinf][iTdr][iCh], m_adcUnits,
+          // event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+        }
       }
     }
   }
