@@ -167,11 +167,11 @@ public:
   int GetEventKind() { return _eventkind; };
 
 private:
-  static int _eventkind;
+  static int _eventkind; //!
 
-  static bool ladderconfnotread;
-  static bool alignmentnotread;
-  static bool gaincorrectionnotread;
+  static bool ladderconfnotread;     //!
+  static bool alignmentnotread;      //!
+  static bool gaincorrectionnotread; //!
 
   double CombinatorialFit(std::vector<std::pair<int, std::pair<double, double>>> **v_cog_laddS,
                           std::vector<std::pair<int, std::pair<double, double>>> **v_cog_laddK, int ijinf, int itdr,
@@ -210,6 +210,12 @@ private:
   uint64_t TimeStamp_ns{0};
   //! Event board clock
   double ExtTimeStamp{0};
+  //! I2C Subsystem
+  uint8_t I2CSubSystem{0};
+  //! I2C TriggerType
+  uint8_t I2CTrigType{0};
+  //! I2C CRC Status (1: CRC was ok, 0: CRC was wrong)
+  bool I2CCRCStatus{0};
   //! I2C event ID
   uint32_t I2CEventID{0};
   //! Jinj Status
@@ -292,6 +298,6 @@ private:
   std::vector<int> _v_ladderS_to_ignore; //!
   std::vector<int> _v_ladderK_to_ignore; //!
 
-  ClassDef(GenericEvent, 2)
+  ClassDef(GenericEvent, 3)
 };
 #endif

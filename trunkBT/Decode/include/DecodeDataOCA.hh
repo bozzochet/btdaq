@@ -61,7 +61,7 @@ private:
 
   bool ProcessCalibration();
 
-  int ReadOneEventFromFile(FILE *file, EventOCA *event);
+  int ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal = false);
 
   virtual int FindPos(int tdrnum, int jinfnum) final;
   virtual int FindCalPos(int tdrnum, int jinfnum) final;

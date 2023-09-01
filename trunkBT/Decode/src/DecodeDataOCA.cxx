@@ -364,7 +364,7 @@ bool DecodeDataOCA::ProcessCalibration() {
   unsigned int nEvents{0};
   while (!feof(calfile) && nEvents < 10000) {
     // while (nEvents<1000) {
-    ReadOneEventFromFile(calfile, event.get());
+    ReadOneEventFromFile(calfile, event.get(), true);
     nEvents++;
     // std::cout << "\rRead " << nEvents << " events" << std::flush;
     std::cout << "\rRead " << nEvents << " events"
@@ -459,7 +459,7 @@ bool DecodeDataOCA::ReadFileHeader(FILE *file, RHClassOCA *rhc) {
   return true;
 };
 
-int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
+int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) {
   int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
 
   constexpr uint32_t c_bEvHeader = 0xfa4af1ca;
@@ -565,10 +565,16 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event) {
     fstat = ReadFile(&IntTimestamp, sizeof(IntTimestamp), 1, file);
     if (fstat == -1)
       return 1;
-    IntTimestamp = (IntTimestamp >> 32) + ((IntTimestamp &  0xFFFFFFFF) << 32);
+    IntTimestamp = (IntTimestamp >> 32) + ((IntTimestamp & 0xFFFFFFFF) << 32);
     // FIXME: we save only the first board clock
-    if (iBoard == 0)
+    if (iBoard == 0) {
+      event->I2CSubSystem = IntTimestamp & 0x1;
+      event->I2CCRCStatus = (IntTimestamp >> 8) & 0x1;
+      event->I2CTrigType = (IntTimestamp >> 16) & 0x7F;
       event->I2CEventID = IntTimestamp >> 32;
+      printf("SubSystem: %u, CRCStatus=%u, TryType=%u, EventID=%d\n", event->I2CSubSystem, event->I2CCRCStatus,
+             event->I2CTrigType, event->I2CEventID);
+    }
 
     uint64_t ExtTimestamp;
     fstat = ReadFile(&ExtTimestamp, sizeof(ExtTimestamp), 1, file);
