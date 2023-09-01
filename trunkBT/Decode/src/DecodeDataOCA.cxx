@@ -579,7 +579,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
       event->I2CSubSystem = (IntTimestamp >> 16) & 0x7F;
       event->I2CCRCStatus = (IntTimestamp >> 31) & 0x1;
       event->I2CEventID = IntTimestamp >> 32;
-      if (event->I2CCRCStatus) {
+      if (!event->I2CCRCStatus) {
         printf("SubSystem: %u, CRCStatus=%u, TrigType=%u, EventID=%d\n", event->I2CSubSystem, event->I2CCRCStatus,
                event->I2CTrigType, event->I2CEventID);
       }
