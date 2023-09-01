@@ -743,6 +743,8 @@ int DecodeDataOCA::ReadOneEvent() {
         FillRawHistos(iTDR, 0, ev, &cals[iTDR]);
       }
     }
+  } else {
+    retVal = -1;
   }
 
   return retVal;
