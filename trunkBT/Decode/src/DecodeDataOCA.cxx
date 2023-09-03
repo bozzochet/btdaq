@@ -651,7 +651,9 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
     // std::cout << "Board trigger number: " << TriggerNumber << " " << std::hex << IntTimestamp << '\n' << std::dec;
   }
 
-  if (kCal && event->I2CTrigType != 0) // we're reading cal and this trigger is not "CAL" (during MIX mode, for example)
+  if (event->I2CTrigType == 0 && event->I2CSubSystem == 0 && event->I2CCRCStatus == 0 && event->I2CEventID == 0)
+    return 0;
+  else if (kCal && event->I2CTrigType != 0) // we're reading cal and this trigger is not "CAL" (during MIX mode, for example)
     return -3;
   else if (!kCal &&
            event->I2CTrigType == 0) // we're reading bea, and this trigger is "CAL" (during MIX mode, for example)
