@@ -145,31 +145,14 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
     exit(2);
   }
 
-  if (!ReadFileHeader(rawfile, rh)) {
-    throw std::runtime_error("Failed to read MAKA run header");
-  }
-
   //  long int runnum = UnixTimeFromFilename(m_dataFilenames);
   char *date = DateFromFilename(m_dataFilenames.at(0));
   rh->SetRun(runNum);
   rh->SetDate(date);
-
-  // we assume that from now on we know how many boards are in the DAQ
-  ntdrRaw = NTDRS;
-  ntdrCmp = 0;
-  for (unsigned int iTdr = 0; iTdr < NJINF * NTDRS; ++iTdr) {
-    tdrMap[iTdr] = {iTdr, 0}; // putting type at 0 since they're all RAW, so far...
+  
+  if (!ReadFileHeader(rawfile, rh)) {
+    throw std::runtime_error("Failed to read MAKA run header");
   }
-
-  // Jinf has no real meaning
-  nJinf = 1;
-  JinfMap[0] = 1;
-
-  // Update the ROOT run header
-  rh->SetJinfMap(JinfMap);
-  rh->SetNTdrsRaw(ntdrRaw);
-  rh->SetNTdrsCmp(ntdrCmp);
-  rh->SetTdrMap(tdrMap);
 
   DecodeDataOCA::DumpRunHeader();
 
@@ -341,6 +324,11 @@ bool DecodeDataOCA::ProcessCalibration() {
   if (!ReadFileHeader(calfile, cal_rh.get()))
     throw std::runtime_error("Failed to read MAKA file header from calibration file");
 
+  //  long int runnum = UnixTimeFromFilename(m_dataFilenames);
+  char *date = DateFromFilename(m_calFilenames.at(0));
+  cal_rh->SetRun(runnum);
+  cal_rh->SetDate(date);
+  
   std::cout << "Calibration file:\n";
   cal_rh->Print();
 
@@ -444,24 +432,37 @@ bool DecodeDataOCA::ReadFileHeader(FILE *file, RHClassOCA *rhc) {
   }
   rhc->SetRunType(static_cast<RHClassOCA::RunType>(runtype.to_ulong()));
 
-  rhc->SetNumBoards(numBoards);
   rhc->SetDataVersion(major, minor, patch);
 
+  // Jinf has no real meaning
+  // MD: actually one could have each board acting as JINF
+  // and the sensors as TDR...
+  nJinf = 1;
+  JinfMap[0] = 1;
+  rhc->SetNJinf(nJinf);
+  rhc->SetJinfMap(JinfMap);
+  
   m_numBoards = numBoards;
-
+  rhc->SetNumBoards(numBoards);
+  // we assume that from now on we know how many boards are in the DAQ
+  ntdrRaw = 0;
+  ntdrCmp = 0;  
   for (unsigned int i = 0; i < numBoards; ++i) {
     uint16_t boardID;
     fstat = ReadFile(&boardID, sizeof(boardID), 1, file);
     if (fstat == -1)
       return false;
     rhc->AddBoardID(boardID);
+    tdrMap[ntdrRaw++] = {ntdrRaw, 0}; // putting type at 0 since they're all RAW, so far...
+    tdrMap[ntdrRaw++] = {ntdrRaw, 0}; // putting type at 0 since they're all RAW, so far...
   }
   if (numBoards%2 == 1) {//read an additional 16-bit padding
     uint16_t dummy16{0};
     fstat = ReadFile(&dummy16, sizeof(dummy16), 1, file);
   }
-  printf("*** Use the board ID above to build the TdrMap! ***\n");
-  sleep(5);
+  rhc->SetNTdrsRaw(ntdrRaw);
+  rhc->SetNTdrsCmp(ntdrCmp);
+  rhc->SetTdrMap(tdrMap);
 
   return true;
 };
