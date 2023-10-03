@@ -576,7 +576,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
     IntTimestamp = (IntTimestamp >> 32) + ((IntTimestamp & 0xFFFFFFFF) << 32);
     // FIXME: we save only the first board clock
     if (iBoard == 0) {
-      event->I2CTrigType = IntTimestamp & 0xFF;
+      event->I2CTrigType = IntTimestamp & 0xFF; 
       event->I2CSubSystem = (IntTimestamp >> 16) & 0x7F;
       event->I2CCRCStatus = (IntTimestamp >> 31) & 0x1;
       event->I2CEventID = IntTimestamp >> 32;
@@ -654,10 +654,10 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
 
   if (event->I2CTrigType == 0 && event->I2CSubSystem == 0 && event->I2CCRCStatus == 0 && event->I2CEventID == 0)
     return 0;
-  else if (kCal && event->I2CTrigType != 0) // we're reading cal and this trigger is not "CAL" (during MIX mode, for example)
+  else if (kCal && (event->I2CTrigType & 0x1 != 0)) // we're reading cal and this trigger is not "CAL" (during MIX mode, for example)
     return -3;
   else if (!kCal &&
-           event->I2CTrigType == 0) // we're reading bea, and this trigger is "CAL" (during MIX mode, for example)
+           (event->I2CTrigType & 0x1 == 0)) // we're reading bea, and this trigger is "CAL" (during MIX mode, for example)
     return -4;
 
   // all good...
