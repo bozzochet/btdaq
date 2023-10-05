@@ -37,7 +37,7 @@ public:
   char CALPATH[255];
   unsigned int TDRrefmask;
   unsigned int JINFrefmask;
-  int flavour; // 0: AMS, 1: FOOT; 2: OCA, 3: AMSL0
+  int flavour; // 0: AMS, 1: FOOT; 2: OCA, 3: AMSL0, 4: GSI2
   double PedYLim;
   ConfPars();
 };
@@ -56,8 +56,9 @@ bool mute=false;
 
 void ShowHelp(char *cmd);
 void RefMask(int run_number, int jinfnum, const char *nameprefixin);
-Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, const char *nameprefixin, const char *nameout, const char *outkind);
-Int_t Summary(char *filename, const char *nameout, const char *outkind);
+Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, const char *nameprefixin, const char *nameout,
+              const char *outkind, bool donotupdate = false);
+Int_t Summary(char *filename, const char *nameout, const char *outkind, bool donotupdate = false);
 int SummaryComplete(char *dir, int run_number, int jinfnum, const char *outkind, const char *nameprefix);
 
 //--------------------------------------------------------------------------------------------
@@ -89,6 +90,7 @@ int main(int argc, char **argv) {
   opt->addUsage("  --l0       ................................. AMSL0");
   opt->addUsage("  --foot      ................................. FOOT");
   opt->addUsage("  --oca       ................................. OCA");
+  opt->addUsage("  --gsi2       ................................. GSI2");
   opt->addUsage(
       "  --outtype   ................................. Type of file: everything for pdf, \"ps\" for PostScript)");
   opt->addUsage("  --prefix    ................................. Name prefix (\"\" is the default)");
@@ -100,6 +102,7 @@ int main(int argc, char **argv) {
   opt->setFlag("help", 'h');
   opt->setFlag("l0");
   opt->setFlag("oca");
+  opt->setFlag("gsi2");
   opt->setFlag("foot");
   // opt->setFlag("pippo", 'p');
 
@@ -137,6 +140,10 @@ int main(int argc, char **argv) {
     if (opt->getFlag("foot")) {
       flavourset = true;
       CPars->flavour = 1;
+    }
+    if (opt->getFlag("gsi2")) {
+      flavourset = true;
+      CPars->flavour = 4;
     }
   } else {
     printf("You set more than one kind of detector...\n");
@@ -292,7 +299,14 @@ int SummaryComplete(char *dir, int run_number, int jinfnum, const char *outkind,
           sprintf(nameouttemp, "%s", nameout);
           printf("n-th TDR (# %d)...\n", ii);
         }
-        ret = Summary(dir, run_number, jinfnum, ii, nameprefix, nameouttemp, outkind);
+        bool donotupdate = false;
+        if (CPars->flavour == 4) { // GSI2
+          if (lasttdr % 2 == 0) {
+            donotupdate = true;
+          }
+          //          printf("%d -> %d\n", lasttdr, donotupdate);
+        }
+        ret = Summary(dir, run_number, jinfnum, ii, nameprefix, nameouttemp, outkind, donotupdate);
       }
     }
     //  struct stat buff;
@@ -305,7 +319,7 @@ int SummaryComplete(char *dir, int run_number, int jinfnum, const char *outkind,
 }
 
 Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, const char *nameprefixin, const char *nameout,
-              const char *outkind) {
+              const char *outkind, bool donotupdate) {
   int ret = 0;
 
   char calfileprefix[255];
@@ -331,12 +345,12 @@ Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, const char
   sprintf(filename, "%s_%02d%02d.cal", calfileprefix, jinfnum, tdr_number);
   //  printf("filename: %s\n", filename);
 
-  ret = Summary(filename, nameout, outkind);
+  ret = Summary(filename, nameout, outkind, donotupdate);
 
   return ret;
 }
 
-Int_t Summary(char *filename, const char *nameout, const char *outkind) {
+Int_t Summary(char *filename, const char *nameout, const char *outkind, bool donotupdate) {
 
   static int count = 0;
 
@@ -426,6 +440,39 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
 
   printf("I did read: %d VAs and %d channels\n", nva, nch);
 
+  //-------------------------------------------------------------------------------------------------------
+
+  static int _nch = nch;
+  static int _nva = nva;
+  if (nva != _nva || nch != _nch) {
+    printf("Strange: {%d, %d} vs {%d, %d}...\n", nva, nch, _nva, _nch);
+  }
+  static TH1F *isto = new TH1F(Form("isto_%d", count), Form("%s: pedestals", tdrname.c_str()), nch, 1, nch);
+  static TH1F *isto2 = new TH1F(Form("isto2_%d", count), Form("%s: sigma", tdrname.c_str()), nch, 1, nch);
+  static TH1F *isto3 = new TH1F(Form("isto3_%d", count), Form("%s: sigma raw", tdrname.c_str()), nch, 1, nch);
+  static TH1F *isto4 = new TH1F(Form("isto4_%d", count), Form("%s: strip status", tdrname.c_str()), nch, 1, nch);
+
+  int skip = 128;
+  int shift = 0;
+  if (CPars->flavour == 4) { // GSI2
+    if (donotupdate) {
+      skip = 64;
+      shift = 64;
+    } else {
+      skip = 64;
+      shift = 0;
+      isto->Reset();
+      isto2->Reset();
+      isto3->Reset();
+      isto4->Reset();
+    }
+  } else {
+    isto->Reset();
+    isto2->Reset();
+    isto3->Reset();
+    isto4->Reset();
+  }
+
   c = new TCanvas(Form("c_%d", count), Form("%s_%d", tdrname.c_str(), 0), 0 * 100, 0 * 10, 600, 400);
   comment->Draw();
   c->Update();
@@ -439,10 +486,10 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
                         CPars->PedYLim);
   fram->SetStats(0);
   fram->Draw();
-  TH1F *isto = new TH1F(Form("isto_%d", count), Form("%s: pedestals", tdrname.c_str()), nch, 1, nch);
   for (Int_t ii = 0; ii < nch; ii++)
-    isto->SetBinContent(ii, ped[ii]);
-  isto->Draw("same");
+    if (ii % 128 < skip)
+      isto->SetBinContent(ii + shift, ped[ii]);
+  isto->DrawCopy("same");
   gPad->Update();
   LinesVas(nva, ((int)(nch / nva)));
   gPad->Update();
@@ -452,10 +499,10 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
   TH2F *fram2 = new TH2F(Form("fram2_%d", count), Form("%s: sigma", tdrname.c_str()), nch, 1, nch, 11, 0, 10);
   fram2->SetStats(0);
   fram2->Draw();
-  TH1F *isto2 = new TH1F(Form("isto2_%d", count), Form("%s: sigma", tdrname.c_str()), nch, 1, nch);
   for (int ii = 0; ii < nch; ii++)
-    isto2->SetBinContent(ii, sig[ii]);
-  isto2->Draw("same");
+    if (ii % 128 < skip)
+      isto2->SetBinContent(ii + shift, sig[ii]);
+  isto2->DrawCopy("same");
   gPad->Update();
   LinesVas(nva, ((int)(nch / nva)));
   gPad->Update();
@@ -465,10 +512,10 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
   TH2F *fram3 = new TH2F(Form("fram3_%d", count), Form("%s: sigma raw", tdrname.c_str()), nch, 1, nch, 21, 0, 20);
   fram3->SetStats(0);
   fram3->Draw();
-  TH1F *isto3 = new TH1F(Form("isto3_%d", count), Form("%s: sigma raw", tdrname.c_str()), nch, 1, nch);
   for (int ii = 0; ii < nch; ii++)
-    isto3->SetBinContent(ii, rsig[ii]);
-  isto3->Draw("same");
+    if (ii % 128 < skip)
+      isto3->SetBinContent(ii + shift, rsig[ii]);
+  isto3->DrawCopy("same");
   gPad->Update();
   LinesVas(nva, ((int)(nch / nva)));
   gPad->Update();
@@ -477,20 +524,21 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
   gPad->SetFillStyle(0);
   TH2F *fram4 = new TH2F(Form("fram4_%d", count), Form("%s: strip status", tdrname.c_str()), nch, 1, nch, 11, 0, 10);
   fram4->SetStats(0);
-  fram4->Draw();
-  TH1F *isto4 = new TH1F(Form("isto4_%d", count), Form("%s: strip status", tdrname.c_str()), nch, 1, nch);
+  fram4->DrawCopy();
   // int chip=0;
   // int channelofchip=0;
-  for (int jj = 0; jj < nch; jj++) {
-    isto4->SetBinContent(jj, status[jj]);
-    // printf("canale: %d, chip: %d, CN: %lf\n",jj,chip,CN[chip]);
-    //  channelofchip++;
-    //  if (channelofchip==64) {
-    //  	chip++;
-    //  	channelofchip=0;//change the CN value every 16 bins (channels)
-    //  }
+  for (int ii = 0; ii < nch; ii++) {
+    if (ii % 128 < skip) {
+      isto4->SetBinContent(ii + shift, status[ii]);
+      // printf("canale: %d, chip: %d, CN: %lf\n", ii, chip, CN[chip]);
+      //  channelofchip++;
+      //  if (channelofchip==64) {
+      //  	chip++;
+      //  	channelofchip=0;//change the CN value every 16 bins (channels)
+      //  }
+    }
   }
-  isto4->Draw("same");
+  isto4->DrawCopy("same");
   gPad->Update();
   LinesVas(nva, ((int)(nch / nva)));
   gPad->Update();
@@ -505,8 +553,17 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
   */
 
   c->Update();
+  if (CPars->flavour == 4) { // GSI2
+    if (!donotupdate) {
+      if (c) {
+        delete c;
+        c = 0;
+      }
+    }
+  }
 
-  c->Print(nameout, outkind);
+  if (c)
+    c->Print(nameout, outkind);
 
   if (mute) {
     if (comment)

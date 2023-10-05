@@ -328,7 +328,7 @@ bool DecodeDataOCA::ProcessCalibration() {
   char *date = DateFromFilename(m_calFilenames.at(0));
   cal_rh->SetRun(runnum);
   cal_rh->SetDate(date);
-  
+
   std::cout << "Calibration file:\n";
   cal_rh->Print();
 
@@ -356,6 +356,7 @@ bool DecodeDataOCA::ProcessCalibration() {
     if (retVal == 0) {
       nEvents++;
     } else {
+      //      printf("\nretVal = %d\n", retVal);
       nRej++;
     }
     // std::cout << "\rRead " << nEvents << " events" << std::flush;
@@ -395,7 +396,7 @@ bool DecodeDataOCA::ReadFileHeader(FILE *file, RHClassOCA *rhc) {
   uint32_t bRunHeader;
   fstat = ReadFile(&bRunHeader, sizeof(bRunHeader), 1, file);
   if (fstat == -1 || bRunHeader != c_bRunHeader) {
-    printf("Mismatch in run header %x (expected %x)\n", bRunHeader, c_bRunHeader);
+    printf("\nMismatch in run header %x (expected %x)\n", bRunHeader, c_bRunHeader);
     return false;
   }
 
@@ -441,12 +442,12 @@ bool DecodeDataOCA::ReadFileHeader(FILE *file, RHClassOCA *rhc) {
   JinfMap[0] = 1;
   rhc->SetNJinf(nJinf);
   rhc->SetJinfMap(JinfMap);
-  
+
   m_numBoards = numBoards;
   rhc->SetNumBoards(numBoards);
   // we assume that from now on we know how many boards are in the DAQ
   ntdrRaw = 0;
-  ntdrCmp = 0;  
+  ntdrCmp = 0;
   for (unsigned int i = 0; i < numBoards; ++i) {
     uint16_t boardID;
     fstat = ReadFile(&boardID, sizeof(boardID), 1, file);
@@ -456,7 +457,7 @@ bool DecodeDataOCA::ReadFileHeader(FILE *file, RHClassOCA *rhc) {
     tdrMap[ntdrRaw++] = {ntdrRaw, 0}; // putting type at 0 since they're all RAW, so far...
     tdrMap[ntdrRaw++] = {ntdrRaw, 0}; // putting type at 0 since they're all RAW, so far...
   }
-  if (numBoards%2 == 1) {//read an additional 16-bit padding
+  if (numBoards % 2 == 1) { // read an additional 16-bit padding
     uint16_t dummy16{0};
     fstat = ReadFile(&dummy16, sizeof(dummy16), 1, file);
   }
@@ -479,7 +480,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
   uint32_t bEvHeader;
   fstat = ReadFile(&bEvHeader, sizeof(bEvHeader), 1, file);
   if (fstat == -1 || bEvHeader != c_bEvHeader) {
-    printf("Mismatch in event header %x (expected %x)\n", bEvHeader, c_bEvHeader);
+    printf("\nMismatch in event header %x (expected %x)\n", bEvHeader, c_bEvHeader);
     return -9;
   }
 
@@ -538,7 +539,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
         fseek(file, -sizeof(decltype(c_bEvHeader)), SEEK_CUR);
         return -2;
       } else {
-        printf("Mismatch in board header %x (expected %x)\n", bHeader, c_bHeader);
+        printf("\nMismatch in board header %x (expected %x)\n", bHeader, c_bHeader);
         return -8;
       }
     }
@@ -569,6 +570,10 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
     if (fstat == -1)
       return -99;
 
+    event->I2CTrigType = 0;
+    event->I2CSubSystem = 0;
+    event->I2CCRCStatus = 1;
+    event->I2CEventID = 0;
     uint64_t IntTimestamp;
     fstat = ReadFile(&IntTimestamp, sizeof(IntTimestamp), 1, file);
     if (fstat == -1)
@@ -576,12 +581,12 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
     IntTimestamp = (IntTimestamp >> 32) + ((IntTimestamp & 0xFFFFFFFF) << 32);
     // FIXME: we save only the first board clock
     if (iBoard == 0) {
-      event->I2CTrigType = IntTimestamp & 0xFF; 
+      event->I2CTrigType = IntTimestamp & 0xFF;
       event->I2CSubSystem = (IntTimestamp >> 16) & 0x7F;
       event->I2CCRCStatus = (IntTimestamp >> 31) & 0x1;
       event->I2CEventID = IntTimestamp >> 32;
       // if (!event->I2CCRCStatus) {
-      //   printf("SubSystem: %u, CRCStatus=%u, TrigType=%u, EventID=%d\n", event->I2CSubSystem, event->I2CCRCStatus,
+      //   printf("\nSubSystem: %u, CRCStatus=%u, TrigType=%u, EventID=%d\n", event->I2CSubSystem, event->I2CCRCStatus,
       //          event->I2CTrigType, event->I2CEventID);
       // }
       if (event->I2CTrigType == 0 && event->I2CEventID != 0) {
@@ -640,7 +645,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
     uint32_t bFooter;
     fstat = ReadFile(&bFooter, sizeof(bFooter), 1, file);
     if (fstat == -1 || bFooter != c_bFooter) {
-      printf("Mismatch in event footer %x (expected %x)\n", bFooter, c_bFooter);
+      printf("\nMismatch in event footer %x (expected %x)\n", bFooter, c_bFooter);
       return -7;
     }
 
@@ -652,12 +657,17 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
     // std::cout << "Board trigger number: " << TriggerNumber << " " << std::hex << IntTimestamp << '\n' << std::dec;
   }
 
-  if (event->I2CTrigType == 0 && event->I2CSubSystem == 0 && event->I2CCRCStatus == 0 && event->I2CEventID == 0)
+  if (event->I2CTrigType == 0 && event->I2CSubSystem == 0 && event->I2CCRCStatus == 0 &&
+      event->I2CEventID == 0) // is a TTL (not I2C) trigger: the I2C word is completely empty
     return 0;
-  else if (kCal && (event->I2CTrigType & 0x1 != 0)) // we're reading cal and this trigger is not "CAL" (during MIX mode, for example)
+  else if (event->I2CSubSystem != 0xa &&
+           event->I2CSubSystem != 0xb) // shitty workaround: is not HERD-I2C, but internal TimeStamp
+    return 0;
+  else if (kCal && (event->I2CTrigType & 0x1) !=
+                       0) // we're reading cal and this trigger is not "CAL" (during MIX mode, for example)
     return -3;
-  else if (!kCal &&
-           (event->I2CTrigType & 0x1 == 0)) // we're reading bea, and this trigger is "CAL" (during MIX mode, for example)
+  else if (!kCal && (event->I2CTrigType & 0x1) ==
+                        0) // we're reading beam, and this trigger is "CAL" (during MIX mode, for example)
     return -4;
 
   // all good...
