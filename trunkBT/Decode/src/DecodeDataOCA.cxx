@@ -149,7 +149,7 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
   char *date = DateFromFilename(m_dataFilenames.at(0));
   rh->SetRun(runNum);
   rh->SetDate(date);
-  
+
   if (!ReadFileHeader(rawfile, rh)) {
     throw std::runtime_error("Failed to read MAKA run header");
   }
@@ -481,6 +481,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
   fstat = ReadFile(&bEvHeader, sizeof(bEvHeader), 1, file);
   if (fstat == -1 || bEvHeader != c_bEvHeader) {
     printf("\nMismatch in event header %x (expected %x)\n", bEvHeader, c_bEvHeader);
+    sleep(1);
     return -9;
   }
 
@@ -726,6 +727,13 @@ void DecodeDataOCA::InitHistos() {
 }
 
 int DecodeDataOCA::ReadOneEvent() {
+
+  static bool firsttime = true;
+  if (firsttime) {
+    std::string filePath = m_rawDir + "/" + m_dataFilenames.at(0);
+    printf("Processing rawfile (%s)...\n", filePath.c_str());
+    firsttime = false;
+  }
 
   int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
 
