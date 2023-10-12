@@ -336,7 +336,8 @@ bool DecodeDataOCA::ProcessCalibration() {
   auto start = std::chrono::system_clock::now();
 
   auto event = std::make_unique<EventOCA>((char *)"ladderconf_OCA.dat", (char *)"gaincorrection_OCA.dat");
-  std::vector<std::vector<std::vector<float>>> signals(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
+  std::vector<std::vector<std::vector<float>>> signals(
+      NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA, std::vector<float>(10000)));
 
   // #define CALPLOTS // in generale deve stare spento, a differenza di AMS non abbiamo i cluster, quando fa il decode
   // qui fa qualche plot di occupancy.
@@ -367,23 +368,29 @@ bool DecodeDataOCA::ProcessCalibration() {
     if (retVal == 0) {
       for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
         for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-          signals[iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+          signals[iTdr][iCh][nEvents - 1] = event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits;
           //	printf("%d (%d %d)) %hd %f -> %f\n", nEvents, iTdr, iCh, event->RawSignal[iJinf][iTdr][iCh], m_adcUnits,
           // event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
         }
       }
     }
   }
+
+  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+      signals[iTdr][iCh].resize(nEvents);
+    }
+  }
   std::cout << '\n';
 
   //----------------------------------
-  ComputeCalibration<EventOCA, calibOCA>(signals, cals);
+  ComputeCalibration<EventOCA, calibOCA>(signals, cals[0]);
 
   auto stop = std::chrono::system_clock::now();
   std::cout << "DecodeDataOCA::ProcessCalibration took "
             << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
 
-  SaveCalibration<EventOCA, calibOCA>(signals, cals, m_calRunnums.at(0), 2 * m_numBoardsFound, iJinf);
+  SaveCalibration<EventOCA, calibOCA>(signals, cals[0], m_calRunnums.at(0), 2 * m_numBoardsFound, iJinf);
 
   return true;
 }
@@ -631,7 +638,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
           //	  sleep(1);
         }
         event->RawSoN[iJinf][iTDR][iCh] =
-            (event->RawSignal[iJinf][iTDR][iCh] / m_adcUnits - cals[iTDR].ped[iCh]) / cals[iTDR].sig[iCh];
+            (event->RawSignal[iJinf][iTDR][iCh] / m_adcUnits - cals[iJinf][iTDR].ped[iCh]) / cals[iJinf][iTDR].sig[iCh];
       }
       return iTDRmax;
     };
@@ -735,14 +742,15 @@ int DecodeDataOCA::ReadOneEvent() {
     firsttime = false;
   }
 
-  int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
+  // in the OCA case we have just one "collector" (the DAQ PC itself)
+  size_t iJinf = 0;
 
   // copy calibration data...
   for (unsigned int iBoard = 0; iBoard < 2 * m_numBoards; ++iBoard) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      ev->CalPed[iJinf][iBoard][iCh] = cals[iBoard].ped[iCh];
-      ev->CalSigma[iJinf][iBoard][iCh] = cals[iBoard].sig[iCh];
-      ev->CalStatus[iJinf][iBoard][iCh] = cals[iBoard].status[iCh];
+      ev->CalPed[iJinf][iBoard][iCh] = cals[iJinf][iBoard].ped[iCh];
+      ev->CalSigma[iJinf][iBoard][iCh] = cals[iJinf][iBoard].sig[iCh];
+      ev->CalStatus[iJinf][iBoard][iCh] = cals[iJinf][iBoard].status[iCh];
     }
   }
 
@@ -761,9 +769,9 @@ int DecodeDataOCA::ReadOneEvent() {
     // point, so it should return.
     for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
       if (kClusterize) {
-        Clusterize(iTDR, 0, ev, &cals[iTDR]);
+        Clusterize(iTDR, 0, ev, &cals[iJinf][iTDR]);
       } else {
-        FillRawHistos(iTDR, 0, ev, &cals[iTDR]);
+        FillRawHistos(iTDR, 0, ev, &cals[iJinf][iTDR]);
       }
     }
   }

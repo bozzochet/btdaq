@@ -241,7 +241,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
   for (unsigned int iJinf = 0; iJinf < nJinf; iJinf++) {
     //    printf("iJinf = %d\n", iJinf);
 
-    ComputeCalibration<EventAMSL0, calibAMSL0>(signals[iJinf], cals[iJinf], iJinf);
+    ComputeCalibration<EventAMSL0, calibAMSL0, EventAMSL0::GetNTDRS()>(signals[iJinf], cals[iJinf], iJinf);
     /*
     for (unsigned int iTdr = 0; iTdr < (ntdrRaw + ntdrCmp); iTdr++) {
       printf("iJinf=%u, iTdr=%u valid: %d\n", iJinf, iTdr, cals[iJinf][iTdr].valid);
