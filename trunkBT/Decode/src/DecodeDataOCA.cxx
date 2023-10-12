@@ -535,6 +535,11 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
   dummy >>= 12;
   char type = dummy & 0xF;
 
+  event->I2CTrigType = 0;
+  event->I2CSubSystem = 0;
+  event->I2CCRCStatus = 1;
+  event->I2CEventID = 0;
+
   for (unsigned int iBoard = 0; iBoard < m_numBoards; ++iBoard) {
     uint32_t bHeader;
     fstat = ReadFile(&bHeader, sizeof(bHeader), 1, file);
@@ -578,10 +583,6 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
     if (fstat == -1)
       return -99;
 
-    event->I2CTrigType = 0;
-    event->I2CSubSystem = 0;
-    event->I2CCRCStatus = 1;
-    event->I2CEventID = 0;
     uint64_t IntTimestamp;
     fstat = ReadFile(&IntTimestamp, sizeof(IntTimestamp), 1, file);
     if (fstat == -1)
@@ -663,19 +664,20 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
       return -99;
 
     // std::cout << "Board trigger number: " << TriggerNumber << " " << std::hex << IntTimestamp << '\n' << std::dec;
+    // std::cout << "Trig type: " << int{event->I2CTrigType} << '\n';
   }
 
-  if (event->I2CTrigType == 0 && event->I2CSubSystem == 0 && event->I2CCRCStatus == 0 &&
-      event->I2CEventID == 0) // is a TTL (not I2C) trigger: the I2C word is completely empty
+  // is a TTL (not I2C) trigger: the I2C word is completely empty
+  if (event->I2CTrigType == 0 && event->I2CSubSystem == 0 && event->I2CCRCStatus == 0 && event->I2CEventID == 0)
     return 0;
-  else if (event->I2CSubSystem != 0xa &&
-           event->I2CSubSystem != 0xb) // shitty workaround: is not HERD-I2C, but internal TimeStamp
+  // shitty workaround: is not HERD-I2C, but internal TimeStamp
+  else if (event->I2CSubSystem != 0xa && event->I2CSubSystem != 0xb)
     return 0;
-  else if (kCal && (event->I2CTrigType & 0x1) !=
-                       0) // we're reading cal and this trigger is not "CAL" (during MIX mode, for example)
+  // we're reading cal and this trigger is not "CAL" (during MIX mode, for example)
+  else if (kCal && (event->I2CTrigType & 0x1) != 0)
     return -3;
-  else if (!kCal && (event->I2CTrigType & 0x1) ==
-                        0) // we're reading beam, and this trigger is "CAL" (during MIX mode, for example)
+  // we're reading beam, and this trigger is "CAL" (during MIX mode, for example)
+  else if (!kCal && (event->I2CTrigType & 0x1) == 0)
     return -4;
 
   // all good...
