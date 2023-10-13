@@ -100,9 +100,9 @@ public:
 
     static inline int ComputeTdrNum(int tdrnum, int jinfnum) { return 100 * jinfnum + tdrnum; }
 
-    int GetTdrNum(int tdrpos);
-    int GetTdrType(int tdrpos);
-    int GetJinfNum(int tdrpos);
+    int GetTdrNum(size_t tdrpos);
+    int GetTdrType(size_t tdrpos);
+    int GetJinfNum(size_t tdrpos);
 
     int FindPos(int tdrnum, int jinfnum);
     int FindJinfPos(int jinfnum);

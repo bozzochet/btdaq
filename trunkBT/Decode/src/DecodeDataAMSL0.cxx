@@ -173,7 +173,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
 
         // only 1 Jinf is managed by ComputeCalibration()
         // treat everything (also in the case with two LINFs as if we have just one
-        for (unsigned int iTdr_index = 0; iTdr_index < (ntdrRaw + ntdrCmp); ++iTdr_index) {
+        for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
           unsigned int iTdr = rh->GetTdrNum(iTdr_index);
           unsigned int iJinf = rh->GetJinfNum(iTdr_index);
           for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -210,7 +210,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
 
       // only 1 Jinf is managed by ComputeCalibration()
       // treat everything (also in the case with two LINFs as if we have just one
-      for (unsigned int iTdr_index = 0; iTdr_index < (ntdrRaw + ntdrCmp); ++iTdr_index) {
+      for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
         unsigned int iTdr = rh->GetTdrNum(iTdr_index);
         unsigned int iJinf = rh->GetJinfNum(iTdr_index);
         for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -238,7 +238,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
   }
 
   //  printf("nJinf = %d\n", nJinf);
-  for (unsigned int iJinf = 0; iJinf < nJinf; iJinf++) {
+  for (unsigned int iJinf = 0; iJinf < uint(nJinf); iJinf++) {
     //    printf("iJinf = %d\n", iJinf);
 
     ComputeCalibration<EventAMSL0, calibAMSL0, EventAMSL0::GetNTDRS()>(signals[iJinf], cals[iJinf], iJinf);
@@ -293,7 +293,7 @@ int DecodeDataAMSL0::ReadOneEvent() {
 
   // copy calibration data... Just for first event (when > 0 we can start to skip), since are static
   if (m_read_events == 0) {
-    for (unsigned int iTdr_index = 0; iTdr_index < (ntdrRaw + ntdrCmp); ++iTdr_index) {
+    for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
       unsigned int iTdr = rh->GetTdrNum(iTdr_index);
       unsigned int iJinf = rh->GetJinfNum(iTdr_index);
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -321,14 +321,14 @@ int DecodeDataAMSL0::ReadOneEvent() {
 
   // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this
   // point, so it should return.
-  for (unsigned int iTdr_index = 0; iTdr_index < (ntdrRaw + ntdrCmp); ++iTdr_index) {
+  for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
     unsigned int iTdr = rh->GetTdrNum(iTdr_index);
     unsigned int iJinf = rh->GetJinfNum(iTdr_index);
     //      printf("iJinf = %d, iTdr = %d\n", iJinf, iTdr);
     if (kClusterize) {
-      Clusterize(iTdr, iJinf, ev, &cals[iJinf][iTdr]);
+      Clusterize(iTdr, iJinf, ev, &cals.at(iJinf).at(iTdr));
     } else {
-      FillRawHistos(iTdr, iJinf, ev, &cals[iJinf][iTdr]);
+      FillRawHistos(iTdr, iJinf, ev, &cals.at(iJinf).at(iTdr));
     }
   }
 
@@ -398,7 +398,7 @@ bool DecodeDataAMSL0::ReadFileHeader(FILE *file, RHClassAMSL0 *rhc) {
   JinfMap[0] = 0;
 
   // we assume that from now on we know how many boards are in the DAQ
-  for (unsigned int iTdr = 0; iTdr < nJinf * (ntdrCmp + ntdrRaw); ++iTdr) {
+  for (unsigned int iTdr = 0; iTdr < nJinf * uint(ntdrCmp + ntdrRaw); ++iTdr) {
     tdrMap[iTdr] = {iTdr, 0}; // putting type at 0 since they're all RAW, so far...
   }
 

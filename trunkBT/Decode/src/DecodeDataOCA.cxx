@@ -455,14 +455,21 @@ bool DecodeDataOCA::ReadFileHeader(FILE *file, RHClassOCA *rhc) {
   // we assume that from now on we know how many boards are in the DAQ
   ntdrRaw = 0;
   ntdrCmp = 0;
+  // FIXME: This was not even initialized. Should be replaced by a std::map<int, int> or something similar
+  tdrMap = new laddernumtype[2 * numBoards];
   for (unsigned int i = 0; i < numBoards; ++i) {
     uint16_t boardID;
     fstat = ReadFile(&boardID, sizeof(boardID), 1, file);
     if (fstat == -1)
       return false;
     rhc->AddBoardID(boardID);
-    tdrMap[ntdrRaw++] = {ntdrRaw, 0}; // putting type at 0 since they're all RAW, so far...
-    tdrMap[ntdrRaw++] = {ntdrRaw, 0}; // putting type at 0 since they're all RAW, so far...
+    // Can't do this!! https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsequence-point
+    //    tdrMap[ntdrRaw++] = {ntdrRaw, 0}; // putting type at 0 since they're all RAW, so far...
+    //    tdrMap[ntdrRaw++] = {ntdrRaw, 0}; // putting type at 0 since they're all RAW, so far...
+    // instead...
+    tdrMap[ntdrRaw] = {ntdrRaw, 0};
+    tdrMap[ntdrRaw + 1] = {ntdrRaw + 1, 0};
+    ntdrRaw += 2;
   }
   if (numBoards % 2 == 1) { // read an additional 16-bit padding
     uint16_t dummy16{0};

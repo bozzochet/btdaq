@@ -69,8 +69,8 @@ DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary,
   runn = run;
   ntdrRaw = 0;
   ntdrCmp = 0;
-  memset(tdrMap, -1, NJINF * NTDRS * sizeof(tdrMap[0]));
-  memset(tdrAlign, -1, NJINF * NTDRS * sizeof(tdrAlign[0])); // added by Viviana
+  // memset(tdrMap, -1, NJINF * NTDRS * sizeof(tdrMap[0]));
+  // memset(tdrAlign, -1, NJINF * NTDRS * sizeof(tdrAlign[0])); // added by Viviana
 
   OpenFile(ifname, caldir, run, ancillary);
   runn = run;
@@ -104,8 +104,7 @@ DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary,
     }
 
     out_flag = true;
-  }
-  else {
+  } else {
     rh->SetRun(runn);
     time_t now = time(0); // MD: I don't like. Should be decided when simulating, not when analyzing!
     rh->SetDate(ctime(&now));
@@ -116,7 +115,7 @@ DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary,
   }
 
   // Create the ROOT Classes for the ROOT data format
-  ev = new EventAMS("ladderconf.dat","gaincorrection.dat");
+  ev = new EventAMS("ladderconf.dat", "gaincorrection.dat");
 
   mysort(tdrMap, ntdrRaw + ntdrCmp);
   // Update the ROOT run header
@@ -757,8 +756,7 @@ int DecodeDataAMS::ReadOneEvent_mc() {
           // int sch=simChan->at(nhi)-112;
           // ev->RawSignal[hvol[nh]][sch]+=int(hitDep->at(nhi)*dEdX2ADC);
           ev->RawSignal[jinfnum][hvol[nh]][sch] += int(simDep->at(nhi) * dEdX2ADC);
-          ev->RawSoN[jinfnum][hvol[nh]][sch] =
-              (ev->RawSignal[jinfnum][hvol[nh]][sch] - cal->ped[sch]) / cal->sig[sch];
+          ev->RawSoN[jinfnum][hvol[nh]][sch] = (ev->RawSignal[jinfnum][hvol[nh]][sch] - cal->ped[sch]) / cal->sig[sch];
           if (pri)
             printf("HITSIG %d: %d %f %f %f\n", sch, ev->RawSignal[jinfnum][hvol[nh]][sch],
                    ev->RawSoN[jinfnum][hvol[nh]][sch], cal->ped[sch], cal->sig[sch]);

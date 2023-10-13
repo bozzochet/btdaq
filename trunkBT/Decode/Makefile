@@ -44,6 +44,9 @@ CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags)
 
 CFLAGS += -DSPDLOG_FMT_EXTERNAL
 
+# enable this if you want to hunt down warnings :)
+# CFLAGS += -Werror
+
 ifneq ($(ROOTVERSION),6)
         CFLAGSFORCINT	:= -c -p $(CFLAGS)
 endif
