@@ -4,6 +4,7 @@
 #include "TClonesArray.h"
 #include "TH2F.h"
 #include "TObject.h"
+#include "TFile.h"
 
 #include "Cluster.hh"
 #include "DataTypes.hh"
@@ -62,6 +63,9 @@ public:
   static constexpr size_t GetNVASS() { return NVASS; }
   static constexpr size_t GetNVASK() { return NVASK; }
   static constexpr size_t GetNCH() { return (NVASS + NVASK) * NCHAVA; }
+
+  template <class calib> using Calibrations = std::array<std::array<calib, GetNTDRS()>, GetNJINF()>;
+  template <class calib> static Calibrations<calib> GetCalibrationsFromFile(TFile* file);
 
   //! Clear the event
   void Clear();
