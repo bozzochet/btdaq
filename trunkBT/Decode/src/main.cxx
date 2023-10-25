@@ -23,7 +23,6 @@
 
 using namespace std;
 
-AnyOption *opt; // Handle the option input
 char progname[300];
 
 void CreatePdfWithPlots(DecodeData *dd1, char *pdf_filename);
@@ -70,7 +69,7 @@ int main(int argc, char **argv) {
   sprintf(DirRaw, "./RawData/");
   sprintf(DirCal, "./CalData/");
 
-  opt = new AnyOption();
+  auto opt = std::make_unique<AnyOption>(); // Handle the option input
 
   opt->addUsage("Usage: ./Decode [options] [arguments]");
   opt->addUsage("");
@@ -322,6 +321,12 @@ int main(int argc, char **argv) {
     auto *dd = new DecodeDataOCA(DirRaw, DirCal, run, calrunstart);
     fConf = dd->FlavorConfig();
     t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
+    auto calibs = dd->GetCalibrations();
+    // What a hack!
+    auto class_name =
+        fmt::format("std::array<std::array<{}, {}>, {}>", decltype(calibs)::value_type::value_type::Class_Name(),
+                    calibs[0].size(), calibs.size());
+    foutput->WriteObjectAny(&calibs, class_name.c_str(), "Calibrations");
     dd1 = static_cast<DecodeData *>(dd);
   } else if (kFoot) {
     auto *dd = new DecodeDataFOOT(DirRaw, DirCal, run, calrunstart);
@@ -333,6 +338,12 @@ int main(int argc, char **argv) {
     auto *dd = new DecodeDataAMSL0(DirRaw, DirCal, run, runstop, calrunstart, calrunstop, kL0old ? 0 : 1);
     fConf = dd->FlavorConfig();
     t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
+    auto calibs = dd->GetCalibrations();
+    // What a hack!
+    auto class_name =
+        fmt::format("std::array<std::array<{}, {}>, {}>", decltype(calibs)::value_type::value_type::Class_Name(),
+                    calibs[0].size(), calibs.size());
+    foutput->WriteObjectAny(&calibs, class_name.c_str(), "Calibrations");
     dd1 = static_cast<DecodeData *>(dd);
   } else {
     auto *dd = new DecodeDataAMS(DirRaw, DirCal, run, ancillary, kMC);

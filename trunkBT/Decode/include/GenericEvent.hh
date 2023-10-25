@@ -4,6 +4,7 @@
 #include "TClonesArray.h"
 #include "TH2F.h"
 #include "TObject.h"
+#include "TFile.h"
 
 #include "Cluster.hh"
 #include "DataTypes.hh"
@@ -11,21 +12,15 @@
 #include "LadderConf.hh"
 #include "RHClass.hh"
 
-template <size_t NCh> class calib {
+template <size_t NCh> class calib : public TObject {
 public:
-  float *ped;
-  float *rsig;
-  float *sig;
-  int *status;
-  bool valid;
+  std::array<float, NCh> ped;
+  std::array<float, NCh> rsig;
+  std::array<float, NCh> sig;
+  std::array<int, NCh> status;
+  bool valid{true};
 
-  calib() {
-    valid = true;
-    ped = new float[NCh];  // was [1024]: is backward compatible?
-    rsig = new float[NCh]; // was [1024]: is backward compatible?
-    sig = new float[NCh];  // was [1024]: is backward compatible?
-    status = new int[NCh]; // was [1024]: is backward compatible?
-  };
+  ClassDef(calib, 1);
 };
 
 struct FlavorConfig {
@@ -68,6 +63,9 @@ public:
   static constexpr size_t GetNVASS() { return NVASS; }
   static constexpr size_t GetNVASK() { return NVASK; }
   static constexpr size_t GetNCH() { return (NVASS + NVASK) * NCHAVA; }
+
+  template <class calib> using Calibrations = std::array<std::array<calib, GetNTDRS()>, GetNJINF()>;
+  template <class calib> static Calibrations<calib> GetCalibrationsFromFile(TFile* file);
 
   //! Clear the event
   void Clear();

@@ -94,52 +94,52 @@ template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::FindPos(int tdr
 
 template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::FindJinfPos(int jinfnum) {
 
-    // Print();
+  // Print();
 
-    for (int ii = 0; ii < GetNJinfs(); ii++)
-            if (JinfMap[ii] == jinfnum)
-              return ii;
+  for (int ii = 0; ii < GetNJinfs(); ii++)
+    if (JinfMap[ii] == jinfnum)
+      return ii;
 
-    return -1;
+  return -1;
 }
 
 template <size_t NJINF, size_t NTDRS> void RHClass<NJINF, NTDRS>::SetJinfMap(int *_JinfMap) {
 
-    // for (int ii=0;ii<NJINF;ii++) {
-    //   JinfMap[ii]=_JinfMap[ii];
-    // }
-    memcpy(JinfMap, _JinfMap, NJINF * sizeof(JinfMap[0]));
+  // for (int ii=0;ii<NJINF;ii++) {
+  //   JinfMap[ii]=_JinfMap[ii];
+  // }
+  memcpy(JinfMap, _JinfMap, NJINF * sizeof(JinfMap[0]));
 
-    return;
+  return;
 }
 
 template <size_t NJINF, size_t NTDRS> void RHClass<NJINF, NTDRS>::SetTdrMap(laddernumtype *_TdrMap) {
 
-    // for (int ii=0;ii<NTDRS;ii++) {
-    //   tdrMap[ii]=_TdrMap[ii];
-    // }
-    memcpy(tdrMap, _TdrMap, NJINF * NTDRS * sizeof(tdrMap[0]));
+  for (size_t ii = 0; ii < NJINF * NTDRS; ++ii) {
+    tdrMap[ii] = _TdrMap[ii];
+  }
+  //    memcpy(tdrMap, _TdrMap, NJINF * NTDRS * sizeof(tdrMap[0]));
 
-    return;
+  return;
 }
 
-template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::GetTdrNum(int tdrpos) {
-    if (tdrpos < NJINF * NTDRS) {
-            return (tdrMap[tdrpos].first) % 100;
-    }
-    return -1;
+template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::GetTdrNum(size_t tdrpos) {
+  if (tdrpos < NJINF * NTDRS) {
+    return (tdrMap[tdrpos].first) % 100;
+  }
+  return -1;
 }
 
-template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::GetTdrType(int tdrpos) {
-    if (tdrpos < NJINF * NTDRS) {
-            return tdrMap[tdrpos].second;
-    }
-    return -1;
+template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::GetTdrType(size_t tdrpos) {
+  if (tdrpos < NJINF * NTDRS) {
+    return tdrMap[tdrpos].second;
+  }
+  return -1;
 }
 
-template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::GetJinfNum(int tdrpos) {
-    if (tdrpos < NJINF * NTDRS) {
-            return (int)(tdrMap[tdrpos].first / 100);
-    }
-    return -1;
+template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::GetJinfNum(size_t tdrpos) {
+  if (tdrpos < NJINF * NTDRS) {
+    return (int)(tdrMap[tdrpos].first / 100);
+  }
+  return -1;
 }

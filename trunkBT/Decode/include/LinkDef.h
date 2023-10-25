@@ -16,10 +16,13 @@
 #pragma link C++ class DataVersion + ;
 // AMS
 #pragma link C++ class GenericEvent < 1, 24, 64, 3, 16, 10> + ;
+#pragma link C++ class calib < 1664> + ;
 // AMS L0
 #pragma link C++ class GenericEvent < 2, 9, 64, 8, 16, 0> + ;
+#pragma link C++ class calib < 1024> + ;
 // OCA
 #pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0> + ;
+#pragma link C++ class calib < 640> + ;
 // FOOT
 #pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0> + ;
 

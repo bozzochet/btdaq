@@ -119,11 +119,12 @@ public:
                   int CNStatus, int PowBits, int bad, float *sig, bool kRaw = false);
   template <class Event, class calib> void Clusterize(int numnum, int Jinfnum, Event *ev, calib *cal);
   template <class Event, class calib> void FillRawHistos(int numnum, int Jinfnum, Event *ev, calib *cal);
-  template <class Event, class calib>
-  void ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals, int iJinf = 0);
-  template <class Event, class calib>
-  void SaveCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals, long int runnum,
-                       unsigned int nTDRs, int iJinf = 0);
+  template <class Event, class calib, size_t nch>
+  void ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals,
+                          std::array<calib, nch> &cals, int iJinf = 0);
+  template <class Event, class calib, size_t nch>
+  void SaveCalibration(const std::vector<std::vector<std::vector<float>>> &signals, const std::array<calib, nch> &cals,
+                       long int runnum, unsigned int nTDRs, int iJinf = 0);
   virtual void GetCalFilePrefix(char *calfileprefix, long int runnum) = 0;
 
   virtual inline int GetNTdrRaw() { return ntdrRaw; }
@@ -477,9 +478,9 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
         //        arraysize = nvas * nchava; // changed by Viviana
         memcpy(array, ev->RawSignal[Jinfnum][tdrindex], arraysize * sizeof(ev->RawSignal[Jinfnum][tdrindex][0]));
         memcpy(arraySoN, ev->RawSoN[Jinfnum][tdrindex], arraysize * sizeof(ev->RawSoN[Jinfnum][tdrindex][0]));
-        memcpy(pede, cal->ped, arraysize * sizeof(cal->ped[0]));
-        memcpy(sigma, cal->sig, arraysize * sizeof(cal->sig[0]));
-        memcpy(status, cal->status, arraysize * sizeof(cal->status[0]));
+        memcpy(pede, cal->ped.data(), arraysize * sizeof(cal->ped[0]));
+        memcpy(sigma, cal->sig.data(), arraysize * sizeof(cal->sig[0]));
+        memcpy(status, cal->status.data(), arraysize * sizeof(cal->status[0]));
         if (kMC) { // added by Viviana
           added = true;
         }
@@ -666,9 +667,9 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
   return;
 }
 
-template <class Event, class calib>
-void DecodeData::SaveCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals,
-                                 long int runnum, unsigned int nTDRs, int iJinf) {
+template <class Event, class calib, size_t nch>
+void DecodeData::SaveCalibration(const std::vector<std::vector<std::vector<float>>> &signals,
+                                 const std::array<calib, nch> &cals, long int runnum, unsigned int nTDRs, int iJinf) {
   constexpr auto NJINF = Event::GetNJINF();
   constexpr auto NTDRS = Event::GetNTDRS();
   constexpr auto NVAS = Event::GetNVAS();
@@ -691,7 +692,7 @@ void DecodeData::SaveCalibration(const std::vector<std::vector<std::vector<float
       //    }
 
       char calfilename[255];
-      sprintf(calfilename, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
+      snprintf(calfilename, 264, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
       //      printf("calfilename: %s\n", calfilename);
 
       // FIXME: add a flag in the main to have a different cal dir for output
@@ -718,9 +719,9 @@ void DecodeData::SaveCalibration(const std::vector<std::vector<std::vector<float
   }
 }
 
-template <class Event, class calib>
-void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals, calib *cals,
-                                    int iJinf) {
+template <class Event, class calib, size_t ntdr>
+void DecodeData::ComputeCalibration(const std::vector<std::vector<std::vector<float>>> &signals,
+                                    std::array<calib, ntdr> &cals, int iJinf) {
   constexpr auto NJINF = Event::GetNJINF();
   constexpr auto NTDRS = Event::GetNTDRS();
   constexpr auto NVAS = Event::GetNVAS();

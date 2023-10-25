@@ -74,6 +74,17 @@ template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS,
 Array3<int, NJINF, NTDRS, NCHAVA *(NVASS + NVASK)> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::CalStatus{
     {{0}}};
 
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+template <class calib>
+typename GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::template Calibrations<calib>
+GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalibrationsFromFile(TFile *file) {
+  if (file->FindKey("Calibrations")) {
+    return *file->Get<Calibrations<calib>>("Calibrations");
+  }
+
+  throw(std::runtime_error("No calibrations saved in this TFile"));
+}
+
 // NOTE: This constructor should not be used, if you create a new Event flavor, specialize its constructor as shown
 // below [VF]
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>

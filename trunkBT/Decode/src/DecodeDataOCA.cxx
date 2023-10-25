@@ -336,7 +336,8 @@ bool DecodeDataOCA::ProcessCalibration() {
   auto start = std::chrono::system_clock::now();
 
   auto event = std::make_unique<EventOCA>((char *)"ladderconf_OCA.dat", (char *)"gaincorrection_OCA.dat");
-  std::vector<std::vector<std::vector<float>>> signals(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
+  std::vector<std::vector<std::vector<float>>> signals(
+      NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA, std::vector<float>(10000)));
 
   // #define CALPLOTS // in generale deve stare spento, a differenza di AMS non abbiamo i cluster, quando fa il decode
   // qui fa qualche plot di occupancy.
@@ -367,23 +368,29 @@ bool DecodeDataOCA::ProcessCalibration() {
     if (retVal == 0) {
       for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
         for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-          signals[iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+          signals[iTdr][iCh][nEvents - 1] = event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits;
           //	printf("%d (%d %d)) %hd %f -> %f\n", nEvents, iTdr, iCh, event->RawSignal[iJinf][iTdr][iCh], m_adcUnits,
           // event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
         }
       }
     }
   }
+
+  for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+      signals[iTdr][iCh].resize(nEvents);
+    }
+  }
   std::cout << '\n';
 
   //----------------------------------
-  ComputeCalibration<EventOCA, calibOCA>(signals, cals);
+  ComputeCalibration<EventOCA, calibOCA>(signals, cals[0]);
 
   auto stop = std::chrono::system_clock::now();
   std::cout << "DecodeDataOCA::ProcessCalibration took "
             << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
 
-  SaveCalibration<EventOCA, calibOCA>(signals, cals, m_calRunnums.at(0), 2 * m_numBoardsFound, iJinf);
+  SaveCalibration<EventOCA, calibOCA>(signals, cals[0], m_calRunnums.at(0), 2 * m_numBoardsFound, iJinf);
 
   return true;
 }
@@ -448,14 +455,21 @@ bool DecodeDataOCA::ReadFileHeader(FILE *file, RHClassOCA *rhc) {
   // we assume that from now on we know how many boards are in the DAQ
   ntdrRaw = 0;
   ntdrCmp = 0;
+  // FIXME: This was not even initialized. Should be replaced by a std::map<int, int> or something similar
+  tdrMap = new laddernumtype[2 * numBoards];
   for (unsigned int i = 0; i < numBoards; ++i) {
     uint16_t boardID;
     fstat = ReadFile(&boardID, sizeof(boardID), 1, file);
     if (fstat == -1)
       return false;
     rhc->AddBoardID(boardID);
-    tdrMap[ntdrRaw++] = {ntdrRaw, 0}; // putting type at 0 since they're all RAW, so far...
-    tdrMap[ntdrRaw++] = {ntdrRaw, 0}; // putting type at 0 since they're all RAW, so far...
+    // Can't do this!! https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wsequence-point
+    //    tdrMap[ntdrRaw++] = {ntdrRaw, 0}; // putting type at 0 since they're all RAW, so far...
+    //    tdrMap[ntdrRaw++] = {ntdrRaw, 0}; // putting type at 0 since they're all RAW, so far...
+    // instead...
+    tdrMap[ntdrRaw] = {ntdrRaw, 0};
+    tdrMap[ntdrRaw + 1] = {ntdrRaw + 1, 0};
+    ntdrRaw += 2;
   }
   if (numBoards % 2 == 1) { // read an additional 16-bit padding
     uint16_t dummy16{0};
@@ -528,6 +542,11 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
   dummy >>= 12;
   char type = dummy & 0xF;
 
+  event->I2CTrigType = 0;
+  event->I2CSubSystem = 0;
+  event->I2CCRCStatus = 1;
+  event->I2CEventID = 0;
+
   for (unsigned int iBoard = 0; iBoard < m_numBoards; ++iBoard) {
     uint32_t bHeader;
     fstat = ReadFile(&bHeader, sizeof(bHeader), 1, file);
@@ -571,10 +590,6 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
     if (fstat == -1)
       return -99;
 
-    event->I2CTrigType = 0;
-    event->I2CSubSystem = 0;
-    event->I2CCRCStatus = 1;
-    event->I2CEventID = 0;
     uint64_t IntTimestamp;
     fstat = ReadFile(&IntTimestamp, sizeof(IntTimestamp), 1, file);
     if (fstat == -1)
@@ -631,7 +646,7 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
           //	  sleep(1);
         }
         event->RawSoN[iJinf][iTDR][iCh] =
-            (event->RawSignal[iJinf][iTDR][iCh] / m_adcUnits - cals[iTDR].ped[iCh]) / cals[iTDR].sig[iCh];
+            (event->RawSignal[iJinf][iTDR][iCh] / m_adcUnits - cals[iJinf][iTDR].ped[iCh]) / cals[iJinf][iTDR].sig[iCh];
       }
       return iTDRmax;
     };
@@ -656,19 +671,20 @@ int DecodeDataOCA::ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal) 
       return -99;
 
     // std::cout << "Board trigger number: " << TriggerNumber << " " << std::hex << IntTimestamp << '\n' << std::dec;
+    // std::cout << "Trig type: " << int{event->I2CTrigType} << '\n';
   }
 
-  if (event->I2CTrigType == 0 && event->I2CSubSystem == 0 && event->I2CCRCStatus == 0 &&
-      event->I2CEventID == 0) // is a TTL (not I2C) trigger: the I2C word is completely empty
+  // is a TTL (not I2C) trigger: the I2C word is completely empty
+  if (event->I2CTrigType == 0 && event->I2CSubSystem == 0 && event->I2CCRCStatus == 0 && event->I2CEventID == 0)
     return 0;
-  else if (event->I2CSubSystem != 0xa &&
-           event->I2CSubSystem != 0xb) // shitty workaround: is not HERD-I2C, but internal TimeStamp
+  // shitty workaround: is not HERD-I2C, but internal TimeStamp
+  else if (event->I2CSubSystem != 0xa && event->I2CSubSystem != 0xb)
     return 0;
-  else if (kCal && (event->I2CTrigType & 0x1) !=
-                       0) // we're reading cal and this trigger is not "CAL" (during MIX mode, for example)
+  // we're reading cal and this trigger is not "CAL" (during MIX mode, for example)
+  else if (kCal && (event->I2CTrigType & 0x1) != 0)
     return -3;
-  else if (!kCal && (event->I2CTrigType & 0x1) ==
-                        0) // we're reading beam, and this trigger is "CAL" (during MIX mode, for example)
+  // we're reading beam, and this trigger is "CAL" (during MIX mode, for example)
+  else if (!kCal && (event->I2CTrigType & 0x1) == 0)
     return -4;
 
   // all good...
@@ -735,14 +751,15 @@ int DecodeDataOCA::ReadOneEvent() {
     firsttime = false;
   }
 
-  int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
+  // in the OCA case we have just one "collector" (the DAQ PC itself)
+  size_t iJinf = 0;
 
   // copy calibration data...
   for (unsigned int iBoard = 0; iBoard < 2 * m_numBoards; ++iBoard) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      ev->CalPed[iJinf][iBoard][iCh] = cals[iBoard].ped[iCh];
-      ev->CalSigma[iJinf][iBoard][iCh] = cals[iBoard].sig[iCh];
-      ev->CalStatus[iJinf][iBoard][iCh] = cals[iBoard].status[iCh];
+      ev->CalPed[iJinf][iBoard][iCh] = cals[iJinf][iBoard].ped[iCh];
+      ev->CalSigma[iJinf][iBoard][iCh] = cals[iJinf][iBoard].sig[iCh];
+      ev->CalStatus[iJinf][iBoard][iCh] = cals[iJinf][iBoard].status[iCh];
     }
   }
 
@@ -761,9 +778,9 @@ int DecodeDataOCA::ReadOneEvent() {
     // point, so it should return.
     for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
       if (kClusterize) {
-        Clusterize(iTDR, 0, ev, &cals[iTDR]);
+        Clusterize(iTDR, 0, ev, &cals[iJinf][iTDR]);
       } else {
-        FillRawHistos(iTDR, 0, ev, &cals[iTDR]);
+        FillRawHistos(iTDR, 0, ev, &cals[iJinf][iTDR]);
       }
     }
   }
