@@ -1047,8 +1047,18 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
     }
   };
   */
+  /* MD: on 25 Oct 2023 we changed the libdecode and this is no more needed
   auto get_LINF = [](auto readLINF) {
     if (readLINF == 0 || readLINF == 1)
+      return (int)readLINF;
+    else {
+      printf("not valid LINF number: %d\n", readLINF);
+      return -99;
+    }
+  };
+  */
+  auto get_LINF = [](auto readLINF) {
+    if (readLINF == 0 || readLINF == 1 || readLINF == 2 || readLINF == 3)
       return (int)readLINF;
     else {
       printf("not valid LINF number: %d\n", readLINF);
