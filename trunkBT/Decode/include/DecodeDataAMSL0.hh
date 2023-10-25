@@ -16,7 +16,7 @@
 
 class DecodeDataAMSL0 : public DecodeData {
 public:
-  using EventAMSL0 = GenericEvent<2, 9, 64, 8, 16, 0>;
+  using EventAMSL0 = GenericEvent<4, 9, 64, 8, 16, 0>;
   using calibAMSL0 = calib<EventAMSL0::GetNCHAVA() * EventAMSL0::GetNVAS()>;
   using RHClassAMSL0 = RHClass<EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>;
   using Calibrations = std::array<std::array<calibAMSL0, EventAMSL0 ::GetNTDRS()>, EventAMSL0::GetNJINF()>;
