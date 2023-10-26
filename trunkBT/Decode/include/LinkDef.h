@@ -15,15 +15,21 @@
 #pragma link C++ class RHClass < 4, 9> + ;
 #pragma link C++ class DataVersion + ;
 // AMS
-#pragma link C++ class GenericEvent < 1, 24, 64, 3, 16, 10> + ;
-#pragma link C++ class calib < 1664> + ;
+#pragma link C++ class GenericEvent < 1, 24, 64, 3, 10, 6> + ;
+#pragma link C++ class calib < 1024> + ;
+#pragma link C++ class calibelem < 1024> + ;
 // AMS L0
 #pragma link C++ class GenericEvent < 4, 9, 64, 8, 16, 0> + ;
 #pragma link C++ class calib < 1024> + ;
+#pragma link C++ class calibelem < 1024> + ;
 // OCA
 #pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0> + ;
 #pragma link C++ class calib < 640> + ;
+#pragma link C++ class calibelem < 640> + ;
+>>>>>>> Stashed changes
 // FOOT
 #pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0> + ;
+#pragma link C++ class calib < 640> + ;
+#pragma link C++ class calibelem < 640> + ;
 
 #endif
