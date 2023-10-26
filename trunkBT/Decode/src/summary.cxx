@@ -258,8 +258,8 @@ int SummaryComplete(char *dir, int run_number, int jinfnum, std::string_view out
     int tdrcount = 0;
 
     char calfileprefix[255];
-    char nameouttemp[255];
-    char nameout[255];
+    char nameouttemp[384];
+    char nameout[264];
     std::string nameprefixtemp{"summary-"};
 
     if (nameprefix.empty()) {
@@ -279,7 +279,7 @@ int SummaryComplete(char *dir, int run_number, int jinfnum, std::string_view out
       snprintf(calfileprefix, 255, "%s/%s%02d_%d", dir, nameprefixtemp.c_str(), jinfnum, run_number);
     }
     //    printf("calfileprefix: %s\n", calfileprefix);
-    snprintf(nameout, 384, "%s.cal.%s", calfileprefix, outkind.data());
+    snprintf(nameout, 264, "%s.cal.%s", calfileprefix, outkind.data());
     //    printf("nameout: %s\n", nameout);
 
     //  sprintf(systemcommand,"evince %s &",nameout);
@@ -306,7 +306,7 @@ int SummaryComplete(char *dir, int run_number, int jinfnum, std::string_view out
           snprintf(nameouttemp, 384, "%s(", nameout);
           printf("first TDR (# %d)...\n", ii);
         } else {
-          snprintf(nameouttemp, 255, "%s", nameout);
+          snprintf(nameouttemp, 384, "%s", nameout);
           printf("n-th TDR (# %d)...\n", ii);
         }
         bool donotupdate = false;

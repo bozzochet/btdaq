@@ -691,7 +691,7 @@ void DecodeData::SaveCalibration(const std::vector<std::vector<std::vector<float
       //             cals[iTdr].ped[iCh], cals[iTdr].rsig[iCh], cals[iTdr].sig[iCh], 0.0, 0);
       //    }
 
-      char calfilename[255];
+      char calfilename[264];
       snprintf(calfilename, 264, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
       //      printf("calfilename: %s\n", calfilename);
 
