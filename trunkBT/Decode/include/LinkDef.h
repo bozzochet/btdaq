@@ -12,14 +12,14 @@
 
 #pragma link C++ class Cluster + ;
 #pragma link C++ class RHClass < 1, 24> + ;
-#pragma link C++ class RHClass < 4, 9> + ;
+#pragma link C++ class RHClass < 2, 9> + ;
 #pragma link C++ class DataVersion + ;
 // AMS
 #pragma link C++ class GenericEvent < 1, 24, 64, 3, 10, 6> + ;
 #pragma link C++ class calib < 1024> + ;
 #pragma link C++ class calibelem < 1024> + ;
 // AMS L0
-#pragma link C++ class GenericEvent < 4, 9, 64, 8, 16, 0> + ;
+#pragma link C++ class GenericEvent < 2, 9, 64, 8, 16, 0> + ;
 #pragma link C++ class calib < 1024> + ;
 #pragma link C++ class calibelem < 1024> + ;
 // OCA

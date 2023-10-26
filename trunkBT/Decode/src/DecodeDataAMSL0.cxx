@@ -386,7 +386,7 @@ DecodeDataAMSL0::~DecodeDataAMSL0() {
 }
 
 //----------------------------------------------------------------------------------------------------------------
-// new decoding style
+// old decoding style
 
 bool DecodeDataAMSL0::ReadFileHeader(FILE *file, RHClassAMSL0 *rhc) {
   // essentially this is not reading anything from the file
@@ -761,12 +761,12 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
                     config_to_print += to_add;
                     if (rhc) {
                       if (device.name.find(slinf) != std::string::npos) {
-                        // this->JinfMap[nJinf] = device.link_number;
-                        this->JinfMap[nJinf] = device.node_ID;
+                        this->JinfMap[nJinf] = device.link_number >> 1; // 0 and 1 = 0, 2 and 3 = 1
+                        //                        this->JinfMap[nJinf] = device.node_ID;
                         this->nJinf++;
                       } else if (device.name.find(slef) != std::string::npos) {
-                        // this->tdrMap[ntdrRaw] = {device.link_number, 0}; // {board number, RAW}
-                        this->tdrMap[ntdrRaw] = {device.node_ID, 0}; // {board number, RAW}
+                        this->tdrMap[ntdrRaw] = {device.link_number, 0}; // {board number, RAW}
+                        //                        this->tdrMap[ntdrRaw] = {device.node_ID, 0}; // {board number, RAW}
                         this->ntdrRaw++;
                       } else {
                         printf("  This is not a recognized kind of device: %s\n", device.name.c_str());
@@ -779,8 +779,8 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
                       config_to_print += to_add;
                       if (rhc) {
                         if (sec_device.name.find(slef) != std::string::npos) {
-                          // this->tdrMap[this->ntdrRaw] = {ComputeTdrNum(sec_device.link_number, device.link_number),
-                          this->tdrMap[this->ntdrRaw] = {ComputeTdrNum(sec_device.node_ID, device.node_ID),
+                          auto jinfnum = device.link_number >> 1; // 0 and 1 = 0, 2 and 3 = 1
+                          this->tdrMap[this->ntdrRaw] = {ComputeTdrNum(sec_device.link_number, jinfnum),
                                                          0}; // {board number, RAW}
                           this->ntdrRaw++;
                         } else {
@@ -958,7 +958,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
                            if (evpri)
                              printf("i) evno=%u,  nLEFs=%lu\n", evno, nLEFs);
                            for (auto j = i->second.begin(); j != i->second.end(); j++) {
-                             uint16_t LINF = j->first.first;
+                             uint16_t LINF = j->first.first >> 1; // 0 and 1 = 0, 2 and 3 = 1
                              uint16_t LEF = j->first.second;
                              unsigned long size_data = j->second.size();
                              if (evpri)
@@ -1047,7 +1047,6 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
     }
   };
   */
-  /* MD: on 25 Oct 2023 we changed the libdecode and this is no more needed
   auto get_LINF = [](auto readLINF) {
     if (readLINF == 0 || readLINF == 1)
       return (int)readLINF;
@@ -1056,7 +1055,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
       return -99;
     }
   };
-  */
+  /*
   auto get_LINF = [](auto readLINF) {
     if (readLINF == 0 || readLINF == 1 || readLINF == 2 || readLINF == 3)
       return (int)readLINF;
@@ -1065,6 +1064,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
       return -99;
     }
   };
+  */
 
   /*
   printf("buffer content:\n");
