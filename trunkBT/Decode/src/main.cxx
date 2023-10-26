@@ -344,6 +344,13 @@ int main(int argc, char **argv) {
   TBranch *branch = t4->GetBranch("cluster_branch");
   if (branch)
     branch->SetCompressionLevel(6);
+  /*
+  TObjArray *obj = t4->GetListOfBranches();
+  for (int ii = 0; ii < obj->GetEntries(); ii++) {
+    TBranch *branch = (TBranch *)(obj->At(ii));
+    branch->SetCompressionLevel(6);
+  }
+  */
 
   if (kPri)
     dd1->SetPrintOn();
@@ -406,11 +413,20 @@ int main(int argc, char **argv) {
     }
     //    LadderConf::Instance()->Dump();
     t4->GetUserInfo()->Add(LadderConf::Instance()->GetLadderParamsMap());
-
-    TObjArray *obj = t4->GetListOfBranches();
-    for (int ii = 0; ii < obj->GetEntries(); ii++) {
-      TBranch *branch = (TBranch *)(obj->At(ii));
-      branch->SetCompressionLevel(6);
+    if (ddams) {
+    } else if (ddoca) {
+    } else if (ddfoot) {
+    } else if (ddamsl0) {
+      for (int ii = 0; ii < fConf.NJINF; ii++) {
+        for (int jj = 0; jj < fConf.NTDRS; jj++) {
+          t4->GetUserInfo()->Add(&ddamsl0->cals[ii][jj]);
+          t4->GetUserInfo()->Add(&ddamsl0->calped[ii][jj]);
+          t4->GetUserInfo()->Add(&ddamsl0->calsig[ii][jj]);
+          t4->GetUserInfo()->Add(&ddamsl0->calrsig[ii][jj]);
+        }
+      }
+    } else {
+      throw std::runtime_error("DecodeData object is not of type DecodeDataAMS nor DecodeDataOCA...");
     }
 
     auto fillClusterArrays = [&chaK, &chaS, &sigK, &sigS, &sonK, &sonS](auto *dd) {

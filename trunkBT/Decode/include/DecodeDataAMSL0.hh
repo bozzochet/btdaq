@@ -18,10 +18,15 @@ class DecodeDataAMSL0 : public DecodeData {
 public:
   using EventAMSL0 = GenericEvent<2, 9, 64, 8, 16, 0>;
   using calibAMSL0 = calib<EventAMSL0::GetNCHAVA() * EventAMSL0::GetNVAS()>;
+  using calibelemAMSL0 = calibelem<EventAMSL0::GetNCHAVA() * EventAMSL0::GetNVAS()>;
   using RHClassAMSL0 = RHClass<EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>;
 
   EventAMSL0 *ev;
   RHClassAMSL0 *rh;
+  static calibAMSL0 cals[EventAMSL0::GetNJINF()][EventAMSL0::GetNTDRS()];
+  static calibelemAMSL0 calped[EventAMSL0::GetNJINF()][EventAMSL0::GetNTDRS()];
+  static calibelemAMSL0 calsig[EventAMSL0::GetNJINF()][EventAMSL0::GetNTDRS()];
+  static calibelemAMSL0 calrsig[EventAMSL0::GetNJINF()][EventAMSL0::GetNTDRS()];
 
   DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int runStop,
                   unsigned int calStart, unsigned int calStop, int _style = 0);
@@ -78,7 +83,7 @@ private:
   size_t m_read_events{0};
 
   FILE *calfile{nullptr};
-  calibAMSL0 cals[EventAMSL0::GetNJINF()][EventAMSL0::GetNTDRS()];
+
   EventAMSL0::JArray<int> JinfMap{0};
 
   unsigned int m_numBoards = EventAMSL0::GetNJINF() * EventAMSL0::GetNTDRS(); // maximum

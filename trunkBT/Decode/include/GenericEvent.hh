@@ -2,8 +2,10 @@
 #define GenericEvent_hh
 
 #include "TClonesArray.h"
+#include "TFile.h"
 #include "TH2F.h"
 #include "TObject.h"
+#include "TRef.h"
 
 #include "Cluster.hh"
 #include "DataTypes.hh"
@@ -13,6 +15,7 @@
 
 template <size_t NCh> class calib {
 public:
+  /*
   float *ped;
   float *rsig;
   float *sig;
@@ -26,6 +29,41 @@ public:
     sig = new float[NCh];  // was [1024]: is backward compatible?
     status = new int[NCh]; // was [1024]: is backward compatible?
   };
+  */
+
+  std::array<float, NCh> ped;
+  std::array<float, NCh> rsig;
+  std::array<float, NCh> sig;
+  std::array<int, NCh> status;
+  bool valid{true};
+
+  calib() { valid = true; };
+
+  ClassDef(calib, 2)
+};
+
+template <size_t NCh> class calibelem : public TObject {
+private:
+  float value[NCh];
+
+public:
+  float &operator[](size_t idx) {
+    if (idx >= NCh) {
+      printf("Array index out of bound (%lu, %lu). Setting to zero...\n", idx, NCh);
+      idx = 0;
+    }
+    return value[idx];
+  }
+  const float &operator[](size_t idx) const {
+    if (idx >= NCh) {
+      printf("Array index out of bound (%lu, %lu). Setting to zero...\n", idx, NCh);
+      idx = 0;
+    }
+    printf("value[%lu] = %f\n", idx, value[idx]);
+    return value[idx];
+  }
+
+  ClassDef(calibelem, 2)
 };
 
 struct FlavorConfig {
@@ -167,7 +205,7 @@ public:
   int GetEventKind() { return _eventkind; };
 
 private:
-  static int _eventkind; //!
+  int _eventkind; //!
 
   static bool ladderconfnotread;     //!
   static bool alignmentnotread;      //!
@@ -198,6 +236,7 @@ private:
   std::pair<double, double> Hough(std::vector<std::pair<int, std::pair<double, double>>> &vec);
   std::vector<Hit> CleanTrack(std::vector<Hit> &hits);
 
+public:
   // for variable length arrays we need to "pass" the size (another data member, that cannot be static, look NJINF vs
   // _NINFS, for example) cfr. https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#inputoutput
   // 11.3.4 Variable length array
@@ -243,18 +282,22 @@ private:
   // Viviana  changed to [NTDRS] what about CH 1024->4096
   // NCHA=NVAS*NCHAVA
   // TODO: check how much space we waste [MD]
-  // ChArray<double> CalSigma{{{0}}};
-  static ChArray<double> CalSigma;
-  // ChArray<double> CalPed{{{0}}};
-  static ChArray<double> CalPed;
   ChArray<short> RawSignal{{{0}}};
-  ChArray<float> RawSoN{{{0}}}; //! (do not stream on file! Can be recomputed easily!)
-  // ChArray<int> CalStatus{{{0}}};
-  static ChArray<int> CalStatus;
-  TdrArray<short> ReadTDR{{0}}; //! not streamed since seems not used... // MD: what is used for?!
+  ChArray<float> RawSoN{{{0}}};    //! (do not stream on file! Can be recomputed easily!)
+  static ChArray<double> CalSigma; //!
+  static ChArray<double> CalPed;   //!
+  static ChArray<int> CalStatus;   //!
+  TdrArray<short> ReadTDR{{0}};    //! not streamed since seems not used... // MD: what is used for?!
+
+  //  calib<NCHAVA *(NVASS + NVASK)> cals[NJINF][NTDRS];
+  TRef refCals[NJINF][NTDRS];
+  TRef refCalSigma[NJINF][NTDRS];
+  TRef refCalPed[NJINF][NTDRS];
+  TRef refCalRawSigma[NJINF][NTDRS];
 
   TdrArray<bool> ValidTDR{{false}};
 
+private:
   //------------CB:qui salvo gli output di FindTracksAndVertex()------------//
   int _NTrks;                         //!
   trackColl _TrS;                     //!

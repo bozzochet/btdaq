@@ -11,6 +11,16 @@
 #include <iomanip>
 #include <sstream>
 
+calib<DecodeDataAMSL0::EventAMSL0::GetNCHAVA() * DecodeDataAMSL0::EventAMSL0::GetNVAS()>
+    DecodeDataAMSL0::cals[DecodeDataAMSL0::EventAMSL0::GetNJINF()][DecodeDataAMSL0::EventAMSL0::GetNTDRS()];
+
+calibelem<DecodeDataAMSL0::EventAMSL0::GetNCHAVA() * DecodeDataAMSL0::EventAMSL0::GetNVAS()>
+    DecodeDataAMSL0::calped[DecodeDataAMSL0::EventAMSL0::GetNJINF()][DecodeDataAMSL0::EventAMSL0::GetNTDRS()];
+calibelem<DecodeDataAMSL0::EventAMSL0::GetNCHAVA() * DecodeDataAMSL0::EventAMSL0::GetNVAS()>
+    DecodeDataAMSL0::calsig[DecodeDataAMSL0::EventAMSL0::GetNJINF()][DecodeDataAMSL0::EventAMSL0::GetNTDRS()];
+calibelem<DecodeDataAMSL0::EventAMSL0::GetNCHAVA() * DecodeDataAMSL0::EventAMSL0::GetNVAS()>
+    DecodeDataAMSL0::calrsig[DecodeDataAMSL0::EventAMSL0::GetNJINF()][DecodeDataAMSL0::EventAMSL0::GetNTDRS()];
+
 namespace {
 constexpr auto NJINF = DecodeDataAMSL0::EventAMSL0::GetNJINF();
 constexpr auto NTDRS = DecodeDataAMSL0::EventAMSL0::GetNTDRS();
@@ -300,7 +310,26 @@ int DecodeDataAMSL0::ReadOneEvent() {
         ev->CalPed[iJinf][iTdr][iCh] = cals[iJinf][iTdr].ped[iCh];
         ev->CalSigma[iJinf][iTdr][iCh] = cals[iJinf][iTdr].sig[iCh];
         ev->CalStatus[iJinf][iTdr][iCh] = cals[iJinf][iTdr].status[iCh];
+        calped[iJinf][iTdr][iCh] = cals[iJinf][iTdr].ped[iCh];
+        if (cals[iJinf][iTdr].ped[iCh] == cals[iJinf][iTdr].ped[iCh]) // not nan
+          if (calped[iJinf][iTdr][iCh] != cals[iJinf][iTdr].ped[iCh])
+            printf("problem: calped[%u][%u][%u] and cals.ped[%u][%u][%u] are different: %f %f\n", iJinf, iTdr, iCh,
+                   iJinf, iTdr, iCh, calped[iJinf][iTdr][iCh], cals[iJinf][iTdr].ped[iCh]);
+        calsig[iJinf][iTdr][iCh] = cals[iJinf][iTdr].sig[iCh];
+        if (cals[iJinf][iTdr].sig[iCh] == cals[iJinf][iTdr].sig[iCh]) // not nan
+          if (calsig[iJinf][iTdr][iCh] != cals[iJinf][iTdr].sig[iCh])
+            printf("problem: calsig[%u][%u][%u] and cals.sig[%u][%u][%u] are different: %f %f\n", iJinf, iTdr, iCh,
+                   iJinf, iTdr, iCh, calsig[iJinf][iTdr][iCh], cals[iJinf][iTdr].sig[iCh]);
+        calrsig[iJinf][iTdr][iCh] = cals[iJinf][iTdr].rsig[iCh];
+        if (cals[iJinf][iTdr].rsig[iCh] == cals[iJinf][iTdr].rsig[iCh]) // not nan
+          if (calrsig[iJinf][iTdr][iCh] != cals[iJinf][iTdr].rsig[iCh])
+            printf("problem: calrsig[%u][%u][%u] and cals.rsig[%u][%u][%u] are different: %f %f\n", iJinf, iTdr, iCh,
+                   iJinf, iTdr, iCh, calrsig[iJinf][iTdr][iCh], cals[iJinf][iTdr].rsig[iCh]);
       }
+      ev->refCals[iJinf][iTdr] = &cals[iJinf][iTdr];
+      ev->refCalPed[iJinf][iTdr] = &calped[iJinf][iTdr];
+      ev->refCalSigma[iJinf][iTdr] = &calsig[iJinf][iTdr];
+      ev->refCalRawSigma[iJinf][iTdr] = &calrsig[iJinf][iTdr];
     }
   }
 
