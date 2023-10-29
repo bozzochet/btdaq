@@ -900,7 +900,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
                                           unsigned long int nEvents, uint16_t expTagType, uint16_t expTag) {
 
   constexpr int bufferlenght = 256;
-  constexpr int dumpshift = 10;
+  constexpr int dumpshift = 128;
 
   bool not_same_config = false;
   std::string current_config_info = "";
