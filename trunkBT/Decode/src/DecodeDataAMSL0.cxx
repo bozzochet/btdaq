@@ -173,7 +173,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
 
         // only 1 Jinf is managed by ComputeCalibration()
         // treat everything (also in the case with two LINFs as if we have just one
-        for (unsigned int iTdr_index = 0; iTdr_index < (ntdrRaw + ntdrCmp); ++iTdr_index) {
+        for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
           unsigned int iTdr = rh->GetTdrNum(iTdr_index);
           unsigned int iJinf = rh->GetJinfNum(iTdr_index);
           for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -210,7 +210,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
 
       // only 1 Jinf is managed by ComputeCalibration()
       // treat everything (also in the case with two LINFs as if we have just one
-      for (unsigned int iTdr_index = 0; iTdr_index < (ntdrRaw + ntdrCmp); ++iTdr_index) {
+      for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
         unsigned int iTdr = rh->GetTdrNum(iTdr_index);
         unsigned int iJinf = rh->GetJinfNum(iTdr_index);
         for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -238,10 +238,10 @@ bool DecodeDataAMSL0::ProcessCalibration() {
   }
 
   //  printf("nJinf = %d\n", nJinf);
-  for (unsigned int iJinf = 0; iJinf < nJinf; iJinf++) {
+  for (unsigned int iJinf = 0; iJinf < uint(nJinf); iJinf++) {
     //    printf("iJinf = %d\n", iJinf);
 
-    ComputeCalibration<EventAMSL0, calibAMSL0>(signals[iJinf], cals[iJinf], iJinf);
+    ComputeCalibration<EventAMSL0, calibAMSL0, EventAMSL0::GetNTDRS()>(signals[iJinf], cals[iJinf], iJinf);
     /*
     for (unsigned int iTdr = 0; iTdr < (ntdrRaw + ntdrCmp); iTdr++) {
       printf("iJinf=%u, iTdr=%u valid: %d\n", iJinf, iTdr, cals[iJinf][iTdr].valid);
@@ -293,7 +293,7 @@ int DecodeDataAMSL0::ReadOneEvent() {
 
   // copy calibration data... Just for first event (when > 0 we can start to skip), since are static
   if (m_read_events == 0) {
-    for (unsigned int iTdr_index = 0; iTdr_index < (ntdrRaw + ntdrCmp); ++iTdr_index) {
+    for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
       unsigned int iTdr = rh->GetTdrNum(iTdr_index);
       unsigned int iJinf = rh->GetJinfNum(iTdr_index);
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -321,14 +321,14 @@ int DecodeDataAMSL0::ReadOneEvent() {
 
   // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this
   // point, so it should return.
-  for (unsigned int iTdr_index = 0; iTdr_index < (ntdrRaw + ntdrCmp); ++iTdr_index) {
+  for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
     unsigned int iTdr = rh->GetTdrNum(iTdr_index);
     unsigned int iJinf = rh->GetJinfNum(iTdr_index);
     //      printf("iJinf = %d, iTdr = %d\n", iJinf, iTdr);
     if (kClusterize) {
-      Clusterize(iTdr, iJinf, ev, &cals[iJinf][iTdr]);
+      Clusterize(iTdr, iJinf, ev, &cals.at(iJinf).at(iTdr));
     } else {
-      FillRawHistos(iTdr, iJinf, ev, &cals[iJinf][iTdr]);
+      FillRawHistos(iTdr, iJinf, ev, &cals.at(iJinf).at(iTdr));
     }
   }
 
@@ -386,7 +386,7 @@ DecodeDataAMSL0::~DecodeDataAMSL0() {
 }
 
 //----------------------------------------------------------------------------------------------------------------
-// new decoding style
+// old decoding style
 
 bool DecodeDataAMSL0::ReadFileHeader(FILE *file, RHClassAMSL0 *rhc) {
   // essentially this is not reading anything from the file
@@ -398,7 +398,7 @@ bool DecodeDataAMSL0::ReadFileHeader(FILE *file, RHClassAMSL0 *rhc) {
   JinfMap[0] = 0;
 
   // we assume that from now on we know how many boards are in the DAQ
-  for (unsigned int iTdr = 0; iTdr < nJinf * (ntdrCmp + ntdrRaw); ++iTdr) {
+  for (unsigned int iTdr = 0; iTdr < nJinf * uint(ntdrCmp + ntdrRaw); ++iTdr) {
     tdrMap[iTdr] = {iTdr, 0}; // putting type at 0 since they're all RAW, so far...
   }
 
@@ -761,12 +761,12 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
                     config_to_print += to_add;
                     if (rhc) {
                       if (device.name.find(slinf) != std::string::npos) {
-                        // this->JinfMap[nJinf] = device.link_number;
-                        this->JinfMap[nJinf] = device.node_ID;
+                        this->JinfMap[nJinf] = device.link_number >> 1; // 0 and 1 = 0, 2 and 3 = 1
+                        //                        this->JinfMap[nJinf] = device.node_ID;
                         this->nJinf++;
                       } else if (device.name.find(slef) != std::string::npos) {
-                        // this->tdrMap[ntdrRaw] = {device.link_number, 0}; // {board number, RAW}
-                        this->tdrMap[ntdrRaw] = {device.node_ID, 0}; // {board number, RAW}
+                        this->tdrMap[ntdrRaw] = {device.link_number, 0}; // {board number, RAW}
+                        //                        this->tdrMap[ntdrRaw] = {device.node_ID, 0}; // {board number, RAW}
                         this->ntdrRaw++;
                       } else {
                         printf("  This is not a recognized kind of device: %s\n", device.name.c_str());
@@ -779,8 +779,8 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
                       config_to_print += to_add;
                       if (rhc) {
                         if (sec_device.name.find(slef) != std::string::npos) {
-                          // this->tdrMap[this->ntdrRaw] = {ComputeTdrNum(sec_device.link_number, device.link_number),
-                          this->tdrMap[this->ntdrRaw] = {ComputeTdrNum(sec_device.node_ID, device.node_ID),
+                          auto jinfnum = device.link_number >> 1; // 0 and 1 = 0, 2 and 3 = 1
+                          this->tdrMap[this->ntdrRaw] = {ComputeTdrNum(sec_device.link_number, jinfnum),
                                                          0}; // {board number, RAW}
                           this->ntdrRaw++;
                         } else {
@@ -900,7 +900,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
                                           unsigned long int nEvents, uint16_t expTagType, uint16_t expTag) {
 
   constexpr int bufferlenght = 256;
-  constexpr int dumpshift = 10;
+  constexpr int dumpshift = (bufferlenght / 2) - 1;
 
   bool not_same_config = false;
   std::string current_config_info = "";
@@ -913,7 +913,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
 
   if (evpri)
     printf("buffer.size() = %lu\n", buffer.size());
-  if (buffer.size() < bufferlenght / 2 && !stream->EndOfStream()) {
+  if (buffer.size() <= bufferlenght / 2 && !stream->EndOfStream()) {
     auto block = TBDecode::L0::AMSBlock::DecodeAMSBlock(stream->CurrentFile());
     std::visit(TBDecode::Utils::overloaded{
                    [&empty_blocks](TBDecode::L0::AMSBlock::EmptyBlock &block) {
@@ -958,7 +958,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
                            if (evpri)
                              printf("i) evno=%u,  nLEFs=%lu\n", evno, nLEFs);
                            for (auto j = i->second.begin(); j != i->second.end(); j++) {
-                             uint16_t LINF = j->first.first;
+                             uint16_t LINF = j->first.first >> 1; // 0 and 1 = 0, 2 and 3 = 1
                              uint16_t LEF = j->first.second;
                              unsigned long size_data = j->second.size();
                              if (evpri)
@@ -1055,6 +1055,16 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
       return -99;
     }
   };
+  /*
+  auto get_LINF = [](auto readLINF) {
+    if (readLINF == 0 || readLINF == 1 || readLINF == 2 || readLINF == 3)
+      return (int)readLINF;
+    else {
+      printf("not valid LINF number: %d\n", readLINF);
+      return -99;
+    }
+  };
+  */
 
   /*
   printf("buffer content:\n");

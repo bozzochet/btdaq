@@ -42,6 +42,11 @@ CFLAGS:= -g -O3 -fPIC -Wall -Wno-overloaded-virtual -Wno-deprecated -Wno-unused-
 
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags)
 
+CFLAGS += -DSPDLOG_FMT_EXTERNAL
+
+# enable this if you want to hunt down warnings :)
+# CFLAGS += -Werror
+
 ifneq ($(ROOTVERSION),6)
         CFLAGSFORCINT	:= -c -p $(CFLAGS)
 endif
@@ -67,7 +72,7 @@ libEventa.a:$(LIB_OBJ)
 
 $(LIBDECODE_L0)_install/lib/libtbdecode.so:
 	cmake -S $(L0_FIRMWARE)/libdecode -B $(LIBDECODE_L0)_build -DCMAKE_INSTALL_PREFIX=$(LIBDECODE_L0)_install
-	cmake --build $(LIBDECODE_L0)_build -- -j
+	cmake --build $(LIBDECODE_L0)_build -- -j8
 	cmake --build $(LIBDECODE_L0)_build --target install
 	@ if ! [ -f $(LIBDECODE_L0)_install/lib/libtbdecode.so ] ; then cd $(LIBDECODE_L0)_install/lib && ln -sf libtbdecode.dylib libtbdecode.so; fi
 	ln -fs $(LIBDECODE_L0)_install/bin/filelogger ./AMSL0filelogger

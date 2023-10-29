@@ -2,8 +2,11 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string_view>
 #include <sys/stat.h>
 #include <sys/time.h>
+
+#include <string_view>
 //----------------ROOT includes---------------------------
 #include "TApplication.h"
 #include "TCanvas.h"
@@ -37,7 +40,7 @@ public:
   char CALPATH[255];
   unsigned int TDRrefmask;
   unsigned int JINFrefmask;
-  int flavour; // 0: AMS, 1: FOOT; 2: OCA, 3: AMSL0
+  int flavour; // 0: AMS, 1: FOOT; 2: OCA, 3: AMSL0, 4: GSI2
   double PedYLim;
   ConfPars();
 };
@@ -50,15 +53,16 @@ ConfPars::ConfPars() {
   PedYLim = 2000.0;
 }
 
-ConfPars* CPars;
+ConfPars *CPars;
 
-bool mute=false;
+bool mute = false;
 
 void ShowHelp(char *cmd);
-void RefMask(int run_number, int jinfnum, const char *nameprefixin);
-Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, const char *nameprefixin, const char *nameout, const char *outkind);
-Int_t Summary(char *filename, const char *nameout, const char *outkind);
-int SummaryComplete(char *dir, int run_number, int jinfnum, const char *outkind, const char *nameprefix);
+void RefMask(int run_number, int jinfnum, std::string_view nameprefixin);
+Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, const char *nameprefixin, const char *nameout,
+              const char *outkind, bool donotupdate = false);
+Int_t Summary(char *filename, const char *nameout, const char *outkind, bool donotupdate = false);
+int SummaryComplete(char *dir, int run_number, int jinfnum, std::string_view outkind, std::string_view nameprefix);
 
 //--------------------------------------------------------------------------------------------
 //                              Here comes the main...
@@ -89,6 +93,7 @@ int main(int argc, char **argv) {
   opt->addUsage("  --l0       ................................. AMSL0");
   opt->addUsage("  --foot      ................................. FOOT");
   opt->addUsage("  --oca       ................................. OCA");
+  opt->addUsage("  --gsi2       ................................. GSI2");
   opt->addUsage(
       "  --outtype   ................................. Type of file: everything for pdf, \"ps\" for PostScript)");
   opt->addUsage("  --prefix    ................................. Name prefix (\"\" is the default)");
@@ -100,6 +105,7 @@ int main(int argc, char **argv) {
   opt->setFlag("help", 'h');
   opt->setFlag("l0");
   opt->setFlag("oca");
+  opt->setFlag("gsi2");
   opt->setFlag("foot");
   // opt->setFlag("pippo", 'p');
 
@@ -137,6 +143,10 @@ int main(int argc, char **argv) {
     if (opt->getFlag("foot")) {
       flavourset = true;
       CPars->flavour = 1;
+    }
+    if (opt->getFlag("gsi2")) {
+      flavourset = true;
+      CPars->flavour = 4;
     }
   } else {
     printf("You set more than one kind of detector...\n");
@@ -190,18 +200,25 @@ int main(int argc, char **argv) {
   return ret;
 }
 
-void RefMask(int run_number, int jinfnum, const char *nameprefixin) {
+void RefMask(int run_number, int jinfnum, std::string_view nameprefixin) {
 
   CPars->TDRrefmask = 0;
   CPars->JINFrefmask = 0;
 
   char calfileprefix[512];
 
-  char prefix[255];
+  //  char prefix[256];
+  //
+  //  sprintf(prefix, "%s", nameprefixin);
+  //  if (prefix[0] != 0)
+  //    sprintf(prefix, "%s_", prefix);
 
-  sprintf(prefix, "%s", nameprefixin);
-  if (prefix[0] != 0)
-    sprintf(prefix, "%s_", prefix);
+  std::string prefix_s{nameprefixin};
+  if (!prefix_s.empty()) {
+    prefix_s += '_';
+  }
+
+  char *prefix = prefix_s.data();
 
   //  printf("**** flavour = %d\n", CPars->flavour);
 
@@ -219,7 +236,7 @@ void RefMask(int run_number, int jinfnum, const char *nameprefixin) {
 
   //  printf("calfileprefix: %s\n", calfileprefix);
 
-  char calfilename[512];
+  char calfilename[530];
 
   for (int ii = 0; ii < NTDR; ii++) {
     sprintf(calfilename, "%s_%02d%02d.cal", calfileprefix, jinfnum, ii);
@@ -233,7 +250,7 @@ void RefMask(int run_number, int jinfnum, const char *nameprefixin) {
   return;
 }
 
-int SummaryComplete(char *dir, int run_number, int jinfnum, const char *outkind, const char *nameprefix) {
+int SummaryComplete(char *dir, int run_number, int jinfnum, std::string_view outkind, std::string_view nameprefix) {
   int ret = 0;
 
   if (CPars->JINFrefmask & (1 << jinfnum)) {
@@ -241,28 +258,28 @@ int SummaryComplete(char *dir, int run_number, int jinfnum, const char *outkind,
     int tdrcount = 0;
 
     char calfileprefix[255];
-    char nameouttemp[255];
-    char nameout[255];
-    char nameprefixtemp[255];
-    //  char systemcommand[255];
+    char nameouttemp[384];
+    char nameout[264];
+    std::string nameprefixtemp{"summary-"};
 
-    if (nameprefix[0] != 0)
-      sprintf(nameprefixtemp, "summary-%s_", nameprefix);
-    else
-      sprintf(nameprefixtemp, "summary-%s", nameprefix);
+    if (nameprefix.empty()) {
+      nameprefixtemp += '_';
+    } else {
+      nameprefixtemp += nameprefix;
+    }
 
     if (CPars->flavour == 3) { // AMSL0
       // First 4 digits: dir number
       unsigned int dirNum = run_number / 1000;
       // Last 4 digits: block number
       unsigned int blockNum = run_number % 1000;
-      sprintf(calfileprefix, "%s/%04d/%s%02d_%03d", dir, dirNum, nameprefixtemp, jinfnum, blockNum);
+      snprintf(calfileprefix, 255, "%s/%04d/%s%02d_%03d", dir, dirNum, nameprefixtemp.c_str(), jinfnum, blockNum);
     } else {
       //  sprintf(calfileprefix,"%s/%s%02d_%06d", dir, nameprefixtemp, jinfnum, run_number);
-      sprintf(calfileprefix, "%s/%s%02d_%d", dir, nameprefixtemp, jinfnum, run_number);
+      snprintf(calfileprefix, 255, "%s/%s%02d_%d", dir, nameprefixtemp.c_str(), jinfnum, run_number);
     }
     //    printf("calfileprefix: %s\n", calfileprefix);
-    sprintf(nameout, "%s.cal.%s", calfileprefix, outkind);
+    snprintf(nameout, 264, "%s.cal.%s", calfileprefix, outkind.data());
     //    printf("nameout: %s\n", nameout);
 
     //  sprintf(systemcommand,"evince %s &",nameout);
@@ -275,7 +292,7 @@ int SummaryComplete(char *dir, int run_number, int jinfnum, const char *outkind,
     }
     if (tdrcount != 0)
       printf("We have %d file of calibrations for run #%d, Jinf #%d, in the directory \"%s\" with prefix name \"%s\"\n",
-             tdrcount, run_number, jinfnum, dir, nameprefix);
+             tdrcount, run_number, jinfnum, dir, nameprefix.data());
 
     for (int ii = 0; ii < NTDR; ii++) {
       //    LPRINTF("%d : %d\n", ii, CPars->TDRrefmask&(1<<ii)); //only for debug
@@ -284,15 +301,22 @@ int SummaryComplete(char *dir, int run_number, int jinfnum, const char *outkind,
         printf("Summarizing %dth calibration file...\n", lasttdr);
         if (lasttdr == tdrcount) {
           printf("last TDR (# %d)..\n", ii);
-          sprintf(nameouttemp, "%s)", nameout);
+          snprintf(nameouttemp, 384, "%s)", nameout);
         } else if (lasttdr == 1) {
-          sprintf(nameouttemp, "%s(", nameout);
+          snprintf(nameouttemp, 384, "%s(", nameout);
           printf("first TDR (# %d)...\n", ii);
         } else {
-          sprintf(nameouttemp, "%s", nameout);
+          snprintf(nameouttemp, 384, "%s", nameout);
           printf("n-th TDR (# %d)...\n", ii);
         }
-        ret = Summary(dir, run_number, jinfnum, ii, nameprefix, nameouttemp, outkind);
+        bool donotupdate = false;
+        if (CPars->flavour == 4) { // GSI2
+          if (lasttdr % 2 == 0) {
+            donotupdate = true;
+          }
+          //          printf("%d -> %d\n", lasttdr, donotupdate);
+        }
+        ret = Summary(dir, run_number, jinfnum, ii, nameprefix.data(), nameouttemp, outkind.data(), donotupdate);
       }
     }
     //  struct stat buff;
@@ -305,11 +329,11 @@ int SummaryComplete(char *dir, int run_number, int jinfnum, const char *outkind,
 }
 
 Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, const char *nameprefixin, const char *nameout,
-              const char *outkind) {
+              const char *outkind, bool donotupdate) {
   int ret = 0;
 
-  char calfileprefix[255];
-  Char_t filename[255];
+  char calfileprefix[512];
+  Char_t filename[530];
   char nameprefixintemp[255];
 
   if (nameprefixin[0] != 0)
@@ -331,12 +355,12 @@ Int_t Summary(char *dir, int run_number, int jinfnum, int tdr_number, const char
   sprintf(filename, "%s_%02d%02d.cal", calfileprefix, jinfnum, tdr_number);
   //  printf("filename: %s\n", filename);
 
-  ret = Summary(filename, nameout, outkind);
+  ret = Summary(filename, nameout, outkind, donotupdate);
 
   return ret;
 }
 
-Int_t Summary(char *filename, const char *nameout, const char *outkind) {
+Int_t Summary(char *filename, const char *nameout, const char *outkind, bool donotupdate) {
 
   static int count = 0;
 
@@ -426,6 +450,39 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
 
   printf("I did read: %d VAs and %d channels\n", nva, nch);
 
+  //-------------------------------------------------------------------------------------------------------
+
+  static int _nch = nch;
+  static int _nva = nva;
+  if (nva != _nva || nch != _nch) {
+    printf("Strange: {%d, %d} vs {%d, %d}...\n", nva, nch, _nva, _nch);
+  }
+  static TH1F *isto = new TH1F(Form("isto_%d", count), Form("%s: pedestals", tdrname.c_str()), nch, 1, nch);
+  static TH1F *isto2 = new TH1F(Form("isto2_%d", count), Form("%s: sigma", tdrname.c_str()), nch, 1, nch);
+  static TH1F *isto3 = new TH1F(Form("isto3_%d", count), Form("%s: sigma raw", tdrname.c_str()), nch, 1, nch);
+  static TH1F *isto4 = new TH1F(Form("isto4_%d", count), Form("%s: strip status", tdrname.c_str()), nch, 1, nch);
+
+  int skip = 128;
+  int shift = 0;
+  if (CPars->flavour == 4) { // GSI2
+    if (donotupdate) {
+      skip = 64;
+      shift = 64;
+    } else {
+      skip = 64;
+      shift = 0;
+      isto->Reset();
+      isto2->Reset();
+      isto3->Reset();
+      isto4->Reset();
+    }
+  } else {
+    isto->Reset();
+    isto2->Reset();
+    isto3->Reset();
+    isto4->Reset();
+  }
+
   c = new TCanvas(Form("c_%d", count), Form("%s_%d", tdrname.c_str(), 0), 0 * 100, 0 * 10, 600, 400);
   comment->Draw();
   c->Update();
@@ -439,10 +496,10 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
                         CPars->PedYLim);
   fram->SetStats(0);
   fram->Draw();
-  TH1F *isto = new TH1F(Form("isto_%d", count), Form("%s: pedestals", tdrname.c_str()), nch, 1, nch);
   for (Int_t ii = 0; ii < nch; ii++)
-    isto->SetBinContent(ii, ped[ii]);
-  isto->Draw("same");
+    if (ii % 128 < skip)
+      isto->SetBinContent(ii + shift, ped[ii]);
+  isto->DrawCopy("same");
   gPad->Update();
   LinesVas(nva, ((int)(nch / nva)));
   gPad->Update();
@@ -452,10 +509,10 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
   TH2F *fram2 = new TH2F(Form("fram2_%d", count), Form("%s: sigma", tdrname.c_str()), nch, 1, nch, 11, 0, 10);
   fram2->SetStats(0);
   fram2->Draw();
-  TH1F *isto2 = new TH1F(Form("isto2_%d", count), Form("%s: sigma", tdrname.c_str()), nch, 1, nch);
   for (int ii = 0; ii < nch; ii++)
-    isto2->SetBinContent(ii, sig[ii]);
-  isto2->Draw("same");
+    if (ii % 128 < skip)
+      isto2->SetBinContent(ii + shift, sig[ii]);
+  isto2->DrawCopy("same");
   gPad->Update();
   LinesVas(nva, ((int)(nch / nva)));
   gPad->Update();
@@ -465,10 +522,10 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
   TH2F *fram3 = new TH2F(Form("fram3_%d", count), Form("%s: sigma raw", tdrname.c_str()), nch, 1, nch, 21, 0, 20);
   fram3->SetStats(0);
   fram3->Draw();
-  TH1F *isto3 = new TH1F(Form("isto3_%d", count), Form("%s: sigma raw", tdrname.c_str()), nch, 1, nch);
   for (int ii = 0; ii < nch; ii++)
-    isto3->SetBinContent(ii, rsig[ii]);
-  isto3->Draw("same");
+    if (ii % 128 < skip)
+      isto3->SetBinContent(ii + shift, rsig[ii]);
+  isto3->DrawCopy("same");
   gPad->Update();
   LinesVas(nva, ((int)(nch / nva)));
   gPad->Update();
@@ -477,20 +534,21 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
   gPad->SetFillStyle(0);
   TH2F *fram4 = new TH2F(Form("fram4_%d", count), Form("%s: strip status", tdrname.c_str()), nch, 1, nch, 11, 0, 10);
   fram4->SetStats(0);
-  fram4->Draw();
-  TH1F *isto4 = new TH1F(Form("isto4_%d", count), Form("%s: strip status", tdrname.c_str()), nch, 1, nch);
+  fram4->DrawCopy();
   // int chip=0;
   // int channelofchip=0;
-  for (int jj = 0; jj < nch; jj++) {
-    isto4->SetBinContent(jj, status[jj]);
-    // printf("canale: %d, chip: %d, CN: %lf\n",jj,chip,CN[chip]);
-    //  channelofchip++;
-    //  if (channelofchip==64) {
-    //  	chip++;
-    //  	channelofchip=0;//change the CN value every 16 bins (channels)
-    //  }
+  for (int ii = 0; ii < nch; ii++) {
+    if (ii % 128 < skip) {
+      isto4->SetBinContent(ii + shift, status[ii]);
+      // printf("canale: %d, chip: %d, CN: %lf\n", ii, chip, CN[chip]);
+      //  channelofchip++;
+      //  if (channelofchip==64) {
+      //  	chip++;
+      //  	channelofchip=0;//change the CN value every 16 bins (channels)
+      //  }
+    }
   }
-  isto4->Draw("same");
+  isto4->DrawCopy("same");
   gPad->Update();
   LinesVas(nva, ((int)(nch / nva)));
   gPad->Update();
@@ -505,8 +563,17 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
   */
 
   c->Update();
+  if (CPars->flavour == 4) { // GSI2
+    if (!donotupdate) {
+      if (c) {
+        delete c;
+        c = 0;
+      }
+    }
+  }
 
-  c->Print(nameout, outkind);
+  if (c)
+    c->Print(nameout, outkind);
 
   if (mute) {
     if (comment)
@@ -536,42 +603,46 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind) {
 }
 
 void LinesVas(int nva, int nch_for_va) {
-  Double_t xmin,ymin,xmax,ymax;
-  gPad->GetRangeAxis(xmin,ymin,xmax,ymax);
-  TLine *line=new TLine();
+  Double_t xmin, ymin, xmax, ymax;
+  gPad->GetRangeAxis(xmin, ymin, xmax, ymax);
+  TLine *line = new TLine();
   line->SetLineColor(kBlue);
-  TText *text=new TText();
+  TText *text = new TText();
   text->SetTextAlign(21); // vert and hor. alignment: horiz centered, top
   text->SetTextColor(kBlue);
   line->SetLineStyle(3);
-  for (Int_t va=1; va<=nva; va++) {// first and last separation lines are not drawn
+  for (Int_t va = 1; va <= nva; va++) { // first and last separation lines are not drawn
     // line->SetLineStyle((va==10)?1:3);
     // if (va==11) {//this change the color from now on, since the `line` is always the same
     //   line->SetLineColor(kRed); text->SetTextColor(kRed);
     // }
-    if (va*nch_for_va>xmin && va*nch_for_va<xmax) line->DrawLine(1+va*nch_for_va,ymin,1+va*nch_for_va,ymax);
-    if (va*nch_for_va>xmin && va*nch_for_va<=xmax) text->DrawText((va-0.5)*nch_for_va,ymax+(ymax-ymin)*0.01,Form("%d",va));
+    if (va * nch_for_va > xmin && va * nch_for_va < xmax)
+      line->DrawLine(1 + va * nch_for_va, ymin, 1 + va * nch_for_va, ymax);
+    if (va * nch_for_va > xmin && va * nch_for_va <= xmax)
+      text->DrawText((va - 0.5) * nch_for_va, ymax + (ymax - ymin) * 0.01, Form("%d", va));
   }
 
-  if (line) delete line;
-  if (text) delete text;
+  if (line)
+    delete line;
+  if (text)
+    delete text;
 }
 
 void InitStyle() {
   gROOT->SetStyle("Plain");
 
   TStyle *myStyle[2], *tempo;
-  myStyle[0]=new TStyle("StyleWhite", "white");
-  myStyle[1]=new TStyle("StyleBlack", "black");
+  myStyle[0] = new TStyle("StyleWhite", "white");
+  myStyle[1] = new TStyle("StyleBlack", "black");
 
-  tempo=gStyle;
+  tempo = gStyle;
   Int_t linecol, bkgndcol, histcol;
 
-  for(Int_t style=0; style<2; style++) {
+  for (Int_t style = 0; style < 2; style++) {
 
-    linecol=kWhite*style+kBlack*(1-style);
-    bkgndcol=kBlack*style+kWhite*(1-style);
-    histcol=kYellow*style+kBlack*(1-style); // was 95
+    linecol = kWhite * style + kBlack * (1 - style);
+    bkgndcol = kBlack * style + kWhite * (1 - style);
+    histcol = kYellow * style + kBlack * (1 - style); // was 95
 
     myStyle[style]->Copy(*tempo);
 
@@ -583,30 +654,30 @@ void InitStyle() {
     myStyle[style]->SetStatBorderSize(1);
     myStyle[style]->SetTitleBorderSize(1);
     myStyle[style]->SetPadBorderMode(0);
-    myStyle[style]->SetPalette(1,0);
-    myStyle[style]->SetPaperSize(20,27);	
+    myStyle[style]->SetPalette(1, 0);
+    myStyle[style]->SetPaperSize(20, 27);
     myStyle[style]->SetFuncColor(kRed);
     myStyle[style]->SetFuncWidth(1);
-    myStyle[style]->SetLineScalePS(1); 
+    myStyle[style]->SetLineScalePS(1);
     myStyle[style]->SetCanvasColor(bkgndcol);
-    myStyle[style]->SetAxisColor(linecol,"XYZ");
+    myStyle[style]->SetAxisColor(linecol, "XYZ");
     myStyle[style]->SetFrameFillColor(bkgndcol);
     myStyle[style]->SetFrameLineColor(linecol);
-    myStyle[style]->SetLabelColor(linecol,"XYZ");
+    myStyle[style]->SetLabelColor(linecol, "XYZ");
     myStyle[style]->SetPadColor(bkgndcol);
     myStyle[style]->SetStatColor(bkgndcol);
     myStyle[style]->SetStatTextColor(linecol);
-    myStyle[style]->SetTitleColor(linecol,"XYZ");
+    myStyle[style]->SetTitleColor(linecol, "XYZ");
     myStyle[style]->SetTitleFillColor(bkgndcol);
     myStyle[style]->SetTitleTextColor(linecol);
     myStyle[style]->SetLineColor(linecol);
     myStyle[style]->SetMarkerColor(histcol);
     myStyle[style]->SetTextColor(linecol);
 
-    myStyle[style]->SetGridColor((style)?13:kBlack);
-    myStyle[style]->SetHistFillStyle(1001*(1-style));
+    myStyle[style]->SetGridColor((style) ? 13 : kBlack);
+    myStyle[style]->SetHistFillStyle(1001 * (1 - style));
     myStyle[style]->SetHistLineColor(histcol);
-    myStyle[style]->SetHistFillColor((style)?bkgndcol:kYellow);
+    myStyle[style]->SetHistFillColor((style) ? bkgndcol : kYellow);
     myStyle[style]->SetOptDate(22);
     myStyle[style]->GetAttDate()->SetTextColor(linecol);
     myStyle[style]->GetAttDate()->SetTextAngle(90);
@@ -619,6 +690,6 @@ void InitStyle() {
 
   gROOT->ForceStyle();
 
-  //if (myStyle[0]) delete myStyle[0];
-  //if (myStyle[1]) delete myStyle[1];
+  // if (myStyle[0]) delete myStyle[0];
+  // if (myStyle[1]) delete myStyle[1];
 }

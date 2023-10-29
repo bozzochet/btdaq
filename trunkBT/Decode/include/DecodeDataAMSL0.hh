@@ -19,6 +19,7 @@ public:
   using EventAMSL0 = GenericEvent<2, 9, 64, 8, 16, 0>;
   using calibAMSL0 = calib<EventAMSL0::GetNCHAVA() * EventAMSL0::GetNVAS()>;
   using RHClassAMSL0 = RHClass<EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>;
+  using Calibrations = std::array<std::array<calibAMSL0, EventAMSL0 ::GetNTDRS()>, EventAMSL0::GetNJINF()>;
 
   EventAMSL0 *ev;
   RHClassAMSL0 *rh;
@@ -51,6 +52,8 @@ public:
 
   int EndOfFile() final;
 
+  Calibrations GetCalibrations() const { return cals; };
+
   void GetCalFilePrefix(char *calfileprefix, long int runnum) override {
     // First 4 digits: dir number
     unsigned int dirNum = runnum / 1000;
@@ -78,7 +81,7 @@ private:
   size_t m_read_events{0};
 
   FILE *calfile{nullptr};
-  calibAMSL0 cals[EventAMSL0::GetNJINF()][EventAMSL0::GetNTDRS()];
+  Calibrations cals{};
   EventAMSL0::JArray<int> JinfMap{0};
 
   unsigned int m_numBoards = EventAMSL0::GetNJINF() * EventAMSL0::GetNTDRS(); // maximum
