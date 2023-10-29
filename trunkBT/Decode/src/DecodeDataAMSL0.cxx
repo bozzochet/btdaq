@@ -900,7 +900,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
                                           unsigned long int nEvents, uint16_t expTagType, uint16_t expTag) {
 
   constexpr int bufferlenght = 256;
-  constexpr int dumpshift = 128;
+  constexpr int dumpshift = (bufferlenght / 2) - 1;
 
   bool not_same_config = false;
   std::string current_config_info = "";
@@ -913,7 +913,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
 
   if (evpri)
     printf("buffer.size() = %lu\n", buffer.size());
-  if (buffer.size() < bufferlenght / 2 && !stream->EndOfStream()) {
+  if (buffer.size() <= bufferlenght / 2 && !stream->EndOfStream()) {
     auto block = TBDecode::L0::AMSBlock::DecodeAMSBlock(stream->CurrentFile());
     std::visit(TBDecode::Utils::overloaded{
                    [&empty_blocks](TBDecode::L0::AMSBlock::EmptyBlock &block) {
