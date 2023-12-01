@@ -5,6 +5,9 @@
 #pragma link off all functions;
 
 #pragma link C++ class std::pair < int, std::pair < double, double>> + ;
+#pragma link C++ class std::vector < float> + ;
+#pragma link C++ class std::vector < std::vector < float>> + ;
+#pragma link C++ class std::vector < std::vector < std::vector < float>>> + ;
 
 #pragma link C++ class LadderParams + ;
 #pragma link C++ class std::map < int, LadderParams *> + ;
@@ -26,7 +29,6 @@
 #pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0> + ;
 #pragma link C++ class calib < 640> + ;
 #pragma link C++ class calibelem < 640> + ;
->>>>>>> Stashed changes
 // FOOT
 #pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0> + ;
 #pragma link C++ class calib < 640> + ;

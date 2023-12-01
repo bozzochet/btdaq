@@ -74,7 +74,7 @@ bool operator<=(const AMSRawFile &lhs, const AMSRawFile &rhs) { return lhs < rhs
 //------------------------------------------------------------------------------------------------------------------
 
 DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int runStop,
-                                 unsigned int calStart, unsigned int calStop, int _style) {
+                                 unsigned int calStart, unsigned int calStop, int _style, bool _kOnlyProcessCal) {
 
   decodestyle = _style;
 
@@ -98,10 +98,33 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
 
   rawfile = NULL;
 
+  signals.resize(NJINF);
+  CNs.resize(NJINF);
+  //  printf("signals.size() = %lu\n", signals.size());
+  for (int jj = 0; jj < NJINF; jj++) {
+    signals[jj].resize(NTDRS);
+    CNs[jj].resize(NTDRS);
+    //    printf("signals[%d].size() = %lu\n", jj, signals[jj].size());
+    for (int tt = 0; tt < NTDRS; tt++) {
+      signals[jj][tt].resize(NVAS * NCHAVA);
+      //      printf("signals[%d][%d].size() = %lu\n", jj, tt, signals[jj][tt].size());
+      for (int cc = 0; cc < NVAS * NCHAVA; cc++) {
+        signals[jj][tt][cc].reserve(10000);
+        //        printf("signals[%d][%d][%d].size() = %lu\n", jj, tt, cc, signals[jj][tt][cc].size());
+      }
+      CNs[jj][tt].resize(NVAS);
+      for (int cc = 0; cc < NVAS; cc++) {
+        CNs[jj][tt][cc].reserve(10000);
+      }
+    }
+  }
+
   // Create the ROOT run header
   rh = new RHClassAMSL0();
 
   ev = new EventAMSL0((char *)"ladderconf_L0.dat", (char *)"gaincorrection_L0.dat");
+
+  kOnlyProcessCal = _kOnlyProcessCal;
 
   //  DecodeDataAMSL0::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runNum, runStop, calStart, calStop);
   DecodeDataAMSL0::OpenFile(m_rawDir.c_str(), m_rawDir.c_str(), runNum, runStop, calStart, calStop);
@@ -115,7 +138,10 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
     if (!ReadFileHeader(rawfile, rh))
       rfherr = true;
   } else {
-    if (!ReadFileHeader(&rawdatastream, m_dataFilenames, rh, 0xD))
+    uint16_t tag = 0xD;
+    if (kOnlyProcessCal)
+      tag = 0xC;
+    if (!ReadFileHeader(&rawdatastream, m_dataFilenames, rh, tag))
       rfherr = true;
   }
   if (rfherr) {
@@ -135,13 +161,6 @@ bool DecodeDataAMSL0::ProcessCalibration() {
 
   auto start = std::chrono::system_clock::now();
 
-  std::vector<std::vector<std::vector<std::vector<float>>>> signals(
-      NJINF,
-      //      nJinf,
-      std::vector<std::vector<std::vector<float>>>(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA))
-      //      std::vector<std::vector<std::vector<float>>>(ntdrRaw + ntdrCmp, std::vector<std::vector<float>>(NVAS *
-      //      NCHAVA))
-  );
   unsigned long int nEvents{0};
 
   auto event = std::make_unique<EventAMSL0>((char *)"ladderconf_L0.dat", (char *)"gaincorrection_L0.dat");
@@ -171,8 +190,6 @@ bool DecodeDataAMSL0::ProcessCalibration() {
         //      if (nEvents > 1000)
         //        break;
 
-        // only 1 Jinf is managed by ComputeCalibration()
-        // treat everything (also in the case with two LINFs as if we have just one
         for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
           unsigned int iTdr = rh->GetTdrNum(iTdr_index);
           unsigned int iJinf = rh->GetJinfNum(iTdr_index);
@@ -208,8 +225,6 @@ bool DecodeDataAMSL0::ProcessCalibration() {
       //      if (nEvents > 1000)
       //        break;
 
-      // only 1 Jinf is managed by ComputeCalibration()
-      // treat everything (also in the case with two LINFs as if we have just one
       for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
         unsigned int iTdr = rh->GetTdrNum(iTdr_index);
         unsigned int iJinf = rh->GetJinfNum(iTdr_index);
@@ -237,20 +252,20 @@ bool DecodeDataAMSL0::ProcessCalibration() {
            signals.at(0).size(), signals.at(0).at(0).size());
   }
 
+  ComputeCalibration<EventAMSL0, calibAMSL0, EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>(cals);
+
   //  printf("nJinf = %d\n", nJinf);
   for (unsigned int iJinf = 0; iJinf < uint(nJinf); iJinf++) {
     //    printf("iJinf = %d\n", iJinf);
 
-    ComputeCalibration<EventAMSL0, calibAMSL0, EventAMSL0::GetNTDRS()>(signals[iJinf], cals[iJinf], iJinf);
     /*
-    for (unsigned int iTdr = 0; iTdr < (ntdrRaw + ntdrCmp); iTdr++) {
+      for (unsigned int iTdr = 0; iTdr < (ntdrRaw + ntdrCmp); iTdr++) {
       printf("iJinf=%u, iTdr=%u valid: %d\n", iJinf, iTdr, cals[iJinf][iTdr].valid);
-    }
+      }
     */
-
-    SaveCalibration<EventAMSL0, calibAMSL0>(signals[iJinf], cals[iJinf], m_calRunnums.at(0), (ntdrRaw + ntdrCmp),
-                                            iJinf);
   }
+
+  SaveCalibration<EventAMSL0, calibAMSL0>(cals);
 
   auto stop2 = std::chrono::system_clock::now();
   std::cout << "DecodeDataAMSL0::ProcessCalibration (computing and saving) took "
@@ -291,7 +306,7 @@ int DecodeDataAMSL0::ReadOneEvent() {
     oldfile = rawdatastream.CurrentFilePath();
   }
 
-  // copy calibration data... Just for first event (when > 0 we can start to skip), since are static
+  // copy calibration data... Just for first event (when > 0 we can start to skip), since are "static" (not `static`!!!)
   if (m_read_events == 0) {
     for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
       unsigned int iTdr = rh->GetTdrNum(iTdr_index);
@@ -899,8 +914,8 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
 int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event,
                                           unsigned long int nEvents, uint16_t expTagType, uint16_t expTag) {
 
-  constexpr int bufferlenght = 256;
-  constexpr int dumpshift = (bufferlenght / 2) - 1;
+  constexpr unsigned int bufferlenght = 256;
+  constexpr unsigned int dumpshift = (bufferlenght / 2) - 1;
 
   bool not_same_config = false;
   std::string current_config_info = "";
@@ -913,7 +928,13 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
 
   if (evpri)
     printf("buffer.size() = %lu\n", buffer.size());
-  if (buffer.size() <= bufferlenght / 2 && !stream->EndOfStream()) {
+  // MD: we were using only befferlenght/2, but there's no reason
+  // on the contrary we found cases were event with non consecutive numbers entered in the middle
+  // so the buffersize was bigger than dumpshift and, as a consequen
+  // - old_enough is not satisfied
+  // - we don't read any more data since buffer size is "full"
+  // --> we stay here forever...
+  if (buffer.size() <= (bufferlenght - 1) && !stream->EndOfStream()) {
     auto block = TBDecode::L0::AMSBlock::DecodeAMSBlock(stream->CurrentFile());
     std::visit(TBDecode::Utils::overloaded{
                    [&empty_blocks](TBDecode::L0::AMSBlock::EmptyBlock &block) {
@@ -1082,11 +1103,11 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
     uint16_t evno = i->first;
     unsigned long nLEFs = i->second.size();
     if (evpri)
-      printf("i) evno=%u,  nLEFs=%lu\n", evno, nLEFs);
+      printf("read i) evno=%u,  nLEFs=%lu\n", evno, nLEFs);
     if (old_enough || stream->EndOfStream()) {
       nEvents++;
       if (evpri)
-        printf("Good: evno=%d, nLEFs=%lu (next evno_to_process=%d), last_evno=%d - nEvents=%lu\n", evno, nLEFs,
+        printf("read Good: evno=%d, nLEFs=%lu (next evno_to_process=%d), last_evno=%d - nEvents=%lu\n", evno, nLEFs,
                evno_to_process, last_evno, nEvents);
       for (auto j = i->second.begin(); j != i->second.end(); j++) {
         uint16_t LINF = get_LINF(j->first.first);
@@ -1096,7 +1117,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
         uint16_t LEF = rh->ComputeTdrNum(j->first.second, LINF);
         unsigned long size_data = j->second.size();
         if (evpri)
-          printf("j) LEF[%d][%d]: LINF=%d (%d), LEF=%d (%d, %d) -> size_data=%lu\n", LINF_index, LEF_index, LINF,
+          printf("read j) LEF[%d][%d]: LINF=%d (%d), LEF=%d (%d, %d) -> size_data=%lu\n", LINF_index, LEF_index, LINF,
                  j->first.first, LEF, j->first.second, LEF_glob_index, size_data);
         std::copy(std::begin(j->second), std::end(j->second), std::begin(event->RawSignal[LINF_index][LEF_index]));
         //      std::cout << "Ch0 signal = " << event->RawSignal[LINF_index][LEF_index][0] << '\n';
@@ -1105,8 +1126,9 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
       buffer.pop_front();
       return 0;
     } else {
-      if (evpri)
+      if (evpri) {
         printf("Too early: evno=%d (next evno_to_process=%d), last_evno=%d\n", evno, evno_to_process, last_evno);
+      }
       return 1;
     }
   } else {
@@ -1162,14 +1184,18 @@ void DecodeDataAMSL0::OpenFile(const char *rawDir, const char *calDir, int runSt
   }
 
   AMSRawFile dataStartFile = to_rawFile(rawDir, runStart);
+  if (runStop == -1)
+    runStop = runStart;
   AMSRawFile dataStopFile = to_rawFile(rawDir, runStop);
 
   for (int runNum = runStart; runNum <= runStop; runNum++)
     m_dataRunnums.push_back(runNum);
 
   m_dataFilenames = get_filelist(dataStartFile, dataStopFile);
-  std::cout << "BEAM files:\n";
-  std::copy(begin(m_dataFilenames), end(m_dataFilenames), std::ostream_iterator<std::string>(std::cout, "\n"));
+  if (!kOnlyProcessCal) {
+    std::cout << "BEAM files:\n";
+    std::copy(begin(m_dataFilenames), end(m_dataFilenames), std::ostream_iterator<std::string>(std::cout, "\n"));
+  }
   for (const auto &dataFilePath : m_dataFilenames) {
     rawdatastream.AddFile(dataFilePath);
   }

@@ -107,7 +107,8 @@ char *DateFromFilename(std::string m_filename) {
   return ret;
 }
 
-DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calNum) {
+DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calNum,
+                             bool _kOnlyProcessCal) {
 
   m_rawDir = rawDir;
   m_calDir = calDir;
@@ -127,11 +128,28 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
 
   tdrMap = new laddernumtype[NJINF * NTDRS];
 
+  signals.resize(1);
+  CNs.resize(1);
+  signals[0].resize(NTDRS);
+  CNs[0].resize(NTDRS);
+  for (int tt = 0; tt < NTDRS; tt++) {
+    signals[0][tt].resize(NVAS * NCHAVA);
+    for (int cc = 0; cc < NVAS * NCHAVA; cc++) {
+      signals[0][tt][cc].reserve(10000);
+    }
+    CNs[0][tt].resize(NVAS);
+    for (int cc = 0; cc < NVAS; cc++) {
+      CNs[0][tt][cc].reserve(10000);
+    }
+  }
+
   // Create the ROOT run header
   rh = new RHClassOCA();
 
   ev = new EventOCA((char *)"ladderconf_OCA.dat", (char *)"gaincorrection_OCA.dat");
   //  std::cout << "ev: " << ev << '\n';
+
+  kOnlyProcessCal = _kOnlyProcessCal;
 
   DecodeDataOCA::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runn, int(calNum));
   // we assume we also have the corresponding calibration file
@@ -336,15 +354,13 @@ bool DecodeDataOCA::ProcessCalibration() {
   auto start = std::chrono::system_clock::now();
 
   auto event = std::make_unique<EventOCA>((char *)"ladderconf_OCA.dat", (char *)"gaincorrection_OCA.dat");
-  std::vector<std::vector<std::vector<float>>> signals(
-      NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA, std::vector<float>(10000)));
 
   // #define CALPLOTS // in generale deve stare spento, a differenza di AMS non abbiamo i cluster, quando fa il decode
   // qui fa qualche plot di occupancy.
 
   // FIXME: Some test calibrations contain too many events, stop at 10k and use the first half for ped and sigma raw,
   // and the second half for sigma
-  // MD: tipo che MD: fai vector reserved da 5k MD: inizi a leggere e vedi a quanto arrivi
+  // MD: tipo che fai vector reserved da 5k MD: inizi a leggere e vedi a quanto arrivi
   // MD: se <5k resizi
   // MD: se sono più a 5k smetti e fai mean e sigma_raw
   // MD: e poi ricominci (fino a massimo 5k) fillando 0, 1, 2, etc... fino a dove arrivi
@@ -368,7 +384,7 @@ bool DecodeDataOCA::ProcessCalibration() {
     if (retVal == 0) {
       for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
         for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-          signals[iTdr][iCh][nEvents - 1] = event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits;
+          signals[0][iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
           //	printf("%d (%d %d)) %hd %f -> %f\n", nEvents, iTdr, iCh, event->RawSignal[iJinf][iTdr][iCh], m_adcUnits,
           // event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
         }
@@ -378,19 +394,19 @@ bool DecodeDataOCA::ProcessCalibration() {
 
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      signals[iTdr][iCh].resize(nEvents);
+      signals[0][iTdr][iCh].resize(nEvents);
     }
   }
   std::cout << '\n';
 
   //----------------------------------
-  ComputeCalibration<EventOCA, calibOCA>(signals, cals[0]);
+  ComputeCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals);
 
   auto stop = std::chrono::system_clock::now();
   std::cout << "DecodeDataOCA::ProcessCalibration took "
             << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
 
-  SaveCalibration<EventOCA, calibOCA>(signals, cals[0], m_calRunnums.at(0), 2 * m_numBoardsFound, iJinf);
+  SaveCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals);
 
   return true;
 }

@@ -18,7 +18,8 @@ public:
   EventOCA *ev;
   RHClassOCA *rh;
 
-  DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calnum);
+  DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calnum,
+                bool _kOnlyProcessCal = false);
 
   virtual ~DecodeDataOCA();
 

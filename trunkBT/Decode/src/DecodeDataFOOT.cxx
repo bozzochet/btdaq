@@ -35,6 +35,14 @@ DecodeDataFOOT::DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned 
   m_defaultShift = 0;
   m_defaultArraySize = NVAS * NCHAVA;
 
+  signals[0].resize(NTDRS);
+  for (int tt = 0; tt < NTDRS; tt++) {
+    signals[0][tt].resize(NVAS * NCHAVA);
+    for (int cc = 0; cc < NVAS * NCHAVA; cc++) {
+      signals[0][tt][cc].reserve(10000);
+    }
+  }
+
   int ret;
 
   // Create the ROOT run header
@@ -169,7 +177,6 @@ int DecodeDataFOOT::ProcessCalibration() {
   auto start = std::chrono::system_clock::now();
 
   auto event = std::make_unique<EventFOOT>((char *)"ladderconf_FOOT.dat", (char *)"gaincorr_FOOT.dat");
-  std::vector<std::vector<std::vector<float>>> signals(NTDRS, std::vector<std::vector<float>>(NVAS * NCHAVA));
 
   unsigned int nEvents{0};
   fseek(calfile, 280, SEEK_CUR); // Skipping the file header
@@ -183,7 +190,7 @@ int DecodeDataFOOT::ProcessCalibration() {
     std::cout << "\rRead " << ++nEvents << " events " << std::flush;
     for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-        signals[iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+        signals[0][iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
       }
     }
   }
@@ -191,14 +198,14 @@ int DecodeDataFOOT::ProcessCalibration() {
 
   for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      cals[iTdr].ped[iCh] = std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f) /
-                            static_cast<float>(signals[iTdr][iCh].size());
+      cals[iTdr].ped[iCh] = std::accumulate(begin(signals[0][iTdr][iCh]), end(signals[0][iTdr][iCh]), 0.0f) /
+                            static_cast<float>(signals[0][iTdr][iCh].size());
       cals[iTdr].rsig[iCh] =
-          std::sqrt(std::accumulate(begin(signals[iTdr][iCh]), end(signals[iTdr][iCh]), 0.0f,
+          std::sqrt(std::accumulate(begin(signals[0][iTdr][iCh]), end(signals[0][iTdr][iCh]), 0.0f,
                                     [&](float acc, float curr) {
                                       return acc + (curr - cals[iTdr].ped[iCh]) * (curr - cals[iTdr].ped[iCh]);
                                     }) /
-                    static_cast<float>(signals[iTdr][iCh].size()));
+                    static_cast<float>(signals[0][iTdr][iCh].size()));
       // initialize this for later
       cals[iTdr].sig[iCh] = 0;
       cals[iTdr].status[iCh] = 0;
@@ -208,7 +215,7 @@ int DecodeDataFOOT::ProcessCalibration() {
   unsigned int lastVA = std::numeric_limits<unsigned int>::max();
   std::vector<float> common_noise(NVAS);
   std::vector<std::vector<unsigned int>> processed_events(NTDRS, std::vector<unsigned int>(NVAS * NCHAVA));
-  for (unsigned int iEv = 0; iEv < signals[0][0].size(); ++iEv) {
+  for (unsigned int iEv = 0; iEv < signals[0][0][0].size(); ++iEv) {
     for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
         unsigned int thisVA = iCh / NCHAVA;
@@ -216,7 +223,7 @@ int DecodeDataFOOT::ProcessCalibration() {
 
           std::vector<float> values(NCHAVA);
           for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
-            values[iVACh] = signals[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
+            values[iVACh] = signals[0][iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iTdr].ped[thisVA * NCHAVA + iVACh];
           }
 
           // get the median
@@ -229,8 +236,8 @@ int DecodeDataFOOT::ProcessCalibration() {
         }
         ++processed_events[iTdr][iCh];
 
-        cals[iTdr].sig[iCh] += (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
-                               (signals[iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
+        cals[iTdr].sig[iCh] += (signals[0][iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]) *
+                               (signals[0][iTdr][iCh][iEv] - cals[iTdr].ped[iCh] - common_noise[thisVA]);
         lastVA = thisVA;
       }
     }

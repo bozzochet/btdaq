@@ -294,9 +294,12 @@ int main(int argc, char **argv) {
   printf("Reading Cal Data from %s\n", DirCal);
   printf("Writing output in %s\n", DirRoot);
 
-  if (ancillary < 0)
+  if (ancillary < 0) {
     sprintf(filename, "%s/run_%06d.root", DirRoot, run);
-  else
+    if (kOnlyProcessCal) {
+      sprintf(filename, "%s/run_%06d_ONLYCAL.root", DirRoot, run);
+    }
+  } else
     sprintf(filename, "%s/run_%06d_ANC_%d.root", DirRoot, run, ancillary);
   sprintf(pdf_filename, "%s.pdf", filename);
 
@@ -307,8 +310,11 @@ int main(int argc, char **argv) {
   printf("The choosen compression level is %d\n", complevel);
   TFile *foutput = new TFile(filename, "RECREATE", "File with the event tree", complevel);
 
-  /// VV debug
-  TTree *t4 = new TTree("t4", "My cluster tree");
+  TTree *t3 = new TTree("t3", "My calibration tree");
+  TTree *t4 = NULL;
+  if (!kOnlyProcessCal) {
+    t4 = new TTree("t4", "My cluster tree");
+  }
 
   // int bufsize = 64000;
   // int splitlevel = 2;
@@ -318,9 +324,10 @@ int main(int argc, char **argv) {
   DecodeData *dd1 = nullptr;
   FlavorConfig fConf;
   if (kOca) {
-    auto *dd = new DecodeDataOCA(DirRaw, DirCal, run, calrunstart);
+    auto *dd = new DecodeDataOCA(DirRaw, DirCal, run, calrunstart, kOnlyProcessCal);
     fConf = dd->FlavorConfig();
-    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
+    if (!kOnlyProcessCal)
+      t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
     auto calibs = dd->GetCalibrations();
     // What a hack!
     auto class_name =
@@ -331,13 +338,16 @@ int main(int argc, char **argv) {
   } else if (kFoot) {
     auto *dd = new DecodeDataFOOT(DirRaw, DirCal, run, calrunstart);
     fConf = dd->FlavorConfig();
-    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
+    if (!kOnlyProcessCal)
+      t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
     dd1 = static_cast<DecodeData *>(dd);
   } else if (kL0 || kL0old) {
     kL0 = true; // in the kL0old case we set also kL0 since now the right DecodeStyle is set already
-    auto *dd = new DecodeDataAMSL0(DirRaw, DirCal, run, runstop, calrunstart, calrunstop, kL0old ? 0 : 1);
+    auto *dd =
+        new DecodeDataAMSL0(DirRaw, DirCal, run, runstop, calrunstart, calrunstop, kL0old ? 0 : 1, kOnlyProcessCal);
     fConf = dd->FlavorConfig();
-    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
+    if (!kOnlyProcessCal)
+      t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
     auto calibs = dd->GetCalibrations();
     // What a hack!
     auto class_name =
@@ -348,13 +358,16 @@ int main(int argc, char **argv) {
   } else {
     auto *dd = new DecodeDataAMS(DirRaw, DirCal, run, ancillary, kMC);
     fConf = dd->FlavorConfig();
-    t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
+    if (!kOnlyProcessCal)
+      t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
     dd1 = static_cast<DecodeData *>(dd);
   }
 
-  TBranch *branch = t4->GetBranch("cluster_branch");
-  if (branch)
-    branch->SetCompressionLevel(6);
+  if (!kOnlyProcessCal) {
+    TBranch *branch = t4->GetBranch("cluster_branch");
+    if (branch)
+      branch->SetCompressionLevel(6);
+  }
 
   if (kPri)
     dd1->SetPrintOn();
@@ -376,10 +389,6 @@ int main(int argc, char **argv) {
     dd1->SetPrintOff();
     dd1->SetEvPrintOff();
 
-    /// VV debug moved before dd1
-    // TTree* t4= new TTree("t4","My cluster tree");
-    /// VV debug given 64000
-    // t4->Branch("cluster_branch","Event",&(dd1->ev),32000,2);
     double chaK[fConf.NTDRS];
     double chaS[fConf.NTDRS];
     double sigK[fConf.NTDRS];
@@ -398,7 +407,7 @@ int main(int argc, char **argv) {
       t4->Branch(Form("ChargeK_Ladder%02d", IdTDR), &chaK[IdTDR], Form("ChargeK_Ladder%02d/D", IdTDR));
       t4->Branch(Form("SoNK_Ladder%02d", IdTDR), &sonK[IdTDR], Form("SoNK_Ladder%02d/D", IdTDR));
     }
-    sleep(3);
+    //    sleep(3);
 
     auto *ddams = dynamic_cast<DecodeDataAMS *>(dd1);
     auto *ddoca = dynamic_cast<DecodeDataOCA *>(dd1);
@@ -584,7 +593,6 @@ int main(int argc, char **argv) {
               << "ms\n";
 
     // CreatePdfWithPlots(dd1, pdf_filename);
-    /// VV debug write to output file
     foutput->cd();
     t4->Write("", TObject::kOverwrite);
     if (dd1->GetMCTruth()) {
@@ -595,6 +603,41 @@ int main(int argc, char **argv) {
     printf("Accepted  %5d  Events\n", processed);
     printf("Rejected  %5d  Events --> Read Error\n", readfailed);
     printf("Rejected  %5d  Events --> Jinf/Jinj Error\n", jinffailed);
+  } else {
+    auto GCCNs = dd1->GetCalibrationCNs();
+    double ***CNs;
+    CNs = new double **[GCCNs.size()];
+    for (long int jj = 0; jj < GCCNs.size(); jj++) {
+      CNs[jj] = new double *[GCCNs[jj].size()];
+      for (long int tt = 0; tt < GCCNs[jj].size(); tt++) {
+        CNs[jj][tt] = new double[GCCNs[jj][tt].size()];
+      }
+    }
+    TBranch *branch = t3->Branch("CNs", &CNs[0][0][0],
+                                 Form("CN[%lu][%lu][%lu]/D", GCCNs.size(), GCCNs[0].size(), GCCNs[0][0].size()));
+
+    //    printf("%lu\n", GCCNs[0][0][0].size());
+
+    for (long int iEv = 0; iEv < GCCNs[0][0][0].size(); iEv++) {
+      for (long int jj = 0; jj < GCCNs.size(); jj++) {
+        for (long int tt = 0; tt < GCCNs[jj].size(); tt++) {
+          for (long int vv = 0; vv < GCCNs[jj][tt].size(); vv++) {
+            if (iEv < GCCNs[jj][tt][vv].size()) {
+              CNs[jj][tt][vv] = GCCNs[jj][tt][vv][iEv];
+              //              printf("GCCNs[%lu][%lu][%lu][%lu] = %f\n", jj, tt, vv, iEv, GCCNs[jj][tt][vv][iEv]);
+              //              printf("GCCNs[%lu][%lu][%lu][%lu] = %f\n", jj, tt, vv, iEv, GCCNs[jj][tt][vv][iEv]);
+            } else {
+              CNs[jj][tt][vv] = 0.0;
+              // if (iEv == 0)
+              //   printf("%lu %lu %lu\n", jj, tt, vv);
+            }
+          }
+        }
+      }
+      t3->Fill();
+    }
+    foutput->cd();
+    t3->Write("", TObject::kOverwrite);
   }
 
   delete dd1;

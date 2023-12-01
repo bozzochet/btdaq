@@ -25,7 +25,7 @@ public:
   RHClassAMSL0 *rh;
 
   DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int runStop,
-                  unsigned int calStart, unsigned int calStop, int _style = 0);
+                  unsigned int calStart, unsigned int calStop, int _style = 0, bool _kOnlyProcessCal = false);
 
   virtual ~DecodeDataAMSL0();
 
