@@ -84,52 +84,64 @@ int main(int argc, char **argv) {
       Form("  --caldata <path/to/dir/with/cal> ............ Directory with cal data (%s is the default)", DirCal));
   opt->addUsage(Form(
       "  --rootdata <path/to/dir/for/root> ........... Directory where to put ROOT file (%s is the default)", DirRoot));
-  opt->addUsage("  --oca  ....................................... Read the OCA boards");
-  opt->addUsage("  --foot ....................................... Read files from FOOT Bo TDAQ");
-  opt->addUsage("  --l0 ....................................... Read files from AMSL0 DAQ (USB-LF and v>=5)");
-  opt->addUsage("  --l0old .................................... Read files from AMSL0 DAQ (USB-LEF)");
+  opt->addUsage("  --oca  ...................................... Read the OCA boards");
+  opt->addUsage("  --foot ...................................... Read files from FOOT Bo TDAQ");
+  opt->addUsage("  --l0 ........................................ Read files from AMSL0 DAQ (USB-LF and v>=5)");
+  opt->addUsage("  --l0old ..................................... Read files from AMSL0 DAQ (USB-LEF)");
   opt->addUsage(
       "  -c, --clusterize ............................ To perform an offline clusterization to the RAW event");
-  opt->addUsage("                                                    (the bonding type is defined in ladderconf.dat");
-  opt->addUsage("                                                     with the same codes as for --cworkaround)");
-  opt->addUsage(" ");
-  opt->addUsage("                                                To choose the clusterization thresholds: FOR ALL THE "
-                "LADDERS, IGNORING THE ONES DEFINED IN ladderconf.dat:");
+  opt->addUsage("                                                (the bonding type is defined in ladderconf.dat");
+  opt->addUsage("                                                with the same codes as for --cworkaround)");
+  opt->addUsage("  --calrunstart ............................... Run/file number of calibration (first)\n"
+                "                                                (needed for AMSL0 or possible for (OCA, FOOT) to\n"
+                "                                                choose the calibration by hand)");
   opt->addUsage(
-      "  --shighthreshold <X> ........................ S-side S/N high threshold. Used in the offline clusterization "
-      "if option -c or to fill the plots for the ladders with raw events (3.5 is the default)");
-  opt->addUsage(
-      "  --slowthreshold  <X> ........................ S-side S/N low threshold. Used in the offline clusterization if "
-      "option -c or to fill the plots for the ladders with raw events (1.0 is the default)");
-  opt->addUsage(
-      "  --khighthreshold <X> ........................ K-side S/N high threshold. Used in the offline clusterization "
-      "if option -c or to fill the plots for the ladders with raw events (3.5 is the default)");
-  opt->addUsage(
-      "  --klowthreshold  <X> ........................ K-side S/N low threshold. Used in the offline clusterization if "
-      "option -c or to fill the plots for the ladders with raw events (1.0 is the default)");
-  opt->addUsage(" ");
-  opt->addUsage("  --cworkaround <N> ........................... To choose the workaround clusterization:");
-  opt->addUsage("                                                    FOR ALL THE LADDERS, IGNORING THE ONE DEFINED IN "
-                "ladderconf.dat:");
-  opt->addUsage("                                                    (option kept just for interface compatibility and "
-                "to have the list of codes)");
-  opt->addUsage("                                                    0 is the standard one (default)");
-  opt->addUsage("                                                    1 for the Limadou monster. On S-side only even "
-                "channels are bonded");
-  opt->addUsage("                                                    2 for the DAMPE ladders read-out by AMS TDR. Only "
-                "S-side, [0-191]+[320-511]");
-  opt->addUsage("                                                    3 for the GSI ladders read-out by AMS TDR. K side "
-                "has all 384 channels bonded to a single sensor");
+      "  --calrunstop ................................ Run/file number of calibration (last) (needed for AMSL0)");
+  opt->addUsage("  --ancillary ................................. Ancillary file number (only possible for AMS)");
   opt->addUsage(
       "  -m, --montecarlo ............................ To decode MonteCarlo simulation files (default is OFF)");
-  opt->addUsage("  -l, --onlycal ............................... To only search and process the closer calibration run "
-                "(default is OFF)");
-  opt->addUsage("");
-  opt->addUsage("  --calrunstart ....................................... Run/file number of calibration (first) "
-                "(needed for AMSL0 or possible for (OCA, FOOT) to choose the calibration by hand)");
-  opt->addUsage("  --calrunstop ....................................... Run/file number of calibration (last) (needed "
-                "for AMSL0)");
-  opt->addUsage("  --ancillary ....................................... Ancillary file number (only possible for AMS)");
+  opt->addUsage(
+      "  -l, --onlycal ............................... To only search and process the (closer automatically\n"
+      "                                                chosen for AMS, OCA and FOOT, but not AMSL0) calibration run.\n"
+      "                                                Only 10k events used for calibration. When using this flag,\n"
+      "                                                the run number provided is used for the output file root name,\n"
+      "                                                that will contain \"ONLYCAL\". (default is OFF)");
+  opt->addUsage(
+      "*************************************************************************************************************\n"
+      "To choose the clusterization thresholds: FOR ALL THE LADDERS, IGNORING the ones defined in ladderconf.dat:");
+  opt->addUsage(
+      "  --shighthreshold <X> ........................ S-side S/N high threshold. Used in the offline clusterization\n"
+      "                                                if option -c or to fill the plots for the ladders with raw\n"
+      "                                                events (3.5 is the default)");
+  opt->addUsage(
+      "  --slowthreshold  <X> ........................ S-side S/N low threshold. Used in the offline clusterization\n"
+      "                                                if option -c or to fill the plots for the ladders with raw\n"
+      "                                                events (1.0 is the default)");
+  opt->addUsage(
+      "  --khighthreshold <X> ........................ K-side S/N high threshold. Used in the offline clusterization\n"
+      "                                                if option -c or to fill the plots for the ladders with raw\n"
+      "                                                events (3.5 is the default)");
+  opt->addUsage(
+      "  --klowthreshold  <X> ........................ K-side S/N low threshold. Used in the offline clusterization\n"
+      "                                                if option -c or to fill the plots for the ladders with raw\n"
+      "                                                events (1.0 is the default)");
+  opt->addUsage("  --cworkaround <N> ........................... To choose the workaround clusterization:");
+  opt->addUsage("                                                    FOR ALL THE LADDERS, IGNORING the one defined in\n"
+                "                                                    ladderconf.dat:");
+  opt->addUsage(
+      "                                                    (option kept just for interface compatibility and\n"
+      "                                                    to have the list of codes)");
+  opt->addUsage("                                                    0 is the standard one (default)");
+  opt->addUsage("                                                    1 for the Limadou monster. On S-side only even\n"
+                "                                                    channels are bonded");
+  opt->addUsage(
+      "                                                    2 for the DAMPE ladders read-out by AMS TDR. Only\n"
+      "                                                    S-side, [0-191]+[320-511]");
+  opt->addUsage(
+      "                                                    3 for the GSI ladders read-out by AMS TDR. K side\n"
+      "                                                    has all 384 channels bonded to a single sensor");
+  opt->addUsage("******************************************************************************************************"
+                "*******");
   opt->addUsage("Arguments: ");
   opt->addUsage("  <runnum> [runstop (for AMSL0)]");
 
