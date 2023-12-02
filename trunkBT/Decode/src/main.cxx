@@ -613,23 +613,60 @@ int main(int argc, char **argv) {
         CNs[jj][tt] = new double[GCCNs[jj][tt].size()];
       }
     }
-    TBranch *branch = t3->Branch("CNs", &CNs[0][0][0],
-                                 Form("CN[%lu][%lu][%lu]/D", GCCNs.size(), GCCNs[0].size(), GCCNs[0][0].size()));
+    {
+      TBranch *branch = t3->Branch("CNs", &CNs[0][0][0],
+                                   Form("CNs[%lu][%lu][%lu]/D", GCCNs.size(), GCCNs[0].size(), GCCNs[0][0].size()));
+      if (branch)
+        branch->SetCompressionLevel(6);
+    }
+
+    auto GCSignals = dd1->GetCalibrationSignals();
+    double ***Signals;
+    Signals = new double **[GCSignals.size()];
+    for (long int jj = 0; jj < GCSignals.size(); jj++) {
+      Signals[jj] = new double *[GCSignals[jj].size()];
+      for (long int tt = 0; tt < GCSignals[jj].size(); tt++) {
+        Signals[jj][tt] = new double[GCSignals[jj][tt].size()];
+      }
+    }
+    {
+      TBranch *branch =
+          t3->Branch("Signals", &Signals[0][0][0],
+                     Form("Signals[%lu][%lu][%lu]/D", GCSignals.size(), GCSignals[0].size(), GCSignals[0][0].size()));
+      if (branch)
+        branch->SetCompressionLevel(6);
+    }
 
     //    printf("%lu\n", GCCNs[0][0][0].size());
+    //    printf("%lu\n", GCSignals[0][0][0].size());
 
     for (long int iEv = 0; iEv < GCCNs[0][0][0].size(); iEv++) {
       for (long int jj = 0; jj < GCCNs.size(); jj++) {
-        for (long int tt = 0; tt < GCCNs[jj].size(); tt++) {
-          for (long int vv = 0; vv < GCCNs[jj][tt].size(); vv++) {
+        for (long int tt = 0; tt < GCCNs[0].size(); tt++) {
+          for (long int vv = 0; vv < GCCNs[0][0].size(); vv++) {
             if (iEv < GCCNs[jj][tt][vv].size()) {
               CNs[jj][tt][vv] = GCCNs[jj][tt][vv][iEv];
               //              printf("GCCNs[%lu][%lu][%lu][%lu] = %f\n", jj, tt, vv, iEv, GCCNs[jj][tt][vv][iEv]);
-              //              printf("GCCNs[%lu][%lu][%lu][%lu] = %f\n", jj, tt, vv, iEv, GCCNs[jj][tt][vv][iEv]);
+              //	      printf("CNs[%lu][%lu][%lu] = %f\n", jj, tt, vv, CNs[jj][tt][vv]);
             } else {
               CNs[jj][tt][vv] = 0.0;
               // if (iEv == 0)
               //   printf("%lu %lu %lu\n", jj, tt, vv);
+            }
+            if (fabs(CNs[jj][tt][vv]) > 100) {
+              printf("CNs[%lu][%lu][%lu] = %f\n", jj, tt, vv, CNs[jj][tt][vv]);
+              printf("GCCNs[%lu][%lu][%lu][%lu] = %f\n", jj, tt, vv, iEv, GCCNs[jj][tt][vv][iEv]);
+            }
+          }
+          for (long int cc = 0; cc < GCSignals[0][0].size(); cc++) {
+            if (iEv < GCSignals[jj][tt][cc].size()) {
+              Signals[jj][tt][cc] = GCSignals[jj][tt][cc][iEv];
+              //              printf("GCSignals[%lu][%lu][%lu][%lu] = %f\n", jj, tt, cc, iEv,
+              //              GCSignals[jj][tt][cc][iEv]);
+            } else {
+              Signals[jj][tt][cc] = 0.0;
+              // if (iEv == 0)
+              //   printf("%lu %lu %lu\n", jj, tt, cc);
             }
           }
         }
