@@ -82,7 +82,7 @@ bool TrackSelection<Event, RH>::CleanEvent(Event* ev, RH* rh, int minclus, int m
 
     PRINTDEBUG;
     
-    int ladder_pos=rh->FindPos(ladder);
+    int ladder_pos=rh->FindPos(tdrnum,jinfnum);
     if (ladder_pos>NJINF*NTDRS) {
       printf("WTF? ladder_pos is %d out of %d\n", ladder_pos, NJINF*NTDRS);
       sleep(10);

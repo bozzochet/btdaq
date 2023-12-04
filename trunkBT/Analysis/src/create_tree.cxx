@@ -353,15 +353,17 @@ int ProcessChain(TChain* chain, TString output_filename){
       
       cl = ev->GetCluster(index_cluster);
       
+      int jinfnum = cl->GetJinf();
+      int tdrnum = cl->GetTDR();
       int ladder = cl->ladder;
       //      printf("%d --> %d\n", ladder, ut->GetRH(chain)->FindPos(ladder));
       int side=cl->side;
       
       if (side==0) {
-	v_cog_all_laddS[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	v_cog_all_laddS[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)].push_back(cl->GetAlignedPosition());
       }
       else {
-	v_cog_all_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	v_cog_all_laddK[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)].push_back(cl->GetAlignedPosition());
       }
             
       if (!ev->IsClusterUsedInTrack(index_cluster)) continue;
@@ -370,12 +372,12 @@ int ProcessChain(TChain* chain, TString output_filename){
       
       if (side==0) {
 	if (strackok) {
-	  v_cog_laddS[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	  v_cog_laddS[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)].push_back(cl->GetAlignedPosition());
 	}
       }
       else {
 	if (ktrackok) {
-	  v_cog_laddK[ut->GetRH(chain)->FindPos(ladder)].push_back(cl->GetAlignedPosition());
+	  v_cog_laddK[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)].push_back(cl->GetAlignedPosition());
 	}
       }
       

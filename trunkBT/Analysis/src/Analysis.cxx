@@ -41,7 +41,7 @@ using EventFOOT = GenericEvent<1, 24, 64, 5, 10, 0>;
 using calibFOOT = calib<EventFOOT::GetNCHAVA() * EventFOOT::GetNVAS()>;
 using RHClassFOOT = RHClass<EventFOOT::GetNJINF(), EventFOOT::GetNTDRS()>;
 //---
-using EventAMSL0 = GenericEvent<1, 2, 64, 8, 16, 0>;
+using EventAMSL0 = GenericEvent<2, 9, 64, 8, 16, 0>;
 using calibAMSL0 = calib<EventAMSL0::GetNCHAVA() * EventAMSL0::GetNVAS()>;
 using RHClassAMSL0 = RHClass<EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>;
 //---
@@ -66,11 +66,10 @@ double ch[9][7]; // ch[va][ch]
 double ch_err[9][7];
 double y[9][6];
 double y_err[9][6];
-const Int_t size = 6;
+const Int_t Size_z = 6;
 TGraphErrors *va[9];
-Cluster *cTTree;
-const int splitLevel = 99;
-TTree t1("t1","clusters");
+const Int_t nLadder = 11;
+const char *name_TotSig_vs_cog[nLadder];
 
 
 //----------------------------------------
@@ -176,16 +175,6 @@ template <class Event, class RH> int ProcessChain(TChain *chain, TString output_
   // }
 
   TFile *foutput = new TFile(output_filename.Data(), "RECREATE");
-  //new
-  TString path1 = "/home/alessio/ams/cluster/"; //path to save the clusters manually changeable
-  std::size_t start = output_filename.Last('/')+1; //find the last '/' from the input /../.../.root
-  std::size_t end = output_filename.Last('t'); //find the last 't' fomr the input /.../.../.root (t of root)
-  TString name = ( output_filename(start,end) ); //take the name
-  TString clus = path1.Append("clusters_");
-  TString cluster_output = clus.Append(name); //append the name to the path
-  TFile *ftree = new TFile(cluster_output.Data(),"RECREATE");
-  foutput->cd();
-  //test
 
   //--------------------------------------------------------------------------------------------------------------
 
@@ -405,15 +394,11 @@ template <class Event, class RH> int ProcessChain(TChain *chain, TString output_
   foutput->Write();
   foutput->Close();
 
-  //new
-  ftree->cd();
-  t1.Write();
-
   return 0;
 }
 
 template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t entries, int _maxtdr, TChain *chain) {
-
+  
   //new
   fstream file;
   file.open("/home/alessio/ams/macros/fitValueVA5to13.txt", ios::in);
@@ -443,11 +428,9 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
 
   //create the gain curve for every VA (TGraph)
   for (int ii=0; ii<9; ii++) {
-    va[ii] = new TGraphErrors (size,x[ii],y[ii],x_err[ii],y_err[ii]);
+    va[ii] = new TGraphErrors (Size_z,x[ii],y[ii],x_err[ii],y_err[ii]);
   }
 
-  //create the branch
-  t1.Branch("cl", &cTTree, splitLevel);
 
   using UT = Utilities<Event, RH>;
   UT *ut = new UT();
@@ -464,6 +447,15 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
   // int NSTRIPSK=Cluster::GetNChannels(1);
   int NSTRIPSS = NCHAVA * NVASS;
   int NSTRIPSK = NCHAVA * NVASK;
+
+  //for BT 10/2023 (11 ladder)
+    TH2F *lTotSig_vs_cog[nLadder];
+  
+    for (int ii=0; ii<nLadder; ii++) {
+    	name_TotSig_vs_cog[ii] = char(ii)+"TotSig_vs_cog, Cog; TotSig(ADC)";
+    	lTotSig_vs_cog[ii] = new TH2F ("", name_TotSig_vs_cog[ii],  NVAS * NCHAVA, 0, NVAS * NCHAVA, 2000, -100, 15000);
+    	histos->Add(lTotSig_vs_cog[ii]);
+    }
 
   // all events
   TH1F *hclus_vs_event = new TH1F("hclus_vs_event", "hclus_vs_event;Event Number;Clusters", entries, 0, entries);
@@ -939,8 +931,7 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
       }
 
     Cluster *clmax = ev->GetCluster(max_index);
-    cTTree = clmax;
-    t1.Fill();
+
     if (clmax->GetLength() >= 1) {
         std::vector<float> orderedSig = clmax->Sort();
         float eta = clmax->GetEta();
@@ -1030,6 +1021,11 @@ template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NCl
   TH2 *hclusSladd_vs_event_clean = (TH2 *)(histos->FindObject("hclusSladd_vs_event_clean"));
   TH2 *hclusKladd_vs_event_clean = (TH2 *)(histos->FindObject("hclusKladd_vs_event_clean"));
 
+  TH2 *lTotSig_vs_cog[nLadder];
+  for (int ii=0; ii<nLadder; ii++) {
+  	lTotSig_vs_cog[ii] = (TH2 *)(histos->FindObject(name_TotSig_vs_cog[ii]));
+  }
+
   hclus_clean->Fill(NClusTot);
   hclus_vs_event_clean->Fill(index_event, NClusTot);
 
@@ -1037,11 +1033,16 @@ template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NCl
 
     cl = ev->GetCluster(index_cluster);
     int ladder = cl->ladder;
-    //      printf("%d --> %d\n", ladder, ut->GetRH(chain)->FindPos(ladder));
     int jinfnum = cl->GetJinf();
     int tdrnum = cl->GetTDR();
     int side = cl->side;
     double charge = cl->GetCharge(); // unused for now
+
+  	int Ladder = tdrnum + jinfnum - 100;
+  	//std::cout << Ladder << endl;
+  	if (Ladder >= 0 && Ladder < 11)
+   		lTotSig_vs_cog[Ladder]->Fill(cl->GetCoG(),cl->GetTotSig());
+    
 
     if (side == 0 || (side == 1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
       hclusSladd_clean->Fill(ladder);
@@ -1066,6 +1067,11 @@ template <class Event, class RH> void FillPreselHistos(TObjArray *histos, int NC
   TH2 *hclusSladd_vs_event_presel = (TH2 *)(histos->FindObject("hclusSladd_vs_event_presel"));
   TH2 *hclusKladd_vs_event_presel = (TH2 *)(histos->FindObject("hclusKladd_vs_event_presel"));
 
+  TH2 *lTotSig_vs_cog[nLadder];
+  for (int ii=0; ii<nLadder; ii++) {
+  	lTotSig_vs_cog[ii] = (TH2 *)(histos->FindObject(name_TotSig_vs_cog[ii]));
+  }
+
   hclus_presel->Fill(NClusTot);
   hclus_vs_event_presel->Fill(index_event, NClusTot);
 
@@ -1078,6 +1084,11 @@ template <class Event, class RH> void FillPreselHistos(TObjArray *histos, int NC
     int tdrnum = cl->GetTDR();
     int side = cl->side;
     double charge = cl->GetCharge(); // unused for now
+
+    int Ladder = tdrnum + jinfnum - 100;
+  	//std::cout << Ladder << endl;
+  	if (Ladder >= 0 && Ladder < 11)
+   		lTotSig_vs_cog[Ladder]->Fill(cl->GetCoG(),cl->GetTotSig());
 
     if (side == 0 || (side == 1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
       hclusSladd_presel->Fill(ladder);
@@ -1231,13 +1242,13 @@ void FillGoodHistos(TObjArray *histos, int NClusTot, Event *ev, int _maxtdr, TCh
     int side = cl->side;
     double charge = cl->GetCharge(); // unused for now
 
-    occupancy[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetCoG());
+    occupancy[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)]->Fill(cl->GetCoG());
     //    printf("%d, %d) %f -> %f %f\n", ladder, side, cl->GetCoG(), cl->GetPosition(), cl->GetAlignedPosition());
 
     if (side == 0) {
-      occupancy_posX[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
+      occupancy_posX[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)]->Fill(cl->GetAlignedPosition());
     } else {
-      occupancy_posY[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
+      occupancy_posY[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)]->Fill(cl->GetAlignedPosition());
     }
 
     if (side == 0 || (side == 1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
@@ -1257,18 +1268,18 @@ void FillGoodHistos(TObjArray *histos, int NClusTot, Event *ev, int _maxtdr, TCh
     if (!ev->IsClusterUsedInTrack(index_cluster))
       continue;
 
-    occupancy_ontrack[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetCoG());
+    occupancy_ontrack[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)]->Fill(cl->GetCoG());
 
     if (side == 0) {
-      occupancy_ontrack_posX[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
+      occupancy_ontrack_posX[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)]->Fill(cl->GetAlignedPosition());
       if (strackok) {
-        residual_X[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition() -
+        residual_X[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)]->Fill(cl->GetAlignedPosition() -
                                                             ev->ExtrapolateTrack(cl->GetZPosition(), 0));
       }
     } else {
-      occupancy_ontrack_posY[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition());
+      occupancy_ontrack_posY[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)]->Fill(cl->GetAlignedPosition());
       if (ktrackok) {
-        residual_Y[ut->GetRH(chain)->FindPos(ladder)]->Fill(cl->GetAlignedPosition() -
+        residual_Y[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)]->Fill(cl->GetAlignedPosition() -
                                                             ev->ExtrapolateTrack(cl->GetZPosition(), 1));
       }
     }
@@ -1290,17 +1301,19 @@ void FillGoodHistos(TObjArray *histos, int NClusTot, Event *ev, int _maxtdr, TCh
 
   std::vector<std::pair<int, std::pair<int, int>>> vec_charge = ev->GetHitVector(); // on track (good, not gold)
   for (unsigned int tt = 0; tt < vec_charge.size(); tt++) {
+   	int jinfnum = cl->GetJinf();
+    int tdrnum = cl->GetTDR();
     int ladder = vec_charge.at(tt).first;
     int index_cluster_S = vec_charge.at(tt).second.first;
     int index_cluster_K = vec_charge.at(tt).second.second;
     if (index_cluster_S >= 0) {
-      chargeS[ut->GetRH(chain)->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge());
+      chargeS[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge());
     }
     if (index_cluster_K >= 0) {
-      chargeK[ut->GetRH(chain)->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_K)->GetCharge());
+      chargeK[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)]->Fill(ev->GetCluster(index_cluster_K)->GetCharge());
     }
     if (index_cluster_S >= 0 && index_cluster_K >= 0) {
-      charge2D[ut->GetRH(chain)->FindPos(ladder)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge(),
+      charge2D[ut->GetRH(chain)->FindPos(tdrnum,jinfnum)]->Fill(ev->GetCluster(index_cluster_S)->GetCharge(),
                                                         ev->GetCluster(index_cluster_K)->GetCharge());
     }
   }
