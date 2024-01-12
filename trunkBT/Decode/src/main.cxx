@@ -617,64 +617,95 @@ int main(int argc, char **argv) {
     printf("Rejected  %5d  Events --> Jinf/Jinj Error\n", jinffailed);
   } else {
     auto GCCNs = dd1->GetCalibrationCNs();
-    double ***CNs;
-    CNs = new double **[GCCNs.size()];
+    //    printf("GCCNs = %p\n", &GCCNs);
+    // tbsCNS allocated as 'flat' array so that the memory allocation is contiguous in memory, as required by
+    // TTree::Branch() another solution could be to allocate all the "pointer" components of CNs and only after (i.e.
+    // restarting the nested loops) allocate the CNs[jj][tt] one after the other to have all of them contiguous
+    // in the used solution is important to pass tbsCNs to Branch, not CNs
+    // in the alternative solution, however, we should use &CNs[0][0][0] and not CNs (the first block in memory are just
+    // pointers) that are clearly not equivalent
+    // (https://root-forum.cern.ch/t/adding-a-branch-of-multidimensional-array-to-ttree/29083 only applies for an array
+    // in the stack, not in the heap
+    float *tbsCNs = new float[GCCNs.size() * GCCNs[0].size() * GCCNs[0][0].size()];
+    float ***CNs;
+    CNs = new float **[GCCNs.size()];
     for (long int jj = 0; jj < GCCNs.size(); jj++) {
-      CNs[jj] = new double *[GCCNs[jj].size()];
-      for (long int tt = 0; tt < GCCNs[jj].size(); tt++) {
-        CNs[jj][tt] = new double[GCCNs[jj][tt].size()];
+      //      printf("GCCNs[%lu] = %p\n", jj, &GCCNs[jj]);
+      CNs[jj] = new float *[GCCNs[0].size()];
+      for (long int tt = 0; tt < GCCNs[0].size(); tt++) {
+        //        printf("GCCNs[%lu][%lu] = %p\n", jj, tt, &GCCNs[jj][tt]);
+        //        CNs[jj][tt] = new float[GCCNs[0][0].size()];
+        //        printf("Allocating %lu floats for CNs[%lu][%lu]...\n", GCCNs[0][0].size(), jj, tt);
+        long int index = GCCNs[0].size() * GCCNs[0][0].size() * jj + GCCNs[0][0].size() * tt;
+        //        printf("[%lu][%lu] = %lu*%lu*%lu + %lu*%lu = [%lu]\n", jj, tt, GCCNs[0].size(), GCCNs[0][0].size(),
+        //        jj, GCCNs[0][0].size(), tt, index);
+        CNs[jj][tt] = &tbsCNs[index];
       }
     }
     {
-      TBranch *branch = t3->Branch("CNs", &CNs[0][0][0],
-                                   Form("CNs[%lu][%lu][%lu]/D", GCCNs.size(), GCCNs[0].size(), GCCNs[0][0].size()));
+      TBranch *branch =
+          //	t3->Branch("CNs", CNs, Form("CNs[%lu][%lu][%lu]/F", GCCNs.size(), GCCNs[0].size(), GCCNs[0][0].size()));
+          t3->Branch("CNs", tbsCNs, Form("CNs[%lu][%lu][%lu]/F", GCCNs.size(), GCCNs[0].size(), GCCNs[0][0].size()));
       if (branch)
         branch->SetCompressionLevel(6);
     }
 
     auto GCSignals = dd1->GetCalibrationSignals();
-    double ***Signals;
-    Signals = new double **[GCSignals.size()];
+    float *tbsSignals = new float[GCSignals.size() * GCSignals[0].size() * GCSignals[0][0].size()];
+    float ***Signals;
+    Signals = new float **[GCSignals.size()];
     for (long int jj = 0; jj < GCSignals.size(); jj++) {
-      Signals[jj] = new double *[GCSignals[jj].size()];
-      for (long int tt = 0; tt < GCSignals[jj].size(); tt++) {
-        Signals[jj][tt] = new double[GCSignals[jj][tt].size()];
+      Signals[jj] = new float *[GCSignals[0].size()];
+      for (long int tt = 0; tt < GCSignals[0].size(); tt++) {
+        //        Signals[jj][tt] = new float[GCSignals[0][0].size()];
+        long int index = GCSignals[0].size() * GCSignals[0][0].size() * jj + GCSignals[0][0].size() * tt;
+        Signals[jj][tt] = &tbsSignals[index];
       }
     }
     {
       TBranch *branch =
-          t3->Branch("Signals", &Signals[0][0][0],
-                     Form("Signals[%lu][%lu][%lu]/D", GCSignals.size(), GCSignals[0].size(), GCSignals[0][0].size()));
+          //	t3->Branch("Signals", Signals,
+          t3->Branch("Signals", tbsSignals,
+                     Form("Signals[%lu][%lu][%lu]/F", GCSignals.size(), GCSignals[0].size(), GCSignals[0][0].size()));
       if (branch)
         branch->SetCompressionLevel(6);
     }
 
-    //    printf("%lu\n", GCCNs[0][0][0].size());
-    //    printf("%lu\n", GCSignals[0][0][0].size());
+    /*
+    printf("%lu\n", GCCNs[0][0][0].size());
+    printf("%lu\n", GCSignals[0][0][0].size());
+    printf("%lu\n", GCCNs[0][0].size());
+    printf("%lu\n", GCSignals[0][0].size());
+    printf("%lu\n", GCCNs[0].size());
+    printf("%lu\n", GCSignals[0].size());
+    printf("%lu\n", GCCNs.size());
+    printf("%lu\n", GCSignals.size());
+    */
 
     for (long int iEv = 0; iEv < GCCNs[0][0][0].size(); iEv++) {
       for (long int jj = 0; jj < GCCNs.size(); jj++) {
         for (long int tt = 0; tt < GCCNs[0].size(); tt++) {
           for (long int vv = 0; vv < GCCNs[0][0].size(); vv++) {
             if (iEv < GCCNs[jj][tt][vv].size()) {
-              CNs[jj][tt][vv] = GCCNs[jj][tt][vv][iEv];
-              //              printf("GCCNs[%lu][%lu][%lu][%lu] = %f\n", jj, tt, vv, iEv, GCCNs[jj][tt][vv][iEv]);
-              //	      printf("CNs[%lu][%lu][%lu] = %f\n", jj, tt, vv, CNs[jj][tt][vv]);
+              CNs[jj][tt][vv] = GCCNs.at(jj).at(tt).at(vv).at(iEv);
+              if (fabs(CNs[jj][tt][vv]) > 100) {
+                printf("GCCNs[%lu][%lu][%lu][%lu] = %f\n", jj, tt, vv, iEv, GCCNs[jj][tt][vv][iEv]);
+                printf("CNs[%lu][%lu][%lu] = %f\n", jj, tt, vv, CNs[jj][tt][vv]);
+              }
             } else {
               CNs[jj][tt][vv] = 0.0;
               // if (iEv == 0)
               //   printf("%lu %lu %lu\n", jj, tt, vv);
             }
-            if (fabs(CNs[jj][tt][vv]) > 100) {
-              printf("CNs[%lu][%lu][%lu] = %f\n", jj, tt, vv, CNs[jj][tt][vv]);
-              printf("GCCNs[%lu][%lu][%lu][%lu] = %f\n", jj, tt, vv, iEv, GCCNs[jj][tt][vv][iEv]);
-            }
           }
           for (long int cc = 0; cc < GCSignals[0][0].size(); cc++) {
             if (iEv < GCSignals[jj][tt][cc].size()) {
-              Signals[jj][tt][cc] = GCSignals[jj][tt][cc][iEv];
-              //              printf("GCSignals[%lu][%lu][%lu][%lu] = %f\n", jj, tt, cc, iEv,
-              //              GCSignals[jj][tt][cc][iEv]);
+              Signals[jj][tt][cc] = GCSignals.at(jj).at(tt).at(cc).at(iEv);
+              // if (cc == 0) {
+              //   printf("Signals[%lu][%lu][%lu] = %f\n", jj, tt, cc, Signals[jj][tt][cc]);
+              //   printf("GCSignals[%lu][%lu][%lu][%lu] = %f\n", jj, tt, cc, iEv,
+              //   GCSignals.at(jj).at(tt).at(cc).at(iEv));
+              // }
             } else {
               Signals[jj][tt][cc] = 0.0;
               // if (iEv == 0)
@@ -683,10 +714,30 @@ int main(int argc, char **argv) {
           }
         }
       }
+
+      /*
+      if (iEv == 0) {
+        for (long int jj = 0; jj < GCCNs.size(); jj++) {
+          for (long int tt = 0; tt < GCCNs[0].size(); tt++) {
+            for (long int vv = 0; vv < GCCNs[0][0].size(); vv++) {
+              long int index = GCCNs[0].size() * GCCNs[0][0].size() * jj + GCCNs[0][0].size() * tt + vv;
+              float pointer = CNs[jj][tt][vv];
+              float direct = tbsCNs[index];
+              double diff = pointer - direct;
+              if (fabs(diff) > 1.0E-10) {
+                printf("CNs[%lu][%lu][%lu] = %f\n", jj, tt, vv, pointer);
+                printf("tbsCNs[%lu] = %f\n", index, direct);
+              }
+            }
+          }
+        }
+      }
+      */
+
       t3->Fill();
     }
     foutput->cd();
-    t3->Write("", TObject::kOverwrite);
+    //    t3->Write("", TObject::kOverwrite);
   }
 
   delete dd1;
