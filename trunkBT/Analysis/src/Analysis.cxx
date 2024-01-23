@@ -52,7 +52,7 @@ using RHClassAMS = RHClass<EventAMS::GetNJINF(), EventAMS::GetNTDRS()>;
 template <class Event, class RH> int ProcessChain(TChain *ch, TString output_filename);
 template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t entries, int _maxtdr, TChain *chain);
 template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event);
-template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event);
+template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event, TFile *f);
 template <class Event, class RH> void FillPreselHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event);
 template <class Event, class RH>
 void FillGoodHistos(TObjArray *histos, int NClusTot, Event *ev, int _maxtdr, TChain *chain, bool strackok,
@@ -60,7 +60,6 @@ void FillGoodHistos(TObjArray *histos, int NClusTot, Event *ev, int _maxtdr, TCh
 void NormalizePlots(TObjArray *histos, Long64_t cleanevs, Long64_t preselevs, Long64_t goodtracks, Long64_t goldStracks,
                     Long64_t goldKtracks);
 void CleanEmptyHistos(TObjArray *histos);
-
 //new
 double ch[9][7]; // ch[va][ch]
 double ch_err[9][7];
@@ -69,10 +68,54 @@ double y_err[9][6];
 const Int_t Size_z = 6;
 TGraphErrors *va[9];
 const Int_t nLadder = 11;
-const char *name_TotSig_vs_cog[nLadder];
+std::vector<TString> name_cog_maxCl;
+std::vector<TString> title_cog_maxCl;
+std::vector<TString> name_1half_sig_vs_eta_maxCl;
+std::vector<TString> title_1half_sig_vs_eta_maxCl;
+std::vector<TString> name_2half_sig_vs_eta_maxCl;
+std::vector<TString> title_2half_sig_vs_eta_maxCl;
+std::vector<TString> name_TotSig_vs_cog;
+std::vector<TString> title_TotSig_vs_cog;
+std::vector<TString> name_TotSig_vs_eta_maxCl;
+std::vector<TString> title_TotSig_vs_eta_maxCl;
+std::vector<TString> name_TotSig_vs_eta_AllCl;
+std::vector<TString> title_TotSig_vs_eta_AllCl;
+std::vector<TString> name_1stStrip_vs_eta_maxCl;
+std::vector<TString> title_1stStip_vs_eta_maxCl;
+std::vector<TString> name_2ndStrip_vs_eta_maxCl;
+std::vector<TString> title_2ndStip_vs_eta_maxCl;
+std::vector<TString> name_3rdStrip_vs_eta_maxCl;
+std::vector<TString> title_3rdStip_vs_eta_maxCl;
+std::vector<TString> name_4thStrip_vs_eta_maxCl;
+std::vector<TString> title_4thStip_vs_eta_maxCl;
+std::vector<TString> name_ADC_vs_Strips_maxCl;
+std::vector<TString> title_ADC_vs_Strips_maxCl;
+
+
 
 
 //----------------------------------------
+
+void CreateTH2(TObjArray &hist, std::vector<TString> &vecName, std::vector<TString> &vecTitle  , TString name, TString title, int nxbin, int xmin, int xmax,int nybin, int ymin, int ymax) {
+	for (int ii=0; ii<nLadder; ii++) {
+  		vecTitle.push_back(Form("%d_%s", ii, title.Data() ));
+    	vecName.push_back(Form("%d_%s", ii, name.Data() ));
+    	TH2F *h = new TH2F (vecName[ii].Data(), vecTitle[ii].Data(), nxbin, xmin, xmax, nybin, ymin, ymax);
+    	hist.Add(h);
+    	h->Reset();
+  	}
+}
+
+void CreateTH1(TObjArray &hist, std::vector<TString> &vecName, std::vector<TString> &vecTitle , TString name, TString title, int nbin, int xmin, int xmax) {
+	for (int ii=0; ii<nLadder; ii++) {
+		vecTitle.push_back(Form("%d_%s", ii, title.Data() ));
+	    vecName.push_back(Form("%d_%s",ii, name.Data() ));
+    	TH1F *h = new TH1F (vecName[ii].Data(), vecTitle[ii].Data(), nbin, xmin, xmax);
+    	hist.Add(h);
+    	h->Reset();
+  	}
+}
+
 
 //new, added by Alessio
 int cLen = 30;
@@ -175,7 +218,7 @@ template <class Event, class RH> int ProcessChain(TChain *chain, TString output_
   // }
 
   TFile *foutput = new TFile(output_filename.Data(), "RECREATE");
-
+  
   //--------------------------------------------------------------------------------------------------------------
 
   TObjArray *histos = new TObjArray();
@@ -248,7 +291,7 @@ template <class Event, class RH> int ProcessChain(TChain *chain, TString output_
     int NClusTot = ev->GetNClusTot();
     //    printf("\t\tnclusters = %d\n", NClusTot);
 
-    FillAllHistos<Event, RH>(histos, NClusTot, ev, index_event);
+    //FillAllHistos<Event, RH>(histos, NClusTot, ev, index_event);
 
     // at least 4 clusters (if we want 2 on S and 2 on K this is really the sindacal minimum...)
     // and at most 100 (to avoid too much noise around and too much combinatorial)
@@ -260,7 +303,7 @@ template <class Event, class RH> int ProcessChain(TChain *chain, TString output_
       continue;
     cleanevs++; // in this way this number is giving the "complete reasonable sample"
 
-    FillCleanHistos<Event, RH>(histos, NClusTot, ev, index_event);
+    FillCleanHistos<Event, RH>(histos, NClusTot, ev, index_event, foutput);
 
     //    bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 3, 3, 0, 0);//valid for TIC TB?
     bool preselevent = ts->CleanEvent(ev, ut->GetRH(chain), 4, 100, 10, 10, 0, 0);
@@ -268,7 +311,7 @@ template <class Event, class RH> int ProcessChain(TChain *chain, TString output_
       continue;
     preselevs++;
 
-    FillPreselHistos<Event, RH>(histos, NClusTot, ev, index_event);
+   // FillPreselHistos<Event, RH>(histos, NClusTot, ev, index_event);
 
     // at least 4 points on S, and 4 points on K, not verbose
     //  ev->FindTrackAndFit(4, 4, false);
@@ -368,13 +411,14 @@ template <class Event, class RH> int ProcessChain(TChain *chain, TString output_
     //   printf("Nhits: %u (S: %u, K: %u)\n", ev->GetNHitsTrack(), ev->GetNHitsSTrack(), ev->GetNHitsKTrack());
     // }
 
-    FillGoodHistos<Event, RH>(histos, NClusTot, ev, _maxtdr, chain, strackok, ktrackok);
+    //FillGoodHistos<Event, RH>(histos, NClusTot, ev, _maxtdr, chain, strackok, ktrackok);
 
     //    printf(" \n ");
   }
   std::cout << '\n';
 
   NormalizePlots(histos, cleanevs, preselevs, goodtracks, goldStracks, goldKtracks);
+  
   CleanEmptyHistos(histos);
 
   sw.Stop();
@@ -390,7 +434,7 @@ template <class Event, class RH> int ProcessChain(TChain *chain, TString output_
   printf("\t\t%lld gold K tracks found\n", goldKtracks);
   printf("\t\t%lld gold tracks found\n", goldtracks);
   printf("---------------------------------------------\n");
-
+  
   foutput->Write();
   foutput->Close();
 
@@ -449,13 +493,19 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
   int NSTRIPSK = NCHAVA * NVASK;
 
   //for BT 10/2023 (11 ladder)
-    TH2F *lTotSig_vs_cog[nLadder];
+  CreateTH2(*histos, name_TotSig_vs_cog, title_TotSig_vs_cog , "TotSig_vs_cog", "TotSig_vs_cog; Cog; TotSig(ADC)", 1024, 0, 1024, 2000, -500, 15000);
+  CreateTH2(*histos, name_TotSig_vs_eta_maxCl, title_TotSig_vs_eta_maxCl , "TotSig_vs_eta_maxCl", "TotSig_vs_eta_maxCl; eta; TotSig(ADC)", 1024, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_TotSig_vs_eta_AllCl, title_TotSig_vs_eta_AllCl , "TotSig_vs_eta_Alll", "TotSig_vs_eta_Alll; eta; TotSig(ADC)", 1024, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_1stStrip_vs_eta_maxCl, title_1stStip_vs_eta_maxCl , "1stStrip_vs_eta_maxCl", "1stStrip_vs_eta_maxCl; eta; 1stStrip(ADC)", 1024, 0, 1, 2000, 0, 10000);
+  CreateTH2(*histos, name_2ndStrip_vs_eta_maxCl, title_2ndStip_vs_eta_maxCl , "2ndStrip_vs_eta_maxCl", "2ndStrip_vs_eta_maxCl; eta; 2ndStrip(ADC)", 1024, 0, 1, 2000, -500, 5000);
+  CreateTH2(*histos, name_3rdStrip_vs_eta_maxCl, title_3rdStip_vs_eta_maxCl , "3rdStrip_vs_eta_maxCl", "3rdStrip_vs_eta_maxCl; eta; 3rdStrip(ADC)", 1024, 0, 1, 1500, 0, 5000);
+  CreateTH2(*histos, name_4thStrip_vs_eta_maxCl, title_4thStip_vs_eta_maxCl , "4thStrip_vs_eta_maxCl", "4thStrip_vs_eta_maxCl; eta; 4thStrip(ADC)", 1024, 0, 1, 1500, 0, 5000);
+  CreateTH2(*histos, name_ADC_vs_Strips_maxCl, title_ADC_vs_Strips_maxCl, "ADC_vs_Strips_maxCl", "Strip/TotSig_vs_Strips_maxCl; #StripsOfCl; ADC", 20, -0.5, 19.5, 1000, 0, 10);
+  CreateTH2(*histos, name_1half_sig_vs_eta_maxCl, title_1half_sig_vs_eta_maxCl, "1half_sig_vs_eta_maxCl", "1half_sig_vs_eta_maxCl; Eta; 1half_sig",1024,0,1,2000,0,12000);
+  CreateTH2(*histos, name_2half_sig_vs_eta_maxCl, title_2half_sig_vs_eta_maxCl, "2half_sig_vs_eta_maxCl", "2half_sig_vs_eta_maxCl; Eta; 2half_sig",1024,0,1,2000,0,12000);
   
-    for (int ii=0; ii<nLadder; ii++) {
-    	name_TotSig_vs_cog[ii] = char(ii)+"TotSig_vs_cog, Cog; TotSig(ADC)";
-    	lTotSig_vs_cog[ii] = new TH2F ("", name_TotSig_vs_cog[ii],  NVAS * NCHAVA, 0, NVAS * NCHAVA, 2000, -100, 15000);
-    	histos->Add(lTotSig_vs_cog[ii]);
-    }
+  CreateTH1(*histos, name_cog_maxCl, title_cog_maxCl, "cog_maxCl", "Cog_maxCl; Cog; Entries", 1024, 0, 1024);
+
 
   // all events
   TH1F *hclus_vs_event = new TH1F("hclus_vs_event", "hclus_vs_event;Event Number;Clusters", entries, 0, entries);
@@ -1010,48 +1060,123 @@ template <class Event, class RH> void FillAllHistos(TObjArray *histos, int NClus
 }
 }
 
-template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event) {
+template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NClusTot, Event *ev, int index_event, TFile *f) {
 
   Cluster *cl;
 
-  TH1 *hclus_clean = (TH1 *)(histos->FindObject("hclus_clean"));
+  /*TH1 *hclus_clean = (TH1 *)(histos->FindObject("hclus_clean"));
   TH1 *hclus_vs_event_clean = (TH1 *)(histos->FindObject("hclus_vs_event_clean"));
   TH1 *hclusSladd_clean = (TH1 *)(histos->FindObject("hclusSladd_clean"));
   TH1 *hclusKladd_clean = (TH1 *)(histos->FindObject("hclusKladd_clean"));
   TH2 *hclusSladd_vs_event_clean = (TH2 *)(histos->FindObject("hclusSladd_vs_event_clean"));
-  TH2 *hclusKladd_vs_event_clean = (TH2 *)(histos->FindObject("hclusKladd_vs_event_clean"));
+  TH2 *hclusKladd_vs_event_clean = (TH2 *)(histos->FindObject("hclusKladd_vs_event_clean"));*/
 
-  TH2 *lTotSig_vs_cog[nLadder];
+  std::vector<TH2*> lTotSig_vs_cog;
+  std::vector<TH2*> lTotSig_vs_eta_maxCl;
+  std::vector<TH2*> lTotSig_vs_eta_AllCl;
+  std::vector<TH2*> l1stStrip_vs_eta_maxCl;
+  std::vector<TH2*> l2ndStrip_vs_eta_maxCl;
+  std::vector<TH2*> l3rdStrip_vs_eta_maxCl;	
+  std::vector<TH2*> l4thStrip_vs_eta_maxCl;
+  std::vector<TH2*> lADC_vs_Strips_maxCl;
+  std::vector<TH2*> l1half_sig_vs_eta_maxCl;
+  std::vector<TH2*> l2half_sig_vs_eta_maxCl;
+  
+  std::vector<TH1*> lcog_maxCl;		
+
+  
   for (int ii=0; ii<nLadder; ii++) {
-  	lTotSig_vs_cog[ii] = (TH2 *)(histos->FindObject(name_TotSig_vs_cog[ii]));
+  	TH2 *h1 = (TH2 *)( histos->FindObject(name_TotSig_vs_cog[ii].Data()) );
+  	TH2 *h2 = (TH2 *)( histos->FindObject(name_TotSig_vs_eta_maxCl[ii].Data()) );
+  	TH2 *h3 = (TH2 *)( histos->FindObject(name_2ndStrip_vs_eta_maxCl[ii].Data()) );
+  	TH2 *h4 = (TH2 *)( histos->FindObject(name_3rdStrip_vs_eta_maxCl[ii].Data()) );
+  	TH2 *h5 = (TH2 *)( histos->FindObject(name_ADC_vs_Strips_maxCl[ii].Data()) );
+  	TH2 *h6 = (TH2 *)( histos->FindObject(name_4thStrip_vs_eta_maxCl[ii].Data()) );
+  	TH2 *h7 = (TH2 *)( histos->FindObject(name_1stStrip_vs_eta_maxCl[ii].Data()) );
+  	TH1 *h8 = (TH1 *)( histos->FindObject(name_cog_maxCl[ii].Data()) );
+  	TH2 *h9 = (TH2 *)( histos->FindObject(name_1half_sig_vs_eta_maxCl[ii].Data()) );
+  	TH2 *h10 = (TH2 *)( histos->FindObject(name_2half_sig_vs_eta_maxCl[ii].Data()) );
+  	TH2 *h11 = (TH2 *)( histos->FindObject(name_TotSig_vs_eta_AllCl[ii].Data()) );
+
+  
+  	lTotSig_vs_cog.push_back(h1);
+  	lTotSig_vs_eta_maxCl.push_back(h2);
+  	l2ndStrip_vs_eta_maxCl.push_back(h3);
+  	l3rdStrip_vs_eta_maxCl.push_back(h4);
+  	lADC_vs_Strips_maxCl.push_back(h5);
+  	l4thStrip_vs_eta_maxCl.push_back(h6);
+  	l1stStrip_vs_eta_maxCl.push_back(h7);
+  	lcog_maxCl.push_back(h8);
+  	l1half_sig_vs_eta_maxCl.push_back(h9);
+  	l2half_sig_vs_eta_maxCl.push_back(h10);
+  	lTotSig_vs_eta_AllCl.push_back(h11);
   }
 
-  hclus_clean->Fill(NClusTot);
-  hclus_vs_event_clean->Fill(index_event, NClusTot);
-
+  std::vector<float> totSignal;
+  
   for (int index_cluster = 0; index_cluster < NClusTot; index_cluster++) {
 
     cl = ev->GetCluster(index_cluster);
-    int ladder = cl->ladder;
-    int jinfnum = cl->GetJinf();
-    int tdrnum = cl->GetTDR();
+    /*int ladder = cl->ladder;
     int side = cl->side;
-    double charge = cl->GetCharge(); // unused for now
+    double charge = cl->GetCharge(); // unused for now */
+    int Ladd = cl->laddNum();
+  	if (Ladd >= 0 && Ladd <11) {	
+		lTotSig_vs_cog[Ladd]->Fill(cl->GetCoG(),cl->GetTotSig());
+		lTotSig_vs_eta_AllCl[Ladd]->Fill(cl->GetEta(),cl->GetTotSig());
+   	}
+   	
+    totSignal.push_back(cl->GetTotSig());
 
-  	int Ladder = tdrnum + jinfnum - 100;
-  	//std::cout << Ladder << endl;
-  	if (Ladder >= 0 && Ladder < 11)
-   		lTotSig_vs_cog[Ladder]->Fill(cl->GetCoG(),cl->GetTotSig());
-    
-
-    if (side == 0 || (side == 1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
+    /*if (side == 0 || (side == 1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
       hclusSladd_clean->Fill(ladder);
       hclusSladd_vs_event_clean->Fill(index_event, ladder);
     } else {
       hclusKladd_clean->Fill(ladder);
       hclusKladd_vs_event_clean->Fill(index_event, ladder);
-    }
-  }
+    }*/
+    
+ 	}
+	
+  	if (totSignal.size() > 0) {
+	    int max_index=0;
+	    float max = totSignal[0];
+	    for (int i=0; i<totSignal.size(); i++)
+	      if (totSignal[i]>max) {
+	        max = totSignal[i];
+	        max_index=i;
+	      }
+	      
+	  	Cluster *clmax = ev->GetCluster(max_index);
+	  	std::vector<float> sorted_signals = clmax->Sort();
+	  	if (clmax->GetLength() >= 1) {
+	  	
+	  		int Ladd = clmax->laddNum();
+	  		  	if (Ladd >= 0 && Ladd <11) {
+	  		  		float eta = clmax->GetEta();
+	  		  		float tot = clmax->GetTotSig();
+	  		  		float cog = clmax->GetCoG();
+	  				lTotSig_vs_eta_maxCl[Ladd]->Fill(eta, tot );
+	  				l2ndStrip_vs_eta_maxCl[Ladd]->Fill(eta, clmax->GetSecVal() );
+	  				l1stStrip_vs_eta_maxCl[Ladd]->Fill(eta, sorted_signals[0] );
+	  				lcog_maxCl[Ladd]->Fill(clmax->GetCoG() );
+	  				if (cog > 0 && cog <= 511)
+	  					l1half_sig_vs_eta_maxCl[Ladd]->Fill(eta,tot);
+	  				else 
+	  					l2half_sig_vs_eta_maxCl[Ladd]->Fill(eta,tot);
+	  				if (sorted_signals.size() > 4) {
+	  					l4thStrip_vs_eta_maxCl[Ladd]->Fill(eta, sorted_signals[3] );
+	  				}
+	  				if (sorted_signals.size()>2 ) {
+	  					l3rdStrip_vs_eta_maxCl[Ladd]->Fill(eta, sorted_signals[2] );
+	  					for (int ii=0; ii<sorted_signals.size(); ii++) {
+	  						lADC_vs_Strips_maxCl[Ladd]->Fill(ii, sorted_signals[ii]/tot );
+	  					}
+	  				}
+	  		   	}
+		}
+	}
+  
 
   return;
 }
@@ -1067,11 +1192,6 @@ template <class Event, class RH> void FillPreselHistos(TObjArray *histos, int NC
   TH2 *hclusSladd_vs_event_presel = (TH2 *)(histos->FindObject("hclusSladd_vs_event_presel"));
   TH2 *hclusKladd_vs_event_presel = (TH2 *)(histos->FindObject("hclusKladd_vs_event_presel"));
 
-  TH2 *lTotSig_vs_cog[nLadder];
-  for (int ii=0; ii<nLadder; ii++) {
-  	lTotSig_vs_cog[ii] = (TH2 *)(histos->FindObject(name_TotSig_vs_cog[ii]));
-  }
-
   hclus_presel->Fill(NClusTot);
   hclus_vs_event_presel->Fill(index_event, NClusTot);
 
@@ -1084,11 +1204,6 @@ template <class Event, class RH> void FillPreselHistos(TObjArray *histos, int NC
     int tdrnum = cl->GetTDR();
     int side = cl->side;
     double charge = cl->GetCharge(); // unused for now
-
-    int Ladder = tdrnum + jinfnum - 100;
-  	//std::cout << Ladder << endl;
-  	if (Ladder >= 0 && Ladder < 11)
-   		lTotSig_vs_cog[Ladder]->Fill(cl->GetCoG(),cl->GetTotSig());
 
     if (side == 0 || (side == 1 && LadderConf::Instance()->GetSideSwap(jinfnum, tdrnum))) {
       hclusSladd_presel->Fill(ladder);

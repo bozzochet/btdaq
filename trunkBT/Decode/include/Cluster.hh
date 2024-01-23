@@ -90,6 +90,8 @@ public:
   float NoiseVAEqualized[MAXLENGHT];
   //! Ladder (trdnum + 100*jinfnum)
   int ladder;
+  //! Ladder num from 0 to x (x=11 BT 10/2023)
+  int laddNum();
   //! side (0=S, 1=K)
   int side; // 0 S / 1 K
   //! cluster > MAXLENGHT strips

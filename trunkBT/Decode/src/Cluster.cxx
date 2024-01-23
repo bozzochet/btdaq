@@ -77,6 +77,14 @@ void Cluster::Clear() {
   side = -1;
 }
 
+int Cluster::laddNum() {
+	const int t = GetTDR();
+	if (GetJinf() == 0)
+		return t;
+	else
+		return t+5;
+}
+
 int Cluster::GetAddress() const { return address; }
 
 int Cluster::GetSeed() const {
