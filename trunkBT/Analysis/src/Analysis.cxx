@@ -4,6 +4,7 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TH3F.h"
 #include "TMath.h"
 #include "TPad.h"
 #include "TROOT.h"
@@ -90,11 +91,94 @@ std::vector<TString> name_4thStrip_vs_eta_maxCl;
 std::vector<TString> title_4thStip_vs_eta_maxCl;
 std::vector<TString> name_ADC_vs_Strips_maxCl;
 std::vector<TString> title_ADC_vs_Strips_maxCl;
+std::vector<TString> name_strip1_vs_strip2_maxCl;
+std::vector<TString> title_strip1_vs_strip2_maxCl;
+std::vector<TString> name_strip1_vs_strip2_All;
+std::vector<TString> title_strip1_vs_strip2_All;
+std::vector<TString> name_strip1_All;
+std::vector<TString> title_strip1_All;
+std::vector<TString> name_strip2_All;
+std::vector<TString> title_strip2_All;
+std::vector<TString> name_st1over2m1_All;
+std::vector<TString> title_st1over2m1_All;
+std::vector<TString> name_sigMin1_vs_eta23_All;
+std::vector<TString> title_sigMin1_vs_eta23_All;
+std::vector<TString> name_2vs3_All;
+std::vector<TString> title_2vs3_All;
+std::vector<TString> name_1vs3_All;
+std::vector<TString> title_1vs3_All;
+std::vector<TString> name_2vs4_All;
+std::vector<TString> title_2vs4_All;
+std::vector<TString> name_1vs3Corr_All;
+std::vector<TString> title_1vs3Corr_All;
+std::vector<TString> name_1vs2vsEta_All;
+std::vector<TString> title_1vs2vsEta_All;
+std::vector<TString> name_2vsEta_All;
+std::vector<TString> title_2vsEta_All;
+
+std::vector<TString> name_1vsEta12_All;
+std::vector<TString> title_1vsEta12_All;
+
+std::vector<TString> name_2vsEta23_All;
+std::vector<TString> title_2vsEta23_All;
+
+std::vector<TString> name_3vsEta34_All;
+std::vector<TString> title_3vsEta34_All;
+
+std::vector<TString> name_4vsEta45_All;
+std::vector<TString> title_4vsEta45_All;
+
+std::vector<TString> name_2vsEta23Corr_All;
+std::vector<TString> title_2vsEta23Corr_All;
+
+std::vector<TString> name_1And2vsEta_All;
+std::vector<TString> title_1And2vsEta_All;
+
+std::vector<TString> name_2vsEta12_After6000;
+std::vector<TString> title_2vsEta12_After6000;
+
+std::vector<TString> name_2vsEta12_Before6000;
+std::vector<TString> title_2vsEta12_Before6000;
+
+std::vector<TString> name_2vsEta23_After6000;
+std::vector<TString> title_2vsEta23_After6000;
+
+std::vector<TString> name_2vsEta23_Before6000;
+std::vector<TString> title_2vsEta23_Before6000;
+
+std::vector<TString> name_1vsEta23;
+std::vector<TString> title_1vsEta23;
+
+std::vector<TString> name_12vsEta23;
+std::vector<TString> title_12vsEta23;
+
+std::vector<TString> name_123vsEta34;
+std::vector<TString> title_123vsEta34;
+
+std::vector<TString> name_1vsEta34;
+std::vector<TString> title_1vsEta34;
+
+std::vector<TString> name_1vsEta45;
+std::vector<TString> title_1vsEta45;
+
+
 
 
 
 
 //----------------------------------------
+
+void CreateTH3(TObjArray &hist, std::vector<TString> &vecName, std::vector<TString> &vecTitle  , TString name, TString title, int nxbin, int xmin, int xmax,int nybin, int ymin, int ymax, int nzbin,
+	int zmin, int zmax) {
+	for (int ii=0; ii<nLadder; ii++) {
+  		vecTitle.push_back(Form("%d_%s", ii, title.Data() ));
+    	vecName.push_back(Form("%d_%s", ii, name.Data() ));
+    	TH3F *h = new TH3F (vecName[ii].Data(), vecTitle[ii].Data(), nxbin, xmin, xmax, nybin, ymin, ymax, nzbin, zmin, zmax);
+    	hist.Add(h);
+    	h->Reset();
+  	}
+}
+
 
 void CreateTH2(TObjArray &hist, std::vector<TString> &vecName, std::vector<TString> &vecTitle  , TString name, TString title, int nxbin, int xmin, int xmax,int nybin, int ymin, int ymax) {
 	for (int ii=0; ii<nLadder; ii++) {
@@ -493,18 +577,47 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
   int NSTRIPSK = NCHAVA * NVASK;
 
   //for BT 10/2023 (11 ladder)
+  
   CreateTH2(*histos, name_TotSig_vs_cog, title_TotSig_vs_cog , "TotSig_vs_cog", "TotSig_vs_cog; Cog; TotSig(ADC)", 1024, 0, 1024, 2000, -500, 15000);
   CreateTH2(*histos, name_TotSig_vs_eta_maxCl, title_TotSig_vs_eta_maxCl , "TotSig_vs_eta_maxCl", "TotSig_vs_eta_maxCl; eta; TotSig(ADC)", 1024, 0, 1, 3000, -500, 20000);
-  CreateTH2(*histos, name_TotSig_vs_eta_AllCl, title_TotSig_vs_eta_AllCl , "TotSig_vs_eta_Alll", "TotSig_vs_eta_Alll; eta; TotSig(ADC)", 1024, 0, 1, 3000, -500, 20000);
-  CreateTH2(*histos, name_1stStrip_vs_eta_maxCl, title_1stStip_vs_eta_maxCl , "1stStrip_vs_eta_maxCl", "1stStrip_vs_eta_maxCl; eta; 1stStrip(ADC)", 1024, 0, 1, 2000, 0, 10000);
-  CreateTH2(*histos, name_2ndStrip_vs_eta_maxCl, title_2ndStip_vs_eta_maxCl , "2ndStrip_vs_eta_maxCl", "2ndStrip_vs_eta_maxCl; eta; 2ndStrip(ADC)", 1024, 0, 1, 2000, -500, 5000);
+  CreateTH2(*histos, name_TotSig_vs_eta_AllCl, title_TotSig_vs_eta_AllCl , "TotSig_vs_eta_All", "TotSig_vs_eta_Alll; eta; TotSig(ADC)", 1024, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_1stStrip_vs_eta_maxCl, title_1stStip_vs_eta_maxCl , "1stStrip_vs_eta_maxCl", "1stStrip_vs_eta_maxCl; eta; 1stStrip(ADC)", 1024, 0, 1, 2000, 0, 20000);
+  CreateTH2(*histos, name_2ndStrip_vs_eta_maxCl, title_2ndStip_vs_eta_maxCl , "2ndStrip_vs_eta_maxCl", "2ndStrip_vs_eta_maxCl; eta; 2ndStrip(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_2vsEta_All, title_2vsEta_All , "2vsEta_All", "2vsEta_All; eta; strip2(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_2vsEta23_All, title_2vsEta23_All , "2vsEta23_All", "2vsEta23_All; eta23; strip2(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_2vsEta23Corr_All, title_2vsEta23Corr_All , "2vsEta23Corr_All", "2vsEta23Corr_All; eta23; strip2(ADC)", 2000, 0, 1, 3000, -500, 20000);
   CreateTH2(*histos, name_3rdStrip_vs_eta_maxCl, title_3rdStip_vs_eta_maxCl , "3rdStrip_vs_eta_maxCl", "3rdStrip_vs_eta_maxCl; eta; 3rdStrip(ADC)", 1024, 0, 1, 1500, 0, 5000);
   CreateTH2(*histos, name_4thStrip_vs_eta_maxCl, title_4thStip_vs_eta_maxCl , "4thStrip_vs_eta_maxCl", "4thStrip_vs_eta_maxCl; eta; 4thStrip(ADC)", 1024, 0, 1, 1500, 0, 5000);
-  CreateTH2(*histos, name_ADC_vs_Strips_maxCl, title_ADC_vs_Strips_maxCl, "ADC_vs_Strips_maxCl", "Strip/TotSig_vs_Strips_maxCl; #StripsOfCl; ADC", 20, -0.5, 19.5, 1000, 0, 10);
-  CreateTH2(*histos, name_1half_sig_vs_eta_maxCl, title_1half_sig_vs_eta_maxCl, "1half_sig_vs_eta_maxCl", "1half_sig_vs_eta_maxCl; Eta; 1half_sig",1024,0,1,2000,0,12000);
-  CreateTH2(*histos, name_2half_sig_vs_eta_maxCl, title_2half_sig_vs_eta_maxCl, "2half_sig_vs_eta_maxCl", "2half_sig_vs_eta_maxCl; Eta; 2half_sig",1024,0,1,2000,0,12000);
+  CreateTH2(*histos, name_ADC_vs_Strips_maxCl, title_ADC_vs_Strips_maxCl, "ADC_vs_Strips_maxCl", "Strip/TotSig_vs_Strips_maxCl; #StripsOfCl; Ratio", 20, -0.5, 19.5, 1000, 0, 10);
+  //CreateTH2(*histos, name_1half_sig_vs_eta_maxCl, title_1half_sig_vs_eta_maxCl, "1half_sig_vs_eta_maxCl", "1half_sig_vs_eta_maxCl; Eta; 1half_sig",1024,0,1,2000,0,12000);
+  //CreateTH2(*histos, name_2half_sig_vs_eta_maxCl, title_2half_sig_vs_eta_maxCl, "2half_sig_vs_eta_maxCl", "2half_sig_vs_eta_maxCl; Eta; 2half_sig",1024,0,1,2000,0,12000);
+  CreateTH2(*histos, name_strip1_vs_strip2_All, title_strip1_vs_strip2_All, "strip1_vs_strip2_All", "strip1_vs_strip2_All; strip1 (ADC); strip2 (ADC)", 2000,0,40000, 2000, 0, 20000);
+  CreateTH2(*histos, name_strip1_vs_strip2_maxCl, title_strip1_vs_strip2_maxCl, "strip1_vs_strip2_maxCl", "strip1_vs_strip2_maxCl, strip1 (ADC); strip2 (ADC)", 2000,0,40000, 2000, 0, 20000);
+  //CreateTH2(*histos, name_st1over2m1_All, title_st1over2m1_All, "st1over2m1_All", "st1over2m1_All; strip1 (ADC); ratio-1", 2000,0,40000, 2000, 0, 10000);
+  CreateTH2(*histos, name_2vs3_All, title_2vs3_All, "2vs3_All", "2vs3_All; strip3 (ADC); strip2 (ADC)", 2000,0,12000, 2000, 0, 12000);
+  CreateTH2(*histos, name_1vs3_All, title_1vs3_All, "1vs3_All", "1vs3_All; strip3 (ADC); strip1 (ADC)", 2000,0,12000, 2000, 0, 15000);
+  CreateTH2(*histos, name_2vs4_All, title_2vs4_All, "2vs4_All", "2vs4_All; strip4 (ADC); strip2 (ADC)", 2000,0,12000, 2000, 0, 12000);
+  //CreateTH2(*histos, name_1vs3Corr_All, title_1vs3Corr_All, "1vs3Corr_All", "1vs3Corr_All; s3Corr (ADC); s1Corr (ADC)", 2000,0,12000, 4000, 0, 30000);
+  CreateTH2(*histos, name_1And2vsEta_All, title_1And2vsEta_All, "1And2vsEta_All", "1nd2vsEta_All; 1and2 (ADC); eta", 0,0,1, 3000, 0, 20000);
+  CreateTH2(*histos, name_1vsEta12_All, title_1vsEta12_All , "1vsEta12_All", "1vsEta12_All; eta12; strip1(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_2vsEta12_After6000, title_2vsEta12_After6000 , "2vsEta12_After6000", "2vsEta12_After6000; eta12; strip2(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_2vsEta12_Before6000, title_2vsEta12_Before6000 , "2vsEta12_Before6000", "2vsEta12_Before6000; eta12; strip2(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_2vsEta23_After6000, title_2vsEta23_After6000 , "2vsEta23_After6000", "2vsEta23_After6000; eta23; strip2(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_2vsEta23_Before6000, title_2vsEta23_Before6000 , "2vsEta23_Before6000", "2vsEta23_Before6000; eta23; strip2(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  
+  CreateTH2(*histos, name_3vsEta34_All, title_3vsEta34_All , "3vsEta34_All", "3vsEta34_All; eta34; strip3(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_4vsEta45_All, title_4vsEta45_All , "4vsEta45_All", "4vsEta45; eta45; strip4(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_1vsEta23, title_1vsEta23, "1vsEta23", "1vsEta23; eta23; strip1(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_1vsEta34, title_1vsEta34, "1vsEta34", "1vsEta34; eta34; strip1(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_1vsEta45, title_1vsEta45, "1vsEta45", "1vsEta45; eta45; strip1(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_12vsEta23, title_12vsEta23, "12vsEta23", "12vsEta23; eta23; strip1+2(ADC)", 2000, 0, 1, 3000, -500, 20000);
+  CreateTH2(*histos, name_123vsEta34, title_123vsEta34, "123vsEta34", "123vsEta34; eta34; strip1+2+3(ADC)", 2500, 0, 1, 3500, -500, 30000);
   
   CreateTH1(*histos, name_cog_maxCl, title_cog_maxCl, "cog_maxCl", "Cog_maxCl; Cog; Entries", 1024, 0, 1024);
+  CreateTH1(*histos, name_strip1_All, title_strip1_All, "strip1_All", "strip1_All; strip1 (ADC); Entries", 2000, 0,40000);
+  CreateTH1(*histos, name_strip2_All, title_strip2_All, "strip2_All", "strip2_All; strip2 (ADC); Entries", 2000, 0,20000);
+  //CreateTH3(*histos, name_1vs2vsEta_All, title_1vs2vsEta_All, "1vs2vsEta_All", "1vs2vsEta_All; strip1 (ADC); strip2 (ADC); Eta", 1500, 0, 12000, 1500, 0, 15000, 1000, 0, 1);
+
 
 
   // all events
@@ -1071,6 +1184,10 @@ template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NCl
   TH2 *hclusSladd_vs_event_clean = (TH2 *)(histos->FindObject("hclusSladd_vs_event_clean"));
   TH2 *hclusKladd_vs_event_clean = (TH2 *)(histos->FindObject("hclusKladd_vs_event_clean"));*/
 
+  TF1 *func_adc = new TF1("func_adc","6240.5/(-19950*x+19950*x*x+6240.5)",0,20000);
+
+  //std::vector<TH3*> l1vs2vsEta_All;	
+  	
   std::vector<TH2*> lTotSig_vs_cog;
   std::vector<TH2*> lTotSig_vs_eta_maxCl;
   std::vector<TH2*> lTotSig_vs_eta_AllCl;
@@ -1079,10 +1196,37 @@ template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NCl
   std::vector<TH2*> l3rdStrip_vs_eta_maxCl;	
   std::vector<TH2*> l4thStrip_vs_eta_maxCl;
   std::vector<TH2*> lADC_vs_Strips_maxCl;
-  std::vector<TH2*> l1half_sig_vs_eta_maxCl;
-  std::vector<TH2*> l2half_sig_vs_eta_maxCl;
+  //std::vector<TH2*> l1half_sig_vs_eta_maxCl;
+  //std::vector<TH2*> l2half_sig_vs_eta_maxCl;
+  std::vector<TH2*> l1strip1_vs_strip2_maxCl;
+  std::vector<TH2*> l1strip1_vs_strip2_AllCl;
+  //std::vector<TH2*> l1over2_All;
+  std::vector<TH2*> l2vs3_All;
+  std::vector<TH2*> l1vs3_All;
+  std::vector<TH2*> l2vs4_All;
+  //std::vector<TH2*> l1vs3Corr_All;
+  std::vector<TH2*> l2vsEta_All;
+  std::vector<TH2*> l1vsEta12_All;
+  std::vector<TH2*> l2vsEta23_All;
+  std::vector<TH2*> l3vsEta34_All;
+  std::vector<TH2*> l4vsEta45_All;
+  std::vector<TH2*> l2vsEta23Corr_All;
+  std::vector<TH2*> l1And2vsEta_All;
+
+  std::vector<TH2*> l2vsEta12_After6000;
+  std::vector<TH2*> l2vsEta12_Before000;
+  std::vector<TH2*> l2vsEta23_After6000;
+  std::vector<TH2*> l2vsEta23_Before000;
+
+  std::vector<TH2*> l1vsEta23;
+  std::vector<TH2*> l12vsEta23;
+  std::vector<TH2*> l123vsEta34;
   
   std::vector<TH1*> lcog_maxCl;		
+  std::vector<TH1*> lstrip1_All;
+  std::vector<TH1*> lstrip2_All;
+  std::vector<TH2*> l1vsEta34;
+  std::vector<TH2*> l1vsEta45;
 
   
   for (int ii=0; ii<nLadder; ii++) {
@@ -1094,10 +1238,36 @@ template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NCl
   	TH2 *h6 = (TH2 *)( histos->FindObject(name_4thStrip_vs_eta_maxCl[ii].Data()) );
   	TH2 *h7 = (TH2 *)( histos->FindObject(name_1stStrip_vs_eta_maxCl[ii].Data()) );
   	TH1 *h8 = (TH1 *)( histos->FindObject(name_cog_maxCl[ii].Data()) );
-  	TH2 *h9 = (TH2 *)( histos->FindObject(name_1half_sig_vs_eta_maxCl[ii].Data()) );
-  	TH2 *h10 = (TH2 *)( histos->FindObject(name_2half_sig_vs_eta_maxCl[ii].Data()) );
+  	//TH2 *h9 = (TH2 *)( histos->FindObject(name_1half_sig_vs_eta_maxCl[ii].Data()) );
+  	//TH2 *h10 = (TH2 *)( histos->FindObject(name_2half_sig_vs_eta_maxCl[ii].Data()) );
   	TH2 *h11 = (TH2 *)( histos->FindObject(name_TotSig_vs_eta_AllCl[ii].Data()) );
-
+	TH2 *h12 = (TH2 *)( histos->FindObject(name_strip1_vs_strip2_maxCl[ii].Data()) );
+	TH2 *h13 = (TH2 *)( histos->FindObject(name_strip1_vs_strip2_All[ii].Data()) );
+	TH1 *h14 = (TH1 *)( histos->FindObject(name_strip1_All[ii].Data()) );
+	TH1 *h15 = (TH1 *)( histos->FindObject(name_strip2_All[ii].Data()) );
+	//TH2 *h16 = (TH2 *)( histos->FindObject(name_st1over2m1_All[ii].Data()) );
+	TH2 *h17 = (TH2 *)( histos->FindObject(name_2vs3_All[ii].Data()) );  
+	TH2 *h18 = (TH2 *)( histos->FindObject(name_1vs3_All[ii].Data()) );  
+	TH2 *h19 = (TH2 *)( histos->FindObject(name_2vs4_All[ii].Data()) );  
+	//TH2 *h20 = (TH2 *)( histos->FindObject(name_1vs3Corr_All[ii].Data()) );  
+	//TH3 *h21 = (TH3 *)( histos->FindObject(name_1vs2vsEta_All[ii].Data()) );
+	TH2 *h22 = (TH2 *)( histos->FindObject(name_2vsEta_All[ii].Data()) );
+	TH2 *h23 = (TH2 *)( histos->FindObject(name_2vsEta23_All[ii].Data()) );
+	TH2 *h24 = (TH2 *)( histos->FindObject(name_2vsEta23Corr_All[ii].Data()) );
+	TH2 *h25 = (TH2 *)( histos->FindObject(name_1And2vsEta_All[ii].Data()) );
+	TH2 *h26 = (TH2 *)( histos->FindObject(name_1vsEta12_All[ii].Data()) );
+	TH2 *h27 = (TH2 *)( histos->FindObject(name_3vsEta34_All[ii].Data()) );
+	TH2 *h28 = (TH2 *)( histos->FindObject(name_4vsEta45_All[ii].Data()) );
+	TH2 *h29 = (TH2 *)( histos->FindObject(name_2vsEta12_After6000[ii].Data()) );
+	TH2 *h30 = (TH2 *)( histos->FindObject(name_2vsEta12_Before6000[ii].Data()) );
+	TH2 *h31 = (TH2 *)( histos->FindObject(name_2vsEta23_After6000[ii].Data()) );
+	TH2 *h32 = (TH2 *)( histos->FindObject(name_2vsEta23_Before6000[ii].Data()) );
+	TH2 *h33 = (TH2 *)( histos->FindObject(name_1vsEta23[ii].Data())  );
+	TH2 *h34 = (TH2 *)( histos->FindObject(name_12vsEta23[ii].Data())  );
+	TH2 *h35 = (TH2 *)( histos->FindObject(name_123vsEta34[ii].Data())  );
+	TH2 *h36 = (TH2 *)( histos->FindObject(name_1vsEta34[ii].Data())  );
+	TH2 *h37 = (TH2 *)( histos->FindObject(name_1vsEta45[ii].Data())  );
+	
   
   	lTotSig_vs_cog.push_back(h1);
   	lTotSig_vs_eta_maxCl.push_back(h2);
@@ -1107,9 +1277,36 @@ template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NCl
   	l4thStrip_vs_eta_maxCl.push_back(h6);
   	l1stStrip_vs_eta_maxCl.push_back(h7);
   	lcog_maxCl.push_back(h8);
-  	l1half_sig_vs_eta_maxCl.push_back(h9);
-  	l2half_sig_vs_eta_maxCl.push_back(h10);
+  	//l1half_sig_vs_eta_maxCl.push_back(h9);
+  	//l2half_sig_vs_eta_maxCl.push_back(h10);
   	lTotSig_vs_eta_AllCl.push_back(h11);
+  	l1strip1_vs_strip2_maxCl.push_back(h12);
+  	l1strip1_vs_strip2_AllCl.push_back(h13);
+  	lstrip1_All.push_back(h14);
+  	lstrip2_All.push_back(h15);
+  	//l1over2_All.push_back(h16);
+  	l2vs3_All.push_back(h17);
+  	l1vs3_All.push_back(h18);
+  	l2vs4_All.push_back(h19);
+  	//l1vs3Corr_All.push_back(h20);
+    //l1vs2vsEta_All.push_back(h21);
+  	l2vsEta_All.push_back(h22);
+  	l2vsEta23_All.push_back(h23);
+  	l2vsEta23Corr_All.push_back(h24);
+  	l1And2vsEta_All.push_back(h25);
+  	l1vsEta12_All.push_back(h26);
+  	l3vsEta34_All.push_back(h27);
+  	l4vsEta45_All.push_back(h28);
+  	l2vsEta12_After6000.push_back(h29);
+  	l2vsEta12_Before000.push_back(h30);
+  	l2vsEta23_After6000.push_back(h31);
+  	l2vsEta23_Before000.push_back(h32);
+  	l1vsEta23.push_back(h33);
+  	l12vsEta23.push_back(h34);
+  	l123vsEta34.push_back(h35);
+  	l1vsEta34.push_back(h36);
+  	l1vsEta45.push_back(h37);
+
   }
 
   std::vector<float> totSignal;
@@ -1117,13 +1314,52 @@ template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NCl
   for (int index_cluster = 0; index_cluster < NClusTot; index_cluster++) {
 
     cl = ev->GetCluster(index_cluster);
+    std::vector<float> all_sorted_signals = cl->Sort();
     /*int ladder = cl->ladder;
     int side = cl->side;
     double charge = cl->GetCharge(); // unused for now */
     int Ladd = cl->laddNum();
   	if (Ladd >= 0 && Ladd <11) {	
-		lTotSig_vs_cog[Ladd]->Fill(cl->GetCoG(),cl->GetTotSig());
-		lTotSig_vs_eta_AllCl[Ladd]->Fill(cl->GetEta(),cl->GetTotSig());
+  		float eta = cl->GetEta();
+  		l2ndStrip_vs_eta_maxCl[Ladd]->Fill(eta, cl->GetSecVal() );
+		lTotSig_vs_cog[Ladd]->Fill(cl->GetCoG(),cl->GetTotSig( ));
+		lTotSig_vs_eta_AllCl[Ladd]->Fill(eta,cl->GetTotSig() );
+		float strip1 = all_sorted_signals[0];
+		float strip2 = all_sorted_signals[1];
+		float strip3 = all_sorted_signals[2];
+		float strip4 = all_sorted_signals[3];
+		float strip5 = all_sorted_signals[4];
+		float eta23 = cl->GetEtaBetween(strip2, strip3);	
+		float eta34 = cl->GetEtaBetween(strip3, strip4);
+		float eta45 = cl->GetEtaBetween(strip4, strip5);
+		//float corr = func_adc->Eval(eta);
+		//l1vs3Corr_All[Ladd]->Fill(strip3*corr, strip1*corr);
+		//l1vs2vsEta_All[Ladd]->SetBinContent(strip1, strip2, eta, 1);
+		l1vsEta34[Ladd]->Fill(eta34, strip1);
+		l1vsEta45[Ladd]->Fill(eta45, strip1);
+		l123vsEta34[Ladd]->Fill(eta34, strip1+strip2+strip3);
+		l12vsEta23[Ladd]->Fill(eta23, strip1+strip2);
+		l1vsEta23[Ladd]->Fill(eta23, strip1);
+		if (strip1 >= 6000) {
+			l2vsEta12_After6000[Ladd]->Fill(eta, strip2);	
+			l2vsEta23_After6000[Ladd]->Fill(eta23, strip2);
+		}
+		if (strip1 < 6000) {
+			l2vsEta12_Before000[Ladd]->Fill(eta, strip2);
+			l2vsEta23_Before000[Ladd]->Fill(eta23, strip2);
+		}
+		l1vsEta12_All[Ladd]->Fill(eta, strip1);
+		l3vsEta34_All[Ladd]->Fill(eta34, strip3);
+		l4vsEta45_All[Ladd]->Fill(eta45, strip4);
+		l2vsEta23Corr_All[Ladd]->Fill(eta23, strip2 * func_adc->Eval(eta23) );
+		l2vsEta_All[Ladd]->Fill(eta,strip2);
+		l2vsEta23_All[Ladd]->Fill(eta23,strip2);
+		l1vs3_All[Ladd]->Fill(strip3, strip1);
+		l2vs4_All[Ladd]->Fill(strip4, strip2);
+		l2vs3_All[Ladd]->Fill(strip3, strip2);
+		l1strip1_vs_strip2_AllCl[Ladd]->Fill(strip1, strip2);
+		lstrip1_All[Ladd]->Fill(strip1);
+		lstrip2_All[Ladd]->Fill(strip2);
    	}
    	
     totSignal.push_back(cl->GetTotSig());
@@ -1157,13 +1393,9 @@ template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NCl
 	  		  		float tot = clmax->GetTotSig();
 	  		  		float cog = clmax->GetCoG();
 	  				lTotSig_vs_eta_maxCl[Ladd]->Fill(eta, tot );
-	  				l2ndStrip_vs_eta_maxCl[Ladd]->Fill(eta, clmax->GetSecVal() );
 	  				l1stStrip_vs_eta_maxCl[Ladd]->Fill(eta, sorted_signals[0] );
+	  				l1strip1_vs_strip2_maxCl[Ladd]->Fill(sorted_signals[0], sorted_signals[1]);
 	  				lcog_maxCl[Ladd]->Fill(clmax->GetCoG() );
-	  				if (cog > 0 && cog <= 511)
-	  					l1half_sig_vs_eta_maxCl[Ladd]->Fill(eta,tot);
-	  				else 
-	  					l2half_sig_vs_eta_maxCl[Ladd]->Fill(eta,tot);
 	  				if (sorted_signals.size() > 4) {
 	  					l4thStrip_vs_eta_maxCl[Ladd]->Fill(eta, sorted_signals[3] );
 	  				}
