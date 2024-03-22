@@ -235,6 +235,22 @@ float Cluster::GetEta() const { // remove the sign (i.e. information about the p
     return fabs(ee);
 }
 
+//the arguments are two adjacent signal strips after have called Sort() (for exampl between 2 and 3 there will be 2,3)
+float Cluster::GetEtaBetween(float a, float b) const {
+   float ee;
+   int se = GetSeed();
+   int se_r = se + 1;
+   int se_l = se - 1;
+   float l = GetCSignal(se_l);
+   float r = GetCSignal(se_r);
+   
+   if (l > r)
+  	return fabs( b/(a+b) );
+   else
+    return fabs( a/(a+b) );
+   
+}
+
 float Cluster::GetCoG() const {
   int se = GetSeed();
   float ee = GetEtaRaw();
@@ -384,7 +400,7 @@ int Cluster::GetLength(float val) const {
   return myle;
 }
 
-std::vector <float> Cluster::Sort() {
+std::vector <float> Cluster::Sort() const {
   std::vector<float> v;
   int temp;
   for (int i=0; i<length; i++)

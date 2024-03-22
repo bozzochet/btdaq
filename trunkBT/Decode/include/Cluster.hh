@@ -156,10 +156,12 @@ public:
   float GetEta() const;
   //! Calculates Etaraw (-0.5,0.5)
   float GetEtaRaw() const;
+  //! Calcolate Eta between 2 arbitrary consecutive (in the sense you have to call Sort()) strips of the cluster e.g (2,3) or (3,4)
+  float GetEtaBetween(float a, float b) const;
   //! printout the cluster infos
   void Print();
   //! Returns a new Signal vector in descending order
-  std::vector<float> Sort();
+  std::vector<float> Sort() const;
   //! Apply VA Equalization from the file loaded by the function Event::ReadGainCorrection
   void ApplyVAEqualization();
 
