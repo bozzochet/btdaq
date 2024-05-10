@@ -139,9 +139,19 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
       rfherr = true;
   } else {
     uint16_t tag = 0xD;
-    if (kOnlyProcessCal)
+    bool goodrh = true;
+    /*
+    for (unsigned int ii = 0; ii < m_dataFilenames.size(); ii++) {
+      printf("%u: %s\n", ii, m_dataFilenames.at(ii).c_str());
+    }
+    */
+    if (kOnlyProcessCal) {
       tag = 0xC;
-    if (!ReadFileHeader(&rawdatastream, m_dataFilenames, rh, tag))
+      goodrh = ReadFileHeader(&rawcalstream, m_calFilenames, rh, tag);
+    } else {
+      goodrh = ReadFileHeader(&rawdatastream, m_dataFilenames, rh, tag);
+    }
+    if (!goodrh)
       rfherr = true;
   }
   if (rfherr) {
@@ -679,6 +689,8 @@ int DecodeDataAMSL0::ReadOneEventFromFile(FILE *file, DecodeDataAMSL0::EventAMSL
 
 bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream, std::vector<std::string> rawfilenames,
                                      RHClassAMSL0 *rhc, uint16_t expTag) {
+
+  rawfilestream->Reset();
 
   // special case:
   //  a call to this method, with the calibration, to check if the config is the same
