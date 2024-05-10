@@ -797,13 +797,13 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
 
         signals_filtered[iTdr][iCh].clear();
         std::copy_if(signals[iJinf][iTdr][iCh].begin(), signals[iJinf][iTdr][iCh].end(),
-                     std::back_inserter(signals_filtered[iTdr][iCh]), [](auto i) { return i > 0; });
+                     std::back_inserter(signals_filtered[iTdr][iCh]), [](auto i) { return i >= 0; });
 
         std::sort(begin(signals_sorted[iTdr][iCh]), end(signals_sorted[iTdr][iCh]));
 
         signals_sorted_filtered[iTdr][iCh].clear();
         std::copy_if(signals_sorted[iTdr][iCh].begin(), signals_sorted[iTdr][iCh].end(),
-                     std::back_inserter(signals_sorted_filtered[iTdr][iCh]), [](auto i) { return i > 0; });
+                     std::back_inserter(signals_sorted_filtered[iTdr][iCh]), [](auto i) { return i >= 0; });
 
         auto beginItr = std::begin(signals_sorted_filtered[iTdr][iCh]);
         auto endItr = std::end(signals_sorted_filtered[iTdr][iCh]);
@@ -811,9 +811,8 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
         auto nEv = std::distance(beginItr, endItr);
         //      printf("%ld %f\n", nEv, (1.0-2.0*PERCENTILE)*signals[iJinf][iTdr][iCh].size());
         if (nEv < 100) {
-          cals[iJinf][iTdr].valid = false;
           // if (iCh == 0)
-          //   printf("iTdr=%lu, iCh=%lu) calib not valid\n", iTdr, iCh);
+          //   printf("iJinfiTdr=%lu, iCh=%lu) calib not valid\n", iTdr, iCh);
         }
 
         //      cals[iJinf][iTdr].ped[iCh] = std::accumulate(begin(signals[iJinf][iTdr][iCh]),
@@ -837,6 +836,24 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
         // initialize this for later
         cals[iJinf][iTdr].sig[iCh] = 0;
         cals[iJinf][iTdr].status[iCh] = 0;
+      }
+    }
+
+    // check validity
+    for (unsigned long int iTdr = 0; iTdr < signals_sorted_filtered.size(); ++iTdr) {
+      unsigned int ave_nEv = 0;
+      for (unsigned long int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+
+        auto beginItr = std::begin(signals_sorted_filtered[iTdr][iCh]);
+        auto endItr = std::end(signals_sorted_filtered[iTdr][iCh]);
+
+        auto nEv = std::distance(beginItr, endItr);
+        ave_nEv += nEv;
+      }
+      ave_nEv /= NVAS * NCHAVA;
+      if (ave_nEv < 100) {
+        cals[iJinf][iTdr].valid = false;
+        //        printf("iJinf=%u, iTdr=%lu) calib will be declared not valid (%u events)\n", iJinf, iTdr, ave_nEv);
       }
     }
 

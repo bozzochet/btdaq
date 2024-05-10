@@ -606,7 +606,8 @@ int DecodeDataAMS::ReadOneEvent_data() {
     while (ftell(rawfile) / 2 < base + size - 3) {
       if (pri)
         printf("ReadOneTDR from file position: %ld\n", ftell(rawfile) / 2);
-      ReadOneTDR(0);
+      ReadOneTDR(
+          0); // FIXME: assuming only Jinf 0 if there's not the Jinj, but this is not always true ("fakeJinJ") maybe...
     }
 
     // Read the last 2 words before status
