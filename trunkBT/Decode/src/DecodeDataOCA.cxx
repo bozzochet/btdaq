@@ -400,13 +400,15 @@ bool DecodeDataOCA::ProcessCalibration() {
   std::cout << '\n';
 
   //----------------------------------
-  ComputeCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals);
+  //  ComputeCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals);
+  ComputeCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals.GetArray());
 
   auto stop = std::chrono::system_clock::now();
   std::cout << "DecodeDataOCA::ProcessCalibration took "
             << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
 
-  SaveCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals);
+  //  SaveCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals);
+  SaveCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals.GetArray());
 
   return true;
 }

@@ -13,7 +13,9 @@ public:
   using EventOCA = GenericEvent<1, 24, 64, 5, 10, 0>;
   using calibOCA = calib<EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;
   using RHClassOCA = RHClass<EventOCA::GetNJINF(), EventOCA::GetNTDRS()>;
-  using Calibrations = std::array<std::array<calibOCA, EventOCA ::GetNTDRS()>, EventOCA::GetNJINF()>;
+  //  using Calibrations = std::array<std::array<calibOCA, EventOCA ::GetNTDRS()>, EventOCA::GetNJINF()>;
+  using CalibrationsOCA =
+      Calibrations<EventOCA::GetNJINF(), EventOCA::GetNTDRS(), EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;
 
   EventOCA *ev;
   RHClassOCA *rh;
@@ -43,7 +45,8 @@ public:
 
   virtual int GetTdrType(size_t pos) final;
 
-  Calibrations GetCalibrations() { return cals; };
+  //  Calibrations GetCalibrations() const { return cals; };
+  CalibrationsOCA &GetCalibrations() { return cals; };
 
   void GetCalFilePrefix(char *calfileprefix, long int runnum) override {
     sprintf(calfileprefix, "%s/%ld", m_calDir.c_str(), runnum);
@@ -51,7 +54,8 @@ public:
 
 private:
   FILE *calfile = nullptr;
-  Calibrations cals{};
+  //  Calibrations cals{};
+  CalibrationsOCA cals{};
   EventOCA::JArray<int> JinfMap{0};
 
   unsigned int m_numBoards = 12;     // maximum

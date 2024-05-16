@@ -340,15 +340,8 @@ int main(int argc, char **argv) {
     fConf = dd->FlavorConfig();
     if (!kOnlyProcessCal)
       t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
-    /*
     auto calibs = dd->GetCalibrations();
-    // What a hack!
-    string contentclassname = decltype(calibs)::value_type::value_type::Class_Name();
-    //    string contentclassname = "calib";
-    auto class_name =
-        fmt::format("std::array<std::array<{}, {}>, {}>", contentclassname, calibs[0].size(), calibs.size());
-    foutput->WriteObjectAny(&calibs, class_name.c_str(), "Calibrations");
-    */
+    foutput->WriteTObject(&calibs, "cals");
     dd1 = static_cast<DecodeData *>(dd);
   } else if (kFoot) {
     auto *dd = new DecodeDataFOOT(DirRaw, DirCal, run, calrunstart);
@@ -365,10 +358,10 @@ int main(int argc, char **argv) {
       t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
     auto calibs = dd->GetCalibrations();
     foutput->WriteTObject(&calibs, "cals");
-    printf("******* %f\n", calibs.at(0).at(0).ped[0]);
-    printf("******* %f\n", calibs.at(1).at(0).ped[0]);
-    printf("calibs.at(0).at(0).ped[0]): %p\n", &(calibs.at(0).at(0).ped[0]));
-    printf("calibs.at(1).at(0).ped[0]): %p\n", &(calibs.at(1).at(0).ped[0]));
+    // printf("******* %f\n", calibs.at(0).at(0).ped[0]);
+    // printf("******* %f\n", calibs.at(1).at(0).ped[0]);
+    // printf("calibs.at(0).at(0).ped[0]): %p\n", &(calibs.at(0).at(0).ped[0]));
+    // printf("calibs.at(1).at(0).ped[0]): %p\n", &(calibs.at(1).at(0).ped[0]));
     dd1 = static_cast<DecodeData *>(dd);
   } else {
     auto *dd = new DecodeDataAMS(DirRaw, DirCal, run, ancillary, kMC);
