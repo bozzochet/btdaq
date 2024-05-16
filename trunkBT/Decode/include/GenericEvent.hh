@@ -80,7 +80,8 @@ public:
   static constexpr size_t GetNCH() { return (NVASS + NVASK) * NCHAVA; }
 
   template <class calib> using calsarray = std::array<std::array<calib, GetNTDRS()>, GetNJINF()>;
-  template <class calib> static calsarray<calib> GetCalibrationsFromFile(TFile *file);
+  template <class calib> static calsarray<calib> GetCalibrationsArrayFromFile(TFile *file);
+  static Calibrations<NJINF, NTDRS, (NVASS + NVASK) * NCHAVA> GetCalibrationsFromFile(TFile *file);
 
   //! Clear the event
   void Clear();

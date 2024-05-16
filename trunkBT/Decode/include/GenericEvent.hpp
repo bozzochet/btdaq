@@ -77,9 +77,19 @@ Array3<int, NJINF, NTDRS, NCHAVA *(NVASS + NVASK)> GenericEvent<NJINF, NTDRS, NC
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 template <class calib>
 typename GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::template calsarray<calib>
-GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalibrationsFromFile(TFile *file) {
+GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalibrationsArrayFromFile(TFile *file) {
   if (file->FindKey("cals")) {
     return *(file->Get<calsarray<calib>>("cals").GetArray());
+  }
+
+  throw(std::runtime_error("No calibrations saved in this TFile"));
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+Calibrations<NJINF, NTDRS, (NVASS + NVASK) * NCHAVA>
+GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalibrationsFromFile(TFile *file) {
+  if (file->FindKey("cals")) {
+    return *(file->Get<Calibrations<NJINF, NTDRS, (NVASS + NVASK) * NCHAVA>>("cals"));
   }
 
   throw(std::runtime_error("No calibrations saved in this TFile"));
