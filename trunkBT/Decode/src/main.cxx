@@ -340,12 +340,15 @@ int main(int argc, char **argv) {
     fConf = dd->FlavorConfig();
     if (!kOnlyProcessCal)
       t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
+    /*
     auto calibs = dd->GetCalibrations();
     // What a hack!
+    string contentclassname = decltype(calibs)::value_type::value_type::Class_Name();
+    //    string contentclassname = "calib";
     auto class_name =
-        fmt::format("std::array<std::array<{}, {}>, {}>", decltype(calibs)::value_type::value_type::Class_Name(),
-                    calibs[0].size(), calibs.size());
+        fmt::format("std::array<std::array<{}, {}>, {}>", contentclassname, calibs[0].size(), calibs.size());
     foutput->WriteObjectAny(&calibs, class_name.c_str(), "Calibrations");
+    */
     dd1 = static_cast<DecodeData *>(dd);
   } else if (kFoot) {
     auto *dd = new DecodeDataFOOT(DirRaw, DirCal, run, calrunstart);
@@ -361,11 +364,41 @@ int main(int argc, char **argv) {
     if (!kOnlyProcessCal)
       t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
     auto calibs = dd->GetCalibrations();
+    foutput->WriteTObject(&calibs, "cals");
+    printf("******* %f\n", calibs.at(0).at(0).ped[0]);
+    printf("******* %f\n", calibs.at(1).at(0).ped[0]);
+    printf("calibs.at(0).at(0).ped[0]): %p\n", &(calibs.at(0).at(0).ped[0]));
+    printf("calibs.at(1).at(0).ped[0]): %p\n", &(calibs.at(1).at(0).ped[0]));
+    /*
+    printf("delta: %ld, expected size: (9*(1024*(3*4+4)+1))/4 = %f)\n",
+           &(calibs.at(1).at(0).ped[0]) - &(calibs.at(0).at(0).ped[0]), (9 * (1024 * (3 * 4 + 4) + 1)) / 4.0);
+    printf("diff: %f\n", (float)((&(calibs.at(1).at(0).ped[0]) - &(calibs.at(0).at(0).ped[0])) -
+                                 (9 * (1024 * (3 * 4 + 4) + 1)) / 4.0));
+    printf("we write on disk an std::array<std::array<calib, 9>, 2>, where calib is:\n");
+    printf("  std::array<float, 1024> ped;\n");
+    printf("  std::array<float, 1024> rsig;\n");
+    printf("  std::array<float, 1024> sig;\n");
+    printf("  std::array<int, 1024> status;\n");
+    printf("  bool valid{true};\n");
+    printf("seems that the padding is writing the bool as 24 byte!!!\n  (9*(1024*(3*4+4)+24))/4 = %f\n",
+           (9 * (1024 * (3 * 4 + 4) + 24)) / 4.0);
+    printf("calibs.at(0).data(): %p\n", calibs.at(0).data());
+    printf("calibs.at(1).data(): %p\n", calibs.at(1).data());
+    printf("calibs.at(0).at(0).data(): %p\n", &(calibs.at(0).at(0)));
+    printf("calibs.at(1).at(0).data(): %p\n", &(calibs.at(1).at(0)));
     // What a hack!
+    string contentclassname = decltype(calibs)::value_type::value_type::Class_Name();
+    //    string contentclassname = "calib";
     auto class_name =
-        fmt::format("std::array<std::array<{}, {}>, {}>", decltype(calibs)::value_type::value_type::Class_Name(),
-                    calibs[0].size(), calibs.size());
-    foutput->WriteObjectAny(&calibs, class_name.c_str(), "Calibrations");
+        fmt::format("std::array<std::array<{}, {}>, {}>", contentclassname, calibs[0].size(), calibs.size());
+    printf("%s\n", class_name.c_str());
+    //    foutput->WriteObjectAny(&calibs, class_name.c_str(), "Calibrations");
+    //    foutput->WriteObjectAny(calibs.data(), class_name.c_str(), "Calibrations");
+    //    foutput->WriteObjectAny(&(calibs.at(0)), class_name.c_str(), "Calibrations");
+    //    foutput->WriteObjectAny(&(calibs.at(0).at(0)), class_name.c_str(), "Calibrations");
+    //    foutput->WriteObjectAny(&(calibs.at(0).at(0).ped), class_name.c_str(), "Calibrations"); // crash
+    //    foutput->WriteObjectAny(&(calibs.at(0).at(0).ped[0]), class_name.c_str(), "Calibrations"); // crash
+    */
     dd1 = static_cast<DecodeData *>(dd);
   } else {
     auto *dd = new DecodeDataAMS(DirRaw, DirCal, run, ancillary, kMC);
