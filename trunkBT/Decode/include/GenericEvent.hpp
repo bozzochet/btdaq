@@ -79,7 +79,7 @@ template <class calib>
 typename GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::template calsarray<calib>
 GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalibrationsArrayFromFile(TFile *file) {
   if (file->FindKey("cals")) {
-    return *(file->Get<Calibrations<NJINF, NTDRS, (NVASS + NVASK) * NCHAVA> *>("cals")->GetArray());
+    return *(file->Get<Calibrations<NJINF, NTDRS, (NVASS + NVASK) * NCHAVA>>("cals")->GetArray());
   }
 
   throw(std::runtime_error("No calibrations saved in this TFile"));
