@@ -20,18 +20,22 @@
 // AMS
 #pragma link C++ class GenericEvent < 1, 24, 64, 3, 10, 6> + ;
 #pragma link C++ class calib < 1024> + ;
-#pragma link C++ class calibelem < 1024> + ;
-// AMS L0
+#pragma link C++ class Calibrations < 1, 24, 1024> + ;
+// #pragma link C++ class calibelem < 1024> + ;
+//  AMS L0
 #pragma link C++ class GenericEvent < 2, 9, 64, 8, 16, 0> + ;
 #pragma link C++ class calib < 1024> + ;
-#pragma link C++ class calibelem < 1024> + ;
-// OCA
+#pragma link C++ class Calibrations < 2, 9, 1024> + ;
+// #pragma link C++ class calibelem < 1024> + ;
+//  OCA
 #pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0> + ;
 #pragma link C++ class calib < 640> + ;
-#pragma link C++ class calibelem < 640> + ;
-// FOOT
+#pragma link C++ class Calibrations < 1, 24, 640> + ;
+// #pragma link C++ class calibelem < 640> + ;
+//  FOOT
 #pragma link C++ class GenericEvent < 1, 24, 64, 5, 10, 0> + ;
 #pragma link C++ class calib < 640> + ;
-#pragma link C++ class calibelem < 640> + ;
+#pragma link C++ class Calibrations < 1, 24, 640> + ;
+// #pragma link C++ class calibelem < 640> + ;
 
 #endif

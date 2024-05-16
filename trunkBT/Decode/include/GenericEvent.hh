@@ -2,9 +2,9 @@
 #define GenericEvent_hh
 
 #include "TClonesArray.h"
+#include "TFile.h"
 #include "TH2F.h"
 #include "TObject.h"
-#include "TFile.h"
 
 #include "Cluster.hh"
 #include "DataTypes.hh"
@@ -20,7 +20,22 @@ public:
   std::array<int, NCh> status;
   bool valid{true};
 
+  //  bool dummy[7];
+
   ClassDef(calib, 1);
+};
+
+template <size_t NJINF, size_t NTDRS, size_t NCh> class Calibrations : public TObject {
+private:
+  std::array<std::array<calib<NCh>, NTDRS>, NJINF> data;
+
+public:
+  auto &at(size_t index) { return data.at(index); };
+  auto &operator[](size_t index) { return data[index]; };
+  auto size() { return data.size(); };
+  std::array<std::array<calib<NCh>, NTDRS>, NJINF> &GetArray() { return data; };
+
+  ClassDef(Calibrations, 1);
 };
 
 struct FlavorConfig {
@@ -64,8 +79,8 @@ public:
   static constexpr size_t GetNVASK() { return NVASK; }
   static constexpr size_t GetNCH() { return (NVASS + NVASK) * NCHAVA; }
 
-  template <class calib> using Calibrations = std::array<std::array<calib, GetNTDRS()>, GetNJINF()>;
-  template <class calib> static Calibrations<calib> GetCalibrationsFromFile(TFile* file);
+  template <class calib> using calsarray = std::array<std::array<calib, GetNTDRS()>, GetNJINF()>;
+  template <class calib> static calsarray<calib> GetCalibrationsFromFile(TFile *file);
 
   //! Clear the event
   void Clear();
@@ -95,8 +110,8 @@ public:
   static float GetGainCorrectionPar(int jinfnum, int tdrnum, int vanum, int component);
 
   void ExcludeTDRFromTrack(int jinfnum, int tdrnum, int side,
-                           bool verbose = true); // to be called just one, before event loop, or, for a "temporary ban"
-                                                 // call, afterwards, 'IncludeBack'
+                           bool verbose = true); // to be called just one, before event loop, or, for a "temporary
+                                                 // ban" call, afterwards, 'IncludeBack'
   void IncludeBackTDRFromTrack(int jinfnum, int tdrnum, int side,
                                bool verbose = true); // to be called after 'Exclude' for a "temporary ban"
   bool FindTrackAndFit(int nptsS, int nptsK, bool verbose = false);

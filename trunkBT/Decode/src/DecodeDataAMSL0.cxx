@@ -262,7 +262,8 @@ bool DecodeDataAMSL0::ProcessCalibration() {
            signals.at(0).size(), signals.at(0).at(0).size());
   }
 
-  ComputeCalibration<EventAMSL0, calibAMSL0, EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>(cals);
+  //  ComputeCalibration<EventAMSL0, calibAMSL0, EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>(cals);
+  ComputeCalibration<EventAMSL0, calibAMSL0, EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>(cals.GetArray());
 
   //  printf("nJinf = %d\n", nJinf);
   for (unsigned int iJinf = 0; iJinf < uint(nJinf); iJinf++) {
@@ -275,7 +276,8 @@ bool DecodeDataAMSL0::ProcessCalibration() {
     */
   }
 
-  SaveCalibration<EventAMSL0, calibAMSL0>(cals);
+  //  SaveCalibration<EventAMSL0, calibAMSL0>(cals);
+  SaveCalibration<EventAMSL0, calibAMSL0>(cals.GetArray());
 
   auto stop2 = std::chrono::system_clock::now();
   std::cout << "DecodeDataAMSL0::ProcessCalibration (computing and saving) took "
@@ -942,7 +944,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
     printf("buffer.size() = %lu\n", buffer.size());
   // MD: we were using only befferlenght/2, but there's no reason
   // on the contrary we found cases were event with non consecutive numbers entered in the middle
-  // so the buffersize was bigger than dumpshift and, as a consequen
+  // so the buffersize was bigger than dumpshift and, as a consequence
   // - old_enough is not satisfied
   // - we don't read any more data since buffer size is "full"
   // --> we stay here forever...

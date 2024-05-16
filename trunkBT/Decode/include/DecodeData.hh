@@ -190,9 +190,8 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
   //  printf("bondingtype = %d\n", _bondingtype);
 
   int newclusadd = clusadd;
-
-  if (!kRaw) { // otherwise the swap has been already done when clustering (if we were clustering, otherwise the cluster
-               // is not present and we never reach this function...)
+  if (!kRaw) { // otherwise the swap has been already done when clustering (if we were clustering, otherwise the
+               // cluster is not present and we never reach this function...)
     if (_bondingtype == 2) {
       // if (clusadd>=(3*NCHAVA) && clusadd<(5*NCHAVA)) newclusadd+=3*NCHAVA;
       // if (clusadd>=(5*NCHAVA) && clusadd<(8*NCHAVA)) newclusadd-=2*NCHAVA;
