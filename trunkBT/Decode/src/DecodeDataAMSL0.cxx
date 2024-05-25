@@ -928,8 +928,17 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
 int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event,
                                           unsigned long int nEvents, uint16_t expTagType, uint16_t expTag) {
 
-  constexpr unsigned int bufferlenght = 256;
-  constexpr unsigned int dumpshift = (bufferlenght / 2) - 1;
+  constexpr int bufferlenght = 256;
+  constexpr int bufferalmostfull =
+      bufferlenght -
+      20; // to have room, before spilling over from the buffer, to accomodate more than 1 event in a single AMSBlock
+  // reading. The point is that we can find many events in a single FineTimeEnvelope
+  constexpr int dumpshift =
+      //    bufferlenght / 2;
+      bufferlenght * 3 /
+      4; // this must be significantly lower than the bufferalmostfull, since we can have a distance from the first and
+  // the last in the buffer that is lower than the buffer size. The point is that we can have a swap so that the
+  // distance  between the first and the last in the buffer is significantly spoiled
 
   bool not_same_config = false;
   std::string current_config_info = "";
@@ -948,7 +957,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
   // - old_enough is not satisfied
   // - we don't read any more data since buffer size is "full"
   // --> we stay here forever...
-  if (buffer.size() <= (bufferlenght - 1) && !stream->EndOfStream()) {
+  if (buffer.size() < bufferalmostfull && !stream->EndOfStream()) {
     auto block = TBDecode::L0::AMSBlock::DecodeAMSBlock(stream->CurrentFile());
     std::visit(TBDecode::Utils::overloaded{
                    [&empty_blocks](TBDecode::L0::AMSBlock::EmptyBlock &block) {
