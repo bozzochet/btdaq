@@ -68,7 +68,7 @@ double y[9][6];
 double y_err[9][6];
 const Int_t Size_z = 6;
 TGraphErrors *va[9];
-const Int_t nLadder = 11;
+const Int_t nLadder = 18; //max numbers of ladders
 std::vector<TString> name_cog_maxCl;
 std::vector<TString> title_cog_maxCl;
 std::vector<TString> name_1half_sig_vs_eta_maxCl;
@@ -160,6 +160,9 @@ std::vector<TString> title_1vsEta34;
 
 std::vector<TString> name_1vsEta45;
 std::vector<TString> title_1vsEta45;
+
+std::vector<TString> name_occupancy;
+std::vector<TString> title_occupancy;
 
 
 
@@ -616,8 +619,7 @@ template <class Event, class RH> void BookHistos(TObjArray *histos, Long64_t ent
   CreateTH1(*histos, name_cog_maxCl, title_cog_maxCl, "cog_maxCl", "Cog_maxCl; Cog; Entries", 1024, 0, 1024);
   CreateTH1(*histos, name_strip1_All, title_strip1_All, "strip1_All", "strip1_All; strip1 (ADC); Entries", 2000, 0,40000);
   CreateTH1(*histos, name_strip2_All, title_strip2_All, "strip2_All", "strip2_All; strip2 (ADC); Entries", 2000, 0,20000);
-  //CreateTH3(*histos, name_1vs2vsEta_All, title_1vs2vsEta_All, "1vs2vsEta_All", "1vs2vsEta_All; strip1 (ADC); strip2 (ADC); Eta", 1500, 0, 12000, 1500, 0, 15000, 1000, 0, 1);
-
+  CreateTH1(*histos, name_occupancy, title_occupancy, "occupancy", "occupancy; cog, Entries", 1024, 0, 1024);
 
 
   // all events
@@ -1227,6 +1229,7 @@ template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NCl
   std::vector<TH1*> lstrip2_All;
   std::vector<TH2*> l1vsEta34;
   std::vector<TH2*> l1vsEta45;
+  std::vector<TH1*> loccupancy;
 
   
   for (int ii=0; ii<nLadder; ii++) {
@@ -1267,6 +1270,7 @@ template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NCl
 	TH2 *h35 = (TH2 *)( histos->FindObject(name_123vsEta34[ii].Data())  );
 	TH2 *h36 = (TH2 *)( histos->FindObject(name_1vsEta34[ii].Data())  );
 	TH2 *h37 = (TH2 *)( histos->FindObject(name_1vsEta45[ii].Data())  );
+	TH1 *h38 = (TH2 *)( histos->FindObject(name_occupancy[ii].Data()) );
 	
   
   	lTotSig_vs_cog.push_back(h1);
@@ -1306,6 +1310,7 @@ template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NCl
   	l123vsEta34.push_back(h35);
   	l1vsEta34.push_back(h36);
   	l1vsEta45.push_back(h37);
+  	loccupancy.push_back(h38);
 
   }
 
@@ -1319,10 +1324,11 @@ template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NCl
     int side = cl->side;
     double charge = cl->GetCharge(); // unused for now */
     int Ladd = cl->laddNum();
-  	if (Ladd >= 0 && Ladd <11) {	
+  	if (Ladd >= 0 && Ladd <18) {	
   		float eta = cl->GetEta();
+  		float cog = cl->GetCoG();
   		l2ndStrip_vs_eta_maxCl[Ladd]->Fill(eta, cl->GetSecVal() );
-		lTotSig_vs_cog[Ladd]->Fill(cl->GetCoG(),cl->GetTotSig( ));
+		lTotSig_vs_cog[Ladd]->Fill(cog,cl->GetTotSig( ));
 		lTotSig_vs_eta_AllCl[Ladd]->Fill(eta,cl->GetTotSig() );
 		float strip1 = all_sorted_signals[0];
 		float strip2 = all_sorted_signals[1];
@@ -1388,10 +1394,11 @@ template <class Event, class RH> void FillCleanHistos(TObjArray *histos, int NCl
 	  	if (clmax->GetLength() >= 1) {
 	  	
 	  		int Ladd = clmax->laddNum();
-	  		  	if (Ladd >= 0 && Ladd <11) {
+	  		  	if (Ladd >= 0 && Ladd <18) {
 	  		  		float eta = clmax->GetEta();
 	  		  		float tot = clmax->GetTotSig();
 	  		  		float cog = clmax->GetCoG();
+	  		  		loccupancy[Ladd]->Fill(cog);
 	  				lTotSig_vs_eta_maxCl[Ladd]->Fill(eta, tot );
 	  				l1stStrip_vs_eta_maxCl[Ladd]->Fill(eta, sorted_signals[0] );
 	  				l1strip1_vs_strip2_maxCl[Ladd]->Fill(sorted_signals[0], sorted_signals[1]);
