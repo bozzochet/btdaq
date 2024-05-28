@@ -81,7 +81,7 @@ Decode: $(ANYOPTION)/anyoption.o $(LIBDECODE_L0)_install/lib/libtbdecode.so $(DE
 	@echo Linking $@ ...;
 	@$(CXX) $(LDFLAGS) -o$@ $(ANYOPTION)/anyoption.o $(DEC_OBJ) -I$(ANYOPTION) -I$(LIBDECODE_L0)_install/include $(ROOTDYNAMICLIBS) -Wl,-rpath,./$(LIBDECODE_L0)_install/lib -L./$(LIBDECODE_L0)_install/lib -ltbdecode
 
-obj/%.o: src/%.cxx
+obj/%.o: src/%.cxx $(LIBDECODE_L0)_install/lib/libtbdecode.so
 	@echo Compiling $< ...;
 	@ if ! [ -d ./obj ] ; then  mkdir -p obj; fi
 	@$(CXX) $(CFLAGS) -c $< -o$@ -I$(ROOTINC) -I$(ANYOPTION) -I$(LIBDECODE_L0)_install/include
