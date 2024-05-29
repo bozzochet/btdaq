@@ -79,9 +79,9 @@ using EventFOOT = GenericEvent<1, 24, 64, 5, 10, 0>;
 using calibFOOT = calib<EventFOOT::GetNCHAVA() * EventFOOT::GetNVAS()>;
 using RHClassFOOT = RHClass<EventFOOT::GetNJINF(), EventFOOT::GetNTDRS()>;
 //---
-using EventAMS = GenericEvent<1, 24, 64, 3, 16, 10>;
-using calibAMS = calib<EventAMS::GetNCHAVA() * EventAMS::GetNVAS()>;
-using RHClassAMS = RHClass<EventAMS::GetNJINF(), EventAMS::GetNTDRS()>;
+using EventAMSL0 = GenericEvent<2, 9, 64, 8, 16, 0>;
+using calibAMSL0 = calib<EventAMSL0::GetNCHAVA() * EventAMSL0::GetNVAS()>;
+using RHClassAMSL0 = RHClass<EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>;
 
 int main(int argc, char* argv[]) {
   
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
   else {
     align_filename = "alignment.dat";
     gaincorrection_filename = "gaincorrection.dat";
-    return Run<EventAMS, RHClassAMS>(argc, argv, align_filename, gaincorrection_filename);
+    return Run<EventAMSL0, RHClassAMSL0>(argc, argv, align_filename, gaincorrection_filename);
   }
   
   return -8;
@@ -196,13 +196,13 @@ int Run(int argc, char* argv[],
       indexalignment++;
       
       float deltaalign_old[NJINF][NTDRS][3];
-      for (int jj=0; jj<NJINF; jj++) {
-	for (int tt=0; tt<NTDRS; tt++) {
-	  for (int cc=0; cc<2; cc++) {
+  for (int jj=0; jj<NJINF; jj++) {
+	  for (int tt=0; tt<NTDRS; tt++) {
+	    for (int cc=0; cc<2; cc++) {
 	    deltaalign_old[jj][tt][cc] = deltaalign[jj][tt][cc];
+	    }
 	  }
-	}
-      }
+  }
       
       ReadDeltaAlignment<Event, RH>(Form("delta_%s", align_filename.Data()));
       
@@ -397,8 +397,10 @@ int SingleRun(int argc, char* argv[],
   TH1F* hcooreldiff_S[NJINF*NTDRS];
   TH1F* hcooreldiff_K[NJINF*NTDRS];
 
-  int NSTRIPSS=Cluster::GetNChannels(0);
-  int NSTRIPSK=Cluster::GetNChannels(1);
+  static constexpr int NVASS = Event::GetNVASS();
+  static constexpr int NVASK = Event::GetNVASK();
+  int NSTRIPSS=NCHAVA*NVASS;
+  int NSTRIPSK=NCHAVA*NVASK;
   for (int tt=0; tt<_maxtdr; tt++) {
     int jinfnum = 0;
     int tdrnum = ut->GetRH(chain)->GetTdrNum(tt);
@@ -704,7 +706,7 @@ int SingleRun(int argc, char* argv[],
       
       int ladder = cl->ladder;
       int side=cl->side;
-      int ladder_pos = ut->GetRH(chain)->FindPos(ladder);
+      int ladder_pos = ut->GetRH(chain)->FindPos(cl->GetJinf(), cl->GetTDR() );
       if (ladder<0 || ladder>=24 || ladder_pos<0 || ladder_pos>=24) {
 	printf("Ladder %d --> %d. Side = %d\n", ladder, ladder_pos, side);
       }
@@ -818,7 +820,7 @@ int SingleRun(int argc, char* argv[],
     for (unsigned int tt=0; tt<vec_hit.size(); tt++) {
       
       int ladder = vec_hit.at(tt).first;
-      int ladder_pos = ut->GetRH(chain)->FindPos(ladder);
+      int ladder_pos = ut->GetRH(chain)->FindPos(cl->GetJinf(), cl->GetTDR() );
       if (ladder<0 || ladder>=24 || ladder_pos<0 || ladder_pos>=24) {
 	printf("Ladder %d --> %d\n", ladder, ladder_pos);
       }
