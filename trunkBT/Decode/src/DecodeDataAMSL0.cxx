@@ -335,7 +335,7 @@ int DecodeDataAMSL0::ReadOneEvent() {
   if (decodestyle == 0)
     retVal = ReadOneEventFromFile(rawfile, ev);
   else
-    while (retVal >= 1 && retVal <= 2) { // 1: too early, 2: not found yet
+    while (retVal >= 1 && retVal <= 3) { // 1: too early, 2: not found yet: 3: no SCIData
       retVal = ReadOneEventFromFile(&rawdatastream, ev, m_read_events, 0xD, Tag);
     }
   if (!retVal) {
@@ -1182,6 +1182,10 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
         printf("buffer empty...\n");
       return 2;
     }
+  } else {
+    if (evpri)
+      printf("No SCIData...\n");
+    return 3;
   }
 
   return -3000;
