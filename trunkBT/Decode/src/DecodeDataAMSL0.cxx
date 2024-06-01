@@ -253,6 +253,8 @@ bool DecodeDataAMSL0::ProcessCalibration() {
     std::cout << '\n';
   }
 
+  buffer.clear(); // to avoide the buffer to be still filled with the remaining CAL events...
+
   auto stop = std::chrono::system_clock::now();
   std::cout << "DecodeDataAMSL0::ProcessCalibration (reading) took "
             << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
@@ -928,6 +930,8 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
 int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event,
                                           unsigned long int nEvents, uint16_t expTagType, uint16_t expTag) {
 
+  int ret = -99;
+
   constexpr int bufferlenght = 256;
   constexpr int bufferalmostfull =
       bufferlenght -
@@ -952,7 +956,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
   unsigned int last_tried_evno = 0;
   bool scidatafound = false;
   unsigned int tried_evno_ntime = 1;
-  bool bufferisalmostfull_or_endofstream = false;
+  bool bufferisalmostfull = false;
 
   if (evpri)
     printf("buffer.size() = %lu\n", buffer.size());
@@ -962,233 +966,234 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
   // - old_enough is not satisfied
   // - we don't read any more data since buffer size is "full"
   // --> we stay here forever...
-  if (buffer.size() < bufferalmostfull && !stream->EndOfStream()) {
-    bufferisalmostfull_or_endofstream = false;
-    auto block = TBDecode::L0::AMSBlock::DecodeAMSBlock(stream->CurrentFile());
-    std::visit(TBDecode::Utils::overloaded{
-                   [&empty_blocks](TBDecode::L0::AMSBlock::EmptyBlock &block) {
-                     if (!block.fake) {
-                       empty_blocks++;
-                       printf("  **** %d empty blocks found:", empty_blocks);
-                     }
-                   },
-                   [&scidatafound, expTag, expTagType, this, event](TBDecode::L0::AMSBlock::FineTimeEnvelope &block) {
-                     if (this->pri) {
-                       printf("  FineTimeEnvelope\n");
-                       printf("  Time: %u\n", block.utime_sec);
-                     }
-                     event->TimeStamp = block.utime_sec;
-                     event->TimeStamp_ns = 1000 * block.utime_sec;
-                     TBDecode::L0::AMSBlock::SCIData data = block.data;
-                     if (data.data.size() > 0)
-                       scidatafound = true;
-                     if (evpri) {
-                       printf("  kEventBuilderStartFound=%d\n", (int)kEventBuilderStartFound);
-                       printf("  Tag = %x\n", block.tag);
-                       printf("  raw_data.size() = %lu\n", data.raw_data.size());
-                     }
-                     if ((expTag && (block.tag != expTag)) ||
-                         (expTagType &&
-                          ((block.tag >> 8) !=
-                           expTagType))) {    // the tag must be the same we found when we did read the header and, if
-                                              // passed, must also be the same to the prefix passed (typically 0xD)
-                       if (!kWrongTagFound) { // we already said: be silent
-                         printf("  **** We found the wrong Tag. We were expecting 0x%XXX (0x%3X), we found 0x%X\n",
-                                expTag, this->Tag, block.tag);
-                         printf("  **** We need to start again and search another config...\n");
+  if (!stream->EndOfStream() || buffer.size() > 0) {
+    //    printf("buffer.size() = %lu, bufferlenght = %u\n", buffer.size(), bufferlenght);
+    if (buffer.size() < bufferalmostfull) {
+      bufferisalmostfull = false;
+      auto block = TBDecode::L0::AMSBlock::DecodeAMSBlock(stream->CurrentFile());
+      std::visit(TBDecode::Utils::overloaded{
+                     [&empty_blocks](TBDecode::L0::AMSBlock::EmptyBlock &block) {
+                       if (!block.fake) {
+                         empty_blocks++;
+                         printf("  **** %d empty blocks found:", empty_blocks);
                        }
-                       kWrongTagFound = true;
-                       kEventBuilderStartFound = false;
-                     } else {
-                       kWrongTagFound = false;
-                       if (kEventBuilderStartFound) {
-                         // printf("0x%x 0x%x 0x%x 0x%x 0x%x\n", expTag, expTagType, this->Tag, this->CalTag,
-                         // block.tag);
-                         for (auto i = data.data.begin(); i != data.data.end(); i++) {
-                           uint16_t evno = i->first;
-                           unsigned long nLEFs = i->second.size();
-                           if (evpri)
-                             printf("i) evno=%u,  nLEFs=%lu\n", evno, nLEFs);
-                           for (auto j = i->second.begin(); j != i->second.end(); j++) {
-                             uint16_t LINF = j->first.first >> 1; // 0 and 1 = 0, 2 and 3 = 1
-                             uint16_t LEF = j->first.second;
-                             unsigned long size_data = j->second.size();
+                     },
+                     [&scidatafound, expTag, expTagType, this, event](TBDecode::L0::AMSBlock::FineTimeEnvelope &block) {
+                       if (this->pri) {
+                         printf("  FineTimeEnvelope\n");
+                         printf("  Time: %u\n", block.utime_sec);
+                       }
+                       event->TimeStamp = block.utime_sec;
+                       event->TimeStamp_ns = 1000 * block.utime_sec;
+                       TBDecode::L0::AMSBlock::SCIData data = block.data;
+                       if (data.data.size() > 0)
+                         scidatafound = true;
+                       if (evpri) {
+                         printf("  kEventBuilderStartFound=%d\n", (int)kEventBuilderStartFound);
+                         printf("  Tag = %x\n", block.tag);
+                         printf("  raw_data.size() = %lu\n", data.raw_data.size());
+                       }
+                       if ((expTag && (block.tag != expTag)) ||
+                           (expTagType &&
+                            ((block.tag >> 8) !=
+                             expTagType))) {    // the tag must be the same we found when we did read the header and, if
+                                                // passed, must also be the same to the prefix passed (typically 0xD)
+                         if (!kWrongTagFound) { // we already said: be silent
+                           printf("  **** We found the wrong Tag. We were expecting 0x%XXX (0x%3X), we found 0x%X\n",
+                                  expTag, this->Tag, block.tag);
+                           printf("  **** We need to start again and search another config...\n");
+                         }
+                         kWrongTagFound = true;
+                         kEventBuilderStartFound = false;
+                       } else {
+                         kWrongTagFound = false;
+                         if (kEventBuilderStartFound) {
+                           // printf("0x%x 0x%x 0x%x 0x%x 0x%x\n", expTag, expTagType, this->Tag, this->CalTag,
+                           // block.tag);
+                           for (auto i = data.data.begin(); i != data.data.end(); i++) {
+                             uint16_t evno = i->first;
+                             unsigned long nLEFs = i->second.size();
                              if (evpri)
-                               printf("j) LINF=%d, LEF=%d, size_data=%lu\n", LINF, LEF, size_data);
-                             std::pair linf_lef = std::make_pair(LINF, LEF);
-                             auto it = std::find_if(buffer.begin(), buffer.end(),
-                                                    [evno](auto element) { return element.first == evno; });
-                             if (it != std::end(buffer)) { // event already present
-                               it->second[linf_lef] = j->second;
-                             } else {
-                               std::map<std::pair<uint16_t, uint16_t>, std::vector<uint16_t>> el_to_push;
-                               el_to_push[linf_lef] = j->second;
-                               buffer.push_back(std::make_pair(evno, el_to_push));
+                               printf("i) evno=%u,  nLEFs=%lu\n", evno, nLEFs);
+                             for (auto j = i->second.begin(); j != i->second.end(); j++) {
+                               uint16_t LINF = j->first.first >> 1; // 0 and 1 = 0, 2 and 3 = 1
+                               uint16_t LEF = j->first.second;
+                               unsigned long size_data = j->second.size();
+                               if (evpri)
+                                 printf("j) LINF=%d, LEF=%d, size_data=%lu\n", LINF, LEF, size_data);
+                               std::pair linf_lef = std::make_pair(LINF, LEF);
+                               auto it = std::find_if(buffer.begin(), buffer.end(),
+                                                      [evno](auto element) { return element.first == evno; });
+                               if (it != std::end(buffer)) { // event already present
+                                 it->second[linf_lef] = j->second;
+                               } else {
+                                 std::map<std::pair<uint16_t, uint16_t>, std::vector<uint16_t>> el_to_push;
+                                 el_to_push[linf_lef] = j->second;
+                                 buffer.push_back(std::make_pair(evno, el_to_push));
+                               }
                              }
                            }
                          }
                        }
-                     }
-                   },
-                   [&not_same_config, &current_config_info, this](TBDecode::L0::AMSBlock::ConfigInfo &block) {
-                     if (this->pri)
-                       printf("  Config\n");
-                     current_config_info = block.config;
-                     // check if the config is the same
-                     if (current_config_info == this->config_info) {
-                       not_same_config = false;
-                     } else {
-                       not_same_config = true;
-                     }
-                   },
-                   [](TBDecode::L0::AMSBlock::EventBuilderStart &block) {
-                     printf("  EventBuilderStart:\n");
-                     std::time_t t = block.utime_sec;
-                     std::tm tm = *std::gmtime(&t);
-                     std::stringstream transTime;
-                     transTime << std::put_time(&tm, "%c %Z");
-                     printf("    Time: %u (%s)\n", block.utime_sec, transTime.str().c_str());
-                     kEventBuilderStartFound = true;
-                     kWrongTagFound = false;
-                   },
-                   [this](TBDecode::L0::AMSBlock::EventBuilderStop &block) {
-                     if (this->pri)
-                       printf("  EvenBuilderStop\n");
-                     kEventBuilderStopFound = true;
-                   },
-                   [](auto &block) {},
-               },
-               block);
-  } else {
-    bufferisalmostfull_or_endofstream = true;
-  }
-
-  if (not_same_config) {
-    std::string message = Form("The config is changed:\n  current config: %s\n previous config: %s",
-                               current_config_info.c_str(), config_info.c_str());
-    throw std::runtime_error(message);
-  }
-
-  if (stream->EndOfStream()) {
-    if (evpri) {
-      printf("buffer.size() = %lu\n", buffer.size());
+                     },
+                     [&not_same_config, &current_config_info, this](TBDecode::L0::AMSBlock::ConfigInfo &block) {
+                       if (this->pri)
+                         printf("  Config\n");
+                       current_config_info = block.config;
+                       // check if the config is the same
+                       if (current_config_info == this->config_info) {
+                         not_same_config = false;
+                       } else {
+                         not_same_config = true;
+                       }
+                     },
+                     [](TBDecode::L0::AMSBlock::EventBuilderStart &block) {
+                       printf("  EventBuilderStart:\n");
+                       std::time_t t = block.utime_sec;
+                       std::tm tm = *std::gmtime(&t);
+                       std::stringstream transTime;
+                       transTime << std::put_time(&tm, "%c %Z");
+                       printf("    Time: %u (%s)\n", block.utime_sec, transTime.str().c_str());
+                       kEventBuilderStartFound = true;
+                       kWrongTagFound = false;
+                     },
+                     [this](TBDecode::L0::AMSBlock::EventBuilderStop &block) {
+                       if (this->pri)
+                         printf("  EvenBuilderStop\n");
+                       kEventBuilderStopFound = true;
+                     },
+                     [](auto &block) {},
+                 },
+                 block);
+    } else {
+      bufferisalmostfull = true;
     }
-    if (buffer.size() == 0) { // end of run...
+
+    if (not_same_config) {
+      std::string message = Form("The config is changed:\n  current config: %s\n previous config: %s",
+                                 current_config_info.c_str(), config_info.c_str());
+      throw std::runtime_error(message);
+    }
+
+    auto oldness_check = [dumpshift](auto a, auto b) {
+      if ((a - b) > dumpshift || (a + bufferlenght - b) % bufferlenght > dumpshift) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    /*
+    // MD: maybe is just a workaround. To double-check
+    auto get_LINF = [](auto readLINF) {
+      if (readLINF == 0 || readLINF == 2)
+        return 1;
+      else if (readLINF == 3 || readLINF == 4)
+        return 2;
+      else {
+        printf("not valid LINF number: %d\n", readLINF);
+        return -99;
+      }
+    };
+    */
+    auto get_LINF = [](auto readLINF) {
+      if (readLINF == 0 || readLINF == 1)
+        return (int)readLINF;
+      else {
+        printf("not valid LINF number: %d\n", readLINF);
+        return -99;
+      }
+    };
+    /*
+    auto get_LINF = [](auto readLINF) {
+      if (readLINF == 0 || readLINF == 1 || readLINF == 2 || readLINF == 3)
+        return (int)readLINF;
+      else {
+        printf("not valid LINF number: %d\n", readLINF);
+        return -99;
+      }
+    };
+    */
+
+    /*
+    printf("buffer content:\n");
+    for (auto it = buffer.cbegin(); it != buffer.cend(); ++it) {
+      printf("Ev: %u) nLEF=%lu\n", it->first, it->second.size());
+    }
+    printf("---------------\n");
+    */
+
+    if (scidatafound || bufferisalmostfull || stream->EndOfStream()) {
+      scidatafound = false;
+      auto i = buffer.begin();
+      if (i != buffer.end()) { // otherwise buffer is empty...
+        uint16_t evno_to_process = buffer.front().first;
+        uint16_t last_evno = buffer.back().first;
+        bool old_enough = false;
+        if (last_tried_evno == evno_to_process)
+          tried_evno_ntime++;
+        last_tried_evno = evno_to_process;
+        if (tried_evno_ntime < 3 * dumpshift) {
+          old_enough = oldness_check(last_evno, evno_to_process);
+        } else {
+          old_enough = true;
+          if (pri)
+            printf("evno=%d, we tried %d times: assuming old enough...", evno_to_process, tried_evno_ntime);
+        }
+        uint16_t evno = i->first;
+        unsigned long nLEFs = i->second.size();
+        if (evpri)
+          printf("read i) evno=%u,  nLEFs=%lu\n", evno, nLEFs);
+        if (old_enough || stream->EndOfStream()) {
+          nEvents++;
+          tried_evno_ntime = 1;
+          if (evpri)
+            printf("read-Good: evno=%d, nLEFs=%lu (next evno_to_process=%d), last_evno=%d - nEvents=%lu\n", evno, nLEFs,
+                   evno_to_process, last_evno, nEvents);
+          for (auto j = i->second.begin(); j != i->second.end(); j++) {
+            uint16_t LINF = get_LINF(j->first.first);
+            uint16_t LINF_index = rh->FindJinfPos(LINF);
+            uint16_t LEF_glob_index = rh->FindPos(j->first.second, LINF);
+            uint16_t LEF_index = rh->GetTdrNum(LEF_glob_index);
+            uint16_t LEF = rh->ComputeTdrNum(j->first.second, LINF);
+            unsigned long size_data = j->second.size();
+            if (evpri)
+              printf("read j) LEF[%d][%d]: LINF=%d (%d), LEF=%d (%d, %d) -> size_data=%lu\n", LINF_index, LEF_index,
+                     LINF, j->first.first, LEF, j->first.second, LEF_glob_index, size_data);
+            std::copy(std::begin(j->second), std::end(j->second), std::begin(event->RawSignal[LINF_index][LEF_index]));
+            //      std::cout << "Ch0 signal = " << event->RawSignal[LINF_index][LEF_index][0] << '\n';
+            event->ValidTDR[LINF_index][LEF_index] = true;
+          }
+          buffer.pop_front();
+          ret = 0;
+        } else {
+          if (evpri)
+            printf("Too early: evno=%d (next evno_to_process=%d), last_evno=%d\n", evno, evno_to_process, last_evno);
+          ret = 1;
+        }
+      } else {
+        if (evpri)
+          printf("buffer empty...\n");
+        ret = 2;
+      }
+    } else { // not (scidatafound || bufferisalmostfull || stream->EndOfStream())
+      if (!scidatafound) {
+        if (evpri)
+          printf("No SCIData...\n");
+        ret = 3;
+      }
+    }
+
+    if (buffer.size() == 0 && stream->EndOfStream()) { // end of run...
+      if (evpri)
+        printf("buffer.size() = %lu\n", buffer.size());
+      printf("\nEvents=%lu\n", nEvents);
       kEventBuilderStartFound = false;
       kEventBuilderStopFound = false;
-      return -99;
     }
   }
 
-  auto oldness_check = [dumpshift](auto a, auto b) {
-    if ((a - b) > dumpshift || (a + bufferlenght - b) % bufferlenght > dumpshift) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-
-  /*
-  // MD: maybe is just a workaround. To double-check
-  auto get_LINF = [](auto readLINF) {
-    if (readLINF == 0 || readLINF == 2)
-      return 1;
-    else if (readLINF == 3 || readLINF == 4)
-      return 2;
-    else {
-      printf("not valid LINF number: %d\n", readLINF);
-      return -99;
-    }
-  };
-  */
-  auto get_LINF = [](auto readLINF) {
-    if (readLINF == 0 || readLINF == 1)
-      return (int)readLINF;
-    else {
-      printf("not valid LINF number: %d\n", readLINF);
-      return -99;
-    }
-  };
-  /*
-  auto get_LINF = [](auto readLINF) {
-    if (readLINF == 0 || readLINF == 1 || readLINF == 2 || readLINF == 3)
-      return (int)readLINF;
-    else {
-      printf("not valid LINF number: %d\n", readLINF);
-      return -99;
-    }
-  };
-  */
-
-  /*
-  printf("buffer content:\n");
-  for (auto it = buffer.cbegin(); it != buffer.cend(); ++it) {
-    printf("Ev: %u) nLEF=%lu\n", it->first, it->second.size());
-  }
-  printf("---------------\n");
-  */
-
-  if (scidatafound || bufferisalmostfull_or_endofstream) {
-    scidatafound = false;
-    auto i = buffer.begin();
-    if (i != buffer.end()) { // otherwise buffer is empty...
-      uint16_t evno_to_process = buffer.front().first;
-      uint16_t last_evno = buffer.back().first;
-      bool old_enough = false;
-      if (last_tried_evno == evno_to_process)
-        tried_evno_ntime++;
-      last_tried_evno = evno_to_process;
-      if (tried_evno_ntime < 3 * dumpshift) {
-        old_enough = oldness_check(last_evno, evno_to_process);
-      } else {
-        old_enough = true;
-        if (pri)
-          printf("evno=%d, we tried %d times: assuming old enough...", evno_to_process, tried_evno_ntime);
-      }
-      uint16_t evno = i->first;
-      unsigned long nLEFs = i->second.size();
-      if (evpri)
-        printf("read i) evno=%u,  nLEFs=%lu\n", evno, nLEFs);
-      if (old_enough || stream->EndOfStream()) {
-        nEvents++;
-        tried_evno_ntime = 1;
-        if (evpri)
-          printf("read Good: evno=%d, nLEFs=%lu (next evno_to_process=%d), last_evno=%d - nEvents=%lu\n", evno, nLEFs,
-                 evno_to_process, last_evno, nEvents);
-        for (auto j = i->second.begin(); j != i->second.end(); j++) {
-          uint16_t LINF = get_LINF(j->first.first);
-          uint16_t LINF_index = rh->FindJinfPos(LINF);
-          uint16_t LEF_glob_index = rh->FindPos(j->first.second, LINF);
-          uint16_t LEF_index = rh->GetTdrNum(LEF_glob_index);
-          uint16_t LEF = rh->ComputeTdrNum(j->first.second, LINF);
-          unsigned long size_data = j->second.size();
-          if (evpri)
-            printf("read j) LEF[%d][%d]: LINF=%d (%d), LEF=%d (%d, %d) -> size_data=%lu\n", LINF_index, LEF_index, LINF,
-                   j->first.first, LEF, j->first.second, LEF_glob_index, size_data);
-          std::copy(std::begin(j->second), std::end(j->second), std::begin(event->RawSignal[LINF_index][LEF_index]));
-          //      std::cout << "Ch0 signal = " << event->RawSignal[LINF_index][LEF_index][0] << '\n';
-          event->ValidTDR[LINF_index][LEF_index] = true;
-        }
-        buffer.pop_front();
-        return 0;
-      } else {
-        if (evpri) {
-          printf("Too early: evno=%d (next evno_to_process=%d), last_evno=%d\n", evno, evno_to_process, last_evno);
-        }
-        return 1;
-      }
-    } else {
-      if (evpri)
-        printf("buffer empty...\n");
-      return 2;
-    }
-  } else {
-    if (evpri)
-      printf("No SCIData...\n");
-    return 3;
-  }
-
-  return -3000;
+  return ret;
 }
 
 //------------------------------------------------------------------------------------------------------------------
