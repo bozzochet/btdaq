@@ -953,9 +953,9 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
   static bool kEventBuilderStopFound = false;
   static bool kEventBuilderStartFound = false;
 
-  unsigned int last_tried_evno = 0;
+  static unsigned int last_tried_evno = 0;
   bool scidatafound = false;
-  unsigned int tried_evno_ntime = 1;
+  static unsigned int tried_evno_ntime = 1;
   bool bufferisalmostfull = false;
 
   if (evpri)
@@ -1168,7 +1168,9 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
           ret = 0;
         } else {
           if (evpri)
-            printf("Too early: evno=%d (next evno_to_process=%d), last_evno=%d\n", evno, evno_to_process, last_evno);
+            printf("Too early: evno=%d (next evno_to_process=%d), last_evno=%d (tried_evno_ntime=%d, "
+                   "last_tried_evno=%d)\n",
+                   evno, evno_to_process, last_evno, tried_evno_ntime, last_tried_evno);
           ret = 1;
         }
       } else {
