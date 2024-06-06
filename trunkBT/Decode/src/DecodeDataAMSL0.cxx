@@ -1189,7 +1189,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
     if (buffer.size() == 0 && stream->EndOfStream()) { // end of run...
       if (evpri)
         printf("buffer.size() = %lu\n", buffer.size());
-      printf("\nEvents=%lu\n", nEvents);
+      //      printf("\nEvents=%lu\n", nEvents);
       kEventBuilderStartFound = false;
       kEventBuilderStopFound = false;
     }
