@@ -796,13 +796,13 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
 
         signals_filtered[iTdr][iCh].clear();
         std::copy_if(signals[iJinf][iTdr][iCh].begin(), signals[iJinf][iTdr][iCh].end(),
-                     std::back_inserter(signals_filtered[iTdr][iCh]), [](auto i) { return i >= 0; });
+                     std::back_inserter(signals_filtered[iTdr][iCh]), [](auto i) { return i > 0; });
 
         std::sort(begin(signals_sorted[iTdr][iCh]), end(signals_sorted[iTdr][iCh]));
 
         signals_sorted_filtered[iTdr][iCh].clear();
         std::copy_if(signals_sorted[iTdr][iCh].begin(), signals_sorted[iTdr][iCh].end(),
-                     std::back_inserter(signals_sorted_filtered[iTdr][iCh]), [](auto i) { return i >= 0; });
+                     std::back_inserter(signals_sorted_filtered[iTdr][iCh]), [](auto i) { return i > 0; });
 
         auto beginItr = std::begin(signals_sorted_filtered[iTdr][iCh]);
         auto endItr = std::end(signals_sorted_filtered[iTdr][iCh]);
