@@ -239,7 +239,7 @@ private:
   //! Status word for the TDRs (  TDRStatus & 0x1f == TDR ID)
   TdrArray<int> TDRStatus{{0}};
   //! Common Noise from Calibration
-  VAArray<double> CNoise{{{0}}};
+  VAArray<float> CNoise{{{0}}};
   //! Cluster number for (side 0(S) 1(K))
   TdrArray<int[2]> NClus{{{0}}};
   //! Total number of clusters
@@ -258,9 +258,9 @@ private:
   // NCHA=NVAS*NCHAVA
   // TODO: check how much space we waste [MD]
   // ChArray<double> CalSigma{{{0}}};
-  static ChArray<double> CalSigma;
+  static ChArray<float> CalSigma;
   // ChArray<double> CalPed{{{0}}};
-  static ChArray<double> CalPed;
+  static ChArray<float> CalPed;
   ChArray<short> RawSignal{{{0}}};
   ChArray<float> RawSoN{{{0}}}; //! (do not stream on file! Can be recomputed easily!)
   // ChArray<int> CalStatus{{{0}}};

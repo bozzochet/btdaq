@@ -63,11 +63,11 @@ template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS,
 int GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::_eventkind = 0;
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-Array3<double, NJINF, NTDRS, NCHAVA *(NVASS + NVASK)> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::CalSigma{
+Array3<float, NJINF, NTDRS, NCHAVA *(NVASS + NVASK)> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::CalSigma{
     {{0}}};
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-Array3<double, NJINF, NTDRS, NCHAVA *(NVASS + NVASK)> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::CalPed{
+Array3<float, NJINF, NTDRS, NCHAVA *(NVASS + NVASK)> GenericEvent<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::CalPed{
     {{0}}};
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>

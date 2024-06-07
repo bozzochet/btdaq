@@ -40,9 +40,9 @@ static double MIPSIG[2] = {40.0, 40.0};
 struct ClusterSummary {
   unsigned int ladder;
   unsigned int side;
-  double signal;
-  double charge;
-  double son;
+  float signal;
+  float charge;
+  float son;
 };
 
 //!  Tracker Cluster class.
