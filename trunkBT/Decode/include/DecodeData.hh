@@ -552,6 +552,8 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
 
       if (status[count])
         continue;
+      if (array[count] / m_adcUnits == 0)
+        continue;
 
       if (evpri)
         clusterstringtodump += Form("count = %d\n", count);
