@@ -17,6 +17,7 @@ public:
   std::array<float, NCh> ped;
   std::array<float, NCh> rsig;
   std::array<float, NCh> sig;
+  std::array<std::vector<float>,NCh> cal_signale;
   std::array<int, NCh> status;
   bool valid{true};
 
