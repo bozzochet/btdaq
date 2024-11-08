@@ -205,6 +205,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
           unsigned int iJinf = rh->GetJinfNum(iTdr_index);
           for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
             signals[iJinf][iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+            cals[iJinf][iTdr].cal_signale[iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
           }
         }
       }
@@ -241,6 +242,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
         for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
           if (event->ValidTDR[iJinf][iTdr]) {
             signals[iJinf][iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+             cals[iJinf][iTdr].cal_signale[iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
             // if (evpri)
             //   printf("signals[%d][%d][%d] = %f\n", iJinf, iTdr, iCh, event->RawSignal[iJinf][iTdr][iCh] /
             //   m_adcUnits);
