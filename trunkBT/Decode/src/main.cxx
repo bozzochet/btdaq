@@ -318,7 +318,8 @@ int main(int argc, char **argv) {
   //  int complevel = ROOT::CompressionSettings(ROOT::kLZMA, 8); // MD: gain factor 2 in size, but lose factor 4 in
   //  speed int complevel = ROOT::CompressionSettings(ROOT::kLZMA, 2); // MD: the complevel seems that doesn't really
   //  matter...
-  int complevel = ROOT::CompressionSettings(ROOT::kZLIB, 2);
+  //  int complevel = ROOT::CompressionSettings(ROOT::kZLIB, 2);
+  int complevel = ROOT::CompressionSettings(ROOT::RCompressionSetting::EAlgorithm::kZLIB, 2);
   printf("The choosen compression level is %d\n", complevel);
   TFile *foutput = new TFile(filename, "RECREATE", "File with the event tree", complevel);
 
