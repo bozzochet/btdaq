@@ -9,7 +9,7 @@ Some decoding examples:
 ./Decode --rawdata "/path/to/BLOCKS/PG/TEST_LINF" --caldata "./CalData" --l0 -c --calrunstart 0001717 --calrunstop 0001717 0001718 0001718
 ```
 ```
-./PlotCalib --l0 --caldir="/CalData" 0001717
+./PlotCalib --l0 --caldir="./CalData" 0001717
 ```
 
 - ### AMS-L0 LEF directly to USB-LEF (not USB-LF, I think)
@@ -193,9 +193,9 @@ Error in <Pair Emulation Building>: short[1024] is not yet supported in pair emu
 - ## going back to
 #### `template <typename T, size_t N1, size_t N2, size_t N3> using Array3 = T[N1][N2][N3];`
 ## but setting
-####  `using EventAMSL0 = GenericEvent<2, 9, 64, 8, 16, 0>;`
+####  `using EventAMSL0 = Event<2, 9, 64, 8, 16, 0>;`
 ## instead
-#### `using EventAMSL0 = GenericEvent<4, 9, 64, 8, 16, 0>;`
+#### `using EventAMSL0 = Event<4, 9, 64, 8, 16, 0>;`
 ```
 ./Decode --rawdata "./USBLF_PCGSC17/C42_DDC-C4C_DE5/" --l0 -c --calrunstart 0008860 --calrunstop 0008861 0008861 0008862
 Processed 30407 events

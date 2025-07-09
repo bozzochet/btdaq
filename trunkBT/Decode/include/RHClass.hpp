@@ -96,9 +96,10 @@ template <size_t NJINF, size_t NTDRS> int RHClass<NJINF, NTDRS>::FindJinfPos(int
 
   // Print();
 
-  for (int ii = 0; ii < GetNJinfs(); ii++)
+  for (int ii = 0; ii < GetNJinfs(); ii++) {
     if (JinfMap[ii] == jinfnum)
       return ii;
+  }
 
   return -1;
 }

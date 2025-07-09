@@ -1,5 +1,5 @@
-#ifndef GenericEvent_hh
-#define GenericEvent_hh
+#ifndef Event_hh
+#define Event_hh
 
 #include "TClonesArray.h"
 #include "TFile.h"
@@ -17,7 +17,7 @@ public:
   std::array<float, NCh> ped;
   std::array<float, NCh> rsig;
   std::array<float, NCh> sig;
-  std::array<std::vector<float>,NCh> cal_signale;
+  std::array<std::vector<float>, NCh> cal_signale;
   std::array<int, NCh> status;
   bool valid{true};
 
@@ -48,8 +48,45 @@ struct FlavorConfig {
   size_t NVASK;
 };
 
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 class GenericEvent : public TObject {
+public:
+  GenericEvent() = default;
+
+  virtual void Clear() = 0;
+
+  //! Progressive Event number
+  int Evtnum{0};
+
+protected:
+  //! Total number of clusters
+  int NClusTot{0};
+
+public:
+  inline int GetNClusTot() { return NClusTot; };
+
+  virtual Cluster *GetCluster(int ii) = 0;
+
+  virtual int GetEvtnum() = 0;
+
+  virtual double GetCalPed_PosNum(int tdrposnum, int channel, int Jinfnum = 0) = 0;
+  virtual double GetCalSigma_PosNum(int tdrposnum, int channel, int Jinfnum = 0) = 0;
+  virtual double GetRawSignal_PosNum(int tdrposnum, int channel, int Jinfnum = 0) = 0;
+  virtual double GetCN_PosNum(int tdrposnum, int va, int Jinfnum = 0) = 0;
+  virtual float GetRawSoN_PosNum(int tdrposnum, int channel, int Jinfnum = 0) = 0;
+  virtual double GetCalStatus_PosNum(int tdrposnum, int va, int Jinfnum = 0) = 0;
+
+  virtual double GetCalPed(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) = 0;
+  virtual double GetCalSigma(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) = 0;
+  virtual double GetRawSignal(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) = 0;
+  virtual double GetCN(GenericRHClass *rh, int tdrnum, int va, int Jinfnum = 0) = 0;
+  virtual float GetRawSoN(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) = 0;
+  virtual double GetCalStatus(GenericRHClass *rh, int tdrposnum, int va, int Jinfnum = 0) = 0;
+
+  ClassDef(GenericEvent, 3)
+};
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+class Event : public GenericEvent {
   // handy shortcuts for common types
   template <typename T> using JArray = Array1<T, NJINF>;
   template <typename T> using TdrArray = Array2<T, NJINF, NTDRS>;
@@ -65,11 +102,11 @@ public:
 
 public:
   //! Default contructor
-  GenericEvent() = default;
-  GenericEvent(const char *ladderconf, const char *gaincorr);
+  Event() = default;
+  Event(const char *ladderconf, const char *gaincorr);
 
   //! Default destructor
-  ~GenericEvent();
+  ~Event();
 
   static constexpr size_t GetNJINF() { return NJINF; }
   static constexpr size_t GetNTDRS() { return NTDRS; }
@@ -85,14 +122,12 @@ public:
   static Calibrations<NJINF, NTDRS, (NVASS + NVASK) * NCHAVA> GetCalibrationsFromFile(TFile *file);
 
   //! Clear the event
-  void Clear();
+  void Clear() final;
 
   //! Add a Cluster to the array
   Cluster *AddCluster(int Jinfnum, int lad, int side);
   //! Get the Cluster in the position ii of the array
-  Cluster *GetCluster(int ii);
-
-  inline int GetNClusTot() { return NClusTot; };
+  Cluster *GetCluster(int ii) final;
 
   static double ComputeCN(int size, short int *RawSignal, float *pede, float *RawSoN, int *status,
                           double threshold = 3.0);
@@ -149,19 +184,27 @@ public:
   inline unsigned int GetNHitsKTrack() { return (unsigned int)(_v_trackK.size()); }
   double GetChargeTrack(int side);
 
-  double GetCalPed_PosNum(int tdrposnum, int channel, int Jinfnum = 0);
-  double GetCalSigma_PosNum(int tdrposnum, int channel, int Jinfnum = 0);
-  double GetRawSignal_PosNum(int tdrposnum, int channel, int Jinfnum = 0);
-  double GetCN_PosNum(int tdrposnum, int va, int Jinfnum = 0);
-  float GetRawSoN_PosNum(int tdrposnum, int channel, int Jinfnum = 0);
-  double GetCalStatus_PosNum(int tdrposnum, int va, int Jinfnum = 0);
+  double GetCalPed_PosNum(int tdrposnum, int channel, int Jinfnum = 0) final;
+  double GetCalSigma_PosNum(int tdrposnum, int channel, int Jinfnum = 0) final;
+  double GetRawSignal_PosNum(int tdrposnum, int channel, int Jinfnum = 0) final;
+  double GetCN_PosNum(int tdrposnum, int va, int Jinfnum = 0) final;
+  float GetRawSoN_PosNum(int tdrposnum, int channel, int Jinfnum = 0) final;
+  double GetCalStatus_PosNum(int tdrposnum, int va, int Jinfnum = 0) final;
 
+  /*
   double GetCalPed(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum = 0);
   double GetCalSigma(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum = 0);
   double GetRawSignal(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum = 0);
   double GetCN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int va, int Jinfnum = 0);
   float GetRawSoN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum = 0);
   double GetCalStatus(RHClass<NJINF, NTDRS> *rh, int tdrposnum, int va, int Jinfnum = 0);
+  */
+  double GetCalPed(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) final;
+  double GetCalSigma(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) final;
+  double GetRawSignal(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) final;
+  double GetCN(GenericRHClass *rh, int tdrnum, int va, int Jinfnum = 0) final;
+  float GetRawSoN(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) final;
+  double GetCalStatus(GenericRHClass *rh, int tdrposnum, int va, int Jinfnum = 0) final;
 
   uint64_t GetTimeStamp() { return TimeStamp; }
   uint64_t GetTimeStamp_ns() { return TimeStamp_ns; }
@@ -176,7 +219,7 @@ public:
   void RecombineXY(double);
   // TH2F* h1;
 
-  int GetEvtnum() { return Evtnum; };
+  int GetEvtnum() final { return Evtnum; };
   void SetEvtNum(int num) { Evtnum = num; }
 
   int GetEventKind() { return _eventkind; };
@@ -217,8 +260,6 @@ private:
   // _NINFS, for example) cfr. https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#inputoutput
   // 11.3.4 Variable length array
 
-  //! Progressive Event number
-  int Evtnum{0};
   //! Event timestamp
   uint64_t TimeStamp{0};
   //! Event timestamp fractional part (in ns)
@@ -243,8 +284,6 @@ private:
   VAArray<float> CNoise{{{0}}};
   //! Cluster number for (side 0(S) 1(K))
   TdrArray<int[2]> NClus{{{0}}};
-  //! Total number of clusters
-  int NClusTot{0};
   //! 0 if there are hits on all the ladders
   int notgood{0};
   //! (TClones) Array of the recontructed clusters
@@ -313,6 +352,6 @@ private:
   std::vector<int> _v_ladderS_to_ignore; //!
   std::vector<int> _v_ladderK_to_ignore; //!
 
-  ClassDef(GenericEvent, 3)
+  ClassDef(Event, 3)
 };
 #endif

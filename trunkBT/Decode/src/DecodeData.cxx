@@ -6,7 +6,7 @@
 
 #include "DecodeData.hh"
 
-#include "GenericEvent.hpp"
+#include "Event.hpp"
 
 #include "TRandom3.h"
 #include "TString.h"
@@ -96,3 +96,67 @@ int DecodeData::ReadFile(void *ptr, size_t size, size_t nitems, FILE *stream) {
 
   return ret;
 }
+
+int DecodeData::GetTdrNum(size_t tdrpos) {
+  if (tdrpos > GetNJINF() * GetNTDRS()) {
+    printf("TDR Pos %ld not allowed. Max is %d\n", tdrpos, GetNJINF() * GetNTDRS());
+    return -9999;
+  }
+  if (rh) {
+    return rh->GetTdrNum(tdrpos);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  return -1;
+}
+
+int DecodeData::GetTdrType(size_t tdrpos) {
+  if (tdrpos > GetNJINF() * GetNTDRS()) {
+    printf("TDR Pos %ld not allowed. Max is %d\n", tdrpos, GetNJINF() * GetNTDRS());
+    return -9999;
+  }
+  if (rh) {
+    return rh->GetTdrType(tdrpos);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  return -1;
+}
+
+int DecodeData::GetJinfNum(size_t tdrpos) {
+  if (tdrpos > GetNJINF() * GetNTDRS()) {
+    printf("TDR Pos %ld not allowed. Max is %d\n", tdrpos, GetNJINF() * GetNTDRS());
+    return -9999;
+  }
+  if (rh) {
+    return rh->GetJinfNum(tdrpos);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  return -1;
+}
+
+int DecodeData::FindPos(int tdrnum, int jinfnum) {
+  if (rh) {
+    return rh->FindPos(tdrnum, jinfnum);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  return -1;
+}
+
+int DecodeData::FindCalPos(int tdrnum, int jinfnum) {
+  if (rh) {
+    return rh->FindPos(tdrnum, jinfnum);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  return -1;
+}
+
+int DecodeData::ComputeTdrNum(int tdrnum, int jinfnum) { return rh->ComputeTdrNum(tdrnum, jinfnum); }

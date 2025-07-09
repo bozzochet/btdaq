@@ -11,11 +11,11 @@
 #include "TTree.h"
 
 #include "DecodeData.hh"
-#include "GenericEvent.hh"
+#include "Event.hh"
 
 class DecodeDataAMS : public DecodeData {
 public:
-  using EventAMS = GenericEvent<1, 24, 64, 3, 10, 6>;
+  using EventAMS = Event<1, 24, 64, 3, 10, 6>;
   using RHClassAMS = RHClass<EventAMS::GetNJINF(), EventAMS::GetNTDRS()>;
   using calibAMS = calib<EventAMS::GetNCHAVA() * EventAMS::GetNVAS()>;
 
@@ -42,12 +42,9 @@ private:
   bool kMC;
 
   // in principle not needed, but is a virtual from mother class
-  void GetCalFilePrefix(char *calfileprefix, long int runnum) override{};
+  void GetCalFilePrefix(char *calfileprefix, long int runnum) override {};
 
 public:
-  EventAMS *ev;
-  RHClassAMS *rh;
-
   int nlayers; // added by Viviana
   double gene; // added by Viviana
   int gevt;    // added by Viviana
@@ -84,10 +81,6 @@ public:
 
   virtual void DumpRunHeader() override;
 
-  virtual int FindPos(int tdrnum, int jinfnum) final;
-  virtual int FindCalPos(int tdrnum, int jinfnum) final;
-  virtual int ComputeTdrNum(int tdrnum, int jinfnum) final;
-
 public:
   DecodeDataAMS() = default;
   DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary, bool _kMC = false);
@@ -97,10 +90,10 @@ public:
     return {EventAMS::GetNJINF(), EventAMS::GetNTDRS(), EventAMS::GetNCHAVA(), EventAMS::GetNADCS(),
             EventAMS::GetNVAS()};
   };
-  virtual TString EventClassname() final {return ev->ClassName(); };
+  virtual TString EventClassname() final { return ev->ClassName(); };
 
-  virtual int GetTdrNum(size_t pos) final;
-  virtual int GetTdrType(size_t pos) final;
+  virtual int GetNTDRS() final { return EventAMS::GetNTDRS(); }
+  virtual int GetNJINF() final { return EventAMS::GetNJINF(); }
 
   virtual int SkipOneEvent(int evskip = 1) final;
   virtual int ReadOneEvent() final;

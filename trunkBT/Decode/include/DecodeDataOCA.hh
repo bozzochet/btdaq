@@ -6,19 +6,16 @@
 #define DECODE_DECODEDATAOCA_HH
 
 #include "DecodeData.hh"
-#include "GenericEvent.hh"
+#include "Event.hh"
 
 class DecodeDataOCA : public DecodeData {
 public:
-  using EventOCA = GenericEvent<1, 24, 64, 5, 10, 0>;
+  using EventOCA = Event<1, 24, 64, 5, 10, 0>;
   using calibOCA = calib<EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;
   using RHClassOCA = RHClass<EventOCA::GetNJINF(), EventOCA::GetNTDRS()>;
   //  using Calibrations = std::array<std::array<calibOCA, EventOCA ::GetNTDRS()>, EventOCA::GetNJINF()>;
   using CalibrationsOCA =
       Calibrations<EventOCA::GetNJINF(), EventOCA::GetNTDRS(), EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;
-
-  EventOCA *ev;
-  RHClassOCA *rh;
 
   DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calnum,
                 bool _kOnlyProcessCal = false);
@@ -41,9 +38,8 @@ public:
   // dummy for now
   virtual int SkipOneEvent(int evskip = 1) final { return 0; };
 
-  virtual int GetTdrNum(size_t pos) final;
-
-  virtual int GetTdrType(size_t pos) final;
+  virtual int GetNTDRS() final { return EventOCA::GetNTDRS(); }
+  virtual int GetNJINF() final { return EventOCA::GetNJINF(); }
 
   //  Calibrations GetCalibrations() const { return cals; };
   CalibrationsOCA &GetCalibrations() { return cals; };
@@ -70,10 +66,6 @@ private:
   bool ProcessCalibration();
 
   int ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal = false);
-
-  virtual int FindPos(int tdrnum, int jinfnum) final;
-  virtual int FindCalPos(int tdrnum, int jinfnum) final;
-  virtual int ComputeTdrNum(int tdrnum, int jinfnum) final;
 };
 
 #endif // DECODE_DECODEDATAOCA_HH

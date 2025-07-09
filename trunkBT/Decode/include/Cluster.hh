@@ -9,7 +9,7 @@
 
 #define MAXLENGHT 128
 
-/* defined by GenericEvent::AddCluster. Numbers by Viviana sostantially ignored...
+/* defined by Event::AddCluster. Numbers by Viviana sostantially ignored...
 // Viviana: originally was 640 and 384 channels
 //#define SCHANN 640
 #define SCHANN 2048 // 4096 // 50cmx50cm sensors
@@ -23,7 +23,7 @@
 #define KSENSPITCH 41.40
 
 //-------------------------------------------------------------------
-//unused:
+// unused:
 // 715 + 40 + 715 = 1470μm - this is the gap between two sensor on S
 // (the strip conceptually is just one but is the particle passes in this gap is not detected, both on K but also on S)
 #define SGAP 1470
@@ -31,8 +31,8 @@
 #define KGAP 1392
 //-------------------------------------------------------------------
 
-//unused:
-// 40007 + 1392 (KGAP)
+// unused:
+//  40007 + 1392 (KGAP)
 #define KACTIVE 41399
 
 static double MIPSIG[2] = {40.0, 40.0};

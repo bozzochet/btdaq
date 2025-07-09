@@ -19,7 +19,7 @@
 #include "DecodeDataFOOT.hh"
 #include "DecodeDataOCA.hh"
 
-#include "GenericEvent.hpp"
+#include "Event.hpp"
 
 using namespace std;
 
@@ -323,10 +323,12 @@ int main(int argc, char **argv) {
   printf("The choosen compression level is %d\n", complevel);
   TFile *foutput = new TFile(filename, "RECREATE", "File with the event tree", complevel);
 
-  TTree *t3 = new TTree("t3", "My calibration tree");
+  TTree *t3 = NULL;
   TTree *t4 = NULL;
   if (!kOnlyProcessCal) {
     t4 = new TTree("t4", "My cluster tree");
+  } else {
+    t3 = new TTree("t3", "My calibration tree");
   }
 
   // int bufsize = 64000;
@@ -382,9 +384,9 @@ int main(int argc, char **argv) {
     dd1->SetPrintOn();
   else
     dd1->SetPrintOff();
-  if (kEvPri)
+  if (kEvPri) {
     dd1->SetEvPrintOn();
-  else
+  } else
     dd1->SetEvPrintOff();
 
   if (!kOnlyProcessCal) {
@@ -407,21 +409,25 @@ int main(int argc, char **argv) {
 
     int NTDR = dd1->GetNTdrRaw() + dd1->GetNTdrCmp();
     for (int ii = 0; ii < NTDR; ii++) {
-      int IdTDR = dd1->GetTdrNum(ii);
+      int Jinfnum = dd1->GetJinfNum(ii);
+      int Tdrnum = dd1->GetTdrNum(ii);
+      int IdTDR = dd1->ComputeTdrNum(Tdrnum, Jinfnum);
       //      printf("%d\n", IdTDR);
-      t4->Branch(Form("SignalS_Ladder%02d", IdTDR), &sigS[IdTDR], Form("SignalS_Ladder%02d/D", IdTDR));
-      t4->Branch(Form("ChargeS_Ladder%02d", IdTDR), &chaS[IdTDR], Form("ChargeS_Ladder%02d/D", IdTDR));
-      t4->Branch(Form("SoNS_Ladder%02d", IdTDR), &sonS[IdTDR], Form("SoNS_Ladder%02d/D", IdTDR));
-      t4->Branch(Form("SignalK_Ladder%02d", IdTDR), &sigK[IdTDR], Form("SignalK_Ladder%02d/D", IdTDR));
-      t4->Branch(Form("ChargeK_Ladder%02d", IdTDR), &chaK[IdTDR], Form("ChargeK_Ladder%02d/D", IdTDR));
-      t4->Branch(Form("SoNK_Ladder%02d", IdTDR), &sonK[IdTDR], Form("SoNK_Ladder%02d/D", IdTDR));
+      t4->Branch(Form("SignalS_Ladder%03d", IdTDR), &sigS[IdTDR], Form("SignalS_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("ChargeS_Ladder%03d", IdTDR), &chaS[IdTDR], Form("ChargeS_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("SoNS_Ladder%03d", IdTDR), &sonS[IdTDR], Form("SoNS_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("SignalK_Ladder%03d", IdTDR), &sigK[IdTDR], Form("SignalK_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("ChargeK_Ladder%03d", IdTDR), &chaK[IdTDR], Form("ChargeK_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("SoNK_Ladder%03d", IdTDR), &sonK[IdTDR], Form("SoNK_Ladder%03d/D", IdTDR));
     }
-    //    sleep(3);
+    printf("RICONTROLLARE QUI!\n");
+    sleep(10);
 
     auto *ddams = dynamic_cast<DecodeDataAMS *>(dd1);
     auto *ddoca = dynamic_cast<DecodeDataOCA *>(dd1);
     auto *ddfoot = dynamic_cast<DecodeDataFOOT *>(dd1);
     auto *ddamsl0 = dynamic_cast<DecodeDataAMSL0 *>(dd1);
+    /*
     if (ddams) {
       t4->GetUserInfo()->Add(ddams->rh);
     } else if (ddoca) {
@@ -433,6 +439,8 @@ int main(int argc, char **argv) {
     } else {
       throw std::runtime_error("DecodeData object is not of type DecodeDataAMS nor DecodeDataOCA...");
     }
+    */
+    t4->GetUserInfo()->Add(dd1->rh);
     //    LadderConf::Instance()->Dump();
     t4->GetUserInfo()->Add(LadderConf::Instance()->GetLadderParamsMap());
 
@@ -456,7 +464,7 @@ int main(int argc, char **argv) {
 
         Cluster *cl = (dd->ev)->GetCluster(cc);
         int ladder = cl->ladder;
-        //	printf("%d\n", ladder);
+        //        printf("%d\n", ladder);
         double signal = cl->GetTotSig();
         // if (signal>4095) {
         //   printf("event %d, cluster %d, side %d), address %d, signal %f\n", (dd->ev)->GetEvtnum(), cc, cl->side,
@@ -488,21 +496,41 @@ int main(int argc, char **argv) {
       memset(sigK, 0, fConf.NTDRS * sizeof(sigK[0]));
       memset(sigS, 0, fConf.NTDRS * sizeof(sigS[0]));
 
-      for (unsigned int iJinf = 0; iJinf < fConf.NJINF; ++iJinf) {
-        for (unsigned int iTDR = 0; iTDR < fConf.NTDRS; ++iTDR) {
+      // for (unsigned int iJinf = 0; iJinf < fConf.NJINF; ++iJinf) {
+      //   for (unsigned int iTDR = 0; iTDR < fConf.NTDRS; ++iTDR) {
+      int NTDR = dd1->GetNTdrRaw() + dd1->GetNTdrCmp();
+      {
+        for (int ii = 0; ii < NTDR; ii++) {
+          int Jinfnum = dd1->GetJinfNum(ii);
+          int Tdrnum = dd1->GetTdrNum(ii);
+          int ladder = dd1->ComputeTdrNum(Tdrnum, Jinfnum);
+          int iJinf = Jinfnum; // FindPos? Oppure invece che GetRawSignal_PosNum selo GetRawSignal?
+          int iTDR = Tdrnum;   // FindPos?
           for (unsigned int iCh = 0; iCh < (fConf.NVASS + fConf.NVASK) * fConf.NCHAVA; ++iCh) {
-            // if ((dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf)>4095) {
-            //   printf("event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %f\n", (dd->ev)->GetEvtnum(), iJinf,
-            //   iTDR, iCh, (dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf)); sleep(1);
-            // }
+            /*
+                  printf("a) event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %f\n", (dd->ev)->GetEvtnum(),
+               iJinf, iTDR, iCh, (dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf));
+            printf("b) event = %d, Jinf = %d, TDR
+               = %d, Channel = %d) rawsignal = %f\n", (dd->ev)->GetEvtnum(), Jinfnum, Tdrnum, iCh,
+               (dd->ev)->GetRawSignal(dd->rh, Tdrnum, iCh, Jinfnum));
+            */
+            /*
+                  if ((dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf) > 4095) {
+                    printf("event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %f\n", (dd->ev)->GetEvtnum(),
+               iJinf, iTDR, iCh, (dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf)); sleep(1);
+                  }
+            */
 
-            int ladder = dd1->ComputeTdrNum(iTDR, iJinf);
-            double signal = (dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf);
-            double son = (dd->ev)->GetRawSoN_PosNum(iTDR, iCh, iJinf);
+            // QUIQUI
+
+            // double signal = (dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf);
+            // double son = (dd->ev)->GetRawSoN_PosNum(iTDR, iCh, iJinf);
+            double signal = (dd->ev)->GetRawSignal(dd->rh, Tdrnum, iCh, Jinfnum);
+            double son = (dd->ev)->GetRawSoN(dd->rh, Tdrnum, iCh, Jinfnum);
             if (son != son) { // NaN, not a ladder really present
               son = 0;
             }
-            //	    printf("%d %f %f\n", ladder, signal, son);
+            printf("%d (%d %d, %d %d) --> %f %f\n", ladder, iJinf, Jinfnum, iTDR, Tdrnum, signal, son);
 
             int side = 0;
             if (iCh >= fConf.NCHAVA * fConf.NVASS) {
@@ -686,8 +714,13 @@ int main(int argc, char **argv) {
             if (iEv < GCCNs[jj][tt][vv].size()) {
               CNs[jj][tt][vv] = GCCNs.at(jj).at(tt).at(vv).at(iEv);
               if (fabs(CNs[jj][tt][vv]) > 100) {
+                static bool alreadyprinted = false;
+                if (!alreadyprinted) {
+                  printf("printing CN events greater (abs) than 100...\n");
+                  alreadyprinted = true;
+                }
                 printf("GCCNs[%lu][%lu][%lu][%lu] = %f\n", jj, tt, vv, iEv, GCCNs[jj][tt][vv][iEv]);
-                printf("CNs[%lu][%lu][%lu] = %f\n", jj, tt, vv, CNs[jj][tt][vv]);
+                //                printf("CNs[%lu][%lu][%lu] = %f\n", jj, tt, vv, CNs[jj][tt][vv]);
               }
             } else {
               CNs[jj][tt][vv] = 0.0;

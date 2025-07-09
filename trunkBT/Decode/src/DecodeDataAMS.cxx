@@ -6,7 +6,7 @@
 
 #include "DecodeDataAMS.hh"
 
-#include "GenericEvent.hpp"
+#include "Event.hpp"
 
 #include "TRandom3.h"
 #include "TString.h"
@@ -105,9 +105,9 @@ DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary,
 
     out_flag = true;
   } else {
-    rh->SetRun(runn);
+    ((RHClassAMS *)rh)->SetRun(runn);
     time_t now = time(0); // MD: I don't like. Should be decided when simulating, not when analyzing!
-    rh->SetDate(ctime(&now));
+    ((RHClassAMS *)rh)->SetDate(ctime(&now));
     nJinf = 0;
     ReadOneEvent();
     ntdrRaw = ntdrMC; // MD: seems ok. MC files are raw by default and we clusterize offline...
@@ -119,16 +119,16 @@ DecodeDataAMS::DecodeDataAMS(char *ifname, char *caldir, int run, int ancillary,
 
   mysort(tdrMap, ntdrRaw + ntdrCmp);
   // Update the ROOT run header
-  rh->SetJinfMap(JinfMap);
-  rh->SetNTdrsRaw(ntdrRaw);
-  rh->SetNTdrsCmp(ntdrCmp);
-  rh->SetTdrMap(tdrMap);
+  ((RHClassAMS *)rh)->SetJinfMap(JinfMap);
+  ((RHClassAMS *)rh)->SetNTdrsRaw(ntdrRaw);
+  ((RHClassAMS *)rh)->SetNTdrsCmp(ntdrCmp);
+  ((RHClassAMS *)rh)->SetTdrMap(tdrMap);
 
   if (pri) {
     printf("********* READVALS: %ld %d %d %d \n", NTDRS, nJinf, ntdrRaw, ntdrCmp);
     printf("Dumping the file headers that are going to be written in the ROOT files...\n");
   }
-  rh->Print();
+  ((RHClassAMS *)rh)->Print();
 
   // Find the Calibrations
   if (pri)
@@ -403,8 +403,8 @@ void DecodeDataAMS::DumpRunHeader() {
   // ReadFile(&hh, sizeof(header), 1, rawfile);//this should be fine also
   ReadFile(&hh, size, 1, rawfile);
 
-  rh->SetRun(hh.run);
-  rh->SetDate(hh.date);
+  ((RHClassAMS *)rh)->SetRun(hh.run);
+  ((RHClassAMS *)rh)->SetDate(hh.date);
 
   printf("Run: %d   Date: %s\n", hh.run, hh.date);
   if (pri) {
@@ -511,7 +511,7 @@ int DecodeDataAMS::ReadOneEvent_data() {
   evenum++;
 
   if (out_flag)
-    ev->Evtnum = evenum;
+    ((EventAMS *)ev)->Evtnum = evenum;
 
   if (pri)
     printf("ReadOneEvent-AfterSizeRead) pos:%ld\n", ftell(rawfile) / 2);
@@ -524,7 +524,7 @@ int DecodeDataAMS::ReadOneEvent_data() {
   if (pri)
     printf("Evenum: %d\n", num);
   if (out_flag)
-    ev->Evtnum = num;
+    ((EventAMS *)ev)->Evtnum = num;
   if (pri || evpri)
     printf("\n-----------------------------> New event: %d\n", num);
 
@@ -568,14 +568,14 @@ int DecodeDataAMS::ReadOneEvent_data() {
     printf("\n\n");
 
   if (out_flag)
-    ev->JINJStatus = status;
+    ((EventAMS *)ev)->JINJStatus = status;
 
   if ((status & 0x400) > 0) {
     // if((status&0x200)>0||(status&0x400)>0){
     printf("TEST\n");
     printf("=======================> %s Error!!! Status %hx\n", type, status);
     if (out_flag)
-      printf("=======================> %s Error!!!  Skip this event: %d\n", type, ev->Evtnum);
+      printf("=======================> %s Error!!!  Skip this event: %d\n", type, ((EventAMS *)ev)->Evtnum);
     printf("TEST\n");
     count = 5;
     for (int dase = 32; dase < 0x8000; dase *= 2) {
@@ -635,7 +635,8 @@ int DecodeDataAMS::ReadOneEvent_data() {
         }
       } else if (pri || evpri) {
         int tdrnum =
-            rh->FindPos(ii, 0); // In ReadOneJinf is 100*(status&0x1f) but here is in the case with just one Jinf...
+            ((RHClassAMS *)rh)
+                ->FindPos(ii, 0); // In ReadOneJinf is 100*(status&0x1f) but here is in the case with just one Jinf...
         //	  printf("%d\n", tdrnum);
         if (tdrnum >= 0)
           printf("A tdr (%02ld) replied...\n", ii);
@@ -701,10 +702,10 @@ int DecodeDataAMS::ReadOneEvent_mc() {
     //    //update the event counters ...here?
     // evenum++;
 
-    ev->Evtnum = evenum;
-    ev->JINJStatus = 999;
+    ((EventAMS *)ev)->Evtnum = evenum;
+    ((EventAMS *)ev)->JINJStatus = 999;
 
-    ev->JINFStatus[jinfnum] = 999;
+    ((EventAMS *)ev)->JINFStatus[jinfnum] = 999;
 
     // printf("ReadOneEventMC store to event: %d %d %d %f %d %f %d
     // \n",evenum,nlayers,pphit,eEne[0],chXY[0],eDep[0],int(eDep[0]*dEdX2ADC/8.));
@@ -720,21 +721,22 @@ int DecodeDataAMS::ReadOneEvent_mc() {
     for (int nl = 0; nl < ntdrMC; nl++) { // nlayers
       // hvol[nh]=nh;      // now read
       calibAMS *cal = &(cals[nl]);
-      ev->TDRStatus[jinfnum][nl] = 999;
-      ev->ReadTDR[jinfnum][nl] = 1;
+      ((EventAMS *)ev)->TDRStatus[jinfnum][nl] = 999;
+      ((EventAMS *)ev)->ReadTDR[jinfnum][nl] = 1;
       // calib* cal=&(cals[hvol[nh]]);
-      // ev->TDRStatus[hvol[nh]]=999;
-      // ev->ReadTDR[hvol[nh]]=1;
+      // ((EventAMS*)ev)->TDRStatus[hvol[nh]]=999;
+      // ((EventAMS*)ev)->ReadTDR[hvol[nh]]=1;
 
       printf("ReadOneEventMC LAYER %d align: %d\n", nl, tdrAlign[nl]);
 
       /// hardcoded number of channels
       for (size_t kk = 0; kk < NVAS * NCHAVA; kk++) {
         // for (int kk=0;kk<1024;kk++){
-        ev->CalPed[jinfnum][nl][kk] = cal->ped[kk];
-        ev->CalSigma[jinfnum][nl][kk] = cal->sig[kk];
-        ev->RawSignal[jinfnum][nl][kk] = int(rn.Gaus(420., 1.125)); // simnoise --> OK?
-        ev->RawSoN[jinfnum][nl][kk] = (ev->RawSignal[jinfnum][nl][kk] - cal->ped[kk]) / cal->sig[kk];
+        ((EventAMS *)ev)->CalPed[jinfnum][nl][kk] = cal->ped[kk];
+        ((EventAMS *)ev)->CalSigma[jinfnum][nl][kk] = cal->sig[kk];
+        ((EventAMS *)ev)->RawSignal[jinfnum][nl][kk] = int(rn.Gaus(420., 1.125)); // simnoise --> OK?
+        ((EventAMS *)ev)->RawSoN[jinfnum][nl][kk] =
+            (((EventAMS *)ev)->RawSignal[jinfnum][nl][kk] - cal->ped[kk]) / cal->sig[kk];
       }
 
       for (int nh = 0; nh < ntothits; nh++) { // ntothits>nlayers
@@ -755,12 +757,13 @@ int DecodeDataAMS::ReadOneEvent_mc() {
           int sch = simChan->at(nhi) - (tdrAlign[hvol[nh]] ? 224 : 177);
           // int sch=hitChan->at(nhi)-112;
           // int sch=simChan->at(nhi)-112;
-          // ev->RawSignal[hvol[nh]][sch]+=int(hitDep->at(nhi)*dEdX2ADC);
-          ev->RawSignal[jinfnum][hvol[nh]][sch] += int(simDep->at(nhi) * dEdX2ADC);
-          ev->RawSoN[jinfnum][hvol[nh]][sch] = (ev->RawSignal[jinfnum][hvol[nh]][sch] - cal->ped[sch]) / cal->sig[sch];
+          // ((EventAMS*)ev)->RawSignal[hvol[nh]][sch]+=int(hitDep->at(nhi)*dEdX2ADC);
+          ((EventAMS *)ev)->RawSignal[jinfnum][hvol[nh]][sch] += int(simDep->at(nhi) * dEdX2ADC);
+          ((EventAMS *)ev)->RawSoN[jinfnum][hvol[nh]][sch] =
+              (((EventAMS *)ev)->RawSignal[jinfnum][hvol[nh]][sch] - cal->ped[sch]) / cal->sig[sch];
           if (pri)
-            printf("HITSIG %d: %d %f %f %f\n", sch, ev->RawSignal[jinfnum][hvol[nh]][sch],
-                   ev->RawSoN[jinfnum][hvol[nh]][sch], cal->ped[sch], cal->sig[sch]);
+            printf("HITSIG %d: %d %f %f %f\n", sch, ((EventAMS *)ev)->RawSignal[jinfnum][hvol[nh]][sch],
+                   ((EventAMS *)ev)->RawSoN[jinfnum][hvol[nh]][sch], cal->ped[sch], cal->sig[sch]);
           nhi++;
         }
 
@@ -768,18 +771,19 @@ int DecodeDataAMS::ReadOneEvent_mc() {
         /* int chh=!tdrAlign[hvol[nh]]?echx[nh]-225:echy[nh]-225; // X or Y according to alignment
         //	if(kk<640){	  //// was for getting 0 on the k side
         if (kk==chh){
-          ev->RawSignal[hvol[nh]][kk]=int(eDep[nh]*dEdX2ADC);//
-          printf("ReadOneEventMC HITSIG %d: %d %f %f \n",kk,ev->RawSignal[hvol[nh]][kk],cal->ped[kk],cal->sig[kk]);
+          ((EventAMS*)ev)->RawSignal[hvol[nh]][kk]=int(eDep[nh]*dEdX2ADC);//
+          printf("ReadOneEventMC HITSIG %d: %d %f %f
+        \n",kk,((EventAMS*)ev)->RawSignal[hvol[nh]][kk],cal->ped[kk],cal->sig[kk]);
         }
 
-        ev->RawSoN[nl][kk]=(ev->RawSignal[nl][kk]/8.0-cal->ped[kk])/cal->sig[kk];
+        ((EventAMS*)ev)->RawSoN[nl][kk]=(((EventAMS*)ev)->RawSignal[nl][kk]/8.0-cal->ped[kk])/cal->sig[kk];
         */
 
         // printf("ReadOneEventMC SIGS %d: %d %f %f -> %f
-        // \n",kk,ev->RawSignal[nh][kk],cal->ped[kk],cal->sig[kk],ev->RawSoN[nh][kk]);
+        // \n",kk,((EventAMS*)ev)->RawSignal[nh][kk],cal->ped[kk],cal->sig[kk],((EventAMS*)ev)->RawSoN[nh][kk]);
         /*}else{
-          ev->RawSignal[nh][kk]=0.;//
-          ev->RawSoN[nh][kk]=0.;
+          ((EventAMS*)ev)->RawSignal[nh][kk]=0.;//
+          ((EventAMS*)ev)->RawSoN[nh][kk]=0.;
           }*/
 
         //}
@@ -795,7 +799,7 @@ int DecodeDataAMS::ReadOneEvent_mc() {
 
       printf("ReadOneEventMC clusterize hits of layer %d , hcl:%d \n", nl, hitclcount);
       // Clusterize(mtdrn, 0, cal);
-      Clusterize(nl, 0, ev, cal);
+      Clusterize(nl, 0, (EventAMS *)ev, cal);
     } // ntdrMC = nlayers
 
     // update the event counters ...moved here
@@ -833,7 +837,7 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
   int numnum = ((unsigned int)array[size - 1]) & 0x1f;
   //  printf("JINF=%d, NUMNUM=%d\n", Jinfnum, numnum);
   if (out_flag) {
-    tdrnum = rh->FindPos(numnum, Jinfnum);
+    tdrnum = ((RHClassAMS *)rh)->FindPos(numnum, Jinfnum);
     //    printf("JINF=%d TDR=%d -> POS=%d\n", Jinfnum, numnum, tdrnum);
     if (tdrnum < 0) {
       printf("WARNING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
@@ -894,9 +898,9 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
   // - bits 4-0 { slave ID, set by master;
 
   if (out_flag)
-    ev->TDRStatus[Jinfnum][tdrnum] = array[size - 1];
+    ((EventAMS *)ev)->TDRStatus[Jinfnum][tdrnum] = array[size - 1];
   if (out_flag)
-    ev->ReadTDR[Jinfnum][tdrnum] = 1;
+    ((EventAMS *)ev)->ReadTDR[Jinfnum][tdrnum] = 1;
 
   int RawOffset = 0;
   if (TESTBIT(array[size - 1], 6)) { // RAW data present
@@ -910,33 +914,34 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
     int tdrnumraw = 0;
     int count = 0;
     if (out_flag) {
-      tdrnumraw = rh->FindPos(numnum, Jinfnum);
+      tdrnumraw = ((RHClassAMS *)rh)->FindPos(numnum, Jinfnum);
       if (tdrnumraw < 0) {
         printf("DecodeDataAMS::ReadOneTDR::Cannot-Find-TDR-%d-RAW\n", ComputeTdrNum(numnum, Jinfnum));
         exit(4);
       }
       calibAMS *cal = &(cals[ComputeTdrNum(numnum, Jinfnum)]);
       for (int kk = 0; kk < 320; kk++) {
-        ev->RawSignal[Jinfnum][tdrnumraw][kk] = array[count];           // first ADC on S
-        ev->RawSignal[Jinfnum][tdrnumraw][320 + kk] = array[count + 1]; // second ADC on S
-        ev->RawSignal[Jinfnum][tdrnumraw][640 + kk] = array[count + 2]; // ADC on K
-        //	printf("RAW %d %d  %d\n",kk,ev->RawSignal[FindTDRPos(tdrnum)][kk],array[count]);
+        ((EventAMS *)ev)->RawSignal[Jinfnum][tdrnumraw][kk] = array[count];           // first ADC on S
+        ((EventAMS *)ev)->RawSignal[Jinfnum][tdrnumraw][320 + kk] = array[count + 1]; // second ADC on S
+        ((EventAMS *)ev)->RawSignal[Jinfnum][tdrnumraw][640 + kk] = array[count + 2]; // ADC on K
+        //	printf("RAW %d %d  %d\n",kk,((EventAMS*)ev)->RawSignal[FindTDRPos(tdrnum)][kk],array[count]);
         count += 3;
       }
       for (int kk = 960; kk < 1024; kk++) { // remaining (320->384) on ADC on K
-        ev->RawSignal[Jinfnum][tdrnumraw][kk] = array[kk];
+        ((EventAMS *)ev)->RawSignal[Jinfnum][tdrnumraw][kk] = array[kk];
       }
       for (int cc = 0; cc < 1024; cc++) {
-        //	printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->RawSignal[tdrnumraw][cc])/8.0, cal->ped[cc],
-        // cal->sig[cc], (ev->RawSignal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
-        ev->CalPed[Jinfnum][tdrnumraw][cc] = cal->ped[cc];
-        ev->CalSigma[Jinfnum][tdrnumraw][cc] = cal->sig[cc];
-        ev->CalStatus[Jinfnum][tdrnumraw][cc] = cal->status[cc];
+        //	printf("%04d) %f %f %f -> %f\n", cc, ((double)((EventAMS*)ev)->RawSignal[tdrnumraw][cc])/8.0, cal->ped[cc],
+        // cal->sig[cc], (((EventAMS*)ev)->RawSignal[tdrnumraw][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
+        ((EventAMS *)ev)->CalPed[Jinfnum][tdrnumraw][cc] = cal->ped[cc];
+        ((EventAMS *)ev)->CalSigma[Jinfnum][tdrnumraw][cc] = cal->sig[cc];
+        ((EventAMS *)ev)->CalStatus[Jinfnum][tdrnumraw][cc] = cal->status[cc];
         if (cal->sig[cc] > 0.125 && // not a dead channel
             cal->sig[cc] < 10.0) {  // not a noisy channel
-          ev->RawSoN[Jinfnum][tdrnumraw][cc] = (ev->RawSignal[Jinfnum][tdrnumraw][cc] - cal->ped[cc]) / cal->sig[cc];
+          ((EventAMS *)ev)->RawSoN[Jinfnum][tdrnumraw][cc] =
+              (((EventAMS *)ev)->RawSignal[Jinfnum][tdrnumraw][cc] - cal->ped[cc]) / cal->sig[cc];
         } else {
-          ev->RawSoN[Jinfnum][tdrnumraw][cc] = 0.0;
+          ((EventAMS *)ev)->RawSoN[Jinfnum][tdrnumraw][cc] = 0.0;
         }
       }
 
@@ -946,14 +951,14 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
                                           // (-> we're in MIXED), the compressed ones would be better
           !kClusterize // if we're clusterizing the RAW event is better to fill the histograms with the clusters
       ) {
-        FillRawHistos(numnum, Jinfnum, ev, cal);
+        FillRawHistos(numnum, Jinfnum, (EventAMS *)ev, cal);
       }
 
       //      printf("%d %f %f %f %f\n", kClusterize, shighthreshold, slowthreshold, khighthreshold, klowthreshold);
 
       // this searches for clusters and if found Fill the histograms as in the CMP case
       if (kClusterize)
-        Clusterize(numnum, Jinfnum, ev, cal);
+        Clusterize(numnum, Jinfnum, (EventAMS *)ev, cal);
     }
   }
 
@@ -1002,7 +1007,8 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
         ) {
           calibAMS *cal = &(cals[ComputeTdrNum(numnum, Jinfnum)]);
           // AddCluster is also taking care of filling the histos
-          AddCluster(ev, cal, numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
+          AddCluster((EventAMS *)ev, cal, numnum, Jinfnum, clusadd, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad,
+                     sig);
         }
       }
     }
@@ -1011,7 +1017,7 @@ int DecodeDataAMS::ReadOneTDR(int Jinfnum) {
     //      //Read the  cnoise values
     //      for (int ii=size-17;ii<size-1;ii++){
     //        if(pri)printf("Cnoise %d:  %f \n",cc++,(array[ii])/8.);
-    //        if(out_flag)ev->CNoise[tdrnum][ii-size+17]=(array[ii])/8.;
+    //        if(out_flag)((EventAMS*)ev)->CNoise[tdrnum][ii-size+17]=(array[ii])/8.;
     //      }
   }
   if (pri)
@@ -1244,11 +1250,11 @@ int DecodeDataAMS::ReadOneJINF() {
     printf("\n \n");
 
   if (out_flag)
-    ev->JINFStatus[Jinfnum] = status;
+    ((EventAMS *)ev)->JINFStatus[Jinfnum] = status;
 
   //  if((status&0x400)>0){
   if ((status & 0x200) > 0 || (status & 0x400) > 0) {
-    printf("=======================> JINF Error!!!  Skip this event: %d\n", ev->Evtnum);
+    printf("=======================> JINF Error!!!  Skip this event: %d\n", ((EventAMS *)ev)->Evtnum);
     count = 5;
     for (int base = 32; base < 0x8000; base *= 2) {
       if ((status & base) > 0)
@@ -1294,22 +1300,6 @@ int DecodeDataAMS::ReadOneJINF() {
   return 0;
 }
 
-int DecodeDataAMS::GetTdrNum(size_t pos) {
-  if (pos > NJINF * NTDRS) {
-    printf("Pos %ld not allowed. Max is %ld\n", pos, NJINF * NTDRS);
-    return -9999;
-  }
-  return tdrMap[pos].first;
-}
-
-int DecodeDataAMS::GetTdrType(size_t pos) {
-  if (pos > NJINF * NTDRS) {
-    printf("Pos %ld not allowed. Max is %ld\n", pos, NJINF * NTDRS);
-    return -9999;
-  }
-  return tdrMap[pos].second;
-}
-
 void DecodeDataAMS::mysort(laddernumtype *aa, int nel) {
 
   laddernumtype *bb = new laddernumtype[nel];
@@ -1332,25 +1322,3 @@ void DecodeDataAMS::mysort(laddernumtype *aa, int nel) {
 
   delete[] bb;
 }
-
-int DecodeDataAMS::FindPos(int tdrnum, int jinfnum) {
-  if (rh) {
-    return rh->FindPos(tdrnum, jinfnum);
-  } else {
-    printf("***RHClass not instanciated...\n");
-  }
-
-  return -1;
-}
-
-int DecodeDataAMS::FindCalPos(int tdrnum, int jinfnum) {
-  if (rh) {
-    return rh->FindPos(tdrnum, jinfnum);
-  } else {
-    printf("***RHClass not instanciated...\n");
-  }
-
-  return -1;
-}
-
-int DecodeDataAMS::ComputeTdrNum(int tdrnum, int jinfnum) { return RHClassAMS::ComputeTdrNum(tdrnum, jinfnum); }

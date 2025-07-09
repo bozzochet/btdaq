@@ -1,7 +1,7 @@
 CXX := $(shell root-config --cxx)
 
 CLASSES = Cluster.hh LadderConf.hh EventUtils.hh
-TEMPLATE_CLASSES = GenericEvent.hh GenericEvent.hpp
+TEMPLATE_CLASSES = Event.hh Event.hpp
 
 DEC_SOURCES = DecodeData.cxx
 DEC_SOURCES += FSUtils.cxx main.cxx rootElibdict.cxx
@@ -38,7 +38,7 @@ LDFLAGS = $(shell root-config --ldflags)
 # LDFLAGS += -fsanitize=address
 
 ### For Release:
-CFLAGS:= -g -O3 -fPIC -Wall -Wno-overloaded-virtual -Wno-deprecated -Wno-unused-but-set-variable -Wno-unused-variable -DSPDLOG_FMT_EXTERNAL
+CFLAGS:= -g -O3 -fPIC -Wall -Wno-overloaded-virtual -Wno-deprecated -Wno-unused-but-set-variable -Wno-unused-variable -Wno-vla-cxx-extension -DSPDLOG_FMT_EXTERNAL
 
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --auxcflags)
 
@@ -69,6 +69,10 @@ libEvent.so:$(LIB_OBJ)
 
 libEventa.a:$(LIB_OBJ)
 	@ar rv $@ $^
+
+libbtdecode:
+	rm -f $(LIBDECODE_L0)_install/lib/libtbdecode.so
+	make $(LIBDECODE_L0)_install/lib/libtbdecode.so
 
 $(LIBDECODE_L0)_install/lib/libtbdecode.so:
 	cmake -S $(L0_FIRMWARE)/libdecode -B $(LIBDECODE_L0)_build -DCMAKE_INSTALL_PREFIX=$(LIBDECODE_L0)_install

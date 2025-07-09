@@ -6,7 +6,7 @@
 #define DECODE_DECODEDATAAMSL0_HH
 
 #include "DecodeData.hh"
-#include "GenericEvent.hh"
+#include "Event.hh"
 
 #include "TBDecode/AMSL0/AMSBlock.h"
 #include "TBDecode/AMSL0/AMSBlockStream.h"
@@ -16,15 +16,12 @@
 
 class DecodeDataAMSL0 : public DecodeData {
 public:
-  using EventAMSL0 = GenericEvent<2, 9, 64, 8, 16, 0>;
+  using EventAMSL0 = Event<8, 9, 64, 8, 16, 0>;
   using calibAMSL0 = calib<EventAMSL0::GetNCHAVA() * EventAMSL0::GetNVAS()>;
   using RHClassAMSL0 = RHClass<EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>;
   //  using Calibrations = std::array<std::array<calibAMSL0, EventAMSL0 ::GetNTDRS()>, EventAMSL0::GetNJINF()>;
   using CalibrationsAMSL0 =
       Calibrations<EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS(), EventAMSL0::GetNCHAVA() * EventAMSL0::GetNVAS()>;
-
-  EventAMSL0 *ev;
-  RHClassAMSL0 *rh;
 
   DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int runStop,
                   unsigned int calStart, unsigned int calStop, int _style = 0, bool _kOnlyProcessCal = false);
@@ -49,8 +46,8 @@ public:
   // dummy for now
   virtual int SkipOneEvent(int evskip = 1) final { return 0; };
 
-  virtual int GetTdrNum(size_t pos) final;
-  virtual int GetTdrType(size_t pos) final;
+  virtual int GetNTDRS() final { return EventAMSL0::GetNTDRS(); }
+  virtual int GetNJINF() final { return EventAMSL0::GetNJINF(); }
 
   int EndOfFile() final;
 
@@ -110,10 +107,6 @@ private:
   std::deque<std::pair<uint16_t, std::map<std::pair<uint16_t, uint16_t>, std::vector<uint16_t>>>> buffer;
   int ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, EventAMSL0 *event, unsigned long int nEvents,
                            uint16_t expTagType = 0, uint16_t expTag = 0);
-
-  virtual int FindPos(int tdrnum, int jinfnum) final;
-  virtual int FindCalPos(int tdrnum, int jinfnum) final;
-  virtual int ComputeTdrNum(int tdrnum, int jinfnum) final;
 };
 
 #endif // DECODE_DECODEDATAAMSL0_HH

@@ -5,7 +5,7 @@
 #include "DecodeDataFOOT.hh"
 #include "FSUtils.hh"
 
-#include "GenericEvent.hpp"
+#include "Event.hpp"
 
 #include <numeric>
 #include <unistd.h>
@@ -123,22 +123,6 @@ void DecodeDataFOOT::OpenFile(const char *rawDir, const char *calDir, int runNum
       m_calRunnums.push_back(calNum);
     }
   }
-}
-
-int DecodeDataFOOT::GetTdrNum(size_t pos) {
-  if (pos > NJINF * NTDRS) {
-    printf("Pos %ld not allowed. Max is %ld\n", pos, NJINF * NTDRS);
-    return -9999;
-  }
-  return tdrMap[pos].first;
-}
-
-int DecodeDataFOOT::GetTdrType(size_t pos) {
-  if (pos > NJINF * NTDRS) {
-    printf("Pos %ld not allowed. Max is %ld\n", pos, NJINF * NTDRS);
-    return -9999;
-  }
-  return tdrMap[pos].second;
 }
 
 // TODO: waiting for run header definition
@@ -432,13 +416,13 @@ int DecodeDataFOOT::ReadOneEvent() {
   // copy calibration data...
   for (unsigned int iBoard = 0; iBoard < 2 * m_numBoards; ++iBoard) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      ev->CalPed[iJinf][iBoard][iCh] = cals[iBoard].ped[iCh];
-      ev->CalSigma[iJinf][iBoard][iCh] = cals[iBoard].sig[iCh];
-      ev->CalStatus[iJinf][iBoard][iCh] = cals[iBoard].status[iCh];
+      ((EventFOOT *)ev)->CalPed[iJinf][iBoard][iCh] = cals[iBoard].ped[iCh];
+      ((EventFOOT *)ev)->CalSigma[iJinf][iBoard][iCh] = cals[iBoard].sig[iCh];
+      ((EventFOOT *)ev)->CalStatus[iJinf][iBoard][iCh] = cals[iBoard].status[iCh];
     }
   }
 
-  int retVal = ReadOneEventFromFile(rawfile, ev);
+  int retVal = ReadOneEventFromFile(rawfile, (EventFOOT *)ev);
 
   if (kClusterize) {
     // clusterize!
@@ -446,31 +430,9 @@ int DecodeDataFOOT::ReadOneEvent() {
     // point, so it should return.
     for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
       printf("Cluterizing detector %i\n", iTDR);
-      Clusterize(iTDR, 0, ev, &cals[iTDR]);
+      Clusterize(iTDR, 0, (EventFOOT *)ev, &cals[iTDR]);
     }
   }
 
   return retVal;
 };
-
-int DecodeDataFOOT::FindPos(int tdrnum, int jinfnum) {
-  if (rh) {
-    return rh->FindPos(tdrnum, jinfnum);
-  } else {
-    printf("***RHClass not instanciated...\n");
-  }
-
-  return -1;
-}
-
-int DecodeDataFOOT::FindCalPos(int tdrnum, int jinfnum) {
-  if (rh) {
-    return rh->FindPos(tdrnum, jinfnum);
-  } else {
-    printf("***RHClass not instanciated...\n");
-  }
-
-  return -1;
-}
-
-int DecodeDataFOOT::ComputeTdrNum(int tdrnum, int jinfnum) { return RHClassFOOT::ComputeTdrNum(tdrnum, jinfnum); }

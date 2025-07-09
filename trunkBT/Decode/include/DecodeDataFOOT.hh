@@ -6,16 +6,13 @@
 #define DECODE_DECODEDATAFOOT_HH
 
 #include "DecodeData.hh"
-#include "GenericEvent.hh"
+#include "Event.hh"
 
 class DecodeDataFOOT : public DecodeData {
 public:
-  using EventFOOT = GenericEvent<1, 24, 64, 5, 10, 0>;
+  using EventFOOT = Event<1, 24, 64, 5, 10, 0>;
   using calibFOOT = calib<EventFOOT::GetNCHAVA() * EventFOOT::GetNVAS()>;
   using RHClassFOOT = RHClass<EventFOOT::GetNJINF(), EventFOOT::GetNTDRS()>;
-
-  EventFOOT *ev;
-  RHClassFOOT *rh;
 
   DecodeDataFOOT(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calNum);
 
@@ -23,7 +20,7 @@ public:
     return {EventFOOT::GetNJINF(), EventFOOT::GetNTDRS(), EventFOOT::GetNCHAVA(), EventFOOT::GetNADCS(),
             EventFOOT::GetNVAS()};
   };
-  virtual TString EventClassname() final {return ev->ClassName(); };
+  virtual TString EventClassname() final { return ev->ClassName(); };
 
   int ReadOneEvent() override;
   virtual void ClearEvent() final { ev->Clear(); };
@@ -31,6 +28,9 @@ public:
   void GetCalFilePrefix(char *calfileprefix, long int runnum) override {
     sprintf(calfileprefix, "%s/%ld", m_calDir.c_str(), runnum);
   }
+
+  virtual int GetNTDRS() final { return EventFOOT::GetNTDRS(); }
+  virtual int GetNJINF() final { return EventFOOT::GetNJINF(); }
 
 private:
   FILE *calfile = nullptr;
@@ -46,12 +46,6 @@ private:
 
   // dummy for now
   virtual int SkipOneEvent(int evskip = 1) final { return 0; };
-  virtual int GetTdrNum(size_t pos) override;
-  virtual int GetTdrType(size_t pos) override;
-
-  virtual int FindPos(int tdrnum, int jinfnum) final;
-  virtual int FindCalPos(int tdrnum, int jinfnum) final;
-  virtual int ComputeTdrNum(int tdrnum, int jinfnum) final;
 };
 
 #endif // DECODE_DECODEDATAFOOT_HH

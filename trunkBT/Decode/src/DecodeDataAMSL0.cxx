@@ -5,7 +5,7 @@
 #include "DecodeDataAMSL0.hh"
 #include "FSUtils.hh"
 
-#include "GenericEvent.hpp"
+#include "Event.hpp"
 
 #include <algorithm>
 #include <iomanip>
@@ -129,13 +129,13 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
   //  DecodeDataAMSL0::OpenFile(m_rawDir.c_str(), m_calDir.c_str(), runNum, runStop, calStart, calStop);
   DecodeDataAMSL0::OpenFile(m_rawDir.c_str(), m_rawDir.c_str(), runNum, runStop, calStart, calStop);
 
-  rh->SetRun(runNum);
+  ((RHClassAMSL0 *)rh)->SetRun(runNum);
 
   //  printf("DecodeStyle = %d\n", decodestyle);
 
   bool rfherr = false;
   if (decodestyle == 0) {
-    if (!ReadFileHeader(rawfile, rh))
+    if (!ReadFileHeader(rawfile, (RHClassAMSL0 *)rh))
       rfherr = true;
   } else {
     uint16_t tag = 0xD;
@@ -147,9 +147,9 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
     */
     if (kOnlyProcessCal) {
       tag = 0xC;
-      goodrh = ReadFileHeader(&rawcalstream, m_calFilenames, rh, tag);
+      goodrh = ReadFileHeader(&rawcalstream, m_calFilenames, (RHClassAMSL0 *)rh, tag);
     } else {
-      goodrh = ReadFileHeader(&rawdatastream, m_dataFilenames, rh, tag);
+      goodrh = ReadFileHeader(&rawdatastream, m_dataFilenames, (RHClassAMSL0 *)rh, tag);
     }
     if (!goodrh)
       rfherr = true;
@@ -201,8 +201,12 @@ bool DecodeDataAMSL0::ProcessCalibration() {
         //        break;
 
         for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
-          unsigned int iTdr = rh->GetTdrNum(iTdr_index);
-          unsigned int iJinf = rh->GetJinfNum(iTdr_index);
+          unsigned int LEF = ((RHClassAMSL0 *)rh)->GetTdrNum(iTdr_index);
+          unsigned int LINF = ((RHClassAMSL0 *)rh)->GetJinfNum(iTdr_index);
+          uint16_t iJinf = ((RHClassAMSL0 *)rh)->FindJinfPos(LINF);
+          uint16_t LEF_glob_index = ((RHClassAMSL0 *)rh)->FindPos(LEF, LINF);
+          uint16_t iTdr = ((RHClassAMSL0 *)rh)->GetTdrNum(iTdr_index);
+          //        printf("%d) iLINF=%d (%d), iLEF=%d (%d, %d)\n", iTdr_index, iJinf, LINF, iTdr, LEF, LEF_glob_index);
           for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
             signals[iJinf][iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
             cals[iJinf][iTdr].cal_signale[iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
@@ -222,6 +226,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
     // Some test calibrations contain too many events, stop at 10k
     while (nEvents < 10000) {
       event.get()->Clear();
+      //      printf("%d\n", nEvents);
       int result = ReadOneEventFromFile(&rawcalstream, event.get(), nEvents, 0xC, CalTag);
       if (result) {
         if (result < 0) {
@@ -237,12 +242,16 @@ bool DecodeDataAMSL0::ProcessCalibration() {
       //        break;
 
       for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
-        unsigned int iTdr = rh->GetTdrNum(iTdr_index);
-        unsigned int iJinf = rh->GetJinfNum(iTdr_index);
+        unsigned int LEF = ((RHClassAMSL0 *)rh)->GetTdrNum(iTdr_index);
+        unsigned int LINF = ((RHClassAMSL0 *)rh)->GetJinfNum(iTdr_index);
+        uint16_t iJinf = ((RHClassAMSL0 *)rh)->FindJinfPos(LINF);
+        uint16_t LEF_glob_index = ((RHClassAMSL0 *)rh)->FindPos(LEF, LINF);
+        uint16_t iTdr = ((RHClassAMSL0 *)rh)->GetTdrNum(iTdr_index);
+        //        printf("%d) iLINF=%d (%d), iLEF=%d (%d, %d)\n", iTdr_index, iJinf, LINF, iTdr, LEF, LEF_glob_index);
         for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
           if (event->ValidTDR[iJinf][iTdr]) {
             signals[iJinf][iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
-             cals[iJinf][iTdr].cal_signale[iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+            cals[iJinf][iTdr].cal_signale[iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
             // if (evpri)
             //   printf("signals[%d][%d][%d] = %f\n", iJinf, iTdr, iCh, event->RawSignal[iJinf][iTdr][iCh] /
             //   m_adcUnits);
@@ -268,17 +277,6 @@ bool DecodeDataAMSL0::ProcessCalibration() {
 
   //  ComputeCalibration<EventAMSL0, calibAMSL0, EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>(cals);
   ComputeCalibration<EventAMSL0, calibAMSL0, EventAMSL0::GetNJINF(), EventAMSL0::GetNTDRS()>(cals.GetArray());
-
-  //  printf("nJinf = %d\n", nJinf);
-  for (unsigned int iJinf = 0; iJinf < uint(nJinf); iJinf++) {
-    //    printf("iJinf = %d\n", iJinf);
-
-    /*
-      for (unsigned int iTdr = 0; iTdr < (ntdrRaw + ntdrCmp); iTdr++) {
-      printf("iJinf=%u, iTdr=%u valid: %d\n", iJinf, iTdr, cals[iJinf][iTdr].valid);
-      }
-    */
-  }
 
   //  SaveCalibration<EventAMSL0, calibAMSL0>(cals);
   SaveCalibration<EventAMSL0, calibAMSL0>(cals.GetArray());
@@ -322,28 +320,33 @@ int DecodeDataAMSL0::ReadOneEvent() {
     oldfile = rawdatastream.CurrentFilePath();
   }
 
+  // MD: 6/Jul/2025: seems not working anymore... let's remove the if...
   // copy calibration data... Just for first event (when > 0 we can start to skip), since are "static" (not `static`!!!)
-  if (m_read_events == 0) {
-    for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
-      unsigned int iTdr = rh->GetTdrNum(iTdr_index);
-      unsigned int iJinf = rh->GetJinfNum(iTdr_index);
-      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-        ev->CalPed[iJinf][iTdr][iCh] = cals[iJinf][iTdr].ped[iCh];
-        ev->CalSigma[iJinf][iTdr][iCh] = cals[iJinf][iTdr].sig[iCh];
-        ev->CalStatus[iJinf][iTdr][iCh] = cals[iJinf][iTdr].status[iCh];
-      }
+  //  if (m_read_events == 0) {
+  for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
+    unsigned int LEF = ((RHClassAMSL0 *)rh)->GetTdrNum(iTdr_index);
+    unsigned int LINF = ((RHClassAMSL0 *)rh)->GetJinfNum(iTdr_index);
+    uint16_t iJinf = ((RHClassAMSL0 *)rh)->FindJinfPos(LINF);
+    uint16_t LEF_glob_index = ((RHClassAMSL0 *)rh)->FindPos(LEF, LINF);
+    uint16_t iTdr = ((RHClassAMSL0 *)rh)->GetTdrNum(iTdr_index);
+    //      printf("%d) iLINF=%d (%d), iLEF=%d (%d, %d)\n", iTdr_index, iJinf, LINF, iTdr, LEF, LEF_glob_index);
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+      ((EventAMSL0 *)ev)->CalPed[iJinf][iTdr][iCh] = cals[iJinf][iTdr].ped[iCh];
+      ((EventAMSL0 *)ev)->CalSigma[iJinf][iTdr][iCh] = cals[iJinf][iTdr].sig[iCh];
+      ((EventAMSL0 *)ev)->CalStatus[iJinf][iTdr][iCh] = cals[iJinf][iTdr].status[iCh];
     }
   }
+  //  }
 
   int retVal = 1;
   if (decodestyle == 0)
-    retVal = ReadOneEventFromFile(rawfile, ev);
+    retVal = ReadOneEventFromFile(rawfile, ((EventAMSL0 *)ev));
   else
     while (retVal >= 1 && retVal <= 3) { // 1: too early, 2: not found yet: 3: no SCIData
-      retVal = ReadOneEventFromFile(&rawdatastream, ev, m_read_events, 0xD, Tag);
+      retVal = ReadOneEventFromFile(&rawdatastream, ((EventAMSL0 *)ev), m_read_events, 0xD, Tag);
     }
   if (!retVal) {
-    ev->SetEvtNum(m_read_events);
+    ((EventAMSL0 *)ev)->SetEvtNum(m_read_events);
     m_read_events++;
   } else {
     // Don't clusterize empty or generally bad events!! [VF]
@@ -353,13 +356,16 @@ int DecodeDataAMSL0::ReadOneEvent() {
   // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this
   // point, so it should return.
   for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
-    unsigned int iTdr = rh->GetTdrNum(iTdr_index);
-    unsigned int iJinf = rh->GetJinfNum(iTdr_index);
-    //      printf("iJinf = %d, iTdr = %d\n", iJinf, iTdr);
+    unsigned int LEF = ((RHClassAMSL0 *)rh)->GetTdrNum(iTdr_index);
+    unsigned int LINF = ((RHClassAMSL0 *)rh)->GetJinfNum(iTdr_index);
+    uint16_t iJinf = ((RHClassAMSL0 *)rh)->FindJinfPos(LINF);
+    uint16_t LEF_glob_index = ((RHClassAMSL0 *)rh)->FindPos(LEF, LINF);
+    uint16_t iTdr = ((RHClassAMSL0 *)rh)->GetTdrNum(iTdr_index);
+    //    printf("%d) iLINF=%d (%d), iLEF=%d (%d, %d)\n", iTdr_index, iJinf, LINF, iTdr, LEF, LEF_glob_index);
     if (kClusterize) {
-      Clusterize(iTdr, iJinf, ev, &cals.at(iJinf).at(iTdr));
+      Clusterize(iTdr, iJinf, (EventAMSL0 *)ev, &cals.at(iJinf).at(iTdr));
     } else {
-      FillRawHistos(iTdr, iJinf, ev, &cals.at(iJinf).at(iTdr));
+      FillRawHistos(iTdr, iJinf, (EventAMSL0 *)ev, &cals.at(iJinf).at(iTdr));
     }
   }
 
@@ -747,7 +753,7 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
             },
             [&config_to_print, &not_same_config, &current_config_info, rhc, &kConfigInfoFound, slinf, slef,
              this](TBDecode::L0::AMSBlock::ConfigInfo &block) {
-              char to_add[512] = "";
+              char to_add[5120] = "";
               if (block.config != "") { // for some reason sometime is empty
                 printf("  Read a ConfigInfo block from node %02x", block.node_address);
                 if (rhc) {
@@ -776,53 +782,46 @@ bool DecodeDataAMSL0::ReadFileHeader(TBDecode::L0::AMSBlockStream *rawfilestream
                     not_same_config = true;
                   }
                 }
-                snprintf(to_add, 512, "  config:  %s\n", block.config.c_str());
-                config_to_print += to_add;
-                snprintf(to_add, 512, "Dumping all devices:\n");
-                config_to_print += to_add;
-                snprintf(to_add, 512, " Device type: %s, version: %d, node_address: %02x, device_ID: %02x\n",
-                         TBDecode::L0::AMSBlock::main_box.name.c_str(), TBDecode::L0::AMSBlock::main_box.version,
-                         TBDecode::L0::AMSBlock::main_box.node_address, TBDecode::L0::AMSBlock::main_box.device_ID);
-                config_to_print += to_add;
-                for (TBDecode::L0::AMSBlock::AMSL0Node &device : TBDecode::L0::AMSBlock::main_box.links) {
-                  if (!device.fake) {
-                    snprintf(
-                        to_add, 512,
-                        "  |- Device: %6s (%7s), node_ID: %02x, node_address: %02x, link_number: %d, version: %d\n",
-                        device.name.c_str(), device.unique_name.c_str(), device.node_ID, device.node_address,
-                        device.link_number, device.version);
-                    config_to_print += to_add;
-                    if (rhc) {
-                      if (device.name.find(slinf) != std::string::npos) {
-                        this->JinfMap[nJinf] = device.link_number >> 1; // 0 and 1 = 0, 2 and 3 = 1
-                        //                        this->JinfMap[nJinf] = device.node_ID;
-                        this->nJinf++;
-                      } else if (device.name.find(slef) != std::string::npos) {
-                        this->tdrMap[ntdrRaw] = {device.link_number, 0}; // {board number, RAW}
-                        //                        this->tdrMap[ntdrRaw] = {device.node_ID, 0}; // {board number, RAW}
-                        this->ntdrRaw++;
-                      } else {
-                        printf("  This is not a recognized kind of device: %s\n", device.name.c_str());
-                      }
-                    }
-                    for (TBDecode::L0::AMSBlock::AMSL0Node &sec_device : device.links) {
-                      snprintf(to_add, 512, "    |- Device: %6s (%7s), node_ID: %02x, link_number: %d, version: %d\n",
-                               sec_device.name.c_str(), sec_device.unique_name.c_str(), sec_device.node_ID,
-                               sec_device.link_number, sec_device.version);
-                      config_to_print += to_add;
+                for (TBDecode::L0::AMSBlock::AMSUSBBox &main_box : TBDecode::L0::AMSBlock::mainsetup.links) {
+                  for (TBDecode::L0::AMSBlock::AMSL0Node &device : main_box.links) {
+                    if (!device.fake) {
                       if (rhc) {
-                        if (sec_device.name.find(slef) != std::string::npos) {
-                          auto jinfnum = device.link_number >> 1; // 0 and 1 = 0, 2 and 3 = 1
-                          this->tdrMap[this->ntdrRaw] = {ComputeTdrNum(sec_device.link_number, jinfnum),
-                                                         0}; // {board number, RAW}
+                        if (device.name.find(slinf) != std::string::npos) {
+                          //                          this->JinfMap[nJinf] = device.link_number >> 1; // 0 and 1 = 0, 2
+                          //                          and 3 = 1
+                          this->JinfMap[nJinf] = device.LINF_number;
+                          //                        this->JinfMap[nJinf] = device.node_ID;
+                          this->nJinf++;
+                        } else if (device.name.find(slef) != std::string::npos) {
+                          //                          this->tdrMap[ntdrRaw] = {device.link_number, 0}; // {board number,
+                          //                          RAW}
+                          this->tdrMap[ntdrRaw] = {device.LEF_number, 0}; // {board number, RAW}
+                          //                        this->tdrMap[ntdrRaw] = {device.node_ID, 0}; // {board number, RAW}
                           this->ntdrRaw++;
                         } else {
-                          printf("  This is not a recognized kind of device: %s\n", sec_device.name.c_str());
+                          printf("  This is not a recognized kind of device: %s\n", device.name.c_str());
+                        }
+                      }
+                      for (TBDecode::L0::AMSBlock::AMSL0Node &sec_device : device.links) {
+                        if (rhc) {
+                          if (sec_device.name.find(slef) != std::string::npos) {
+                            //                            auto jinfnum = device.link_number >> 1; // 0 and 1 = 0, 2 and
+                            //                            3 = 1
+                            auto jinfnum = device.LINF_number;
+                            // this->tdrMap[this->ntdrRaw] = {ComputeTdrNum(sec_device.link_number, jinfnum),
+                            //                                0}; // {board number, RAW}
+                            this->tdrMap[this->ntdrRaw] = {ComputeTdrNum(sec_device.LEF_number, jinfnum),
+                                                           0}; // {board number, RAW}
+                            this->ntdrRaw++;
+                          } else {
+                            printf("  This is not a recognized kind of device: %s\n", sec_device.name.c_str());
+                          }
                         }
                       }
                     }
                   }
                 }
+                config_to_print = block.BuildConfigToPrint();
               } else {
                 printf("  **** the config string is empty. Why?\n");
               }
@@ -1018,7 +1017,8 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
                              if (evpri)
                                printf("i) evno=%u,  nLEFs=%lu\n", evno, nLEFs);
                              for (auto j = i->second.begin(); j != i->second.end(); j++) {
-                               uint16_t LINF = j->first.first >> 1; // 0 and 1 = 0, 2 and 3 = 1
+                               uint16_t LINF = j->first.first;
+                               // uint16_t LINF = j->first.first >> 1; // 0 and 1 = 0, 2 and 3 = 1
                                uint16_t LEF = j->first.second;
                                unsigned long size_data = j->second.size();
                                if (evpri)
@@ -1085,19 +1085,6 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
       }
     };
 
-    /*
-    // MD: maybe is just a workaround. To double-check
-    auto get_LINF = [](auto readLINF) {
-      if (readLINF == 0 || readLINF == 2)
-        return 1;
-      else if (readLINF == 3 || readLINF == 4)
-        return 2;
-      else {
-        printf("not valid LINF number: %d\n", readLINF);
-        return -99;
-      }
-    };
-    */
     auto get_LINF = [](auto readLINF) {
       if (readLINF == 0 || readLINF == 1)
         return (int)readLINF;
@@ -1106,16 +1093,6 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
         return -99;
       }
     };
-    /*
-    auto get_LINF = [](auto readLINF) {
-      if (readLINF == 0 || readLINF == 1 || readLINF == 2 || readLINF == 3)
-        return (int)readLINF;
-      else {
-        printf("not valid LINF number: %d\n", readLINF);
-        return -99;
-      }
-    };
-    */
 
     /*
     printf("buffer content:\n");
@@ -1153,17 +1130,25 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
             printf("read-Good: evno=%d, nLEFs=%lu (next evno_to_process=%d), last_evno=%d - nEvents=%lu\n", evno, nLEFs,
                    evno_to_process, last_evno, nEvents);
           for (auto j = i->second.begin(); j != i->second.end(); j++) {
-            uint16_t LINF = get_LINF(j->first.first);
-            uint16_t LINF_index = rh->FindJinfPos(LINF);
-            uint16_t LEF_glob_index = rh->FindPos(j->first.second, LINF);
-            uint16_t LEF_index = rh->GetTdrNum(LEF_glob_index);
-            uint16_t LEF = rh->ComputeTdrNum(j->first.second, LINF);
+            //            uint16_t LINF = get_LINF(j->first.first);
+            uint16_t LINF = j->first.first;
+            uint16_t LINF_index = ((RHClassAMSL0 *)rh)->FindJinfPos(LINF);
+            uint16_t LEF_glob_index = ((RHClassAMSL0 *)rh)->FindPos(j->first.second, LINF);
+            uint16_t LEF_index = ((RHClassAMSL0 *)rh)->GetTdrNum(LEF_glob_index);
+            uint16_t LEF = ((RHClassAMSL0 *)rh)->ComputeTdrNum(j->first.second, LINF);
             unsigned long size_data = j->second.size();
             if (evpri)
               printf("read j) LEF[%d][%d]: LINF=%d (%d), LEF=%d (%d, %d) -> size_data=%lu\n", LINF_index, LEF_index,
                      LINF, j->first.first, LEF, j->first.second, LEF_glob_index, size_data);
-            std::copy(std::begin(j->second), std::end(j->second), std::begin(event->RawSignal[LINF_index][LEF_index]));
-            //      std::cout << "Ch0 signal = " << event->RawSignal[LINF_index][LEF_index][0] << '\n';
+            //            std::copy(std::begin(j->second), std::end(j->second),
+            //            std::begin(event->RawSignal[LINF_index][LEF_index]));
+            for (auto cc = 0; cc <= (j->second).size(); cc++) {
+              event->RawSignal[LINF_index][LEF_index][cc] = (j->second)[cc];
+              event->RawSoN[LINF_index][LEF_index][cc] =
+                  (event->RawSignal[LINF_index][LEF_index][cc] - cals[LINF_index][LEF_index].ped[cc]) /
+                  cals[LINF_index][LEF_index].sig[cc];
+            }
+            //            std::cout << "Ch0 signal = " << event->RawSignal[LINF_index][LEF_index][0] << '\n';
             event->ValidTDR[LINF_index][LEF_index] = true;
           }
           buffer.pop_front();
@@ -1274,7 +1259,7 @@ void DecodeDataAMSL0::DumpRunHeader() {
     printf("********* READVALS: %d %d %d %d \n", (ntdrRaw + ntdrCmp), nJinf, ntdrRaw, ntdrCmp);
     printf("Dumping the file headers that are going to be written in the ROOT files...\n");
   }
-  rh->Print();
+  ((RHClassAMSL0 *)rh)->Print();
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -1293,44 +1278,6 @@ void DecodeDataAMSL0::ResetSetup() {
 
   return;
 }
-
-int DecodeDataAMSL0::GetTdrNum(size_t pos) {
-  if (pos > NJINF * NTDRS) {
-    printf("Pos %ld not allowed. Max is %ld\n", pos, NJINF * NTDRS);
-    return -9999;
-  }
-  return tdrMap[pos].first;
-}
-
-int DecodeDataAMSL0::GetTdrType(size_t pos) {
-  if (pos > NJINF * NTDRS) {
-    printf("Pos %ld not allowed. Max is %ld\n", pos, NJINF * NTDRS);
-    return -9999;
-  }
-  return tdrMap[pos].second;
-}
-
-int DecodeDataAMSL0::FindPos(int tdrnum, int jinfnum) {
-  if (rh) {
-    return rh->FindPos(tdrnum, jinfnum);
-  } else {
-    printf("***RHClass not instanciated...\n");
-  }
-
-  return -1;
-}
-
-int DecodeDataAMSL0::FindCalPos(int tdrnum, int jinfnum) {
-  if (rh) {
-    return rh->FindPos(tdrnum, jinfnum);
-  } else {
-    printf("***RHClass not instanciated...\n");
-  }
-
-  return -1;
-}
-
-int DecodeDataAMSL0::ComputeTdrNum(int tdrnum, int jinfnum) { return RHClassAMSL0::ComputeTdrNum(tdrnum, jinfnum); }
 
 //------------------------------------------------------------------------------------------------------------------
 

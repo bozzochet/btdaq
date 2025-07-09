@@ -1,10 +1,10 @@
-#include "GenericEvent.hpp"
+#include "Event.hpp"
 
-using EventAMS = GenericEvent<1, 24, 64, 3, 10, 6>;
+using EventAMS = Event<1, 24, 64, 3, 10, 6>;
 using RHClassAMS = RHClass<EventAMS::GetNJINF(), EventAMS::GetNTDRS()>;
 
 // we can keep everything hardcoded since we define specialized constructors for each flavor
-template <> EventAMS::GenericEvent(const char *ladderconf, const char *gaincorr) {
+template <> EventAMS::Event(const char *ladderconf, const char *gaincorr) {
   _eventkind = 1; // 0: generic, 1: AMS, 2: OCA, 3: FOOT, 4: AMSL0
 
   Cls = new TClonesArray("Cluster",

@@ -11,6 +11,7 @@
 #include "TH2F.h"
 #include "TTree.h"
 
+#include "Event.hh"
 #include "EventUtils.hh"
 
 #pragma pack(push, 1)
@@ -77,14 +78,20 @@ protected:
   unsigned int m_defaultShift = 640;
   unsigned int m_defaultArraySize = 384;
 
-  virtual int FindPos(int tdrnum, int jinfnum) = 0;
-  virtual int FindCalPos(int tdrnum, int jinfnum) = 0;
+  virtual int GetNTDRS() = 0;
+  virtual int GetNJINF() = 0;
+
   int ReadFile(void *ptr, size_t size, size_t nitems, FILE *stream);
 
   bool kMC = false;
 
 public:
-  virtual int ComputeTdrNum(int tdrnum, int jinfnum) = 0;
+  GenericRHClass *rh = NULL;
+  GenericEvent *ev = NULL;
+
+  virtual int FindPos(int tdrnum, int jinfnum);
+  virtual int FindCalPos(int tdrnum, int jinfnum);
+  virtual int ComputeTdrNum(int tdrnum, int jinfnum);
 
   // TODO: put in DecodeDataAMS
 
@@ -121,8 +128,10 @@ public:
 
   virtual inline int GetNTdrRaw() { return ntdrRaw; }
   virtual inline int GetNTdrCmp() { return ntdrCmp; }
-  virtual int GetTdrNum(size_t pos) = 0;
-  virtual int GetTdrType(size_t pos) = 0;
+
+  int GetTdrNum(size_t pos);
+  int GetJinfNum(size_t pos);
+  int GetTdrType(size_t pos);
 
   virtual int SkipOneEvent(int evskip = 1) = 0;
   virtual int ReadOneEvent() = 0;
@@ -285,7 +294,7 @@ inline void DecodeData::FillRawHistos(int numnum, int Jinfnum, Event *ev, calib 
   //  constexpr auto NVASK = Event::GetNVASK();
   constexpr auto NCHAVA = Event::GetNCHAVA();
 
-  int tdrnumraw = FindPos(numnum, Jinfnum);
+  //  printf("numnum = %d, Jinfnum = %d\n", numnum, Jinfnum);
 
   LadderConf *ladderconf = LadderConf::Instance();
   double shithresh = ladderconf->GetSHiThreshold(Jinfnum, numnum);
@@ -315,20 +324,21 @@ inline void DecodeData::FillRawHistos(int numnum, int Jinfnum, Event *ev, calib 
       }
     }
 
-    //    int tdrindex = tdrnumraw; //MD: I think is wrong if used in [Jinfnum][tdrindex] array...
-    int tdrindex = numnum;
+    // printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->RawSignal[Jinfnum][numnum][cc]) / m_adcUnits, cal->ped[cc],
+    //        cal->sig[cc], (ev->RawSignal[Jinfnum][numnum][cc] / m_adcUnits - cal->ped[cc]) / cal->sig[cc]);
+    // printf("%04d) %f\n", cc, ev->RawSoN[Jinfnum][numnum][cc]);
 
-    if (ev->RawSoN[Jinfnum][tdrindex][cc] > threshold) {
-      //	    printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->RawSignal[tdrindex][cc])/8.0, cal->ped[cc],
-      // cal->sig[cc], (ev->RawSignal[tdrindex][cc]/8.0-cal->ped[cc])/cal->sig[cc]);
-      // printf("%04d) %f\n", cc, ev->RawSoN[tdrindex][cc]);
+    if (ev->RawSoN[Jinfnum][numnum][cc] > threshold) {
+      // printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->RawSignal[Jinfnum][numnum][cc]) / m_adcUnits, cal->ped[cc],
+      //        cal->sig[cc], (ev->RawSignal[Jinfnum][numnum][cc] / m_adcUnits - cal->ped[cc]) / cal->sig[cc]);
+      // printf("%04d) %f\n", cc, ev->RawSoN[Jinfnum][numnum][cc]);
       // this fills the histogram for the raw events when NOT clustering,
       // if kClusterize anyhow, ALL the histos as for the compressed data, will be filled
-      hocc[numnum + NTDRS * Jinfnum]->Fill(cc, ev->RawSoN[Jinfnum][tdrindex][cc]);
+      hocc[numnum + NTDRS * Jinfnum]->Fill(cc, ev->RawSoN[Jinfnum][numnum][cc]);
       // hoccseed not filled in this case...
       // hcharge not filled in this case...
-      hsignal[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSignal[Jinfnum][tdrindex][cc] / m_adcUnits);
-      hson[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSoN[Jinfnum][tdrindex][cc]);
+      hsignal[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSignal[Jinfnum][numnum][cc] / m_adcUnits);
+      hson[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSoN[Jinfnum][numnum][cc]);
     }
   }
 
@@ -394,16 +404,6 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
 
   _bondingtype = ladderconf->GetBondingType(Jinfnum, numnum);
 
-  int tdrnumraw = FindPos(numnum, Jinfnum);
-  //  printf("numnum = %d --> tdrnumraw = %d\n", numnum, tdrnumraw);
-
-  //// numnum -> mapped to find the ntdr(=nlayer)
-  if (kMC)
-    tdrnumraw = numnum;
-
-  //    int tdrindex = tdrnumraw; //MD: I think is wrong if used in [Jinfnum][tdrindex] array...
-  int tdrindex = numnum;
-
   //// nvas were 16 total summing S and K
   //  int nvasS=10;
   //  int nvasK= 6;
@@ -458,8 +458,8 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
       if (_bondingtype == 1) {
         arraysize = 320;
         for (int cc = 0; cc < arraysize; cc++) {
-          array[cc] = ev->RawSignal[Jinfnum][tdrindex][cc * 2];
-          arraySoN[cc] = ev->RawSoN[Jinfnum][tdrindex][cc * 2];
+          array[cc] = ev->RawSignal[Jinfnum][numnum][cc * 2];
+          arraySoN[cc] = ev->RawSoN[Jinfnum][numnum][cc * 2];
           pede[cc] = cal->ped[cc * 2];
           sigma[cc] = cal->sig[cc * 2];
           status[cc] = cal->status[cc * 2];
@@ -469,13 +469,13 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
         int halfarraysize = ((int)(arraysize / 2));
         int shift = ((int)(640 / 2));
         for (int cc = 0; cc < halfarraysize; cc++) {
-          array[cc] = ev->RawSignal[Jinfnum][tdrindex][cc];
-          arraySoN[cc] = ev->RawSoN[Jinfnum][tdrindex][cc];
+          array[cc] = ev->RawSignal[Jinfnum][numnum][cc];
+          arraySoN[cc] = ev->RawSoN[Jinfnum][numnum][cc];
           pede[cc] = cal->ped[cc];
           sigma[cc] = cal->sig[cc];
           status[cc] = cal->status[cc];
-          array[cc + halfarraysize] = ev->RawSignal[Jinfnum][tdrindex][cc + shift];
-          arraySoN[cc + halfarraysize] = ev->RawSoN[Jinfnum][tdrindex][cc + shift];
+          array[cc + halfarraysize] = ev->RawSignal[Jinfnum][numnum][cc + shift];
+          arraySoN[cc + halfarraysize] = ev->RawSoN[Jinfnum][numnum][cc + shift];
           pede[cc + halfarraysize] = cal->ped[cc + shift];
           sigma[cc + halfarraysize] = cal->sig[cc + shift];
           status[cc + halfarraysize] = cal->status[cc + shift];
@@ -483,8 +483,8 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
       } else {
         // arraysize=640;
         //        arraysize = nvas * nchava; // changed by Viviana
-        memcpy(array, ev->RawSignal[Jinfnum][tdrindex], arraysize * sizeof(ev->RawSignal[Jinfnum][tdrindex][0]));
-        memcpy(arraySoN, ev->RawSoN[Jinfnum][tdrindex], arraysize * sizeof(ev->RawSoN[Jinfnum][tdrindex][0]));
+        memcpy(array, ev->RawSignal[Jinfnum][numnum], arraysize * sizeof(ev->RawSignal[Jinfnum][numnum][0]));
+        memcpy(arraySoN, ev->RawSoN[Jinfnum][numnum], arraysize * sizeof(ev->RawSoN[Jinfnum][numnum][0]));
         memcpy(pede, cal->ped.data(), arraysize * sizeof(cal->ped[0]));
         memcpy(sigma, cal->sig.data(), arraysize * sizeof(cal->sig[0]));
         memcpy(status, cal->status.data(), arraysize * sizeof(cal->status[0]));
@@ -492,7 +492,7 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
           added = true;
         }
       }
-    }      // side=0
+    } // side=0
     else { // side=1
       if (_bondingtype == 2) {
         continue;
@@ -514,9 +514,8 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
         // the src is the same array as in the S-side case but passing the reference to the first element of K-side
         // (640)
 
-        memcpy(array, &(ev->RawSignal[Jinfnum][tdrindex][shift]),
-               arraysize * sizeof(ev->RawSignal[Jinfnum][tdrindex][0]));
-        memcpy(arraySoN, &(ev->RawSoN[Jinfnum][tdrindex][shift]), arraysize * sizeof(ev->RawSoN[Jinfnum][tdrindex][0]));
+        memcpy(array, &(ev->RawSignal[Jinfnum][numnum][shift]), arraysize * sizeof(ev->RawSignal[Jinfnum][numnum][0]));
+        memcpy(arraySoN, &(ev->RawSoN[Jinfnum][numnum][shift]), arraysize * sizeof(ev->RawSoN[Jinfnum][numnum][0]));
         memcpy(pede, &(cal->ped[shift]), arraysize * sizeof(cal->ped[0]));
         memcpy(sigma, &(cal->sig[shift]), arraysize * sizeof(cal->sig[0]));
         memcpy(status, &(cal->status[shift]), arraysize * sizeof(cal->sig[0]));
@@ -563,20 +562,20 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
       // std::cout << array[count] << " " << m_adcUnits << " " << pede[count] << " " << CN[va] << '\n';
       float ssun = (array[count] / m_adcUnits - pede[count] - CN[va]) / sigma[count];
       // std::cout << ssun << '\n';
-      // if (ssun>highthreshold) printf("%d) %f %f %f %f -> %f\n", count, array[count]/8.0, pede[count], CN[va],
+      // if (ssun>highthreshold) printf("%d) %f %f %f %f -> %f\n", count, array[count]/m_adcUnits, pede[count], CN[va],
       // sigma[count], ssun);
 
-      // printf("%d) %f %f %f %f -> %f\n", count, array[count]/8.0, pede[count], CN[va], sigma[count], ssun);
+      // printf("%d) %f %f %f %f -> %f\n", count, array[count]/m_adcUnits, pede[count], CN[va], sigma[count], ssun);
 
       if (evpri)
         clusterstringtodump +=
-            Form("%d) %f %f %f %f -> %f\n", count, array[count] / 8.0, pede[count], CN[va], sigma[count], ssun);
+            Form("%d) %f %f %f %f -> %f\n", count, array[count] / m_adcUnits, pede[count], CN[va], sigma[count], ssun);
       TString stringtodump;
       if (ssun >= highthreshold) { // the seed that can also be the first of the cluster
         if (evpri) {
           clusterstringtodump += Form("%d) >high\n", count);
-          clusterstringtodump +=
-              Form("%d) %f %f %f %f -> %f\n", count, array[count] / 8.0, pede[count], CN[va], sigma[count], ssun);
+          clusterstringtodump += Form("%d) %f %f %f %f -> %f\n", count, array[count] / m_adcUnits, pede[count], CN[va],
+                                      sigma[count], ssun);
         }
 
         if (ssun > ssonmax) {

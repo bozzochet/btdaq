@@ -506,7 +506,7 @@ Int_t Summary(char *filename, const char *nameout, const char *outkind, bool don
 
   c->cd(2);
   gPad->SetFillStyle(0);
-  TH2F *fram2 = new TH2F(Form("fram2_%d", count), Form("%s: sigma", tdrname.c_str()), nch, 1, nch, 11, 0, 10);
+  TH2F *fram2 = new TH2F(Form("fram2_%d", count), Form("%s: sigma", tdrname.c_str()), nch, 1, nch, 11, 0, 20);
   fram2->SetStats(0);
   fram2->Draw();
   for (int ii = 0; ii < nch; ii++)

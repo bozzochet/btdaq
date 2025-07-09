@@ -6,7 +6,7 @@
 #include "DecodeDataOCA.hh"
 #include "FSUtils.hh"
 
-#include "GenericEvent.hpp"
+#include "Event.hpp"
 
 #include <iomanip>
 #include <numeric>
@@ -165,10 +165,10 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
 
   //  long int runnum = UnixTimeFromFilename(m_dataFilenames);
   char *date = DateFromFilename(m_dataFilenames.at(0));
-  rh->SetRun(runNum);
-  rh->SetDate(date);
+  ((RHClassOCA *)rh)->SetRun(runNum);
+  ((RHClassOCA *)rh)->SetDate(date);
 
-  if (!ReadFileHeader(rawfile, rh)) {
+  if (!ReadFileHeader(rawfile, (RHClassOCA *)rh)) {
     throw std::runtime_error("Failed to read MAKA run header");
   }
 
@@ -291,23 +291,7 @@ void DecodeDataOCA::DumpRunHeader() {
     printf("********* READVALS: %ld %d %d %d \n", NTDRS, nJinf, ntdrRaw, ntdrCmp);
     printf("Dumping the file headers that are going to be written in the ROOT files...\n");
   }
-  rh->Print();
-}
-
-int DecodeDataOCA::GetTdrNum(size_t pos) {
-  if (pos > NJINF * NTDRS) {
-    printf("Pos %ld not allowed. Max is %ld\n", pos, NJINF * NTDRS);
-    return -9999;
-  }
-  return tdrMap[pos].first;
-}
-
-int DecodeDataOCA::GetTdrType(size_t pos) {
-  if (pos > NJINF * NTDRS) {
-    printf("Pos %ld not allowed. Max is %ld\n", pos, NJINF * NTDRS);
-    return -9999;
-  }
-  return tdrMap[pos].second;
+  ((RHClassOCA *)rh)->Print();
 }
 
 bool DecodeDataOCA::ProcessCalibration() {
@@ -775,13 +759,13 @@ int DecodeDataOCA::ReadOneEvent() {
   // copy calibration data...
   for (unsigned int iBoard = 0; iBoard < 2 * m_numBoards; ++iBoard) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      ev->CalPed[iJinf][iBoard][iCh] = cals[iJinf][iBoard].ped[iCh];
-      ev->CalSigma[iJinf][iBoard][iCh] = cals[iJinf][iBoard].sig[iCh];
-      ev->CalStatus[iJinf][iBoard][iCh] = cals[iJinf][iBoard].status[iCh];
+      ((EventOCA *)ev)->CalPed[iJinf][iBoard][iCh] = cals[iJinf][iBoard].ped[iCh];
+      ((EventOCA *)ev)->CalSigma[iJinf][iBoard][iCh] = cals[iJinf][iBoard].sig[iCh];
+      ((EventOCA *)ev)->CalStatus[iJinf][iBoard][iCh] = cals[iJinf][iBoard].status[iCh];
     }
   }
 
-  int retVal = ReadOneEventFromFile(rawfile, ev);
+  int retVal = ReadOneEventFromFile(rawfile, (EventOCA *)ev);
   if (retVal == 0) {
     // for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
     //   for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -796,34 +780,12 @@ int DecodeDataOCA::ReadOneEvent() {
     // point, so it should return.
     for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
       if (kClusterize) {
-        Clusterize(iTDR, 0, ev, &cals[iJinf][iTDR]);
+        Clusterize(iTDR, 0, (EventOCA *)ev, &cals[iJinf][iTDR]);
       } else {
-        FillRawHistos(iTDR, 0, ev, &cals[iJinf][iTDR]);
+        FillRawHistos(iTDR, 0, (EventOCA *)ev, &cals[iJinf][iTDR]);
       }
     }
   }
 
   return retVal;
 }
-
-int DecodeDataOCA::FindPos(int tdrnum, int jinfnum) {
-  if (rh) {
-    return rh->FindPos(tdrnum, jinfnum);
-  } else {
-    printf("***RHClass not instanciated...\n");
-  }
-
-  return -1;
-}
-
-int DecodeDataOCA::FindCalPos(int tdrnum, int jinfnum) {
-  if (rh) {
-    return rh->FindPos(tdrnum, jinfnum);
-  } else {
-    printf("***RHClass not instanciated...\n");
-  }
-
-  return -1;
-}
-
-int DecodeDataOCA::ComputeTdrNum(int tdrnum, int jinfnum) { return RHClassOCA::ComputeTdrNum(tdrnum, jinfnum); }
