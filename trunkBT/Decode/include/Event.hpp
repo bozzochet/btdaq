@@ -1243,161 +1243,6 @@ double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetChargeTrack(int side
 }
 
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalPed_PosNum(int tdrnum, int channel, int Jinfnum) {
-  return CalPed[Jinfnum][tdrnum][channel];
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalSigma_PosNum(int tdrnum, int channel, int Jinfnum) {
-  return CalSigma[Jinfnum][tdrnum][channel];
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSignal_PosNum(int tdrnum, int channel, int Jinfnum) {
-  return RawSignal[Jinfnum][tdrnum][channel]; // FIX ME: to be substituted with DecodeData::m_adcUnits
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalStatus_PosNum(int tdrnum, int channel, int Jinfnum) {
-  return CalStatus[Jinfnum][tdrnum][channel];
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCN_PosNum(int tdrnum, int va, int Jinfnum) {
-
-  // Viviana: hardcoded n channel
-  // array dimension was 1024
-  short int array[4096];
-  float arraySoN[4096];
-  float pede[4096];
-  int status[4096];
-
-  for (int chan = 0; chan < 4096; chan++) {
-    array[chan] = RawSignal[Jinfnum][tdrnum][chan];
-    arraySoN[chan] = RawSoN[Jinfnum][tdrnum][chan];
-    pede[chan] = CalPed[Jinfnum][tdrnum][chan];
-    status[chan] = CalStatus[Jinfnum][tdrnum][chan];
-  }
-
-  // Viviana: hardcoded number of channels per VA
-  // MD: but why '256' hardcoded' and not NCHAVA?
-  //  return ComputeCN(64, &(array[va*64]), &(pede[va*64]), &(arraySoN[va*64]), &(status[va*64]));
-  return ComputeCN(256, &(array[va * 256]), &(pede[va * 256]), &(arraySoN[va * 256]), &(status[va * 256]));
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-float Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSoN_PosNum(int tdrnum, int channel, int Jinfnum) {
-
-  /*
-  printf("%d %f %f --> %f == %f\n", RawSignal[Jinfnum][tdrnum][channel], CalPed[Jinfnum][tdrnum][channel],
-         CalSigma[Jinfnum][tdrnum][channel],
-         (RawSignal[Jinfnum][tdrnum][channel] - CalPed[Jinfnum][tdrnum][channel]) / CalSigma[Jinfnum][tdrnum][channel],
-         RawSoN[Jinfnum][tdrnum][channel]);
-  */
-
-  return (RawSignal[Jinfnum][tdrnum][channel] - CalPed[Jinfnum][tdrnum][channel]) / CalSigma[Jinfnum][tdrnum][channel];
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalPed(GenericRHClass *rh, int tdrnum, int channel,
-                                                                   int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
-  int jinfnumraw = rh->FindJinfPos(Jinfnum);
-  //  return GetCalPed_PosNum(tdrnumraw, channel, Jinfnum);
-  return GetCalPed_PosNum(tdrnum, channel, Jinfnum);
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalSigma(GenericRHClass *rh, int tdrnum, int channel,
-                                                                     int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
-  int jinfnumraw = rh->FindJinfPos(Jinfnum);
-  //  return GetCalSigma_PosNum(tdrnumraw, channel, Jinfnum);
-  return GetCalSigma_PosNum(tdrnum, channel, Jinfnum);
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSignal(GenericRHClass *rh, int tdrnum, int channel,
-                                                                      int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
-  int jinfnumraw = rh->FindJinfPos(Jinfnum);
-  //  printf("%d %d --> %d %d\n", Jinfnum, jinfnumraw, tdrnum, tdrnumraw);
-  return GetRawSignal_PosNum(tdrnum, channel, jinfnumraw);
-  //  return GetRawSignal_PosNum(tdrnumraw, channel, jinfnumraw);
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCN(GenericRHClass *rh, int tdrnum, int va, int Jinfnum) {
-
-  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
-  int jinfnumraw = rh->FindJinfPos(Jinfnum);
-  //  return GetCN_PosNum(tdrnumraw, va, Jinfnum);
-  return GetCN_PosNum(tdrnum, va, Jinfnum);
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalStatus(GenericRHClass *rh, int tdrnum, int va,
-                                                                      int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
-  int jinfnumraw = rh->FindJinfPos(Jinfnum);
-  //  return GetCalStatus_PosNum(tdrnumraw, va, Jinfnum);
-  return GetCalStatus_PosNum(tdrnum, va, Jinfnum);
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-float Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSoN(GenericRHClass *rh, int tdrnum, int channel,
-                                                                  int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
-  int jinfnumraw = rh->FindJinfPos(Jinfnum);
-  //  return GetRawSoN_PosNum(tdrnumraw, channel, Jinfnum);
-  return GetRawSoN_PosNum(tdrnum, channel, Jinfnum);
-}
-
-/*
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalPed(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel,
-                                                                   int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
-  return GetCalPed_PosNum(tdrnumraw, channel, Jinfnum);
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalSigma(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel,
-                                                                     int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
-  return GetCalSigma_PosNum(tdrnumraw, channel, Jinfnum);
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSignal(RHClass<NJINF, NTDRS> *rh, int tdrnum,
-                                                                      int channel, int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
-  return GetRawSignal_PosNum(tdrnumraw, channel, Jinfnum);
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int va,
-                                                               int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
-  return GetCN_PosNum(tdrnumraw, va, Jinfnum);
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalStatus(RHClass<NJINF, NTDRS> *rh, int tdrnum, int va,
-                                                                      int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
-  return GetCalStatus_PosNum(tdrnumraw, va, Jinfnum);
-}
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
-float Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSoN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel,
-                                                                  int Jinfnum) {
-  int tdrnumraw = rh->FindPos(tdrnum, Jinfnum);
-  return GetRawSoN_PosNum(tdrnumraw, channel, Jinfnum);
-}
-*/
-
-template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ComputeCN(int size, short int *RawSignal, float *pede,
                                                                    float *RawSoN, int *status, double threshold) {
 
@@ -1880,6 +1725,107 @@ trackColl *Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetTracks(int t) {
     return &_TrK;
   else
     return &_TrS;
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalPed_bynums(int tdrnum, int channel, int Jinfnum) {
+  return CalPed[Jinfnum][tdrnum][channel];
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalSigma_bynums(int tdrnum, int channel, int Jinfnum) {
+  return CalSigma[Jinfnum][tdrnum][channel];
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSignal_bynums(int tdrnum, int channel, int Jinfnum) {
+  return RawSignal[Jinfnum][tdrnum][channel]; // FIX ME: to be substituted with DecodeData::m_adcUnits
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalStatus_bynums(int tdrnum, int channel, int Jinfnum) {
+  return CalStatus[Jinfnum][tdrnum][channel];
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCN_bynums(int tdrnum, int va, int Jinfnum) {
+
+  short int array[NCHAVA * (NVASS + NVASK)];
+  float arraySoN[NCHAVA * (NVASS + NVASK)];
+  float pede[NCHAVA * (NVASS + NVASK)];
+  int status[NCHAVA * (NVASS + NVASK)];
+
+  for (int chan = 0; chan < NCHAVA * (NVASS + NVASK); chan++) {
+    array[chan] = RawSignal[Jinfnum][tdrnum][chan];
+    arraySoN[chan] = RawSoN[Jinfnum][tdrnum][chan];
+    pede[chan] = CalPed[Jinfnum][tdrnum][chan];
+    status[chan] = CalStatus[Jinfnum][tdrnum][chan];
+  }
+
+  return ComputeCN(NCHAVA, &(array[va * NCHAVA]), &(pede[va * NCHAVA]), &(arraySoN[va * NCHAVA]),
+                   &(status[va * NCHAVA]));
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+float Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSoN_bynums(int tdrnum, int channel, int Jinfnum) {
+
+  /*
+  printf("%d %f %f --> %f == %f\n", RawSignal[Jinfnum][tdrnum][channel], CalPed[Jinfnum][tdrnum][channel],
+         CalSigma[Jinfnum][tdrnum][channel],
+         (RawSignal[Jinfnum][tdrnum][channel] - CalPed[Jinfnum][tdrnum][channel]) /
+  CalSigma[Jinfnum][tdrnum][channel], RawSoN[Jinfnum][tdrnum][channel]);
+  */
+
+  return (RawSignal[Jinfnum][tdrnum][channel] - CalPed[Jinfnum][tdrnum][channel]) / CalSigma[Jinfnum][tdrnum][channel];
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalPed_byglobindex(GenericRHClass *rh, int tdrglobindex,
+                                                                               int channel) {
+  int tdrnum = rh->GetTdrNum_byglobindex(tdrglobindex);
+  int jinfnum = rh->GetJinfNum_byglobindex(tdrglobindex);
+  return GetCalPed_bynums(tdrnum, channel, jinfnum);
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalSigma_byglobindex(GenericRHClass *rh, int tdrglobindex,
+                                                                                 int channel) {
+  int tdrnum = rh->GetTdrNum_byglobindex(tdrglobindex);
+  int jinfnum = rh->GetJinfNum_byglobindex(tdrglobindex);
+  return GetCalSigma_bynums(tdrnum, channel, jinfnum);
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSignal_byglobindex(GenericRHClass *rh, int tdrglobindex,
+                                                                                  int channel) {
+  int tdrnum = rh->GetTdrNum_byglobindex(tdrglobindex);
+  int jinfnum = rh->GetJinfNum_byglobindex(tdrglobindex);
+  return GetRawSignal_bynums(tdrnum, channel, jinfnum);
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCN_byglobindex(GenericRHClass *rh, int tdrglobindex,
+                                                                           int va) {
+
+  int tdrnum = rh->GetTdrNum_byglobindex(tdrglobindex);
+  int jinfnum = rh->GetJinfNum_byglobindex(tdrglobindex);
+  return GetCN_bynums(tdrnum, va, jinfnum);
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetCalStatus_byglobindex(GenericRHClass *rh, int tdrglobindex,
+                                                                                  int va) {
+  int tdrnum = rh->GetTdrNum_byglobindex(tdrglobindex);
+  int jinfnum = rh->GetJinfNum_byglobindex(tdrglobindex);
+  return GetCalStatus_bynums(tdrnum, va, jinfnum);
+}
+
+template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
+float Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::GetRawSoN_byglobindex(GenericRHClass *rh, int tdrglobindex,
+                                                                              int channel) {
+  int tdrnum = rh->GetTdrNum_byglobindex(tdrglobindex);
+  int jinfnum = rh->GetJinfNum_byglobindex(tdrglobindex);
+  return GetRawSoN_bynums(tdrnum, channel, jinfnum);
 }
 
 #endif

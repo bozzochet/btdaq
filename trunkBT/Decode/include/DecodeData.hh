@@ -1,5 +1,6 @@
 #ifndef DecodeData_h
 #define DecodeData_h
+#include <algorithm>
 #include <cstdio>
 #include <numeric>
 #include <unistd.h>
@@ -14,72 +15,27 @@
 #include "Event.hh"
 #include "EventUtils.hh"
 
-#pragma pack(push, 1)
-
-// typedef struct header { // gcc 4.3, considers 'typedef' useless // (what??)
-struct header {  // for file writing NOT in AMSBlock
-  int run;       // run number
-  char date[50]; // date // why we put 50! In the RHClass is 30! Should be shorter, but anyhow it will be truncated when
-                 // passed to RHClass
-  double gonpar[4];       // goniometer parameters
-  unsigned int refmaskjj; // 16/08/2014 - On Mac this is seen as long 8 (instead of 4) and the reader is read wrongly
-  unsigned int refmask[24];
-};
-
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-
-struct wholeheader {
-  //---- Primary and secondary header ---------------------//
-  unsigned short SIZE;
-  unsigned short RRRWNODETYPE;
-  unsigned short FBITAG;
-  unsigned short TIMEMSB;
-  unsigned short TIMELSB;
-  //---- JMDC data block ----------------------------------//
-  unsigned short JMDCSIZE;
-  unsigned short JMDCRRRWNODETYPE;
-
-  unsigned short RUNNUMMSB;
-  unsigned short RUNNUMLSB;
-  unsigned short RUNTAGMSB;
-  unsigned short RUNTAGLSB;
-  unsigned short EVTNUMMSB;
-  unsigned short EVTNUMLSB;
-  unsigned short JMDCTIMEMSB;
-  unsigned short JMDCTIMELSB;
-  unsigned short JMDCTIMEFINEMSB;
-  unsigned short JMDCTIMEFINELSB;
-  unsigned short GReservedGroups;
-  //---- DSP Slave Format ----------------------------------//
-  unsigned short DSPSIZE;
-  unsigned short DSPRRRWNODETYPE;
-};
-
-#pragma pack(pop)
-
 struct FlavorConfig;
 
 class DecodeData {
 
 protected:
+  bool pri = false;
+  bool evpri = false;
+
   FILE *rawfile;
 
   int runn;
-  bool pri = false;
-  bool evpri = false;
+
   int ntdrRaw = 0;
   int ntdrCmp = 0;
   laddernumtype *tdrMap;
   int nJinf{0};
   int *tdrAlign; // added originally (before porting to OCA, FOOT, etc...) by Viviana, credo...
+
   double m_adcUnits = 8.0;
   unsigned int m_defaultShift = 640;
   unsigned int m_defaultArraySize = 384;
-
-  virtual int GetNTDRS() = 0;
-  virtual int GetNJINF() = 0;
 
   int ReadFile(void *ptr, size_t size, size_t nitems, FILE *stream);
 
@@ -89,11 +45,23 @@ public:
   GenericRHClass *rh = NULL;
   GenericEvent *ev = NULL;
 
-  virtual int FindPos(int tdrnum, int jinfnum);
-  virtual int FindCalPos(int tdrnum, int jinfnum);
-  virtual int ComputeTdrNum(int tdrnum, int jinfnum);
+  virtual int GetNTDRS() = 0;
+  virtual int GetNJINF() = 0;
 
-  // TODO: put in DecodeDataAMS
+  virtual inline int GetNTdrRaw() { return ntdrRaw; }
+  virtual inline int GetNTdrCmp() { return ntdrCmp; }
+
+  virtual TDR GetTDR_bynums(int tdrnum, int jinfnum);
+  virtual TDR GetTDR_byglobindex(int tdrglobindex);
+  virtual int GetTdrNum_byID(int tdrid);
+  virtual int GetJinfNum_byID(int tdrid);
+  virtual int GetTdrNum_byglobindex(int tdrglobindex);
+  virtual int GetJinfNum_byglobindex(int tdrglobindex);
+  virtual int GetTdrGlobIndex_bynums(int tdrnum, int jinfnum);
+  virtual int GetJinfIndex_bynum(int jinfnum);
+  virtual int GetJinfNum_byindex(int jinfindex);
+
+  virtual int ComputeTdrId(int tdrnum, int jinfnum);
 
   TH1F **hocc;
   TH1F **hoccseed;
@@ -121,17 +89,10 @@ public:
 
   // generic
   template <class Event, class calib>
-  void AddCluster(Event *ev, calib *cals, int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus,
-                  int CNStatus, int PowBits, int bad, float *sig, bool kRaw = false);
-  template <class Event, class calib> void Clusterize(int numnum, int Jinfnum, Event *ev, calib *cal);
-  template <class Event, class calib> void FillRawHistos(int numnum, int Jinfnum, Event *ev, calib *cal);
-
-  virtual inline int GetNTdrRaw() { return ntdrRaw; }
-  virtual inline int GetNTdrCmp() { return ntdrCmp; }
-
-  int GetTdrNum(size_t pos);
-  int GetJinfNum(size_t pos);
-  int GetTdrType(size_t pos);
+  void AddCluster(calib *cals, int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus, int CNStatus,
+                  int PowBits, int bad, float *sig, bool kRaw = false);
+  template <class Event, class calib> void Clusterize(int numnum, int Jinfnum, calib *cal);
+  template <class Event, class calib> void FillRawHistos(int numnum, int Jinfnum, calib *cal);
 
   virtual int SkipOneEvent(int evskip = 1) = 0;
   virtual int ReadOneEvent() = 0;
@@ -176,8 +137,8 @@ public:
 };
 
 template <class Event, class calib>
-inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnum, int clusadd, int cluslen,
-                                   int Sig2NoiStatus, int CNStatus, int PowBits, int bad, float *sig, bool kRaw) {
+inline void DecodeData::AddCluster(calib *cal, int numnum, int Jinfnum, int clusadd, int cluslen, int Sig2NoiStatus,
+                                   int CNStatus, int PowBits, int bad, float *sig, bool kRaw) {
   //  constexpr auto NJINF = Event::GetNJINF();
   constexpr auto NTDRS = Event::GetNTDRS();
   //  constexpr auto NVAS = Event::GetNVAS();
@@ -228,16 +189,16 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
     }
   }
 
-  Cluster *pp = ev->AddCluster(Jinfnum, ComputeTdrNum(numnum, Jinfnum), sid);
+  Cluster *pp = ((Event *)ev)->AddCluster(Jinfnum, ComputeTdrId(numnum, Jinfnum), sid);
   pp->SetLadderConf(ladderconf);
 
-  //  pp->Build(ComputeTdrNum(numnum, Jinfnum),sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
+  //  pp->Build(ComputeTdrId(numnum, Jinfnum),sid,clusadd,cluslen,sig,&(cal->sig[clusadd]),
   //	    &(cal->status[clusadd]), Sig2NoiStatus, CNStatus, PowBits, bad);
   // ONLY the 3rd field should be changed (clusadd->newclusadd) to move the cluster.
   // The 'clusadd' passed to the array should be left as it is to read the same signal values
   // for the 'sig' array there's no problem since already starting from 0
-  pp->Build(ComputeTdrNum(numnum, Jinfnum), sid, newclusadd, cluslen, sig, &(cal->sig[clusadd]),
-            &(cal->status[clusadd]), Sig2NoiStatus, CNStatus, PowBits, bad);
+  pp->Build(ComputeTdrId(numnum, Jinfnum), sid, newclusadd, cluslen, sig, &(cal->sig[clusadd]), &(cal->status[clusadd]),
+            Sig2NoiStatus, CNStatus, PowBits, bad);
 
   double cog = pp->GetCoG();
   double seedadd = pp->GetSeedAdd();
@@ -285,8 +246,7 @@ inline void DecodeData::AddCluster(Event *ev, calib *cal, int numnum, int Jinfnu
   return;
 }
 
-template <class Event, class calib>
-inline void DecodeData::FillRawHistos(int numnum, int Jinfnum, Event *ev, calib *cal) {
+template <class Event, class calib> inline void DecodeData::FillRawHistos(int numnum, int Jinfnum, calib *cal) {
   //  constexpr auto NJINF = Event::GetNJINF();
   constexpr auto NTDRS = Event::GetNTDRS();
   constexpr auto NVAS = Event::GetNVAS();
@@ -328,24 +288,24 @@ inline void DecodeData::FillRawHistos(int numnum, int Jinfnum, Event *ev, calib 
     //        cal->sig[cc], (ev->RawSignal[Jinfnum][numnum][cc] / m_adcUnits - cal->ped[cc]) / cal->sig[cc]);
     // printf("%04d) %f\n", cc, ev->RawSoN[Jinfnum][numnum][cc]);
 
-    if (ev->RawSoN[Jinfnum][numnum][cc] > threshold) {
+    if (((Event *)ev)->RawSoN[Jinfnum][numnum][cc] > threshold) {
       // printf("%04d) %f %f %f -> %f\n", cc, ((double)ev->RawSignal[Jinfnum][numnum][cc]) / m_adcUnits, cal->ped[cc],
       //        cal->sig[cc], (ev->RawSignal[Jinfnum][numnum][cc] / m_adcUnits - cal->ped[cc]) / cal->sig[cc]);
       // printf("%04d) %f\n", cc, ev->RawSoN[Jinfnum][numnum][cc]);
       // this fills the histogram for the raw events when NOT clustering,
       // if kClusterize anyhow, ALL the histos as for the compressed data, will be filled
-      hocc[numnum + NTDRS * Jinfnum]->Fill(cc, ev->RawSoN[Jinfnum][numnum][cc]);
+      hocc[numnum + NTDRS * Jinfnum]->Fill(cc, ((Event *)ev)->RawSoN[Jinfnum][numnum][cc]);
       // hoccseed not filled in this case...
       // hcharge not filled in this case...
-      hsignal[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSignal[Jinfnum][numnum][cc] / m_adcUnits);
-      hson[numnum + NTDRS * Jinfnum][side]->Fill(ev->RawSoN[Jinfnum][numnum][cc]);
+      hsignal[numnum + NTDRS * Jinfnum][side]->Fill(((Event *)ev)->RawSignal[Jinfnum][numnum][cc] / m_adcUnits);
+      hson[numnum + NTDRS * Jinfnum][side]->Fill(((Event *)ev)->RawSoN[Jinfnum][numnum][cc]);
     }
   }
 
   return;
 }
 
-template <class Event, class calib> inline void DecodeData::Clusterize(int numnum, int Jinfnum, Event *ev, calib *cal) {
+template <class Event, class calib> inline void DecodeData::Clusterize(int numnum, int Jinfnum, calib *cal) {
   constexpr auto NJINF = Event::GetNJINF();
   constexpr auto NTDRS = Event::GetNTDRS();
   constexpr auto NVAS = Event::GetNVAS();
@@ -458,8 +418,8 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
       if (_bondingtype == 1) {
         arraysize = 320;
         for (int cc = 0; cc < arraysize; cc++) {
-          array[cc] = ev->RawSignal[Jinfnum][numnum][cc * 2];
-          arraySoN[cc] = ev->RawSoN[Jinfnum][numnum][cc * 2];
+          array[cc] = ((Event *)ev)->RawSignal[Jinfnum][numnum][cc * 2];
+          arraySoN[cc] = ((Event *)ev)->RawSoN[Jinfnum][numnum][cc * 2];
           pede[cc] = cal->ped[cc * 2];
           sigma[cc] = cal->sig[cc * 2];
           status[cc] = cal->status[cc * 2];
@@ -469,13 +429,13 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
         int halfarraysize = ((int)(arraysize / 2));
         int shift = ((int)(640 / 2));
         for (int cc = 0; cc < halfarraysize; cc++) {
-          array[cc] = ev->RawSignal[Jinfnum][numnum][cc];
-          arraySoN[cc] = ev->RawSoN[Jinfnum][numnum][cc];
+          array[cc] = ((Event *)ev)->RawSignal[Jinfnum][numnum][cc];
+          arraySoN[cc] = ((Event *)ev)->RawSoN[Jinfnum][numnum][cc];
           pede[cc] = cal->ped[cc];
           sigma[cc] = cal->sig[cc];
           status[cc] = cal->status[cc];
-          array[cc + halfarraysize] = ev->RawSignal[Jinfnum][numnum][cc + shift];
-          arraySoN[cc + halfarraysize] = ev->RawSoN[Jinfnum][numnum][cc + shift];
+          array[cc + halfarraysize] = ((Event *)ev)->RawSignal[Jinfnum][numnum][cc + shift];
+          arraySoN[cc + halfarraysize] = ((Event *)ev)->RawSoN[Jinfnum][numnum][cc + shift];
           pede[cc + halfarraysize] = cal->ped[cc + shift];
           sigma[cc + halfarraysize] = cal->sig[cc + shift];
           status[cc + halfarraysize] = cal->status[cc + shift];
@@ -483,8 +443,10 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
       } else {
         // arraysize=640;
         //        arraysize = nvas * nchava; // changed by Viviana
-        memcpy(array, ev->RawSignal[Jinfnum][numnum], arraysize * sizeof(ev->RawSignal[Jinfnum][numnum][0]));
-        memcpy(arraySoN, ev->RawSoN[Jinfnum][numnum], arraysize * sizeof(ev->RawSoN[Jinfnum][numnum][0]));
+        memcpy(array, ((Event *)ev)->RawSignal[Jinfnum][numnum],
+               arraysize * sizeof(((Event *)ev)->RawSignal[Jinfnum][numnum][0]));
+        memcpy(arraySoN, ((Event *)ev)->RawSoN[Jinfnum][numnum],
+               arraysize * sizeof(((Event *)ev)->RawSoN[Jinfnum][numnum][0]));
         memcpy(pede, cal->ped.data(), arraysize * sizeof(cal->ped[0]));
         memcpy(sigma, cal->sig.data(), arraysize * sizeof(cal->sig[0]));
         memcpy(status, cal->status.data(), arraysize * sizeof(cal->status[0]));
@@ -514,8 +476,10 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
         // the src is the same array as in the S-side case but passing the reference to the first element of K-side
         // (640)
 
-        memcpy(array, &(ev->RawSignal[Jinfnum][numnum][shift]), arraysize * sizeof(ev->RawSignal[Jinfnum][numnum][0]));
-        memcpy(arraySoN, &(ev->RawSoN[Jinfnum][numnum][shift]), arraysize * sizeof(ev->RawSoN[Jinfnum][numnum][0]));
+        memcpy(array, &(((Event *)ev)->RawSignal[Jinfnum][numnum][shift]),
+               arraysize * sizeof(((Event *)ev)->RawSignal[Jinfnum][numnum][0]));
+        memcpy(arraySoN, &(((Event *)ev)->RawSoN[Jinfnum][numnum][shift]),
+               arraysize * sizeof(((Event *)ev)->RawSoN[Jinfnum][numnum][0]));
         memcpy(pede, &(cal->ped[shift]), arraysize * sizeof(cal->ped[0]));
         memcpy(sigma, &(cal->sig[shift]), arraysize * sizeof(cal->sig[0]));
         memcpy(status, &(cal->status[shift]), arraysize * sizeof(cal->sig[0]));
@@ -654,7 +618,8 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
           stringtodump = headerstringtodump + clusterstringtodump;
           if (!(status[seedaddmax] & (1 << 3))) { // if is not a bad cluster
                                                   //            printf("numnum = %d\n", numnum);
-            AddCluster(ev, cal, numnum, Jinfnum, clusadd + shift, cluslen, Sig2NoiStatus, CNStatus, PowBits, bad, sig);
+            AddCluster<Event, calib>(cal, numnum, Jinfnum, clusadd + shift, cluslen, Sig2NoiStatus, CNStatus, PowBits,
+                                     bad, sig);
           }
           clusterstringtodump = "--> New cluster\n";
         }
@@ -691,45 +656,45 @@ void DecodeData::SaveCalibration(const std::array<std::array<calib, ntdr>, njinf
   GetCalFilePrefix(calfileprefix, runnum);
   //  printf("calfileprefix: %s\n", calfileprefix);
 
-  //  printf("nJinf = %d\n", nJinf);
-  for (unsigned int iJinf = 0; iJinf < uint(nJinf); iJinf++) {
-    //    printf("iJinf = %d\n", iJinf);
+  //  printf("numBoards: %d\n", numBoards);
+  for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
+    int iTdr = GetTdrNum_byglobindex(globindex);
+    int iJinf = GetJinfNum_byglobindex(globindex);
+    printf("iJinf=%u, iTdr=%u valid: %d\n", iJinf, iTdr, cals[iJinf][iTdr].valid);
 
-    //  printf("numBoards: %d\n", numBoards);
-    for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
-      if (cals[iJinf][iTdr].valid) {
-        //    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-        //      printf("%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
-        //             cals[iJinf][iTdr].ped[iCh], cals[iJinf][iTdr].rsig[iCh], cals[iJinf][iTdr].sig[iCh], 0.0, 0);
-        //    }
+    if (cals[iJinf][iTdr].valid) {
+      //    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+      //      printf("%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
+      //             cals[iJinf][iTdr].ped[iCh], cals[iJinf][iTdr].rsig[iCh], cals[iJinf][iTdr].sig[iCh], 0.0, 0);
+      //    }
 
-        char calfilename[264];
-        snprintf(calfilename, 264, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
-        //      printf("calfilename: %s\n", calfilename);
+      char calfilename[264];
+      snprintf(calfilename, 264, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
+      //      printf("calfilename: %s\n", calfilename);
 
-        // FIXME: add a flag in the main to have a different cal dir for output
-        // this is needed if the source cal dir is not writeable
-        FILE *calfil = fopen(calfilename, "w");
-        if (!calfil) {
-          printf("problem in opening the %s cal file...\n", calfilename);
-          return;
-        }
-
-        // writing the common noise (average?)
-        for (unsigned int iVa = 0; iVa < NVAS; ++iVa) {
-          fprintf(calfil, "%02d,\t%lf,\t%lf\n", iVa, 0.0, 0.0);
-        }
-
-        // reading channels
-        for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-          fprintf(calfil, "%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
-                  cals[iJinf][iTdr].ped[iCh], cals[iJinf][iTdr].rsig[iCh], cals[iJinf][iTdr].sig[iCh], 0.0, 0);
-        }
-
-        fclose(calfil);
+      // FIXME: add a flag in the main to have a different cal dir for output
+      // this is needed if the source cal dir is not writeable
+      FILE *calfil = fopen(calfilename, "w");
+      if (!calfil) {
+        printf("problem in opening the %s cal file...\n", calfilename);
+        return;
       }
+
+      // writing the common noise (average?)
+      for (unsigned int iVa = 0; iVa < NVAS; ++iVa) {
+        fprintf(calfil, "%02d,\t%lf,\t%lf\n", iVa, 0.0, 0.0);
+      }
+
+      // reading channels
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+        fprintf(calfil, "%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
+                cals[iJinf][iTdr].ped[iCh], cals[iJinf][iTdr].rsig[iCh], cals[iJinf][iTdr].sig[iCh], 0.0, 0);
+      }
+
+      fclose(calfil);
     }
   }
+
   return;
 }
 
@@ -742,77 +707,87 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
   constexpr auto NCHAVA = Event::GetNCHAVA();
   constexpr auto NADCS = Event::GetNADCS();
 
-  //  printf("nJinf = %d\n", nJinf);
-  for (unsigned int iJinf = 0; iJinf < uint(nJinf); iJinf++) {
-    //    printf("iJinf = %d\n", iJinf);
+  // FIXME: Some test calibrations contain too many events, stop at 10k and use the first half for ped and sigma raw,
+  // and the second half for sigma
+  // MD: tipo che
+  // MD: fai vector reserved da 5k
+  // MD: inizi a leggere e vedi a quanto arrivi
+  // MD: se <5k resizi
+  // MD: se sono più a 5k smetti e fai mean e sigma_raw
+  // MD: e poi ricominci (fino a massimo 5k) fillando 0, 1, 2, etc... fino a dove arrivi
+  // MD: se sono più di 10k li hai sostituiti tutti
+  // MD: sicuramente conviene fermare la lettura a 10k in chi gli passa signals
+  // MD: però qui deve essere fatta la logica 5k per mean e sigma_raw
+  // MD: e 5k per il resto
 
-    /*
-      for (unsigned int iTdr = 0; iTdr < NTDRS; iTdr++) {
-      printf("iTdr=%u valid: %d\n", iTdr, cals[iJinf][iTdr].valid);
+  printf("signals sizes:\n");
+  printf("nJinf = %d\n", nJinf);
+  for (unsigned int iJ = 0; iJ < uint(nJinf); iJ++) {
+    unsigned int iJinf = GetJinfNum_byindex(iJ);
+    unsigned int nLEFs = signals[iJinf].size();
+    printf("signals[%d].size() = %u\n", iJinf, nLEFs);
+    for (unsigned int iTdr = 0; iTdr < nLEFs; ++iTdr) {
+      printf("signals[%d][%u] size() = %lu\n", iJinf, iTdr, signals[iJinf][iTdr].size());
+      if (signals[iJinf][iTdr].size() != NVAS * NCHAVA)
+        printf("**** should have been = %lu\n", NVAS * NCHAVA);
+      unsigned long int nEvents = signals[iJinf][iTdr].at(0).size();
+      printf("signals[%d][%u].at(Ch=0) size() = %lu\n", iJinf, iTdr, nEvents);
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+        for (unsigned long int iEv = 0; iEv < signals[iJinf][iTdr].at(iCh).size(); ++iEv) {
+          if (signals[iJinf][iTdr][iCh].size() != nEvents) {
+            printf("Ev=%lu) signals[%d][%u][%u].size() = %lu\n", iEv, iJinf, iTdr, iCh,
+                   signals[iJinf][iTdr][iCh].size());
+          }
+          unsigned int thisVA = iCh / NCHAVA;
+          // printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
+        }
       }
+    }
+  }
 
-      {
-      printf("signals sizes:\n");
-      unsigned long int nLEFs = signals[iJinf].size();
-      printf("signals[iJinf].size() = %lu\n", nLEFs);
-      for (unsigned long int iTdr = 0; iTdr < nLEFs; ++iTdr) {
-      printf("signals[iJinf].at(%lu) size() = %lu\n", iTdr, signals[iJinf].at(iTdr).size());
-      if (signals[iJinf].at(iTdr).size() != NVAS * NCHAVA)
-      printf("**** should have been = %lu\n", NVAS * NCHAVA);
-      unsigned long int nEvents = signals[iJinf].at(iTdr).at(0).size();
-      printf("signals[iJinf].at(%lu).at(0) size() = %lu\n", iTdr, nEvents);
-      for (unsigned long int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      for (unsigned long int iEv = 0; iEv < signals[iJinf].at(iTdr).at(iCh).size(); ++iEv) {
-      if (signals[iJinf][iTdr][iCh].size() != nEvents) {
-      printf("Ev=%lu) signals[iJinf][%lu][%lu].size() = %lu\n", iEv, iTdr, iCh, signals[iJinf][iTdr][iCh].size());
-      }
-      unsigned int thisVA = iCh / NCHAVA;
-      //          printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
-      }
-      }
-      }
-      }
-    */
+  auto signals_filtered = signals;        // later in the code, each element will be cleared, filtered
+  auto signals_sorted = signals;          // later in the code, each element will be sorted
+  auto signals_sorted_filtered = signals; // later in the code, each element will be cleared, sorted and filtered
 
-    auto signals_filtered = signals[iJinf];        // later in the code, each element will be filtered
-    auto signals_sorted = signals[iJinf];          // later in the code, each element will be sorted
-    auto signals_sorted_filtered = signals[iJinf]; // later in the code, each element will be sorted and filtered
+  for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
+    int iTdr = GetTdrNum_byglobindex(globindex);
+    int iJinf = GetJinfNum_byglobindex(globindex);
+    printf("iJinf=%u, iTdr=%u valid: %d\n", iJinf, iTdr, cals[iJinf][iTdr].valid);
 
-    // FIXME: Some test calibrations contain too many events, stop at 10k and use the first half for ped and sigma raw,
-    // and the second half for sigma
-    // MD: tipo che MD: fai vector reserved da 5k MD: inizi a leggere e vedi a quanto arrivi
-    // MD: se <5k resizi
-    // MD: se sono più a 5k smetti e fai mean e sigma_raw
-    // MD: e poi ricominci (fino a massimo 5k) fillando 0, 1, 2, etc... fino a dove arrivi
-    // MD: se sono più di 10k li hai sostituiti tutti
-    // MD: sicuramente conviene fermare la lettura a 10k in chi gli passa signals
-    // MD: però qui deve essere fatta la logica 5k per mean e sigma_raw
-    // MD: e 5k per il resto
+    if (cals[iJinf][iTdr].valid) {
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
 
-    //  printf("signals[iJinf].size() = %lu\n", signals_sorted.size());
-    for (unsigned long int iTdr = 0; iTdr < signals_sorted.size(); ++iTdr) {
-      // printf("signals[iJinf].at(%lu).size() = %lu\n", iTdr, signals_sorted.at(iTdr).size());
-      // printf("signals[iJinf].at(%lu).at(0).size() = %lu\n", iTdr, signals_sorted.at(iTdr).at(0).size());
-      for (unsigned long int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-
-        signals_filtered[iTdr][iCh].clear();
+        signals_filtered[iJinf][iTdr][iCh].clear();
         std::copy_if(signals[iJinf][iTdr][iCh].begin(), signals[iJinf][iTdr][iCh].end(),
-                     std::back_inserter(signals_filtered[iTdr][iCh]), [](auto i) { return i > 0; });
+                     std::back_inserter(signals_filtered[iJinf][iTdr][iCh]), [](auto i) { return i > 0; });
 
-        std::sort(begin(signals_sorted[iTdr][iCh]), end(signals_sorted[iTdr][iCh]));
+        std::sort(begin(signals_sorted[iJinf][iTdr][iCh]), end(signals_sorted[iJinf][iTdr][iCh]));
 
-        signals_sorted_filtered[iTdr][iCh].clear();
-        std::copy_if(signals_sorted[iTdr][iCh].begin(), signals_sorted[iTdr][iCh].end(),
-                     std::back_inserter(signals_sorted_filtered[iTdr][iCh]), [](auto i) { return i > 0; });
+        signals_sorted_filtered[iJinf][iTdr][iCh].clear();
+        std::copy_if(signals_sorted[iJinf][iTdr][iCh].begin(), signals_sorted[iJinf][iTdr][iCh].end(),
+                     std::back_inserter(signals_sorted_filtered[iJinf][iTdr][iCh]), [](auto i) { return i > 0; });
 
-        auto beginItr = std::begin(signals_sorted_filtered[iTdr][iCh]);
-        auto endItr = std::end(signals_sorted_filtered[iTdr][iCh]);
+        /*
+              printf("signals[%d][%d][%d] events = %lu\n", iJinf, iTdr, iCh, signals[iJinf][iTdr][iCh].size());
+              printf("signals_filtered[%d][%d][%d] events = %lu\n", iJinf, iTdr, iCh,
+                     signals_filtered[iJinf][iTdr][iCh].size());
+              printf("signals_sorted[%d][%d][%d] events = %lu\n", iJinf, iTdr, iCh,
+           signals_sorted[iJinf][iTdr][iCh].size()); printf("signals_sorted_filtered[%d][%d][%d] events = %lu\n", iJinf,
+           iTdr, iCh, signals_sorted_filtered[iJinf][iTdr][iCh].size());
+        */
 
-        auto nEv = std::distance(beginItr, endItr);
+        auto beginItr = std::begin(signals_sorted_filtered[iJinf][iTdr][iCh]);
+        auto endItr = std::end(signals_sorted_filtered[iJinf][iTdr][iCh]);
+
+        unsigned long int nEv = std::distance(beginItr, endItr);
         //      printf("%ld %f\n", nEv, (1.0-2.0*PERCENTILE)*signals[iJinf][iTdr][iCh].size());
-        if (nEv < 100) {
-          // if (iCh == 0)
-          //   printf("iJinfiTdr=%lu, iCh=%lu) calib not valid\n", iTdr, iCh);
+        unsigned long int nEv_check = 100;
+        if (nEv < nEv_check) {
+          printf("iJinf=%u, iTdr=%u, iCh=%u) calib not valid\n", iJinf, iTdr, iCh);
+          for (unsigned long int ee = 0; ee < std::min(signals[iJinf][iTdr][iCh].size(), (unsigned long int)(10));
+               ee++) {
+            printf("%lu) signals[%d][%d][%d] = %f\n", ee, iJinf, iTdr, iCh, signals[iJinf][iTdr][iCh].at(ee));
+          }
         }
 
         //      cals[iJinf][iTdr].ped[iCh] = std::accumulate(begin(signals[iJinf][iTdr][iCh]),
@@ -838,14 +813,20 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
         cals[iJinf][iTdr].status[iCh] = 0;
       }
     }
+  }
 
-    // check validity
-    for (unsigned long int iTdr = 0; iTdr < signals_sorted_filtered.size(); ++iTdr) {
+  // check validity
+  for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
+    int iTdr = GetTdrNum_byglobindex(globindex);
+    int iJinf = GetJinfNum_byglobindex(globindex);
+    printf("after-filtering and sorting)\n    iJinf=%u, iTdr=%u valid: %d\n", iJinf, iTdr, cals[iJinf][iTdr].valid);
+
+    if (cals[iJinf][iTdr].valid) {
       unsigned int ave_nEv = 0;
-      for (unsigned long int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
 
-        auto beginItr = std::begin(signals_sorted_filtered[iTdr][iCh]);
-        auto endItr = std::end(signals_sorted_filtered[iTdr][iCh]);
+        auto beginItr = std::begin(signals_sorted_filtered[iJinf][iTdr][iCh]);
+        auto endItr = std::end(signals_sorted_filtered[iJinf][iTdr][iCh]);
 
         auto nEv = std::distance(beginItr, endItr);
         ave_nEv += nEv;
@@ -853,211 +834,227 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
       ave_nEv /= NVAS * NCHAVA;
       if (ave_nEv < 100) {
         cals[iJinf][iTdr].valid = false;
-        //        printf("iJinf=%u, iTdr=%lu) calib will be declared not valid (%u events)\n", iJinf, iTdr, ave_nEv);
+        printf("iJinf=%u, iTdr=%u) calib will be declared not valid (%u events)\n", iJinf, iTdr, ave_nEv);
       }
     }
+  }
 
-    //------------------------------------
+  //------------------------------------
 
 #ifdef CALPLOTS
-    TH1F *hrawsig[NTDRS];
-    TH1F *hrawsig_each_ch[NVAS * NCHAVA];       // only for Tdr 0
-    TH1F *hrawsig_each_ch_vs_ev[NVAS * NCHAVA]; // only for Tdr 0
-    TH1F *hADC_each_ch[NVAS * NCHAVA];          // only for Tdr 0
-    TH1F *hADC_each_ch_vs_ev[NVAS * NCHAVA];    // only for Tdr 0
-    TH1F *hrawsig_filtered[NTDRS];
-    TH1F *hsig[NTDRS];
-    for (unsigned int iTdr = 0; iTdr < signals_filtered.size(); ++iTdr) {
-      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh)
-        if (iTdr == 0) {
+  TH1F *hrawsig[NJINFS * NTDRS];
+  TH1F *hrawsig_each_ch[NVAS * NCHAVA];       // only for Tdr 0
+  TH1F *hrawsig_each_ch_vs_ev[NVAS * NCHAVA]; // only for Tdr 0
+  TH1F *hADC_each_ch[NVAS * NCHAVA];          // only for Tdr 0
+  TH1F *hADC_each_ch_vs_ev[NVAS * NCHAVA];    // only for Tdr 0
+  TH1F *hrawsig_filtered[NJINFS * NTDRS];
+  TH1F *hsig[NJINFS * NTDRS];
+  for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
+    int iTdr = GetTdrNum_byglobindex(globindex);
+    int iJinf = GetJinfNum_byglobindex(globindex);
+
+    if (cals[iJinf][iTdr].valid) {
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+        if (globindex == 0) {
           hrawsig_each_ch[iCh] =
               new TH1F(Form("rawsigma_ch%d", iCh), Form("ch=%d; #Event; Sigma Raw", iCh), 1000, -500, 500);
           hrawsig_each_ch_vs_ev[iCh] =
               new TH1F(Form("rawsigma_vs_ev_ch%d", iCh), Form("ch=%d; #Event; Sigma Raw", iCh),
-                       signals_filtered[iTdr][iCh].size(), 0, signals_filtered[iTdr][iCh].size());
+                       signals_filtered[iJinf][iTdr][iCh].size(), 0, signals_filtered[iJinf][iTdr][iCh].size());
           hADC_each_ch[iCh] = new TH1F(Form("ADC_ch%d", iCh), Form("ch=%d; #Event; ADC", iCh), 1000, 0, 1000);
-          hADC_each_ch_vs_ev[iCh] = new TH1F(Form("ADC_vs_ev_ch%d", iCh), Form("ch=%d; #Event; ADC", iCh),
-                                             signals_filtered[iTdr][iCh].size(), 0, signals_filtered[iTdr][iCh].size());
+          hADC_each_ch_vs_ev[iCh] =
+              new TH1F(Form("ADC_vs_ev_ch%d", iCh), Form("ch=%d; #Event; ADC", iCh),
+                       signals_filtered[iJinf][iTdr][iCh].size(), 0, signals_filtered[iJinf][iTdr][iCh].size());
         }
-      hrawsig[iTdr] = new TH1F(Form("rawsigma_%d", iTdr), "rawsigma", 1000, -500, 500);
-      hrawsig_filtered[iTdr] = new TH1F(Form("rawsigma_filtered_%d", iTdr), "rawsigma", 1000, -500, 500);
-      hsig[iTdr] = new TH1F(Form("sigma_%d", iTdr), "sigma", 1000, -500, 500);
-      //    printf("%d) %p %p %p\n", iTdr, hrawsig[iTdr], hrawsig_filtered[iTdr], hsig[iTdr]);
+        hrawsig[globindex] = new TH1F(Form("rawsigma_%d", globindex), "rawsigma", 1000, -500, 500);
+        hrawsig_filtered[globindex] = new TH1F(Form("rawsigma_filtered_%d", globindex), "rawsigma", 1000, -500, 500);
+        hsig[globindex] = new TH1F(Form("sigma_%d", globindex), "sigma", 1000, -500, 500);
+        //    printf("%d) %p %p %p\n", globindex, hrawsig[globindex], hrawsig_filtered[globindex], hsig[globindex]);
+      }
     }
+  }
 
-    for (unsigned int iTdr = 0; iTdr < signals_filtered.size(); ++iTdr) {
+  for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
+    int iTdr = GetTdrNum_byglobindex(globindex);
+    int iJinf = GetJinfNum_byglobindex(globindex);
+    if (cals[iJinf][iTdr].valid) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-        for (unsigned int iEv = 0; iEv < signals_filtered[iTdr][iCh].size(); iEv++) {
-          hrawsig[iTdr]->Fill(signals_filtered[iTdr][iCh].at(iEv) - cals[iJinf][iTdr].ped[iCh]);
-          if (iTdr == 0) {
-            hADC_each_ch[iCh]->Fill(signals_filtered[iTdr][iCh].at(iEv));
-            hADC_each_ch_vs_ev[iCh]->SetBinContent(iEv + 1, signals_filtered[iTdr][iCh].at(iEv));
-            hrawsig_each_ch[iCh]->Fill(signals_filtered[iTdr][iCh].at(iEv) - cals[iJinf][iTdr].ped[iCh]);
-            hrawsig_each_ch_vs_ev[iCh]->SetBinContent(iEv + 1,
-                                                      signals_filtered[iTdr][iCh].at(iEv) - cals[iJinf][iTdr].ped[iCh]);
+        for (unsigned int iEv = 0; iEv < signals_filtered[iJinf][iTdr][iCh].size(); iEv++) {
+          hrawsig[globindex]->Fill(signals_filtered[iJinf][iTdr][iCh].at(iEv) - cals[iJinf][iTdr].ped[iCh]);
+          if (globindex == 0) {
+            hADC_each_ch[iCh]->Fill(signals_filtered[iJinf][iTdr][iCh].at(iEv));
+            hADC_each_ch_vs_ev[iCh]->SetBinContent(iEv + 1, signals_filtered[iJinf][iTdr][iCh].at(iEv));
+            hrawsig_each_ch[iCh]->Fill(signals_filtered[iJinf][iTdr][iCh].at(iEv) - cals[iJinf][iTdr].ped[iCh]);
+            hrawsig_each_ch_vs_ev[iCh]->SetBinContent(iEv + 1, signals_filtered[iJinf][iTdr][iCh].at(iEv) -
+                                                                   cals[iJinf][iTdr].ped[iCh]);
           }
         }
-        for (unsigned int iEv = ((int)(signals_filtered[iTdr][iCh].size()));
-             iEv < ((int)(signals_filtered[iTdr][iCh].size())); iEv++) {
-          hrawsig_filtered[iTdr]->Fill(signals_filtered[iTdr][iCh].at(iEv) - cals[iJinf][iTdr].ped[iCh]);
+        for (unsigned int iEv = ((int)(signals_filtered[iJinf][iTdr][iCh].size()));
+             iEv < ((int)(signals_filtered[iJinf][iTdr][iCh].size())); iEv++) {
+          hrawsig_filtered[globindex]->Fill(signals_filtered[iJinf][iTdr][iCh].at(iEv) - cals[iJinf][iTdr].ped[iCh]);
         }
       }
     }
+  }
 #endif
 
-    //----------------------------------
+  //----------------------------------
 
-    unsigned int lastVA = std::numeric_limits<unsigned int>::max();
-    std::vector<float> common_noise(NVAS);
-    std::vector<std::vector<unsigned long int>> processed_events(signals_filtered.size(),
-                                                                 std::vector<unsigned long int>(NVAS * NCHAVA));
-    // std::vector<std::vector<unsigned int> > processed_events;
-    // processed_events.resize(signals_filtered.size());
-    // for (int ii=0; ii<signals_filtered.size(); ii++) {
-    //   processed_events[ii].resize(NVAS * NCHAVA);
-    // }
+  unsigned int lastVA = std::numeric_limits<unsigned int>::max();
+  std::vector<float> common_noise(NVAS);
+  std::vector<std::vector<std::vector<unsigned long int>>> processed_events(
+      signals_filtered.size(), std::vector<std::vector<unsigned long int>>(
+                                   signals_filtered[0].size(), std::vector<unsigned long int>(NVAS * NCHAVA)));
 
-    /*
-      {
-      printf("signals_filtered sizes:\n");
-      unsigned long int nLEFs = signals_filtered.size();
-      printf("signals_filtered.size() = %lu\n", nLEFs);
-      for (unsigned long int iTdr = 0; iTdr < nLEFs; ++iTdr) {
-      printf("signals_filtered.at(%lu) size() = %lu (valid = %d)\n", iTdr, signals_filtered.at(iTdr).size(),
-      cals[iJinf][iTdr].valid);
-      if (signals_filtered.at(iTdr).size() != NVAS * NCHAVA)
-      printf("**** should have been = %lu\n", NVAS * NCHAVA);
-      unsigned long int nEvents = signals_filtered.at(iTdr).at(0).size();
-      printf("signals_filtered.at(%lu).at(0) size() = %lu\n", iTdr, nEvents);
-      for (unsigned long int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-      for (unsigned long int iEv = 0; iEv < signals_filtered.at(iTdr).at(iCh).size(); ++iEv) {
-      if (signals_filtered[iTdr][iCh].size() != nEvents) {
-      printf("Ev=%lu) signals_filtered[%lu][%lu].size() = %lu\n", iEv, iTdr, iCh,
-      signals_filtered[iTdr][iCh].size());
+  printf("signals filtered sizes:\n");
+  printf("nJinf = %d\n", nJinf);
+  for (unsigned int iJ = 0; iJ < uint(nJinf); iJ++) {
+    unsigned int iJinf = GetJinfNum_byindex(iJ);
+    unsigned int nLEFs = signals_filtered[iJinf].size();
+    printf("signals_filtered[%d].size() = %u\n", iJinf, nLEFs);
+    for (unsigned int iTdr = 0; iTdr < nLEFs; ++iTdr) {
+      printf("signals_filtered[%u][%u] size() = %lu (valid = %d)\n", iJinf, iTdr, signals_filtered[iJinf][iTdr].size(),
+             cals[iJinf][iTdr].valid);
+      if (signals_filtered[iJinf][iTdr].size() != NVAS * NCHAVA)
+        printf("**** should have been = %lu\n", NVAS * NCHAVA);
+      unsigned long int nEvents = signals_filtered[iJinf][iTdr].at(0).size();
+      printf("signals_filtered[%u][%u].at(Ch=0) size() = %lu\n", iJinf, iTdr, nEvents);
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+        for (unsigned long int iEv = 0; iEv < signals_filtered[iJinf][iTdr].at(iCh).size(); ++iEv) {
+          if (signals_filtered[iJinf][iTdr][iCh].size() != nEvents) {
+            printf("Ev=%lu) signals_filtered[%u][%u][%u].size() = %lu\n", iEv, iJinf, iTdr, iCh,
+                   signals_filtered[iJinf][iTdr][iCh].size());
+          }
+          unsigned int thisVA = iCh / NCHAVA;
+          //          printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
+        }
       }
-      unsigned int thisVA = iCh / NCHAVA;
-      //          printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
-      }
-      }
-      }
-      }
-    */
+    }
+  }
 
 #ifdef CALPLOTS
-    // this has some problems:
-    // can work with only one TDR
-    // now we can have vectors, for a given TDR (and hopefully for all the channels)
-    // with zero entries
-    TH1F *h_sig_eachVA[1][NCHAVA][signals_filtered[0][0].size()]; // uno per ogni VA e per ogni evento
+  // this has some problems:
+  // can work with only one TDR
+  // now we can have vectors, for a given TDR (and hopefully for all the channels)
+  // with zero entries
+  TH1F *h_sig_eachVA[1][NCHAVA][signals_filtered[0][0].size()]; // uno per ogni VA e per ogni evento
 #endif
-    //    printf("signals_filtered.size() = %lu\n", signals_filtered.size());
-    for (unsigned long int iTdr = 0; iTdr < signals_filtered.size(); ++iTdr) {
-      if (cals[iJinf][iTdr].valid) {
-        //        printf("signals_filtered.at(%lu) size() = %lu\n", iTdr, signals_filtered.at(iTdr).size());
-        // the loop over events must be done before the one the channels for the CN
-        // so below we assume all the channels have the same number of events
-        for (unsigned long int iEv = 0; iEv < signals_filtered[iTdr][0].size(); ++iEv) {
-          for (unsigned long int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-            //        printf("signals_filtered[%d][%d].size() = %lu\n", iTdr, iCh, signals_filtered[iTdr][iCh].size());
-            unsigned long int thisVA = iCh / NCHAVA;
-            //        printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
+  //    printf("signals_filtered.size() = %lu\n", signals_filtered.size());
+  for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
+    int iTdr = GetTdrNum_byglobindex(globindex);
+    int iJinf = GetJinfNum_byglobindex(globindex);
+    if (cals[iJinf][iTdr].valid) {
+      //        printf("signals_filtered[%lu] size() = %lu\n", iTdr, signals_filtered[iTdr].size());
+      // the loop over events must be done before the one the channels for the CN
+      // so below we assume all the channels have the same number of events
+      for (unsigned long int iEv = 0; iEv < signals_filtered[iJinf][iTdr][0].size(); ++iEv) {
+        for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+          //        printf("signals_filtered[%d][%d].size() = %lu\n", iTdr, iCh,
+          //        signals_filtered[iJinf][iTdr][iCh].size());
+          unsigned int thisVA = iCh / NCHAVA;
+          //        printf("thisVA=%d, lastVA=%d\n", thisVA, lastVA);
 
-            if (thisVA != lastVA) {
+          if (thisVA != lastVA) {
 #ifdef CALPLOTS
-              h_sig_eachVA[0][thisVA][iEv] = new TH1F(Form("sig_Tdr%d_VA%d_Ev%d", iTdr, thisVA, iEv),
-                                                      Form("sig_Tdr%d_VA%d_Ev%d", iTdr, thisVA, iEv), 1000, -500, 500);
+            h_sig_eachVA[0][thisVA][iEv] = new TH1F(Form("sig_Tdr%d_VA%d_Ev%d", iTdr, thisVA, iEv),
+                                                    Form("sig_Tdr%d_VA%d_Ev%d", iTdr, thisVA, iEv), 1000, -500, 500);
 #endif
-              std::vector<float> values;
-              for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
-                double sig = signals_filtered[iTdr][thisVA * NCHAVA + iVACh][iEv] -
-                             cals[iJinf][iTdr].ped[thisVA * NCHAVA + iVACh];
-                double rawnoise = cals[iJinf][iTdr].rsig[thisVA * NCHAVA + iVACh];
-                double sig_to_rawnoise = sig / rawnoise;
+            std::vector<float> values;
+            for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
+              double sig = signals_filtered[iJinf][iTdr][thisVA * NCHAVA + iVACh][iEv] -
+                           cals[iJinf][iTdr].ped[thisVA * NCHAVA + iVACh];
+              double rawnoise = cals[iJinf][iTdr].rsig[thisVA * NCHAVA + iVACh];
+              double sig_to_rawnoise = sig / rawnoise;
 #ifdef CALPLOTS
-                h_sig_eachVA[0][thisVA][iEv]->Fill(sig);
+              h_sig_eachVA[0][thisVA][iEv]->Fill(sig);
 #endif
-                // this relies in sorted vectors (i.e. signals), done in preveious loop (sigma raw)
-                //             if (iEv>=((int)(PERCENTILE*signals_filtered[iTdr][thisVA * NCHAVA + iVACh].size())) &&
-                //             iEv<((int)((1.0-PERCENTILE)*signals_filtered[iTdr][thisVA * NCHAVA + iVACh].size()))) {
-                //             //probabilemte non serve e comunque questo è sbagliato
-                // if (fabs(sig_to_rawnoise) < 50.0) {
-                values.push_back(sig);
-                // }
-                // }
-              }
-
-              //	  printf("%d) Board=%d VA=%d -> %lu events for CN evaluation\n", iEv, iTdr, thisVA, values.size());
-              // get the median
-              std::sort(begin(values), end(values));
-              if (values.size() > 0) {
-                common_noise[thisVA] = 0.5 * (values[(values.size() / 2) - 1] + values[values.size() / 2]);
-              } else {
-                /*
-                  for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
-                  double sig = signals_filtered[iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iJinf][iTdr].ped[thisVA *
-                  NCHAVA + iVACh]; double rawnoise = cals[iJinf][iTdr].rsig[thisVA * NCHAVA + iVACh]; double
-                  sig_to_rawnoise = sig/rawnoise; printf("Event = %d) board=%d, ch=%lu --> sig=%f, ped=%f, S/N=%f\n",
-                  iEv, iTdr, thisVA * NCHAVA + iVACh, signals_filtered[iTdr][thisVA * NCHAVA + iVACh][iEv],
-                  cals[iJinf][iTdr].ped[thisVA * NCHAVA + iVACh], sig_to_rawnoise);
-                  }
-                */
-                common_noise[thisVA] = 0.0;
-              }
-              //              printf("iEv=%lu, iTdr=%lu) %f\n", iEv, iTdr, common_noise[thisVA]);
-              CNs[iJinf][iTdr][thisVA].push_back(common_noise[thisVA]);
+              // this relies in sorted vectors (i.e. signals), done in preveious loop (sigma raw)
+              //             if (iEv>=((int)(PERCENTILE*signals_filtered[iJinf][iTdr][thisVA * NCHAVA + iVACh].size()))
+              //             && iEv<((int)((1.0-PERCENTILE)*signals_filtered[iJinf][iTdr][thisVA * NCHAVA +
+              //             iVACh].size()))) {
+              //             //probabilemte non serve e comunque questo è sbagliato
+              // if (fabs(sig_to_rawnoise) < 50.0) {
+              values.push_back(sig);
+              // }
+              // }
             }
 
-            /*
-              if (std::fabs(common_noise[thisVA]) > 10) {//not used for the sigma evaluation
-              continue;
-              }
-            */
+            //	  printf("%d) Board=%d VA=%d -> %lu events for CN evaluation\n", iEv, iTdr, thisVA, values.size());
+            // get the median
+            std::sort(begin(values), end(values));
+            if (values.size() > 0) {
+              common_noise[thisVA] = 0.5 * (values[(values.size() / 2) - 1] + values[values.size() / 2]);
+            } else {
+              /*
+                for (unsigned int iVACh = 0; iVACh < NCHAVA; ++iVACh) {
+                double sig = signals_filtered[iJinf][iTdr][thisVA * NCHAVA + iVACh][iEv] - cals[iJinf][iTdr].ped[thisVA
+                * NCHAVA + iVACh]; double rawnoise = cals[iJinf][iTdr].rsig[thisVA * NCHAVA + iVACh]; double
+                sig_to_rawnoise = sig/rawnoise; printf("Event = %d) board=%d, ch=%lu --> sig=%f, ped=%f, S/N=%f\n",
+                iEv, iTdr, thisVA * NCHAVA + iVACh, signals_filtered[iJinf][iTdr][thisVA * NCHAVA + iVACh][iEv],
+                cals[iJinf][iTdr].ped[thisVA * NCHAVA + iVACh], sig_to_rawnoise);
+                }
+              */
+              common_noise[thisVA] = 0.0;
+            }
+            //              printf("iEv=%lu, iTdr=%lu) %f\n", iEv, iTdr, common_noise[thisVA]);
+            CNs[iJinf][iTdr][thisVA].push_back(common_noise[thisVA]);
+          }
 
-            ++processed_events[iTdr][iCh];
-            cals[iJinf][iTdr].sig[iCh] +=
-                (signals_filtered[iTdr][iCh][iEv] - cals[iJinf][iTdr].ped[iCh] - common_noise[thisVA]) *
-                (signals_filtered[iTdr][iCh][iEv] - cals[iJinf][iTdr].ped[iCh] - common_noise[thisVA]);
-            // printf("iEv=%lu, iTdr=%lu) %f (proc. evs = %lu)\n", iEv, iTdr, cals[iJinf][iTdr].sig[iCh],
-            //        processed_events[iTdr][iCh]);
+          /*
+            if (std::fabs(common_noise[thisVA]) > 10) {//not used for the sigma evaluation
+            continue;
+            }
+          */
+
+          ++processed_events[iJinf][iTdr][iCh];
+          cals[iJinf][iTdr].sig[iCh] +=
+              (signals_filtered[iJinf][iTdr][iCh][iEv] - cals[iJinf][iTdr].ped[iCh] - common_noise[thisVA]) *
+              (signals_filtered[iJinf][iTdr][iCh][iEv] - cals[iJinf][iTdr].ped[iCh] - common_noise[thisVA]);
+          // printf("iEv=%lu, iTdr=%lu) %f (proc. evs = %lu)\n", iEv, iTdr, cals[iJinf][iTdr].sig[iCh],
+          //        processed_events[iJinf][iTdr][iCh]);
 
 #ifdef CALPLOTS
-            hsig[iTdr]->Fill(signals_filtered[iTdr][iCh][iEv] - cals[iJinf][iTdr].ped[iCh] - common_noise[thisVA]);
+          hsig[globindex]->Fill(signals_filtered[iJinf][iTdr][iCh][iEv] - cals[iJinf][iTdr].ped[iCh] -
+                                common_noise[thisVA]);
 #endif
 
-            lastVA = thisVA;
-          }
+          lastVA = thisVA;
         }
-      } else {
-        printf("iJinf=%u, iTdr=%lu) cal not valid\n", iJinf, iTdr);
       }
+    } else {
+      printf("iJinf=%u, iTdr=%u) cal not valid\n", iJinf, iTdr);
     }
+  }
 
-    /*
-    //  printf("Calibs:\n");
-    for (unsigned long int iTdr = 0; iTdr < signals_filtered.size(); ++iTdr) {
-      if (cals[iJinf][iTdr].valid) {
-        auto beginItr = std::begin(processed_events[iTdr]);
-        auto endItr = std::end(processed_events[iTdr]);
-        auto nCh = std::distance(beginItr, endItr);
-        printf("%lu valid: processed events %lu (%f)\n", iTdr, processed_events[iTdr][0],
-               std::accumulate(beginItr, endItr, 0.0f) / float(nCh));
-      }
+  //  /*
+  printf("Calibs:\n");
+  for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
+    int iTdr = GetTdrNum_byglobindex(globindex);
+    int iJinf = GetJinfNum_byglobindex(globindex);
+    if (cals[iJinf][iTdr].valid) {
+      auto beginItr = std::begin(processed_events[iJinf][iTdr]);
+      auto endItr = std::end(processed_events[iJinf][iTdr]);
+      auto nCh = std::distance(beginItr, endItr);
+      printf("cals[%d][%d] valid: processed events %lu (%f)\n", iJinf, iTdr, processed_events[iJinf][iTdr][0],
+             std::accumulate(beginItr, endItr, 0.0f) / float(nCh));
     }
-    */
+  }
+  //  */
 
-    for (unsigned long int iTdr = 0; iTdr < signals_filtered.size(); ++iTdr) {
-      if (cals[iJinf][iTdr].valid) {
-        for (unsigned long int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-          if (processed_events[iTdr][iCh] == 0 && cals[iJinf][iTdr].sig[iCh] != 0)
-            std::cout << "     *****" << cals[iJinf][iTdr].sig[iCh] << std::endl;
+  for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
+    int iTdr = GetTdrNum_byglobindex(globindex);
+    int iJinf = GetJinfNum_byglobindex(globindex);
+    if (cals[iJinf][iTdr].valid) {
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+        if (processed_events[iJinf][iTdr][iCh] == 0 && cals[iJinf][iTdr].sig[iCh] != 0)
+          std::cout << "     *****" << cals[iJinf][iTdr].sig[iCh] << std::endl;
 
-          cals[iJinf][iTdr].sig[iCh] =
-              std::sqrt(cals[iJinf][iTdr].sig[iCh] / static_cast<float>(processed_events[iTdr][iCh]));
-          if (cals[iJinf][iTdr].sig[iCh] < 0 || cals[iJinf][iTdr].sig[iCh] > 20 ||
-              cals[iJinf][iTdr].sig[iCh] != cals[iJinf][iTdr].sig[iCh]) {
-            printf("iJinf=%u, iTdr=%lu, iCh=%lu) %f, %f\n", iJinf, iTdr, iCh, cals[iJinf][iTdr].sig[iCh],
-                   static_cast<float>(processed_events[iTdr][iCh]));
-          }
+        cals[iJinf][iTdr].sig[iCh] =
+            std::sqrt(cals[iJinf][iTdr].sig[iCh] / static_cast<float>(processed_events[iJinf][iTdr][iCh]));
+        if (cals[iJinf][iTdr].sig[iCh] < 0 || cals[iJinf][iTdr].sig[iCh] > 20 ||
+            cals[iJinf][iTdr].sig[iCh] != cals[iJinf][iTdr].sig[iCh]) {
+          printf("iJinf=%u, iTdr=%u, iCh=%u) %f, %f\n", iJinf, iTdr, iCh, cals[iJinf][iTdr].sig[iCh],
+                 static_cast<float>(processed_events[iJinf][iTdr][iCh]));
         }
       }
     }

@@ -18,6 +18,7 @@
 #pragma link C++ class Cluster + ;
 #pragma link C++ class RHClass < 1, 24> + ;
 #pragma link C++ class RHClass < 8, 9> + ;
+#pragma link C++ class RHClassOCA + ;
 #pragma link C++ class DataVersion + ;
 // AMS
 #pragma link C++ class Event < 1, 24, 64, 3, 10, 6> + ;

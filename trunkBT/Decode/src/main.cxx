@@ -409,9 +409,9 @@ int main(int argc, char **argv) {
 
     int NTDR = dd1->GetNTdrRaw() + dd1->GetNTdrCmp();
     for (int ii = 0; ii < NTDR; ii++) {
-      int Jinfnum = dd1->GetJinfNum(ii);
-      int Tdrnum = dd1->GetTdrNum(ii);
-      int IdTDR = dd1->ComputeTdrNum(Tdrnum, Jinfnum);
+      int Jinfnum = dd1->GetTdrNum_byglobindex(ii);
+      int Tdrnum = dd1->GetJinfNum_byglobindex(ii);
+      int IdTDR = dd1->ComputeTdrId(Tdrnum, Jinfnum);
       //      printf("%d\n", IdTDR);
       t4->Branch(Form("SignalS_Ladder%03d", IdTDR), &sigS[IdTDR], Form("SignalS_Ladder%03d/D", IdTDR));
       t4->Branch(Form("ChargeS_Ladder%03d", IdTDR), &chaS[IdTDR], Form("ChargeS_Ladder%03d/D", IdTDR));
@@ -501,36 +501,27 @@ int main(int argc, char **argv) {
       int NTDR = dd1->GetNTdrRaw() + dd1->GetNTdrCmp();
       {
         for (int ii = 0; ii < NTDR; ii++) {
-          int Jinfnum = dd1->GetJinfNum(ii);
-          int Tdrnum = dd1->GetTdrNum(ii);
-          int ladder = dd1->ComputeTdrNum(Tdrnum, Jinfnum);
-          int iJinf = Jinfnum; // FindPos? Oppure invece che GetRawSignal_PosNum selo GetRawSignal?
-          int iTDR = Tdrnum;   // FindPos?
+          int Jinfnum = dd1->GetTdrNum_byglobindex(ii);
+          int Tdrnum = dd1->GetJinfNum_byglobindex(ii);
+          int IdTDR = dd1->ComputeTdrId(Tdrnum, Jinfnum);
           for (unsigned int iCh = 0; iCh < (fConf.NVASS + fConf.NVASK) * fConf.NCHAVA; ++iCh) {
-            /*
-                  printf("a) event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %f\n", (dd->ev)->GetEvtnum(),
-               iJinf, iTDR, iCh, (dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf));
-            printf("b) event = %d, Jinf = %d, TDR
-               = %d, Channel = %d) rawsignal = %f\n", (dd->ev)->GetEvtnum(), Jinfnum, Tdrnum, iCh,
-               (dd->ev)->GetRawSignal(dd->rh, Tdrnum, iCh, Jinfnum));
-            */
-            /*
-                  if ((dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf) > 4095) {
-                    printf("event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %f\n", (dd->ev)->GetEvtnum(),
-               iJinf, iTDR, iCh, (dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf)); sleep(1);
-                  }
-            */
 
-            // QUIQUI
+            // printf("a) event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %f\n", (dd->ev)->GetEvtnum(),
+            // Jinfnum,
+            //        Tdrnum, iCh, (dd->ev)->GetRawSignal_bynums(Tdrnum, iCh, Jinfnum));
 
-            // double signal = (dd->ev)->GetRawSignal_PosNum(iTDR, iCh, iJinf);
-            // double son = (dd->ev)->GetRawSoN_PosNum(iTDR, iCh, iJinf);
-            double signal = (dd->ev)->GetRawSignal(dd->rh, Tdrnum, iCh, Jinfnum);
-            double son = (dd->ev)->GetRawSoN(dd->rh, Tdrnum, iCh, Jinfnum);
+            // if ((dd->ev)->GetRawSignal_bynums(Tdrnum, iCh, Jinfnum) > 4095) {
+            //   printf("event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %f\n", (dd->ev)->GetEvtnum(),
+            //   Jinfnum,
+            //          Tdrnum, iCh, (dd->ev)->GetRawSignal_bynums(Tdrnum, iCh, Jinfnum));
+            //   sleep(1);
+            // }
+
+            double signal = (dd->ev)->GetRawSignal_bynums(Tdrnum, iCh, Jinfnum);
+            double son = (dd->ev)->GetRawSoN_bynums(Tdrnum, iCh, Jinfnum);
             if (son != son) { // NaN, not a ladder really present
               son = 0;
             }
-            printf("%d (%d %d, %d %d) --> %f %f\n", ladder, iJinf, Jinfnum, iTDR, Tdrnum, signal, son);
 
             int side = 0;
             if (iCh >= fConf.NCHAVA * fConf.NVASS) {
@@ -538,7 +529,7 @@ int main(int argc, char **argv) {
             }
 
             LadderConf *ladderconf = LadderConf::Instance();
-            if (ladderconf->GetSideSwap(iJinf, iTDR)) {
+            if (ladderconf->GetSideSwap(Jinfnum, Tdrnum)) {
               if (side == 0) {
                 side = 1;
               } else {
@@ -547,14 +538,14 @@ int main(int argc, char **argv) {
             }
 
             if (side == 1) {
-              if (signal > sigK[ladder]) { // filling only with the largest
-                sigK[ladder] = signal;
-                sonK[ladder] = son;
+              if (signal > sigK[IdTDR]) { // filling only with the largest
+                sigK[IdTDR] = signal;
+                sonK[IdTDR] = son;
               }
             } else {
-              if (signal > sigS[ladder]) { // filling only with the largest
-                sigS[ladder] = signal;
-                sonS[ladder] = son;
+              if (signal > sigS[IdTDR]) { // filling only with the largest
+                sigS[IdTDR] = signal;
+                sonS[IdTDR] = son;
               }
             }
           }

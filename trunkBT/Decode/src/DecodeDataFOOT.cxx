@@ -430,7 +430,7 @@ int DecodeDataFOOT::ReadOneEvent() {
     // point, so it should return.
     for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
       printf("Cluterizing detector %i\n", iTDR);
-      Clusterize(iTDR, 0, (EventFOOT *)ev, &cals[iTDR]);
+      Clusterize<EventFOOT, calibFOOT>(iTDR, 0, &cals[iTDR]);
     }
   }
 

@@ -13,6 +13,53 @@
 #include "DecodeData.hh"
 #include "Event.hh"
 
+#pragma pack(push, 1)
+
+// typedef struct header { // gcc 4.3, considers 'typedef' useless // (what??)
+struct header {  // for file writing NOT in AMSBlock
+  int run;       // run number
+  char date[50]; // date // why we put 50! In the RHClass is 30! Should be shorter, but anyhow it will be truncated when
+                 // passed to RHClass
+  double gonpar[4];       // goniometer parameters
+  unsigned int refmaskjj; // 16/08/2014 - On Mac this is seen as long 8 (instead of 4) and the reader is read wrongly
+  unsigned int refmask[24];
+};
+
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+
+struct wholeheader {
+  //---- Primary and secondary header ---------------------//
+  unsigned short SIZE;
+  unsigned short RRRWNODETYPE;
+  unsigned short FBITAG;
+  unsigned short TIMEMSB;
+  unsigned short TIMELSB;
+  //---- JMDC data block ----------------------------------//
+  unsigned short JMDCSIZE;
+  unsigned short JMDCRRRWNODETYPE;
+
+  unsigned short RUNNUMMSB;
+  unsigned short RUNNUMLSB;
+  unsigned short RUNTAGMSB;
+  unsigned short RUNTAGLSB;
+  unsigned short EVTNUMMSB;
+  unsigned short EVTNUMLSB;
+  unsigned short JMDCTIMEMSB;
+  unsigned short JMDCTIMELSB;
+  unsigned short JMDCTIMEFINEMSB;
+  unsigned short JMDCTIMEFINELSB;
+  unsigned short GReservedGroups;
+  //---- DSP Slave Format ----------------------------------//
+  unsigned short DSPSIZE;
+  unsigned short DSPRRRWNODETYPE;
+};
+
+#pragma pack(pop)
+
+//-----------------------------------------------------------------------
+
 class DecodeDataAMS : public DecodeData {
 public:
   using EventAMS = Event<1, 24, 64, 3, 10, 6>;

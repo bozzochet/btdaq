@@ -12,7 +12,7 @@ class DecodeDataOCA : public DecodeData {
 public:
   using EventOCA = Event<1, 24, 64, 5, 10, 0>;
   using calibOCA = calib<EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;
-  using RHClassOCA = RHClass<EventOCA::GetNJINF(), EventOCA::GetNTDRS()>;
+  //  using RHClassOCA = RHClass<EventOCA::GetNJINF(), EventOCA::GetNTDRS()>;
   //  using Calibrations = std::array<std::array<calibOCA, EventOCA ::GetNTDRS()>, EventOCA::GetNJINF()>;
   using CalibrationsOCA =
       Calibrations<EventOCA::GetNJINF(), EventOCA::GetNTDRS(), EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;

@@ -103,10 +103,15 @@ PlotCalib: $(ANYOPTION)/anyoption.o obj/summary.o
 	@$(CXX) $(LDFLAGS) -o$@ $^ -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
 	@ln -fs $@ $@Mute
 
+clean_lib:
+	@rm -Rfv $(LIBDECODE_L0) $(LIBDECODE_L0)_build $(LIBDECODE_L0)_install AMSL0filelogger
+
 clean:
-	@rm -Rfv libEventa.a libEvent.so Decode src/rootElibdict.cxx include/rootElibdict.h obj PlotCalib PlotCalibMute $(LIBDECODE_L0) $(LIBDECODE_L0)_build $(LIBDECODE_L0)_install AMSL0filelogger
+	@rm -Rfv libEventa.a libEvent.so Decode src/rootElibdict.cxx include/rootElibdict.h obj PlotCalib PlotCalibMute
 	@make -C $(ANYOPTION) clean
 	@rm -f rootElibdict_rdict.pcm
+
+clean_all: clean_lib clean
 
 print:
 	@echo $(DEC_OBJ)

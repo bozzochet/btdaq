@@ -780,9 +780,9 @@ int DecodeDataOCA::ReadOneEvent() {
     // point, so it should return.
     for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {
       if (kClusterize) {
-        Clusterize(iTDR, 0, (EventOCA *)ev, &cals[iJinf][iTDR]);
+        Clusterize<EventOCA, calibOCA>(iTDR, 0, &cals[iJinf][iTDR]);
       } else {
-        FillRawHistos(iTDR, 0, (EventOCA *)ev, &cals[iJinf][iTDR]);
+        FillRawHistos<EventOCA, calibOCA>(iTDR, 0, &cals[iJinf][iTDR]);
       }
     }
   }

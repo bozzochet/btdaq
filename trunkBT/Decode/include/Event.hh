@@ -68,19 +68,19 @@ public:
 
   virtual int GetEvtnum() = 0;
 
-  virtual double GetCalPed_PosNum(int tdrposnum, int channel, int Jinfnum = 0) = 0;
-  virtual double GetCalSigma_PosNum(int tdrposnum, int channel, int Jinfnum = 0) = 0;
-  virtual double GetRawSignal_PosNum(int tdrposnum, int channel, int Jinfnum = 0) = 0;
-  virtual double GetCN_PosNum(int tdrposnum, int va, int Jinfnum = 0) = 0;
-  virtual float GetRawSoN_PosNum(int tdrposnum, int channel, int Jinfnum = 0) = 0;
-  virtual double GetCalStatus_PosNum(int tdrposnum, int va, int Jinfnum = 0) = 0;
+  virtual double GetCalPed_byglobindex(GenericRHClass *rh, int tdrglobindex, int channel) = 0;
+  virtual double GetCalSigma_byglobindex(GenericRHClass *rh, int tdrglobindex, int channel) = 0;
+  virtual double GetRawSignal_byglobindex(GenericRHClass *rh, int tdrglobindex, int channel) = 0;
+  virtual double GetCN_byglobindex(GenericRHClass *rh, int tdrglobindex, int va) = 0;
+  virtual float GetRawSoN_byglobindex(GenericRHClass *rh, int tdrglobindex, int channel) = 0;
+  virtual double GetCalStatus_byglobindex(GenericRHClass *rh, int tdrglobindex, int va) = 0;
 
-  virtual double GetCalPed(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) = 0;
-  virtual double GetCalSigma(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) = 0;
-  virtual double GetRawSignal(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) = 0;
-  virtual double GetCN(GenericRHClass *rh, int tdrnum, int va, int Jinfnum = 0) = 0;
-  virtual float GetRawSoN(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) = 0;
-  virtual double GetCalStatus(GenericRHClass *rh, int tdrposnum, int va, int Jinfnum = 0) = 0;
+  virtual double GetCalPed_bynums(int tdrnum, int channel, int Jinfnum = 0) = 0;
+  virtual double GetCalSigma_bynums(int tdrnum, int channel, int Jinfnum = 0) = 0;
+  virtual double GetRawSignal_bynums(int tdrnum, int channel, int Jinfnum = 0) = 0;
+  virtual double GetCN_bynums(int tdrnum, int va, int Jinfnum = 0) = 0;
+  virtual float GetRawSoN_bynums(int tdrnum, int channel, int Jinfnum = 0) = 0;
+  virtual double GetCalStatus_bynums(int tdrposnum, int va, int Jinfnum = 0) = 0;
 
   ClassDef(GenericEvent, 3)
 };
@@ -184,27 +184,19 @@ public:
   inline unsigned int GetNHitsKTrack() { return (unsigned int)(_v_trackK.size()); }
   double GetChargeTrack(int side);
 
-  double GetCalPed_PosNum(int tdrposnum, int channel, int Jinfnum = 0) final;
-  double GetCalSigma_PosNum(int tdrposnum, int channel, int Jinfnum = 0) final;
-  double GetRawSignal_PosNum(int tdrposnum, int channel, int Jinfnum = 0) final;
-  double GetCN_PosNum(int tdrposnum, int va, int Jinfnum = 0) final;
-  float GetRawSoN_PosNum(int tdrposnum, int channel, int Jinfnum = 0) final;
-  double GetCalStatus_PosNum(int tdrposnum, int va, int Jinfnum = 0) final;
+  double GetCalPed_byglobindex(GenericRHClass *rh, int tdrglobindex, int channel) final;
+  double GetCalSigma_byglobindex(GenericRHClass *rh, int tdrglobindex, int channel) final;
+  double GetRawSignal_byglobindex(GenericRHClass *rh, int tdrglobindex, int channel) final;
+  double GetCN_byglobindex(GenericRHClass *rh, int tdrglobindex, int va) final;
+  float GetRawSoN_byglobindex(GenericRHClass *rh, int tdrglobindex, int channel) final;
+  double GetCalStatus_byglobindex(GenericRHClass *rh, int tdrglobindex, int va) final;
 
-  /*
-  double GetCalPed(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum = 0);
-  double GetCalSigma(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum = 0);
-  double GetRawSignal(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum = 0);
-  double GetCN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int va, int Jinfnum = 0);
-  float GetRawSoN(RHClass<NJINF, NTDRS> *rh, int tdrnum, int channel, int Jinfnum = 0);
-  double GetCalStatus(RHClass<NJINF, NTDRS> *rh, int tdrposnum, int va, int Jinfnum = 0);
-  */
-  double GetCalPed(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) final;
-  double GetCalSigma(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) final;
-  double GetRawSignal(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) final;
-  double GetCN(GenericRHClass *rh, int tdrnum, int va, int Jinfnum = 0) final;
-  float GetRawSoN(GenericRHClass *rh, int tdrnum, int channel, int Jinfnum = 0) final;
-  double GetCalStatus(GenericRHClass *rh, int tdrposnum, int va, int Jinfnum = 0) final;
+  double GetCalPed_bynums(int tdrnum, int channel, int Jinfnum = 0) final;
+  double GetCalSigma_bynums(int tdrnum, int channel, int Jinfnum = 0) final;
+  double GetRawSignal_bynums(int tdrnum, int channel, int Jinfnum = 0) final;
+  double GetCN_bynums(int tdrnum, int va, int Jinfnum = 0) final;
+  float GetRawSoN_bynums(int tdrnum, int channel, int Jinfnum = 0) final;
+  double GetCalStatus_bynums(int tdrnum, int va, int Jinfnum = 0) final;
 
   uint64_t GetTimeStamp() { return TimeStamp; }
   uint64_t GetTimeStamp_ns() { return TimeStamp_ns; }

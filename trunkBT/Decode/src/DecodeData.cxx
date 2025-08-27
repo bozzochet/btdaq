@@ -7,6 +7,7 @@
 #include "DecodeData.hh"
 
 #include "Event.hpp"
+#include "RHClass.hh"
 
 #include "TRandom3.h"
 #include "TString.h"
@@ -23,6 +24,26 @@ inline bool file_exists(const std::string &name) {
 static TString stringtodump;
 
 //=============================================================================================
+
+int DecodeData::ReadFile(void *ptr, size_t size, size_t nitems, FILE *stream) {
+
+  int ret = 0;
+  ret = fread(ptr, size, nitems, stream);
+  if (feof(stream)) {
+    if (pri) {
+      printf("\n");
+      printf("End of File \n");
+    }
+    return -1;
+  }
+  if (ferror(stream)) {
+    if (pri)
+      printf("Error reading \n");
+    return -2;
+  }
+
+  return ret;
+}
 
 void DecodeData::CloseFile() {
 
@@ -49,6 +70,9 @@ int DecodeData::EndOfFile() {
 
   return eff;
 }
+
+//=============================================================================================
+
 //=============================================================================================
 
 /*
@@ -73,37 +97,34 @@ double DecodeData::ComputeCN(int size, short int* RawSignal, float* pede, float*
   //  printf("    CN = %f\n", mean);
 
   return mean;
-}*/
+}
+*/
 
-//=============================================================================================
-
-int DecodeData::ReadFile(void *ptr, size_t size, size_t nitems, FILE *stream) {
-
-  int ret = 0;
-  ret = fread(ptr, size, nitems, stream);
-  if (feof(stream)) {
-    if (pri) {
-      printf("\n");
-      printf("End of File \n");
-    }
-    return -1;
-  }
-  if (ferror(stream)) {
-    if (pri)
-      printf("Error reading \n");
-    return -2;
+TDR DecodeData::GetTDR_bynums(int tdrnum, int jinfnum) {
+  if (rh) {
+    return rh->GetTDR_bynums(tdrnum, jinfnum);
+  } else {
+    printf("***RHClass not instanciated...\n");
   }
 
-  return ret;
+  TDR dummy;
+  return dummy;
 }
 
-int DecodeData::GetTdrNum(size_t tdrpos) {
-  if (tdrpos > GetNJINF() * GetNTDRS()) {
-    printf("TDR Pos %ld not allowed. Max is %d\n", tdrpos, GetNJINF() * GetNTDRS());
-    return -9999;
-  }
+TDR DecodeData::GetTDR_byglobindex(int tdrglobindex) {
   if (rh) {
-    return rh->GetTdrNum(tdrpos);
+    return rh->GetTDR_byglobindex(tdrglobindex);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  TDR dummy;
+  return dummy;
+}
+
+int DecodeData::GetTdrNum_byID(int tdrid) {
+  if (rh) {
+    return rh->GetTdrNum_byID(tdrid);
   } else {
     printf("***RHClass not instanciated...\n");
   }
@@ -111,13 +132,9 @@ int DecodeData::GetTdrNum(size_t tdrpos) {
   return -1;
 }
 
-int DecodeData::GetTdrType(size_t tdrpos) {
-  if (tdrpos > GetNJINF() * GetNTDRS()) {
-    printf("TDR Pos %ld not allowed. Max is %d\n", tdrpos, GetNJINF() * GetNTDRS());
-    return -9999;
-  }
+int DecodeData::GetJinfNum_byID(int tdrid) {
   if (rh) {
-    return rh->GetTdrType(tdrpos);
+    return rh->GetJinfNum_byID(tdrid);
   } else {
     printf("***RHClass not instanciated...\n");
   }
@@ -125,13 +142,9 @@ int DecodeData::GetTdrType(size_t tdrpos) {
   return -1;
 }
 
-int DecodeData::GetJinfNum(size_t tdrpos) {
-  if (tdrpos > GetNJINF() * GetNTDRS()) {
-    printf("TDR Pos %ld not allowed. Max is %d\n", tdrpos, GetNJINF() * GetNTDRS());
-    return -9999;
-  }
+int DecodeData::GetTdrNum_byglobindex(int tdrglobindex) {
   if (rh) {
-    return rh->GetJinfNum(tdrpos);
+    return rh->GetTdrNum_byglobindex(tdrglobindex);
   } else {
     printf("***RHClass not instanciated...\n");
   }
@@ -139,9 +152,9 @@ int DecodeData::GetJinfNum(size_t tdrpos) {
   return -1;
 }
 
-int DecodeData::FindPos(int tdrnum, int jinfnum) {
+int DecodeData::GetJinfNum_byglobindex(int tdrglobindex) {
   if (rh) {
-    return rh->FindPos(tdrnum, jinfnum);
+    return rh->GetJinfNum_byglobindex(tdrglobindex);
   } else {
     printf("***RHClass not instanciated...\n");
   }
@@ -149,9 +162,9 @@ int DecodeData::FindPos(int tdrnum, int jinfnum) {
   return -1;
 }
 
-int DecodeData::FindCalPos(int tdrnum, int jinfnum) {
+int DecodeData::GetTdrGlobIndex_bynums(int tdrnum, int jinfnum) {
   if (rh) {
-    return rh->FindPos(tdrnum, jinfnum);
+    return rh->GetTdrGlobIndex_bynums(tdrnum, jinfnum);
   } else {
     printf("***RHClass not instanciated...\n");
   }
@@ -159,4 +172,24 @@ int DecodeData::FindCalPos(int tdrnum, int jinfnum) {
   return -1;
 }
 
-int DecodeData::ComputeTdrNum(int tdrnum, int jinfnum) { return rh->ComputeTdrNum(tdrnum, jinfnum); }
+int DecodeData::GetJinfIndex_bynum(int jinfnum) {
+  if (rh) {
+    return rh->GetJinfIndex_bynum(jinfnum);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  return -1;
+}
+
+int DecodeData::GetJinfNum_byindex(int jinfindex) {
+  if (rh) {
+    return rh->GetJinfNum_byindex(jinfindex);
+  } else {
+    printf("***RHClass not instanciated...\n");
+  }
+
+  return -1;
+}
+
+int DecodeData::ComputeTdrId(int tdrnum, int jinfnum) { return rh->ComputeTdrId(tdrnum, jinfnum); }
