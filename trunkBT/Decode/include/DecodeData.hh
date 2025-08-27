@@ -660,7 +660,7 @@ void DecodeData::SaveCalibration(const std::array<std::array<calib, ntdr>, njinf
   for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
     int iTdr = GetTdrNum_byglobindex(globindex);
     int iJinf = GetJinfNum_byglobindex(globindex);
-    printf("iJinf=%u, iTdr=%u valid: %d\n", iJinf, iTdr, cals[iJinf][iTdr].valid);
+    // printf("iJinf=%u, iTdr=%u valid: %d\n", iJinf, iTdr, cals[iJinf][iTdr].valid);
 
     if (cals[iJinf][iTdr].valid) {
       //    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -701,6 +701,8 @@ void DecodeData::SaveCalibration(const std::array<std::array<calib, ntdr>, njinf
 template <class Event, class calib, size_t njinf, size_t ntdr>
 void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &cals) {
 
+  // #define COMPCALVERBOSE
+
   constexpr auto NJINF = Event::GetNJINF();
   constexpr auto NTDRS = Event::GetNTDRS();
   constexpr auto NVAS = Event::GetNVAS();
@@ -720,6 +722,7 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
   // MD: però qui deve essere fatta la logica 5k per mean e sigma_raw
   // MD: e 5k per il resto
 
+#ifdef COMPCALVERBOSE
   printf("signals sizes:\n");
   printf("nJinf = %d\n", nJinf);
   for (unsigned int iJ = 0; iJ < uint(nJinf); iJ++) {
@@ -744,6 +747,7 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
       }
     }
   }
+#endif
 
   auto signals_filtered = signals;        // later in the code, each element will be cleared, filtered
   auto signals_sorted = signals;          // later in the code, each element will be sorted
@@ -752,7 +756,9 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
   for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
     int iTdr = GetTdrNum_byglobindex(globindex);
     int iJinf = GetJinfNum_byglobindex(globindex);
+#ifdef COMPCALVERBOSE
     printf("iJinf=%u, iTdr=%u valid: %d\n", iJinf, iTdr, cals[iJinf][iTdr].valid);
+#endif
 
     if (cals[iJinf][iTdr].valid) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
@@ -780,6 +786,7 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
         auto endItr = std::end(signals_sorted_filtered[iJinf][iTdr][iCh]);
 
         unsigned long int nEv = std::distance(beginItr, endItr);
+#ifdef COMPCALVERBOSE
         //      printf("%ld %f\n", nEv, (1.0-2.0*PERCENTILE)*signals[iJinf][iTdr][iCh].size());
         unsigned long int nEv_check = 100;
         if (nEv < nEv_check) {
@@ -789,6 +796,7 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
             printf("%lu) signals[%d][%d][%d] = %f\n", ee, iJinf, iTdr, iCh, signals[iJinf][iTdr][iCh].at(ee));
           }
         }
+#endif
 
         //      cals[iJinf][iTdr].ped[iCh] = std::accumulate(begin(signals[iJinf][iTdr][iCh]),
         //      end(signals[iJinf][iTdr][iCh]), 0.0f) /
@@ -819,7 +827,9 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
   for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
     int iTdr = GetTdrNum_byglobindex(globindex);
     int iJinf = GetJinfNum_byglobindex(globindex);
+#ifdef COMPCALVERBOSE
     printf("after-filtering and sorting)\n    iJinf=%u, iTdr=%u valid: %d\n", iJinf, iTdr, cals[iJinf][iTdr].valid);
+#endif
 
     if (cals[iJinf][iTdr].valid) {
       unsigned int ave_nEv = 0;
@@ -834,7 +844,9 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
       ave_nEv /= NVAS * NCHAVA;
       if (ave_nEv < 100) {
         cals[iJinf][iTdr].valid = false;
+#ifdef COMPCALVERBOSE
         printf("iJinf=%u, iTdr=%u) calib will be declared not valid (%u events)\n", iJinf, iTdr, ave_nEv);
+#endif
       }
     }
   }
@@ -906,6 +918,7 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
       signals_filtered.size(), std::vector<std::vector<unsigned long int>>(
                                    signals_filtered[0].size(), std::vector<unsigned long int>(NVAS * NCHAVA)));
 
+#ifdef COMPCALVERBOSE
   printf("signals filtered sizes:\n");
   printf("nJinf = %d\n", nJinf);
   for (unsigned int iJ = 0; iJ < uint(nJinf); iJ++) {
@@ -931,6 +944,7 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
       }
     }
   }
+#endif
 
 #ifdef CALPLOTS
   // this has some problems:
@@ -1026,7 +1040,7 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
     }
   }
 
-  //  /*
+#ifdef COMPCALVERBOSE
   printf("Calibs:\n");
   for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
     int iTdr = GetTdrNum_byglobindex(globindex);
@@ -1039,7 +1053,7 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
              std::accumulate(beginItr, endItr, 0.0f) / float(nCh));
     }
   }
-  //  */
+#endif
 
   for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
     int iTdr = GetTdrNum_byglobindex(globindex);
@@ -1053,7 +1067,7 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
             std::sqrt(cals[iJinf][iTdr].sig[iCh] / static_cast<float>(processed_events[iJinf][iTdr][iCh]));
         if (cals[iJinf][iTdr].sig[iCh] < 0 || cals[iJinf][iTdr].sig[iCh] > 20 ||
             cals[iJinf][iTdr].sig[iCh] != cals[iJinf][iTdr].sig[iCh]) {
-          printf("iJinf=%u, iTdr=%u, iCh=%u) %f, %f\n", iJinf, iTdr, iCh, cals[iJinf][iTdr].sig[iCh],
+          printf("iJinf=%u, iTdr=%u, iCh=%u) sig=%f, nev=%f\n", iJinf, iTdr, iCh, cals[iJinf][iTdr].sig[iCh],
                  static_cast<float>(processed_events[iJinf][iTdr][iCh]));
         }
       }
