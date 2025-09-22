@@ -400,28 +400,26 @@ int main(int argc, char **argv) {
     dd1->SetPrintOff();
     dd1->SetEvPrintOff();
 
-    double chaK[fConf.NTDRS];
-    double chaS[fConf.NTDRS];
-    double sigK[fConf.NTDRS];
-    double sigS[fConf.NTDRS];
-    double sonK[fConf.NTDRS];
-    double sonS[fConf.NTDRS];
+    double chaK[fConf.NJINF][fConf.NTDRS];
+    double chaS[fConf.NJINF][fConf.NTDRS];
+    double sigK[fConf.NJINF][fConf.NTDRS];
+    double sigS[fConf.NJINF][fConf.NTDRS];
+    double sonK[fConf.NJINF][fConf.NTDRS];
+    double sonS[fConf.NJINF][fConf.NTDRS];
 
     int NTDR = dd1->GetNTdrRaw() + dd1->GetNTdrCmp();
     for (int ii = 0; ii < NTDR; ii++) {
-      int Jinfnum = dd1->GetTdrNum_byglobindex(ii);
-      int Tdrnum = dd1->GetJinfNum_byglobindex(ii);
+      int Jinfnum = dd1->GetJinfNum_byglobindex(ii);
+      int Tdrnum = dd1->GetTdrNum_byglobindex(ii);
       int IdTDR = dd1->ComputeTdrId(Tdrnum, Jinfnum);
       //      printf("%d\n", IdTDR);
-      t4->Branch(Form("SignalS_Ladder%03d", IdTDR), &sigS[IdTDR], Form("SignalS_Ladder%03d/D", IdTDR));
-      t4->Branch(Form("ChargeS_Ladder%03d", IdTDR), &chaS[IdTDR], Form("ChargeS_Ladder%03d/D", IdTDR));
-      t4->Branch(Form("SoNS_Ladder%03d", IdTDR), &sonS[IdTDR], Form("SoNS_Ladder%03d/D", IdTDR));
-      t4->Branch(Form("SignalK_Ladder%03d", IdTDR), &sigK[IdTDR], Form("SignalK_Ladder%03d/D", IdTDR));
-      t4->Branch(Form("ChargeK_Ladder%03d", IdTDR), &chaK[IdTDR], Form("ChargeK_Ladder%03d/D", IdTDR));
-      t4->Branch(Form("SoNK_Ladder%03d", IdTDR), &sonK[IdTDR], Form("SoNK_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("SignalS_Ladder%03d", IdTDR), &sigS[Jinfnum][Tdrnum], Form("SignalS_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("ChargeS_Ladder%03d", IdTDR), &chaS[Jinfnum][Tdrnum], Form("ChargeS_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("SoNS_Ladder%03d", IdTDR), &sonS[Jinfnum][Tdrnum], Form("SoNS_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("SignalK_Ladder%03d", IdTDR), &sigK[Jinfnum][Tdrnum], Form("SignalK_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("ChargeK_Ladder%03d", IdTDR), &chaK[Jinfnum][Tdrnum], Form("ChargeK_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("SoNK_Ladder%03d", IdTDR), &sonK[Jinfnum][Tdrnum], Form("SoNK_Ladder%03d/D", IdTDR));
     }
-    printf("RICONTROLLARE QUI!\n");
-    sleep(10);
 
     auto *ddams = dynamic_cast<DecodeDataAMS *>(dd1);
     auto *ddoca = dynamic_cast<DecodeDataOCA *>(dd1);
@@ -450,13 +448,15 @@ int main(int argc, char **argv) {
       branch->SetCompressionLevel(6);
     }
 
-    auto fillClusterArrays = [&chaK, &chaS, &sigK, &sigS, &sonK, &sonS](auto *dd) {
+    auto fillClusterArrays = [dd1, &chaK, &chaS, &sigK, &sigS, &sonK, &sonS](auto *dd) {
       auto fConf = dd->FlavorConfig();
 
-      memset(chaK, 0, fConf.NTDRS * sizeof(chaK[0]));
-      memset(chaS, 0, fConf.NTDRS * sizeof(chaS[0]));
-      memset(sigK, 0, fConf.NTDRS * sizeof(sigK[0]));
-      memset(sigS, 0, fConf.NTDRS * sizeof(sigS[0]));
+      for (int jj = 0; jj < fConf.NJINF; jj++) {
+        memset(chaK[jj], 0, fConf.NTDRS * sizeof(chaK[jj][0]));
+        memset(chaS[jj], 0, fConf.NTDRS * sizeof(chaS[jj][0]));
+        memset(sigK[jj], 0, fConf.NTDRS * sizeof(sigK[jj][0]));
+        memset(sigS[jj], 0, fConf.NTDRS * sizeof(sigS[jj][0]));
+      }
 
       for (int cc = 0; cc < (dd->ev)->GetNClusTot(); cc++) {
         //      printf("This event has %d clusters\n", (dd->ev)->GetNClusTot());
@@ -464,6 +464,8 @@ int main(int argc, char **argv) {
 
         Cluster *cl = (dd->ev)->GetCluster(cc);
         int ladder = cl->ladder;
+        int Jinfnum = dd1->GetJinfNum_byID(ladder);
+        int Tdrnum = dd1->GetTdrNum_byID(ladder);
         //        printf("%d\n", ladder);
         double signal = cl->GetTotSig();
         // if (signal>4095) {
@@ -473,16 +475,16 @@ int main(int argc, char **argv) {
         double charge = cl->GetCharge();
         double son = cl->GetTotSN();
         if (cl->side == 1) {
-          if (charge > chaK[ladder]) { // filling only with the largest
-            chaK[ladder] = charge;
-            sigK[ladder] = signal;
-            sonK[ladder] = son;
+          if (charge > chaK[Jinfnum][Tdrnum]) { // filling only with the largest
+            chaK[Jinfnum][Tdrnum] = charge;
+            sigK[Jinfnum][Tdrnum] = signal;
+            sonK[Jinfnum][Tdrnum] = son;
           }
         } else {
-          if (charge > chaS[ladder]) { // filling only with the largest
-            chaS[ladder] = charge;
-            sigS[ladder] = signal;
-            sonS[ladder] = son;
+          if (charge > chaS[Jinfnum][Tdrnum]) { // filling only with the largest
+            chaS[Jinfnum][Tdrnum] = charge;
+            sigS[Jinfnum][Tdrnum] = signal;
+            sonS[Jinfnum][Tdrnum] = son;
           }
         }
       }
@@ -491,18 +493,20 @@ int main(int argc, char **argv) {
     auto fillRawArrays = [dd1, &chaK, &chaS, &sigK, &sigS, &sonK, &sonS](auto *dd) {
       auto fConf = dd->FlavorConfig();
 
-      memset(chaK, 0, fConf.NTDRS * sizeof(chaK[0]));
-      memset(chaS, 0, fConf.NTDRS * sizeof(chaS[0]));
-      memset(sigK, 0, fConf.NTDRS * sizeof(sigK[0]));
-      memset(sigS, 0, fConf.NTDRS * sizeof(sigS[0]));
+      for (int jj = 0; jj < fConf.NJINF; jj++) {
+        memset(chaK[jj], 0, fConf.NTDRS * sizeof(chaK[jj][0]));
+        memset(chaS[jj], 0, fConf.NTDRS * sizeof(chaS[jj][0]));
+        memset(sigK[jj], 0, fConf.NTDRS * sizeof(sigK[jj][0]));
+        memset(sigS[jj], 0, fConf.NTDRS * sizeof(sigS[jj][0]));
+      }
 
       // for (unsigned int iJinf = 0; iJinf < fConf.NJINF; ++iJinf) {
       //   for (unsigned int iTDR = 0; iTDR < fConf.NTDRS; ++iTDR) {
       int NTDR = dd1->GetNTdrRaw() + dd1->GetNTdrCmp();
       {
         for (int ii = 0; ii < NTDR; ii++) {
-          int Jinfnum = dd1->GetTdrNum_byglobindex(ii);
-          int Tdrnum = dd1->GetJinfNum_byglobindex(ii);
+          int Jinfnum = dd1->GetJinfNum_byglobindex(ii);
+          int Tdrnum = dd1->GetTdrNum_byglobindex(ii);
           int IdTDR = dd1->ComputeTdrId(Tdrnum, Jinfnum);
           for (unsigned int iCh = 0; iCh < (fConf.NVASS + fConf.NVASK) * fConf.NCHAVA; ++iCh) {
 
@@ -538,20 +542,21 @@ int main(int argc, char **argv) {
             }
 
             if (side == 1) {
-              if (signal > sigK[IdTDR]) { // filling only with the largest
-                sigK[IdTDR] = signal;
-                sonK[IdTDR] = son;
+              if (signal > sigK[Jinfnum][Tdrnum]) { // filling only with the largest
+                sigK[Jinfnum][Tdrnum] = signal;
+                sonK[Jinfnum][Tdrnum] = son;
               }
             } else {
-              if (signal > sigS[IdTDR]) { // filling only with the largest
-                sigS[IdTDR] = signal;
-                sonS[IdTDR] = son;
+              if (signal > sigS[Jinfnum][Tdrnum]) { // filling only with the largest
+                sigS[Jinfnum][Tdrnum] = signal;
+                sonS[Jinfnum][Tdrnum] = son;
               }
             }
           }
         }
       }
     };
+    printf("SU OGNI LADDER CI SONO 169 ENTRIES A ZERO...\n");
 
     auto start = std::chrono::system_clock::now();
 

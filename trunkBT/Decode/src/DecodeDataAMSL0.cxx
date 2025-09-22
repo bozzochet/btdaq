@@ -1130,7 +1130,7 @@ int DecodeDataAMSL0::ReadOneEventFromFile(TBDecode::L0::AMSBlockStream *stream, 
                      j->first.first, LEF, j->first.second, LEF_glob_index, size_data);
             //            std::copy(std::begin(j->second), std::end(j->second),
             //            std::begin(event->RawSignal[LINF][LEF]));
-            for (auto cc = 0; cc <= (j->second).size(); cc++) {
+            for (auto cc = 0; cc < (j->second).size(); cc++) {
               event->RawSignal[LINF][LEF][cc] = (j->second)[cc];
               event->RawSoN[LINF][LEF][cc] =
                   (event->RawSignal[LINF][LEF][cc] - cals[LINF][LEF].ped[cc]) / cals[LINF][LEF].sig[cc];
