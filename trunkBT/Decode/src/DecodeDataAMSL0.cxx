@@ -167,6 +167,28 @@ DecodeDataAMSL0::DecodeDataAMSL0(std::string rawDir, std::string calDir, unsigne
   InitHistos();
 }
 
+void DecodeDataAMSL0::FillCalOutputArrays(std::unique_ptr<EventAMSL0> & event) {
+  
+  for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
+    unsigned int iTdr = ((RHClassAMSL0 *)rh)->GetTdrNum_byglobindex(iTdr_index);
+    unsigned int iJinf = ((RHClassAMSL0 *)rh)->GetJinfNum_byglobindex(iTdr_index);
+    uint16_t LEF_glob_index = ((RHClassAMSL0 *)rh)->GetTdrGlobIndex_bynums(iTdr, iJinf);
+    //        printf("b - %d) iLINF=%d, iLEF=%d: %d\n", iTdr_index, iJinf, iTdr, LEF_glob_index);
+    for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+      if (event->ValidTDR[iJinf][iTdr]) {
+	signals[iJinf][iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+	cals[iJinf][iTdr].cal_signale[iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+	if (evpri)
+	  printf("signals[%d][%d][%d] = %f\n", iJinf, iTdr, iCh, event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
+      } else { // is important to have all the vectors in sync each other
+	signals[iJinf][iTdr][iCh].push_back(0);
+      }
+    }
+  }
+  
+  return;
+}
+
 bool DecodeDataAMSL0::ProcessCalibration() {
 
   auto start = std::chrono::system_clock::now();
@@ -199,17 +221,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
 
         //      if (nEvents > 1000)
         //        break;
-
-        for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
-          unsigned int iTdr = ((RHClassAMSL0 *)rh)->GetTdrNum_byglobindex(iTdr_index);
-          unsigned int iJinf = ((RHClassAMSL0 *)rh)->GetJinfNum_byglobindex(iTdr_index);
-          uint16_t LEF_glob_index = ((RHClassAMSL0 *)rh)->GetTdrGlobIndex_bynums(iTdr, iJinf);
-          //          printf("a - %d) iLINF=%d, iLEF=%d: %d\n", iTdr_index, iJinf, iTdr, LEF_glob_index);
-          for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-            signals[iJinf][iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
-            cals[iJinf][iTdr].cal_signale[iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
-          }
-        }
+        FillCalOutputArrays(event);
       }
       std::cout << '\n';
     }
@@ -238,23 +250,7 @@ bool DecodeDataAMSL0::ProcessCalibration() {
 
       //      if (nEvents > 1000)
       //        break;
-
-      for (unsigned int iTdr_index = 0; iTdr_index < uint(ntdrRaw + ntdrCmp); ++iTdr_index) {
-        unsigned int iTdr = ((RHClassAMSL0 *)rh)->GetTdrNum_byglobindex(iTdr_index);
-        unsigned int iJinf = ((RHClassAMSL0 *)rh)->GetJinfNum_byglobindex(iTdr_index);
-        uint16_t LEF_glob_index = ((RHClassAMSL0 *)rh)->GetTdrGlobIndex_bynums(iTdr, iJinf);
-        //        printf("b - %d) iLINF=%d, iLEF=%d: %d\n", iTdr_index, iJinf, iTdr, LEF_glob_index);
-        for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-          if (event->ValidTDR[iJinf][iTdr]) {
-            signals[iJinf][iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
-            cals[iJinf][iTdr].cal_signale[iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
-            if (evpri)
-              printf("signals[%d][%d][%d] = %f\n", iJinf, iTdr, iCh, event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
-          } else { // is important to have all the vectors in sync each other
-            signals[iJinf][iTdr][iCh].push_back(0);
-          }
-        }
-      }
+      FillCalOutputArrays(event);
     }
     std::cout << '\n';
   }

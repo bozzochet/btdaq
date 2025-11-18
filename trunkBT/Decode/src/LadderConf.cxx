@@ -9,6 +9,24 @@ LadderParamsMap* LadderConf::_ladders = nullptr;
 size_t LadderConf::NJINF = -999;
 size_t LadderConf::NTDRS = -999;
 
+LadderParams::LadderParams(){
+
+  _spitch = 0.110;
+  _kpitch = 0.208;
+  _sreso = 0.10;
+  _kreso = 0.30;
+  _kmultiflip = false;
+  _smirror = false;
+  _kmirror = false;
+  _bondtype = 0;
+  _shithresh = 3.5;//change to ones passed through command line
+  _khithresh = 3.5;//change to ones passed through command line
+  _slothresh = 1.0;//change to ones passed through command line
+  _klothresh = 1.0;//change to ones passed through command line
+  _sideswap = 0;
+
+}
+
 LadderConf::~LadderConf(){};
 
 LadderConf* LadderConf::Instance() { 
@@ -57,65 +75,67 @@ void LadderConf::Init(TString filename, bool DEBUG) {
   int jinfnum = 0;
   int tdrnum = 0;
 
+  //---- creating params and setting to defaults ---
+  LadderParams *params[NJINF][NTDRS];
+  for (size_t jj = 0; jj < NJINF; jj++) {
+    for (size_t tt = 0; tt < NTDRS; tt++) {
+      params[jj][tt] = new LadderParams();
+      params[jj][tt]->_JinfId = jj;
+      params[jj][tt]->_TdrId = tt;
+    }
+  }
+  //------------------------------------------------
+
   FILE *ft = fopen(filename.Data(), "r");
   if (ft == NULL) {
     printf("Error: cannot open %s \n", filename.Data());
     return;
   } else {
-
     while (1) {
       if (fgets(line, dimline, ft) != NULL) {
         if (*line == '#') { /* ignore comment line */
           continue;
         } else {
-          LadderParams *params = new LadderParams;
 
           int firstn = sscanf(line, "%d\t%d\t%lf\t%lf\t%lf\t%lf\t%d\t%d\t%d\t%d\t%lf\t%lf\t%lf\t%lf\t%d", &jinfnum,
                               &tdrnum, &dummy, &dummy, &dummy, &dummy, &dummyint, &dummyint, &dummyint, &dummyint,
                               &dummy, &dummy, &dummy, &dummy, &dummyint);
-          //          printf("%d) %d %d\n", firstn, jinfnum, tdrnum);
+          //	  printf("%d) %d %d\n", firstn, jinfnum, tdrnum);
+          //	  printf("NJINF = %zu, NTDRS = %zu\n", NJINF, NTDRS);
+          auto jj = jinfnum;
+          auto tt = tdrnum;
           if (static_cast<size_t>(jinfnum) < NJINF && static_cast<size_t>(tdrnum) < NTDRS) {
             int n = sscanf(line, "%d\t%d\t%lf\t%lf\t%lf\t%lf\t%d\t%d\t%d\t%d\t%lf\t%lf\t%lf\t%lf\t%d", &jinfnum,
-                           &tdrnum, &params->_spitch, &params->_kpitch, &params->_sreso, &params->_kreso,
-                           (int *)&params->_kmultiflip, (int *)&params->_smirror, (int *)&params->_kmirror,
-                           (int *)&params->_bondtype, &params->_shithresh, &params->_slothresh, &params->_khithresh,
-                           &params->_klothresh, (int *)&params->_sideswap);
-            //            printf("%d) %d %d\n", n, jinfnum, tdrnum);
+                           &tdrnum, &params[jj][tt]->_spitch, &params[jj][tt]->_kpitch, &params[jj][tt]->_sreso,
+                           &params[jj][tt]->_kreso, (int *)&params[jj][tt]->_kmultiflip,
+                           (int *)&params[jj][tt]->_smirror, (int *)&params[jj][tt]->_kmirror,
+                           (int *)&params[jj][tt]->_bondtype, &params[jj][tt]->_shithresh, &params[jj][tt]->_slothresh,
+                           &params[jj][tt]->_khithresh, &params[jj][tt]->_klothresh, (int *)&params[jj][tt]->_sideswap);
+            // printf("%d) %d %d --> %f %f %f %f\n", n, jinfnum, tdrnum, params[jj][tt]->_shithresh,
+            //        params[jj][tt]->_slothresh, params[jj][tt]->_khithresh, params[jj][tt]->_klothresh);
             if (n == -1) {
               printf("**** There's an empty line that is not a comment (#): please remove\n");
               continue;
-            } else if (n < params->_nelements) {
+            } else if (n < params[jj][tt]->_nelements) {
               printf("JINF=%d, TDR=%02d: %d elements found, while %d expected: ", jinfnum, tdrnum, n,
-                     params->_nelements);
-              if (params->_nelements - n == 5) {
-                printf("** the difference is 5, so is the version 0 of ladderconf, setting the bonding type, "
+                     params[jj][tt]->_nelements);
+              if (params[jj][tt]->_nelements - n == 5) {
+                printf("** the difference is 5, so is the version 0 of ladderconf, leaving the bonding type, "
                        "thresholds and sideswap to default...\n");
-                params->_bondtype = 0;
-                params->_shithresh = 3.5;
-                params->_khithresh = 3.5;
-                params->_slothresh = 1.0;
-                params->_klothresh = 1.0;
-                params->_sideswap = 0;
-              } else if (params->_nelements - n == 4) {
-                printf("** the difference is 4, so is the version 1 of ladderconf, setting thresholds and "
+              } else if (params[jj][tt]->_nelements - n == 4) {
+                printf("** the difference is 4, so is the version 1 of ladderconf, leaving thresholds and "
                        "sideswap to default...\n");
-                params->_shithresh = 3.5;
-                params->_khithresh = 3.5;
-                params->_slothresh = 1.0;
-                params->_klothresh = 1.0;
-                params->_sideswap = 0;
-              } else if (params->_nelements - n == 1) {
-                printf("** the difference is 1, so is the version 2 of ladderconf, setting sideswap to default...\n");
-                params->_sideswap = 0;
+              } else if (params[jj][tt]->_nelements - n == 1) {
+                printf("** the difference is 1, so is the version 2 of ladderconf, leaving sideswap to default...\n");
               } else
                 printf("**** the difference is %d, SO THIS IS WRONG. PLEASE CHECK THE %s file! **************\n",
-                       params->_nelements - n, filename.Data());
+                       params[jj][tt]->_nelements - n, filename.Data());
             }
-            params->_JinfId = jinfnum;
-            params->_TdrId = tdrnum;
-            //	    params->Dump();
+            params[jj][tt]->_JinfId = jinfnum;
+            params[jj][tt]->_TdrId = tdrnum;
+            //	    params[jj][tt]->Dump();
             _ladders->GetMap().insert(std::pair<std::pair<int, int>, LadderParams *>(
-                std::make_pair(params->_TdrId, params->_JinfId), params));
+                std::make_pair(params[jj][tt]->_TdrId, params[jj][tt]->_JinfId), params[jj][tt]));
             //	    printf("%lu\n", _ladders->GetMap().size());
           } else {
             printf("**** Wrong JINF/TDR (%d, %d): maximum is (%ld,%ld)\n", jinfnum, tdrnum, NJINF, NTDRS);
@@ -125,6 +145,20 @@ void LadderConf::Init(TString filename, bool DEBUG) {
         printf(" closing ladderconf file \n");
         fclose(ft);
         break;
+      }
+    }
+  }
+
+  //  printf("NJINF=%zu, NTDRS=%zu\n", NJINF, NTDRS);
+  for (size_t jj = 0; jj < NJINF; jj++) {
+    for (size_t tt = 0; tt < NTDRS; tt++) {
+      if (!IsTDRConfigured(jj, tt)) { // setting default to not configured ones
+        params[jj][tt]->_JinfId = jj;
+        params[jj][tt]->_TdrId = tt;
+        //        params[jj][tt]->Dump();
+        _ladders->GetMap().insert(std::pair<std::pair<int, int>, LadderParams *>(
+            std::make_pair(params[jj][tt]->_TdrId, params[jj][tt]->_JinfId), params[jj][tt]));
+        //	    printf("%lu\n", _ladders->GetMap().size());
       }
     }
   }
@@ -163,8 +197,10 @@ bool LadderConf::GetMultiplicityFlip(int jinfnum, int tdrnum) {
 
   if (IsTDRConfigured(jinfnum, tdrnum))
     return _ladders->GetMap()[HwId]->_kmultiflip;
-  else
+  else {
+    printf("Ladder %d %d not configured!\n", jinfnum, tdrnum);
     return false;
+  }
 }
 
 bool LadderConf::GetStripMirroring(int jinfnum, int tdrnum, int side) {
@@ -174,12 +210,15 @@ bool LadderConf::GetStripMirroring(int jinfnum, int tdrnum, int side) {
 
   std::pair HwId = std::make_pair(tdrnum, jinfnum);
 
-  if (side == 0) {
-    if (IsTDRConfigured(jinfnum, tdrnum))
-      return _ladders->GetMap()[HwId]->_smirror;
-  } else if (side == 1) {
-    if (IsTDRConfigured(jinfnum, tdrnum))
+  if (IsTDRConfigured(jinfnum, tdrnum)) {
+    if (side == 0) {
+      return _ladders->GetMap()[HwId]->_smirror;      
+    } else if (side == 1) {
       return _ladders->GetMap()[HwId]->_kmirror;
+    }
+  }
+  else {
+    printf("Ladder %d %d not configured!\n", jinfnum, tdrnum);
   }
 
   return false;
@@ -192,12 +231,15 @@ double LadderConf::GetPitch(int jinfnum, int tdrnum, int side) {
 
   std::pair HwId = std::make_pair(tdrnum, jinfnum);
 
-  if (side == 0) {
-    if (IsTDRConfigured(jinfnum, tdrnum))
+  if (IsTDRConfigured(jinfnum, tdrnum)) {
+    if (side == 0) {
       return _ladders->GetMap()[HwId]->_spitch;
-  } else if (side == 1) {
-    if (IsTDRConfigured(jinfnum, tdrnum))
+    } else if (side == 1) {
       return _ladders->GetMap()[HwId]->_kpitch;
+    }
+  }
+  else {
+    printf("Ladder %d %d not configured!\n", jinfnum, tdrnum);
   }
 
   return -999.9;
@@ -210,12 +252,15 @@ double LadderConf::GetResolution(int jinfnum, int tdrnum, int side) {
 
   std::pair HwId = std::make_pair(tdrnum, jinfnum);
 
-  if (side == 0) {
-    if (IsTDRConfigured(jinfnum, tdrnum))
+  if (IsTDRConfigured(jinfnum, tdrnum)) {
+    if (side == 0) {
       return _ladders->GetMap()[HwId]->_sreso;
-  } else if (side == 1) {
-    if (IsTDRConfigured(jinfnum, tdrnum))
+    } else if (side == 1) {
       return _ladders->GetMap()[HwId]->_kreso;
+    }
+  }
+  else {
+    printf("Ladder %d %d not configured!\n", jinfnum, tdrnum);
   }
 
   return -999.9;
@@ -230,6 +275,9 @@ int LadderConf::GetBondingType(int jinfnum, int tdrnum) {
 
   if (IsTDRConfigured(jinfnum, tdrnum))
     return _ladders->GetMap()[HwId]->_bondtype;
+  else {
+    printf("Ladder %d %d not configured!\n", jinfnum, tdrnum);
+  }
 
   return 0;
 }
@@ -243,6 +291,9 @@ double LadderConf::GetSHiThreshold(int jinfnum, int tdrnum) {
 
   if (IsTDRConfigured(jinfnum, tdrnum))
     return _ladders->GetMap()[HwId]->_shithresh;
+  else {
+    printf("Ladder %d %d not configured!\n", jinfnum, tdrnum);
+  }
 
   return 0;
 }
@@ -256,6 +307,9 @@ double LadderConf::GetKHiThreshold(int jinfnum, int tdrnum) {
 
   if (IsTDRConfigured(jinfnum, tdrnum))
     return _ladders->GetMap()[HwId]->_khithresh;
+  else {
+    printf("Ladder %d %d not configured!\n", jinfnum, tdrnum);
+  }
 
   return 0;
 }
@@ -269,6 +323,9 @@ double LadderConf::GetSLoThreshold(int jinfnum, int tdrnum) {
 
   if (IsTDRConfigured(jinfnum, tdrnum))
     return _ladders->GetMap()[HwId]->_slothresh;
+  else {
+    printf("Ladder %d %d not configured!\n", jinfnum, tdrnum);
+  }
 
   return 0;
 }
@@ -282,6 +339,9 @@ double LadderConf::GetKLoThreshold(int jinfnum, int tdrnum) {
 
   if (IsTDRConfigured(jinfnum, tdrnum))
     return _ladders->GetMap()[HwId]->_klothresh;
+  else {
+    printf("Ladder %d %d not configured!\n", jinfnum, tdrnum);
+  }
 
   return 0;
 }
@@ -295,6 +355,9 @@ bool LadderConf::GetSideSwap(int jinfnum, int tdrnum) {
 
   if (IsTDRConfigured(jinfnum, tdrnum))
     return _ladders->GetMap()[HwId]->_sideswap;
+  else {
+    printf("Ladder %d %d not configured!\n", jinfnum, tdrnum);
+  }
 
   return 0;
 }
@@ -305,9 +368,12 @@ void LadderConf::PrintLadderParams(int jinfnum, int tdrnum) {
     printf("Please call a \"constructor\" before...\n");
 
   std::pair HwId = std::make_pair(tdrnum, jinfnum);
-
+  
   if (IsTDRConfigured(jinfnum, tdrnum))
     _ladders->GetMap()[HwId]->Dump();
+  else {
+    printf("Ladder %d %d not configured!\n", jinfnum, tdrnum);
+  }
 
   return;
 }

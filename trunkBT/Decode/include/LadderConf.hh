@@ -30,6 +30,8 @@ public:
   double _klothresh;
   bool _sideswap;
 
+  LadderParams();
+  
   void Dump() {
     printf("-----------------------------------------\n");
     std::cout << "JinfID     = " << _JinfId << std::endl;

@@ -314,31 +314,32 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
   constexpr auto NCHAVA = Event::GetNCHAVA();
 
   int _bondingtype = 0;
-  bool defaultThresholds =
-      (shighthreshold == 3.5 && khighthreshold == 3.5 && slowthreshold == 1.0 && klowthreshold == 1.0);
 
   LadderConf *ladderconf = LadderConf::Instance();
 
   static bool printed = false;
+  static bool excprinted = false;
   if (!printed) {
     printf("\nClustering with:\n");
     printf("    %f %f for S-side\n", shighthreshold, slowthreshold);
     printf("    %f %f for K-side\n", khighthreshold, klowthreshold);
-    if (!defaultThresholds) {
-      printf("    thresholds used FOR ALL THE LADDERS\n");
-    }
 
-    if (defaultThresholds && ladderconf) {
-      printf("Except for: \n");
-
+    if (ladderconf) {
       for (size_t jj = 0; jj < NJINF; jj++) {
         for (size_t tt = 0; tt < NTDRS; tt++) {
           double shithresh = ladderconf->GetSHiThreshold(jj, tt);
           double khithresh = ladderconf->GetKHiThreshold(jj, tt);
           double slothresh = ladderconf->GetSLoThreshold(jj, tt);
           double klothresh = ladderconf->GetKLoThreshold(jj, tt);
+          // printf("debug %zu %zu)    %f %f for S-side\n", jj, tt, shithresh, slothresh);
+          // printf("debug %zu %zu)    %f %f for K-side\n", jj, tt, khithresh, klothresh);
 
-          if (shithresh != 3.5 || khithresh != 3.5 || slothresh != 1.0 || klothresh != 1.0) {
+          if (ladderconf->IsTDRConfigured(jj, tt) && shithresh != shighthreshold && khithresh != khighthreshold &&
+              slothresh != slowthreshold && klothresh != klowthreshold) {
+            if (!excprinted) {
+              printf("Except for: \n");
+              excprinted = true;
+            }
             printf("    JINF=%ld, TDR=%ld\n", jj, tt);
             printf("    %f %f for S-side\n", shithresh, slothresh);
             printf("    %f %f for K-side\n", khithresh, klothresh);
@@ -406,13 +407,8 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
     if (side == 0) {
       nvas = nvasS;
       nchava = nchavaS;
-      if (defaultThresholds) {
-        highthreshold = ladderconf->GetSHiThreshold(Jinfnum, numnum);
-        lowthreshold = ladderconf->GetSLoThreshold(Jinfnum, numnum);
-      } else {
-        highthreshold = shighthreshold;
-        lowthreshold = slowthreshold;
-      }
+      highthreshold = ladderconf->GetSHiThreshold(Jinfnum, numnum);
+      lowthreshold = ladderconf->GetSLoThreshold(Jinfnum, numnum);
 
       shift = 0;
       if (_bondingtype == 1) {
@@ -462,13 +458,8 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
         nvas = nvasK;
         nchava = nchavaK;
 
-        if (defaultThresholds) {
-          highthreshold = ladderconf->GetKHiThreshold(Jinfnum, numnum);
-          lowthreshold = ladderconf->GetKLoThreshold(Jinfnum, numnum);
-        } else {
-          highthreshold = khighthreshold;
-          lowthreshold = klowthreshold;
-        }
+        highthreshold = ladderconf->GetKHiThreshold(Jinfnum, numnum);
+        lowthreshold = ladderconf->GetKLoThreshold(Jinfnum, numnum);
 
         shift = !kMC ? m_defaultShift : 0;                     // changed by Viviana
         arraysize = !kMC ? m_defaultArraySize : nvas * nchava; // changed by Viviana

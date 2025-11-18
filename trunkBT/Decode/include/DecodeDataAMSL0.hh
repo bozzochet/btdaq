@@ -98,6 +98,7 @@ private:
   }
   void OpenFile(const char *rawDir, const char *calDir, int runNum, int runStop, int calNumStart, int calNumStop);
 
+  void FillCalOutputArrays(std::unique_ptr<EventAMSL0> & event);
   bool ProcessCalibration();
 
   int ReadOneEventFromFile(FILE *file, EventAMSL0 *event);

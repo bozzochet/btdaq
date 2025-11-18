@@ -556,7 +556,6 @@ int main(int argc, char **argv) {
         }
       }
     };
-    printf("SU OGNI LADDER CI SONO 169 ENTRIES A ZERO...\n");
 
     auto start = std::chrono::system_clock::now();
 
