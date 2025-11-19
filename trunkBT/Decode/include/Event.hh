@@ -14,10 +14,9 @@
 
 template <size_t NCh> class calib : public TObject {
 public:
-  std::array<float, NCh> ped;                      // pedestal for each channel
-  std::array<float, NCh> rsig;                     // raw sigma for each channel
-  std::array<float, NCh> sig;                      // sigma for eache channale
-  std::array<std::vector<float>, NCh> cal_signale; // channel signal of 10,000 events for Calibration run
+  std::array<float, NCh> ped;  // pedestal for each channel
+  std::array<float, NCh> rsig; // raw sigma for each channel
+  std::array<float, NCh> sig;  // sigma for eache channale
   std::array<int, NCh> status;
   bool valid{true};
 
