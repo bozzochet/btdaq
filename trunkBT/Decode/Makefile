@@ -8,7 +8,7 @@ DEC_SOURCES += FSUtils.cxx main.cxx rootElibdict.cxx
 DEC_SOURCES += DecodeDataAMS.cxx EventAMS.cxx
 DEC_SOURCES += DecodeDataOCA.cxx EventOCA.cxx
 DEC_SOURCES += DecodeDataFOOT.cxx
-DEC_SOURCES += DecodeDataAMSL0.cxx EventAMSL0.cxx
+#DEC_SOURCES += DecodeDataAMSL0.cxx EventAMSL0.cxx
 DEC_SOURCES+= $(CLASSES:%.hh=%.cxx)
 DEC_OBJ=$(DEC_SOURCES:%.cxx=obj/%.o)
 
@@ -21,8 +21,8 @@ TEMPLATE_CLASSES_HEADERS = $(TEMPLATE_CLASSES:%=include/%)
 
 ANYOPTION=AnyOption
 
-L0_FIRMWARE=deps/l0_firmware
-LIBDECODE_L0=deps/libdecode_l0
+#L0_FIRMWARE=deps/l0_firmware
+#LIBDECODE_L0=deps/libdecode_l0
 
 ROOTVERSION      := $(shell $(ROOTSYS)/bin/root-config --version | cut -b1-1)
 
@@ -60,7 +60,8 @@ else
 	SOFLAGS = -shared
 endif
 
-all: Decode lib PlotCalib $(LIBDECODE_L0)_install/lib/libtbdecode.so
+#all: Decode lib PlotCalib $(LIBDECODE_L0)_install/lib/libtbdecode.so
+all: Decode lib PlotCalib
 
 lib: libEvent.so libEventa.a
 
@@ -70,25 +71,34 @@ libEvent.so:$(LIB_OBJ)
 libEventa.a:$(LIB_OBJ)
 	@ar rv $@ $^
 
-libbtdecode:
-	rm -f $(LIBDECODE_L0)_install/lib/libtbdecode.so
-	make $(LIBDECODE_L0)_install/lib/libtbdecode.so
+#libbtdecode:
+#	rm -f $(LIBDECODE_L0)_install/lib/libtbdecode.so
+#	make $(LIBDECODE_L0)_install/lib/libtbdecode.so
 
-$(LIBDECODE_L0)_install/lib/libtbdecode.so:
-	cmake -S $(L0_FIRMWARE)/libdecode -B $(LIBDECODE_L0)_build -DCMAKE_INSTALL_PREFIX=$(LIBDECODE_L0)_install
-	cmake --build $(LIBDECODE_L0)_build -- -j8
-	cmake --build $(LIBDECODE_L0)_build --target install
-	@ if ! [ -f $(LIBDECODE_L0)_install/lib/libtbdecode.so ] ; then cd $(LIBDECODE_L0)_install/lib && ln -sf libtbdecode.dylib libtbdecode.so; fi
-	ln -fs $(LIBDECODE_L0)_install/bin/filelogger ./AMSL0filelogger
+#$(LIBDECODE_L0)_install/lib/libtbdecode.so:
+#	cmake -S $(L0_FIRMWARE)/libdecode -B $(LIBDECODE_L0)_build -DCMAKE_INSTALL_PREFIX=$(LIBDECODE_L0)_install
+#	cmake --build $(LIBDECODE_L0)_build -- -j8
+#	cmake --build $(LIBDECODE_L0)_build --target install
+#	@ if ! [ -f $(LIBDECODE_L0)_install/lib/libtbdecode.so ] ; then cd $(LIBDECODE_L0)_install/lib && ln -sf libtbdecode.dylib libtbdecode.so; fi
+#	ln -fs $(LIBDECODE_L0)_install/bin/filelogger ./AMSL0filelogger
 
-Decode: $(ANYOPTION)/anyoption.o $(LIBDECODE_L0)_install/lib/libtbdecode.so $(DEC_OBJ)
+Decode: $(ANYOPTION)/anyoption.o $(DEC_OBJ)
 	@echo Linking $@ ...;
-	@$(CXX) $(LDFLAGS) -o$@ $(ANYOPTION)/anyoption.o $(DEC_OBJ) -I$(ANYOPTION) -I$(LIBDECODE_L0)_install/include $(ROOTDYNAMICLIBS) -Wl,-rpath,./$(LIBDECODE_L0)_install/lib -L./$(LIBDECODE_L0)_install/lib -ltbdecode
+	@$(CXX) $(LDFLAGS) -o$@ $(ANYOPTION)/anyoption.o $(DEC_OBJ) -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
 
-obj/%.o: src/%.cxx $(LIBDECODE_L0)_install/lib/libtbdecode.so
+#Decode: $(ANYOPTION)/anyoption.o $(LIBDECODE_L0)_install/lib/libtbdecode.so $(DEC_OBJ)
+#	@echo Linking $@ ...;
+#	@$(CXX) $(LDFLAGS) -o$@ $(ANYOPTION)/anyoption.o $(DEC_OBJ) -I$(ANYOPTION) -I$(LIBDECODE_L0)_install/include $(ROOTDYNAMICLIBS) -Wl,-rpath,./$(LIBDECODE_L0)_install/lib -L./$(LIBDECODE_L0)_install/lib -ltbdecode
+
+obj/%.o: src/%.cxx
 	@echo Compiling $< ...;
 	@ if ! [ -d ./obj ] ; then  mkdir -p obj; fi
-	@$(CXX) $(CFLAGS) -c $< -o$@ -I$(ROOTINC) -I$(ANYOPTION) -I$(LIBDECODE_L0)_install/include
+	@$(CXX) $(CFLAGS) -c $< -o$@ -I$(ROOTINC) -I$(ANYOPTION) -DNOAMSL0
+
+#obj/%.o: src/%.cxx $(LIBDECODE_L0)_install/lib/libtbdecode.so
+#	@echo Compiling $< ...;
+#	@ if ! [ -d ./obj ] ; then  mkdir -p obj; fi
+#	@$(CXX) $(CFLAGS) -c $< -o$@ -I$(ROOTINC) -I$(ANYOPTION) -I$(LIBDECODE_L0)_install/include
 
 $(ANYOPTION)/anyoption.o :
 	@make -C $(ANYOPTION)
@@ -103,15 +113,15 @@ PlotCalib: $(ANYOPTION)/anyoption.o obj/summary.o
 	@$(CXX) $(LDFLAGS) -o$@ $^ -I$(ANYOPTION) $(ROOTDYNAMICLIBS)
 	@ln -fs $@ $@Mute
 
-clean_lib:
-	@rm -Rfv $(LIBDECODE_L0) $(LIBDECODE_L0)_build $(LIBDECODE_L0)_install AMSL0filelogger
+#clean_lib:
+#	@rm -Rfv $(LIBDECODE_L0) $(LIBDECODE_L0)_build $(LIBDECODE_L0)_install AMSL0filelogger
 
 clean:
 	@rm -Rfv libEventa.a libEvent.so Decode src/rootElibdict.cxx include/rootElibdict.h obj PlotCalib PlotCalibMute
 	@make -C $(ANYOPTION) clean
 	@rm -f rootElibdict_rdict.pcm
 
-clean_all: clean_lib clean
+#clean_all: clean_lib clean
 
 print:
 	@echo $(DEC_OBJ)

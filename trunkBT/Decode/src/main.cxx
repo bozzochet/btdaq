@@ -1,10 +1,19 @@
+
+
+#include <algorithm>
+#include <chrono>
+#include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <math.h>
+#include <memory>
 #include <stdlib.h>
+#include <vector>
 
 #include "anyoption.h"
 #include <getopt.h>
 
+// ROOT
 #include "TCanvas.h"
 #include "TF1.h"
 #include "TFile.h"
@@ -14,8 +23,11 @@
 #include "TTree.h"
 #include <Compression.h>
 
+// Decoders
 #include "DecodeDataAMS.hh"
+#ifndef NOAMSL0
 #include "DecodeDataAMSL0.hh"
+#endif
 #include "DecodeDataFOOT.hh"
 #include "DecodeDataOCA.hh"
 
@@ -26,7 +38,6 @@ using namespace std;
 char progname[300];
 
 void CreatePdfWithPlots(DecodeData *dd1, char *pdf_filename);
-
 void PlotsWithFits(TH1 *histo, char *name, char *title, char *pdf_filename);
 
 int main(int argc, char **argv) {
@@ -69,7 +80,7 @@ int main(int argc, char **argv) {
   sprintf(DirRaw, "./RawData/");
   sprintf(DirCal, "./CalData/");
 
-  auto opt = std::make_unique<AnyOption>(); // Handle the option input
+  auto opt = std::make_unique<AnyOption>();
 
   opt->addUsage("Usage: ./Decode [options] [arguments]");
   opt->addUsage("");
@@ -145,9 +156,6 @@ int main(int argc, char **argv) {
   opt->addUsage("Arguments: ");
   opt->addUsage("  <runnum> [runstop (for AMSL0)]");
 
-  //***********
-  // set Flags
-  //***********
   opt->setFlag("help", 'h');
   opt->setFlag("pri");
   opt->setFlag("evpri");
@@ -159,9 +167,6 @@ int main(int argc, char **argv) {
   opt->setFlag("l0");
   opt->setFlag("l0old");
 
-  //***********
-  // set Options
-  //***********
   opt->setOption("rawdata");
   opt->setOption("caldata");
   opt->setOption("calrunstart");
@@ -175,125 +180,68 @@ int main(int argc, char **argv) {
   opt->setOption("cworkaround");
   opt->setOption("events");
 
-  //****************
-  // Get Line Command
-  //****************
   opt->processCommandArgs(argc, argv);
 
-  //*************
-  // Get Flags
-  //*************
   if (opt->getFlag("help") || opt->getFlag('h')) {
     opt->printUsage();
     exit(2);
   }
 
-  if (opt->getFlag("pri")) {
+  if (opt->getFlag("pri"))
     kPri = true;
-  }
-
-  if (opt->getFlag("evpri")) {
+  if (opt->getFlag("evpri"))
     kEvPri = true;
-  }
-
-  if (opt->getFlag("clusterize") || opt->getFlag('c')) {
+  if (opt->getFlag("clusterize") || opt->getFlag('c'))
     kClusterize = true;
-  }
-
-  if (opt->getFlag("montecarlo") || opt->getFlag('m')) {
+  if (opt->getFlag("montecarlo") || opt->getFlag('m'))
     kMC = true;
-  }
-
-  if (opt->getFlag("onlycal") || opt->getFlag('l')) {
+  if (opt->getFlag("onlycal") || opt->getFlag('l'))
     kOnlyProcessCal = true;
-  }
-
-  if (opt->getFlag("oca")) {
+  if (opt->getFlag("oca"))
     kOca = true;
-  }
-
-  if (opt->getFlag("foot")) {
+  if (opt->getFlag("foot"))
     kFoot = true;
-  }
-
-  if (opt->getFlag("l0")) {
+  if (opt->getFlag("l0"))
     kL0 = true;
-  }
-
-  if (opt->getFlag("l0old")) {
+  if (opt->getFlag("l0old"))
     kL0old = true;
-  }
 
-  //*********
-  // Get Options
-  //*********
-  if (opt->getValue("rawdata")) {
+  if (opt->getValue("rawdata"))
     sprintf(DirRaw, "%s/", opt->getValue("rawdata"));
-  }
-
-  if (opt->getValue("caldata")) {
+  if (opt->getValue("caldata"))
     sprintf(DirCal, "%s/", opt->getValue("caldata"));
-  }
-
-  if (opt->getValue("rootdata")) {
+  if (opt->getValue("rootdata"))
     sprintf(DirRoot, "%s/", opt->getValue("rootdata"));
-  }
 
-  if (opt->getValue("shighthreshold")) {
+  if (opt->getValue("shighthreshold"))
     shighthreshold = atof(opt->getValue("shighthreshold"));
-  }
-
-  if (opt->getValue("slowthreshold")) {
+  if (opt->getValue("slowthreshold"))
     slowthreshold = atof(opt->getValue("slowthreshold"));
-  }
-
-  if (opt->getValue("khighthreshold")) {
+  if (opt->getValue("khighthreshold"))
     khighthreshold = atof(opt->getValue("khighthreshold"));
-  }
-
-  if (opt->getValue("klowthreshold")) {
+  if (opt->getValue("klowthreshold"))
     klowthreshold = atof(opt->getValue("klowthreshold"));
-  }
 
-  if (opt->getValue("cworkaround")) {
+  if (opt->getValue("cworkaround"))
     cworkaround = atoi(opt->getValue("cworkaround"));
-  }
-
-  if (opt->getValue("calrunstart")) {
+  if (opt->getValue("calrunstart"))
     calrunstart = atoi(opt->getValue("calrunstart"));
-  }
-
-  if (opt->getValue("calrunstop")) {
+  if (opt->getValue("calrunstop"))
     calrunstop = atoi(opt->getValue("calrunstop"));
-  }
-
-  if (opt->getValue("ancillary")) {
+  if (opt->getValue("ancillary"))
     ancillary = atoi(opt->getValue("ancillary"));
-  }
-
-  //  eventstoprocess
-  if (opt->getValue("events")) {
+  if (opt->getValue("events"))
     eventstoprocess = atoi(opt->getValue("events"));
-  }
-
-  //  printf("%d %f %f %f %f\n", kClusterize, shighthreshold, slowthreshold, khighthreshold, klowthreshold);
-
-  //*************
-  // Get Arguments
-  //************
 
   switch (opt->getArgc()) {
-
   case 1:
     run = atoi(opt->getArgv(0));
     runstop = -1;
     break;
-
   case 2:
     run = atoi(opt->getArgv(0));
     runstop = atoi(opt->getArgv(1));
     break;
-
   default:
     opt->printUsage();
     exit(-1);
@@ -311,16 +259,14 @@ int main(int argc, char **argv) {
     if (kOnlyProcessCal) {
       sprintf(filename, "%s/run_%06d_ONLYCAL.root", DirRoot, run);
     }
-  } else
+  } else {
     sprintf(filename, "%s/run_%06d_ANC_%d.root", DirRoot, run, ancillary);
+  }
   sprintf(pdf_filename, "%s.pdf", filename);
 
-  //  int complevel = ROOT::CompressionSettings(ROOT::kLZMA, 8); // MD: gain factor 2 in size, but lose factor 4 in
-  //  speed int complevel = ROOT::CompressionSettings(ROOT::kLZMA, 2); // MD: the complevel seems that doesn't really
-  //  matter...
-  //  int complevel = ROOT::CompressionSettings(ROOT::kZLIB, 2);
   int complevel = ROOT::CompressionSettings(ROOT::RCompressionSetting::EAlgorithm::kZLIB, 2);
   printf("The choosen compression level is %d\n", complevel);
+
   TFile *foutput = new TFile(filename, "RECREATE", "File with the event tree", complevel);
 
   TTree *t3 = NULL;
@@ -331,13 +277,12 @@ int main(int argc, char **argv) {
     t3 = new TTree("t3", "My calibration tree");
   }
 
-  // int bufsize = 64000;
-  // int splitlevel = 2;
   int bufsize = 32000;
   int splitlevel = 99;
 
   DecodeData *dd1 = nullptr;
   FlavorConfig fConf;
+
   if (kOca) {
     auto *dd = new DecodeDataOCA(DirRaw, DirCal, run, calrunstart, kOnlyProcessCal);
     fConf = dd->FlavorConfig();
@@ -352,8 +297,10 @@ int main(int argc, char **argv) {
     if (!kOnlyProcessCal)
       t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
     dd1 = static_cast<DecodeData *>(dd);
-  } else if (kL0 || kL0old) {
-    kL0 = true; // in the kL0old case we set also kL0 since now the right DecodeStyle is set already
+  }
+#ifndef NOAMSL0
+  else if (kL0 || kL0old) {
+    kL0 = true;
     auto *dd =
         new DecodeDataAMSL0(DirRaw, DirCal, run, runstop, calrunstart, calrunstop, kL0old ? 0 : 1, kOnlyProcessCal);
     fConf = dd->FlavorConfig();
@@ -361,12 +308,10 @@ int main(int argc, char **argv) {
       t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
     auto calibs = dd->GetCalibrations();
     foutput->WriteTObject(&calibs, "cals");
-    // printf("******* %f\n", calibs.at(0).at(0).ped[0]);
-    // printf("******* %f\n", calibs.at(1).at(0).ped[0]);
-    // printf("calibs.at(0).at(0).ped[0]): %p\n", &(calibs.at(0).at(0).ped[0]));
-    // printf("calibs.at(1).at(0).ped[0]): %p\n", &(calibs.at(1).at(0).ped[0]));
     dd1 = static_cast<DecodeData *>(dd);
-  } else {
+  }
+#endif
+  else {
     auto *dd = new DecodeDataAMS(DirRaw, DirCal, run, ancillary, kMC);
     fConf = dd->FlavorConfig();
     if (!kOnlyProcessCal)
@@ -384,12 +329,14 @@ int main(int argc, char **argv) {
     dd1->SetPrintOn();
   else
     dd1->SetPrintOff();
-  if (kEvPri) {
+
+  if (kEvPri)
     dd1->SetEvPrintOn();
-  } else
+  else
     dd1->SetEvPrintOff();
 
   if (!kOnlyProcessCal) {
+
     dd1->shighthreshold = shighthreshold;
     dd1->slowthreshold = slowthreshold;
     dd1->khighthreshold = khighthreshold;
@@ -400,46 +347,76 @@ int main(int argc, char **argv) {
     dd1->SetPrintOff();
     dd1->SetEvPrintOff();
 
+    //----------------------------------------------------------------------------------------------
+
+    //----------------------------------------------------------------------------------------------
+    /*
+
     double chaK[fConf.NJINF][fConf.NTDRS];
     double chaS[fConf.NJINF][fConf.NTDRS];
     double sigK[fConf.NJINF][fConf.NTDRS];
     double sigS[fConf.NJINF][fConf.NTDRS];
     double sonK[fConf.NJINF][fConf.NTDRS];
     double sonS[fConf.NJINF][fConf.NTDRS];
+    */
 
+    const int NJINF = (int)fConf.NJINF;
+    const int NTDRS = (int)fConf.NTDRS;
+
+    // (j,t) -> j*NTDRS + t
+    auto idx2 = [NTDRS](int j, int t) -> int { return j * NTDRS + t; };
+
+    std::vector<double> chaK(NJINF * NTDRS, 0.0);
+    std::vector<double> chaS(NJINF * NTDRS, 0.0);
+    std::vector<double> sigK(NJINF * NTDRS, 0.0);
+    std::vector<double> sigS(NJINF * NTDRS, 0.0);
+    std::vector<double> sonK(NJINF * NTDRS, 0.0);
+    std::vector<double> sonS(NJINF * NTDRS, 0.0);
+
+    //----------------------------------------------------------------------------------------------
+
+    //----------------------------------------------------------------------------------------------
     int NTDR = dd1->GetNTdrRaw() + dd1->GetNTdrCmp();
     for (int ii = 0; ii < NTDR; ii++) {
       int Jinfnum = dd1->GetJinfNum_byglobindex(ii);
       int Tdrnum = dd1->GetTdrNum_byglobindex(ii);
       int IdTDR = dd1->ComputeTdrId(Tdrnum, Jinfnum);
-      //      printf("%d\n", IdTDR);
+
+      //--------------------------------------------------------------------------------------------
+
+      //--------------------------------------------------------------------------------------------
+      /*
+
       t4->Branch(Form("SignalS_Ladder%03d", IdTDR), &sigS[Jinfnum][Tdrnum], Form("SignalS_Ladder%03d/D", IdTDR));
       t4->Branch(Form("ChargeS_Ladder%03d", IdTDR), &chaS[Jinfnum][Tdrnum], Form("ChargeS_Ladder%03d/D", IdTDR));
       t4->Branch(Form("SoNS_Ladder%03d", IdTDR), &sonS[Jinfnum][Tdrnum], Form("SoNS_Ladder%03d/D", IdTDR));
       t4->Branch(Form("SignalK_Ladder%03d", IdTDR), &sigK[Jinfnum][Tdrnum], Form("SignalK_Ladder%03d/D", IdTDR));
       t4->Branch(Form("ChargeK_Ladder%03d", IdTDR), &chaK[Jinfnum][Tdrnum], Form("ChargeK_Ladder%03d/D", IdTDR));
       t4->Branch(Form("SoNK_Ladder%03d", IdTDR), &sonK[Jinfnum][Tdrnum], Form("SoNK_Ladder%03d/D", IdTDR));
+      */
+
+      t4->Branch(Form("SignalS_Ladder%03d", IdTDR), &sigS[idx2(Jinfnum, Tdrnum)], Form("SignalS_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("ChargeS_Ladder%03d", IdTDR), &chaS[idx2(Jinfnum, Tdrnum)], Form("ChargeS_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("SoNS_Ladder%03d", IdTDR), &sonS[idx2(Jinfnum, Tdrnum)], Form("SoNS_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("SignalK_Ladder%03d", IdTDR), &sigK[idx2(Jinfnum, Tdrnum)], Form("SignalK_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("ChargeK_Ladder%03d", IdTDR), &chaK[idx2(Jinfnum, Tdrnum)], Form("ChargeK_Ladder%03d/D", IdTDR));
+      t4->Branch(Form("SoNK_Ladder%03d", IdTDR), &sonK[idx2(Jinfnum, Tdrnum)], Form("SoNK_Ladder%03d/D", IdTDR));
     }
 
     auto *ddams = dynamic_cast<DecodeDataAMS *>(dd1);
     auto *ddoca = dynamic_cast<DecodeDataOCA *>(dd1);
     auto *ddfoot = dynamic_cast<DecodeDataFOOT *>(dd1);
+#ifndef NOAMSL0
     auto *ddamsl0 = dynamic_cast<DecodeDataAMSL0 *>(dd1);
-    /*
-    if (ddams) {
-      t4->GetUserInfo()->Add(ddams->rh);
-    } else if (ddoca) {
-      t4->GetUserInfo()->Add(ddoca->rh);
-    } else if (ddfoot) {
-      t4->GetUserInfo()->Add(ddfoot->rh);
-    } else if (ddamsl0) {
-      t4->GetUserInfo()->Add(ddamsl0->rh);
-    } else {
-      throw std::runtime_error("DecodeData object is not of type DecodeDataAMS nor DecodeDataOCA...");
-    }
-    */
+#endif
+    (void)ddams;
+    (void)ddoca;
+    (void)ddfoot;
+#ifndef NOAMSL0
+    (void)ddamsl0;
+#endif
+
     t4->GetUserInfo()->Add(dd1->rh);
-    //    LadderConf::Instance()->Dump();
     t4->GetUserInfo()->Add(LadderConf::Instance()->GetLadderParamsMap());
 
     TObjArray *obj = t4->GetListOfBranches();
@@ -448,40 +425,36 @@ int main(int argc, char **argv) {
       branch->SetCompressionLevel(6);
     }
 
+    //----------------------------------------------------------------------------------------------
+
+    //----------------------------------------------------------------------------------------------
+
+    /*
+
     auto fillClusterArrays = [dd1, &chaK, &chaS, &sigK, &sigS, &sonK, &sonS](auto *dd) {
       auto fConf = dd->FlavorConfig();
-
       for (int jj = 0; jj < fConf.NJINF; jj++) {
         memset(chaK[jj], 0, fConf.NTDRS * sizeof(chaK[jj][0]));
         memset(chaS[jj], 0, fConf.NTDRS * sizeof(chaS[jj][0]));
         memset(sigK[jj], 0, fConf.NTDRS * sizeof(sigK[jj][0]));
         memset(sigS[jj], 0, fConf.NTDRS * sizeof(sigS[jj][0]));
       }
-
       for (int cc = 0; cc < (dd->ev)->GetNClusTot(); cc++) {
-        //      printf("This event has %d clusters\n", (dd->ev)->GetNClusTot());
-        // printf("This event has CALPED %f\n", (dd->ev)->GetCalPed_PosNum(1,0,0));
-
         Cluster *cl = (dd->ev)->GetCluster(cc);
         int ladder = cl->ladder;
         int Jinfnum = dd1->GetJinfNum_byID(ladder);
         int Tdrnum = dd1->GetTdrNum_byID(ladder);
-        //        printf("%d\n", ladder);
         double signal = cl->GetTotSig();
-        // if (signal>4095) {
-        //   printf("event %d, cluster %d, side %d), address %d, signal %f\n", (dd->ev)->GetEvtnum(), cc, cl->side,
-        //   cl->address, signal); sleep(1);
-        // }
         double charge = cl->GetCharge();
         double son = cl->GetTotSN();
         if (cl->side == 1) {
-          if (charge > chaK[Jinfnum][Tdrnum]) { // filling only with the largest
+          if (charge > chaK[Jinfnum][Tdrnum]) {
             chaK[Jinfnum][Tdrnum] = charge;
             sigK[Jinfnum][Tdrnum] = signal;
             sonK[Jinfnum][Tdrnum] = son;
           }
         } else {
-          if (charge > chaS[Jinfnum][Tdrnum]) { // filling only with the largest
+          if (charge > chaS[Jinfnum][Tdrnum]) {
             chaS[Jinfnum][Tdrnum] = charge;
             sigS[Jinfnum][Tdrnum] = signal;
             sonS[Jinfnum][Tdrnum] = son;
@@ -489,19 +462,55 @@ int main(int argc, char **argv) {
         }
       }
     };
+    */
+
+    auto fillClusterArrays = [dd1, &chaK, &chaS, &sigK, &sigS, &sonK, &sonS, idx2](auto *dd) {
+      std::fill(chaK.begin(), chaK.end(), 0.0);
+      std::fill(chaS.begin(), chaS.end(), 0.0);
+      std::fill(sigK.begin(), sigK.end(), 0.0);
+      std::fill(sigS.begin(), sigS.end(), 0.0);
+      std::fill(sonK.begin(), sonK.end(), 0.0);
+      std::fill(sonS.begin(), sonS.end(), 0.0);
+
+      for (int cc = 0; cc < (dd->ev)->GetNClusTot(); cc++) {
+
+        Cluster *cl = (dd->ev)->GetCluster(cc);
+        int ladder = cl->ladder;
+
+        int Jinfnum = dd1->GetJinfNum_byID(ladder);
+        int Tdrnum = dd1->GetTdrNum_byID(ladder);
+        const int k = idx2(Jinfnum, Tdrnum);
+
+        double signal = cl->GetTotSig();
+        double charge = cl->GetCharge();
+        double son = cl->GetTotSN();
+
+        if (cl->side == 1) {
+          if (charge > chaK[k]) {
+            chaK[k] = charge;
+            sigK[k] = signal;
+            sonK[k] = son;
+          }
+        } else {
+          if (charge > chaS[k]) {
+            chaS[k] = charge;
+            sigS[k] = signal;
+            sonS[k] = son;
+          }
+        }
+      }
+    };
+
+    /*
 
     auto fillRawArrays = [dd1, &chaK, &chaS, &sigK, &sigS, &sonK, &sonS](auto *dd) {
       auto fConf = dd->FlavorConfig();
-
       for (int jj = 0; jj < fConf.NJINF; jj++) {
         memset(chaK[jj], 0, fConf.NTDRS * sizeof(chaK[jj][0]));
         memset(chaS[jj], 0, fConf.NTDRS * sizeof(chaS[jj][0]));
         memset(sigK[jj], 0, fConf.NTDRS * sizeof(sigK[jj][0]));
         memset(sigS[jj], 0, fConf.NTDRS * sizeof(sigS[jj][0]));
       }
-
-      // for (unsigned int iJinf = 0; iJinf < fConf.NJINF; ++iJinf) {
-      //   for (unsigned int iTDR = 0; iTDR < fConf.NTDRS; ++iTDR) {
       int NTDR = dd1->GetNTdrRaw() + dd1->GetNTdrCmp();
       {
         for (int ii = 0; ii < NTDR; ii++) {
@@ -509,53 +518,74 @@ int main(int argc, char **argv) {
           int Tdrnum = dd1->GetTdrNum_byglobindex(ii);
           int IdTDR = dd1->ComputeTdrId(Tdrnum, Jinfnum);
           for (unsigned int iCh = 0; iCh < (fConf.NVASS + fConf.NVASK) * fConf.NCHAVA; ++iCh) {
-
-            // printf("a) event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %f\n", (dd->ev)->GetEvtnum(),
-            // Jinfnum,
-            //        Tdrnum, iCh, (dd->ev)->GetRawSignal_bynums(Tdrnum, iCh, Jinfnum));
-
-            // if ((dd->ev)->GetRawSignal_bynums(Tdrnum, iCh, Jinfnum) > 4095) {
-            //   printf("event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %f\n", (dd->ev)->GetEvtnum(),
-            //   Jinfnum,
-            //          Tdrnum, iCh, (dd->ev)->GetRawSignal_bynums(Tdrnum, iCh, Jinfnum));
-            //   sleep(1);
-            // }
-
             double signal = (dd->ev)->GetRawSignal_bynums(Tdrnum, iCh, Jinfnum);
             double son = (dd->ev)->GetRawSoN_bynums(Tdrnum, iCh, Jinfnum);
-            if (son != son) { // NaN, not a ladder really present
-              son = 0;
-            }
-
+            if (son != son) { son = 0; }
             int side = 0;
-            if (iCh >= fConf.NCHAVA * fConf.NVASS) {
-              side = 1;
-            }
-
+            if (iCh >= fConf.NCHAVA * fConf.NVASS) { side = 1; }
             LadderConf *ladderconf = LadderConf::Instance();
-            if (ladderconf->GetSideSwap(Jinfnum, Tdrnum)) {
-              if (side == 0) {
-                side = 1;
-              } else {
-                side = 0;
-              }
-            }
-
+            if (ladderconf->GetSideSwap(Jinfnum, Tdrnum)) { side = (side==0)?1:0; }
             if (side == 1) {
-              if (signal > sigK[Jinfnum][Tdrnum]) { // filling only with the largest
-                sigK[Jinfnum][Tdrnum] = signal;
-                sonK[Jinfnum][Tdrnum] = son;
-              }
+              if (signal > sigK[Jinfnum][Tdrnum]) { sigK[Jinfnum][Tdrnum] = signal; sonK[Jinfnum][Tdrnum] = son; }
             } else {
-              if (signal > sigS[Jinfnum][Tdrnum]) { // filling only with the largest
-                sigS[Jinfnum][Tdrnum] = signal;
-                sonS[Jinfnum][Tdrnum] = son;
-              }
+              if (signal > sigS[Jinfnum][Tdrnum]) { sigS[Jinfnum][Tdrnum] = signal; sonS[Jinfnum][Tdrnum] = son; }
             }
           }
         }
       }
     };
+    */
+
+    auto fillRawArrays = [dd1, &chaK, &chaS, &sigK, &sigS, &sonK, &sonS, idx2](auto *dd) {
+      std::fill(chaK.begin(), chaK.end(), 0.0);
+      std::fill(chaS.begin(), chaS.end(), 0.0);
+      std::fill(sigK.begin(), sigK.end(), 0.0);
+      std::fill(sigS.begin(), sigS.end(), 0.0);
+      std::fill(sonK.begin(), sonK.end(), 0.0);
+      std::fill(sonS.begin(), sonS.end(), 0.0);
+
+      auto fConfLocal = dd->FlavorConfig();
+
+      int NTDR_local = dd1->GetNTdrRaw() + dd1->GetNTdrCmp();
+      for (int ii = 0; ii < NTDR_local; ii++) {
+        int Jinfnum = dd1->GetJinfNum_byglobindex(ii);
+        int Tdrnum = dd1->GetTdrNum_byglobindex(ii);
+        const int k = idx2(Jinfnum, Tdrnum);
+
+        for (unsigned int iCh = 0; iCh < (fConfLocal.NVASS + fConfLocal.NVASK) * fConfLocal.NCHAVA; ++iCh) {
+
+          double signal = (dd->ev)->GetRawSignal_bynums(Tdrnum, iCh, Jinfnum);
+          double son = (dd->ev)->GetRawSoN_bynums(Tdrnum, iCh, Jinfnum);
+
+          if (son != son) {
+            son = 0;
+          }
+
+          int side = 0;
+          if (iCh >= fConfLocal.NCHAVA * fConfLocal.NVASS) {
+            side = 1;
+          }
+
+          LadderConf *ladderconf = LadderConf::Instance();
+          if (ladderconf->GetSideSwap(Jinfnum, Tdrnum)) {
+            side = (side == 0) ? 1 : 0;
+          }
+
+          if (side == 1) {
+            if (signal > sigK[k]) {
+              sigK[k] = signal;
+              sonK[k] = son;
+            }
+          } else {
+            if (signal > sigS[k]) {
+              sigS[k] = signal;
+              sonS[k] = son;
+            }
+          }
+        }
+      }
+    };
+    //***************************************************************************************************
 
     auto start = std::chrono::system_clock::now();
 
@@ -570,14 +600,6 @@ int main(int argc, char **argv) {
 
       ret1 = dd1->ReadOneEvent();
 
-      // if(processed > 10){ break; }
-
-      //    printf("%d\n", ret1);
-
-      /// VV debug commented out
-      // ret1=dd1->EndOfFile();
-      // if (ret1) break;
-      // if(processed==4 || processed==5){processed++;continue;}
       if (ret1 == 0) {
         processed++;
 
@@ -586,9 +608,13 @@ int main(int argc, char **argv) {
             fillClusterArrays(static_cast<DecodeDataOCA *>(dd1));
           } else if (kFoot) {
             fillClusterArrays(static_cast<DecodeDataFOOT *>(dd1));
-          } else if (kL0) {
+          }
+#ifndef NOAMSL0
+          else if (kL0) {
             fillClusterArrays(static_cast<DecodeDataAMSL0 *>(dd1));
-          } else {
+          }
+#endif
+          else {
             fillClusterArrays(static_cast<DecodeDataAMS *>(dd1));
           }
         } else {
@@ -596,17 +622,20 @@ int main(int argc, char **argv) {
             fillRawArrays(static_cast<DecodeDataOCA *>(dd1));
           } else if (kFoot) {
             fillRawArrays(static_cast<DecodeDataFOOT *>(dd1));
-          } else if (kL0) {
+          }
+#ifndef NOAMSL0
+          else if (kL0) {
             fillRawArrays(static_cast<DecodeDataAMSL0 *>(dd1));
-          } else {
+          }
+#endif
+          else {
             fillRawArrays(static_cast<DecodeDataAMS *>(dd1));
           }
         }
 
-        //      printf("%f %f %f %f %f %f\n", sigS[0], sigK[0], sigS[1], sigK[1], sigS[4], sigK[4]);
-
         t4->Fill();
         std::cout << "\rProcessed " << processed << " events" << std::flush;
+
       } else if (ret1 == -1) {
         printf("=======================> END of FILE\n");
         break;
@@ -625,46 +654,36 @@ int main(int argc, char **argv) {
               << "ms\n";
 
     // CreatePdfWithPlots(dd1, pdf_filename);
+
     foutput->cd();
     t4->Write("", TObject::kOverwrite);
     if (dd1->GetMCTruth()) {
       TTree *mcht = dd1->GetMCTruth()->CloneTree();
       mcht->Write("", TObject::kOverwrite);
     }
+
     printf("\nProcessed %5d  Events\n", processed + readfailed + jinffailed);
     printf("Accepted  %5d  Events\n", processed);
     printf("Rejected  %5d  Events --> Read Error\n", readfailed);
     printf("Rejected  %5d  Events --> Jinf/Jinj Error\n", jinffailed);
+
   } else {
+
     auto GCCNs = dd1->GetCalibrationCNs();
-    //    printf("GCCNs = %p\n", &GCCNs);
-    // tbsCNS allocated as 'flat' array so that the memory allocation is contiguous in memory, as required by
-    // TTree::Branch() another solution could be to allocate all the "pointer" components of CNs and only after (i.e.
-    // restarting the nested loops) allocate the CNs[jj][tt] one after the other to have all of them contiguous
-    // in the used solution is important to pass tbsCNs to Branch, not CNs
-    // in the alternative solution, however, we should use &CNs[0][0][0] and not CNs (the first block in memory are just
-    // pointers) that are clearly not equivalent
-    // (https://root-forum.cern.ch/t/adding-a-branch-of-multidimensional-array-to-ttree/29083 only applies for an array
-    // in the stack, not in the heap
+
     float *tbsCNs = new float[GCCNs.size() * GCCNs[0].size() * GCCNs[0][0].size()];
     float ***CNs;
     CNs = new float **[GCCNs.size()];
-    for (long int jj = 0; jj < GCCNs.size(); jj++) {
-      //      printf("GCCNs[%lu] = %p\n", jj, &GCCNs[jj]);
+    for (long int jj = 0; jj < (long int)GCCNs.size(); jj++) {
       CNs[jj] = new float *[GCCNs[0].size()];
-      for (long int tt = 0; tt < GCCNs[0].size(); tt++) {
-        //        printf("GCCNs[%lu][%lu] = %p\n", jj, tt, &GCCNs[jj][tt]);
-        //        CNs[jj][tt] = new float[GCCNs[0][0].size()];
-        //        printf("Allocating %lu floats for CNs[%lu][%lu]...\n", GCCNs[0][0].size(), jj, tt);
-        long int index = GCCNs[0].size() * GCCNs[0][0].size() * jj + GCCNs[0][0].size() * tt;
-        //        printf("[%lu][%lu] = %lu*%lu*%lu + %lu*%lu = [%lu]\n", jj, tt, GCCNs[0].size(), GCCNs[0][0].size(),
-        //        jj, GCCNs[0][0].size(), tt, index);
+      for (long int tt = 0; tt < (long int)GCCNs[0].size(); tt++) {
+        long int index =
+            (long int)GCCNs[0].size() * (long int)GCCNs[0][0].size() * jj + (long int)GCCNs[0][0].size() * tt;
         CNs[jj][tt] = &tbsCNs[index];
       }
     }
     {
       TBranch *branch =
-          //	t3->Branch("CNs", CNs, Form("CNs[%lu][%lu][%lu]/F", GCCNs.size(), GCCNs[0].size(), GCCNs[0][0].size()));
           t3->Branch("CNs", tbsCNs, Form("CNs[%lu][%lu][%lu]/F", GCCNs.size(), GCCNs[0].size(), GCCNs[0][0].size()));
       if (branch)
         branch->SetCompressionLevel(6);
@@ -674,39 +693,27 @@ int main(int argc, char **argv) {
     float *tbsSignals = new float[GCSignals.size() * GCSignals[0].size() * GCSignals[0][0].size()];
     float ***Signals;
     Signals = new float **[GCSignals.size()];
-    for (long int jj = 0; jj < GCSignals.size(); jj++) {
+    for (long int jj = 0; jj < (long int)GCSignals.size(); jj++) {
       Signals[jj] = new float *[GCSignals[0].size()];
-      for (long int tt = 0; tt < GCSignals[0].size(); tt++) {
-        //        Signals[jj][tt] = new float[GCSignals[0][0].size()];
-        long int index = GCSignals[0].size() * GCSignals[0][0].size() * jj + GCSignals[0][0].size() * tt;
+      for (long int tt = 0; tt < (long int)GCSignals[0].size(); tt++) {
+        long int index = (long int)GCSignals[0].size() * (long int)GCSignals[0][0].size() * jj +
+                         (long int)GCSignals[0][0].size() * tt;
         Signals[jj][tt] = &tbsSignals[index];
       }
     }
     {
       TBranch *branch =
-          //	t3->Branch("Signals", Signals,
           t3->Branch("Signals", tbsSignals,
                      Form("Signals[%lu][%lu][%lu]/F", GCSignals.size(), GCSignals[0].size(), GCSignals[0][0].size()));
       if (branch)
         branch->SetCompressionLevel(6);
     }
 
-    /*
-    printf("%lu\n", GCCNs[0][0][0].size());
-    printf("%lu\n", GCSignals[0][0][0].size());
-    printf("%lu\n", GCCNs[0][0].size());
-    printf("%lu\n", GCSignals[0][0].size());
-    printf("%lu\n", GCCNs[0].size());
-    printf("%lu\n", GCSignals[0].size());
-    printf("%lu\n", GCCNs.size());
-    printf("%lu\n", GCSignals.size());
-    */
-
-    for (long int iEv = 0; iEv < GCCNs[0][0][0].size(); iEv++) {
-      for (long int jj = 0; jj < GCCNs.size(); jj++) {
-        for (long int tt = 0; tt < GCCNs[0].size(); tt++) {
-          for (long int vv = 0; vv < GCCNs[0][0].size(); vv++) {
-            if (iEv < GCCNs[jj][tt][vv].size()) {
+    for (long int iEv = 0; iEv < (long int)GCCNs[0][0][0].size(); iEv++) {
+      for (long int jj = 0; jj < (long int)GCCNs.size(); jj++) {
+        for (long int tt = 0; tt < (long int)GCCNs[0].size(); tt++) {
+          for (long int vv = 0; vv < (long int)GCCNs[0][0].size(); vv++) {
+            if (iEv < (long int)GCCNs[jj][tt][vv].size()) {
               CNs[jj][tt][vv] = GCCNs.at(jj).at(tt).at(vv).at(iEv);
               if (fabs(CNs[jj][tt][vv]) > 100) {
                 static bool alreadyprinted = false;
@@ -714,55 +721,27 @@ int main(int argc, char **argv) {
                   printf("printing CN events greater (abs) than 100...\n");
                   alreadyprinted = true;
                 }
-                printf("GCCNs[%lu][%lu][%lu][%lu] = %f\n", jj, tt, vv, iEv, GCCNs[jj][tt][vv][iEv]);
-                //                printf("CNs[%lu][%lu][%lu] = %f\n", jj, tt, vv, CNs[jj][tt][vv]);
+                printf("GCCNs[%lu][%lu][%lu][%lu] = %f\n", (unsigned long)jj, (unsigned long)tt, (unsigned long)vv,
+                       (unsigned long)iEv, GCCNs[jj][tt][vv][iEv]);
               }
             } else {
               CNs[jj][tt][vv] = 0.0;
-              // if (iEv == 0)
-              //   printf("%lu %lu %lu\n", jj, tt, vv);
             }
           }
-          for (long int cc = 0; cc < GCSignals[0][0].size(); cc++) {
-            if (iEv < GCSignals[jj][tt][cc].size()) {
+
+          for (long int cc = 0; cc < (long int)GCSignals[0][0].size(); cc++) {
+            if (iEv < (long int)GCSignals[jj][tt][cc].size()) {
               Signals[jj][tt][cc] = GCSignals.at(jj).at(tt).at(cc).at(iEv);
-              // if (cc == 0) {
-              //   printf("Signals[%lu][%lu][%lu] = %f\n", jj, tt, cc, Signals[jj][tt][cc]);
-              //   printf("GCSignals[%lu][%lu][%lu][%lu] = %f\n", jj, tt, cc, iEv,
-              //   GCSignals.at(jj).at(tt).at(cc).at(iEv));
-              // }
             } else {
               Signals[jj][tt][cc] = 0.0;
-              // if (iEv == 0)
-              //   printf("%lu %lu %lu\n", jj, tt, cc);
             }
           }
         }
       }
-
-      /*
-      if (iEv == 0) {
-        for (long int jj = 0; jj < GCCNs.size(); jj++) {
-          for (long int tt = 0; tt < GCCNs[0].size(); tt++) {
-            for (long int vv = 0; vv < GCCNs[0][0].size(); vv++) {
-              long int index = GCCNs[0].size() * GCCNs[0][0].size() * jj + GCCNs[0][0].size() * tt + vv;
-              float pointer = CNs[jj][tt][vv];
-              float direct = tbsCNs[index];
-              double diff = pointer - direct;
-              if (fabs(diff) > 1.0E-10) {
-                printf("CNs[%lu][%lu][%lu] = %f\n", jj, tt, vv, pointer);
-                printf("tbsCNs[%lu] = %f\n", index, direct);
-              }
-            }
-          }
-        }
-      }
-      */
-
       t3->Fill();
     }
     foutput->cd();
-    //    t3->Write("", TObject::kOverwrite);
+    // t3->Write("", TObject::kOverwrite);
   }
 
   delete dd1;
@@ -775,64 +754,77 @@ int main(int argc, char **argv) {
 
 void PlotsWithFits(TH1 *histo, char *name, char *title, char *pdf_filename) {
 
-  static bool first = true;
+  static bool first = true; 
   char local_pdf_filename[255];
 
   TCanvas *canvas = new TCanvas(name, name, 1024, 1024);
+
+
   TF1 *fit_s = new TF1("fit_s", "gaus", 0, 639);
   TF1 *fit_k = new TF1("fit_k", "gaus", 640, 1023);
   fit_s->SetLineColor(kBlue);
   fit_k->SetLineColor(kRed);
+
   int entries = (int)(histo->GetEntries());
   if (entries >= 1) {
     TH1F *clone_chartA = (TH1F *)histo->Clone("cloneA");
     TH1F *clone_chartB = (TH1F *)histo->Clone("cloneB");
+
     clone_chartA->Fit(fit_s, "R");
     clone_chartB->Fit(fit_k, "R");
+
     clone_chartA->Draw();
     gPad->Modified();
     gPad->Update();
     TPaveStats *statA = (TPaveStats *)(clone_chartA->GetListOfFunctions()->FindObject("stats"));
+
     clone_chartB->Draw("SAMES");
     gPad->Modified();
     gPad->Update();
     TPaveStats *statB = (TPaveStats *)(clone_chartB->GetListOfFunctions()->FindObject("stats"));
+
     if (statA && statB) {
       statA->SetTextColor(kBlue);
       statB->SetTextColor(kRed);
+
       statA->SetX1NDC(0.12);
       statA->SetX2NDC(0.32);
       statA->SetY1NDC(0.75);
+
       statB->SetX1NDC(0.72);
       statB->SetX2NDC(0.92);
       statB->SetY1NDC(0.78);
+
       statA->Draw();
       canvas->Update();
     }
+
     canvas->Update();
     canvas->Modified();
     canvas->Update();
     canvas->SetTitle(title);
+
+  
     if (!first)
       strcpy(local_pdf_filename, pdf_filename);
     else {
       sprintf(local_pdf_filename, "%s(", pdf_filename);
       first = false;
     }
+
     canvas->Print(local_pdf_filename, "pdf");
-    if (clone_chartA)
-      delete clone_chartA;
-    if (clone_chartB)
-      delete clone_chartB;
+
+    if (clone_chartA) delete clone_chartA;
+    if (clone_chartB) delete clone_chartB;
   }
+
   delete canvas;
-  if (fit_s)
-    delete fit_s;
-  if (fit_k)
-    delete fit_k;
+  if (fit_s) delete fit_s;
+  if (fit_k) delete fit_k;
 
   return;
 }
+
 
 void CreatePdfWithPlots(DecodeData *dd1, char *pdf_filename) {
   auto fConf = dd1->FlavorConfig();
@@ -846,16 +838,16 @@ void CreatePdfWithPlots(DecodeData *dd1, char *pdf_filename) {
 
   for (size_t jj = 0; jj < fConf.NJINF; jj++) {
     for (size_t hh = 0; hh < fConf.NTDRS; hh++) {
-      sprintf(name, "ladder %ld %ld", jj, hh);
-      sprintf(title, "ladder %ld %ld", jj, hh);
+      sprintf(name, "ladder %ld %ld", (long)jj, (long)hh);
+      sprintf(title, "ladder %ld %ld", (long)jj, (long)hh);
       PlotsWithFits(dd1->hocc[fConf.NTDRS * jj + hh], name, title, pdf_filename);
     }
   }
 
   for (size_t jj = 0; jj < fConf.NJINF; jj++) {
     for (size_t hh = 0; hh < fConf.NTDRS; hh++) {
-      sprintf(name, "ladder %ld %ld", jj, hh);
-      sprintf(title, "ladder %ld %ld", jj, hh);
+      sprintf(name, "ladder %ld %ld", (long)jj, (long)hh);
+      sprintf(title, "ladder %ld %ld", (long)jj, (long)hh);
       PlotsWithFits(dd1->hoccseed[fConf.NTDRS * jj + hh], name, title, pdf_filename);
     }
   }
@@ -870,7 +862,6 @@ void CreatePdfWithPlots(DecodeData *dd1, char *pdf_filename) {
         if (entries >= 1) {
           double mean = (dd1->hsignal[fConf.NTDRS * jj + hh][ss]->GetMean());
           double rms = (dd1->hsignal[fConf.NTDRS * jj + hh][ss]->GetRMS());
-          //	  printf("%f %f\n", mean, rms);
           (dd1->hsignal[fConf.NTDRS * jj + hh][ss])->GetXaxis()->SetRangeUser(mean - 5.0 * rms, mean + 9.0 * rms);
           canvas->Update();
           canvas->Modified();
@@ -892,7 +883,6 @@ void CreatePdfWithPlots(DecodeData *dd1, char *pdf_filename) {
         if (entries >= 1) {
           double mean = (dd1->hson[fConf.NTDRS * jj + hh][ss]->GetMean());
           double rms = (dd1->hson[fConf.NTDRS * jj + hh][ss]->GetRMS());
-          //	  printf("%f %f\n", mean, rms);
           (dd1->hson[fConf.NTDRS * jj + hh][ss])->GetXaxis()->SetRangeUser(0.0, mean + 7.0 * rms);
           canvas->Update();
           canvas->Modified();
@@ -904,6 +894,7 @@ void CreatePdfWithPlots(DecodeData *dd1, char *pdf_filename) {
     }
   }
 
+
   TCanvas *c_exit = new TCanvas("dummy", "dummy", 1024, 1024);
   snprintf(local_pdf_filename, 255, "%s]", pdf_filename);
   c_exit->Print(local_pdf_filename, "pdf");
@@ -911,3 +902,4 @@ void CreatePdfWithPlots(DecodeData *dd1, char *pdf_filename) {
 
   return;
 }
+
