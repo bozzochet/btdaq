@@ -1291,7 +1291,7 @@ double Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::ComputeCN(int size, sho
   //
   //  return mean;
 }
-
+/*
 //------------CB: Qui iniziano le cose che ho aggiunto------------//
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 bool Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::FindTracksAndVertex(bool vertmode) {
@@ -1411,7 +1411,7 @@ bool Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::FindTracksAndVertex(bool 
     Track(v_hitsS, rejectsS);
     printf("tracciate->%lu, rigettate->%lu\n", v_hitsS.size(), rejectsS.size());
     if (v_hitsS.size() < 3) {
-      printf("poche hit\n"); /*return false;*/
+      printf("poche hit\n"); 
     } else {
       NS++;
       _TrS.emplace_back(v_hitsS); // Here we store the tracks we have already found
@@ -1420,7 +1420,7 @@ bool Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::FindTracksAndVertex(bool 
     Track(v_hitsK, rejectsK);
     printf("tracciate->%lu, rigettate->%lu\n", v_hitsK.size(), rejectsK.size());
     if (v_hitsK.size() < 3) {
-      printf("poche hit\n"); /*return false;*/
+      printf("poche hit\n"); 
     } else {
       NK++;
       _TrK.emplace_back(v_hitsK);
@@ -1546,7 +1546,7 @@ bool Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::FindTracksAndVertex(bool 
   _vertexS = vy;
   return true;
 }
-
+*/
 template <size_t NJINF, size_t NTDRS, size_t NCHAVA, size_t NADCS, size_t NVASS, size_t NVASK>
 void Event<NJINF, NTDRS, NCHAVA, NADCS, NVASS, NVASK>::Track(std::vector<Hit> &hits, std::vector<Hit> &rejects) {
   rejects.clear();
