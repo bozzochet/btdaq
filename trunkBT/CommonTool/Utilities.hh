@@ -5,7 +5,8 @@
 #include "TList.h"
 
 /* from the 'Decode' API */
-#include "GenericEvent.hpp"
+#include "Event.hpp"
+//#include "GenericEvent.hpp"
 #include "LadderConf.hh"
 /* end */
 
