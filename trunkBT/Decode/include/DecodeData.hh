@@ -178,7 +178,7 @@ inline void DecodeData::AddCluster(calib *cal, int numnum, int Jinfnum, int clus
     sid = 1;
   if (kMC)
     sid = !tdrAlign[numnum]; // check alignment. MD: why we need this in the MC case?
-
+/*
   if (ladderconf->GetSideSwap(Jinfnum, numnum)) {
     if (sid == 0)
       sid = 1;
@@ -188,7 +188,7 @@ inline void DecodeData::AddCluster(calib *cal, int numnum, int Jinfnum, int clus
       printf("Side is %d so I don't know how to swap...\n", sid);
     }
   }
-
+*/
   Cluster *pp = ((Event *)ev)->AddCluster(Jinfnum, ComputeTdrId(numnum, Jinfnum), sid);
   pp->SetLadderConf(ladderconf);
 
@@ -401,7 +401,7 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
   // MD: there're still a couple of 640, 320, 384, etc... hardcoded
   // are inside particular "bondingtype"s so let's keep hardcoded...
 
-  for (int side = 0; side < 2; side++) {
+  for (int side = 0; side < 1; side++) {
     if (added)
       continue;
     if (side == 0) {
