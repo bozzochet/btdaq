@@ -679,7 +679,7 @@ void DecodeData::SaveCalibration(const std::array<std::array<calib, ntdr>, njinf
       // reading channels
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
         fprintf(calfil, "%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
-                cals[iJinf][iTdr].ped[iCh], cals[iJinf][iTdr].rsig[iCh], cals[iJinf][iTdr].sig[iCh], 0.0, 0);
+                cals[iJinf][iTdr].ped[iCh], cals[iJinf][iTdr].rsig[iCh], cals[iJinf][iTdr].sig[iCh], 0.0, cals[iJinf][iTdr].status[iCh]);
       }
 
       fclose(calfil);
@@ -1049,6 +1049,7 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
   for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
     int iTdr = GetTdrNum_byglobindex(globindex);
     int iJinf = GetJinfNum_byglobindex(globindex);
+
     if (cals[iJinf][iTdr].valid) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
         if (processed_events[iJinf][iTdr][iCh] == 0 && cals[iJinf][iTdr].sig[iCh] != 0)
@@ -1062,6 +1063,50 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
                  static_cast<float>(processed_events[iJinf][iTdr][iCh]));
         }
       }
+
+    // Compute median of raw sigma and sigma for each VA
+    double median_rsigma_by_VA[NVAS] = {0.0};
+    double median_sigma_by_VA[NVAS] = {0.0};
+
+    // Compute median of raw sigma and sigma for each VA
+    for (unsigned int iVA = 0; iVA < NVAS; ++iVA) {
+
+      std::vector<float> rsig_values = {};
+      std::vector<float> sig_values = {};
+
+      std::copy(cals[iJinf][iTdr].rsig.begin() + iVA * NCHAVA, cals[iJinf][iTdr].rsig.begin() + (iVA + 1) * NCHAVA, 
+                std::back_inserter(rsig_values));
+      
+      std::copy(cals[iJinf][iTdr].sig.begin() + iVA * NCHAVA, cals[iJinf][iTdr].sig.begin() + (iVA + 1) * NCHAVA, 
+                std::back_inserter(sig_values));
+      
+      std::sort(rsig_values.begin(), rsig_values.end());
+      if (rsig_values.size() > 0)
+        median_rsigma_by_VA[iVA] = 0.5 * (rsig_values[(rsig_values.size() / 2) - 1] + rsig_values[rsig_values.size() / 2]);
+    
+      std::sort(sig_values.begin(), sig_values.end());
+      if (sig_values.size() > 0)
+        median_sigma_by_VA[iVA] = 0.5 * (sig_values[(sig_values.size() / 2) - 1] + sig_values[sig_values.size() / 2]);
+      }  
+      
+      // Compute strip status
+      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+
+        if (cals[iJinf][iTdr].rsig[iCh] >= 1.5 * median_rsigma_by_VA[iCh / NCHAVA] || cals[iJinf][iTdr].rsig[iCh] <= 0.5 * median_rsigma_by_VA[iCh / NCHAVA] ) {
+          cals[iJinf][iTdr].status[iCh] = 1; // Noisy/Dead strip according to raw sigma
+        }
+
+        if (cals[iJinf][iTdr].sig[iCh] >= 1.5 * median_sigma_by_VA[iCh / NCHAVA] || cals[iJinf][iTdr].sig[iCh] <= 0.5 * median_sigma_by_VA[iCh / NCHAVA] ) {
+          if (cals[iJinf][iTdr].status[iCh] == 0)
+          {
+            cals[iJinf][iTdr].status[iCh] = 2; // Noisy/Dead strip according to sigma
+          } else {
+            cals[iJinf][iTdr].status[iCh] = 3; // Noisy/Dead strip according to both raw sigma and sigma
+          }
+        }
+
+      }
+
     }
   }
 
