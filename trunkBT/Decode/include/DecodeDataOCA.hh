@@ -18,7 +18,7 @@ public:
       Calibrations<EventOCA::GetNJINF(), EventOCA::GetNTDRS(), EventOCA::GetNCHAVA() * EventOCA::GetNVAS()>;
 
   DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calnum,
-                bool _kOnlyProcessCal = false);
+                bool _kOnlyProcessCal = false, bool _kExtCalfile = false);
 
   virtual ~DecodeDataOCA();
 
@@ -63,7 +63,7 @@ private:
 
   void OpenFile(const char *rawDir, const char *calDir, int runNum, int calNum) final;
 
-  bool ProcessCalibration();
+  bool ProcessCalibration(bool _kExtCalfile = false);
 
   int ReadOneEventFromFile(FILE *file, EventOCA *event, bool kCal = false);
 };

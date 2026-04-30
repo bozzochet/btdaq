@@ -22,6 +22,7 @@ class DecodeData {
 protected:
   bool pri = false;
   bool evpri = false;
+  bool extcalfile = false;
 
   FILE *rawfile;
 
@@ -131,6 +132,10 @@ public:
   void ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &cals);
   template <class Event, class calib, size_t njinf, size_t ntdr>
   void SaveCalibration(const std::array<std::array<calib, ntdr>, njinf> &cals);
+
+  template <class Event, class calib, size_t njinf, size_t ntdr>
+  void LoadCalibration(std::array<std::array<calib, ntdr>, njinf> &cals);
+
   virtual void GetCalFilePrefix(char *calfileprefix, long int runnum) = 0;
   std::vector<std::vector<std::vector<std::vector<float>>>> GetCalibrationSignals() { return signals; };
   std::vector<std::vector<std::vector<std::vector<float>>>> GetCalibrationCNs() { return CNs; };
@@ -687,6 +692,71 @@ void DecodeData::SaveCalibration(const std::array<std::array<calib, ntdr>, njinf
   }
 
   return;
+}
+
+template <class Event, class calib, size_t njinf, size_t ntdr>
+void DecodeData::LoadCalibration(std::array<std::array<calib, ntdr>, njinf> &cals) {
+    constexpr auto NJINF  = Event::GetNJINF();
+    constexpr auto NTDRS  = Event::GetNTDRS();
+    constexpr auto NVAS   = Event::GetNVAS();
+    constexpr auto NCHAVA = Event::GetNCHAVA();
+    constexpr auto NADCS  = Event::GetNADCS();
+
+    char calfileprefix[255];
+    long int runnum = m_calRunnums.at(0);
+    GetCalFilePrefix(calfileprefix, runnum);
+    printf("calfileprefix: %s\n", calfileprefix);
+
+    for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
+        int iTdr  = GetTdrNum_byglobindex(globindex);
+        int iJinf = GetJinfNum_byglobindex(globindex);
+        printf("iJinf=%u, iTdr=%u valid: %d\n", iJinf, iTdr, cals[iJinf][iTdr].valid);
+
+        if (!cals[iJinf][iTdr].valid) continue;
+
+        char calfilename[264];
+        snprintf(calfilename, 264, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
+
+        FILE *calfil = fopen(calfilename, "r");
+        if (!calfil) {
+            printf("problem in opening the %s cal file...\n", calfilename);
+            return;
+        }
+
+        char line[512];
+
+        // Read common noise per VA
+        for (unsigned int iVa = 0; iVa < NVAS; ++iVa) {
+            if (!fgets(line, sizeof(line), calfil)) {
+                printf("error reading CN line for VA %u\n", iVa);
+                fclose(calfil);
+                return;
+            }
+            int   va;
+            float cn1, cn2;
+            std::sscanf(line, "%d %f %f", &va, &cn1, &cn2);
+        }
+
+        // Read per-channel calibration
+        for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
+            if (!fgets(line, sizeof(line), calfil)) {
+                printf("error reading channel line for ch %u\n", iCh);
+                fclose(calfil);
+                return;
+            }
+            int   ch, vanum, vachan, status;
+            float ped, rsig, sig, dummy;
+            std::sscanf(line, "%d %d %d %f %f %f %f %d", &ch, &vanum, &vachan, &ped, &rsig, &sig, &dummy, &status);
+            cals[iJinf][iTdr].ped[iCh] = ped;
+            cals[iJinf][iTdr].rsig[iCh] = rsig;
+            cals[iJinf][iTdr].sig[iCh] = sig;
+            cals[iJinf][iTdr].status[iCh] = status;
+        }
+
+        fclose(calfil);
+    }
+
+    std::cin.get();
 }
 
 template <class Event, class calib, size_t njinf, size_t ntdr>

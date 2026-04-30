@@ -64,6 +64,7 @@ int main(int argc, char **argv) {
   bool kOnlyProcessCal = false;
 
   bool kClusterize = false;
+  bool kExtCalfile = false;
   int cworkaround = 0;
 
   int run = 110;
@@ -108,6 +109,7 @@ int main(int argc, char **argv) {
                 "                                                choose the calibration by hand)");
   opt->addUsage(
       "  --calrunstop ................................ Run/file number of calibration (last) (needed for AMSL0)");
+  opt->addUsage("  --extcalfile ................................ Load external calibration files (only implemented for OCA)");
   opt->addUsage("  --ancillary ................................. Ancillary file number (only possible for AMS)");
   opt->addUsage(
       "  -m, --montecarlo ............................ To decode MonteCarlo simulation files (default is OFF)");
@@ -162,6 +164,7 @@ int main(int argc, char **argv) {
   opt->setFlag("clusterize", 'c');
   opt->setFlag("montecarlo", 'm');
   opt->setFlag("onlycal", 'l');
+  opt->setFlag("extcalfile");
   opt->setFlag("oca");
   opt->setFlag("foot");
   opt->setFlag("l0");
@@ -193,6 +196,8 @@ int main(int argc, char **argv) {
     kEvPri = true;
   if (opt->getFlag("clusterize") || opt->getFlag('c'))
     kClusterize = true;
+  if (opt->getFlag("extcalfile"))
+    kExtCalfile = true;
   if (opt->getFlag("montecarlo") || opt->getFlag('m'))
     kMC = true;
   if (opt->getFlag("onlycal") || opt->getFlag('l'))
@@ -284,7 +289,7 @@ int main(int argc, char **argv) {
   FlavorConfig fConf;
 
   if (kOca) {
-    auto *dd = new DecodeDataOCA(DirRaw, DirCal, run, calrunstart, kOnlyProcessCal);
+    auto *dd = new DecodeDataOCA(DirRaw, DirCal, run, calrunstart, kOnlyProcessCal, kExtCalfile);
     fConf = dd->FlavorConfig();
     if (!kOnlyProcessCal)
       t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
@@ -343,6 +348,7 @@ int main(int argc, char **argv) {
     dd1->klowthreshold = klowthreshold;
     dd1->kClusterize = kClusterize;
     dd1->cworkaround = cworkaround;
+    
 
     dd1->SetPrintOff();
     dd1->SetEvPrintOff();

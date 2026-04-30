@@ -108,7 +108,7 @@ char *DateFromFilename(std::string m_filename) {
 }
 
 DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned int runNum, unsigned int calNum,
-                             bool _kOnlyProcessCal) {
+                             bool _kOnlyProcessCal, bool _kExtCalfile) {
 
   m_rawDir = rawDir;
   m_calDir = calDir;
@@ -174,7 +174,7 @@ DecodeDataOCA::DecodeDataOCA(std::string rawDir, std::string calDir, unsigned in
 
   DecodeDataOCA::DumpRunHeader();
 
-  ProcessCalibration();
+  ProcessCalibration(_kExtCalfile);
 
   InitHistos();
 }
@@ -275,7 +275,7 @@ void DecodeDataOCA::OpenFile(const char *rawDir, const char *calDir, int runNum,
                                        [calNumLenght](const std::string &_filename) {
                                          return _filename.length() == calNumLenght && _filename.substr(13, 3) == "CAL";
                                        });
-
+                                       
     if (calFilename_it != rend(fileList)) {
       m_calFilenames.push_back(*calFilename_it);
       // FIX ME: in this second case we should extract the found cal num
@@ -294,7 +294,7 @@ void DecodeDataOCA::DumpRunHeader() {
   ((RHClassOCA *)rh)->Print();
 }
 
-bool DecodeDataOCA::ProcessCalibration() {
+bool DecodeDataOCA::ProcessCalibration(bool _kExtCalfile) {
 
   int iJinf = 0; // in the OCA case we have just one "collector" (the DAQ PC itself)
 
@@ -385,14 +385,19 @@ bool DecodeDataOCA::ProcessCalibration() {
 
   //----------------------------------
   //  ComputeCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals);
-  ComputeCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals.GetArray());
+  if(!_kExtCalfile) {
+    ComputeCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals.GetArray());
 
-  auto stop = std::chrono::system_clock::now();
-  std::cout << "DecodeDataOCA::ProcessCalibration took "
-            << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
+    auto stop = std::chrono::system_clock::now();
+    std::cout << "DecodeDataOCA::ProcessCalibration took "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms\n";
 
-  //  SaveCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals);
-  SaveCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals.GetArray());
+    //  SaveCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals);
+    SaveCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals.GetArray());
+  } else {
+    std::cout << "Using external calibration file\n";
+    LoadCalibration<EventOCA, calibOCA, EventOCA::GetNJINF(), EventOCA::GetNTDRS()>(cals.GetArray());
+  }
 
   return true;
 }
