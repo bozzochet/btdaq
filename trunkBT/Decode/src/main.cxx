@@ -30,6 +30,7 @@
 #endif
 #include "DecodeDataFOOT.hh"
 #include "DecodeDataOCA.hh"
+#include "DecodeDataHEF.hh"
 
 #include "Event.hpp"
 
@@ -55,6 +56,7 @@ int main(int argc, char **argv) {
 
   bool kMC = false;
   bool kOca = false;
+  bool kHef = false;
   bool kFoot = false;
   bool kL0 = false;
   bool kL0old = false;
@@ -97,6 +99,7 @@ int main(int argc, char **argv) {
   opt->addUsage(Form(
       "  --rootdata <path/to/dir/for/root> ........... Directory where to put ROOT file (%s is the default)", DirRoot));
   opt->addUsage("  --oca  ...................................... Read the OCA boards");
+  opt->addUsage("  --hef  ...................................... Read the HEF boards");
   opt->addUsage("  --foot ...................................... Read files from FOOT Bo TDAQ");
   opt->addUsage("  --l0 ........................................ Read files from AMSL0 DAQ (USB-LF and v>=5)");
   opt->addUsage("  --l0old ..................................... Read files from AMSL0 DAQ (USB-LEF)");
@@ -105,17 +108,17 @@ int main(int argc, char **argv) {
   opt->addUsage("                                                (the bonding type is defined in ladderconf.dat");
   opt->addUsage("                                                with the same codes as for --cworkaround)");
   opt->addUsage("  --calrunstart ............................... Run/file number of calibration (first)\n"
-                "                                                (needed for AMSL0 or possible for (OCA, FOOT) to\n"
+                "                                                (needed for AMSL0 or possible for (OCA, FOOT, HEF) to\n"
                 "                                                choose the calibration by hand)");
   opt->addUsage(
       "  --calrunstop ................................ Run/file number of calibration (last) (needed for AMSL0)");
-  opt->addUsage("  --extcalfile ................................ Load external calibration files (only implemented for OCA)");
+  opt->addUsage("  --extcalfile ................................ Load external calibration files (only implemented for OCA and HEF)");
   opt->addUsage("  --ancillary ................................. Ancillary file number (only possible for AMS)");
   opt->addUsage(
       "  -m, --montecarlo ............................ To decode MonteCarlo simulation files (default is OFF)");
   opt->addUsage(
       "  -l, --onlycal ............................... To only search and process the (closer automatically\n"
-      "                                                chosen for AMS, OCA and FOOT, but not AMSL0) calibration run.\n"
+      "                                                chosen for AMS, OCA, FOOT and HEF, but not AMSL0) calibration run.\n"
       "                                                Only 10k events used for calibration. When using this flag,\n"
       "                                                the run number provided is used for the output file root name,\n"
       "                                                that will contain \"ONLYCAL\". (default is OFF)");
@@ -166,6 +169,7 @@ int main(int argc, char **argv) {
   opt->setFlag("onlycal", 'l');
   opt->setFlag("extcalfile");
   opt->setFlag("oca");
+  opt->setFlag("hef");
   opt->setFlag("foot");
   opt->setFlag("l0");
   opt->setFlag("l0old");
@@ -204,6 +208,8 @@ int main(int argc, char **argv) {
     kOnlyProcessCal = true;
   if (opt->getFlag("oca"))
     kOca = true;
+  if (opt->getFlag("hef"))
+    kHef = true;
   if (opt->getFlag("foot"))
     kFoot = true;
   if (opt->getFlag("l0"))
@@ -290,6 +296,14 @@ int main(int argc, char **argv) {
 
   if (kOca) {
     auto *dd = new DecodeDataOCA(DirRaw, DirCal, run, calrunstart, kOnlyProcessCal, kExtCalfile);
+    fConf = dd->FlavorConfig();
+    if (!kOnlyProcessCal)
+      t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
+    auto calibs = dd->GetCalibrations();
+    foutput->WriteTObject(&calibs, "cals");
+    dd1 = static_cast<DecodeData *>(dd);
+  } else if (kHef) {
+    auto *dd = new DecodeDataHEF(DirRaw, DirCal, run, calrunstart, kOnlyProcessCal, kExtCalfile);
     fConf = dd->FlavorConfig();
     if (!kOnlyProcessCal)
       t4->Branch("cluster_branch", dd->EventClassname(), &(dd->ev), bufsize, splitlevel);
@@ -411,12 +425,14 @@ int main(int argc, char **argv) {
 
     auto *ddams = dynamic_cast<DecodeDataAMS *>(dd1);
     auto *ddoca = dynamic_cast<DecodeDataOCA *>(dd1);
+    auto *ddhef = dynamic_cast<DecodeDataHEF *>(dd1);
     auto *ddfoot = dynamic_cast<DecodeDataFOOT *>(dd1);
 #ifndef NOAMSL0
     auto *ddamsl0 = dynamic_cast<DecodeDataAMSL0 *>(dd1);
 #endif
     (void)ddams;
     (void)ddoca;
+    (void)ddhef;
     (void)ddfoot;
 #ifndef NOAMSL0
     (void)ddamsl0;
@@ -612,6 +628,8 @@ int main(int argc, char **argv) {
         if (kClusterize) {
           if (kOca) {
             fillClusterArrays(static_cast<DecodeDataOCA *>(dd1));
+          } else if (kHef) {
+            fillClusterArrays(static_cast<DecodeDataHEF *>(dd1));
           } else if (kFoot) {
             fillClusterArrays(static_cast<DecodeDataFOOT *>(dd1));
           }
@@ -626,6 +644,8 @@ int main(int argc, char **argv) {
         } else {
           if (kOca) {
             fillRawArrays(static_cast<DecodeDataOCA *>(dd1));
+          } else if (kHef) {
+            fillRawArrays(static_cast<DecodeDataHEF *>(dd1));
           } else if (kFoot) {
             fillRawArrays(static_cast<DecodeDataFOOT *>(dd1));
           }

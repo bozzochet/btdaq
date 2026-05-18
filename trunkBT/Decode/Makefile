@@ -7,6 +7,7 @@ DEC_SOURCES = DecodeData.cxx
 DEC_SOURCES += FSUtils.cxx main.cxx rootElibdict.cxx
 DEC_SOURCES += DecodeDataAMS.cxx EventAMS.cxx
 DEC_SOURCES += DecodeDataOCA.cxx EventOCA.cxx
+DEC_SOURCES += DecodeDataHEF.cxx EventHEF.cxx
 DEC_SOURCES += DecodeDataFOOT.cxx
 #DEC_SOURCES += DecodeDataAMSL0.cxx EventAMSL0.cxx
 DEC_SOURCES+= $(CLASSES:%.hh=%.cxx)

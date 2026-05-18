@@ -104,6 +104,19 @@ void RHClassOCA::Print() {
   return;
 }
 
+void RHClassHEF::Print() {
+  PrintHeader();
+
+  if (!gitSHA.empty()) {
+    printf("Software git commit SHA: %s\n", gitSHA.c_str());
+    printf("Data model version: %d, %d, %d\n", dataVersion.major, dataVersion.minor, dataVersion.patch);
+  }
+
+  PrintFooter();
+
+  return;
+}
+
 template <size_t NJINF, size_t NTDRS> void RHClass<NJINF, NTDRS>::SetJinfMap(int *_JinfMap) {
 
   // for (int ii=0;ii<NJINF;ii++) {

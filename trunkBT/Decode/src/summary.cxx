@@ -50,7 +50,7 @@ ConfPars::ConfPars() {
   flavour = 0;
   TDRrefmask = 0;
   JINFrefmask = 0;
-  PedYLim = 2000.0;
+  PedYLim = 4000.0;
 }
 
 ConfPars *CPars;

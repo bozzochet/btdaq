@@ -37,7 +37,7 @@ public:
 
   virtual void Print() = 0;
 
-  ClassDef(GenericRHClass, 6)
+  ClassDef(GenericRHClass, 7)
 };
 
 //! Run Header Class
@@ -129,7 +129,7 @@ public:
   int GetJinfIndex_bynum(int jinfnum) final;
   int GetJinfNum_byindex(int jinfindex) final;
 
-  ClassDef(RHClass, 6)
+  ClassDef(RHClass, 7)
 };
 
 class RHClassOCA : public RHClass<1, 24> {
@@ -166,7 +166,44 @@ public:
   void AddBoardID(unsigned int id) { boardIDs.push_back(id); }
   std::vector<unsigned int> GetBoardIDs() { return boardIDs; }
 
-  ClassDef(RHClassOCA, 6);
+  ClassDef(RHClassOCA, 7);
+};
+
+class RHClassHEF : public RHClass<1, 24> {
+private:
+  unsigned int numBoards{0};
+  DataVersion dataVersion{};
+
+  std::string gitSHA{};
+  std::vector<unsigned int> boardIDs{};
+
+public:
+  //! default constructor
+  RHClassHEF() = default;
+
+  //! default destructor
+  ~RHClassHEF() = default;
+
+  //! Prints the Header infos
+  inline void Print();
+
+  void SetNumBoards(unsigned int nboards) { numBoards = nboards; }
+  unsigned int GetNumBoards() { return numBoards; }
+
+  void SetDataVersion(unsigned int maj, unsigned int min, unsigned int pat) {
+    dataVersion.major = maj;
+    dataVersion.minor = min;
+    dataVersion.patch = pat;
+  }
+  DataVersion GetDataVersion() { return dataVersion; }
+
+  void SetGitSHA(const std::string &sha) { gitSHA = sha; }
+  std::string GetGitSHA() { return gitSHA; }
+
+  void AddBoardID(unsigned int id) { boardIDs.push_back(id); }
+  std::vector<unsigned int> GetBoardIDs() { return boardIDs; }
+
+  ClassDef(RHClassHEF, 7);
 };
 
 /*

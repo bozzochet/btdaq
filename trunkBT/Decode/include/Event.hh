@@ -97,6 +97,7 @@ public:
   friend class DecodeDataAMS;
   friend class DecodeDataAMSL0;
   friend class DecodeDataOCA;
+  friend class DecodeDataHEF;
   friend class DecodeDataFOOT;
 
 public:
