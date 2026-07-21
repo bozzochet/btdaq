@@ -628,8 +628,22 @@ int DecodeDataHEF::ReadOneEventFromFile(FILE *file, EventHEF *event, bool kCal) 
     if (iBoard == 0)
       event->ExtTimeStamp = double(ExtTimestamp) / 1e6; // assume 1 Mhz clock
 
+    uint32_t biasVoltage;
+    fstat = ReadFile(&biasVoltage, sizeof(biasVoltage), 1, file);
+    if (fstat == -1)
+      return -99;
+    biasVoltage = (biasVoltage >> 32) + ((biasVoltage & 0xFFFFFFFF) << 32);
+    event->BiasVoltage = double(biasVoltage);
+    
+    uint32_t biasCurrent;
+    fstat = ReadFile(&biasCurrent, sizeof(biasCurrent), 1, file);
+    if (fstat == -1)
+      return -99;
+    biasCurrent = (biasCurrent >> 32) + ((biasCurrent & 0xFFFFFFFF) << 32);
+    event->BiasCurrent = double(biasCurrent);
+
     unsigned int numChannels = NVAS * NCHAVA;
-    uint32_t nFrames = messageLength - 10;
+    uint32_t nFrames = messageLength - 12;
     if (nFrames != numChannels)
       std::cerr << "WARNING: payload length doesn't match number of channels in Event class (" << nFrames << " vs "
                 << numChannels << ")\n";

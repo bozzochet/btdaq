@@ -202,6 +202,9 @@ public:
   uint64_t GetTimeStamp_ns() { return TimeStamp_ns; }
   uint64_t GetExternalTimeStamp() { return ExtTimeStamp; }
 
+  double GetBiasVoltage() { return BiasVoltage; }
+  double GetBiasCurrent() { return BiasCurrent; }
+
   // CB:
   bool FindTracksAndVertex(bool vertex = false);
   std::pair<double, double> GetVertexK();
@@ -258,6 +261,10 @@ private:
   uint64_t TimeStamp_ns{0};
   //! Event board clock
   double ExtTimeStamp{0};
+  //! Bias voltage
+  double BiasVoltage{0};
+  //! Bias current
+  double BiasCurrent{0};
   //! I2C Subsystem
   uint8_t I2CSubSystem{0};
   //! I2C TriggerType
