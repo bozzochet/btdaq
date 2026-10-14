@@ -22,7 +22,6 @@ class DecodeData {
 protected:
   bool pri = false;
   bool evpri = false;
-  bool extcalfile = false;
 
   FILE *rawfile;
 
@@ -132,10 +131,6 @@ public:
   void ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &cals);
   template <class Event, class calib, size_t njinf, size_t ntdr>
   void SaveCalibration(const std::array<std::array<calib, ntdr>, njinf> &cals);
-
-  template <class Event, class calib, size_t njinf, size_t ntdr>
-  void LoadCalibration(std::array<std::array<calib, ntdr>, njinf> &cals);
-
   virtual void GetCalFilePrefix(char *calfileprefix, long int runnum) = 0;
   std::vector<std::vector<std::vector<std::vector<float>>>> GetCalibrationSignals() { return signals; };
   std::vector<std::vector<std::vector<std::vector<float>>>> GetCalibrationCNs() { return CNs; };
@@ -183,7 +178,7 @@ inline void DecodeData::AddCluster(calib *cal, int numnum, int Jinfnum, int clus
     sid = 1;
   if (kMC)
     sid = !tdrAlign[numnum]; // check alignment. MD: why we need this in the MC case?
-/*
+
   if (ladderconf->GetSideSwap(Jinfnum, numnum)) {
     if (sid == 0)
       sid = 1;
@@ -193,7 +188,7 @@ inline void DecodeData::AddCluster(calib *cal, int numnum, int Jinfnum, int clus
       printf("Side is %d so I don't know how to swap...\n", sid);
     }
   }
-*/
+
   Cluster *pp = ((Event *)ev)->AddCluster(Jinfnum, ComputeTdrId(numnum, Jinfnum), sid);
   pp->SetLadderConf(ladderconf);
 
@@ -406,7 +401,7 @@ template <class Event, class calib> inline void DecodeData::Clusterize(int numnu
   // MD: there're still a couple of 640, 320, 384, etc... hardcoded
   // are inside particular "bondingtype"s so let's keep hardcoded...
 
-  for (int side = 0; side < 1; side++) {
+  for (int side = 0; side < 2; side++) {
     if (added)
       continue;
     if (side == 0) {
@@ -684,7 +679,7 @@ void DecodeData::SaveCalibration(const std::array<std::array<calib, ntdr>, njinf
       // reading channels
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
         fprintf(calfil, "%d %d %d %lf %f %f %f %d\n", iCh + 1, (1 + (int)(iCh / NCHAVA)), (1 + (int)((iCh) % NCHAVA)),
-                cals[iJinf][iTdr].ped[iCh], cals[iJinf][iTdr].rsig[iCh], cals[iJinf][iTdr].sig[iCh], 0.0, cals[iJinf][iTdr].status[iCh]);
+                cals[iJinf][iTdr].ped[iCh], cals[iJinf][iTdr].rsig[iCh], cals[iJinf][iTdr].sig[iCh], 0.0, 0);
       }
 
       fclose(calfil);
@@ -692,69 +687,6 @@ void DecodeData::SaveCalibration(const std::array<std::array<calib, ntdr>, njinf
   }
 
   return;
-}
-
-template <class Event, class calib, size_t njinf, size_t ntdr>
-void DecodeData::LoadCalibration(std::array<std::array<calib, ntdr>, njinf> &cals) {
-    constexpr auto NJINF  = Event::GetNJINF();
-    constexpr auto NTDRS  = Event::GetNTDRS();
-    constexpr auto NVAS   = Event::GetNVAS();
-    constexpr auto NCHAVA = Event::GetNCHAVA();
-    constexpr auto NADCS  = Event::GetNADCS();
-
-    char calfileprefix[255];
-    long int runnum = m_calRunnums.at(0);
-    GetCalFilePrefix(calfileprefix, runnum);
-    printf("calfileprefix: %s\n", calfileprefix);
-
-    for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
-        int iTdr  = GetTdrNum_byglobindex(globindex);
-        int iJinf = GetJinfNum_byglobindex(globindex);
-        printf("iJinf=%u, iTdr=%u valid: %d\n", iJinf, iTdr, cals[iJinf][iTdr].valid);
-
-        if (!cals[iJinf][iTdr].valid) continue;
-
-        char calfilename[264];
-        snprintf(calfilename, 264, "%s_%02d%02d.cal", calfileprefix, iJinf, iTdr);
-
-        FILE *calfil = fopen(calfilename, "r");
-        if (!calfil) {
-            printf("problem in opening the %s cal file...\n", calfilename);
-            return;
-        }
-
-        char line[512];
-
-        // Read common noise per VA
-        for (unsigned int iVa = 0; iVa < NVAS; ++iVa) {
-            if (!fgets(line, sizeof(line), calfil)) {
-                printf("error reading CN line for VA %u\n", iVa);
-                fclose(calfil);
-                return;
-            }
-            int   va;
-            float cn1, cn2;
-            std::sscanf(line, "%d %f %f", &va, &cn1, &cn2);
-        }
-
-        // Read per-channel calibration
-        for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-            if (!fgets(line, sizeof(line), calfil)) {
-                printf("error reading channel line for ch %u\n", iCh);
-                fclose(calfil);
-                return;
-            }
-            int   ch, vanum, vachan, status;
-            float ped, rsig, sig, dummy;
-            std::sscanf(line, "%d %d %d %f %f %f %f %d", &ch, &vanum, &vachan, &ped, &rsig, &sig, &dummy, &status);
-            cals[iJinf][iTdr].ped[iCh] = ped;
-            cals[iJinf][iTdr].rsig[iCh] = rsig;
-            cals[iJinf][iTdr].sig[iCh] = sig;
-            cals[iJinf][iTdr].status[iCh] = status;
-        }
-
-        fclose(calfil);
-    }
 }
 
 template <class Event, class calib, size_t njinf, size_t ntdr>
@@ -1117,7 +1049,6 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
   for (unsigned int globindex = 0; globindex < uint(ntdrCmp + ntdrRaw); globindex++) {
     int iTdr = GetTdrNum_byglobindex(globindex);
     int iJinf = GetJinfNum_byglobindex(globindex);
-
     if (cals[iJinf][iTdr].valid) {
       for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
         if (processed_events[iJinf][iTdr][iCh] == 0 && cals[iJinf][iTdr].sig[iCh] != 0)
@@ -1131,50 +1062,6 @@ void DecodeData::ComputeCalibration(std::array<std::array<calib, ntdr>, njinf> &
                  static_cast<float>(processed_events[iJinf][iTdr][iCh]));
         }
       }
-
-    // Compute median of raw sigma and sigma for each VA
-    double median_rsigma_by_VA[NVAS] = {0.0};
-    double median_sigma_by_VA[NVAS] = {0.0};
-
-    // Compute median of raw sigma and sigma for each VA
-    for (unsigned int iVA = 0; iVA < NVAS; ++iVA) {
-
-      std::vector<float> rsig_values = {};
-      std::vector<float> sig_values = {};
-
-      std::copy(cals[iJinf][iTdr].rsig.begin() + iVA * NCHAVA, cals[iJinf][iTdr].rsig.begin() + (iVA + 1) * NCHAVA, 
-                std::back_inserter(rsig_values));
-      
-      std::copy(cals[iJinf][iTdr].sig.begin() + iVA * NCHAVA, cals[iJinf][iTdr].sig.begin() + (iVA + 1) * NCHAVA, 
-                std::back_inserter(sig_values));
-      
-      std::sort(rsig_values.begin(), rsig_values.end());
-      if (rsig_values.size() > 0)
-        median_rsigma_by_VA[iVA] = 0.5 * (rsig_values[(rsig_values.size() / 2) - 1] + rsig_values[rsig_values.size() / 2]);
-    
-      std::sort(sig_values.begin(), sig_values.end());
-      if (sig_values.size() > 0)
-        median_sigma_by_VA[iVA] = 0.5 * (sig_values[(sig_values.size() / 2) - 1] + sig_values[sig_values.size() / 2]);
-      }  
-      
-      // Compute strip status
-      for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-
-        if (cals[iJinf][iTdr].rsig[iCh] >= 1.5 * median_rsigma_by_VA[iCh / NCHAVA] || cals[iJinf][iTdr].rsig[iCh] <= 0.5 * median_rsigma_by_VA[iCh / NCHAVA] ) {
-          cals[iJinf][iTdr].status[iCh] = 1; // Noisy/Dead strip according to raw sigma
-        }
-
-        if (cals[iJinf][iTdr].sig[iCh] >= 1.5 * median_sigma_by_VA[iCh / NCHAVA] || cals[iJinf][iTdr].sig[iCh] <= 0.5 * median_sigma_by_VA[iCh / NCHAVA] ) {
-          if (cals[iJinf][iTdr].status[iCh] == 0)
-          {
-            cals[iJinf][iTdr].status[iCh] = 2; // Noisy/Dead strip according to sigma
-          } else {
-            cals[iJinf][iTdr].status[iCh] = 3; // Noisy/Dead strip according to both raw sigma and sigma
-          }
-        }
-
-      }
-
     }
   }
 
