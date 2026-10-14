@@ -285,7 +285,7 @@ void DecodeDataHEF::OpenFile(const char *rawDir, const char *calDir, int runNum,
 }
 
 void DecodeDataHEF::DumpRunHeader() {
-  printf("There're %d boards (%d detectors)\n", m_numBoards, 2 * m_numBoards);
+  printf("There're %d boards (%d detectors)\n", m_numBoards, m_numBoards);
 
   if (pri) {
     printf("********* READVALS: %ld %d %d %d \n", NTDRS, nJinf, ntdrRaw, ntdrCmp);
@@ -357,7 +357,7 @@ bool DecodeDataHEF::ProcessCalibration(bool _kExtCalfile) {
     if (retVal == 0) {
       nEvents++;
     } else {
-      //      printf("\nretVal = %d\n", retVal);
+      //     signals[0][iTdr][iCh].push_back(event- printf("\nretVal = %d\n", retVal);
       nRej++;
     }
     // std::cout << "\rRead " << nEvents << " events" << std::flush;
@@ -368,7 +368,7 @@ bool DecodeDataHEF::ProcessCalibration(bool _kExtCalfile) {
     if (retVal == 0) {
       for (unsigned int iTdr = 0; iTdr < NTDRS; ++iTdr) {
         for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
-          signals[0][iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh] * 4);
+          signals[0][iTdr][iCh].push_back(event->RawSignal[iJinf][iTdr][iCh]);
           //	printf("%d (%d %d)) %hd %f -> %f\n", nEvents, iTdr, iCh, event->RawSignal[iJinf][iTdr][iCh], m_adcUnits,
           // event->RawSignal[iJinf][iTdr][iCh] / m_adcUnits);
         }
@@ -463,7 +463,7 @@ bool DecodeDataHEF::ReadFileHeader(FILE *file, RHClassHEF *rhc) {
   ntdrRaw = 0;
   ntdrCmp = 0;
   // FIXME: This was not even initialized. Should be replaced by a std::map<int, int> or something similar
-  tdrMap = new laddernumtype[2 * numBoards];
+  tdrMap = new laddernumtype[numBoards];
   for (unsigned int i = 0; i < numBoards; ++i) {
     uint16_t boardID;
     fstat = ReadFile(&boardID, sizeof(boardID), 1, file);
@@ -475,8 +475,7 @@ bool DecodeDataHEF::ReadFileHeader(FILE *file, RHClassHEF *rhc) {
     //    tdrMap[ntdrRaw++] = {ntdrRaw, 0}; // putting type at 0 since they're all RAW, so far...
     // instead...
     tdrMap[ntdrRaw] = {ntdrRaw, 0};
-    tdrMap[ntdrRaw + 1] = {ntdrRaw + 1, 0};
-    ntdrRaw += 2;
+    ntdrRaw += 1;
   }
   if (numBoards % 2 == 1) { // read an additional 16-bit padding
     uint16_t dummy16{0};
@@ -644,7 +643,7 @@ int DecodeDataHEF::ReadOneEventFromFile(FILE *file, EventHEF *event, bool kCal) 
 
     unsigned int numChannels = NVAS * NCHAVA;
     uint32_t nFrames = messageLength - 12;
-    if (nFrames != numChannels)
+    if (nFrames != numChannels / 2)
       std::cerr << "WARNING: payload length doesn't match number of channels in Event class (" << nFrames << " vs "
                 << numChannels << ")\n";
 
@@ -657,11 +656,18 @@ int DecodeDataHEF::ReadOneEventFromFile(FILE *file, EventHEF *event, bool kCal) 
         unsigned int ch_raw  = iVal / 14;
         unsigned int ch      = (ch_raw % 2) ? ch_raw - 1 : ch_raw + 1;
         unsigned int adc     = adc_order[adc_raw];
-        unsigned int side    = 1 - adc / 7;
-        unsigned int adc_local = adc % 7;
-        unsigned int iTDR    = 2 * iBoard + side;
-        unsigned int iCh     = adc_local * 128 + ch;
-        event->RawSignal[iJinf][iTDR][iCh] = m_adcUnits * (data[iVal] >> 2);
+        unsigned int iTDR    = iBoard;
+        unsigned int iCh  = adc * 128 + ch;   // 0..1791
+        // Swap 0-895 and 896-1791
+        if (iCh < 896)
+        {
+          iCh += 896;
+        }
+        else
+        {
+          iCh -= 896;
+        }
+          event->RawSignal[iJinf][iTDR][iCh] = m_adcUnits * (data[iVal] >> 2);
         if (event->RawSignal[iJinf][iTDR][iCh] > (m_adcUnits * 16383)) {
           printf("event = %d, Jinf = %d, TDR = %d, Channel = %d) rawsignal = %d (%d)\n",
                 event->Evtnum, iJinf, iTDR, iCh,
@@ -673,7 +679,7 @@ int DecodeDataHEF::ReadOneEventFromFile(FILE *file, EventHEF *event, bool kCal) 
       return iTDRmax;
     };
 
-    std::vector<uint16_t> adc_buf(2 * numChannels);
+    std::vector<uint16_t> adc_buf(numChannels);
     fstat = ReadFile(adc_buf.data(), sizeof(decltype(adc_buf)::value_type) * adc_buf.size(), 1, file);
     if (fstat == -1)
       return -99;
@@ -777,7 +783,7 @@ int DecodeDataHEF::ReadOneEvent() {
   size_t iJinf = 0;
 
   // copy calibration data...
-  for (unsigned int iBoard = 0; iBoard < 2 * m_numBoards; ++iBoard) {
+  for (unsigned int iBoard = 0; iBoard < m_numBoards; ++iBoard) {
     for (unsigned int iCh = 0; iCh < NVAS * NCHAVA; ++iCh) {
       ((EventHEF *)ev)->CalPed[iJinf][iBoard][iCh] = cals[iJinf][iBoard].ped[iCh];
       ((EventHEF *)ev)->CalSigma[iJinf][iBoard][iCh] = cals[iJinf][iBoard].sig[iCh];
@@ -795,7 +801,7 @@ int DecodeDataHEF::ReadOneEvent() {
     //     }
     //   }
     // }
-
+    
     // FIX ME [VF]: this should be done by the main! This function is called ReadOneEvent. It's done reading at this
     // point, so it should return.
     for (unsigned int iTDR = 0; iTDR < NTDRS; ++iTDR) {

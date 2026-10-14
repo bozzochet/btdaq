@@ -37,10 +37,10 @@
 #pragma link C++ class Calibrations < 1, 24, 640> + ;
 // #pragma link C++ class calibelem < 640> + ;
 //  HEF
-#pragma link C++ class Event < 1, 24, 64, 7, 14, 0> + ;
-#pragma link C++ class calib < 896> + ;
-#pragma link C++ class Calibrations < 1, 24, 896> + ;
-// #pragma link C++ class calibelem < 896> + ;
+#pragma link C++ class Event < 1, 24, 64, 14, 28, 0> + ;
+#pragma link C++ class calib < 1792> + ;
+#pragma link C++ class Calibrations < 1, 24, 1792> + ;
+// #pragma link C++ class calibelem < 1792> + ;
 //  FOOT
 #pragma link C++ class Event < 1, 24, 64, 5, 10, 0> + ;
 #pragma link C++ class calib < 640> + ;

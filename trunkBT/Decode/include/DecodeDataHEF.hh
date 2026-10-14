@@ -1,5 +1,6 @@
 //
-// Created by Valerio Formato on 12/10/21.
+// Based on DecodeDataOCA created by Valerio Formato on 12/10/21.
+// Modified by Gianluigi Silvestre on 18/05/2026
 //
 
 #ifndef DECODE_DECODEDATAHEF_HH
@@ -10,7 +11,7 @@
 
 class DecodeDataHEF : public DecodeData {
 public:
-  using EventHEF = Event<1, 24, 64, 7, 14, 0>;
+  using EventHEF = Event<1, 24, 64, 14, 28, 0>;
   using calibHEF = calib<EventHEF::GetNCHAVA() * EventHEF::GetNVAS()>;
   //  using RHClassHEF = RHClass<EventHEF::GetNJINF(), EventHEF::GetNTDRS()>;
   //  using Calibrations = std::array<std::array<calibHEF, EventHEF ::GetNTDRS()>, EventHEF::GetNJINF()>;
@@ -54,7 +55,7 @@ private:
   CalibrationsHEF cals{};
   EventHEF::JArray<int> JinfMap{0};
 
-  unsigned int m_numBoards = 12;     // maximum
+  unsigned int m_numBoards = 24;     // maximum
   unsigned int m_numBoardsFound = 0; // found during ReadOneEventFromFile
 
   void DumpRunHeader() override;

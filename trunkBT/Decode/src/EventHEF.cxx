@@ -1,6 +1,6 @@
 #include "Event.hpp"
 
-using EventHEF = Event<1, 24, 64, 7, 14, 0>;
+using EventHEF = Event<1, 24, 64, 14, 28, 0>;
 
 // we can keep everything hardcoded since we define specialized constructors for each flavor
 template <> EventHEF::Event(const char *ladderconf, const char *gaincorr) {
