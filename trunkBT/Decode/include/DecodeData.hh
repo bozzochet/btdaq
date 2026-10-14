@@ -755,8 +755,6 @@ void DecodeData::LoadCalibration(std::array<std::array<calib, ntdr>, njinf> &cal
 
         fclose(calfil);
     }
-
-    std::cin.get();
 }
 
 template <class Event, class calib, size_t njinf, size_t ntdr>
